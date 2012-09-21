@@ -361,6 +361,7 @@ class Sphere{
         glColor3fv(BLACK);
         glutWireSphere(SPHERE_RADIUS, SPHERE_SLICES, SPHERE_STACKS);
 
+        //glPolygonOffset(1.0, 1.0);
         glColor3fv(color);
         glutSolidSphere(SPHERE_RADIUS, SPHERE_SLICES, SPHERE_STACKS);
 
@@ -370,7 +371,7 @@ class Sphere{
 
 };
 
-GLfloat fast_forward = .5; //how much faster than reality the video is. 2.0 means the video will appear 2x as fast as reality
+GLfloat fast_forward = 1; //how much faster than reality the video is. 2.0 means the video will appear 2x as fast as reality
 GLfloat REST_COEF = 0.95;
 Vector3D GRAVITY = Vector3D(0.0, -0.98, 0.0); //working unit is 10m
  
@@ -415,13 +416,11 @@ void init(int argc, char** argv)
       }
     }
   }
-  
 
   //collided = new bool[total_spheres];
   //spheres = new Sphere[total_spheres];
   //spheres[0] = Sphere( Vector3D(-0.5,0.75,0.0), Vector3D( 0.1, 0.0, 0.0), GREEN );
   //spheres[1] = Sphere( Vector3D( 0.5,0.75,0.0), Vector3D(-0.1, 0.0, 0.0), BLUE );
-
 
   glutInit(&argc, argv);
 
@@ -436,8 +435,9 @@ void init(int argc, char** argv)
 
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); //default mode
   
-  //glEnable(GL_POLYGON_OFFSET_FILL);
+  glEnable(GL_POLYGON_OFFSET_FILL);
   glEnable(GL_POLYGON_OFFSET_LINE);
+  glEnable(GL_DEPTH_TEST);
   glPolygonOffset(1.0, 1.0);
 }
 
