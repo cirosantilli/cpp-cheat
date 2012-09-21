@@ -228,8 +228,9 @@ void init(int argc, char** argv)
 
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); //default mode
   
-  //glEnable(GL_POLYGON_OFFSET_FILL);
+  glEnable(GL_POLYGON_OFFSET_FILL);
   glEnable(GL_POLYGON_OFFSET_LINE);
+  glEnable(GL_DEPTH_TEST);
   glPolygonOffset(1.0, 1.0);
 }
 

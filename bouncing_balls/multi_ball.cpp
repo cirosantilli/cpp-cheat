@@ -361,7 +361,6 @@ class Sphere{
         glColor3fv(BLACK);
         glutWireSphere(SPHERE_RADIUS, SPHERE_SLICES, SPHERE_STACKS);
 
-        //glPolygonOffset(1.0, 1.0);
         glColor3fv(color);
         glutSolidSphere(SPHERE_RADIUS, SPHERE_SLICES, SPHERE_STACKS);
 
