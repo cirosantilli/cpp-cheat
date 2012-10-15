@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <math.h>
+#include <time.h>
 
 //classes
 class Base{
@@ -41,15 +42,18 @@ class Object : public Base{
       this->i = i;
     }
 
-  private:
-
     int i;
 };
+
+float rand_range(float a, float b){ //float in a range
+    return ((b-a)*((float)rand()/RAND_MAX))+a;
+}
 
 int main(int argc, char** argv){
 
   Object o = Object(1);
-  Object::j = 2;
+  o.i = 2;
+  //printf("%d",Object::i);
 
   //arrays of objects
   Object os[3];
@@ -68,10 +72,6 @@ int main(int argc, char** argv){
   srand ( time(NULL) );
   int r = rand(); //integer between 0 and RAND_MAX
   float f = rand()/(float)RAND_MAX; //float between 0 and 1
-
-  float rand_range(float a, float b){ //float in a range
-      return ((b-a)*((float)rand()/RAND_MAX))+a;
-  }
 
   return 0;
 

@@ -1,18 +1,21 @@
-CC=gcc #compiler
-CPC=gcc #cpp compiler
-OUT_EXT=.out #output extension
+CC=gcc
+#compiler
+
+CPC=gcc
+#cpp compiler
+
+OUT_EXT=.out
+#output extension
 
 all:
 	$(CC) c_cheatsheet.c -o c_cheatsheet$(OUT_EXT)
 	$(CPC) cpp_cheatsheet.cpp -o cpp_cheatsheet$(OUT_EXT)
 
-#build dependencies
-#hello.o: hello.cpp
-	#g++ -c hello.cpp 
-
 clean:
-	find . -iname "*$(OUT_EXT)" -delete 
-	#rm -rf *$(OUT_EXT)
+	#WARNING: IF OUT_EXT == "", you are going to DELETE ALL YOUR FILES!!!!!
+
+	#find . -iname "*$(OUT_EXT)" -delete 
+	rm -rf *$(OUT_EXT)
 
 ### sample from: http://mrbook.org/tutorials/make/ ###
 
