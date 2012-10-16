@@ -1,6 +1,28 @@
 #include <stdlib.h>
-#include <math.h>
+#include <cmath>
 #include <time.h>
+
+//this will focus in differences between cpp and c.
+//for the rest, go to c_cheat.c
+
+enum STR2INT_ERROR { SUCCESS, STR2INT_ERROR_OVERFLOW, STR2INT_ERROR_UNDERFLOW, INCONVERTIBLE };
+//unlike c, already does typedef
+//check this to give values
+//  http://msdn.microsoft.com/en-us/library/2dzy4k6e%28v=vs.71%29.aspx
+
+//http://stackoverflow.com/questions/114180/pointer-vs-reference
+//by arg not supported in c. convenience only im guessing.
+void func1 (int &i, int opt=0)
+{
+
+}
+
+void func2(float &i) //function overloading
+{
+
+}
+
+//but not func2(int &i, float opt=0)
 
 //classes
 class Base{
