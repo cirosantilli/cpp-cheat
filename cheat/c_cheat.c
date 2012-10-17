@@ -3,7 +3,14 @@
 #include <string.h>
 
 /*
-  TODO typedef, enum, multithreading
+  TODO
+    file/stream io
+    multifiles/headers
+    const
+    enum
+    typedef
+    static
+    multithreading
  
   assembly language:
 
@@ -13,49 +20,58 @@
 typedef enum { SUCCESS, OVERFLOW, UNDERFLOW, INCONVERTIBLE } STR2INT_ERROR;
 
 //a^b
-int pow2(int a, int b){
+int pow2(int a, int b)
+{
    int res = 1;
    int i;
    for(i=0; i<b; i++){
      res = res*a;
    }
    return res;
- }
+}
  
  //a^b
-float pow2f(float a, float b){
+float pow2f(float a, float b)
+{
    float res = 1;
    float i;
    for(i=0; i<b; i++){
      res = res*a;
    }
    return res;
- }
+}
 
 int main(){
 
-  int i=5,j=7; //31 bit + 1 sign bit integer
-  long int li = 8L; //64 bit int
-  //int i;
-  //i = 5;
-  //
-  //int i=5;
-  //int j=7;
-  //
-  //allowed chars: _,[a-Z],[0-9], canot start with number
-  
-  float f = 1.23;    //1 signal 23 number 8 exponent
-  float f1 = 1.23e-10;    //TODO teach
-  double d = 4.56;
-  char c = 'a';
-  char s[8] = "s";
-  int sn = 8;
+  //base types
+    puts("\nbase tipes");
+    int i=5,j=7; //31 bit + 1 sign bit integer
+    long int li = 8L; //64 bit int
+    //int i;
+    //i = 5;
+    //
+    //int i=5;
+    //int j=7;
+    //
+    //allowed chars: _,[a-Z],[0-9], canot start with number
+    //TODO teach
+    printf("16 = %d\n", 16);
+    printf("0x10 = %d\n", 0x10);
+    printf("020 = %d\n", 020);
+    printf("0b10000 = %d\n", 0b10000);
+    
+    float f = 1.2345f;    //1 signal 23 number 8 exponent
+    float f1 = 1.2345e-10f;    //TODO teach
+    float f2 = 1.f    
+    //float f = 1f; //there must be a dot
+    double d = 6.789;
+    char c = 'a';
+    char s[8] = "s";
+    int sn = 8;
 
-  //TODO teach
-  printf("16 = %d\n", 16);
-  printf("0x10 = %d\n", 0x10);
-  printf("020 = %d\n", 020);
-  printf("0b10000 = %d\n", 0b10000);
+  printf("sizeof(int) = %d\n",sizeof(int)); //how many bytes per int
+  printf("sizeof(long int) = %d\n",sizeof(long int)); //int and long int may be equal!!!!!! this is plataform dependent
+
 
   //write to stdout
 
@@ -64,17 +80,20 @@ int main(){
       //automatically newline terminated!
       //can contain newlines
       puts("puts\nputs\n");
-  
+
     //printf: write formated to sdtout
-      printf("i = %d\n", i);
-      printf("i = %ld\n", 10L);
+      //http://www.cplusplus.com/reference/clibrary/cstdio/printf/
+
+      puts("\nprintf:");
+      printf("d = %d\n", 1);
+      printf("ld = %ld\n", 1L);
+      printf("%d %d\n",1,2);
+
       printf("f = %f\n", f);
-      printf("f .2 = %.2f\n", f);
-      printf("f 0.2 = %.0f\n", f);
-      printf("f 7.2 = %7.2f\n", f); //7 add spaces to make tables
-      printf("highd = %lf\n", d);
-      printf("%%\n");
-      printf("%d %d\n",i,j);
+      printf(".2f = %.2f\n", f);
+      printf("0.2f = %.0f\n", f);
+      printf("7.2f = %7.2f\n", f); //at least 7 chars: add spaces. used to make tables.
+      printf(".2e = %.2e\n", f);
 
       printf("%s\n", "Hello World");
       printf("%s\n", "Hello\0World");
@@ -83,10 +102,13 @@ int main(){
       printf("%d\n", 'a');
 
       printf("%x\n", 16);
-      printf("(void*)&i = %p\n",(void*)&i);
+
+      printf("(void*)&f = %p\n",(void*)&f);
       //prints the 0x address.
       //%p must get a void pointer
       //void* is a type, different than void. doing type cast to it.
+
+      printf("%%<<< escaping percentage\n");
 
   //read from stdin
   if(0){ //gets annoying after some time
@@ -122,7 +144,7 @@ int main(){
       printf("you entered (in decimal):\n%d\n\n", i);
 
     //fgets + error checking: best method
-
+ 
   }
 
   //file io input output (or to stdout/err)
@@ -270,8 +292,6 @@ int main(){
 
   //TODO teach
     //locations in memory of an array
-    printf("sizeof(int) = %d\n",sizeof(int)); //how many bytes per int
-    printf("sizeof(long int) = %d\n",sizeof(long int)); //int and long int may be equal!!!!!! this is plataform dependent
     printf("sizeof(*int) = %d\n",sizeof(int*)); //how many bytes per int*
     printf("(void*)is = %p\n",(void*)is); //prints the 0x address. %p must get a void pointer
     printf("(void*)&is[0] = %p\n",(void*)&is[0]);

@@ -2,8 +2,10 @@
 #include <cmath>
 #include <time.h>
 
-//this will focus in differences between cpp and c.
-//for the rest, go to c_cheat.c
+/*
+ * this will focus in differences between cpp and c.
+ * for the rest, go to c_cheat.c
+*/
 
 enum STR2INT_ERROR { SUCCESS, STR2INT_ERROR_OVERFLOW, STR2INT_ERROR_UNDERFLOW, INCONVERTIBLE };
 //unlike c, already does typedef

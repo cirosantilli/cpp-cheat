@@ -13,12 +13,13 @@ all:
 	$(CC) c_cheat.c -o c_cheat$(OUT_EXT)
 	$(CC) user_input.c -o user_input$(OUT_EXT)
 	$(CC) test.c -o test$(OUT_EXT)
+	$(CC) cstrings.c -o cstrings$(OUT_EXT)
 	$(CXX) cpp_cheat.cpp -o cpp_cheat$(OUT_EXT)
 
 #WARNING: IF OUT_EXT == "", you are going to DELETE ALL YOUR FILES!!!!!
 #find . -iname "*$(OUT_EXT)" -delete 
 clean:
-	rm -rf *$(OUT_EXT) *.o
+	rm -rf *$(OUT_EXT) *.o *.s
 
 ### sample from: http://mrbook.org/tutorials/make/ ###
 # I am a comment, and I want to say that the variable CC will be

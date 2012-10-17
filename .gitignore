@@ -12,3 +12,9 @@
 *.lai
 *.la
 *.a
+
+#assembly code
+*.s
+
+#temporary files
+*.tmp
