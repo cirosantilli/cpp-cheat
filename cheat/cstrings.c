@@ -27,6 +27,9 @@ int main(){
     char s3[] = "s3"; //3 bytes allocated: s, 2 and \0
     char * s4 = "s4"; //same as last
 
+    char s5[8];
+    strcpy(s5,"s2"); //8 bytes allocated. copied s2 into it
+
     puts("\nsizeof:");
     printf("sizeof(\"%s\") = %d\n",s1,sizeof(s1));
     printf("sizeof(\"%s\") = %d\n",s2,sizeof(s2));

@@ -1,12 +1,16 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
+#include <stdlib.h>
 
 /*
   TODO
-    file/stream io
-    multifiles/headers
     const
+    memory segments/layout : text data heap stack command line
+    file/stream io
+    .a, .so
+    multifiles/headers, where looks for them
+    struct
     enum
     typedef
     static
@@ -30,10 +34,11 @@ int pow2(int a, int b)
    return res;
 }
  
- //a^b
+//a^b
+//bad!!!!
 float pow2f(float a, float b)
 {
-   float res = 1;
+   float res = 1.f;
    float i;
    for(i=0; i<b; i++){
      res = res*a;
@@ -44,7 +49,7 @@ float pow2f(float a, float b)
 int main(){
 
   //base types
-    puts("\nbase tipes");
+    puts("\nbase types");
     int i=5,j=7; //31 bit + 1 sign bit integer
     long int li = 8L; //64 bit int
     //int i;
@@ -62,16 +67,18 @@ int main(){
     
     float f = 1.2345f;    //1 signal 23 number 8 exponent
     float f1 = 1.2345e-10f;    //TODO teach
-    float f2 = 1.f    
+    float f2 = 1.f;
     //float f = 1f; //there must be a dot
     double d = 6.789;
     char c = 'a';
+    char *cp;
     char s[8] = "s";
     int sn = 8;
 
-  printf("sizeof(int) = %d\n",sizeof(int)); //how many bytes per int
-  printf("sizeof(long int) = %d\n",sizeof(long int)); //int and long int may be equal!!!!!! this is plataform dependent
+    size_t size = sizeof(int);
 
+  printf("sizeof(int) = %zu\n",sizeof(int)); //how many bytes per int
+  printf("sizeof(long int) = %zu\n",sizeof(long int)); //int and long int may be equal!!!!!! this is plataform dependent
 
   //write to stdout
 
@@ -147,40 +154,6 @@ int main(){
  
   }
 
-  //file io input output (or to stdout/err)
-    //don't forget: your os can give you errors!
- 
-    FILE *file;
-    char path[] = "test.txt";
-    file = fopen(path,"a");
-    //don't forget to close!
-    //r : read. compatible with a,w
-    //w : read and write. destroy if exists, create if not.
-    //a : append. write to the end. creates if does not exist.
-    //+ : can do both input and output. msut use flush or fseek
-    //x : don't destroy if exist (c11, not c++!, posix only)
-    //b : binary. means nothing in POSIX systems.
-    
-    if (file==NULL){
-      fprintf(stderr, "could not write to %s\n", path);
-    } else {
-    //fputs : puts for files.
-      //not automatically newline terminated.
-      //can contain newlines.
-      fputs("fputs to stdout 1\nfputs to stdout 2\n", stdout);
-      fputs("fputs to stderr 1\nfputs to stderr 2\n", stderr);
-      fputs("fputs to file 1\nfputs to file 2\n", file);
-    }
-  
-    //fprintf : same as puts vs printf
-
-  //reposition read write
-
-    //TODO flush, fseek, fsetpos, rewind
-    
-    fclose(file);
-    //don't forget to close! there is a limited ammount of open files at a time by the os
-
   //directory operations
     //no standard portable way! http://www.devarticles.com/c/a/Cplusplus/Directories-in-Cplusplus/
     //linux: sys/stat.h, unistd.h
@@ -235,15 +208,19 @@ int main(){
       printf("2/4 = %f\n", (float)(2/4));
 
       //printf("4^2 = %d\n", 4^2); It's not exponation! not basic operation
+      
       printf("10%%8 = %d\n", 10%8);
+      //rest of division (modulo)
 
 
   //pointers TODO teach
+    puts("\npointers");
     int *pi,*pi2;
     //must have serveral stars
-    //memory is not yet allocated!
- 
+
     //*pi = 7; //bad! pi points to random address. segmentation fault coming.
+    //segmentation fault: target memory not allocated! only pointer memory
+
     pi = &i;
 
     printf("*pi = %d\n",*pi);
@@ -257,6 +234,8 @@ int main(){
 
     pi2 = pi+1;
     printf("(void*)(pi2-pi) = %p\n",(void*)(pi2-pi));
+
+    printf("NULL = %p\n",NULL);
 
   //arrays
   printf("\n");
@@ -283,6 +262,10 @@ int main(){
     //int is6[isn]; //error: variable size! could come from scanf for example
     //isnc = 3; error you tried to change isnc.
     int is6[isnc]; //ok. iscnc is constant
+
+    int is7[8];
+    memcpy(is,is7,3*sizeof(int));
+    //copy bytes from one array to another
 
   //access
     printf("is[0] = %d\n",is[0]);
@@ -344,11 +327,17 @@ int main(){
     }
     printf("\n\n");
 
-  //dynamic allocation
-  //memory segments/layout : text data heap stack command line
-  //size a.out
-  //http://www.geeksforgeeks.org/archives/14268
-  //TODO
+  //malloc: dynamic allocation
+    i = 8;
+    size_t bytes = sizeof(char)*i;
+    cp = (char*) malloc (bytes);
+    if (cp == NULL) {
+      printf("could not allocate %zu bytes", bytes);
+    }
+    strcpy(cp,"0123456");
+    printf("%s\n", cp);
+    free(cp);
+
   
   // flow control
 
