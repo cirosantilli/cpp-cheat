@@ -7,7 +7,7 @@
  * for the rest, go to c_cheat.c
 */
 
-enum STR2INT_ERROR { SUCCESS, STR2INT_ERROR_OVERFLOW, STR2INT_ERROR_UNDERFLOW, INCONVERTIBLE };
+enum STR2NUM_ERROR { SUCCESS, STR2NUM_ERROR_OVERFLOW, STR2NUM_ERROR_UNDERFLOW, INCONVERTIBLE };
 //unlike c, already does typedef
 //check this to give values
 //  http://msdn.microsoft.com/en-us/library/2dzy4k6e%28v=vs.71%29.aspx

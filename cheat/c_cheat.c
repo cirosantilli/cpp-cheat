@@ -5,17 +5,24 @@
 
 /*
   TODO
-    const
     memory segments/layout : text data heap stack command line
+
     file/stream io
-    .a, .so
+
     multifiles/headers, where looks for them
+    .a, .so
+
     struct
+
     enum
     typedef
-    static
-    multithreading
+
+    multithreading/ipc
  
+    static
+    const
+    volatile
+
   assembly language:
 
     http://www.plantation-productions.com/Webster/www.artofasm.com/Linux/HTML/AoATOC.html
@@ -23,7 +30,7 @@
 
 typedef enum { SUCCESS, OVERFLOW, UNDERFLOW, INCONVERTIBLE } STR2INT_ERROR;
 
-//a^b
+//a pow b
 int pow2(int a, int b)
 {
    int res = 1;
@@ -34,8 +41,7 @@ int pow2(int a, int b)
    return res;
 }
  
-//a^b
-//bad!!!!
+//TODO does not work
 float pow2f(float a, float b)
 {
    float res = 1.f;
@@ -101,6 +107,7 @@ int main(){
       printf("0.2f = %.0f\n", f);
       printf("7.2f = %7.2f\n", f); //at least 7 chars: add spaces. used to make tables.
       printf(".2e = %.2e\n", f);
+      printf(".*e = %.*e", 2, f); //treat precision as a parameter
 
       printf("%s\n", "Hello World");
       printf("%s\n", "Hello\0World");
@@ -212,133 +219,6 @@ int main(){
       printf("10%%8 = %d\n", 10%8);
       //rest of division (modulo)
 
-
-  //pointers TODO teach
-    puts("\npointers");
-    int *pi,*pi2;
-    //must have serveral stars
-
-    //*pi = 7; //bad! pi points to random address. segmentation fault coming.
-    //segmentation fault: target memory not allocated! only pointer memory
-
-    pi = &i;
-
-    printf("*pi = %d\n",*pi);
-    printf("i = %d\n",i);
-    *pi = 55;
-    printf("*pi = %d\n",*pi);
-    printf("i = %d\n",i);
-
-    printf("(void*)pi = %p\n",(void*)pi);
-    printf("(void*)(pi+1) = %p\n",(void*)(pi+1));
-
-    pi2 = pi+1;
-    printf("(void*)(pi2-pi) = %p\n",(void*)(pi2-pi));
-
-    printf("NULL = %p\n",NULL);
-
-  //arrays
-  printf("\n");
-
-  //creation
-    int is[3];
-    is[0] = 1;
-    is[1] = 3;
-    is[2] = 2;
-
-    int is2[3] = {1, 3, 2};
-    int is3[4] = {1, 3, 2};
-    int is4[] = {1, 3, 2};
-
-    int isn = 8;
-    const int isnc = 8;
-
-    int is5[isn];
-    is[0] = 1;
-    is[1] = 3;
-    is[2] = 2;
-
-    //scanf("%d",%isn)
-    //int is6[isn]; //error: variable size! could come from scanf for example
-    //isnc = 3; error you tried to change isnc.
-    int is6[isnc]; //ok. iscnc is constant
-
-    int is7[8];
-    memcpy(is,is7,3*sizeof(int));
-    //copy bytes from one array to another
-
-  //access
-    printf("is[0] = %d\n",is[0]);
-    printf("is[1] = %d\n",is[1]);
-    printf("is[2] = %d\n",is[2]);
-    puts("");
-
-  //TODO teach
-    //locations in memory of an array
-    printf("sizeof(*int) = %d\n",sizeof(int*)); //how many bytes per int*
-    printf("(void*)is = %p\n",(void*)is); //prints the 0x address. %p must get a void pointer
-    printf("(void*)&is[0] = %p\n",(void*)&is[0]);
-    printf("(void*)&is[1] = %p\n",(void*)&is[1]);
-    printf("(void*)&is[2] = %p\n",(void*)&is[2]);
-    puts("");
-
-    printf("sizeof(is) = %d\n",sizeof(is)); //int[] is different from int *!!!
-
-  //naughty things
-    printf("%d\n",is[3]);
-    is[3]=0;
-
-    //for(i=0; i<=1000000000; i++ ){
-    //    printf("%d\n",i);
-    //    j=is[i];
-    //}
-    //  segmentation fault
-    
-    /*printf("%d\n",is[100000]);*/
-    //might run: only get segmentation fault if you hit exactly the last position!
-
-  //for combo
-  for(i=0; i<=3; i++ ){
-    printf("%d ",is[i]);
-  }
-  printf("\n");
-
-  //can be of any type
-  float fs[] =  {1,2,3,-2};
-  printf("%f\n",fs[0]);
-  
-  //nul terminated char array is a string!
-  char cs[] = "Hello World";
-  printf("%s\n",cs);
-  
-  //matrix
-  int m[2][3] = {
-    {1,2,3},
-    {4,5,6}
-  };
-  
-  //matrix pattern
-    printf("\n");
-    for(i=0; i<2; i++ ){
-      printf("\n");
-      for(j=0; j<3; j++ ){
-        printf("%d ",m[i][j]);
-      }
-    }
-    printf("\n\n");
-
-  //malloc: dynamic allocation
-    i = 8;
-    size_t bytes = sizeof(char)*i;
-    cp = (char*) malloc (bytes);
-    if (cp == NULL) {
-      printf("could not allocate %zu bytes", bytes);
-    }
-    strcpy(cp,"0123456");
-    printf("%s\n", cp);
-    free(cp);
-
-  
   // flow control
 
     //if

@@ -4,6 +4,8 @@
 
 int main(){
 
+  enum {n=8};
+
   //escape chars in string conts
     puts("\nescape chars:");
     printf("\"\n");
@@ -18,16 +20,16 @@ int main(){
     printf(">>>\xe4\xb8\xad<<< chinese for \"middle\" in utf8\n"); //chinese utf8 TODO teach
 
   //string creation
-    char s1[8]; //allocates 8 bytes memory
+    char s1[n]; //allocates 8 bytes memory
     s1[0] = 's';
     s1[1] = '1';
     s1[2] = '\0'; //terminates with null
 
-    char s2[8] = "s2"; //8 bytes allocated. 's', '1', '\0' set, and 5 undetermined
+    char s2[n] = "s2"; //8 bytes allocated. 's', '1', '\0' set, and 5 undetermined
     char s3[] = "s3"; //3 bytes allocated: s, 2 and \0
     char * s4 = "s4"; //same as last
 
-    char s5[8];
+    char s5[n];
     strcpy(s5,"s2"); //8 bytes allocated. copied s2 into it
 
     puts("\nsizeof:");
@@ -56,11 +58,16 @@ int main(){
     printf("strlen(\"%s\") = %d\n",s3,strlen(s3));
     printf("strlen(\"%s\") = %d\n",s4,strlen(s4));
     //size until first '\0', excluding '\0'
- 
 
   //strcpy: copy into first string
     puts("\nstrcpy:");
     strcpy(s1,s2); 
+    printf("s1 = %s\n",s1);
+  
+  //sprintf
+    //printf to a string
+    puts("\nsprintf:");
+    sprintf(s1,"%d",12);
     printf("s1 = %s\n",s1);
  
   //strcat: concatenate into first string

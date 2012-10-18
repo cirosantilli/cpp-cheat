@@ -9,27 +9,27 @@
 
 //error reports
 
-void report_cant_open (char * path){
+void report_cant_open_file (char * path){
     fprintf(stderr, "could not read from:\n%s\n", path);
 }
 
-void report_cant_read (char * path){
+void report_cant_read_file (char * path){
     fprintf(stderr, "could not read from:\n%s\n", path);
 }
 
-void report_cant_move (char * path){
+void report_cant_move_file (char * path){
     fprintf(stderr, "could not move in file:\n%s\n", path);
 }
 
-void report_cant_write (char * path){
+void report_cant_write_file (char * path){
     fprintf(stderr, "could not write to:\n%s\n", path);
 }
 
-void report_cant_close (char * path){
+void report_cant_close_file (char * path){
     fprintf(stderr, "could not close from:\n%s\n", path);
 }
 
-void report_cant_allocate (size_t bytes){
+void report_cant_allocate_file (size_t bytes){
     fprintf(stderr, "could not allocate %zu bytes", bytes);
 }
 
@@ -38,20 +38,20 @@ long file_size_open(char *path)
 {
   FILE *fp = fopen(path, "r");
   if (fp == NULL){
-    report_cant_open(path);
+    report_cant_open_file(path);
     return -1L;
   }
   if ( fseek (fp, 0 , SEEK_END) != 0 ){
-    report_cant_move(path);
+    report_cant_move_file(path);
     return -1L;
   }
   long l = ftell (fp);
   if ( l == -1L ){
-    report_cant_move(path);
+    report_cant_move_file(path);
     return -1L;
   }
   if ( fclose(fp) == EOF ){
-    report_cant_close(path);
+    report_cant_close_file(path);
     return -1L;
   }
   return l;
@@ -98,7 +98,7 @@ char * file_read(char *path)
 
   fp = fopen ( path , "rb" );
   if (fp==NULL) {
-    report_cant_open(path);
+    report_cant_open_file(path);
     return NULL;
   }
 
@@ -113,28 +113,29 @@ char * file_read(char *path)
   bytes = sizeof(char)*l;
   buffer = (char*) malloc (bytes);
   if (buffer == NULL) {
-    report_cant_allocate(bytes);
+    report_cant_allocate_file(bytes);
     return NULL;
   }
 
   // copy the file into the buffer:
   if ( fread (buffer,1,l,fp) != l ) {
-    report_cant_read(path);
+    report_cant_read_file(path);
     return NULL;
   }
 
   /* the whole file is now loaded in the memory buffer. */
 
   if ( EOF == fclose (fp) ){
-    report_cant_close(path);
+    report_cant_close_file(path);
     return NULL;
   }
 
   return buffer;
 }
 
+
 //write null terminated string to file
-//returns negative integer if fails
+//returns -1 on fail
 int file_write(char *path, char *s)
 {
 
@@ -145,7 +146,7 @@ int file_write(char *path, char *s)
 
   fp = fopen ( path , "wb" );
   if (fp==NULL) {
-    report_cant_open(path);
+    report_cant_open_file(path);
     return -1;
   }
 
@@ -153,17 +154,77 @@ int file_write(char *path, char *s)
 
   // copy the file into the buffer:
   if ( fwrite (s,1,l,fp) != l ) {
-    report_cant_write(path);
+    report_cant_write_file(path);
     return -1;
   }
 
   if ( EOF == fclose (fp) ){
-    report_cant_close(path);
+    report_cant_close_file(path);
     return -1;
   }
 
-  return 1;
+  return 0;
 
+}
+
+//writes an array of ints to a file
+//
+//ints are space separated, with a trailling space
+//
+//on errror, returns, -1, succes 0
+int write_int_arr_file(char * path, int *arr, int len)
+{
+  int i;
+  FILE * fp = fopen(path,"w");
+
+  if (fp == NULL){
+    report_cant_open_file(path);
+    return -1;
+  }
+
+  for(i=0; i<len; i++ ){
+    if ( fprintf(fp,"%d ", arr[i]) < 0 ){
+      report_cant_write_file(path);
+      return -1;
+    }
+  }
+    
+  if ( EOF == fclose (fp) ){
+    report_cant_close_file(path);
+    return -1;
+  }
+
+  return 0;
+
+}
+
+//same as int, saved in exp notation,
+//  with precision (deciamal places) precision
+int write_float_arr_file(char * path, float *arr, int len, int precision)
+{
+  int i;
+  FILE * fp;
+    
+  fp = fopen(path,"w");
+  if (fp == NULL){
+    report_cant_open_file(path);
+    return -1;
+  }
+
+  for(i=0; i<len; i++ ){
+    /*if ( fprintf(fp,format, arr[i]) < 0 ){*/
+    if ( fprintf(fp,"%.*e", precision, arr[i]) < 0 ){
+      report_cant_write_file(path);
+      return -1;
+    }
+  }
+    
+  if ( EOF == fclose (fp) ){
+    report_cant_close_file(path);
+    return -1;
+  }
+
+  return 0;
 }
 
 int main(){
@@ -186,11 +247,12 @@ int main(){
     //the only way to know that a stdin ended is recognizing some specific
     //pattern of the input, such as a newline with fgets, or the end of a
     //number with scanf
+    //
     //before this comes, the program just stops waiting for the stdin to
     //produce this, either from user keyboard input, or from the program
     //behind the pipe.
 
-  fputs("fputs to stdout 1\nfputs to stdout 2\n", stdout);
+  fputs("fputs to stdout 1\nfputs to stdout 2\n", stdout); //same as puts, except no \n added
   fputs("fputs to stderr 1\nfputs to stderr 2\n", stderr);
   //*always* put user messages on stderr, even if they are not errors:
   //  stdout is just for program to program output
@@ -211,26 +273,28 @@ int main(){
     strcpy(path,"f.tmp");
     fp = fopen(path,"w");
     if (fp==NULL){
-      report_cant_open(path);
+      report_cant_open_file(path);
     } else {
       //fputc
         if (fputc('a',fp) == EOF ){
-          fprintf(stderr, "fputc could not write to:\n%s\n", path);
+          report_cant_write_file(path);
+          exit(EXIT_FAILURE);
         }
         if ( fputc('\n',fp) == EOF ){
-          fprintf(stderr, "fputc could not write to:\n%s\n", path);
+          report_cant_write_file(path);
+          exit(EXIT_FAILURE);
         }
 
       //fputs
         //not automatically newline terminated like puts
         if ( fputs("fputs 1\nfputs 2\n", fp) == EOF ){
-          fprintf(stderr, "fputs could not write to:\n%s\n", path);
+          report_cant_write_file(path);
         }
 
       //fprintf
         // http://www.cplusplus.com/reference/clibrary/cstdio/fprintf/
         if ( fprintf(fp,"%d\n%.2e\n",123,12.3f) < 0 ){
-          fprintf(stderr, "fprintf could not write to:\n%s\n", path);
+          report_cant_write_file(path);
         }
 
     }
@@ -247,7 +311,7 @@ int main(){
     //read from a file
       fp = fopen(path,"r");
       if (fp==NULL){
-        fprintf(stderr, "could not read from:\n%s\n", path);
+        report_cant_open_file(path);
       } else {
         //fgetc
           c1 = fgetc(fp);
@@ -348,24 +412,33 @@ int main(){
 
   //write entire string to file at once
     strcpy(path,"f.tmp");
-    if ( file_write(path,"asdf\nqwer") < 0 ){
-      report_cant_write(path);
+    if ( file_write(path,"asdf\nqwer") == -1 ){
+      report_cant_write_file(path);
     }
 
   //read entire file at once to a string
     char *s = file_read(path);
     if (s == NULL ){
-      report_cant_read(path);
+      report_cant_read_file(path);
     }
     fprintf(stderr, "contents of \"%s\":\n\n%s\n", path, s);
     free(s);
+
+    int arri[] = {0, 1, -1, 12873453};
+    float arrf[] = { 1.1f, 1.001f, -1.1f, 1.23456e2};
+
+    strcpy(path,"arri.tmp");
+    write_int_arr_file (path, arri, 4);
+
+    strcpy(path,"arrf.tmp");
+    write_float_arr_file (path, arrf, 4, 2);
 
   //reposition read write
   
     //ftell
       //long int curpos = ftell(pf)
       //if ( curpos == -1L ){
-      //  report_cant_move();
+      //  report_cant_move_file();
       //}
   
     //fseek
@@ -378,7 +451,7 @@ int main(){
       //for binary, n bytes, for read, no necessarily
       //
       //if ( fseek ( pf, 0 , SEEK_SET ) != 0 ) {
-      //  report_cant_move();
+      //  report_cant_move_file();
       //}
 
     //flush(fp)
@@ -388,8 +461,13 @@ int main(){
       // if (flush(fp) == EOF){
       //    //error
       // }
+      
+    //freopen
+      //freopen("/dev/null", "r", stdin);
+      //this will discard stdin on linux
 
-    //TODO fgetpos, fsetpos, rewind
+    //TODO ? fgetpos, fsetpos, rewind
+    //
 
   return 0;
 }

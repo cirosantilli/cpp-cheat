@@ -15,6 +15,7 @@ all:
 	$(CC) test.c -o test$(OUT_EXT)
 	$(CC) cstrings.c -o cstrings$(OUT_EXT)
 	$(CC) file_io.c -o file_io$(OUT_EXT)
+	$(CC) pointer_array.c -o pointer_array$(OUT_EXT)
 	$(CXX) cpp_cheat.cpp -o cpp_cheat$(OUT_EXT)
 
 #WARNING: IF OUT_EXT == "", you are going to DELETE ALL YOUR FILES!!!!!
