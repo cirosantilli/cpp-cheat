@@ -11,9 +11,10 @@ int main(){
 
   int i = 0;
   int is[] = {0,1};
-  int *is = {0,1};
 
-  f1
+  //int *is2 = {0,1};
+  //won't compile
+
   //array to function
     
 

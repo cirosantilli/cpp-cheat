@@ -242,9 +242,13 @@ int main(){
   int elems_read[nelems];
 
   //stdin
-    //be careful!! stdin won't return EOF
+    //be careful!! stdin won't return EOF automatically
     //
-    //the only way to know that a stdin ended is recognizing some specific
+    //for a tty you can tell the user to input a EOF (ctrl d in linux, ctrl z in windows)
+    //but as you see this is system dependent. for pipes I am yet to find how to do this,
+    //might be automatic when process closes only.
+    //
+    //the best way to know that a stdin ended is recognizing some specific
     //pattern of the input, such as a newline with fgets, or the end of a
     //number with scanf
     //

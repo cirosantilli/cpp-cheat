@@ -7,11 +7,13 @@ CXX=$(CC)
 OUT_EXT=.out
 #output extension
 
+LIBS=-lblas -llapack
+
 SRCS = $(wildcard *.c)
 PROGS = $(patsubst %.c,%,$(SRCS))
 all: $(PROGS)
 %: %.c
-	$(CC) $(CFLAGS) -o $@$(OUT_EXT) $<
+	$(CC) $(CFLAGS) -o $@$(OUT_EXT) $< $(LIBS)
 
 clean:
 	rm -rf *$(OUT_EXT) *.o *.s *.tmp

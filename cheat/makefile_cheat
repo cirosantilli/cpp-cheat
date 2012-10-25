@@ -1,0 +1,63 @@
+include make.inc
+#you can include other files here
+#make.inc often contains make parameters to be used in several files
+
+CC=gcc -Wall -Wno-unused-variable -Wno-unused-but-set-variable
+#c compiler
+
+CXX=$(CC)
+#cpp compiler
+
+OUT_EXT=.out
+#output extension
+
+#N=c_cheatsheet
+#$(CC) $(N).c -o $(N)$(OUT_EXT)
+all:
+	$(CC) c_cheat.c -o c_cheat$(OUT_EXT)
+	$(CC) user_input.c -o user_input$(OUT_EXT)
+	$(CC) test.c -o test$(OUT_EXT)
+	$(CC) cstrings.c -o cstrings$(OUT_EXT)
+	$(CC) file_io.c -o file_io$(OUT_EXT)
+	$(CC) pointer_array.c -o pointer_array$(OUT_EXT)
+	$(CXX) cpp_cheat.cpp -o cpp_cheat$(OUT_EXT)
+
+#WARNING: IF OUT_EXT == "", you are going to DELETE ALL YOUR FILES!!!!!
+#find . -iname "*$(OUT_EXT)" -delete 
+clean:
+	rm -rf *$(OUT_EXT) *.o *.s *.tmp
+
+#special variables
+
+$(MAKE)
+#used to call make on subdirs
+
+#make all files into individual .c programs
+SRCS = $(wildcard *.c)
+PROGS = $(patsubst %.c,%,$(SRCS))
+all: $(PROGS)
+%: %.c
+	$(CC) $(CFLAGS)  -o $@ $<
+
+#compile all c files into one target
+SRC=$(wildcard *.c)
+all: $(SRC)
+	gcc $(CFLAGS) -o $@ $^ $(LIBS)
+
+
+### sample from: http://mrbook.org/tutorials/make/ ###
+
+#CC=g++
+#CFLAGS=-c -Wall
+#LDFLAGS=
+#SOURCES=main.cpp hello.cpp factorial.cpp
+#OBJECTS=$(SOURCES:.cpp=.o)
+#EXECUTABLE=hello
+
+#all: $(SOURCES) $(EXECUTABLE)
+	
+#$(EXECUTABLE): $(OBJECTS) 
+	#$(CC) $(LDFLAGS) $(OBJECTS) -o $@
+
+#.cpp.o:
+	#$(CC) $(CFLAGS) $< -o $@

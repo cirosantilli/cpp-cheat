@@ -4,31 +4,89 @@
 #include <stdlib.h>
 
 /*
-  TODO
-    memory segments/layout : text data heap stack command line
 
-    file/stream io
+#c
 
-    multifiles/headers, where looks for them
-    .a, .so
+* download compiler
+* add to path
 
-    struct
+* memory structure of program
+* assembler
 
-    enum
-    typedef
+* hello world
+* spaces, indenting
+* comments
+* main
+* string: "a" == a\0 != 'a'
+** printf("%c<<< null char", '\0');
+** \n, \t, \\, \xnn, \unnnn TODO
 
-    multithreading/ipc
+* int, float, declare before and after
+
+* printf
+** %%, %d, %f, %.2f, %df, %%
+
+* scanf
+** 
+
+* arrays
+** char[] (string, why name)
+** for array
+** array copy function
+** array print func
+** matrix
+** organizatoin on memory: address, operational system division. overflow
+** TODO: why not blow up with is[10000000] (< 32 bits, but larger than my RAM!)
+
+* flow control
+
+** if
+** goto
+** for
+*** for inside for (classic)
+** while
+** for vs while
+
+* function
+** return value
+
+* gcc warning vs error
+
+* compile, compiler errors
+
+* variable types and their computer representation
+  * naming rules
+  * int 31 bits + sign (binary numbers)
+  * float 8 exp + 23 mantissa + 1 sign
+  * same name bad
  
-    static
-    const
-    volatile
+assembly language:
+  http://www.plantation-productions.com/Webster/www.artofasm.com/Linux/HTML/AoATOC.html
 
-  assembly language:
+* low level
+  * assembler
+  * RAM memory organization
+  * ELF files
+    * http://www.thegeekstuff.com/2011/10/gcc-linking/
 
-    http://www.plantation-productions.com/Webster/www.artofasm.com/Linux/HTML/AoATOC.html
+  TODO
+    - memory segments/layout : text data heap stack command line
+    - make, ./config, 
+    - file/stream io
+    - multifiles/headers, where looks for them
+    - .a, .so
+    - struct
+    - enum
+    - typedef
+    - multithreading/ipc
+    - static
+    - const
+    - volatile
 */
 
 typedef enum { SUCCESS, OVERFLOW, UNDERFLOW, INCONVERTIBLE } STR2INT_ERROR;
+
+int f = 12;
 
 //a pow b
 int pow2(int a, int b)
@@ -287,7 +345,7 @@ int main(){
   
   //functions
     printf("%d\n", pow2(1000,2) );
-    printf("%.0f\n", pow2f(1000,2) );
+    printf("%.f\n", pow2f(2.f,2.5f) );
 
   return 0;
 }

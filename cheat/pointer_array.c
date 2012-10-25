@@ -18,12 +18,12 @@ void print_22_array(int **mat, int m, int n)
 
 int main(){
 
-  int i, j;
+  int i=33, j;
   enum { mc=2, nc=4 };
 
   //pointers TODO teach
     puts("\npointers");
-    int *pi,*pi2;
+    int *pi, *pi2;
     //must have serveral stars
 
     //*pi = 7; //bad! pi points to random address. segmentation fault coming.
@@ -31,11 +31,10 @@ int main(){
 
     pi = &i;
 
-    printf("*pi = %d\n",*pi);
     printf("i = %d\n",i);
     *pi = 55;
-    printf("*pi = %d\n",*pi);
     printf("i = %d\n",i);
+    printf("*pi = %d\n",*pi);
 
     printf("(void*)pi = %p\n",(void*)pi);
     printf("(void*)(pi+1) = %p\n",(void*)(pi+1));
@@ -58,7 +57,9 @@ int main(){
       int is3[5] = {1, 3, 2}; //allocates 5, non-specified = 0: is3[0] = 1, ... , is3[3] == is3[4] == 0
       //int * is4 = {1, 3, 2}; //TODO ? why not like string. is it because 1,3,2 are just text, and are represented as such on the text part, and not as ints?
 
-      //int isn = 8;
+      //puts("enter an % integer:");
+      //scanf("%d",&isn);
+      //printf("%d\n",isn);
       //int is5[isn];
       //error: isn must be constant!
         //might compile in c99, but don't do this: either use enum or a macro.
