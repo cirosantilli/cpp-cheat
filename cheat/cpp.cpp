@@ -96,7 +96,12 @@ int main(int argc, char** argv){
 
     cerr << "cerr";
 
-  cout << "data types" << endl;
+  cout << "for" << endl;
+    //you can define i inside the for scope only
+    for(int i=0; i<5; i++)
+      cout << i << " ";
+
+  cout << "\ndata types" << endl;
 
     //contrary to c, in cpp there is a bool type
     bool b = true;

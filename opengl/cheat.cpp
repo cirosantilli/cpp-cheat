@@ -10,6 +10,11 @@
   //swap_the_buffers() TODO understand
   //glutSwapBuffers();
   //glutIdleFunc(spinDisplay); //called after render is done, typically to recalculate positions for the next frame
+
+GLint WINDOW_W = 700;
+GLint WINDOW_H = 700; 
+GLint WINDOW_POSX = 10;
+GLint WINDOW_POSY = 10; 
  
 GLfloat WHITE[] = {1.0, 1.0, 1.0};
 GLfloat GRAY[] = {.5, .5, .5};
@@ -197,10 +202,10 @@ void init(int argc, char** argv)
   //GLUT_DEPTH depth buffering: calculate pixels for each plane and their distances,
     //keep only closest one, cheapest way to hide parts of objects that go behind others.
 
-  glutInitWindowSize(500, 500); 
-  glutInitWindowPosition(100, 100);
-
+  glutInitWindowSize(WINDOW_W, WINDOW_H); 
+  glutInitWindowPosition(WINDOW_POSX, WINDOW_POSY);
   glutCreateWindow(argv[0]);
+
   //clear the screen after each image
   glClearColor(clear_color_r,clear_color_g,clear_color_b,1.0);
 
@@ -324,7 +329,6 @@ void draw_scene(void){
       //teapot
 
   glPopMatrix(); //after drawing, reload the old transform
-
 
   for(int i=0; i<ndrawables; i++){
     drawables[i].draw();

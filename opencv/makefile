@@ -4,7 +4,7 @@ LIBS=-lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_ml -lopencv_video 
 
 IN_EXT=.cpp
 IN_DIR=./
-OUT_DIR=./
+OUT_DIR=_out/
 OUT_EXT=.out
 
 INS=$(wildcard $(IN_DIR)*$(IN_EXT))
@@ -13,6 +13,9 @@ OUTS_NODIR=$(patsubst %$(IN_EXT),%$(OUT_EXT),$(INS_NODIR))
 OUTS=$(addprefix $(OUT_DIR),$(OUTS_NODIR))
 
 .PHONY: all mkdir clean
+
+run: all
+	./$(OUTS)
 
 all: mkdir $(OUTS)
 

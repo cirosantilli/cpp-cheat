@@ -1,4 +1,4 @@
-#installing  ubuntu 12.04
+#installation ubuntu 12.04
 
 sudo aptitude update
 sudo aptitude install build-essential
