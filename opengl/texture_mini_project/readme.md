@@ -1,10 +1,10 @@
 #about
 
-    simple homework for my university
+simple homework for my university
 
-    deadline: 2012/12/02
+deadline: 2012/12/02
 
-    homework requirements found under specifications/
+homework requirements found under specifications/
 
 #installation ubuntu 12.04
 
@@ -15,14 +15,14 @@
 
 #compile and run
 
-        make
+    make
 
-    build result will be under ``_out``
+build result will be under ``_out``
 
 #sample run video
 
-    <http://youtu.be/wAQxIla7F68>
+<http://youtu.be/wAQxIla7F68>
 
 #notes
 
-    the person is a cilinder with PERSON_R radius
+the person is a cilinder with PERSON_R radius
