@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h> //for memcpy
+#include <stdlib.h> //for memcpy
+#include <string.h> 
 
 //cheatsheet on pointers and arrays
 void print_22_array(int **mat, int m, int n)
@@ -21,8 +21,8 @@ int main(){
   int i=33, j;
   enum { mc=2, nc=4 };
 
-  //pointers TODO teach
-    puts("\npointers");
+  puts("\npointers\n");
+
     int *pi, *pi2;
     //must have serveral stars
 
@@ -44,10 +44,9 @@ int main(){
 
     printf("NULL = %p\n",NULL);
 
-  //arrays
+  puts("arrays");
 
-    //creation
-      puts("\ncreation");
+    puts("creation");
       int is[3];
       is[0] = 1;
       is[1] = 3;
@@ -57,23 +56,38 @@ int main(){
       int is3[5] = {1, 3, 2}; //allocates 5, non-specified = 0: is3[0] = 1, ... , is3[3] == is3[4] == 0
       //int * is4 = {1, 3, 2}; //TODO ? why not like string. is it because 1,3,2 are just text, and are represented as such on the text part, and not as ints?
 
-      //puts("enter an % integer:");
-      //scanf("%d",&isn);
-      //printf("%d\n",isn);
-      //int is5[isn];
-      //error: isn must be constant!
+      //ERROR
+        //isn must be constant!
         //might compile in c99, but don't do this: either use enum or a macro.
+ 
+        //puts("enter an % integer:");
+        //scanf("%d",&isn);
+        //printf("%d\n",isn);
+        //int is5[isn];
+
+      puts("enum");
+        enum M {M=3};
+        int is5[M];
+        is5[2] = 1;
+        printf("%d\n",is5[2]);
+
+      //DON'T DO THIS! *no scope*, so you can't use N anymore.
+        //use enum instead
+      puts("define");
+#define N 3
+        int is4[N];
+        is4[2] = 1;
+        printf("%d\n",is4[2]);
 
       char str2[] = "Hi world!"; //allocates on stack
       str2[0] = 'a';
 
       char* str3 = "Hi world!"; //points to the text segment (program itself): not modifiable TODO confirm
+      //ERROR
       //str3[0] = 'a';
-      //error:
         //data segment cant me modified!!
  
-    //access
-      puts("\naccess");
+    puts("\naccess");
       printf("is[0] = %d\n",is[0]);
       printf("is[1] = %d\n",is[1]);
       printf("is[2] = %d\n",is[2]);
@@ -96,10 +110,10 @@ int main(){
 
 
     //overflowing
-      printf("%d\n",is[3]);
-      is[3]=0;
-      printf("%d\n",is[1000000]);
-      is[1000000]=0;
+      //printf("%d\n",is[3]);
+      //is[3]=0;
+      //printf("%d\n",is[1000000]);
+      //is[1000000]=0;
 
       //for(i=0; i<=1000000000; i++ ){
       //    printf("%d\n",i);
@@ -111,10 +125,11 @@ int main(){
       //might run: only get segmentation fault if you hit exactly the last position!
 
     //for combo
-      for(i=0; i<=3; i++ ){
+      for(i=0; i<3; i++ ){
         printf("%d ",is[i]);
       }
-      printf("\n");
+      puts("");
+
       //don't use this to copy: use memcpy instead
       for(i=0; i<=3; i++ ){
         printf("%d ",is[i]);
@@ -132,7 +147,7 @@ int main(){
       float fs[] =  {1,2,3,-2};
       printf("%f\n",fs[0]);
     
-    //nul terminated char array is a string!
+    //null terminated char array is a string!
       char cs[] = "Hello World";
       printf("%s\n",cs);
     

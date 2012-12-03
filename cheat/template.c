@@ -3,7 +3,7 @@
 
 int main(){
 
-  printf("%",);
+  //printf("%",);
 
   return EXIT_SUCCESS;
 }

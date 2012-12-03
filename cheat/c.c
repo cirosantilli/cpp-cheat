@@ -1,8 +1,3 @@
-#include <stdio.h>
-#include <stdbool.h>
-#include <string.h>
-#include <stdlib.h>
-
 /*
 
 #c
@@ -18,75 +13,144 @@
 * comments
 * main
 * string: "a" == a\0 != 'a'
-** printf("%c<<< null char", '\0');
-** \n, \t, \\, \xnn, \unnnn TODO
+    * printf("%c<<< null char", '\0');
+    * \n, \t, \\, \xnn, \unnnn TODO
 
 * int, float, declare before and after
 
 * printf
-** %%, %d, %f, %.2f, %df, %%
+    * %%, %d, %f, %.2f, %df, %%
 
 * scanf
-** 
 
 * arrays
-** char[] (string, why name)
-** for array
-** array copy function
-** array print func
-** matrix
-** organizatoin on memory: address, operational system division. overflow
-** TODO: why not blow up with is[10000000] (< 32 bits, but larger than my RAM!)
+    * char[] (string, why name)
+    * for array
+    * array copy function
+    * array print func
+    * matrix
+    * organizatoin on memory: address, operational system division. overflow
+    * TODO: why not blow up with is[10000000] (< 32 bits, but larger than my RAM!)
 
 * flow control
-
-** if
-** goto
-** for
-*** for inside for (classic)
-** while
-** for vs while
+    * if
+    * goto
+    * for
+        * for inside for (classic)
+    * while
+    * for vs while
 
 * function
-** return value
-
-* gcc warning vs error
-
-* compile, compiler errors
+    * return value
 
 * variable types and their computer representation
   * naming rules
   * int 31 bits + sign (binary numbers)
   * float 8 exp + 23 mantissa + 1 sign
   * same name bad
- 
-assembly language:
-  http://www.plantation-productions.com/Webster/www.artofasm.com/Linux/HTML/AoATOC.html
 
-* low level
-  * assembler
-  * RAM memory organization
-  * ELF files
-    * http://www.thegeekstuff.com/2011/10/gcc-linking/
+#preprocessor
 
-  TODO
-    - memory segments/layout : text data heap stack command line
-    - make, ./config, 
-    - file/stream io
-    - multifiles/headers, where looks for them
-    - .a, .so
-    - struct
-    - enum
-    - typedef
-    - multithreading/ipc
-    - static
-    - const
-    - volatile
+does stuff before the compilation
+
+thats why is is called *pre*
+
+- include
+
+    look in standard dirs directly
+
+    include <file.h>
+
+    look in current dir first:
+
+    include "file.h"
+
+
+- define, ifded
+
+    debug/multi-platform
+
+* gcc warning vs error
+- debugging:
+  - gdb
+- profiling/benchmarking
+  - gprof
+  http://kuscsik.blogspot.com.br/2007/08/how-to-benchmark-c-code-using-gcc.html
+
+
+TODO
+  - memory segments/layout : text data heap stack command line
+  - make, ./config, 
+  - file/stream io
+  - multifiles/headers, where looks for them
+  - .a, .so
+  - struct
+  - enum
+  - typedef
+  - multithreading/ipc
+  - static
+  - const
+  - volatilal erre
+  - documentation: doxigen
+      <http://www.stack.nl/~dimitri/doxygen/docblocks.html>
+
+#fundamental libraries:
+
+- opengl
+
+  #opencv
+
+    #install ubuntu 12.04
+
+      sudo aptitude install build-essential
+      sudo aptitude install libopencv-dev opencv-doc
+
+    not sure the following  are needed in general
+
+      sudo aptitude install libavformat-dev
+      sudo aptitude install ffmpeg
+      sudo aptitude install libcv2.1 libcvaux2.1 libhighgui2.1 python-opencv opencv-doc libcv-dev libcvaux-dev libhighgui-dev
+
+    now copy the examples and compile run them:
+
+      cp -r /usr/share/doc/opencv-doc/examples ./
+
+    with
+
+  
+  opencv2 is the second version released in 2009,
+
+  this is why you have both folders /usr/include/opencv and opencv2
+    
 */
+
+//preprocessor
+  //does stuff with code before compilation
+
+#include <stdio.h>
+//printf, puts
+
+#include <stdbool.h>
+//true false
+
+#include <stdlib.h>
+//malloc, EXIT_SUCCESS
+
+#define PI 3.14
+      
+#define PI_PLUS_ONE (3.14 + 1)
+//use parenthesis or order of operation might destroy you
+  //does not evaluate: only copy pastes
 
 typedef enum { SUCCESS, OVERFLOW, UNDERFLOW, INCONVERTIBLE } STR2INT_ERROR;
 
 int f = 12;
+//this is a global variable
+
+//ERROR:
+  //if(f==12)
+    //puts("asdf");
+  //the global scope can only contain variable assigment
 
 //a pow b
 int pow2(int a, int b)
@@ -311,6 +375,10 @@ int main(){
       printf("1==1 = %d\n", 1==1);
       printf("1==0 = %d\n", 1==0);
 
+      //negation only as ==0
+      i=1;
+      printf("not i = %d\n", 1==0);
+
   //from <stdbool>
     printf("true = %d\n", true);
     printf("false = %d\n", false);
@@ -347,5 +415,52 @@ int main(){
     printf("%d\n", pow2(1000,2) );
     printf("%.f\n", pow2f(2.f,2.5f) );
 
-  return 0;
+  //math
+  puts("math");
+
+#include <math.h>
+#include <time.h>
+  
+    //absolute value
+    abs(-1.1); //1, abs returs INTEGER!!!!!
+    fabs(-1.1); //1.1, fabs returs float
+
+    //random values
+      puts("random");
+      srand ( time(NULL) );
+      i = rand(); //integer between 0 and RAND_MAX
+      f = rand()/(float)RAND_MAX; //float between 0 and 1
+
+      float rand_range(float a, float b){ //float in a range
+          return ((b-a)*((float)rand()/RAND_MAX))+a;
+      }
+
+  //enum
+    enum DAY            /* Defines an enumeration type    */
+    {
+        saturday,       /* Names day and declares a       */
+        sunday = 0,     /* variable named workday with    */ 
+        monday,         /* that type                      */
+        tuesday,
+        wednesday,      /* wednesday is associated with 3 */
+        thursday,
+        friday
+    };
+
+    enum DAY today = wednesday;
+
+    if(saturday<tuesday)
+      puts("sturday < tuesday");
+
+    enum escapes { BELL = '\a', BACKSPACE = '\b', HTAB = '\t',
+                          RETURN = '\r', NEWLINE = '\n', VTAB = '\v' };
+
+    //typedef combo
+      typedef enum {RANDOM, IMMEDIATE, SEARCH} strategy;
+      strategy my_strategy = IMMEDIATE;
+
+  //main returns status
+  return EXIT_SUCCESS;
+  return EXIT_FAILURE;
+
 }

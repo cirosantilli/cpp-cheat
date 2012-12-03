@@ -1,30 +1,45 @@
-#include <stdlib.h>
-#include <cmath>
-#include <time.h>
-
 /*
- * this will focus in differences between cpp and c.
- * for the rest, go to c_cheat.c
+this will focus in differences between cpp and c.
+for the rest, go to c_cheat.c
+
+#headers
+
+  stdlib headers don't have the .h extension
+
+  when writting new libs, you use the extension ``.h`` or ``.hpp``
+
+  with ``g++`` those get linked to automatically
+
+  #math vs cmath, XXX vs cXXX
+
+    cXXX puts most things outside the global namespace
+    XXX.h puts *all* in the globale namespace
+
 */
 
-enum STR2NUM_ERROR { SUCCESS, STR2NUM_ERROR_OVERFLOW, STR2NUM_ERROR_UNDERFLOW, INCONVERTIBLE };
-//unlike c, already does typedef
-//check this to give values
-//  http://msdn.microsoft.com/en-us/library/2dzy4k6e%28v=vs.71%29.aspx
+#include <iostream>
+//cout
 
-//http://stackoverflow.com/questions/114180/pointer-vs-reference
-//by arg not supported in c. convenience only im guessing.
-void func1 (int &i, int opt=0)
-{
+#include <string>
+//string
 
-}
+using namespace std;
+//will try std::XXX whenever XXX is found undefined
 
-void func2(float &i) //function overloading
-{
+//functions
+  //http://stackoverflow.com/questions/114180/pointer-vs-reference
+  //passing by argument syntax not supported in c. convenience only im guessing in c++
+  void func1 (int &i, int opt=0)
+  {
 
-}
+  }
 
-//but not func2(int &i, float opt=0)
+  void func2(float &i) //function overloading
+  {
+
+  }
+  //ERROR:
+    //but not func2(int &i, float opt=0)
 
 //classes
 class Base{
@@ -69,33 +84,79 @@ class Object : public Base{
     int i;
 };
 
-float rand_range(float a, float b){ //float in a range
-    return ((b-a)*((float)rand()/RAND_MAX))+a;
-}
-
 int main(int argc, char** argv){
 
-  Object o = Object(1);
-  o.i = 2;
-  //printf("%d",Object::i);
+  cout << "stdout" << endl;
+    //in c++ there is no more printf formatting strings
+    //use the c libs for that
 
-  //arrays of objects
-  Object os[3];
-  //static array of objects. requires standard constructor to be declared.
-  //(the one that takes no arguments, always declare it by reflex.)
+    cout << "cout";
+    cout << "cout2" << "cout3" << endl;
+    cout << 1;
 
-  Object os2[] = {Object(1), Object(2), Object(3)}; //static array of objects with constructor Object(int)
+    cerr << "cerr";
 
-  //math
+  cout << "data types" << endl;
 
-  //absolute value
-  abs(-1.1); //1, abs returs INTEGER!!!!!
-  fabs(-1.1); //1.1, fabs returs float
+    //contrary to c, in cpp there is a bool type
+    bool b = true;
+    cout << b;
+    //1
+    bool b2 = false;
+    cout << b2;
+    //0
 
-  //random values
-  srand ( time(NULL) );
-  int r = rand(); //integer between 0 and RAND_MAX
-  float f = rand()/(float)RAND_MAX; //float between 0 and 1
+  cout << "strings";
+
+    //in cpp, strings are classes, much more convenient to manipulate
+    
+    //create
+      string s("s");
+      string s1 = "s1";
+      string s2;
+
+    cout << "to stdou\n";
+      cout << s << endl;
+      //s
+
+    cout << "concat\n";
+      cout << "s + s1\n";
+      s2 = s + s1;
+      cout << s2 << endl;
+      //s2
+
+    cout << "compare\n";
+
+      cout << "s == s1\n";
+      cout << (s == s1) << endl;
+      //0
+      
+      cout << "s == s\n";
+      cout << (s == s) << endl;
+
+    cout << "s.length()\n";
+      cout << s.length() << endl;
+      //1
+
+  cout << "objects";
+  
+    Object o = Object(1);
+    o.i = 2;
+    //printf("%d",Object::i);
+
+    //arrays of objects
+    Object os[3];
+    //static array of objects. requires standard constructor to be declared.
+    //(the one that takes no arguments, always declare it by reflex.)
+
+    Object os2[] = {Object(1), Object(2), Object(3)}; //static array of objects with constructor Object(int)
+
+  //enums
+    enum TEXTURE { GRASS, WALL, SKY };
+    TEXTURE t = GRASS;
+    //unlike c, already does typedef
+    //check this to give values
+    //  http://msdn.microsoft.com/en-us/library/2dzy4k6e%28v=vs.71%29.aspx
 
   return 0;
 

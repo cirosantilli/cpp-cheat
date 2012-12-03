@@ -1,7 +1,3 @@
-/*#include "blaswrap.h"*/
-/*#include "f2c.h"*/
-/*#include "clapack.h"*/
-/*#include <math.h>*/
 #include <stdlib.h>
 #include <f2c.h>
 #include <clapack.h>

@@ -1,17 +1,39 @@
-CC=gcc -Wall -Wno-unused-variable -Wno-unused-but-set-variable
-#compiler
+#compiles c files with gcc and c++ files with g++, one by one separatelly
 
-CXX=$(CC)
-#cpp compiler
+CC = gcc
+CXX = g++
 
+CFLAGS = -Wall -Wno-unused-variable -Wno-unused-but-set-variable
+CXXFLAGS = -Wall -Wno-unused-variable -Wno-unused-but-set-variable
+
+LIBS=
+
+IN_DIR=./
+OUT_DIR=_out/
 OUT_EXT=.out
-#output extension
 
-SRCS = $(wildcard *.c)
-PROGS = $(patsubst %.c,%,$(SRCS))
-all: $(PROGS)
-%: %.c
-	$(CC) $(CFLAGS) -o $@$(OUT_EXT) $<
+INS:=$(wildcard $(IN_DIR)*.c)
+INS_NODIR:=$(notdir $(INS))
+OUTS_NODIR:=$(patsubst %.c,%$(OUT_EXT),$(INS_NODIR))
+C_OUTS:=$(addprefix $(OUT_DIR),$(OUTS_NODIR))
+
+INS:=$(wildcard $(IN_DIR)*.cpp)
+INS_NODIR:=$(notdir $(INS))
+OUTS_NODIR:=$(patsubst %.cpp,%$(OUT_EXT),$(INS_NODIR))
+CPP_OUTS:=$(addprefix $(OUT_DIR),$(OUTS_NODIR))
+
+.PHONY: all mkdir clean
+
+all: mkdir $(C_OUTS) $(CPP_OUTS)
+
+mkdir:
+	mkdir -p "$(OUT_DIR)"
+
+$(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.c
+	$(CC) $(CFLAGS) -o "$@" "$<" $(LIBS)
+
+$(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.cpp
+	$(CXX) $(CXXFLAGS) -o "$@" "$<" $(LIBS)
 
 clean:
-	rm -rf *$(OUT_EXT) *.o *.s *.tmp
+	rm -rf "$(OUT_DIR)" "$(AUX_DIR)"

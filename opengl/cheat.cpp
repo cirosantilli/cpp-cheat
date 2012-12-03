@@ -37,6 +37,10 @@ GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
 GLfloat mat_shininess[] = { 50.0 };
 GLfloat light_position[] = { 2.0, 2.0, 2.0, 0.0 };
 
+GLfloat frustrum_min = 0.95*PERSON_R;
+GLfloat frustrum_max = 100.0;
+GLfloat frustrum_l = 2*PERSON_R*0.9;
+
 class Drawable{
 
   public:
@@ -344,14 +348,10 @@ void display(void)
 void reshape(int w, int h)
 {
    glViewport(0, 0,(GLsizei) w,(GLsizei) h); 
-
    glMatrixMode(GL_PROJECTION);
    //glMatrixMode(GL_ORTHO);
-   
    glLoadIdentity();
-
-   glFrustum(-1.0, 1.0, -1.0, 1.0, 1.5, 20.0);
-
+   glFrustum(-frustrum_l, frustrum_l, -frustrum_l, frustrum_l, frustrum_min, frustrum_max);
    glMatrixMode(GL_MODELVIEW); //needed for transformations
 }
 
@@ -395,14 +395,13 @@ int main(int argc, char** argv)
 {
 
   init(argc,argv);
-
   glutDisplayFunc(display); 
   glutReshapeFunc(reshape);
-
   glutIdleFunc(calc_new_scene); //called after render is done, typically to recalculate positions for the next frame
-
   glutKeyboardFunc(keyDown);
   glutKeyboardUpFunc(keyUp);
   glutMainLoop();
+  //THIS IS NEVER REACHED
+ 
   return 0;
 }

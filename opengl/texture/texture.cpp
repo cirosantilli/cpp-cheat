@@ -1,0 +1,415 @@
+#include <iostream>
+#include <cstdio>
+#include <cmath>
+
+#include <GL/glut.h>
+#include <opencv2/opencv.hpp>
+
+using namespace std;
+
+class Vector3D{
+
+  public:
+
+    GLfloat x;
+    GLfloat y;
+    GLfloat z;
+
+    Vector3D(){
+      this->x = 0.0;
+      this->y = 0.0;
+      this->z = 0.0;
+    }
+
+    Vector3D(GLfloat x, GLfloat y, GLfloat z){
+      this->x = x;
+      this->y = y;
+      this->z = z;
+    }
+
+    GLfloat* toArray(){
+      GLfloat out[] = {x, y, z};
+      return &out[0];
+    }
+
+    //vector sum
+    Vector3D operator+(Vector3D otherv){ 
+      return Vector3D( this->x + otherv.x, this->y + otherv.y, this->z + otherv.z);
+    }
+
+    //vector subtraction
+    Vector3D operator-(Vector3D otherv){ 
+      return Vector3D( this->x - otherv.x, this->y - otherv.y, this->z - otherv.z);
+    }
+
+    //multiplication by constant
+    Vector3D operator*(GLfloat a){ 
+      return Vector3D( this->x * a, this->y * a, this->z * a);
+    }
+
+    //division by constant
+    Vector3D operator/(GLfloat a){ 
+      return Vector3D( this->x / a, this->y / a, this->z / a);
+    }
+
+    //dot product
+    GLfloat dot(Vector3D otherv){ 
+      return this->x * otherv.x + this->y * otherv.y + this->z * otherv.z;
+    }
+
+    //returns the euclidean norm of this vector
+    GLfloat norm(){ 
+      return sqrt( this->dot(*this) );
+    }
+    
+    //returns the taxi norm of this vector (largest absolute value of a corrdinate)
+    GLfloat taxi_norm(){ 
+      //return max(abs(x), abs(y), abs(z));
+      return 0.0;
+    }
+
+    //returns a unit vector in the same direction as this vector
+    Vector3D unit(){  
+      return (*this) / this->norm();
+    }
+
+    /* rotates this vector around Y axis by given angle
+     *
+     * operates inline
+     * */
+    void rotY(GLfloat angle){
+      GLfloat oldx = x;
+      GLfloat oldz = z;
+      GLfloat sina = sin(angle);
+      GLfloat cosa = cos(angle);
+      x = oldx*cosa + oldz*sina;
+      z = - oldx*sina + oldz*cosa;
+    }
+
+    //euclidean distance
+    GLfloat eucl(Vector3D other){  
+      return (*this - other).norm();
+    }
+
+    /* To a string, with given precision p */
+    string str(int precision){
+      char out[64];
+      char format[64];
+      sprintf(format, "%%4.%df\n%%4.%df\n%%4.%df\n", precision, precision, precision );
+      sprintf(out, format, x, y, z);
+      return std::string(out);
+    }
+
+};
+
+GLuint loadTextureJpg( string filename, int wrap )
+{
+    GLuint texture;
+    cv::Mat img;
+
+    img = cv::imread( filename, 1 );
+    if( !img.data )
+    {
+      cerr << "no data\n" << filename << endl;
+      return 2;
+    }
+
+    cout << filename << endl;
+
+    // allocate a texture name
+    glGenTextures( 1, &texture );
+
+    // select our current texture
+    glBindTexture( GL_TEXTURE_2D, texture );
+
+    // select modulate to mix texture with color for shading
+    glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
+
+    // when texture area is small, bilinear filter the closest mipmap
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+                     GL_LINEAR_MIPMAP_NEAREST );
+    // when texture area is large, bilinear filter the first mipmap
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+
+    // if wrap is true, the texture wraps over at the edges (repeat)
+    //       ... false, the texture ends at the edges (clamp)
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
+                     wrap ? GL_REPEAT : GL_CLAMP );
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
+                     wrap ? GL_REPEAT : GL_CLAMP );
+
+    // build our texture mipmaps because we set mipmap option
+    gluBuild2DMipmaps( GL_TEXTURE_2D, 3, img.rows, img.cols,
+                       GL_RGB, GL_UNSIGNED_BYTE, img.data );
+
+    return texture;
+}
+
+GLfloat PERSON_H = 1.7; //person height
+GLfloat PERSON_R = 0.3; //the person is a cylinder of 30cm radius
+GLfloat PERSON_SPEEDS[] = {0.5, 2.0,5.0}; //the 3 speeds in m/s
+GLfloat WALL_H = 2.0; //wall height
+GLfloat WALL_L = 20.0; //wall length
+GLfloat WALL_HL = WALL_L/2.; //wall half-length
+GLfloat ROT_SPEED_MAX = M_PI/4.; //maximum rotation speed
+
+Vector3D center = Vector3D(0.0,PERSON_H,0.0); //head position.
+Vector3D eye = Vector3D(1.0,0.0,0.0); //eye direction of the person.
+Vector3D lookat = center + eye;
+
+GLfloat speed = PERSON_SPEEDS[1]; //speed forward
+GLfloat rot_speed = 0.;//rotation speed in rad/s
+
+GLfloat upx=0.0;
+GLfloat upy=1.0;
+GLfloat upz=0.0;
+
+GLfloat frustrum_min = PERSON_R/2.;
+GLfloat frustrum_max = 100.0;
+GLfloat frustrum_l = PERSON_R/6.;
+
+GLfloat WHITE[] = {1.0, 1.0, 1.0};
+GLfloat GRAY[] = {.5, .5, .5};
+GLfloat DARK_GRAY[] = {.15, .15, .15};
+GLfloat BLACK[] = {0.0, 0.0, 0.0};
+GLfloat RED[] = {1.0, 0.0, 0.0};
+GLfloat GREEN[] = {0.0, 1.0, 0.0};
+GLfloat BLUE[] = {0.0, 0.0, 1.0};
+
+enum NTEXTURES {NTEXTURES = 3};
+string texture_path = "media/";
+string texture_files[] = { "grass.jpg", "wood.jpg", "sky.jpg" };
+GLuint textures[NTEXTURES]; //the actual textures
+
+GLfloat clear_color_r = 0.0;
+GLfloat clear_color_g = 0.0;
+GLfloat clear_color_b = 0.0;
+
+GLfloat fast_forward = 1.0;
+//how much faster than reality the video is.
+//2.0 means the video will appear 2x as fast as reality
+
+void init(int argc, char** argv) 
+{
+
+  glutInit(&argc, argv);
+
+  glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
+
+  glutInitWindowSize(500, 500); 
+  glutInitWindowPosition(100, 100);
+
+  glutCreateWindow(argv[0]);
+  //clear the screen after each img
+  glClearColor(clear_color_r,clear_color_g,clear_color_b,1.0);
+
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); //default mode
+  
+  glEnable(GL_POLYGON_OFFSET_FILL);
+  glEnable(GL_POLYGON_OFFSET_LINE);
+  glEnable(GL_DEPTH_TEST);
+  glPolygonOffset(1.0, 1.0);
+
+  //texture
+    int i;
+    for(i=0; i<NTEXTURES; i++){
+      textures[i] = loadTextureJpg(texture_path + texture_files[i], 1);
+    }
+
+}
+
+int old_t = 0; //old time in ms. used to keep real time consistent
+
+/*calculates new scene and call display again after it is done*/
+void calc_new_scene(void){
+
+  Vector3D dx, new_center;
+  float dt;
+  int t;
+
+  //cout << "===========================\n";
+  //cout << "center\n" << center.str(2);
+  //cout << "\n";
+
+  //cout << "eye\n" << eye.str(2);
+  //cout << "\n";
+
+  //cout << "speed\n" << speed;
+  //cout << "\n";
+
+  //cout << "rot_speed\n" << rot_speed;
+  //cout << "\n";
+  //cout << "\n";
+
+  //keep animation's real time consistent
+  t = glutGet(GLUT_ELAPSED_TIME);
+  dt = fast_forward*(t - old_t)/1000.0f;
+  old_t = t;
+
+  eye.rotY( rot_speed*dt );
+  new_center = center + eye*speed*dt;
+
+  if( fabs(new_center.x) > WALL_HL-PERSON_R){
+    //dont move
+  } else if( fabs(new_center.z) > WALL_HL-PERSON_R){
+    //dont move
+  } else{//move and normal update
+    center = new_center;
+  }
+
+  glutPostRedisplay();
+}
+
+/* room corners */
+GLfloat vs[][3] = {
+  {-WALL_HL, 0,-WALL_HL},
+  {-WALL_HL, 0, WALL_HL},
+  {-WALL_HL, WALL_H,-WALL_HL},
+  {-WALL_HL, WALL_H, WALL_HL},
+  { WALL_HL, 0,-WALL_HL},
+  { WALL_HL, 0, WALL_HL},
+  { WALL_HL, WALL_H,-WALL_HL},
+  { WALL_HL, WALL_H, WALL_HL},
+};
+
+void draw_cube(){
+
+  glPushMatrix();
+
+    //glEnable( GL_TEXTURE_2D );
+    //glBindTexture( GL_TEXTURE_2D, textures[0] );
+
+    glColor3fv(RED);
+    //bottom
+    glBegin(GL_POLYGON);
+      glVertex3fv(vs[0]);
+      glVertex3fv(vs[1]);
+      glVertex3fv(vs[5]);
+      glVertex3fv(vs[4]);
+    glEnd(); 
+
+    glColor3fv(BLUE);
+    //back
+    glBegin(GL_POLYGON);
+      glVertex3fv(vs[0]);
+      glVertex3fv(vs[1]);
+      glVertex3fv(vs[3]);
+      glVertex3fv(vs[2]);
+    glEnd(); 
+
+    glColor3fv(WHITE);
+    //front
+    glBegin(GL_POLYGON);
+      glVertex3fv(vs[4]);
+      glVertex3fv(vs[5]);
+      glVertex3fv(vs[7]);
+      glVertex3fv(vs[6]);
+    glEnd(); 
+
+    glColor3fv(GREEN);
+    //right
+    glBegin(GL_POLYGON);
+      glVertex3fv(vs[0]);
+      glVertex3fv(vs[2]);
+      glVertex3fv(vs[6]);
+      glVertex3fv(vs[4]);
+    glEnd(); 
+
+    glColor3fv(DARK_GRAY);
+    //left
+    glBegin(GL_POLYGON);
+      glVertex3fv(vs[1]);
+      glVertex3fv(vs[3]);
+      glVertex3fv(vs[7]);
+      glVertex3fv(vs[5]);
+    glEnd(); 
+
+  glPopMatrix();
+
+}
+
+void draw_scene(void){
+
+  glLoadIdentity();
+  lookat = center+eye;
+  gluLookAt(center.x, center.y, center.z, lookat.x, lookat.y, lookat.z, upx, upy, upz);
+
+  draw_cube();
+
+}
+
+void display(void)
+{
+
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //clear the color buffer and the depth buffer
+
+  draw_scene();
+
+  glutSwapBuffers(); //also flushes first
+
+}
+
+void reshape(int w, int h)
+{
+   glViewport(0, 0,(GLsizei) w,(GLsizei) h); 
+   glMatrixMode(GL_PROJECTION);
+   glLoadIdentity();
+   glFrustum(-frustrum_l, frustrum_l, -frustrum_l, frustrum_l, frustrum_min, frustrum_max);
+   glMatrixMode(GL_MODELVIEW);
+}
+
+void keyDown(unsigned char key, int x, int y)
+{
+   switch(key){
+      case 's':
+         rot_speed = ROT_SPEED_MAX;
+         break;
+      case 'd':
+         rot_speed = -ROT_SPEED_MAX;
+         break;
+      case 'e':
+         speed = PERSON_SPEEDS[2]; //accelerates
+         break;
+      case 'x':
+         speed = PERSON_SPEEDS[0]; //deccelerates
+         break;
+      case 27:
+         exit(0);
+         break;
+   }
+}
+
+void keyUp(unsigned char key, int x, int y)
+{
+   switch(key){
+      case 's':
+         rot_speed = 0.;
+         break;
+      case 'd':
+         rot_speed = 0.;
+         break;
+      case 'e':
+         speed = PERSON_SPEEDS[1]; //back to normal
+         break;
+      case 'x':
+         speed = PERSON_SPEEDS[1]; //back to normal
+         break;
+      case 27:
+         exit(0);
+         break;
+   }
+}
+
+int main(int argc, char** argv)
+{
+
+  init(argc,argv);
+  glutDisplayFunc(display); 
+  glutReshapeFunc(reshape);
+  glutIdleFunc(calc_new_scene); //called after render is done, typically to recalculate positions for the next frame
+  glutKeyboardFunc(keyDown);
+  glutKeyboardUpFunc(keyUp);
+  glutMainLoop();
+
+  return 0;
+}
