@@ -36,4 +36,4 @@ $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.cpp
 	$(CXX) $(CXXFLAGS) -o "$@" "$<" $(LIBS)
 
 clean:
-	rm -rf "$(OUT_DIR)" "$(AUX_DIR)"
+	rm -rf "$(OUT_DIR)"

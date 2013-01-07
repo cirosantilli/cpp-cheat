@@ -42,7 +42,8 @@ GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
 GLfloat mat_shininess[] = { 50.0 };
 GLfloat light_position[] = { 2.0, 2.0, 2.0, 0.0 };
 
-GLfloat frustrum_min = 0.95*PERSON_R;
+GLfloat PERSON_R = 1.f; //radius for collision detection
+GLfloat frustrum_min = 0.95*PERSON_R; //so that won't see across walls
 GLfloat frustrum_max = 100.0;
 GLfloat frustrum_l = 2*PERSON_R*0.9;
 
@@ -50,7 +51,7 @@ class Drawable{
 
   public:
 
-    virtual void draw(void);
+    virtual void draw(void){};
 
 };
 
@@ -134,7 +135,7 @@ class Vector3D{
 
 };
 
-class Sphere : public Drawable{
+class Sphere : public Drawable {
 
   static const GLfloat SPHERE_RADIUS = 0.2;
   static const GLint SPHERE_SLICES = 10;
@@ -185,8 +186,7 @@ class Sphere : public Drawable{
 
 };
 
-
-int ndrawables;
+enum ndrawables{ndrawables=1};
 Drawable* drawables;
 
 /*Stuff that is only set once for all.*/
@@ -202,40 +202,45 @@ void init(int argc, char** argv)
   //GLUT_DEPTH depth buffering: calculate pixels for each plane and their distances,
     //keep only closest one, cheapest way to hide parts of objects that go behind others.
 
-  glutInitWindowSize(WINDOW_W, WINDOW_H); 
-  glutInitWindowPosition(WINDOW_POSX, WINDOW_POSY);
-  glutCreateWindow(argv[0]);
+  //window
+    glutInitWindowSize(WINDOW_W, WINDOW_H); 
+    glutInitWindowPosition(WINDOW_POSX, WINDOW_POSY);
+    glutCreateWindow(argv[0]);
 
   //clear the screen after each image
-  glClearColor(clear_color_r,clear_color_g,clear_color_b,1.0);
-
-  glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
-  glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
-  glLightfv(GL_LIGHT0, GL_POSITION, light_position); 
-  glEnable(GL_LIGHTING);
-  glEnable(GL_LIGHT0);
-  //glEnable(GL_LIGHT1);
-  //... up to 8 lights
-  //glLight*() //set light color. default is white
-
-  //glShadeModel(GL_FLAT);
-  glShadeModel(GL_SMOOTH);
+    glClearColor(clear_color_r,clear_color_g,clear_color_b,1.0);
 
   glEnable(GL_DEPTH_TEST);
-
-  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-  //glPolygonMode(GL_FRONT, GL_LINE);
-  //glPolygonMode(GL_BACK, GL_LINE);
-  
   //glEnable(GL_POLYGON_OFFSET_FILL);
   //glEnable(GL_POLYGON_OFFSET_LINE);
   glPolygonOffset(1.0, 1.0); 
 
+  //which side of objcts to take into account
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    //glPolygonMode(GL_FRONT, GL_FILL);
+    //glPolygonMode(GL_BACK, GL_FILL);
 
-  //create drawable objects to model initial sceene
-  ndrawables = 1;
-  drawables = new Drawable[ndrawables];
-  drawables[0] = Sphere( Vector3D(-0.5,0.75,0.0), Vector3D( 0.1, 0.0, 0.0), GREEN );
+  //fill solids or not
+    //glPolygonMode(GL_FRONT, GL_LINE); //only lines will be drawn
+    //glPolygonMode(GL_FRONT, GL_FILL); //will fill the solids
+
+  //lights
+    glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
+    glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
+    glLightfv(GL_LIGHT0, GL_POSITION, light_position); 
+    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
+    //glEnable(GL_LIGHT1);
+        //... up to 8 lights
+    //glLight*() //set light color. default is white
+
+    //glShadeModel(GL_FLAT);
+    glShadeModel(GL_SMOOTH);
+ 
+  //create drawable objects to model initial scene
+    drawables = new Drawable[ndrawables];
+    drawables[0] = Sphere( Vector3D(-0.5,0.75,0.0), Vector3D( 0.1, 0.0, 0.0), GREEN );
+    //drawables[1] = Sphere( Vector3D(-0.5,0.75,0.0), Vector3D( 0.1, 0.0, 0.0), GREEN );
 }
 
 int old_t = 0; //old time in ms. used to keep real time consistent
@@ -243,12 +248,26 @@ int old_t = 0; //old time in ms. used to keep real time consistent
 /*calculates the parameters of the new scene and calls display again*/
 void calc_new_scene(void){
 
-  //keep animation's real time consistent
-  int t = glutGet(GLUT_ELAPSED_TIME);
-  int dt = t - old_t;
-  old_t = t;
+  Vector3D dx, new_center;
+  float dt;
+  int t;
 
-  //calculate new scene based on dt (ms)
+  //cout << "===========================\n";
+  //cout << "center\n" << center.str(2) << endl;
+  //cout << "eye\n" << eye.str(2) << endl;
+  //cout << "speed\n" << speed << endl;
+  //cout << "rot_speed\n" << rot_speed << "\n\n";
+
+  //keep animation's real time consistent
+    t = glutGet(GLUT_ELAPSED_TIME);
+    dt = fast_forward*(t - old_t)/1000.0f;
+    old_t = t;
+
+  //calculate new scene based on dt (s)
+
+  //speed movement method
+    eye.rotY( rot_speed*dt );
+    new_center = center + eye*speed*dt;
 
   glutPostRedisplay();
 }
@@ -274,31 +293,31 @@ void draw_scene(void){
   glPushMatrix(); // before transforming save the old matrix
 
     //geometric transformations
-    //glMultMatrixf(N);
-    //glScalef(1.0, 1.0, 1.0);
-    //glRotatef(90., 1., 0., 0.);
-    glTranslatef(.5, .5, 0.5);
+        //glMultMatrixf(N);
+        //glScalef(1.0, 1.0, 1.0);
+        //glRotatef(90., 1., 0., 0.);
+        glTranslatef(.5, .5, 0.5);
 
     //polygons are primitives, and thus dealt by opengl
-    //glBegin(GL_POLYGON);
-      //glVertex3f (0.25, 0.25, 0.0);
-      //glVertex3f (0.75, 0.25, 0.0);
-      //glVertex3f (0.75, 0.75, 0.0);
-      //glVertex3f (0.25, 0.75, 0.0);
-    //glEnd(); 
-    
-    //other types of basic shapes:
-      //GL_POINTS
-      //GL_LINES
-      //GL_LINE_STRIP
-      //GL_LINE_LOOP
-      //GL_TRIANGLES
-      //GL_TRIANGLE_STRIP
-      //GL_TRIANGLE_FAN
-      //GL_QUADS
-      //GL_QUAD_STRIP
-      //POLYGON
-    //glVertex*()
+        //glBegin(GL_POLYGON);
+            //glVertex3f (0.25, 0.25, 0.0);
+            //glVertex3f (0.75, 0.25, 0.0);
+            //glVertex3f (0.75, 0.75, 0.0);
+            //glVertex3f (0.25, 0.75, 0.0);
+        //glEnd(); 
+        
+        //other types of basic shapes:
+        //GL_POINTS
+        //GL_LINES
+        //GL_LINE_STRIP
+        //GL_LINE_LOOP
+        //GL_TRIANGLES
+        //GL_TRIANGLE_STRIP
+        //GL_TRIANGLE_FAN
+        //GL_QUADS
+        //GL_QUAD_STRIP
+        //POLYGON
+        //glVertex*()
       
     //the following are also allowed betwen glBegin and glEnd
       //glColor*()
@@ -312,21 +331,21 @@ void draw_scene(void){
       //glCallList(), glCallLists()
 
     //3d shapes are not primitives, so you must call them from glut (or glu)
-    glutWireCube(1.0);
-    //glutSolidCube(1.0);
-    //glutWireSphere(1.0, 20, 20); 
-    //glutSolidSphere(1.0, 20, 20); 
-    //glutSolidTeapot(1.0);
-    //glutWireTeapot(1.0);
+        //glutWireCube(1.0);
+        //glutSolidCube(1.0);
+        //glutWireSphere(1.0, 20, 20); 
+        //glutSolidSphere(1.0, 20, 20); 
+        //glutSolidTeapot(1.0);
+        //glutWireTeapot(1.0);
 
-    //glut can also draw (wire/solid):
-      //cone
-      //icosahedron
-      //octahedron
-      //tetrahedron
-      //dodecahedron
-      //torus 
-      //teapot
+        //glut can also draw (wire/solid):
+            //cone
+            //icosahedron
+            //octahedron
+            //tetrahedron
+            //dodecahedron
+            //torus 
+            //teapot
 
   glPopMatrix(); //after drawing, reload the old transform
 
@@ -355,45 +374,88 @@ void reshape(int w, int h)
    glMatrixMode(GL_PROJECTION);
    //glMatrixMode(GL_ORTHO);
    glLoadIdentity();
-   glFrustum(-frustrum_l, frustrum_l, -frustrum_l, frustrum_l, frustrum_min, frustrum_max);
-   glMatrixMode(GL_MODELVIEW); //needed for transformations
+   glFrustum(-frustrum_l, frustrum_l, -frustrum_l, frustrum_l, frustrum_min, frustrum_max); //this is what can be seen
+   glMatrixMode(GL_MODELVIEW); //needed for transformations TODO
 }
 
-void keyDown(unsigned char key, int x, int y)
-{
-   switch(key){
-      case 27:
-         exit(0);
-         break;
-      case 'r':
-         eyex += eye_speed;
-         break;
-      case 'f':
-         eyex -= eye_speed;
-         break;
-      case 'e':
-         eyey += eye_speed;
-         break;
-      case 'd':
-         eyey -= eye_speed;
-         break;
-      case 'w':
-         eyez += eye_speed;
-         break;
-      case 's':
-         eyez -= eye_speed;
-         break;
-   }
-}
+//move models
+    //fixed displacement (fixed steps)
+    //fixed speed (displacement is proportional to elapsed time)
+    //fixed acceleration (displacement acceleration is proportional to elapsed time)
+        //can have max speed or not
 
-void keyUp(unsigned char key, int x, int y)
-{
-   switch(key){
-      case 'b':
-         eyey -= 10*eye_speed;
-         break;
-   }
-}
+//fixed displacement
+    void keyDown(unsigned char key, int x, int y)
+    {
+        switch(key)
+        {
+            case 's':
+                eyez -= eye_speed;
+                break;
+            case 'w':
+                eyez += eye_speed;
+                break;
+            case 27: //esc
+                //quit
+                exit(0);
+                break;
+        }
+    }
+
+//fixed speed
+    //position will be calculated as function of elapsed time in calc_new_scene()
+    void keyDownSpeed(unsigned char key, int x, int y)
+    {
+        switch(key)
+        {
+            case 'a':
+                //rotate left
+                rot_speed = -ROT_SPEED_MAX;
+                break;
+            case 'd':
+                //rotate right
+                rot_speed = ROT_SPEED_MAX;
+                break;
+            case 'e':
+                //run faster
+                speed *= 2.f;
+                break;
+            case 's':
+                //backwards 
+                speed = -SPEED_MAX;
+                break;
+            case 'w':
+                //forwards
+                speed = SPEED_MAX;
+                break;
+            case 27: //esc
+                //quit
+                exit(EXIT_SUCCESS);
+                break;
+        }
+    }
+
+    void keyUpSpeed(unsigned char key, int x, int y)
+    {
+        switch(key)
+        {
+            case 'a':
+                rot_speed = 0.f;
+                break;
+            case 'd':
+                rot_speed = 0.f;
+                break;
+            case 'e':
+                speed /= 2.f;
+                break;
+            case 's':
+                speed = 0.f;
+                break;
+            case 'w':
+                speed = 0.f;
+                break;
+        }
+    }
 
 int main(int argc, char** argv)
 {

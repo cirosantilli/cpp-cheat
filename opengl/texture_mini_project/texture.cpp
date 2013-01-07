@@ -437,9 +437,6 @@ void keyUp(unsigned char key, int x, int y)
       case 'x':
          speed = PERSON_SPEEDS[1]; //back to normal
          break;
-      case 27:
-         exit(0);
-         break;
    }
 }
 
