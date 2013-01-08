@@ -209,35 +209,93 @@ float pow2f(float a, float b)
 int main(){
 
     //base types
-    puts("\nbase types");
-    int i=5,j=7; //31 bit + 1 sign bit integer
-    long int li = 8L; //64 bit int
-    //int i;
-    //i = 5;
-    //
-    //int i=5;
-    //int j=7;
-    //
-    //allowed chars: _,[a-Z],[0-9], canot start with number
-    printf("16 = %d\n", 16);
-    printf("0x10 = %d\n", 0x10);
-    printf("020 = %d\n", 020);
-    printf("0b10000 = %d\n", 0b10000);
-    
-    float f = 1.2345f;    //1 signal 23 number 8 exponent
-    float f1 = 1.2345e-10f;
-    float f2 = 1.f;
-    //float f = 1f; //there must be a dot
-    double d = 6.789;
-    char c = 'a';
-    char *cp;
-    char s[8] = "s";
-    int sn = 8;
+        puts("\nbase types");
+        int i=5,j=7; //31 bit + 1 sign bit integer
+        int* ip = &i;
+        long int li = 8L; //64 bit int
+        //int i;
+        //i = 5;
+        //
+        //int i=5;
+        //int j=7;
+        //
+        float f = 1.2345f;    //1 signal 23 number 8 exponent
+        float f1 = 1.2345e-10f;
+        float f2 = 1.f;
+        //float f = 1f; //there must be a dot
+        double d = 6.789;
+        char c = 'a';
+        char *cp;
+        char s[8] = "s";
+        int sn = 8;
 
-    size_t size = sizeof(int);
+        size_t size = sizeof(int);
+        printf("sizeof(int) = %zu\n",sizeof(int)); //how many bytes per int
+        printf("sizeof(long int) = %zu\n",sizeof(long int)); //int and long int may be equal!!!!!! this is plataform dependent
 
-    printf("sizeof(int) = %zu\n",sizeof(int)); //how many bytes per int
-    printf("sizeof(long int) = %zu\n",sizeof(long int)); //int and long int may be equal!!!!!! this is plataform dependent
+        //allowed variable chars: _,[a-Z],[0-9], canot start with number
+        
+        //bases
+            printf("16 = %d\n", 16);
+            printf("0x10 = %d\n", 0x10);
+            printf("020 = %d\n", 020);
+            printf("0b10000 = %d\n", 0b10000);
+        
+        //const
+            const int ic = 0;
+            //int const ic = 0
+                //exact same thing!
+            const int ic2 = i;
+
+            //ERROR: consts are... consts!
+                //ic = 1;
+            //ERROR: i already defined
+                //int i = 0;
+                //const int i = 0;
+
+            //WARN: discards const. in c++, error!
+                //ip = &ic;
+                //*ip = 2;
+                //we changed the const!
+                    //this is why you can't int is[constint]; !!
+                
+            const int* cip = &ic;
+            //SAME
+                //int const* icp = &ic;
+            cip = &ic2;
+            //ERROR: const prevents from changing value
+                //*cip = 2;
+
+            //WARN
+                //int * const ipc = &ic;
+            //ERROR: this time what the address the pointer points to is constant
+            //not its value!
+                //ipc = &ic2;
+            //BAD: we changed the value!
+                //*ipc = 2;
+            
+            const int* const cipp = &ic;
+
+        //typecast
+            printf("(double).1f = %f\n", (double).1f); //float to double
+            //WARN possible
+                printf("(float).1 = %f\n", (float).1); //double to float
+            //WARN possible
+                printf("(int).1f = %d\n", (int).1f);
+            //WARN possible
+                printf("(int)1L = %d\n", (int)1L); //long to int
+            printf("(long)1 = %ld\n", (long)1); //int to long
+
+            printf("(int*)&f = %p\n", (int*)&f); //any pointer typecast is ok to compiler
+            printf("(int)&f = %d\n", (int)&f);   //memory address of pointer
+
+            int is3[3];
+            int is4[4];
+            ip = (int*)is3; //is[3] to int*
+            //ERROR
+                //is3=(int[3])is4;
+            //ERROR pointer to int[]
+                //is3=is4;
 
     //write to stdout
 
