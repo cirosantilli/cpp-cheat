@@ -249,7 +249,7 @@ void init(int argc, char** argv)
         glEnable(GL_LIGHTING);
 
         //glLightModelfv
-            //glLightModelfv(GL_LIGHT_MODEL_AMBIENT, white); //ambient light
+            glLightModelfv(GL_LIGHT_MODEL_AMBIENT, white); //ambient light
             //glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE); //TODO ?
             //glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE); //light both sides
 
