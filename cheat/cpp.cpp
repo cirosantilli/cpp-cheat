@@ -4,7 +4,14 @@ for the rest, go to c.c
 
 good general resources
 
-- http://www.cplusplus.com/doc/tutorial/typecasting/
+- http://www.cplusplus.com
+    explains well what most the features of the language do for beginners
+    no motivation, many features missing, no stdlib.
+- http://yosefk.com/c++fqa/
+    comments on the quirks of c++
+    fun and informative for those that know the language at intermediate level
+- http://geosoft.no/development/cppstyle.html
+    coding guidelines, clearly exemplified
 
 #headers
 
@@ -48,15 +55,19 @@ TODO
 
 //namespaces
 
-    using namespace std;
-    //will try std::XXX whenever XXX is found undefined
-        //if there are two possibilities or more, gives an error
+    //namespace creation
+        //TODO
 
-    //ERROR
-        //using namespace asdf;
-            //namespaces must be defined somewhere
-            //namespaces compose automatically
-            //from now on will also try asdf::, std::asdf::, and asdf::std::
+    //using namespace
+        using namespace std;
+        //will try std::XXX whenever XXX is found undefined
+            //if there are two possibilities or more, gives an error
+
+        //ERROR
+            //using namespace asdf;
+                //namespaces must be defined somewhere
+                //namespaces compose automatically
+                //from now on will also try asdf::, std::asdf::, and asdf::std::
 
 //functions
 
@@ -72,6 +83,9 @@ TODO
             cout << i;
             cout << j;
         }
+
+    //ERROR: can't pass default values for arrays
+        //void foo (int bar[] = {0 ,1});
 
     //function overloading
         void overload(int i){ cout << "int"; }
@@ -98,16 +112,31 @@ TODO
             void overloadValAddr(const int i){}
             void overloadValAddr(const int& i){}
 
+
 //classes
     //TODO
         //operator overloading
-        //multiple inheritance
-        //virtual examples
+            //http://courses.cms.caltech.edu/cs11/material/cpp/donnie/cpp-ops.html
+
+class Member
+{
+    public:
+        Member(){ cout << "Member::Member()"; }
+        Member(int i){ cout << "Member::Member(int)"; }
+        ~Member(){ cout << "Member::~Member()"; }
+};
  
 class Base
 {
     public:
 
+        /*
+        default constructor
+            if no constructor is declared, a default constructor is created
+
+            if any constructor is declared, even with non default args,
+            the default is not created
+         */
         Base() : i(0), j(1) //list initialization
         { 
             cout << "Base::Base()"; 
@@ -152,9 +181,9 @@ class Base
             cout << "Base::~Base()";
         }
 
-        void method(){cout << "Base::method()";}
+        void method(){cout << "Base::method()" << endl;;}
 
-        virtual void virtual_method(){ cout << "Base::virtual_method()"; }
+        virtual void virtual_method(){ cout << "Base::virtual_method()" << endl; }
         //virtual: decides on runtime based on object type
             //http://stackoverflow.com/questions/2391679/can-someone-explain-c-virtual-methods
     
@@ -185,7 +214,18 @@ class Base
                 //conclicts with static int
         
         const static int iConstStatic = 0;
-        //OK: const static
+        //OK: const static integral type
+        
+        const static Member member;
+        //OK default constructor? why
+        
+        const static Member member2;
+        //const static Member member2 = Member();
+            //ERROR: non integral type
+            //must be init outside
+            //
+            //why integral types are an exception (complicated):
+                //http://stackoverflow.com/questions/13697265/static-const-double-cannot-have-an-in-class-initializer-why-is-it-so
 
     protected:
 
@@ -198,7 +238,7 @@ class Base
         void fPrivate(){ cout << "Base::fPrivate()"; }
 
         virtual void private_pure_virtual() = 0;
-        //this can still be implemented on the base class
+        //this can/must still be implemented on the base class, even if private!
         
         //how private pure virtual can be usefull
         void useful_private_pure_virtual()
@@ -208,6 +248,8 @@ class Base
             cout << "common after" << endl;
         }
 };
+
+const Member Base::member2 = Member(1);
 
 class BaseProtected
 {
@@ -223,13 +265,6 @@ class BasePrivate
         BasePrivate(){ cout << "BasePrivate::BasePrivate()"; }
         BasePrivate(int i){ cout << "BasePrivate::BasePrivate(int)"; }
         ~BasePrivate(){ cout << "BasePrivate::~BasePrivate()"; }
-};
-
-class Member
-{
-    public:
-        Member(){ cout << "Member::Member()"; }
-        ~Member(){ cout << "Member::~Member()"; }
 };
 
 class Class : public Base, protected BaseProtected, private BasePrivate //inheritance
@@ -263,7 +298,7 @@ class Class : public Base, protected BaseProtected, private BasePrivate //inheri
         } catch(const exception &e) {
             throw e;
         } 
-        
+
         Class(Member m) : m(m) {
             //BAD: m constructor would be called, but this is useless since we have already called it!
             //to construct it before.
@@ -272,6 +307,25 @@ class Class : public Base, protected BaseProtected, private BasePrivate //inheri
             cout << "Class::Class(Member)" << endl;
         }
 
+        //copy constructor
+            //classes already have this by default
+            //useful to customize if class does dynamic allocation!
+        Class(const Class& c) : i(c.i), z(c.z), m(c.m)
+        {
+            cout << "Class::Class(Class)" << endl;
+        }
+
+        //assign operator
+            //all classes come with a default
+            Class& operator=(const Class& rhs)
+            {
+                cout << "Class::operator=(Class)" << endl;
+                i = rhs.i;
+                z = rhs.z;
+                m = rhs.m;
+                return *this; //so shat a = b = c may work
+            }
+        
         /*
         also calls Base destructor after
         */
@@ -326,6 +380,51 @@ class ClassCast
     //ERROR
         //ClassDefault::ClassDefault(int i=0){}
 
+//templates class
+    //http://www.cplusplus.com/doc/tutorial/templates/
+    //
+    //ultra reneral! <class T, int N>
+    //
+    //default values via: <class T=char, int N=10>
+    //c = Class<>
+    //
+    //implementation must be put in .h files and compiled by includers
+        //cannot be put inside a .so therfore
+        //consider int N, there are int many compilation possibilities!!
+//SAME
+    //template<typename T=int, int N=10>
+template<class T=int, int N=10>
+class TemplateClass
+{
+    public:
+
+        T t;
+        T ts[N];
+
+        TemplateClass(){ cout << "TemplateClass::TemplateClass()" << endl; }
+
+        //BAD: what is T = string?
+            //TemplateClass() t(0.0){ cout << "TemplateClass::TemplateClass()" << endl; }
+
+        TemplateClass(T t): t(t){ cout << "TemplateClass::TemplateClass(T)" << endl; }
+
+        T method(T){ cout << "TemplateClass::method(T)" << endl; }
+
+        void methodNoT();
+
+        static const int sci = 0;
+
+        //BAD impossible to define?
+            //static const TemplateClass<T,N>;
+};
+
+//ERROR cannot define template stuff outside
+    //TemplateClass::TemplateClass(){}
+ 
+//ERROR cannot define template stuff outside. needs 0x flags
+    //template<class T=int, int N=10>
+    //void TemplateClass<T,N>::methodNoT(){}
+
 int main(int argc, char** argv)
 {
 
@@ -354,14 +453,30 @@ int main(int argc, char** argv)
         const int ic=2;
         //ERROR: in c this is only a warning, and allows us to change ic.
             //int* ip = ic;
+
         int is34[ic];
             //WORKS! not like c, since constants really can't be changed
+
+        //ERROR: must be initialized, since in c++ consts really are consts
+            //const int ic2;
+
+        const Class cc;
+        //ERROR
+            //cc = Class();
+        //ERROR
+            //cc.i = 1;
+
     cout << endl;
 
     cout << "functions" << endl;
 
         //references
-            //are basically aliases
+            //basically aliases, similar to int*const poinsters
+            //
+            //useful only for function parameters/return
+            //
+            //just link pointers, you have to watch scope. if the original object dies,
+            //you get a dangling reference
             //http://stackoverflow.com/questions/752658/is-the-practice-of-returning-a-c-reference-variable-evil
             
             i=1;
@@ -379,7 +494,7 @@ int main(int argc, char** argv)
             cout << &ia << endl;
             cout << "&i" << endl;
             cout << &i << endl;
-            //same
+            //SAME
                 //therefore no extra memory is used for references
                 //whereas pointers use memory
             int& ia2 = ia;
@@ -387,6 +502,12 @@ int main(int argc, char** argv)
             cout << "int& ia2 = ia;" << endl;
             cout << i << endl;
             //3
+
+            //ERROR: must be a variable rhs
+                //int& ia = 5;
+
+            //ERROR: must be initialized immediatelly
+                //int& ia44;
             
             //ERROR: & must get a variable, not pointers!
                 //int& ia3 = &i;
@@ -395,15 +516,17 @@ int main(int argc, char** argv)
             const int& cia = i;
             //ERROR
                 //cia = 2;
+
             //ERROR: invalid conversion
                 //int* ip = &cia;
                 //int& ia = cia;
 
+            //ERROR: no array of references forbidden
+                //int& is[2] = {i,i};
 
-
-        i=4;
-        //ERROR: ambiguous
-            //overloadValAddr(i);
+            i=4;
+            //ERROR: ambiguous
+                //overloadValAddr(i);
 
     cout << endl;
 
@@ -488,13 +611,22 @@ int main(int argc, char** argv)
                 //http://stackoverflow.com/questions/3279543/what-is-the-copy-and-swap-idiom
                 //http://stackoverflow.com/questions/4172722/what-is-the-rule-of-three
 
-            //default copy constructor
-                //calls copy on all memebrs
+            //copy constructor
+                //default calls copy on all memebrs
                 c.i = 1;
+                cout << "Class c2(c)" << endl;
                 Class c3(c);
-                cout << c3.i;
+                cout << c3.i << endl;
+                //1
+                cout << "Class c2 = c" << endl;
+                Class c4 = c;
+                //*COPY CONSTRUCTOR CALLED, NOT ASSIGN CONSTRUCTOR*, because object is being created
+                //SAME
+                    //Class c4(c);
+                cout << c4.i << endl;
 
-            //default assign calls assign (=) on all members
+            //assign operator
+                //default assign calls assign (=) on all members
                 c.i = 1;
                 c1.i = 2;
                 c1 = c;
@@ -523,9 +655,9 @@ int main(int argc, char** argv)
 
         cout << "temporaries" << endl;
 
-            cout << "Class().method();" << endl;
+            cout << "Class().method();" << endl; //an instance without name is created and destroyed
             Class().method();
-            //Class().method1()
+            //Class() Class().method1() ~Class
 
             cout << "cout << Class();" << endl;
             cout << Class() << endl;
@@ -549,6 +681,22 @@ int main(int argc, char** argv)
 
         cout << endl;
 
+        cout << "template" << endl;
+
+            TemplateClass<int,10> tci10;
+            tci10.ts[9] = 9;
+
+            tci10 = TemplateClass<>(); //default values int 10
+
+            //BAD: wont work, unless you defined an assign operator for this case
+            //which is very unlikelly
+                //tci10 = TemplateClass<float,20>();
+
+            TemplateClass<string,10> tcs10;
+            tcs10.ts[9] = "asdf";
+
+        cout << endl;
+
         cout << "polymorphism" << endl;
 
             //behind the scenes a *vtable* is used to implement this
@@ -557,15 +705,27 @@ int main(int argc, char** argv)
             //virtual = 0;. That method must be implemented on derived classes
                 //Base b;
 
-            c = Class();
-            Base* bp = new Class;
+            Base* bp = new Class; //even if you can't instantiate base, you can have pointers to it
             //SAME
                 //Base* bp = &c;
+            cout << "bp->method()" << endl;
             bp->method();
             //base method because non-virtual
+            cout << "bp->virtual_method()" << endl;
             bp->virtual_method();
             //class method because virtual
             delete bp;
+
+            c = Class();
+            Base& ba = c;
+            cout << "ba.method()" << endl;
+            ba.method();
+            //base
+            cout << "ba.virtual_method()" << endl;
+            ba.virtual_method();
+            //derived
+            //you can also have Base&
+
 
         cout << endl;
 
@@ -577,7 +737,6 @@ int main(int argc, char** argv)
                 //class B { public: B (A a) {} };
                 //A a;
                 //B b=a;
-            
 
         cout << endl;
 
@@ -619,6 +778,10 @@ int main(int argc, char** argv)
         ip = new int;
         //BAD: memory leak. memory is lost forever.
             //ip = new int;
+        delete ip;
+
+        //BAD: undefined behavior, maybe crash. ip was not allocated!
+            //delete ip;
 
     cout << "exceptions" << endl;
         //TODO

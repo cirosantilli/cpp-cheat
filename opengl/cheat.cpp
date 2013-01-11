@@ -1,4 +1,4 @@
-#include <GL/glut.h> // includes both opengl (gl.h, rendering) and glu (glu.h, opengl utilities), besides glut.h (windowing, input/output)
+#include <glut.h> // includes both opengl (gl.h, rendering) and glu (glu.h, opengl utilities), besides glut.h (windowing, input/output)
 
 #include <stdlib.h>
 #include <iostream>
@@ -6,297 +6,342 @@
 
 #include <math.h>
 
+#include "vec3.h"
+
+using namespace std;
+
+//some colors constants
+    const GLfloat white[] = {1.0, 1.0, 1.0};
+    const GLfloat gray[] = {.5, .5, .5};
+    const GLfloat black[] = {0.0, 0.0, 0.0};
+    const GLfloat red[] = {1.0, 0.0, 0.0};
+    const GLfloat green[] = {0.0, 1.0, 0.0};
+    const GLfloat blue[] = {0.0, 0.0, 1.0};
+
+
 //TODO understand
   //swap_the_buffers() TODO understand
   //glutSwapBuffers();
   //glutIdleFunc(spinDisplay); //called after render is done, typically to recalculate positions for the next frame
 
-GLint WINDOW_W = 700;
-GLint WINDOW_H = 700; 
-GLint WINDOW_POSX = 10;
-GLint WINDOW_POSY = 10; 
- 
-GLfloat WHITE[] = {1.0, 1.0, 1.0};
-GLfloat GRAY[] = {.5, .5, .5};
-GLfloat BLACK[] = {0.0, 0.0, 0.0};
-GLfloat RED[] = {1.0, 0.0, 0.0};
-GLfloat GREEN[] = {0.0, 1.0, 0.0};
-GLfloat BLUE[] = {0.0, 0.0, 1.0};
+//not to see cross walls
+    //GLfloat frustrumNear = 0.95*personR; //so that won't see across walls
+    //GLfloat frustrumFar = 100.0;
+    //GLfloat frustrumL = 2*personR*0.9;
 
-GLdouble eyex=2.0;
-GLdouble eyey=2.0;
-GLdouble eyez=2.0;
-GLdouble eye_speed=0.1;
-GLdouble centerx=0.0;
-GLdouble centery=0.0;
-GLdouble centerz=0.0;
-GLdouble upx=0.0;
-GLdouble upy=1.0;
-GLdouble upz=0.0;
+class Drawable
+{
+    public:
 
-GLdouble clear_color_r = 0.0;
-GLdouble clear_color_g = 0.0;
-GLdouble clear_color_b = 0.0;
-
-GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
-GLfloat mat_shininess[] = { 50.0 };
-GLfloat light_position[] = { 2.0, 2.0, 2.0, 0.0 };
-
-GLfloat PERSON_R = 1.f; //radius for collision detection
-GLfloat frustrum_min = 0.95*PERSON_R; //so that won't see across walls
-GLfloat frustrum_max = 100.0;
-GLfloat frustrum_l = 2*PERSON_R*0.9;
-
-class Drawable{
-
-  public:
-
-    virtual void draw(void){};
-
+        virtual void draw() = 0;
 };
 
-class Vector3D{
-
-  public:
-
-    GLfloat x;
-    GLfloat y;
-    GLfloat z;
-
-    Vector3D(){
-      this->x = 0.0;
-      this->y = 0.0;
-      this->z = 0.0;
-    }
-
-    Vector3D(GLfloat x, GLfloat y, GLfloat z){
-      this->x = x;
-      this->y = y;
-      this->z = z;
-    }
-
-    GLfloat* toArray(){
-      GLfloat out[] = {x, y, z};
-      return out;
-    }
-
-    //vector sum
-    Vector3D operator+(Vector3D otherv){ 
-      return Vector3D( this->x + otherv.x, this->y + otherv.y, this->z + otherv.z);
-    }
-
-    //vector subtraction
-    Vector3D operator-(Vector3D otherv){ 
-      return Vector3D( this->x - otherv.x, this->y - otherv.y, this->z - otherv.z);
-    }
-
-    //multiplication by constant
-    Vector3D operator*(GLfloat a){ 
-      return Vector3D( this->x * a, this->y * a, this->z * a);
-    }
-
-    //division by constant
-    Vector3D operator/(GLfloat a){ 
-      return Vector3D( this->x / a, this->y / a, this->z / a);
-    }
-
-    //dot product
-    GLfloat dot(Vector3D otherv){ 
-      return this->x * otherv.x + this->y * otherv.y + this->z * otherv.z;
-    }
-
-    //returns the euclidean norm of this vector
-    GLfloat norm(){ 
-      return sqrt( this->dot(*this) );
-    }
-    
-    //returns the taxi norm of this vector (largest absolute value of a corrdinate)
-    GLfloat taxi_norm(){ 
-      //return max(abs(x), abs(y), abs(z));
-      return 0.0;
-    }
-
-    //returns a unit vector in the same direction as this vector
-    Vector3D unit(){  
-      return (*this) / this->norm();
-    }
-
-    //euclidean distance
-    GLfloat eucl(Vector3D other){  
-      return (*this - other).norm();
-    }
-
-    /* To a string */
-    std::string str(){
-      char out[64];
-      sprintf(out, "%4.2f\n%4.2f\n%4.2f\n", x, y, z);
-      return std::string(out);
-    }
-
-};
-
+template <class T=float>
 class Sphere : public Drawable {
 
-  static const GLfloat SPHERE_RADIUS = 0.2;
-  static const GLint SPHERE_SLICES = 10;
-  static const GLint SPHERE_STACKS = 10;
+    public:
 
-  public:
+        Vec3<T> pos;         
+        Vec3<T> speed;       
+        GLfloat color[3];
 
-    Vector3D center;
-    Vector3D speed;
-    GLfloat* color;
+        T rad;
+        int slices;
+        int stacks;
 
-    /*default constructor*/
-    Sphere(){
-      this->center = Vector3D();
-      this->speed = Vector3D();
-      this->color = new GLfloat[3];
-      this->color[0] = 0.0;
-      this->color[1] = 0.0;
-      this->color[2] = 0.0;
-    }
+        Sphere()
+        :
+            pos(Vec3<>()),
+            rad(1.0),
+            slices(20),
+            stacks(20),
+            speed(Vec3<>())
+        {
+            color[0] = 1.0;
+            color[1] = 1.0;
+            color[2] = 1.0;
+        }
 
-    Sphere(Vector3D center, Vector3D speed, GLfloat color[]){
-      this->center = center;
-      this->speed = speed;
-      this->color = new GLfloat[3];
-      this->color[0] = color[0];
-      this->color[1] = color[1];
-      this->color[2] = color[2];
-    }
+        Sphere
+        (
+            Vec3<> pos,
+            T rad = 1.0,
+            int slices = 20,
+            int stacks = 20,
+            const GLfloat* color = white,
+            Vec3<> speed = Vec3<>()
+        )
+        :
+            pos(pos),
+            rad(rad),
+            slices(slices),
+            stacks(stacks),
+            speed(speed)
+        {
+            this->color[0] = color[0];
+            this->color[1] = color[1];
+            this->color[2] = color[2];
+        }
 
-    /*draws the sphere*/
-    void draw(){
-    
-      glPushMatrix();
+        void draw(){
+        
+            glPushMatrix();
 
-        glTranslatef( center.x, center.y, center.z );
+                glTranslatef( pos.x, pos.y, pos.z );
 
-        glLineWidth(1.0); 
-        glColor3fv(BLACK);
-        glutWireSphere(SPHERE_RADIUS, SPHERE_SLICES, SPHERE_STACKS);
+                cout << color[0] << endl;
+                cout << color[1] << endl;
+                cout << color[2] << endl;
+                cout << endl;
+                glColor3fv(color);
+                //glLineWidth(1.0); 
+                //glutWireSphere(rad, slices, stacks);
+                glutSolidSphere(rad, slices, stacks);
 
-        glColor3fv(color);
-        glutSolidSphere(SPHERE_RADIUS, SPHERE_SLICES, SPHERE_STACKS);
+            glPopMatrix();
 
-      glPopMatrix();
-
-    }
+        }
 
 };
 
-enum ndrawables{ndrawables=1};
-Drawable* drawables;
+//view parameters
+template <class T=float>
+class Camera
+{
+    public:
 
-/*Stuff that is only set once for all.*/
+        Camera()
+        :
+            pos(Vec3<T>(0.0, 0.0, 0.0)),
+            dir(Vec3<T>(1.0, 0.0, 0.0)),
+            up(Vec3<T>(0.0, 1.0, 0.0f)),
+            frustrumNear(1.0),
+            frustrumFar(100.0),
+            frustrumL(1.0),
+            resX(700),
+            resY(700)
+        {
+        }
+
+        Camera
+        (
+            Vec3<T> pos, //position of the camera
+            Vec3<T> dir, //direction of viewing
+            Vec3<T> up = Vec3<T>(0.0, 1.0, 0.0f),
+            T frustrumNear = 1.0,
+            T frustrumFar = 100.0,
+            T frustrumL = 1.0,
+            int resX = 700,
+            int resY = 700
+        )
+        :
+            pos(pos),
+            dir(dir),
+            up(up),
+            frustrumNear(frustrumNear),
+            frustrumFar(frustrumFar),
+            frustrumL(frustrumL),
+            resX(resX),
+            resY(resY)
+        {
+        }
+
+        Vec3<T> getLookat(){ return pos+dir; }
+
+        Vec3<T> pos;
+        Vec3<T> dir;
+        Vec3<T> up;
+
+        GLfloat frustrumNear;
+        GLfloat frustrumFar;
+        GLfloat frustrumL;
+
+        int resX;
+        int resY;
+};
+
+//window
+    GLint windowW = 700;
+    GLint windowH = 700; 
+    GLint windowPosX = 10;
+    GLint windowPosY = 10; 
+
+    GLdouble clearColorR = 0.0;
+    GLdouble clearColorG = 0.0;
+    GLdouble clearColorB = 0.0;
+
+    int oldT;  //used to keep real time consistent
+
+//light
+    GLfloat lightPos[] = { 2.0, 2.0, 2.0, 0.0 };
+
+//scenario
+    GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+    GLfloat mat_shininess[] = { 50.0 };
+    const int nDrawables = 1;
+    Drawable* drawables[nDrawables];
+    const int nSpheres = 1;
+    Sphere<> spheres[nSpheres];
+
+//camera
+    //create a camera
+    Camera<> camera = Camera<>
+    (
+        Vec3<>(0.0,0.0,-2.0),
+        Vec3<>(0.0,0.0,1.0)
+    );
+
+//physical viewer params
+    float fast_forward = 1.f;
+    GLfloat personR = 1.f; //radius for collision detection
+
+    //wait for input mode
+    GLfloat dirStep = 2.f;     //speed forward
+    GLfloat dirRotStep = 2.f;     //speed forward
+
+    //don't wait for input
+    GLfloat speedMax = 2.f;      //trsnalation speed
+    GLfloat rotSpeedMax = 0.0f;  //rotation speed in rad/s
+    Vec3<> speed;  //translation speed in rad/s
+    Vec3<> rotSpeed;  //rotation speed in rad/s. right hand rule
+
+//stuff set only once at beginning
 void init(int argc, char** argv) 
 {
 
-  glutInit(&argc, argv);
+    glutInit(&argc, argv);
 
-  glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
-  //GLUT_DOUBLE vs GLUT_SINGLE wait to change frames when the second is read, necessary for heavy animations.
-  //GLUT_RGB vs indexed color: instead of using 8bit per channel, choose 256 colors that represent well an image, and use 1byte for each pixel.
-  //  http://en.wikipedia.org/wiki/Indexed_color
-  //GLUT_DEPTH depth buffering: calculate pixels for each plane and their distances,
-    //keep only closest one, cheapest way to hide parts of objects that go behind others.
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+    //GLUT_DOUBLE vs GLUT_SINGLE wait to change frames when the second is read, necessary for heavy animations.
+    //GLUT_RGB vs indexed color: instead of using 8bit per channel, choose 256 colors that represent well an image, and use 1byte for each pixel.
+    //  http://en.wikipedia.org/wiki/Indexed_color
+    //GLUT_DEPTH depth buffering: calculate pixels for each plane and their distances,
+        //keep only closest one, cheapest way to hide parts of objects that go behind others.
 
-  //window
-    glutInitWindowSize(WINDOW_W, WINDOW_H); 
-    glutInitWindowPosition(WINDOW_POSX, WINDOW_POSY);
-    glutCreateWindow(argv[0]);
+    //window
+        glutInitWindowSize(windowW, windowH); 
+        glutInitWindowPosition(windowPosX, windowPosY);
+        glutCreateWindow(argv[0]);
 
-  //clear the screen after each image
-    glClearColor(clear_color_r,clear_color_g,clear_color_b,1.0);
+    //clear the screen after each image
+        glClearColor(clearColorR,clearColorG,clearColorB,1.0);
 
-  glEnable(GL_DEPTH_TEST);
-  //glEnable(GL_POLYGON_OFFSET_FILL);
-  //glEnable(GL_POLYGON_OFFSET_LINE);
-  glPolygonOffset(1.0, 1.0); 
+    glEnable(GL_DEPTH_TEST); //TODO ?
 
-  //which side of objcts to take into account
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    //glPolygonMode(GL_FRONT, GL_FILL);
-    //glPolygonMode(GL_BACK, GL_FILL);
+    glEnable(GL_POLYGON_OFFSET_FILL); //TODO ?
+    //glEnable(GL_POLYGON_OFFSET_LINE);
+    glPolygonOffset(1.0, 1.0); 
 
-  //fill solids or not
-    //glPolygonMode(GL_FRONT, GL_LINE); //only lines will be drawn
-    //glPolygonMode(GL_FRONT, GL_FILL); //will fill the solids
+    //which side of objcts to take into account
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        //glPolygonMode(GL_FRONT, GL_FILL);
+        //glPolygonMode(GL_BACK, GL_FILL);
 
-  //lights
+    //fill solids or not
+        //glPolygonMode(GL_FRONT, GL_LINE); //only lines will be drawn
+        //glPolygonMode(GL_FRONT, GL_FILL); //will fill the solids
+
+    //lights
+        glEnable(GL_LIGHTING);
+
+        //glShadeModel(GL_FLAT);
+        glShadeModel(GL_SMOOTH);
+
+        //light0
+            glEnable(GL_LIGHT0);
+            glLightfv(GL_LIGHT0, GL_POSITION, lightPos); 
+            glLightfv(GL_LIGHT0, GL_AMBIENT, gray);
+            //glLightfv(GL_LIGHT0, GL_DIFFUSE, white);
+            //glLightfv(GL_LIGHT0, GL_SPECULAR, white);
+
+            //attenuation
+                //\frac{1}{k+ld+qd^2}
+                //glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 2.0);
+                //glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 1.0);
+                //glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.5);
+ 
+        //glEnable(GL_LIGHT1);
+            //... up to 8 lights
+    
     glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
     glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
-    glLightfv(GL_LIGHT0, GL_POSITION, light_position); 
-    glEnable(GL_LIGHTING);
-    glEnable(GL_LIGHT0);
-    //glEnable(GL_LIGHT1);
-        //... up to 8 lights
-    //glLight*() //set light color. default is white
 
-    //glShadeModel(GL_FLAT);
-    glShadeModel(GL_SMOOTH);
- 
-  //create drawable objects to model initial scene
-    drawables = new Drawable[ndrawables];
-    drawables[0] = Sphere( Vector3D(-0.5,0.75,0.0), Vector3D( 0.1, 0.0, 0.0), GREEN );
-    //drawables[1] = Sphere( Vector3D(-0.5,0.75,0.0), Vector3D( 0.1, 0.0, 0.0), GREEN );
+    //create drawable objects to model initial scene
+        spheres[0] = Sphere<>( Vec3<>(0.0,0.0,0.0), 1.0, 20, 20, blue );
+        //spheres[1] = Sphere( Vec3<>(-0.5,0.75,0.0), Vec3<>( 0.1, 0.0, 0.0), green );
+        int total=0;
+        for (int i=total; i<nSpheres; i++)
+        {
+            drawables[i] = &spheres[i];
+        }
+
+    oldT = glutGet(GLUT_ELAPSED_TIME); //init old time in ms.
+
 }
-
-int old_t = 0; //old time in ms. used to keep real time consistent
 
 /*calculates the parameters of the new scene and calls display again*/
-void calc_new_scene(void){
+void calcNewScene(void)
+{
+    Vec3<> dx, newpos;
+    float dt;
+    int t;
 
-  Vector3D dx, new_center;
-  float dt;
-  int t;
+    //cout << "===========================\n";
+    //cout << "pos" << endl << camera.pos.str();
+    //cout << "dir" << endl << camera.dir.str();
+    //cout << endl;
+    //cout << "speed\n" << speed;
+    //cout << "rotSpeed\n" << rotSpeed;
 
-  //cout << "===========================\n";
-  //cout << "center\n" << center.str(2) << endl;
-  //cout << "eye\n" << eye.str(2) << endl;
-  //cout << "speed\n" << speed << endl;
-  //cout << "rot_speed\n" << rot_speed << "\n\n";
+    //keep animation real time consistent
+        t = glutGet(GLUT_ELAPSED_TIME);
+        dt = fast_forward*(t - oldT)/1000.0f;
+        oldT = t;
 
-  //keep animation's real time consistent
-    t = glutGet(GLUT_ELAPSED_TIME);
-    dt = fast_forward*(t - old_t)/1000.0f;
-    old_t = t;
+    //speed nonstop movement method
+        //camera.dir.rotY( rotSpeed*dt );
+        newpos = camera.pos + speed*dt;
 
-  //calculate new scene based on dt (s)
-
-  //speed movement method
-    eye.rotY( rot_speed*dt );
-    new_center = center + eye*speed*dt;
-
-  glutPostRedisplay();
+    glutPostRedisplay();
 }
 
-void draw_scene(void){
+void drawScene(void)
+{
 
-  glLoadIdentity(); // reset everything before starting
+    glLoadIdentity(); // reset everything before starting
 
-  gluLookAt(eyex, eyey, eyez, centerx, centery, centerz, upx, upy, upz);
+    Vec3<> lookat = camera.getLookat();
 
-  //glColor3f(0.0, 0.0, 1.0);
+    gluLookAt
+    (
+        camera.pos.x,
+        camera.pos.y,
+        camera.pos.z,
+        lookat.x,
+        lookat.y,
+        lookat.z,
+        camera.up.x,
+        camera.up.y,
+        camera.up.z
+    );
 
-  //you can format those primitives with:
-    //void glPointSize(GLfloat size);
-    //void glLineWidth(GLfloat width); 
-    //void glLineStipple(GLint factor, GLushort pattern); 
-      //pattern=0x3F07 (translates to 0011111100000111 in binary), a line would be drawn with 3 pixels on, then 5 off, 6 on, and 2 off
-      //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); //default mode
-      //GL_FRONT, GL_BACK
-      //GL_FILL, GL_LINE, GL_POINT
-      //void glFrontFace(GLenum mode)
+    //you can format those primitives with:
+        //void glPointSize(GLfloat size);
+        //void glLineWidth(GLfloat width); 
+        //void glLineStipple(GLint factor, GLushort pattern); 
+        //pattern=0x3F07 (translates to 0011111100000111 in binary), a line would be drawn with 3 pixels on, then 5 off, 6 on, and 2 off
+        //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); //default mode
+        //GL_FRONT, GL_BACK
+        //GL_FILL, GL_LINE, GL_POINT
+        //void glFrontFace(GLenum mode)
 
-  glPushMatrix(); // before transforming save the old matrix
+    glPushMatrix(); // before transforming save the old matrix
 
     //geometric transformations
         //glMultMatrixf(N);
         //glScalef(1.0, 1.0, 1.0);
         //glRotatef(90., 1., 0., 0.);
-        glTranslatef(.5, .5, 0.5);
+        //glTranslatef(.5, .5, 0.5);
 
     //polygons are primitives, and thus dealt by opengl
         //glBegin(GL_POLYGON);
@@ -307,28 +352,28 @@ void draw_scene(void){
         //glEnd(); 
         
         //other types of basic shapes:
-        //GL_POINTS
-        //GL_LINES
-        //GL_LINE_STRIP
-        //GL_LINE_LOOP
-        //GL_TRIANGLES
-        //GL_TRIANGLE_STRIP
-        //GL_TRIANGLE_FAN
-        //GL_QUADS
-        //GL_QUAD_STRIP
-        //POLYGON
-        //glVertex*()
-      
-    //the following are also allowed betwen glBegin and glEnd
-      //glColor*()
-      //glIndex*()
-      //glNormal*()
-      //glTexCoord*()
-      //glEdgeFlag*()
-      //glMaterial*()
-      //glArrayElement()
-      //glEvalCoord*(), glEvalPoint*()
-      //glCallList(), glCallLists()
+            //GL_POINTS
+            //GL_LINES
+            //GL_LINE_STRIP
+            //GL_LINE_LOOP
+            //GL_TRIANGLES
+            //GL_TRIANGLE_STRIP
+            //GL_TRIANGLE_FAN
+            //GL_QUADS
+            //GL_QUAD_STRIP
+            //POLYGON
+            //glVertex*()
+        
+        //the following are also allowed betwen glBegin and glEnd
+            //glColor*;
+            //glIndex*
+            //glNormal*
+            //glTexCoord*
+            //glEdgeFlag*
+            //glMaterial*
+            //glArrayElement
+            //glEvalCoord*, glEvalPoint*
+            //glCallList, glCallLists
 
     //3d shapes are not primitives, so you must call them from glut (or glu)
         //glutWireCube(1.0);
@@ -347,35 +392,47 @@ void draw_scene(void){
             //torus 
             //teapot
 
-  glPopMatrix(); //after drawing, reload the old transform
+    glPopMatrix(); //after drawing, reload the old transform
 
-  for(int i=0; i<ndrawables; i++){
-    drawables[i].draw();
-  }
+    for(int i=0; i<nDrawables; i++)
+    {
+        drawables[i]->draw();
+    }
 
 }
 
-void display(void)
+void display()
 {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //clear the color buffer and the depth buffer
+    // TODO ? DEPTH_BUFFER
 
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //clear the color buffer and the depth buffer
-  // TODO understand DEPTH_BUFFEr
+    drawScene();
 
-  draw_scene();
-
-  //glFlush(); //send all commands even if output is not read. (parallel processing, network)
-  glutSwapBuffers(); //also flushes first
+    //glFlush(); //send all commands even if output is not read. (parallel processing, network)
+    glutSwapBuffers(); //also flushes first
 
 }
 
 void reshape(int w, int h)
 {
-   glViewport(0, 0,(GLsizei) w,(GLsizei) h); 
-   glMatrixMode(GL_PROJECTION);
-   //glMatrixMode(GL_ORTHO);
-   glLoadIdentity();
-   glFrustum(-frustrum_l, frustrum_l, -frustrum_l, frustrum_l, frustrum_min, frustrum_max); //this is what can be seen
-   glMatrixMode(GL_MODELVIEW); //needed for transformations TODO
+
+    glViewport(0, 0,(GLsizei) w,(GLsizei) h); 
+
+    glMatrixMode(GL_PROJECTION); //normal 3d vision
+    //glMatrixMode(GL_ORTHO); //2d like projection vision
+
+    glLoadIdentity();
+    glFrustum
+    (
+        -camera.frustrumL,
+        camera.frustrumL,
+        -camera.frustrumL,
+        camera.frustrumL,
+        camera.frustrumNear,
+        camera.frustrumFar
+    ); //this is what can be seen from the camera
+
+    glMatrixMode(GL_MODELVIEW); //needed for transformations TODO
 }
 
 //move models
@@ -390,10 +447,10 @@ void reshape(int w, int h)
         switch(key)
         {
             case 's':
-                eyez -= eye_speed;
+                camera.dir.z -= dirStep;
                 break;
             case 'w':
-                eyez += eye_speed;
+                camera.dir.z += dirStep;
                 break;
             case 27: //esc
                 //quit
@@ -403,30 +460,30 @@ void reshape(int w, int h)
     }
 
 //fixed speed
-    //position will be calculated as function of elapsed time in calc_new_scene()
+    //position will be calculated as function of elapsed time in calcNewScene()
     void keyDownSpeed(unsigned char key, int x, int y)
     {
         switch(key)
         {
             case 'a':
                 //rotate left
-                rot_speed = -ROT_SPEED_MAX;
+                //rotSpeed = -rotSpeedMax;
                 break;
             case 'd':
                 //rotate right
-                rot_speed = ROT_SPEED_MAX;
+                //rotSpeed = rotSpeedMax;
                 break;
             case 'e':
                 //run faster
-                speed *= 2.f;
+                //speed *= 2.f;
                 break;
             case 's':
                 //backwards 
-                speed = -SPEED_MAX;
+                //speed = -dirSpeedMax;
                 break;
             case 'w':
                 //forwards
-                speed = SPEED_MAX;
+                //speed = dirSpeedMax;
                 break;
             case 27: //esc
                 //quit
@@ -440,34 +497,33 @@ void reshape(int w, int h)
         switch(key)
         {
             case 'a':
-                rot_speed = 0.f;
+                //rotSpeed = 0.f;
                 break;
             case 'd':
-                rot_speed = 0.f;
+                //rotSpeed = 0.f;
                 break;
             case 'e':
-                speed /= 2.f;
+                //speed /= 2.f;
                 break;
             case 's':
-                speed = 0.f;
+                //speed = 0.f;
                 break;
             case 'w':
-                speed = 0.f;
+                //speed = 0.f;
                 break;
         }
     }
 
 int main(int argc, char** argv)
 {
-
-  init(argc,argv);
-  glutDisplayFunc(display); 
-  glutReshapeFunc(reshape);
-  glutIdleFunc(calc_new_scene); //called after render is done, typically to recalculate positions for the next frame
-  glutKeyboardFunc(keyDown);
-  glutKeyboardUpFunc(keyUp);
-  glutMainLoop();
-  //THIS IS NEVER REACHED
- 
-  return 0;
+    init(argc,argv);
+    glutDisplayFunc(display); 
+    glutReshapeFunc(reshape);
+    glutIdleFunc(calcNewScene); //called after render is done, typically to recalculate positions for the next frame
+    glutKeyboardFunc(keyDown);
+    //glutKeyboardUpFunc(keyUp);
+    glutMainLoop();
+    //THIS IS NEVER REACHED
+    
+    return 0;
 }

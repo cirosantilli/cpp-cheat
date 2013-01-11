@@ -2,6 +2,9 @@ CC=gcc
 LIBS=-lglut -lGLU
 #compile command
 
+INCLUDES=-I/usr/include/GL
+#ubuntu path
+
 IN_EXT=.cpp
 #extension of input files
 
@@ -24,7 +27,7 @@ OUTS=$(addprefix $(OUT_DIR),$(OUTS_NODIR))
 all: mkdir $(OUTS)
 
 $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%$(IN_EXT)
-	$(CC) -o "$@" "$<" $(LIBS)
+	$(CC) $(INCLUDES) -o "$@" "$<" $(LIBS)
 
 mkdir:
 	mkdir -p "$(OUT_DIR)"

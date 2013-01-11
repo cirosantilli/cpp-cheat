@@ -33,11 +33,6 @@ class Vector3D{
       this->z = z;
     }
 
-    GLfloat* toArray(){
-      GLfloat out[] = {x, y, z};
-      return &out[0];
-    }
-
     //vector sum
     Vector3D operator+(Vector3D otherv){ 
       return Vector3D( this->x + otherv.x, this->y + otherv.y, this->z + otherv.z);
@@ -192,7 +187,7 @@ GLuint loadTextureJpg( string filename, int wrap )
 
 GLfloat PERSON_H = 1.7; //person height
 GLfloat PERSON_R = 0.3; //the person is a cylinder of 30cm radius
-GLfloat PERSON_SPEEDS[] = {0.5, 2.0,5.0}; //the 3 speeds in m/s
+GLfloat PERSON_SPEEDS[] = {0.5,2.0,5.0}; //the 3 speeds in m/s
 GLfloat PERSON_LOOK_DOWN = -.2; //how much the person looks down
 GLfloat WALL_H = 2.0; //wall height
 GLfloat WALL_L = 20.0; //wall length

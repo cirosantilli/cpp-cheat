@@ -99,34 +99,65 @@ TODO
     - documentation: doxigen
         <http://www.stack.nl/~dimitri/doxygen/docblocks.html>
 
-#fundamental libraries:
+#hot libraries
+
+- opengl
+
+    sudo aptitude install freeglut3-dev
 
 - opengl
 
     #opencv
 
-    #install ubuntu 12.04
+        #install ubuntu 12.04
 
-        sudo aptitude install build-essential
-        sudo aptitude install libopencv-dev opencv-doc
+            sudo aptitude install build-essential
+            sudo aptitude install libopencv-dev opencv-doc
 
-    not sure the following    are needed in general
+        not sure the following    are needed in general
 
-        sudo aptitude install libavformat-dev
-        sudo aptitude install ffmpeg
-        sudo aptitude install libcv2.1 libcvaux2.1 libhighgui2.1 python-opencv opencv-doc libcv-dev libcvaux-dev libhighgui-dev
+            sudo aptitude install libavformat-dev
+            sudo aptitude install ffmpeg
+            sudo aptitude install libcv2.1 libcvaux2.1 libhighgui2.1 python-opencv opencv-doc libcv-dev libcvaux-dev libhighgui-dev
 
-    now copy the examples and compile run them:
+        now copy the examples and compile run them:
 
-        cp -r /usr/share/doc/opencv-doc/examples ./
+            cp -r /usr/share/doc/opencv-doc/examples ./
 
-    with
+        with
 
+        
+            opencv2 is the second version released in 2009,
+
+            this is why you have both folders /usr/include/opencv and opencv2
+
+##numerical computation
+
+    - blas/lapack
+
+        fortran converted. de facto basis of current linalg computations
     
-    opencv2 is the second version released in 2009,
+    - eigen
 
-    this is why you have both folders /usr/include/opencv and opencv2
-    
+        http://eigen.tuxfamily.org/index.php?title=Main_Page
+
+        linear algebra, eqdiffs
+
+    - blitz++
+
+        http://blitz.sourceforge.net/
+
+        linear algebra
+
+    - armadillo
+
+        http://arma.sourceforge.net/
+
+        linear algebra
+
+
+
+
 */
 
 //preprocessor
@@ -208,17 +239,23 @@ float pow2f(float a, float b)
 
 int main(){
 
-    //base types
+    //base types and vars
+        //allowed variable names: _,[a-Z],[0-9], canot start with number
+        
         puts("\nbase types");
         int i=5,j=7; //31 bit + 1 sign bit integer
         int* ip = &i;
-        long int li = 8L; //64 bit int
         //int i;
         //i = 5;
         //
         //int i=5;
         //int j=7;
-        //
+        unsigned int ui;
+        //applications:
+            //array indexes
+            //size_t
+        long int li = 8L;
+        long long lli = 8LL; //64 bit int. defined in C99
         float f = 1.2345f;    //1 signal 23 number 8 exponent
         float f1 = 1.2345e-10f;
         float f2 = 1.f;
@@ -231,15 +268,70 @@ int main(){
 
         size_t size = sizeof(int);
         printf("sizeof(int) = %zu\n",sizeof(int)); //how many bytes per int
+        //4
         printf("sizeof(long int) = %zu\n",sizeof(long int)); //int and long int may be equal!!!!!! this is plataform dependent
+        //4
+        printf("sizeof(long long) = %zu\n",sizeof(long long)); //int and long int may be equal!!!!!! this is plataform dependent
+        //8
 
-        //allowed variable chars: _,[a-Z],[0-9], canot start with number
-        
-        //bases
+        //modifiers for int and float
+            //short
+            //long
+            //signed
+            //unsigned 
+            
+            //stardard specifies not necessarily smaller!!!
+                //short int <=    int <= long int
+                //float <= double <= long double
+            
+            //in practice today (could change in the future):
+                //short int             2             -32,768 -> +32,767          (16kb)
+                //unsigned short int    2                   0 -> +65,535          (32Kb)
+                //unsigned int          4                   0 -> +4,294,967,295   ( 4Gb)
+                //int                   4      -2,147,483,648 -> +2,147,483,647   ( 2Gb)
+                //long int              4      -2,147,483,648 -> +2,147,483,647   ( 2Gb)
+                //long long == long int 8      (created in C99)
+                //unsigned long long
+                //signed char           1                -128 -> +127
+                //unsigned char         1                   0 -> +255
+                //float                 4    
+                //double                8    
+                //long double           12   
+
+            //ERROR: unsigned flot does not exist!
+                //unsigned float uf = 1.0f;
+
+            i = 0xFFFFFFFF; //max unsigned int
+            printf("i = %d\n", i);
+            //-1. too large for int!
+            i++;
+            printf("i = %d\n", i);
+            //0
+
+            ui = 0xFFFFFFFF;
+            printf("ui = %u\n", ui);
+
+            //SAME
+            ui = -1;
+            printf("ui = %u\n", ui);
+
+            //TODO what is the difference between declaring a variable signed an unsigned?
+                //all that matters is the %u or %d in the printf?
+
+            //WARN overflow
+                //i = 0x100000000; //max int+1
+
+            //WARN constant too large (even for long long)
+                //lli = 0x10000000000000000; //max long long+1
+
+        //bases for integers
             printf("16 = %d\n", 16);
             printf("0x10 = %d\n", 0x10);
+            //16
             printf("020 = %d\n", 020);
+            //16
             printf("0b10000 = %d\n", 0b10000);
+            //16
         
         //const
             const int ic = 0;
@@ -247,7 +339,7 @@ int main(){
                 //exact same thing!
             const int ic2 = i;
 
-            //ERROR: consts are... consts!
+            //ERROR: consts are... almost consts! (you can change them with a warning)
                 //ic = 1;
             //ERROR: i already defined
                 //int i = 0;
@@ -258,23 +350,38 @@ int main(){
                 //*ip = 2;
                 //we changed the const!
                     //this is why you can't int is[constint]; !!
+                    //because you can compile with only a warning and change a const
                 
-            const int* cip = &ic;
-            //SAME
-                //int const* icp = &ic;
-            cip = &ic2;
-            //ERROR: const prevents from changing value
-                //*cip = 2;
-
-            //WARN
-                //int * const ipc = &ic;
-            //ERROR: this time what the address the pointer points to is constant
-            //not its value!
-                //ipc = &ic2;
-            //BAD: we changed the value!
-                //*ipc = 2;
+            //const pointers
+                //3 types:
+                    //const*
+                    //*const
+                    //const*const
             
-            const int* const cipp = &ic;
+                const int* cip = &ic;
+                //SAME
+                    //int const* icp = &ic;
+                cip = &ic2;
+                //ERROR: const prevents from changing value
+                    //*cip = 2;
+
+                //BAD compiles without warning, but is bad since ic3 cannot get a value
+                    //unless you typecast its pointer with a warning
+                    const int ic3;
+
+                //WARN
+                    //int * const ipc = &ic;
+                //ERROR: this time what the address the pointer points to is constant
+                //not its value!
+                    //ipc = &ic2;
+                //BAD: we changed the value!
+                    //*ipc = 2;
+                
+                const int* const cipp = &ic;
+
+            const int cis2[2] = {1,2};
+            //ERROR
+                //cis2[0] = 1;
 
         //typecast
             printf("(double).1f = %f\n", (double).1f); //float to double
@@ -309,8 +416,17 @@ int main(){
         //http://www.cplusplus.com/reference/clibrary/cstdio/printf/
 
         puts("\nprintf:");
-        printf("d = %d\n", 1);
-        printf("ld = %ld\n", 1L);
+        printf("d 1 = %d\n", 1);
+        printf("d 0xFFFFFFFF = %d\n", 0xFFFFFFFF);
+        //-1
+        printf("u 0xFFFFFFFF = %u\n", 0xFFFFFFFF);
+        //max unsigned int
+        //WARN expects unsigned int, found int
+            //printf("u -1 = %u\n", -1);
+        printf("ld 1L = %ld\n", 1L);
+        //WARN expects unsigned int, found int
+            //printf("u -1 = %lu\n", -1);
+        printf("lld = %lld\n", 0x100000000LL); //long long (int)
         printf("%d %d\n",1,2);
 
         printf("f = %f\n", f);
@@ -380,25 +496,30 @@ int main(){
     //portable lightweight: dirent.h
     
     //linux only if you don't care!
-    if(0){
-
+    if(0)
+    {
         #include <sys/stat.h>    
-        if( mkdir("newdir",0777) == -1 ){
-        puts("could not create newdir");
-        } else {
-        puts("newdir created");
+        if( mkdir("newdir",0777) == -1 )
+        {
+            puts("could not create newdir");
+        }
+        else
+        {
+            puts("newdir created");
         }
 
         puts("enter to remove newdir:");
         gets(s);
         
         #include <unistd.h>
-        if( rmdir("newdir") == -1 ){
-        puts("could not remove newdir");
-        } else {
-        puts("newdir removed");
+        if( rmdir("newdir") == -1 )
+        {
+            puts("could not remove newdir");
         }
-
+        else
+        {
+            puts("newdir removed");
+        }
     }
 
     puts("");
