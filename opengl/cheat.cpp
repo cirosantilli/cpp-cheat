@@ -89,13 +89,13 @@ class Sphere : public Drawable {
 
                 glTranslatef( pos.x, pos.y, pos.z );
 
-                //glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, color);
-                //glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, color);
-                //glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, color);
-                
+                cout << color[0] << endl;
+                cout << color[1] << endl;
+                cout << color[2] << endl;
+                cout << endl;
+                glColor3fv(color);
                 //glLineWidth(1.0); 
                 //glutWireSphere(rad, slices, stacks);
- 
                 glutSolidSphere(rad, slices, stacks);
 
             glPopMatrix();
@@ -173,15 +173,11 @@ class Camera
     int oldT;  //used to keep real time consistent
 
 //light
-    GLfloat lightPos[] = { 2.0, 2.0, 2.0 };
+    GLfloat lightPos[] = { 2.0, 2.0, 2.0, 0.0 };
 
 //scenario
-    const GLfloat* mat_ambient = red;
-    const GLfloat* mat_diffuse = white;
-    const GLfloat* mat_specular = white;
-    const GLfloat* mat_emission = white;
-    const GLfloat mat_shininess[] = { 50.0 };
-
+    GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+    GLfloat mat_shininess[] = { 50.0 };
     const int nDrawables = 1;
     Drawable* drawables[nDrawables];
     const int nSpheres = 1;
@@ -230,10 +226,9 @@ void init(int argc, char** argv)
     //clear the screen after each image
         glClearColor(clearColorR,clearColorG,clearColorB,1.0);
 
-    glEnable(GL_DEPTH_TEST); //TODO ?
-
-    glEnable(GL_POLYGON_OFFSET_FILL); //TODO ?
-    //glEnable(GL_POLYGON_OFFSET_LINE);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_POLYGON_OFFSET_FILL);
+    glEnable(GL_POLYGON_OFFSET_LINE);
     glPolygonOffset(1.0, 1.0); 
 
     //which side of objcts to take into account
@@ -246,56 +241,28 @@ void init(int argc, char** argv)
         //glPolygonMode(GL_FRONT, GL_FILL); //will fill the solids
 
     //lights
+        glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
+        glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
+
         glEnable(GL_LIGHTING);
 
-        //glLightModelfv
-            //glLightModelfv(GL_LIGHT_MODEL_AMBIENT, white); //ambient light
-            //glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE); //TODO ?
-            //glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE); //light both sides
+        glLightfv(GL_LIGHT0, GL_ white); //set light color. default is white
+        glLightfv(GL_LIGHT0, GL_POSITION, lightPos); 
+        glEnable(GL_LIGHT0);
 
-        //glShadeModel(GL_FLAT);
-        glShadeModel(GL_SMOOTH);
-
-        //light0
-            glEnable(GL_LIGHT0);
-            glLightfv(GL_LIGHT0, GL_POSITION, lightPos); 
-            glLightfv(GL_LIGHT0, GL_AMBIENT, white);
-            glLightfv(GL_LIGHT0, GL_DIFFUSE, white);
-            glLightfv(GL_LIGHT0, GL_SPECULAR, white);
-
-            //attenuation
-                //\frac{1}{k+ld+qd^2}
-                //glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 2.0);
-                //glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 1.0);
-                //glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.5);
+        //attenuation
+            //\frac{1}{k+ld+qd^2}
+            //glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 2.0);
+            //glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 1.0);
+            //glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.5);
  
         //glEnable(GL_LIGHT1);
             //... up to 8 lights
 
-    //two ways to define materials
- 
-        //gl_color_material and glmaterialfv
-
-
-        //GL_COLOR_MATERIAL
-            //glEnable(GL_COLOR_MATERIAL);
-            //glColorMaterial(GL_FRONT, GL_DIFFUSE);
-            //// now glColor* changes diffuse reflection 
-            //glColor3f(0.2, 0.5, 0.8);
-            //// draw some objects here
-            //glColorMaterial(GL_FRONT, GL_SPECULAR);
-            //// glColor* no longer changes diffuse reflection
-            //// now glColor* changes specular reflection
-            //glColor3f(0.9, 0.0, 0.2);
-            //// draw other objects here */
-            //glDisable(GL_COLOR_MATERIAL); 
-
-        //glMaterialfv
-            glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, mat_ambient);
-            glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, mat_diffuse);
-            glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, mat_specular);
-            glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, mat_emission);
-            glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
+        //glShadeModel(GL_FLAT);
+        glShadeModel(GL_SMOOTH);
+    
+    //oldT = glutGet(GLUT_ELAPSED_TIME); //init old time in ms.
 
     //create drawable objects to model initial scene
         spheres[0] = Sphere<>( Vec3<>(0.0,0.0,0.0), 1.0, 20, 20, blue );
@@ -305,9 +272,6 @@ void init(int argc, char** argv)
         {
             drawables[i] = &spheres[i];
         }
-
-    oldT = glutGet(GLUT_ELAPSED_TIME); //init old time in ms.
-
 }
 
 /*calculates the parameters of the new scene and calls display again*/
@@ -324,12 +288,14 @@ void calcNewScene(void)
     //cout << "speed\n" << speed;
     //cout << "rotSpeed\n" << rotSpeed;
 
-    //keep animation real time consistent
-        t = glutGet(GLUT_ELAPSED_TIME);
-        dt = fast_forward*(t - oldT)/1000.0f;
-        oldT = t;
+    //keep animation's real time consistent
+        //t = glutGet(GLUT_ELAPSED_TIME);
+        //dt = fast_forward*(t - oldT)/1000.0f;
+        //oldT = t;
 
-    //speed nonstop movement method
+    //calculate new scene based on dt (s)
+
+    //speed movement method
         //camera.dir.rotY( rotSpeed*dt );
         newpos = camera.pos + speed*dt;
 
@@ -435,7 +401,7 @@ void drawScene(void)
 void display()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //clear the color buffer and the depth buffer
-    // TODO ? DEPTH_BUFFER
+    // TODO understand DEPTH_BUFFEr
 
     drawScene();
 
@@ -545,30 +511,6 @@ void reshape(int w, int h)
         }
     }
 
-void mouse(int button, int state, int x, int y)
-{
-   switch (button)
-   {
-      case GLUT_LEFT_BUTTON:
-         if (state == GLUT_DOWN) {
-
-         }
-         break;
-      case GLUT_MIDDLE_BUTTON:
-         if (state == GLUT_DOWN) {
-
-         }
-         break;
-      case GLUT_RIGHT_BUTTON:
-         if (state == GLUT_DOWN) {
-
-         }
-         break;
-      default:
-         break;
-   }
-}
-
 int main(int argc, char** argv)
 {
     init(argc,argv);
@@ -577,7 +519,6 @@ int main(int argc, char** argv)
     glutIdleFunc(calcNewScene); //called after render is done, typically to recalculate positions for the next frame
     glutKeyboardFunc(keyDown);
     //glutKeyboardUpFunc(keyUp);
-    //glutMouseFunc(mouse);
     glutMainLoop();
     //THIS IS NEVER REACHED
     
