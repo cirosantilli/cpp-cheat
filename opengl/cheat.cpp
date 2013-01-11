@@ -11,13 +11,12 @@
 using namespace std;
 
 //some colors constants
-    const GLfloat white[] = {1.0, 1.0, 1.0};
-    const GLfloat gray[] = {.5, .5, .5};
+    GLfloat white[] = {1.0, 1.0, 1.0};
+    const GLfloat gray[] = {0.1, 0.1, 0.1};
     const GLfloat black[] = {0.0, 0.0, 0.0};
-    const GLfloat red[] = {1.0, 0.0, 0.0};
+    const GLfloat red[] = {1.0, 0.0, 0.0, 1.0};
     const GLfloat green[] = {0.0, 1.0, 0.0};
     const GLfloat blue[] = {0.0, 0.0, 1.0};
-
 
 //TODO understand
   //swap_the_buffers() TODO understand
@@ -53,8 +52,8 @@ class Sphere : public Drawable {
         :
             pos(Vec3<>()),
             rad(1.0),
-            slices(20),
-            stacks(20),
+            slices(50),
+            stacks(50),
             speed(Vec3<>())
         {
             color[0] = 1.0;
@@ -66,8 +65,8 @@ class Sphere : public Drawable {
         (
             Vec3<> pos,
             T rad = 1.0,
-            int slices = 20,
-            int stacks = 20,
+            int slices = 50,
+            int stacks = 50,
             const GLfloat* color = white,
             Vec3<> speed = Vec3<>()
         )
@@ -173,14 +172,10 @@ class Camera
     int oldT;  //used to keep real time consistent
 
 //light
-    GLfloat lightPos[] = { 2.0, 2.0, 2.0 };
+    GLfloat lightPos[] = { 2.0, 0.0, 0.0, 0.0 };
 
 //scenario
-    const GLfloat* mat_ambient = red;
-    const GLfloat* mat_diffuse = white;
-    const GLfloat* mat_specular = white;
-    const GLfloat* mat_emission = white;
-    const GLfloat mat_shininess[] = { 50.0 };
+    GLfloat mat_shininess[] = { 100.0 };
 
     const int nDrawables = 1;
     Drawable* drawables[nDrawables];
@@ -231,6 +226,7 @@ void init(int argc, char** argv)
         glClearColor(clearColorR,clearColorG,clearColorB,1.0);
 
     glEnable(GL_DEPTH_TEST); //TODO ?
+    //glEnable(GL_BLEND);  //use those alphas TODO ?
 
     glEnable(GL_POLYGON_OFFSET_FILL); //TODO ?
     //glEnable(GL_POLYGON_OFFSET_LINE);
@@ -246,10 +242,16 @@ void init(int argc, char** argv)
         //glPolygonMode(GL_FRONT, GL_FILL); //will fill the solids
 
     //lights
+        //learn the color algorithm *now*
+        //http://www.glprogramming.com/red/chapter05.html
+ 
         glEnable(GL_LIGHTING);
 
         //glLightModelfv
-            glLightModelfv(GL_LIGHT_MODEL_AMBIENT, white); //ambient light
+            //glLightModelfv(GL_LIGHT_MODEL_AMBIENT, white);
+                //global ambient light. is not distance attenuated.
+                //if white, are no shadows, ever!
+                //also, if this is the only light, no shadows
             //glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE); //TODO ?
             //glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE); //light both sides
 
@@ -258,10 +260,15 @@ void init(int argc, char** argv)
 
         //light0
             glEnable(GL_LIGHT0);
-            glLightfv(GL_LIGHT0, GL_POSITION, lightPos); 
-            glLightfv(GL_LIGHT0, GL_AMBIENT, white);
-            glLightfv(GL_LIGHT0, GL_DIFFUSE, white);
-            glLightfv(GL_LIGHT0, GL_SPECULAR, white);
+
+            glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
+            //4 vector. if [3]==0, x,y,z is the position.
+            //otherwise, light is at infinity and x,y,z is the incoming direction
+  
+            //all of the following are distance attenuated
+                glLightfv(GL_LIGHT0, GL_AMBIENT, gray); //if this is white and close, you see no shadows
+                glLightfv(GL_LIGHT0, GL_DIFFUSE, white);
+                glLightfv(GL_LIGHT0, GL_SPECULAR, white);
 
             //attenuation
                 //\frac{1}{k+ld+qd^2}
@@ -291,14 +298,14 @@ void init(int argc, char** argv)
             //glDisable(GL_COLOR_MATERIAL); 
 
         //glMaterialfv
-            //glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, mat_ambient);
-            //glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, mat_diffuse);
-            //glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, mat_specular);
-            //glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, mat_emission);
-            //glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
+            //glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, white);
+            //glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, white);
+            //glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, white);
+            //glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, white); //if this is white and close to the scene, no shadows!
+            glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess); //specular exponent
 
     //create drawable objects to model initial scene
-        spheres[0] = Sphere<>( Vec3<>(0.0,0.0,0.0), 1.0, 20, 20, red );
+        spheres[0] = Sphere<>( Vec3<>(0.0,0.0,0.0), 1.0, 50, 50, red );
         //spheres[1] = Sphere( Vec3<>(-0.5,0.75,0.0), Vec3<>( 0.1, 0.0, 0.0), green );
         int total=0;
         for (int i=total; i<nSpheres; i++)
@@ -310,7 +317,7 @@ void init(int argc, char** argv)
 
 }
 
-/*calculates the parameters of the new scene and calls display again*/
+//calculates the parameters of the new scene and calls display again
 void calcNewScene(void)
 {
     Vec3<> dx, newpos;
