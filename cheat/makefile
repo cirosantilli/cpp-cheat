@@ -26,6 +26,9 @@ CPP_OUTS:=$(addprefix $(OUT_DIR),$(OUTS_NODIR))
 
 all: mkdir $(C_OUTS) $(CPP_OUTS)
 
+run: all
+	./$(OUT_DIR)c$(OUT_EXT)
+
 mkdir:
 	mkdir -p "$(OUT_DIR)"
 

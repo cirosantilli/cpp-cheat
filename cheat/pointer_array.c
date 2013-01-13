@@ -53,17 +53,20 @@ int main(){
             is[2] = 2;
 
             int is2[] = {1, 3, 2}; //allocates exact size
-            int is3[5] = {1, 3, 2}; //allocates 5, non-specified = 0: is3[0] = 1, ... , is3[3] == is3[4] == 0
+            int is9[5] = {1, 3, 2}; //allocates 5, non-specified = 0: is3[0] = 1, ... , is3[3] == is3[4] == 0
+            //WARN too small
+                //int is3[2] = {1, 3, 2};
             //int * is4 = {1, 3, 2}; //TODO ? why not like string. is it because 1,3,2 are just text, and are represented as such on the text part, and not as ints?
 
-            //ERROR
-                //isn must be constant!
-                //might compile in c99, but don't do this: either use enum or a macro.
- 
-                //puts("enter an % integer:");
-                //scanf("%d",&isn);
-                //printf("%d\n",isn);
-                //int is5[isn];
+            //scanf("%d",&i);
+            //int isVla[i];
+                //NOTE
+                //- introduced in c99
+                //- called variable length array (VLA)
+                //- implementation:
+                    //increase/decrease stack pointer
+                    //requires one addition and one multiplication per declaration
+                //- not in standard c++, but gcc implements it as an extra feature
 
             puts("enum");
                 enum M {M=3};
@@ -142,7 +145,7 @@ int main(){
             //more efficient than for: direct memory copyint, no i++ or i<n? check
     
             //C99 allows you to do this
-            memcpy(&is, &(int [5]){ 1,3,2 }, sizeof(is) );
+                memcpy(&is, &(int [5]){ 1,3,2 }, sizeof(is) );
 
         //can be of any type
             float fs[] =    {1,2,3,-2};

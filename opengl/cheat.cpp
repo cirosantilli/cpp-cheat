@@ -1,12 +1,16 @@
-#include <glut.h> // includes both opengl (gl.h, rendering) and glu (glu.h, opengl utilities), besides glut.h (windowing, input/output)
-
 #include <stdlib.h>
 #include <iostream>
 #include <stdio.h>
 
+#include <glut.h>  // both opengl (gl.h, rendering) and glu (glu.h, opengl utilities), besides glut.h (windowing, input/output)
+
+#define GL_GLEXT_PROTOTYPES
+#include <glext.h> // extensions
+
 #include <math.h>
 
 #include "vec3.h"
+#include "glInfo.h"
 
 using namespace std;
 
@@ -118,7 +122,8 @@ class Camera
             frustrumFar(100.0),
             frustrumL(1.0),
             resX(700),
-            resY(700)
+            resY(700),
+            format(GL_RGB)
         {
         }
 
@@ -130,8 +135,9 @@ class Camera
             T frustrumNear = 1.0,
             T frustrumFar = 100.0,
             T frustrumL = 1.0,
-            int resX = 700,
-            int resY = 700
+            GLint resX = 700,
+            GLint resY = 700,
+            GLint format = GL_RGB
         )
         :
             pos(pos),
@@ -141,11 +147,32 @@ class Camera
             frustrumFar(frustrumFar),
             frustrumL(frustrumL),
             resX(resX),
-            resY(resY)
+            resY(resY),
+            format(format)
         {
         }
 
         Vec3<T> getLookat(){ return pos+dir; }
+
+        //gets number of components for the already given format
+        int getNComponents()
+        {
+            switch(format)
+            {
+                case GL_BGR:
+                case GL_RGB:
+                    return 3;
+                    break;
+                case GL_BGRA:
+                case GL_RGBA:
+                    return 4;
+                    break;
+                case GL_ALPHA:
+                case GL_LUMINANCE:
+                    return 1;
+                    break;
+            }
+        }
 
         Vec3<T> pos;
         Vec3<T> dir;
@@ -154,14 +181,20 @@ class Camera
         GLfloat frustrumNear;
         GLfloat frustrumFar;
         GLfloat frustrumL;
+        GLint format; //formt of output image
 
         int resX;
         int resY;
+
+        
 };
+
+//profiling
 
 //window
     GLint windowW = 700;
-    GLint windowH = 700; 
+    GLint windowH = 700;
+
     GLint windowPosX = 10;
     GLint windowPosY = 10; 
 
@@ -170,6 +203,20 @@ class Camera
     GLdouble clearColorB = 0.0;
 
     int oldT;  //used to keep real time consistent
+    int nFrames=0; //total number of frames
+
+//events
+    bool mouseLeftDown;
+    bool mouseRightDown;
+    float mouseX, mouseY;
+
+//camera
+    //create a camera
+    Camera<> camera;
+    GLubyte* pixels; //stores the pixels from the rendering
+    GLuint fboId;
+    GLuint texId;
+    GLuint rboId;
 
 //light
     GLfloat lightPos[] = { 2.0, 0.0, 0.0, 0.0 };
@@ -177,18 +224,9 @@ class Camera
 //scenario
     GLfloat mat_shininess[] = { 100.0 };
 
-    const int nDrawables = 1;
+enum nDrawables { nDrawables=1, nSpheres=1 };
     Drawable* drawables[nDrawables];
-    const int nSpheres = 1;
     Sphere<> spheres[nSpheres];
-
-//camera
-    //create a camera
-    Camera<> camera = Camera<>
-    (
-        Vec3<>(0.0,0.0,-2.0),
-        Vec3<>(0.0,0.0,1.0)
-    );
 
 //physical viewer params
     float fast_forward = 1.f;
@@ -248,7 +286,7 @@ void init(int argc, char** argv)
         glEnable(GL_LIGHTING);
 
         //glLightModelfv
-            //glLightModelfv(GL_LIGHT_MODEL_AMBIENT, white);
+            glLightModelfv(GL_LIGHT_MODEL_AMBIENT, white);
                 //global ambient light. is not distance attenuated.
                 //if white, are no shadows, ever!
                 //also, if this is the only light, no shadows
@@ -283,7 +321,6 @@ void init(int argc, char** argv)
  
         //gl_color_material and glmaterialfv
 
-
         //GL_COLOR_MATERIAL
             //glEnable(GL_COLOR_MATERIAL);
             //glColorMaterial(GL_FRONT, GL_DIFFUSE);
@@ -304,6 +341,44 @@ void init(int argc, char** argv)
             //glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, white); //if this is white and close to the scene, no shadows!
             glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess); //specular exponent
 
+    //camera
+        camera = Camera<>(
+            Vec3<>(0.0, 0.0, -2.0),
+            Vec3<>(0.0, 0.0,  1.0),
+            Vec3<>(0.0, 1.0,  0.0),
+            1.0,
+            100.0,
+            1.0,
+            windowW,
+            windowH,
+            GL_RGB
+        );
+
+        pixels = new GLubyte[ camera.getNComponents() * windowW ];
+        //to store output pixels
+
+    //setup framebuffer
+        // generate namespace for the frame buffer, colorbuffer and depthbuffer
+
+        //glGenFramebuffers  (1, &fboId);
+        //glGenRenderbuffers (1, &rboId);
+        //glBindFramebuffer  (GL_FRAMEBUFFER, fboId);
+        //glBindRenderbuffer (GL_RENDERBUFFER, rboId);
+        //glRenderbufferStorage
+        //(
+            //GL_RENDERBUFFER,
+            //GL_DEPTH_COMPONENT24,
+            //512,
+            //512
+        //);
+        //glFramebufferRenderbuffer
+        //(
+            //GL_FRAMEBUFFER,
+            //GL_DEPTH_ATTACHMENT,
+            //GL_RENDERBUFFER,
+            //depth_rb
+        //);
+
     //create drawable objects to model initial scene
         spheres[0] = Sphere<>( Vec3<>(0.0,0.0,0.0), 1.0, 50, 50, red );
         //spheres[1] = Sphere( Vec3<>(-0.5,0.75,0.0), Vec3<>( 0.1, 0.0, 0.0), green );
@@ -314,38 +389,62 @@ void init(int argc, char** argv)
         }
 
     oldT = glutGet(GLUT_ELAPSED_TIME); //init old time in ms.
-
 }
 
 //calculates the parameters of the new scene and calls display again
-void calcNewScene(void)
+void idle(void)
 {
+    //cout << "idle" << endl;
+
     Vec3<> dx, newpos;
     float dt;
     int t;
 
-    //cout << "===========================\n";
+
+    //keep animation real time consistent
+        t = glutGet(GLUT_ELAPSED_TIME);
+        dt = fast_forward*(t - oldT)/1000.0;
+        oldT = t;
+
+    //cout << "===========================" << endl;
     //cout << "pos" << endl << camera.pos.str();
     //cout << "dir" << endl << camera.dir.str();
     //cout << endl;
     //cout << "speed\n" << speed;
     //cout << "rotSpeed\n" << rotSpeed;
-
-    //keep animation real time consistent
-        t = glutGet(GLUT_ELAPSED_TIME);
-        dt = fast_forward*(t - oldT)/1000.0f;
-        oldT = t;
+    cout << "FPS average: " << 1000*nFrames/t << endl;
+    nFrames++;
 
     //speed nonstop movement method
         //camera.dir.rotY( rotSpeed*dt );
         newpos = camera.pos + speed*dt;
+
+    glReadPixels
+    ( //reads a rectangle of pixels from last render
+        0, //top x rectangle
+        350, //top y rectangle
+        camera.resX, //rectangle width
+        1, //rectangle height
+        camera.format, //GL_RGB, output format
+        GL_UNSIGNED_BYTE, //output data type
+        pixels //where output will be saved
+    );
+
+    //read pixels from rendered image
+        for(int i=0; i<camera.resX*camera.getNComponents(); i=i+3)
+        {
+            //cout << i/3 << " ";
+            //cout << (int)pixels[i] << " ";
+            //cout << (int)pixels[i+1] << " ";
+            //cout << (int)pixels[i+2] << " ";
+            //cout << endl;
+        }
 
     glutPostRedisplay();
 }
 
 void drawScene(void)
 {
-
     glLoadIdentity(); // reset everything before starting
 
     Vec3<> lookat = camera.getLookat();
@@ -432,15 +531,16 @@ void drawScene(void)
 
     glPopMatrix(); //after drawing, reload the old transform
 
-    for(int i=0; i<nDrawables; i++)
+    for ( int i = 0; i < nDrawables; i++ )
     {
         drawables[i]->draw();
     }
-
 }
 
 void display()
 {
+    //cout << "display" << endl;
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //clear the color buffer and the depth buffer
     // TODO ? DEPTH_BUFFER
 
@@ -448,13 +548,11 @@ void display()
 
     //glFlush(); //send all commands even if output is not read. (parallel processing, network)
     glutSwapBuffers(); //also flushes first
-
 }
 
 void reshape(int w, int h)
 {
-
-    glViewport(0, 0,(GLsizei) w,(GLsizei) h); 
+    glViewport(0, 0, (GLsizei) w, (GLsizei) h); 
 
     glMatrixMode(GL_PROJECTION); //normal 3d vision
     //glMatrixMode(GL_ORTHO); //2d like projection vision
@@ -498,7 +596,7 @@ void reshape(int w, int h)
     }
 
 //fixed speed
-    //position will be calculated as function of elapsed time in calcNewScene()
+    //position will be calculated as function of elapsed time in idle()
     void keyDownSpeed(unsigned char key, int x, int y)
     {
         switch(key)
@@ -554,26 +652,41 @@ void reshape(int w, int h)
 
 void mouse(int button, int state, int x, int y)
 {
-   switch (button)
-   {
-      case GLUT_LEFT_BUTTON:
-         if (state == GLUT_DOWN) {
+    mouseX = x;
+    mouseY = y;
 
-         }
-         break;
-      case GLUT_MIDDLE_BUTTON:
-         if (state == GLUT_DOWN) {
+    if(button == GLUT_LEFT_BUTTON)
+    {
+        if(state == GLUT_DOWN)
+        {
+            mouseLeftDown = true;
+        }
+        else if(state == GLUT_UP)
+            mouseLeftDown = false;
+    }
 
-         }
-         break;
-      case GLUT_RIGHT_BUTTON:
-         if (state == GLUT_DOWN) {
+    else if(button == GLUT_RIGHT_BUTTON)
+    {
+        if(state == GLUT_DOWN)
+        {
+            mouseRightDown = true;
+        }
+        else if(state == GLUT_UP)
+            mouseRightDown = false;
+    }
+}
 
-         }
-         break;
-      default:
-         break;
-   }
+void mouseMotion(int x, int y)
+{
+    if(mouseLeftDown)
+    {
+        mouseX = x;
+        mouseY = y;
+    }
+    if(mouseRightDown)
+    {
+        mouseY = y;
+    }
 }
 
 int main(int argc, char** argv)
@@ -581,10 +694,17 @@ int main(int argc, char** argv)
     init(argc,argv);
     glutDisplayFunc(display); 
     glutReshapeFunc(reshape);
-    glutIdleFunc(calcNewScene); //called after render is done, typically to recalculate positions for the next frame
+    glutIdleFunc(idle); //called after render is done, typically to recalculate positions for the next frame
     glutKeyboardFunc(keyDown);
     //glutKeyboardUpFunc(keyUp);
     //glutMouseFunc(mouse);
+    //glutMotionFunc(mouseMotion); //mouse motion
+ 
+    //get and print opengl info
+        glInfo glInfo;
+        glInfo.getInfo();
+        //glInfo.printSelf();
+
     glutMainLoop();
     //THIS IS NEVER REACHED
     

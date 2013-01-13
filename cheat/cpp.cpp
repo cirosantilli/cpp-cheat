@@ -30,6 +30,13 @@ good general resources
 
         *always* use <cXXX>
 
+- language versions
+
+    latest C++11
+    previous C++03
+
+    http://en.wikipedia.org/wiki/C%2B%2B11
+
 TODO
 - returning references
         http://stackoverflow.com/questions/795674/which-are-the-implications-of-return-a-value-as-constant-reference-and-constant?rq=1
@@ -432,7 +439,7 @@ int main(int argc, char** argv)
     int i;
     int * ip;
 
-    cout << "stdout" << endl;
+    cout << "io" << endl;
         //in c++ there is no more printf formatting strings
         //must use the c libs for that
 
@@ -443,20 +450,40 @@ int main(int argc, char** argv)
         cerr << "cerr";
         cout << endl;
 
+        //cin
+            //cin >> i;
+            //cout << i
+
     cout << "for" << endl;
         //you can define i inside the for scope only
         for(int i=0; i<5; i++)
             cout << i << " ";
     cout << endl;
 
+    cout << "variable size array" << endl;
+
+        //cin >> i;
+        //int is4[i];
+            //BAD; gcc extension
+            //
+            //C99 supports
+            //
+            //compiler implementation:
+            //must increment/decrement stack pointer at each array
+            //meaning, one extra multiplication and sum for every VLA declared
+
+        //cin >> i;
+        //int is4[i] = {1,2}
+            //ERROR, cannot initialize. what if i<2?
+    
+    cout << endl;
+
     cout << "const" << endl;
+
         const int ic=2;
         //ERROR: in c this is only a warning, and allows us to change ic.
             //int* ip = ic;
-
-        int is34[ic];
-            //WORKS! not like c, since constants really can't be changed
-
+ 
         //ERROR: must be initialized, since in c++ consts really are consts
             //const int ic2;
 
@@ -794,6 +821,9 @@ int main(int argc, char** argv)
         //check this to give values
             //http://msdn.microsoft.com/en-us/library/2dzy4k6e%28v=vs.71%29.aspx
 
-    return EXIT_SUCCESS;
+        //ERROR
+            //enum E2 { E2=i };
+            //only const expressions allowed
 
+    return EXIT_SUCCESS;
 }

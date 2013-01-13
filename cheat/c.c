@@ -77,6 +77,13 @@ thats why is is called *pre*
     - gprof
     http://kuscsik.blogspot.com.br/2007/08/how-to-benchmark-c-code-using-gcc.html
 
+- language versions
+    
+    latest C99
+        http://en.wikipedia.org/wiki/C99 
+        support for // comments
+        long long, bool, complex numbers
+    previous C90
 
 TODO
     - memory segments/layout : text data heap stack command line
@@ -125,7 +132,6 @@ TODO
             cp -r /usr/share/doc/opencv-doc/examples ./
 
         with
-
         
             opencv2 is the second version released in 2009,
 
@@ -154,10 +160,6 @@ TODO
         http://arma.sourceforge.net/
 
         linear algebra
-
-
-
-
 */
 
 //preprocessor
@@ -323,15 +325,42 @@ int main(){
 
             //WARN constant too large (even for long long)
                 //lli = 0x10000000000000000; //max long long+1
+        
+            puts("complex\n");
+            //NOTE
+                //C99 extension
+#include <complex.h>
 
-        //bases for integers
-            printf("16 = %d\n", 16);
-            printf("0x10 = %d\n", 0x10);
-            //16
-            printf("020 = %d\n", 020);
-            //16
-            printf("0b10000 = %d\n", 0b10000);
-            //16
+                double complex z1 = 1.0 + 3.0 * I;
+                double complex z2 = 1.0 - 4.0 * I;
+
+                printf("Z1 = %.2f + %.2fi\tZ2 = %.2f %+.2fi\n", creal(z1), cimag(z1), creal(z2), cimag(z2));
+
+                double complex sum = z1 + z2;
+                printf("The sum: Z1 + Z2 = %.2f %+.2fi\n", creal(sum), cimag(sum));
+
+                double complex difference = z1 - z2;
+                printf("The difference: Z1 - Z2 = %.2f %+.2fi\n", creal(difference), cimag(difference));
+
+                double complex product = z1 * z2;
+                printf("The product: Z1 x Z2 = %.2f %+.2fi\n", creal(product), cimag(product));
+
+                double complex quotient = z1 / z2;
+                printf("The quotient: Z1 / Z2 = %.2f %+.2fi\n", creal(quotient), cimag(quotient));
+
+                double complex conjugate = conj(z1);
+                printf("The conjugate of Z1 = %.2f %+.2fi\n", creal(conjugate), cimag(conjugate));
+     
+            puts("");
+
+            //bases for integers
+                printf("16 = %d\n", 16);
+                printf("0x10 = %d\n", 0x10);
+                //16
+                printf("020 = %d\n", 020);
+                //16
+                printf("0b10000 = %d\n", 0b10000);
+                //16
         
         //const
             const int ic = 0;
@@ -382,6 +411,13 @@ int main(){
             const int cis2[2] = {1,2};
             //ERROR
                 //cis2[0] = 1;
+
+            //scanf("%d",&i);
+            //const 
+                //NOTE consts are *not* "compile time constants"
+                //they are only constant after they are declared
+                //this is another reason why you can't use them
+                //as arrays sizes without VSA
 
         //typecast
             printf("(double).1f = %f\n", (double).1f); //float to double

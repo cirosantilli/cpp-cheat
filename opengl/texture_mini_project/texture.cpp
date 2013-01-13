@@ -151,7 +151,6 @@ GLuint loadTextureJpg( string filename, int wrap )
         }
     }
 
-
     // allocate a texture name
     glGenTextures( 1, &texture );
 
@@ -171,8 +170,6 @@ GLuint loadTextureJpg( string filename, int wrap )
 
     // if wrap is true, the texture wraps over at the edges (repeat)
     //       ... false, the texture ends at the edges (clamp)
-    //gluBuild2DMipmaps( GL_TEXTURE_2D, 3, I.size().width, I.size().height,
-                       //GL_RGB, GL_UNSIGNED_BYTE, I.data );
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
                      wrap ? GL_REPEAT : GL_CLAMP );
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
@@ -240,24 +237,24 @@ GLfloat fast_forward = 1.0;
 
 void init(int argc, char** argv) 
 {
-  glutInit(&argc, argv);
-  glShadeModel(GL_FLAT);
-  glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
-  glutInitWindowSize(WINDOW_W, WINDOW_H); 
-  glutInitWindowPosition(WINDOW_POSX, WINDOW_POSY);
-  glutCreateWindow(argv[0]);
-  //clear the screen after each img
-  glClearColor(clear_color_r,clear_color_g,clear_color_b,1.0);
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); //default mode
-  glEnable(GL_POLYGON_OFFSET_FILL);
-  glEnable(GL_POLYGON_OFFSET_LINE);
-  glEnable(GL_DEPTH_TEST);
-  glPolygonOffset(1.0, 1.0);
-  //texture
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    for(int i=0; i<NTEXTURES; i++){
-      textures[i] = loadTextureJpg(texture_path + texture_files[i], 1);
-    }
+    glutInit(&argc, argv);
+    glShadeModel(GL_FLAT);
+    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
+    glutInitWindowSize(WINDOW_W, WINDOW_H); 
+    glutInitWindowPosition(WINDOW_POSX, WINDOW_POSY);
+    glutCreateWindow(argv[0]);
+    //clear the screen after each img
+    glClearColor(clear_color_r,clear_color_g,clear_color_b,1.0);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); //default mode
+    glEnable(GL_POLYGON_OFFSET_FILL);
+    glEnable(GL_POLYGON_OFFSET_LINE);
+    glEnable(GL_DEPTH_TEST);
+    glPolygonOffset(1.0, 1.0);
+    //texture
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        for(int i=0; i<NTEXTURES; i++){
+            textures[i] = loadTextureJpg(texture_path + texture_files[i], 1);
+        }
 }
 
 int old_t = 0; //old time in ms. used to keep real time consistent
