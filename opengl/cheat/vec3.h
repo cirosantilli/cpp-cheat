@@ -6,6 +6,7 @@ for anything serious, consider real math libs
 */
 
 #include <cmath>
+#include <cstdio>
 
 template <class T=float>
 class Vec3{
@@ -36,24 +37,52 @@ class Vec3{
         {
         }
 
+        Vec3<T>& operator+=(const Vec3<T>& otherv){ 
+            this->x += otherv.x;
+            this->y += otherv.y;
+            this->z += otherv.z;
+            return *this;
+        }
+
+        Vec3<T>& operator-=(const Vec3<T>& otherv){ 
+            this->x -= otherv.x;
+            this->y -= otherv.y;
+            this->z -= otherv.z;
+            return *this;
+        }
+
+        Vec3<T>& operator*=(const T& a){ 
+            this->x *= a;
+            this->y *= a;
+            this->z *= a;
+            return *this;
+        }
+
+        Vec3<T>& operator/=(const T& a){ 
+            this->x /= a;
+            this->y /= a;
+            this->z /= a;
+            return *this;
+        }
+
         //vector sum
         Vec3<T> operator+(const Vec3<T>& otherv){ 
-            return Vec3<T>( this->x + otherv.x, this->y + otherv.y, this->z + otherv.z);
+            return Vec3<T>(*this) += otherv;
         }
 
         //vector subtraction
         Vec3<T> operator-(const Vec3<T>& otherv){ 
-            return Vec3<T>( this->x - otherv.x, this->y - otherv.y, this->z - otherv.z);
+            return Vec3<T>(*this) -= otherv;
         }
 
         //multiplication by constant
         Vec3<T> operator*(T a){ 
-            return Vec3<T>( this->x * a, this->y * a, this->z * a);
+            return Vec3<T>(*this) *= a;
         }
 
         //division by constant
         Vec3<T> operator/(T a){ 
-            return Vec3<T>( this->x / a, this->y / a, this->z / a);
+            return Vec3<T>(*this) /= a;
         }
 
         //dot product

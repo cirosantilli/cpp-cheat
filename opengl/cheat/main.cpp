@@ -187,10 +187,6 @@ class Camera
     GLint windowPosX = 10;
     GLint windowPosY = 10; 
 
-    GLdouble clearColorR = 0.0;
-    GLdouble clearColorG = 0.0;
-    GLdouble clearColorB = 0.0;
-
     int oldT;  //used to keep real time consistent
     int nFrames=0; //total number of frames
 
@@ -234,7 +230,6 @@ enum nDrawables { nDrawables=1, nSpheres=1 };
 //stuff set only once at beginning
 void init(int argc, char** argv) 
 {
-
     glutInit(&argc, argv);
 
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
@@ -249,8 +244,8 @@ void init(int argc, char** argv)
         glutInitWindowPosition(windowPosX, windowPosY);
         glutCreateWindow(argv[0]);
 
-    //clear the screen after each image
-        glClearColor(clearColorR,clearColorG,clearColorB,1.0);
+    //color to clear screen after each image
+        glClearColor(0.0, 0.0, 0.0, 0.0);
 
     glEnable(GL_DEPTH_TEST); //TODO ?
     //glEnable(GL_BLEND);  //use those alphas TODO ?
@@ -310,8 +305,9 @@ void init(int argc, char** argv)
  
         //gl_color_material and glmaterialfv
 
-        //GL_COLOR_MATERIAL
+        //GL_COLOR_MATERIAL + glcolor
             //glEnable(GL_COLOR_MATERIAL);
+            ////glColor has no effect if lightning is on and you dont enable this
             //glColorMaterial(GL_FRONT, GL_DIFFUSE);
             //// now glColor* changes diffuse reflection 
             //glColor3f(0.2, 0.5, 0.8);
@@ -389,7 +385,6 @@ void idle(void)
     float dt;
     int t;
 
-
     //keep animation real time consistent
         t = glutGet(GLUT_ELAPSED_TIME);
         dt = fast_forward*(t - oldT)/1000.0;
@@ -398,42 +393,52 @@ void idle(void)
     //cout << "===========================" << endl;
     //cout << "pos" << endl << camera.pos.str();
     //cout << "dir" << endl << camera.dir.str();
-    //cout << endl;
+    //cout << "dir" << endl << camera.getLookat().str();
     //cout << "speed\n" << speed;
     //cout << "rotSpeed\n" << rotSpeed;
-    //cout << "FPS average: " << 1000*nFrames/t << endl;
-    //nFrames++;
+    cout << "FPS average: " << 1000*nFrames/t << endl;
+    nFrames++;
+    cout << endl;
 
     //speed nonstop movement method
         //camera.dir.rotY( rotSpeed*dt );
-        newpos = camera.pos + speed*dt;
+        //newpos = camera.pos + speed*dt;
+        camera.pos += Vec3<>(0.005, 0.0, 0.0);
 
-    glReadPixels
-    ( //reads a rectangle of pixels from last render
-        0, //top x rectangle
-        350, //top y rectangle
-        camera.resX, //rectangle width
-        1, //rectangle height
-        camera.format, //GL_RGB, output format
-        GL_UNSIGNED_BYTE, //output data type
-        pixels //where output will be saved
-    );
+    //read pixels from render
+        //glReadPixels
+        //( //reads a rectangle of pixels from last render
+            //0, //top x rectangle
+            //windowH/2, //top y rectangle
+            //camera.resX, //rectangle width
+            //1, //rectangle height
+            //camera.format, //GL_RGB, output format
+            //GL_UNSIGNED_BYTE, //output data type
+            //pixels //where output will be saved
+        //);
 
-    //read pixels from rendered image
-        for(int i=0; i<camera.resX*camera.getNComponents(); i=i+3)
-        {
-            //cout << i/3 << " ";
-            cout << (int)pixels[i] << " ";
-            cout << (int)pixels[i+1] << " ";
-            cout << (int)pixels[i+2] << " ";
-            cout << endl;
-        }
+        //for(int i=0; i<camera.resX*camera.getNComponents(); i=i+3)
+        //{
+            ////cout << i/3 << " ";
+            //cout << (int)pixels[i] << " ";
+            //cout << (int)pixels[i+1] << " ";
+            //cout << (int)pixels[i+2] << " ";
+            //cout << endl;
+        //}
 
     glutPostRedisplay();
 }
 
-void drawScene(void)
+void display()
 {
+    //cout << "display" << endl;
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //clear the color buffer and the depth buffer
+    //GL_COLOR_BUFFER_BIT
+    //GL_DEPTH_BUFFER_BIT
+	//GL_ACCUM_BUFFER_BIT
+    //GL_STENCIL_BUFFER_BIT
+	
     glLoadIdentity(); // reset everything before starting
 
     Vec3<> lookat = camera.getLookat();
@@ -466,15 +471,27 @@ void drawScene(void)
     //geometric transformations
         //glMultMatrixf(N);
         //glScalef(1.0, 1.0, 1.0);
-        //glRotatef(90., 1., 0., 0.);
-        //glTranslatef(.5, .5, 0.5);
+        //glRotatef(45., 1.0, 1.0, 0.0);
+        //glTranslatef(1., 0.0, 0.0);
+
+    //the following are also allowed betwen glBegin and glEnd
+        //glColor3f(1.0, 0.0, 0.0);
+        //glIndex*
+        //glNormal*
+        //glTexCoord*
+        //glEdgeFlag*
+        //glMaterial*
+        //glArrayElement
+        //glEvalCoord*, glEvalPoint*
+        //glCallList, glCallLists
+
 
     //polygons are primitives, and thus dealt by opengl
         //glBegin(GL_POLYGON);
-            //glVertex3f (0.25, 0.25, 0.0);
-            //glVertex3f (0.75, 0.25, 0.0);
-            //glVertex3f (0.75, 0.75, 0.0);
-            //glVertex3f (0.25, 0.75, 0.0);
+            //glVertex3f (-0.5, -0.5, 0.0);
+            //glVertex3f ( 0.5, -0.5, 0.0);
+            //glVertex3f ( 0.5,  0.5, 0.0);
+            //glVertex3f (-0.5,  0.5, 0.0);
         //glEnd(); 
         
         //other types of basic shapes:
@@ -490,17 +507,6 @@ void drawScene(void)
             //POLYGON
             //glVertex*()
         
-        //the following are also allowed betwen glBegin and glEnd
-            //glColor*;
-            //glIndex*
-            //glNormal*
-            //glTexCoord*
-            //glEdgeFlag*
-            //glMaterial*
-            //glArrayElement
-            //glEvalCoord*, glEvalPoint*
-            //glCallList, glCallLists
-
     //3d shapes are not primitives, so you must call them from glut (or glu)
         //glutWireCube(1.0);
         //glutSolidCube(1.0);
@@ -524,29 +530,27 @@ void drawScene(void)
     {
         drawables[i]->draw();
     }
-}
 
-void display()
-{
-    //cout << "display" << endl;
+    //glFlush();
+    //- send all commands even if output is not read. (parallel processing, network)
+    //- pauses application until drawing is complete and back framebuffer updated
+    //- does not put back framebuffer on front, so you see nothing
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //clear the color buffer and the depth buffer
-    // TODO ? DEPTH_BUFFER
-
-    drawScene();
-
-    //glFlush(); //send all commands even if output is not read. (parallel processing, network)
-    glutSwapBuffers(); //also flushes first
+    glutSwapBuffers();
+    //
+    ////*waits* for the screen to refresh and makes sure that each frame goes to output window,
+    ////therefore limiting application speed to screen refresh rate
+    //
+    ////also flushes
 }
 
 void reshape(int w, int h)
 {
     glViewport(0, 0, (GLsizei) w, (GLsizei) h); 
 
-    glMatrixMode(GL_PROJECTION); //normal 3d vision
-    //glMatrixMode(GL_ORTHO); //2d like projection vision
-
+    glMatrixMode(GL_PROJECTION); //TODO ?
     glLoadIdentity();
+
     glFrustum
     (
         -camera.frustrumL,
@@ -556,6 +560,8 @@ void reshape(int w, int h)
         camera.frustrumNear,
         camera.frustrumFar
     ); //this is what can be seen from the camera
+
+    //glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0); //view cube
 
     glMatrixMode(GL_MODELVIEW); //needed for transformations TODO
 }
