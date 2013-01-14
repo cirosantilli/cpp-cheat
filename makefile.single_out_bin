@@ -1,3 +1,5 @@
+#compiles all files in current dir into a single output file
+
 CC=g++
 LIBS=-lglut -lGLU -lGL
 INCLUDE_DIRS=-I/usr/include/GL

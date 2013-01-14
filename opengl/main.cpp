@@ -1,13 +1,9 @@
-#include <stdlib.h>
+#define GL_GLEXT_PROTOTYPES
 #include <iostream>
-#include <stdio.h>
+#include <stdlib.h>
 
 #include <glut.h>  // both opengl (gl.h, rendering) and glu (glu.h, opengl utilities), besides glut.h (windowing, input/output)
-
-#define GL_GLEXT_PROTOTYPES
 #include <glext.h> // extensions
-
-#include <math.h>
 
 #include "vec3.h"
 #include "glInfo.h"
@@ -21,11 +17,6 @@ using namespace std;
     const GLfloat red[] = {1.0, 0.0, 0.0, 1.0};
     const GLfloat green[] = {0.0, 1.0, 0.0};
     const GLfloat blue[] = {0.0, 0.0, 1.0};
-
-//TODO understand
-  //swap_the_buffers() TODO understand
-  //glutSwapBuffers();
-  //glutIdleFunc(spinDisplay); //called after render is done, typically to recalculate positions for the next frame
 
 //not to see cross walls
     //GLfloat frustrumNear = 0.95*personR; //so that won't see across walls
@@ -185,8 +176,6 @@ class Camera
 
         int resX;
         int resY;
-
-        
 };
 
 //profiling
@@ -361,7 +350,7 @@ void init(int argc, char** argv)
         // generate namespace for the frame buffer, colorbuffer and depthbuffer
 
         //glGenFramebuffers  (1, &fboId);
-        //glGenRenderbuffers (1, &rboId);
+        glGenRenderbuffers (1, &rboId);
         //glBindFramebuffer  (GL_FRAMEBUFFER, fboId);
         //glBindRenderbuffer (GL_RENDERBUFFER, rboId);
         //glRenderbufferStorage
@@ -376,7 +365,7 @@ void init(int argc, char** argv)
             //GL_FRAMEBUFFER,
             //GL_DEPTH_ATTACHMENT,
             //GL_RENDERBUFFER,
-            //depth_rb
+            //rboId
         //);
 
     //create drawable objects to model initial scene
@@ -412,8 +401,8 @@ void idle(void)
     //cout << endl;
     //cout << "speed\n" << speed;
     //cout << "rotSpeed\n" << rotSpeed;
-    cout << "FPS average: " << 1000*nFrames/t << endl;
-    nFrames++;
+    //cout << "FPS average: " << 1000*nFrames/t << endl;
+    //nFrames++;
 
     //speed nonstop movement method
         //camera.dir.rotY( rotSpeed*dt );
@@ -434,10 +423,10 @@ void idle(void)
         for(int i=0; i<camera.resX*camera.getNComponents(); i=i+3)
         {
             //cout << i/3 << " ";
-            //cout << (int)pixels[i] << " ";
-            //cout << (int)pixels[i+1] << " ";
-            //cout << (int)pixels[i+2] << " ";
-            //cout << endl;
+            cout << (int)pixels[i] << " ";
+            cout << (int)pixels[i+1] << " ";
+            cout << (int)pixels[i+2] << " ";
+            cout << endl;
         }
 
     glutPostRedisplay();

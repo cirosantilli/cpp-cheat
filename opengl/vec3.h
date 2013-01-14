@@ -5,6 +5,8 @@ on simple tests
 for anything serious, consider real math libs
 */
 
+#include <cmath>
+
 template <class T=float>
 class Vec3{
 
