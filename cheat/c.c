@@ -108,11 +108,9 @@ TODO
 
 #hot libraries
 
-- opengl
+    #opengl
 
-    sudo aptitude install freeglut3-dev
-
-- opengl
+        sudo aptitude install freeglut3-dev
 
     #opencv
 
@@ -160,6 +158,22 @@ TODO
         http://arma.sourceforge.net/
 
         linear algebra
+
+##scientific computation
+
+that is, applied to specific domains of science
+
+- ODE
+
+    physical engine
+
+        sudo aptitude install libode-dev
+
+- tokamak
+
+    physical engine
+
+- tokamak
 */
 
 //preprocessor

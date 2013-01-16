@@ -1,5 +1,6 @@
 #define GL_GLEXT_PROTOTYPES
 #include <iostream>
+#include <cstdio>
 #include <stdlib.h>
 
 #include <glut.h>  // both opengl (gl.h, rendering) and glu (glu.h, opengl utilities), besides glut.h (windowing, input/output)
@@ -11,14 +12,34 @@
 using namespace std;
 
 //some colors constants
-    GLfloat white[] = {1.0, 1.0, 1.0};
-    const GLfloat gray[] = {0.1, 0.1, 0.1};
+    const GLfloat white[] = {1.0, 1.0, 1.0};
+    const GLfloat gray [] = {0.1, 0.1, 0.1};
     const GLfloat black[] = {0.0, 0.0, 0.0};
-    const GLfloat red[] = {1.0, 0.0, 0.0, 1.0};
+    const GLfloat red  [] = {1.0, 0.0, 0.0};
     const GLfloat green[] = {0.0, 1.0, 0.0};
-    const GLfloat blue[] = {0.0, 0.0, 1.0};
+    const GLfloat blue [] = {0.0, 0.0, 1.0};
 
-//not to see cross walls
+GLubyte stipplePattern[] =
+{
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x03, 0x80, 0x01, 0xC0, 0x06, 0xC0, 0x03, 0x60, 
+    0x04, 0x60, 0x06, 0x20, 0x04, 0x30, 0x0C, 0x20, 
+    0x04, 0x18, 0x18, 0x20, 0x04, 0x0C, 0x30, 0x20,
+    0x04, 0x06, 0x60, 0x20, 0x44, 0x03, 0xC0, 0x22, 
+    0x44, 0x01, 0x80, 0x22, 0x44, 0x01, 0x80, 0x22, 
+    0x44, 0x01, 0x80, 0x22, 0x44, 0x01, 0x80, 0x22,
+    0x44, 0x01, 0x80, 0x22, 0x44, 0x01, 0x80, 0x22, 
+    0x66, 0x01, 0x80, 0x66, 0x33, 0x01, 0x80, 0xCC, 
+    0x19, 0x81, 0x81, 0x98, 0x0C, 0xC1, 0x83, 0x30,
+    0x07, 0xe1, 0x87, 0xe0, 0x03, 0x3f, 0xfc, 0xc0, 
+    0x03, 0x31, 0x8c, 0xc0, 0x03, 0x33, 0xcc, 0xc0, 
+    0x06, 0x64, 0x26, 0x60, 0x0c, 0xcc, 0x33, 0x30,
+    0x18, 0xcc, 0x33, 0x18, 0x10, 0xc4, 0x23, 0x08, 
+    0x10, 0x63, 0xC6, 0x08, 0x10, 0x30, 0x0c, 0x08, 
+    0x10, 0x18, 0x18, 0x08, 0x10, 0x00, 0x00, 0x08
+};
+
+//param values not to see cross walls
     //GLfloat frustrumNear = 0.95*personR; //so that won't see across walls
     //GLfloat frustrumFar = 100.0;
     //GLfloat frustrumL = 2*personR*0.9;
@@ -182,13 +203,15 @@ class Camera
 
 //window
     GLint windowW = 700;
-    GLint windowH = 700;
+    GLint windowH = 50;
 
     GLint windowPosX = 10;
     GLint windowPosY = 10; 
 
     int oldT;  //used to keep real time consistent
-    int nFrames=0; //total number of frames
+    int nFrames = 0; //total number of frames
+    int maxNFrames = 100; //maximum number of frames on offscreen rendering
+    bool offscreen = true;
 
 //events
     bool mouseLeftDown;
@@ -209,7 +232,7 @@ class Camera
 //scenario
     GLfloat mat_shininess[] = { 100.0 };
 
-enum nDrawables { nDrawables=1, nSpheres=1 };
+enum nDrawables { nDrawables=2, nSpheres=2 };
     Drawable* drawables[nDrawables];
     Sphere<> spheres[nSpheres];
 
@@ -232,22 +255,68 @@ void init(int argc, char** argv)
 {
     glutInit(&argc, argv);
 
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-    //GLUT_DOUBLE vs GLUT_SINGLE wait to change frames when the second is read, necessary for heavy animations.
-    //GLUT_RGB vs indexed color: instead of using 8bit per channel, choose 256 colors that represent well an image, and use 1byte for each pixel.
-    //  http://en.wikipedia.org/wiki/Indexed_color
-    //GLUT_DEPTH depth buffering: calculate pixels for each plane and their distances,
-        //keep only closest one, cheapest way to hide parts of objects that go behind others.
+    if(offscreen)
+    {
+        //setup framebuffer
+        //generate namespace for the frame buffer, colorbuffer and depthbuffer
+
+        //fbo is made to render and read pixels back to CPU
+        //render to texture is made to render and reutilize in GUP
+        //backbuffer is to print to screen, therefore slower than fbo
+        //pixel buffer objects to make read pixels asynchronous
+
+        glGenFramebuffers(1, &fboId);
+            //create a framebuffer object, you need to delete them when program exits.
+        glBindFramebuffer(GL_FRAMEBUFFER, fboId);
+            //from now on, operate on the given framebuffer for read an write
+            //also possible read only/write only
+                //GL_READ_FRAMEBUFFER
+                //GL_DRAW_FRAMEBUFFER
+        glGenRenderbuffers (1, &rboId);
+        glBindRenderbuffer (GL_RENDERBUFFER, rboId);
+        glRenderbufferStorage
+        (
+            GL_RENDERBUFFER,
+            GL_DEPTH_COMPONENT24,
+            windowW,
+            windowH
+        );
+        glFramebufferRenderbuffer
+        (
+            GL_FRAMEBUFFER,
+            GL_DEPTH_ATTACHMENT,
+            GL_RENDERBUFFER,
+            rboId
+        );
+ 
+        glReadBuffer(GL_COLOR_ATTACHMENT0); 
+            //tells glReadPixels where to read from
+            
+        //glutHideWindow();
+    }
 
     //window
+        //must always create a window
+        //for offscreen rendering, create 1x1 window and hide it
         glutInitWindowSize(windowW, windowH); 
         glutInitWindowPosition(windowPosX, windowPosY);
-        glutCreateWindow(argv[0]);
+        glutCreateWindow(argv[0]); 
+        //glutShowWindow();
+        //glutHideWindow();
+        //glutIconifyWindow();
+
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+        //GLUT_DOUBLE vs GLUT_SINGLE wait to change frames when the second is read, necessary for heavy animations.
+        //GLUT_RGB vs indexed color: instead of using 8bit per channel, choose 256 colors that represent well an image, and use 1byte for each pixel.
+        //  http://en.wikipedia.org/wiki/Indexed_color
+        //GLUT_DEPTH depth buffering: calculate pixels for each plane and their distances,
+            //keep only closest one, cheapest way to hide parts of objects that go behind others.
 
     //color to clear screen after each image
         glClearColor(0.0, 0.0, 0.0, 0.0);
 
     glEnable(GL_DEPTH_TEST); //TODO ?
+
     //glEnable(GL_BLEND);  //use those alphas TODO ?
 
     glEnable(GL_POLYGON_OFFSET_FILL); //TODO ?
@@ -281,16 +350,16 @@ void init(int argc, char** argv)
         glShadeModel(GL_SMOOTH);
 
         //light0
-            glEnable(GL_LIGHT0);
+            //glEnable(GL_LIGHT0);
 
             glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
             //4 vector. if [3]==0, x,y,z is the position.
             //otherwise, light is at infinity and x,y,z is the incoming direction
   
             //all of the following are distance attenuated
-                glLightfv(GL_LIGHT0, GL_AMBIENT, gray); //if this is white and close, you see no shadows
-                glLightfv(GL_LIGHT0, GL_DIFFUSE, white);
-                glLightfv(GL_LIGHT0, GL_SPECULAR, white);
+                glLightfv( GL_LIGHT0, GL_AMBIENT,  gray  ); //if this is white and close, you see no shadows
+                glLightfv( GL_LIGHT0, GL_DIFFUSE,  white );
+                glLightfv( GL_LIGHT0, GL_SPECULAR, white );
 
             //attenuation
                 //\frac{1}{k+ld+qd^2}
@@ -342,31 +411,9 @@ void init(int argc, char** argv)
         pixels = new GLubyte[ camera.getNComponents() * windowW ];
         //to store output pixels
 
-    //setup framebuffer
-        // generate namespace for the frame buffer, colorbuffer and depthbuffer
-
-        //glGenFramebuffers  (1, &fboId);
-        glGenRenderbuffers (1, &rboId);
-        //glBindFramebuffer  (GL_FRAMEBUFFER, fboId);
-        //glBindRenderbuffer (GL_RENDERBUFFER, rboId);
-        //glRenderbufferStorage
-        //(
-            //GL_RENDERBUFFER,
-            //GL_DEPTH_COMPONENT24,
-            //512,
-            //512
-        //);
-        //glFramebufferRenderbuffer
-        //(
-            //GL_FRAMEBUFFER,
-            //GL_DEPTH_ATTACHMENT,
-            //GL_RENDERBUFFER,
-            //rboId
-        //);
-
     //create drawable objects to model initial scene
         spheres[0] = Sphere<>( Vec3<>(0.0,0.0,0.0), 1.0, 50, 50, red );
-        //spheres[1] = Sphere( Vec3<>(-0.5,0.75,0.0), Vec3<>( 0.1, 0.0, 0.0), green );
+        spheres[1] = Sphere<>( Vec3<>(0.0,0.0,0.0), 1.0, 50, 50, blue );
         int total=0;
         for (int i=total; i<nSpheres; i++)
         {
@@ -390,41 +437,26 @@ void idle(void)
         dt = fast_forward*(t - oldT)/1000.0;
         oldT = t;
 
-    //cout << "===========================" << endl;
+    //cout << "===============================================" << endl;
     //cout << "pos" << endl << camera.pos.str();
     //cout << "dir" << endl << camera.dir.str();
     //cout << "dir" << endl << camera.getLookat().str();
     //cout << "speed\n" << speed;
     //cout << "rotSpeed\n" << rotSpeed;
-    cout << "FPS average: " << 1000*nFrames/t << endl;
-    nFrames++;
+    cout << "FPS average: " << 1000*nFrames/t;
     cout << endl;
 
     //speed nonstop movement method
         //camera.dir.rotY( rotSpeed*dt );
         //newpos = camera.pos + speed*dt;
-        camera.pos += Vec3<>(0.005, 0.0, 0.0);
+        //camera.pos -= Vec3<>(0.005, 0.0, 0.0);
+        spheres[0].pos += Vec3<>(0.005, 0.0, 0.0);
 
-    //read pixels from render
-        //glReadPixels
-        //( //reads a rectangle of pixels from last render
-            //0, //top x rectangle
-            //windowH/2, //top y rectangle
-            //camera.resX, //rectangle width
-            //1, //rectangle height
-            //camera.format, //GL_RGB, output format
-            //GL_UNSIGNED_BYTE, //output data type
-            //pixels //where output will be saved
-        //);
-
-        //for(int i=0; i<camera.resX*camera.getNComponents(); i=i+3)
-        //{
-            ////cout << i/3 << " ";
-            //cout << (int)pixels[i] << " ";
-            //cout << (int)pixels[i+1] << " ";
-            //cout << (int)pixels[i+2] << " ";
-            //cout << endl;
-        //}
+    nFrames++;
+    if (offscreen && nFrames == maxNFrames )
+    {
+        exit(EXIT_SUCCESS);
+    }
 
     glutPostRedisplay();
 }
@@ -433,11 +465,12 @@ void display()
 {
     //cout << "display" << endl;
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //clear the color buffer and the depth buffer
-    //GL_COLOR_BUFFER_BIT
-    //GL_DEPTH_BUFFER_BIT
-	//GL_ACCUM_BUFFER_BIT
-    //GL_STENCIL_BUFFER_BIT
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //clears given buffers to clear value
+        //GL_COLOR_BUFFER_BIT
+        //GL_DEPTH_BUFFER_BIT
+        //GL_ACCUM_BUFFER_BIT
+        //GL_STENCIL_BUFFER_BIT
 	
     glLoadIdentity(); // reset everything before starting
 
@@ -456,17 +489,21 @@ void display()
         camera.up.z
     );
 
-    //you can format those primitives with:
-        //void glPointSize(GLfloat size);
-        //void glLineWidth(GLfloat width); 
-        //void glLineStipple(GLint factor, GLushort pattern); 
-        //pattern=0x3F07 (translates to 0011111100000111 in binary), a line would be drawn with 3 pixels on, then 5 off, 6 on, and 2 off
-        //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); //default mode
-        //GL_FRONT, GL_BACK
-        //GL_FILL, GL_LINE, GL_POINT
-        //void glFrontFace(GLenum mode)
+    //we can check/modify state of attributes like so
+        //void glEnable(GLenum cap);
+        //void glDisable(GLenum cap); 
+        //GLboolean glIsEnabled(GLenum capability)
+        //void glGet*v(GLenum pname, GL* *params);
+        //void glGetPointerv(GLenum pname, GLvoid **params);
 
-    glPushMatrix(); // before transforming save the old matrix
+        //void glPushAttrib(GLbitfield mask);
+        //void glPopAttrib(void); 
+            //this can be done more efficiently in a stacked manner for groups of attributes
+            //GLbitfield represents a group of several attributes
+
+    glPushMatrix();
+    //before transforming save the old matrix
+    //potentially faster than loading identity at the end
 
     //geometric transformations
         //glMultMatrixf(N);
@@ -474,19 +511,24 @@ void display()
         //glRotatef(45., 1.0, 1.0, 0.0);
         //glTranslatef(1., 0.0, 0.0);
 
-    //the following are also allowed betwen glBegin and glEnd
-        //glColor3f(1.0, 0.0, 0.0);
-        //glIndex*
-        //glNormal*
-        //glTexCoord*
-        //glEdgeFlag*
-        //glMaterial*
-        //glArrayElement
-        //glEvalCoord*, glEvalPoint*
-        //glCallList, glCallLists
+    //can format primitives with
+        //void glPointSize(GLfloat size);
+        //void glLineWidth(GLfloat width); 
+        //void glLineStipple(GLint factor, GLushort pattern); 
+            ////pattern=0x3F07 (translates to 0011111100000111 in binary),
+            ////a line would be drawn with 3 pixels on, then 5 off, 6 on, and 2 off
+        //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); //default mode
+            //GL_FRONT, GL_BACK
+            //GL_FILL, GL_LINE, GL_POINT
+        //void glFrontFace(GLenum mode) TODO
 
+        //PolygonStipple
+            //puts a 32x32 pattern on polygons
+            //glEnable (GL_POLYGON_STIPPLE);
+            //glPolygonStipple (stipplePattern);
+            //glDisable (GL_POLYGON_STIPPLE)
 
-    //polygons are primitives, and thus dealt by opengl
+    //planar polygons are primitives, and thus dealt by opengl
         //glBegin(GL_POLYGON);
             //glVertex3f (-0.5, -0.5, 0.0);
             //glVertex3f ( 0.5, -0.5, 0.0);
@@ -504,8 +546,104 @@ void display()
             //GL_TRIANGLE_FAN
             //GL_QUADS
             //GL_QUAD_STRIP
-            //POLYGON
+            //GL_POLYGON
+                //convex polygons
             //glVertex*()
+ 
+        //the following are also allowed betwen glBegin and glEnd
+            //glColor3f(1.0, 0.0, 0.0);
+            //glIndex*
+            //glNormal*
+                //normal affects lightning
+                //
+                //normal is set per vertex, not surface
+                //since all calculations are per vertex,
+                //and then later interpolated
+                
+                //glBegin (GL_POLYGON);
+                    //glNormal3fv(n0);
+                    //glVertex3fv(v0);
+                    //glNormal3fv(n1);
+                    //glVertex3fv(v1);
+                    //glNormal3fv(n2);
+                    //glVertex3fv(v2);
+                    //glNormal3fv(n3);
+                    //glVertex3fv(v3);
+                //glEnd();
+                
+            //glTexCoord*
+            //glEdgeFlag*
+            //glMaterial*
+            //glArrayElement
+            //glEvalCoord*, glEvalPoint*
+            //glCallList, glCallLists
+
+
+        //vertex arrays
+            //reduce amounts of GL_VERTEX calls
+            //to a single call on arrays
+
+            //static GLint vertices[] =
+            //{ 
+                //25, 25,
+                //100, 325,
+                //175, 25,
+                //175, 325,
+                //250, 25,
+                //325, 325
+            //};
+
+            //static GLfloat colors[] =
+            //{
+                //1.0, 0.2, 0.2,
+                //0.2, 0.2, 1.0,
+                //0.8, 1.0, 0.2,
+                //0.75, 0.75, 0.75,
+                //0.35, 0.35, 0.35,
+                //0.5, 0.5, 0.5
+            //};
+
+            ///color and position on the same array
+            //static GLfloat intertwined[] =
+            //{
+                //1.0, 0.2, 1.0, 100.0, 100.0, 0.0,
+                //1.0, 0.2, 0.2, 0.0, 200.0, 0.0,
+                //1.0, 1.0, 0.2, 100.0, 300.0, 0.0,
+                //0.2, 1.0, 0.2, 200.0, 300.0, 0.0,
+                //0.2, 1.0, 1.0, 300.0, 200.0, 0.0,
+                //0.2, 0.2, 1.0, 200.0, 100.0, 0.0
+            //};
+
+            //glEnableClientState( GL_COLOR_ARRAY  );
+            //glEnableClientState( GL_VERTEX_ARRAY );
+            //glEnableClientState( GL_NORMAL_ARRAY );
+
+            //glColorPointer (3, GL_FLOAT, 0, colors);
+            //glVertexPointer(2, GL_INT, 0, vertices);
+            //glInterleavedArrays (GL_C3F_V3F, 0, intertwined);
+
+            //glDisableClientState( GL_COLOR_ARRAY  );
+            //glDisableClientState( GL_VERTEX_ARRAY );
+            //glDisableClientState( GL_NORMAL_ARRAY );
+
+        //glRectf(0.0, 0.0, 1.0, 1.0;) 
+            //rectangle, x1, y1, x2, y2, z=0
+            //may be optimized with respect to GL_POLYGON
+            //can be transformed to leave z=0
+
+        //non convex line polygons
+            //build up from smaller triangles
+            //+ EdgeFlag
+
+            //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            //glBegin(GL_POLYGON);
+                //glEdgeFlag ( GL_TRUE  );
+                //glVertex3fv( V0       );
+                //glEdgeFlag ( GL_FALSE );
+                //glVertex3fv( V1       );
+                //glEdgeFlag ( GL_TRUE  );
+                //glVertex3fv(V2);
+            //glEnd();
         
     //3d shapes are not primitives, so you must call them from glut (or glu)
         //glutWireCube(1.0);
@@ -526,30 +664,63 @@ void display()
 
     glPopMatrix(); //after drawing, reload the old transform
 
-    for ( int i = 0; i < nDrawables; i++ )
+    for (int i = 0; i < nDrawables; i++)
     {
         drawables[i]->draw();
     }
 
-    //glFlush();
+    glFlush();
     //- send all commands even if output is not read. (parallel processing, network)
     //- pauses application until drawing is complete and back framebuffer updated
     //- does not put back framebuffer on front, so you see nothing
 
-    glutSwapBuffers();
-    //
-    ////*waits* for the screen to refresh and makes sure that each frame goes to output window,
-    ////therefore limiting application speed to screen refresh rate
-    //
-    ////also flushes
+    if(!offscreen)
+    {
+        glutSwapBuffers();
+        //- puts backbuffer into frontbuffer making drawn scene visible
+        //- *waits* for the screen to refresh, limiting application speed to screen refresh rate
+        //- also flushes
+        //- backbuffer becomes undefined
+    }
+    
+    //read pixels from render
+        glReadPixels
+        ( //reads a rectangle of pixels from last render
+            0, //top x rectangle
+            windowH/2, //top y rectangle
+            camera.resX, //rectangle width
+            1, //rectangle height
+            camera.format, //GL_RGB, output format
+            GL_UNSIGNED_BYTE, //output data type
+            pixels //where output will be saved
+        );
+
+        for(int i=0; i<camera.resX*camera.getNComponents(); i=i+3)
+        {
+            //cout << i/3 << " ";
+            printf
+            (
+                "%3d %3d %3d | ",
+                (int)pixels[i],
+                (int)pixels[i+1],
+                (int)pixels[i+2]
+            );
+        }
 }
 
 void reshape(int w, int h)
 {
     glViewport(0, 0, (GLsizei) w, (GLsizei) h); 
+        //try w/2: will only draw on left half of the screen
 
-    glMatrixMode(GL_PROJECTION); //TODO ?
+    glMatrixMode(GL_PROJECTION); 
+        //from now on, modify projection transform matrix stack
+    
     glLoadIdentity();
+        //clear all transforms
+
+    //glOrtho(-1.0, 1.0, -1.0, 1.0, -0.0, 2.0);
+        //use 2D like projection transform
 
     glFrustum
     (
@@ -559,11 +730,11 @@ void reshape(int w, int h)
         camera.frustrumL,
         camera.frustrumNear,
         camera.frustrumFar
-    ); //this is what can be seen from the camera
+    );
+        //use 3D like real life projection transform
 
-    //glOrtho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0); //view cube
-
-    glMatrixMode(GL_MODELVIEW); //needed for transformations TODO
+    glMatrixMode(GL_MODELVIEW);
+    //from now on, modify model (scene objects) transform matrix stack
 }
 
 //move models
@@ -585,7 +756,7 @@ void reshape(int w, int h)
                 break;
             case 27: //esc
                 //quit
-                exit(0);
+                exit(EXIT_SUCCESS);
                 break;
         }
     }
@@ -684,16 +855,24 @@ void mouseMotion(int x, int y)
     }
 }
 
+void exitCB()
+{
+    //cout << "exiting" << endl;
+}
+
 int main(int argc, char** argv)
 {
     init(argc,argv);
     glutDisplayFunc(display); 
     glutReshapeFunc(reshape);
-    glutIdleFunc(idle); //called after render is done, typically to recalculate positions for the next frame
+    glutIdleFunc(idle);
+        //called after render is done and olny once,
+        //used to recalculate positions for the next frame
     glutKeyboardFunc(keyDown);
     //glutKeyboardUpFunc(keyUp);
     //glutMouseFunc(mouse);
     //glutMotionFunc(mouseMotion); //mouse motion
+    atexit(exitCB);
  
     //get and print opengl info
         glInfo glInfo;
@@ -701,7 +880,7 @@ int main(int argc, char** argv)
         //glInfo.printSelf();
 
     glutMainLoop();
-    //THIS IS NEVER REACHED
-    
+    //this is only reached when the program window is closed
+ 
     return 0;
 }
