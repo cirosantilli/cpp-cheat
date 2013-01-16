@@ -202,7 +202,7 @@ class Camera
 //profiling
 
 //window
-    GLint windowW = 700;
+    GLint windowW = 50;
     GLint windowH = 50;
 
     GLint windowPosX = 10;
@@ -211,7 +211,7 @@ class Camera
     int oldT;  //used to keep real time consistent
     int nFrames = 0; //total number of frames
     int maxNFrames = 100; //maximum number of frames on offscreen rendering
-    bool offscreen = false;
+    const bool offscreen = true;
 
 //events
     bool mouseLeftDown;
@@ -224,7 +224,8 @@ class Camera
     GLubyte* pixels; //stores the pixels from the rendering
     GLuint fboId;
     GLuint texId;
-    GLuint rboId;
+    GLuint rboColor;
+    GLuint rboDepth;
 
 //light
     GLfloat lightPos[] = { 2.0, 0.0, 0.0, 0.0 };
@@ -253,7 +254,48 @@ enum nDrawables { nDrawables=2, nSpheres=2 };
 //stuff set only once at beginning
 void init(int argc, char** argv) 
 {
+    int doubleBuffer;
+
     glutInit(&argc, argv);
+ 
+    if(offscreen)
+    {
+        glutInitWindowSize(1, 1); 
+        doubleBuffer = GLUT_SINGLE;
+    }
+    else
+    {
+        glutInitWindowSize( windowW, windowH ); 
+        glutInitWindowPosition( windowPosX, windowPosY );
+        doubleBuffer = GLUT_DOUBLE;
+    }
+
+    glutInitDisplayMode( doubleBuffer | GLUT_RGB | GLUT_DEPTH );
+        //GLUT_SINGLE
+            //use single framebuffer GL_FRONT.
+            //drawing makes change immediatelly visible even before complete
+            //not appropriate for animations
+        //GLUT_DOUBLE
+            //use 2 framebuffers, draw to GL_BACK
+            //call glutSwapBuffers to put back on GL_FRONT once drawing is complete
+            //user only sees completed drawings
+            //appropriate for animations
+        //GLUT_RGB vs indexed color: instead of using 8bit per channel, choose 256 colors that represent well an image, and use 1byte for each pixel.
+        //  http://en.wikipedia.org/wiki/Indexed_color
+        //GLUT_DEPTH depth buffering: calculate pixels for each plane and their distances,
+            //keep only closest one, cheapest way to hide parts of objects that go behind others.
+
+    //window
+        //must always create a window
+        //for offscreen rendering, create 1x1 window and hide it
+
+        glutInitWindowSize( windowW, windowH ); 
+        glutInitWindowPosition( windowPosX, windowPosY );
+        glutCreateWindow(argv[0]); 
+        //glutShowWindow();
+        //glutHideWindow();
+        //glutIconifyWindow();
+        
 
     if(offscreen)
     {
@@ -265,63 +307,110 @@ void init(int argc, char** argv)
         //backbuffer is to print to screen, therefore slower than fbo
         //pixel buffer objects to make read pixels asynchronous
 
-        glGenFramebuffers(1, &fboId);
-            //create a framebuffer object, you need to delete them when program exits.
-        glBindFramebuffer(GL_FRAMEBUFFER, fboId);
-            //from now on, operate on the given framebuffer for read an write
-            //also possible read only/write only
-                //GL_READ_FRAMEBUFFER
-                //GL_DRAW_FRAMEBUFFER
-        glGenRenderbuffers (1, &rboId);
-        glBindRenderbuffer (GL_RENDERBUFFER, rboId);
-        glRenderbufferStorage
-        (
-            GL_RENDERBUFFER,
-            GL_DEPTH_COMPONENT24,
-            windowW,
-            windowH
-        );
-        glFramebufferRenderbuffer
-        (
-            GL_FRAMEBUFFER,
-            GL_DEPTH_ATTACHMENT,
-            GL_RENDERBUFFER,
-            rboId
-        );
+        //color renderbuffer
+            glGenRenderbuffers (1, &rboColor);
+                //create a new renderbuffer unique name
+            glBindRenderbuffer (GL_RENDERBUFFER, rboColor);
+                //set it as the current
+            glRenderbufferStorage
+            (
+                GL_RENDERBUFFER,
+                GL_RGBA8,
+                windowW,
+                windowH
+            );
+                //sets storage type for currently bound renderbuffer
+
+        //depth renderbuffer
+            glGenRenderbuffers (1, &rboDepth);
+            glBindRenderbuffer (GL_RENDERBUFFER, rboDepth);
+            glRenderbufferStorage
+            (
+                GL_RENDERBUFFER,
+                GL_DEPTH_COMPONENT24,
+                windowW,
+                windowH
+            );
+
+        //framebuffer
+            glGenFramebuffers(1, &fboId);
+                //create a framebuffer and a renderbuffer object
+                //you need to delete them when program exits.
+
+            glBindFramebuffer(GL_FRAMEBUFFER, fboId);
+                //from now on, operate on the given framebuffer
+                    //GL_FRAMEBUFFER        read write
+                    //GL_READ_FRAMEBUFFER   read
+                    //GL_FRAMEBUFFER   write
+                
+            glFramebufferRenderbuffer
+            (
+                GL_FRAMEBUFFER,
+                GL_COLOR_ATTACHMENT0,
+                GL_RENDERBUFFER,
+                rboColor
+            );
+            //adds a color renderbuffer to currently bound framebuffer
+
+            glFramebufferRenderbuffer
+            (
+                GL_FRAMEBUFFER,
+                GL_DEPTH_ATTACHMENT,
+                GL_RENDERBUFFER,
+                rboDepth
+            );
  
+            //glBindFramebuffer(GL_FRAMEBUFFER, 0);
+                //unbinds current framebuffer
+                //goes back to default (GL_BACK or GL_FRONT)
+
         glReadBuffer(GL_COLOR_ATTACHMENT0); 
-            //tells glReadPixels where to read from
+        //glReadBuffer(GL_BACK); 
+            //sets read target for:
+                //glReadPixels
+                //glCopyTexImage1D
+                //glCopyTexImage2D
+                //glCopyTexSubImage1D
+                //glCopyTexSubImage2D
+                //glCopyTexSubImage3D
 
-        glutInitWindowSize(1, 1); 
-        glutInitWindowSize(windowW, windowH); 
-        glutInitWindowPosition(windowPosX, windowPosY);
+        GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+        if(status != GL_FRAMEBUFFER_COMPLETE)
+        {
+            cout << "framebuffer error:" << endl;
+            switch(status)
+            {
+                case GL_FRAMEBUFFER_UNDEFINED:
+                    cout << "GL_FRAMEBUFFER_UNDEFINED" << endl;
+            
+                case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+                    cout << "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT" << endl;
+            
+                case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+                    cout << "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT" << endl;
+            
+                case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
+                    cout << "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER" << endl;
+            
+                case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
+                    cout << "GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER" << endl;
+            
+                case GL_FRAMEBUFFER_UNSUPPORTED:
+                    cout << "GL_FRAMEBUFFER_UNSUPPORTED" << endl;
+            
+                case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE:
+                    cout << "GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE" << endl;
+            
+                case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:
+                    cout << "GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS" << endl;
+
+                case 0:
+                    cout << "0" << endl;
+            }
+            exit(EXIT_FAILURE);
+        }
+        glutHideWindow();  //TEST COMMENT
     }
-    else
-    {
-        glutInitWindowSize(windowW, windowH); 
-        glutInitWindowPosition(windowPosX, windowPosY);
-    }
-
-    //window
-        //must always create a window
-        //for offscreen rendering, create 1x1 window and hide it
-        glutCreateWindow(argv[0]); 
-        //glutShowWindow();
-        //glutHideWindow();
-        //glutIconifyWindow();
-        
-    if(offscreen)
-    {
-        glutHideWindow();
-    }
-
-
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
-        //GLUT_DOUBLE vs GLUT_SINGLE wait to change frames when the second is read, necessary for heavy animations.
-        //GLUT_RGB vs indexed color: instead of using 8bit per channel, choose 256 colors that represent well an image, and use 1byte for each pixel.
-        //  http://en.wikipedia.org/wiki/Indexed_color
-        //GLUT_DEPTH depth buffering: calculate pixels for each plane and their distances,
-            //keep only closest one, cheapest way to hide parts of objects that go behind others.
 
     //color to clear screen after each image
         glClearColor(0.0, 0.0, 0.0, 0.0);
@@ -474,6 +563,7 @@ void idle(void)
 
 void display()
 {
+
     //cout << "display" << endl;
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -680,21 +770,38 @@ void display()
         drawables[i]->draw();
     }
 
-    //glFlush();
-    //- send all commands even if output is not read. (parallel processing, network)
-    //- pauses application until drawing is complete and back framebuffer updated
-    //- does not put back framebuffer on front, so you see nothing
+    //ensures draw is up to date
 
-    if(!offscreen)
-    {
+        //glFlush();
+        //- send all commands even if output is not read. (parallel processing, network)
+        //- pauses application until drawing is complete and back framebuffer updated
+        //- does not put back framebuffer on front, so you see nothing
+
         glutSwapBuffers();
         //- puts backbuffer into frontbuffer making drawn scene visible
         //- *waits* for the screen to refresh, limiting application speed to screen refresh rate
         //- also flushes
         //- backbuffer becomes undefined
-    }
+        //- if not GL_DOUBLE, simply flushes
     
     //read pixels from render
+        //find where glReadPixels is reading from
+            //int buff;
+            //glGetIntegerv(GL_READ_BUFFER,&buff);
+            //cout << "glReadPixels reads from:" << endl;
+            //switch(buff)
+            //{
+                //case GL_BACK:
+                    //cout << "GL_BACK" << endl;
+                    //break;
+
+                //case GL_FRONT:
+                    //cout << "GL_FRONT" << endl;
+                    //break;
+
+                //case GL_COLOR_ATTACHMENT0:
+                    //cout << "GL_COLOR_ATTACHMENT0" << endl;
+            //}
         glReadPixels
         ( //reads a rectangle of pixels from last render
             0, //top x rectangle

@@ -302,11 +302,14 @@ class Class : public Base, protected BaseProtected, private BasePrivate //inheri
         Class(int i, int j, int z) try : Base(i,j), i(i), z(z)
         {
             cout << "Class::Class(int, int, int)" << endl;
-        } catch(const exception &e) {
+        }
+        catch(const exception &e)
+        {
             throw e;
         } 
 
-        Class(Member m) : m(m) {
+        Class(Member m) : m(m)
+        {
             //BAD: m constructor would be called, but this is useless since we have already called it!
             //to construct it before.
             //This is an application of initialization constructors.
@@ -376,7 +379,8 @@ class ClassCast
 };
 
 //default args go in def only!
-    //must go there because this actually makes many different function
+    //must go there because this actually makes many different functions
+    //and default value is part of the interface
     class ClassDefault
     {
         ClassDefault(int i=0);
