@@ -211,7 +211,7 @@ class Camera
     int oldT;  //used to keep real time consistent
     int nFrames = 0; //total number of frames
     int maxNFrames = 100; //maximum number of frames on offscreen rendering
-    bool offscreen = true;
+    bool offscreen = false;
 
 //events
     bool mouseLeftDown;
@@ -291,19 +291,30 @@ void init(int argc, char** argv)
  
         glReadBuffer(GL_COLOR_ATTACHMENT0); 
             //tells glReadPixels where to read from
-            
-        //glutHideWindow();
+
+        glutInitWindowSize(1, 1); 
+        glutInitWindowSize(windowW, windowH); 
+        glutInitWindowPosition(windowPosX, windowPosY);
+    }
+    else
+    {
+        glutInitWindowSize(windowW, windowH); 
+        glutInitWindowPosition(windowPosX, windowPosY);
     }
 
     //window
         //must always create a window
         //for offscreen rendering, create 1x1 window and hide it
-        glutInitWindowSize(windowW, windowH); 
-        glutInitWindowPosition(windowPosX, windowPosY);
         glutCreateWindow(argv[0]); 
         //glutShowWindow();
         //glutHideWindow();
         //glutIconifyWindow();
+        
+    if(offscreen)
+    {
+        glutHideWindow();
+    }
+
 
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
         //GLUT_DOUBLE vs GLUT_SINGLE wait to change frames when the second is read, necessary for heavy animations.
@@ -669,7 +680,7 @@ void display()
         drawables[i]->draw();
     }
 
-    glFlush();
+    //glFlush();
     //- send all commands even if output is not read. (parallel processing, network)
     //- pauses application until drawing is complete and back framebuffer updated
     //- does not put back framebuffer on front, so you see nothing
