@@ -262,7 +262,7 @@ int main()
     /*printf("user entered:\n%d\n",i);*/
 
     float f;
-    f = upfloat ();
+    f = upfloat();
     printf ("user entered:\n%f\n", f);
 
     return 0;

@@ -60,6 +60,11 @@ TODO
     //bad_typeid	thrown by typeid
     //ios_base::failure	thrown by functions in the iostream library
 
+#include <vector>  
+
+#include <algorithm>
+//sort, reverse, random_shuffle, count, max_element, min_element
+
 //namespaces
 
     //namespace creation
@@ -816,6 +821,8 @@ int main(int argc, char** argv)
 
     cout << "exceptions" << endl;
         //TODO
+        //
+    cout << endl;
 
     cout << "enum" << endl;
 
@@ -828,6 +835,64 @@ int main(int argc, char** argv)
         //ERROR
             //enum E2 { E2=i };
             //only const expressions allowed
+ 
+    cout << endl;
+
+    //from stdlib, learn all containers and algorithms on them
+
+    cout << "vector" << endl;
+
+        vector<int> vecI(2); 
+
+        vecI[0] = 0;
+        cout << vecI[0] << endl;
+
+        //cout << vecI[2] << endl;
+        //vecI[2] = 2;
+            //ERROR just like array overflow
+        
+
+        //NEW
+        //initializer lists
+            //vector<int> vecI2 { 1, 2 };
+            //vector<int> vecI3 = { 1, 2 };
+            //vector<int> vecI4(2);
+            //vecI4 = { 1, 2 };
+
+        vecI.push_back(2);
+        cout << vecI[2] << endl;
+
+        cout << vecI.front() << endl;
+        cout << vecI.back() << endl;
+
+        vecI.pop_back();
+        //destroy last element
+
+        //return interators
+        vecI.insert( vecI.begin() + 1, 1 );
+        vecI.insert( vecI.end()   - 1, 1 );
+        vecI.erase( vecI.begin() + 1 );
+        vecI.erase( vecI.begin() + 1, vecI.begin() + 2 );
+
+        cout << vecI.empty() << endl;
+
+        for (
+            vector<int>::iterator i = vecI.begin();
+            i != vecI.end();
+            ++i
+        )
+        {
+            cout << *i << endl;
+        }
+
+        sort( vecI.begin(), vecI.end() );
+        reverse( vecI.begin(), vecI.end() );
+        random_shuffle( vecI.begin(), vecI.end() );
+        int num_zeros = count( vecI.begin(), vecI.end(), 0 );
+        int highest = *max_element (vecI.begin(), vecI.end());
+        int lowest = *min_element (vecI.begin(), vecI.end());
+
+    cout << endl;
 
     return EXIT_SUCCESS;
 }

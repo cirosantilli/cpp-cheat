@@ -22,7 +22,7 @@ OUT=$(OUT_DIR)cheat$(OUT_EXT)
 all: mkdir $(OUT)
 
 run: all
-	$(OUT)
+	./$(OUT) $(RUN_ARGS)
 
 $(OUT): $(AUXS)
 	$(CC) $^ -o "$@" $(LIBS)

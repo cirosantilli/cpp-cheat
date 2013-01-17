@@ -211,7 +211,7 @@ class Camera
     int oldT;  //used to keep real time consistent
     int nFrames = 0; //total number of frames
     int maxNFrames = 100; //maximum number of frames on offscreen rendering
-    const bool offscreen = true;
+    bool offscreen = true;
 
 //events
     bool mouseLeftDown;
@@ -980,6 +980,14 @@ void exitCB()
 
 int main(int argc, char** argv)
 {
+
+    if(argc > 1)
+    {
+        cout << argv[1] << endl;
+        if( string(argv[1]) == "0" )
+            offscreen = false;
+    }
+
     init(argc,argv);
     glutDisplayFunc(display); 
     glutReshapeFunc(reshape);

@@ -604,31 +604,55 @@ int main(){
     // flow control
 
     //if
-        if(1>2){
-        printf("true 1>2\n");
+        if(0)
+        {
+            printf("true 0\n");
         } 
-        if(1<2){ 
-        printf("true 1<2\n");
+        if(1)
+        {
+            printf("true 1\n");
+        } 
+        if(-1)
+        {
+            printf("true -1\n");
+        } 
+        if(1>2)
+        {
+            printf("true 1>2\n");
+        } 
+        if(1<2)
+        { 
+            printf("true 1<2\n");
         }
         
-        if(1<=2){ 
-        printf("true 1<=2\n");
-        } else {
-        printf("true 1>2\n");
+        if(1<=2)
+        { 
+            printf("true 1<=2\n");
+        }
+        else
+        {
+            printf("true 1>2\n");
         }
         
         if(1>=2){ 
-        printf("true 1=>2\n");
-        } else {
-        printf("true 1<2\n");
+            printf("true 1=>2\n");
+        }
+        else
+        {
+            printf("true 1<2\n");
         }
         
-        if(1>2){ 
-        printf("true 1>2\n");
-        } else if(1==2){
-        printf("true 1==2\n");	
-        }else {
-        printf("true 1<2\n");
+        if(1>2)
+        { 
+            printf("true 1>2\n");
+        }
+        else if(1==2)
+        {
+            printf("true 1==2\n");	
+        }
+        else
+        {
+            printf("true 1<2\n");
         }
      
     //no booleans true false in c, ints only! c++ only.
@@ -641,7 +665,8 @@ int main(){
         i=1;
         printf("not i = %d\n", 1==0);
 
-        //from <stdbool>
+        //<stdbool>
+            //C99
 #include <stdbool.h>
             int b = true;
             printf("true = %d\n", true);

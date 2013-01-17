@@ -29,7 +29,8 @@ all: mkdir $(C_OUTS) $(CPP_OUTS)
 run: all
 	#./$(OUT_DIR)c$(OUT_EXT)
 	#./$(OUT_DIR)cpp$(OUT_EXT)
-	./$(OUT_DIR)func$(OUT_EXT)
+	#./$(OUT_DIR)func$(OUT_EXT)
+	./$(OUT_DIR)user_input$(OUT_EXT)
 
 mkdir:
 	mkdir -p "$(OUT_DIR)"

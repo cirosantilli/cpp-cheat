@@ -15,20 +15,15 @@ AUXS_NODIR:=$(patsubst %$(IN_EXT),%$(AUX_EXT),$(INS_NODIR))
 AUXS=$(addprefix $(AUX_DIR),$(AUXS_NODIR))
 OUT=$(OUT_DIR)cheat$(OUT_EXT)
 
-MIN_OUT=$(OUT_DIR)min$(OUT_EXT)
-
 .PHONY: all clean mkdir run 
 
-all: mkdir $(OUT) $(MIN_OUT)
+all: mkdir $(OUT)
 
 run: all
-	$(OUT)
+	./$(OUT) $(RUN_ARGS)
 
 $(OUT): $(AUXS)
 	$(CC) $^ -o "$@" $(LIBS)
-
-$(MIN_OUT): $(AUX_DIR)min$(AUX_EXT)
-	$(CC) "$<" -o "$@" $(LIBS)
 
 $(AUX_DIR)%$(AUX_EXT): $(IN_DIR)%$(IN_EXT)
 	$(CC) $(INCLUDE_DIRS) -c "$<" -o "$@"
