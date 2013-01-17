@@ -10,6 +10,10 @@ static int aHStaticInt = 0;
 
 extern int externInt;
 
+#ifdef DEF
+  int def;
+#endif
+
 void a();
 
 #endif

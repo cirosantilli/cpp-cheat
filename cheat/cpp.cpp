@@ -32,8 +32,10 @@ good general resources
 
 - language versions
 
-    latest C++11
-    previous C++03
+    latest: C++11
+        previously known as C++0x
+        but took too long to come out
+    previous: C++03
 
     http://en.wikipedia.org/wiki/C%2B%2B11
 
@@ -441,12 +443,35 @@ class TemplateClass
     //template<class T=int, int N=10>
     //void TemplateClass<T,N>::methodNoT(){}
 
+
+//global scope
+    int global = 0;
+
+    //NOTE different from c, where these were errors
+        int global2 = global+1;
+        int ret1(){
+            cout << "before main!" << endl;
+            return 1;
+        }
+        int global3 = ret1();
+
+//ERROR everything must start with a typename
+    //global = 1;
+    //if(1){}
+    //cout << "global" << endl;
+
 int main(int argc, char** argv)
 {
-
     bool b;
-    int i;
+    int i = 0;
+    unsigned int ui = 1;
+    //NOTE no warn
+    unsigned int uiNeg = -1;
     int * ip;
+
+    //WARN makes sense, in c, no WARN!
+    //if(ui<i)
+        //cout << "ui<i" << endl;
 
     cout << "io" << endl;
         //in c++ there is no more printf formatting strings
@@ -841,56 +866,113 @@ int main(int argc, char** argv)
     //from stdlib, learn all containers and algorithms on them
 
     cout << "vector" << endl;
+        //dynamic array based
+        //reallocates as necessary
 
-        vector<int> vecI(2); 
+        //creation
+            // constructors used in the same order as described above:
+            std::vector<int> v1;                                // empty vector of ints
+            std::vector<int> v2 (4,100);                       // four ints with value 100
+            std::vector<int> v3 (v2.begin(),v2.end());  // iterating through second
+            std::vector<int> v4 (v3);                       // a copy of third
 
-        vecI[0] = 0;
-        cout << vecI[0] << endl;
+            // the iterator constructor can also be used to construct from arrays:
+            int myints[] = {16,2,77,29};
+            std::vector<int> fifth (myints, myints + sizeof(myints)/sizeof(int) );
 
-        //cout << vecI[2] << endl;
-        //vecI[2] = 2;
-            //ERROR just like array overflow
-        
+            //NEW C++11
+            //initializer lists
+                //vector<int> v12 { 1, 2 };
+                //vector<int> v13 = { 1, 2 };
+                //vector<int> v14(2);
+                //v14 = { 1, 2 };
 
-        //NEW
-        //initializer lists
-            //vector<int> vecI2 { 1, 2 };
-            //vector<int> vecI3 = { 1, 2 };
-            //vector<int> vecI4(2);
-            //vecI4 = { 1, 2 };
+        //access
+            
+            //randomaccess is fast
+                v1[0] = 0;
+                cout << v1[0] << endl;
 
-        vecI.push_back(2);
-        cout << vecI[2] << endl;
+                //cout << v1[2] << endl;
+                //v1[2] = 2;
+                    //ERROR just like array overflow
 
-        cout << vecI.front() << endl;
-        cout << vecI.back() << endl;
+                cout << v1.back() << endl;
+                cout << v1.front() << endl;
 
-        vecI.pop_back();
-        //destroy last element
+        //size, pop and push
+            cout << "vector<int>(1)" << endl;
+            cout << "v1.size()" << endl;
+            v1 = vector<int>(1);
+            cout << v1.size() << endl;
+            //1
+            cout << "v1.push_back(1)" << endl;
+            cout << "v1.size()" << endl;
+            v1.push_back(1);
+            cout << v1.size() << endl;
+            //2
+            cout << "v1.pop_back(1)" << endl;
+            cout << "v1.size()" << endl;
+            v1.pop_back();
+            cout << v1.size() << endl;
+            //1
+            //ERROR
+                //cout << "v1[2] = 2" << endl;
+                //cout << "v1.size()" << endl;
+                //v1[10] = 2;
+                //cout << v1.size() << endl;
+                //1
+            cout << "v1<int>()" << endl;
+            v1 = vector<int>();
+            cout << "v1.size()" << endl;
+            cout << v1.size() << endl;
+            //0
+
+            //size            Return size
+            //empty           Test whether vector is empty. same as size=0
+            //resize          Change size
+            //max_size        Return maximum size (what could fit your program ram)
+
+            //allocation related
+                //capacity        get how mush is allocated
+                //reserve         change how much is allocated
+                //shrink_to_fit   Shrink allocated array to fit cur size
+                //data            get pointer to allocated array
 
         //return interators
-        vecI.insert( vecI.begin() + 1, 1 );
-        vecI.insert( vecI.end()   - 1, 1 );
-        vecI.erase( vecI.begin() + 1 );
-        vecI.erase( vecI.begin() + 1, vecI.begin() + 2 );
+        v1.insert( v1.begin() + 1, 1 );
+        v1.insert( v1.end()   - 1, 1 );
+        v1.erase( v1.begin() + 1 );
+        v1.erase( v1.begin() + 1, v1.begin() + 2 );
 
-        cout << vecI.empty() << endl;
+        cout << v1.empty() << endl;
 
         for (
-            vector<int>::iterator i = vecI.begin();
-            i != vecI.end();
+            vector<int>::iterator i = v1.begin();
+            i != v1.end();
             ++i
         )
         {
             cout << *i << endl;
         }
 
-        sort( vecI.begin(), vecI.end() );
-        reverse( vecI.begin(), vecI.end() );
-        random_shuffle( vecI.begin(), vecI.end() );
-        int num_zeros = count( vecI.begin(), vecI.end(), 0 );
-        int highest = *max_element (vecI.begin(), vecI.end());
-        int lowest = *min_element (vecI.begin(), vecI.end());
+        //algorithms
+            sort( v1.begin(), v1.end() );
+
+            bool contains = binary_search( v1.begin(), v1.end(), 1 );
+            //must be already sorted
+
+            reverse( v1.begin(), v1.end() );
+            random_shuffle( v1.begin(), v1.end() );
+            int num_zeros = count( v1.begin(), v1.end(), 0 );
+            int highest = *max_element (v1.begin(), v1.end());
+            int lowest = *min_element (v1.begin(), v1.end());
+
+            unsigned int pos = find( v1.begin(), v1.end(), 1 ) - v1.begin();
+            if( pos < v1.size() )
+                cout << pos << endl;
+            else
+                cout << "not found" << endl;
 
     cout << endl;
 

@@ -27,10 +27,14 @@ CPP_OUTS:=$(addprefix $(OUT_DIR),$(OUTS_NODIR))
 all: mkdir $(C_OUTS) $(CPP_OUTS)
 
 run: all
-	#./$(OUT_DIR)c$(OUT_EXT)
-	#./$(OUT_DIR)cpp$(OUT_EXT)
-	#./$(OUT_DIR)func$(OUT_EXT)
-	./$(OUT_DIR)user_input$(OUT_EXT)
+ifdef RUN
+	./$(OUT_DIR)$(RUN)$(OUT_EXT) $(RUN_ARGS)
+else
+	#./$(OUT_DIR)c$(OUT_EXT) $(RUN_ARGS)
+	./$(OUT_DIR)cpp$(OUT_EXT) $(RUN_ARGS)
+	#./$(OUT_DIR)func$(OUT_EXT) $(RUN_ARGS)
+	#./$(OUT_DIR)user_input$(OUT_EXT) $(RUN_ARGS)
+endif
 
 mkdir:
 	mkdir -p "$(OUT_DIR)"

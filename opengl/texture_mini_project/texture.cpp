@@ -189,10 +189,10 @@ GLfloat PERSON_LOOK_DOWN = -.2; //how much the person looks down
 GLfloat WALL_H = 2.0; //wall height
 GLfloat WALL_L = 20.0; //wall length
 GLfloat WALL_HL = WALL_L/2.; //wall half-length
-GLfloat SKY_H = 100.;
-GLfloat SKY_HL = 1000000.;
-GLfloat SKY_TEX_COORD = SKY_HL/100.; //how many times the sky pattern is put on the sky
-GLfloat ROT_SPEED_MAX = M_PI/4.; //maximum rotation speed
+GLfloat SKY_H = 100.0;
+GLfloat SKY_HL = 1000000.0;
+GLfloat SKY_TEX_COORD = SKY_HL/100.0; //how many times the sky pattern is put on the sky
+GLfloat ROT_SPEED_MAX = M_PI/4.0; //maximum rotation speed
 
 GLint WINDOW_W = 700;
 GLint WINDOW_H = 700; 

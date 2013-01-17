@@ -26,8 +26,16 @@ CPP_OUTS:=$(addprefix $(OUT_DIR),$(OUTS_NODIR))
 
 all: mkdir $(C_OUTS) $(CPP_OUTS)
 
+#make run
+#make run RUN=cpp
 run: all
+ifdef RUN
+	./$(OUT_DIR)$(RUN)$(OUT_EXT) $(RUN_ARGS)
+else
+	#default
 	./$(OUT_DIR)c$(OUT_EXT) $(RUN_ARGS)
+	#./$(OUT_DIR)cpp$(OUT_EXT) $(RUN_ARGS)
+endif
 
 mkdir:
 	mkdir -p "$(OUT_DIR)"

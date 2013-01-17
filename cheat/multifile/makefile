@@ -4,16 +4,16 @@ all: maina mainso libab.so
 
 #run both mains
 run: maina mainso
-	./maina
-	./mainso
+	./maina.out
+	./mainso.out
 
 #main to link to .so
 mainso: main.cpp libab.so
-	g++ main.cpp -o mainso -L. -lab
+	g++ main.cpp -o mainso.out -L. -lab
 
 #main with .a
 maina: main.cpp ab.a
-	g++ main.cpp ab.a -o maina
+	g++ main.cpp ab.a -o maina.out
 
 #make .so
 libab.so: a.o b.o
@@ -27,4 +27,4 @@ ab.a: a.o b.o
 	g++ -fPIC -c "$<" -o "$@"
 
 clean:
-	rm -rf maina mainso *.o *.a *.so
+	rm -rf maina mainso *.o *.a *.so *.out

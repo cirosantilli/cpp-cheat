@@ -205,14 +205,24 @@ int debugVar;
 int windowsVar;
 #endif
 
-int global = 12;
-    //this is a global variable: can be accessed and modified everywhere
+//global scope
 
-//ERROR: only declarations (vars, funcs, enums, ...) outside functions (main)
-    //
-    //puts("asdf");
-    //
-    //if(1){}
+    int global = 1;
+        //this is a global variable: can be accessed and modified everywhere
+
+    //OK!
+    int global2 = 1+1;
+
+
+    int ret1(){
+        puts("before main!");
+        return 1;
+    }
+    //ERROR: only var declarations with const initialization allowed
+        //int global2 = global+1;  //non const
+        //puts("asdf");           //func call
+        //if(1){}                 //branching
+        //int global3 = ret1();   //functions
  
 //function
     void f(){ puts("f()"); }
@@ -332,7 +342,7 @@ int main(){
             printf("ui = %u\n", ui);
 
             //TODO what is the difference between declaring a variable signed an unsigned?
-                //all that matters is the %u or %d in the printf?
+            //all that matters is the %u or %d in the printf?
 
             //WARN overflow
                 //i = 0x100000000; //max int+1
@@ -753,8 +763,13 @@ int main(){
         typedef enum {RANDOM, IMMEDIATE, SEARCH} strategy;
         strategy my_strategy = IMMEDIATE;
 
+    //preprocessor
+#define A B
+#define B puts("A");
+        A
+
     //main returns status
-    return EXIT_SUCCESS;
-    return EXIT_FAILURE;
+        return EXIT_SUCCESS;
+        return EXIT_FAILURE;
 
 }

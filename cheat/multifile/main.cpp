@@ -1,6 +1,11 @@
 #include <iostream>
 
+#define DEF
 #include "a.h"
+//#define DEF
+    //ERROR def undefined
+    //preprocessor does things in the exact same order it sees them
+
 #include "b.h"
 
 using namespace std;
@@ -32,4 +37,8 @@ int main(int argc, char** argv)
 
     a();
     b();
+
+    //preprocessor includes
+        def++;
+
 }
