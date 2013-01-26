@@ -1,5 +1,8 @@
 #compiles all files in current dir into a single output file
 
+#sample calls
+
+
 override AUX_DIR?=_aux/
 override AUX_EXT?=.o
 override CC?=g++
@@ -10,8 +13,10 @@ override INCLUDE_DIRS?=-I/usr/include/GL
 override LIBS?=-lglut -lGLU -lGL
 override PREDEF?=#-DDEBUG -DPROFLING -DWINDOWS 				#preprocessor defines
 override RUN_ARGS?=#0 1																#passed as command line args to bin on run
+override OPTIMIZE_FLAGS:=-O3
 override OUT_DIR?=_out/
 override OUT_EXT?=
+override PROFILE_FLAGS?=
 
 INS:=$(wildcard $(IN_DIR)*$(IN_EXT))
 INS_NODIR:=$(notdir $(INS))
@@ -19,18 +24,26 @@ AUXS_NODIR:=$(patsubst %$(IN_EXT),%$(AUX_EXT),$(INS_NODIR))
 AUXS:=$(addprefix $(AUX_DIR),$(AUXS_NODIR))
 OUT:=$(OUT_DIR)cheat$(OUT_EXT)
 
-.PHONY: all clean mkdir run 
+.PHONY: all mkdir clean profile set_profile_flags help
 
 all: mkdir $(OUT)
 
 run: all
 	./$(OUT) $(RUN_ARGS)
 
+profile: clean set_profile_flags all run
+	mv -f gmon.out $(OUT_DIR)
+	gprof $(RUN_PATH) $(OUT_DIR)gmon.out
+
+set_profile_flags:
+	$(eval PROFILE_FLAGS := -p -pg)
+	$(eval OPTIMIZE_FLAGS := )
+
 $(OUT): $(AUXS)
 	$(CC) $^ -o "$@" $(LIBS)
 
 $(AUX_DIR)%$(AUX_EXT): $(IN_DIR)%$(IN_EXT)
-	$(CC) $(PREDEF) $(INCLUDE_DIRS) $(CFLAGS) -c "$<" -o "$@"
+	$(CC) $(OPTIMIZE_FLAGS) $(PROFILE_FLAGS) $(PREDEF) $(INCLUDE_DIRS) $(CFLAGS) -c "$<" -o "$@"
 
 mkdir:
 	mkdir -p "$(AUX_DIR)"
@@ -38,3 +51,11 @@ mkdir:
 
 clean:
 	rm -rf $(AUX_DIR) $(OUT_DIR)
+
+help:
+	@echo 'sample calls:'
+	@echo 'make'
+	@echo 'make clean'
+	@echo 'make run'
+	@echo 'make run RUN=a.out'
+	@echo 'make run RUN=a.out RUN_ARGS='"'"'"1 2"'"'"

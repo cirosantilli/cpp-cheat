@@ -78,8 +78,31 @@ thats why is is called *pre*
     - gdb
 
 - profiling/benchmarking
-    - gprof
-    http://kuscsik.blogspot.com.br/2007/08/how-to-benchmark-c-code-using-gcc.html
+
+    - which tool to use
+    
+        <http://stackoverflow.com/questions/375913/what-can-i-use-to-profile-c-code-in-linux>
+
+    - candidates tools:
+
+        - gdb
+
+            somewhat improvised
+
+        - gprof
+
+            <http://kuscsik.blogspot.com.br/2007/08/how-to-benchmark-c-code-using-gcc.html>
+
+            classical tool
+
+            flat and call graph
+
+        - valgrind
+        - google-perftools.
+        - oprofile
+        - perftools
+                sudo aptitude install linux-tools
+        - callgrind + KCacheGrind
 
 - optimizations
 
@@ -193,6 +216,12 @@ that is, applied to specific domains of science
     //define constants, or control compilation
 
 #include <assert.h>
+#include <complex.h>
+#include <stdbool.h>
+#include <math.h>
+#include <time.h>
+#include <sys/stat.h>    
+#include <unistd.h>
  
 #define PI 3.14
 //BAD
@@ -360,13 +389,9 @@ int main(int argc, char** argv)
                 //lli = 0x10000000000000000; //max long long+1
 
         //bases for integers
-            printf("16 = %d\n", 16);
-            printf("0x10 = %d\n", 0x10);
-            //16
-            printf("020 = %d\n", 020);
-            //16
-            printf("0b10000 = %d\n", 0b10000);
-            //16
+            assert( 16 == 0x10 );
+            assert( 16 == 020 );
+            assert( 16 == 0b10000 );
         
         //const
             const int ic = 0;
@@ -633,7 +658,6 @@ int main(int argc, char** argv)
         puts("complex.h");
             //C99
             {
-#include <complex.h>
                 const double complex zd = 1.0 + 2.0*I;
                 const int complex zi = 1 + 2*I;
                 const int complex zi2 = 1 + 1*I;
@@ -663,7 +687,6 @@ int main(int argc, char** argv)
                 //no booleans true false in c, ints only! c++ only.
                 //can use stdbool.h
 
-#include <stdbool.h>
                 bool b = true;
                 bool b2 = false;
                 assert( true  == 1 );
@@ -908,22 +931,24 @@ int main(int argc, char** argv)
             //input is space separated
             //nothing happens on error
         
+            int i;
             printf("enter an integer in decimal and a newline (max 32 bits signed):\n");
-            scanf("%d", &i);
+            i = scanf("%d", &i);
             printf("you entered:\n%d\n\n", i);
+            i++;
             //stuff is space separated
             //try 123 456 789 at once. 456 789 stay in the buffer, and are eaten by the second scanf
             
             printf("enter an integer, a space, an integer and a newline (max 32 bits signed):\n");
-            scanf("%d %d", &i, &j);
+            i = scanf("%d %d", &i, &j);
             printf("you entered:\n%d %d\n\n", i, j);
 
             printf("enter a float and a newline:\n");
-            scanf("%f", &f);
+            i = scanf("%f", &f);
             printf("you entered:\n%.2f\n\n", f);
 
             printf("enter an integer in hexadecimal and a newline: (max 32 bits signed)\n");
-            scanf("%x", &i);
+            i = scanf("%x", &i);
             printf("you entered (in decimal):\n%d\n\n", i);
 
         //fgets + error checking: best method
@@ -936,8 +961,6 @@ int main(int argc, char** argv)
     puts("");
 
     puts("math.h");
-#include <math.h>
-
         //constants
  
             /*printf("M_PI = %.2f\n", M_PI);*/
@@ -954,8 +977,6 @@ int main(int argc, char** argv)
         
         assert( abs(-1.1)  == 1 );
         assert( fabsl(-1.1) == 1.1 );
-
-#include <time.h>
 
         //random
             puts("random");
@@ -992,7 +1013,6 @@ int main(int argc, char** argv)
         //linux only if you don't care!
         if(0)
         {
-            #include <sys/stat.h>    
             if( mkdir("newdir",0777) == -1 )
             {
                 puts("could not create newdir");
@@ -1002,10 +1022,10 @@ int main(int argc, char** argv)
                 puts("newdir created");
             }
 
+            int i;
             puts("enter to remove newdir:");
             gets(s);
             
-            #include <unistd.h>
             if( rmdir("newdir") == -1 )
             {
                 puts("could not remove newdir");
