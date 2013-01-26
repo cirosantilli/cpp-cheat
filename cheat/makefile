@@ -3,8 +3,8 @@
 CC = gcc
 CXX = g++
 
-CFLAGS = -Wall -Wno-unused-variable -Wno-unused-but-set-variable
-CXXFLAGS = -Wall -Wno-unused-variable -Wno-unused-but-set-variable
+CFLAGS = -Wall -Wno-unused-variable -Wno-unused-but-set-variable -std=c99
+CXXFLAGS = -Wall -Wno-unused-variable -Wno-unused-but-set-variable -std=c++0x
 
 LIBS=
 
@@ -22,19 +22,17 @@ INS_NODIR:=$(notdir $(INS))
 OUTS_NODIR:=$(patsubst %.cpp,%$(OUT_EXT),$(INS_NODIR))
 CPP_OUTS:=$(addprefix $(OUT_DIR),$(OUTS_NODIR))
 
+#default basename without extension to run if RUN not given
+override RUN?=c
+#override RUN?=func
+#override RUN?=cpp
+
 .PHONY: all mkdir clean
 
 all: mkdir $(C_OUTS) $(CPP_OUTS)
 
 run: all
-ifdef RUN
 	./$(OUT_DIR)$(RUN)$(OUT_EXT) $(RUN_ARGS)
-else
-	#./$(OUT_DIR)c$(OUT_EXT) $(RUN_ARGS)
-	./$(OUT_DIR)cpp$(OUT_EXT) $(RUN_ARGS)
-	#./$(OUT_DIR)func$(OUT_EXT) $(RUN_ARGS)
-	#./$(OUT_DIR)user_input$(OUT_EXT) $(RUN_ARGS)
-endif
 
 mkdir:
 	mkdir -p "$(OUT_DIR)"

@@ -17,8 +17,6 @@ static int staticInt = 0;
     //WARN
     //extern initialized?!
 
-void func(){ cout << "mainFunc" << endl; }
-
 static void staticFunc()
 {
     cout << "main" << endl;
@@ -26,6 +24,8 @@ static void staticFunc()
     cout << aHStaticInt << endl;
     cout << externInt << endl;
 }
+
+void func(){ cout << "mainFunc" << endl; }
 
 int main(int argc, char** argv)
 {

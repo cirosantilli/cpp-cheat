@@ -1,16 +1,16 @@
 #compiles c files with gcc and c++ files with g++, one by one separatelly
 
-CC = gcc
-CXX = g++
-
-CFLAGS = -Wall -Wno-unused-variable -Wno-unused-but-set-variable
-CXXFLAGS = -Wall -Wno-unused-variable -Wno-unused-but-set-variable
-
-LIBS=
-
-IN_DIR=./
-OUT_DIR=_out/
-OUT_EXT=.out
+override CC?=gcc
+override CXX?=g++
+override CFLAGS?=-Wall -Wno-unused-variable -Wno-unused-but-set-variable
+override CXXFLAGS?=-Wall -Wno-unused-variable -Wno-unused-but-set-variable
+override LIBS?=
+override IN_DIR?=./
+override OUT_DIR?=_out/
+override OUT_EXT?=.out
+override RUN?=c
+#override RUN?=func
+#override RUN?=cpp
 
 INS:=$(wildcard $(IN_DIR)*.c)
 INS_NODIR:=$(notdir $(INS))
@@ -22,20 +22,16 @@ INS_NODIR:=$(notdir $(INS))
 OUTS_NODIR:=$(patsubst %.cpp,%$(OUT_EXT),$(INS_NODIR))
 CPP_OUTS:=$(addprefix $(OUT_DIR),$(OUTS_NODIR))
 
+#default basename without extension to run if RUN not given at command line
+#make run
+#make run RUN=cpp
+
 .PHONY: all mkdir clean
 
 all: mkdir $(C_OUTS) $(CPP_OUTS)
 
-#make run
-#make run RUN=cpp
 run: all
-ifdef RUN
 	./$(OUT_DIR)$(RUN)$(OUT_EXT) $(RUN_ARGS)
-else
-	#default
-	./$(OUT_DIR)c$(OUT_EXT) $(RUN_ARGS)
-	#./$(OUT_DIR)cpp$(OUT_EXT) $(RUN_ARGS)
-endif
 
 mkdir:
 	mkdir -p "$(OUT_DIR)"

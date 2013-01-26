@@ -19,12 +19,12 @@ void print_22_array(int **mat, int m, int n)
 int main(){
 
     int i=33, j;
+    int *pi, *pi2;
+    //must declare like that: multiple stars
+    float* fp;
     enum { mc=2, nc=4 };
 
     puts("\npointers\n");
-
-        int *pi, *pi2;
-        //must have serveral stars
 
         //*pi = 7; //bad! pi points to random address. segmentation fault coming.
         //segmentation fault: target memory not allocated! only pointer memory
@@ -43,6 +43,10 @@ int main(){
         printf("(void*)(pi2-pi) = %p\n",(void*)(pi2-pi));
 
         printf("NULL = %p\n",NULL);
+
+        //fp = &i;
+            //ERROR
+            //incompatible pointer type
 
     puts("arrays");
 
@@ -153,6 +157,12 @@ int main(){
         
         //null terminated char array is a string!
             char cs[] = "Hello World";
+            wchar_t  wideString[] = L"asdf";
+            wchar_t  wideString2[] = L"中文";
+
+            //wchar_t  wideString2[] = "asdf";
+                //ERROR
+                //non wide init
             printf("%s\n",cs);
         
         //matrix pattern
