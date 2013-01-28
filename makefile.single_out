@@ -7,6 +7,8 @@ override AUX_DIR?=_aux/
 override AUX_EXT?=.o
 override CC?=g++
 override CFLGS?=-O3 #-p -pg
+override DEBUG_DEFINE?=
+override DEBUG_FLAGS?=
 override IN_EXT?=.cpp
 override IN_DIR?=./
 override INCLUDE_DIRS?=-I/usr/include/GL
@@ -16,6 +18,7 @@ override RUN_ARGS?=#0 1																#passed as command line args to bin on ru
 override OPTIMIZE_FLAGS:=-O3
 override OUT_DIR?=_out/
 override OUT_EXT?=
+override PROFILE_DEFINE?=
 override PROFILE_FLAGS?=
 
 INS:=$(wildcard $(IN_DIR)*$(IN_EXT))
@@ -31,19 +34,28 @@ all: mkdir $(OUT)
 run: all
 	./$(OUT) $(RUN_ARGS)
 
+debug: clean set_debug_flags all
+	gdb $(OUT)
+
+set_debug_flags:
+	$(eval override DEBUG_FLAGS := -ggdb3)
+	$(eval override DEBUG_DEFINE := -DDEBUG)
+	$(eval override OPTIMIZE_FLAGS := -O0)
+
 profile: clean set_profile_flags all run
 	mv -f gmon.out $(OUT_DIR)
-	gprof $(RUN_PATH) $(OUT_DIR)gmon.out
+	gprof -b $(OUT) $(OUT_DIR)gmon.out
 
 set_profile_flags:
 	$(eval PROFILE_FLAGS := -p -pg)
+	$(eval override PROFILE_DEFINE := -DPROFILE)
 	$(eval OPTIMIZE_FLAGS := )
 
 $(OUT): $(AUXS)
-	$(CC) $^ -o "$@" $(LIBS)
+	$(CC) $(PROFILE_FLAGS) $^ -o "$@" $(LIBS)
 
 $(AUX_DIR)%$(AUX_EXT): $(IN_DIR)%$(IN_EXT)
-	$(CC) $(OPTIMIZE_FLAGS) $(PROFILE_FLAGS) $(PREDEF) $(INCLUDE_DIRS) $(CFLAGS) -c "$<" -o "$@"
+	$(CC) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(OPTIMIZE_FLAGS) $(PREDEF) $(INCLUDE_DIRS) $(CFLAGS) -c "$<" -o "$@"
 
 mkdir:
 	mkdir -p "$(AUX_DIR)"
@@ -54,8 +66,8 @@ clean:
 
 help:
 	@echo 'sample calls:'
-	@echo 'make'
-	@echo 'make clean'
-	@echo 'make run'
-	@echo 'make run RUN=a.out'
-	@echo 'make run RUN=a.out RUN_ARGS='"'"'"1 2"'"'"
+	@echo '  make'
+	@echo '  make clean'
+	@echo '  make run'
+	@echo '  make profile'
+	@echo '  make debug'

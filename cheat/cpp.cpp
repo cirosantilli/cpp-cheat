@@ -21,6 +21,15 @@ good general resources
 
     with ``g++`` those get linked to automatically
 
+    the main c++ lib on linux is the GNU Standard C++ Library vX
+
+    - std bin is located at: ``/usr/lib/i386-linux-gnu/libstdc++.so.X``. Try ``locate libstdc++``.
+    - std headers are located at: ``/usr/include/c++/4.X/``. Try ``locate /iostream``.
+        
+        Note: c++ std headers have no ``.h`` extension, just like when included.
+
+    - the ubuntu package is called ``libstdc++6.X``. ``dpkg -l | grep libstd``
+
     #c stdlin can be accessed
 
         math vs cmath, X vs cX
@@ -68,6 +77,8 @@ good general resources
 #include <cstdlib>
 
 #include <cassert>
+
+#include <thread>
 
 using namespace std;
 //namespace for entire source file from now on
@@ -1929,7 +1940,6 @@ int main(int argc, char** argv)
                 assert( s.count(1) == 1 );
                 assert( s.count(3) == 0 );
         }
-        
 
     cout << endl;
 

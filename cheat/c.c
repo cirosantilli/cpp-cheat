@@ -75,7 +75,10 @@ thats why is is called *pre*
 - warning vs error
 
 - debugging:
+
     - gdb
+
+        <http://www.dirac.org/linux/gdb/>
 
 - profiling/benchmarking
 
@@ -107,30 +110,95 @@ thats why is is called *pre*
 - optimizations
 
 - language versions
-    
-    latest C99
-        - http://en.wikipedia.org/wiki/C99 
-        - support for // comments
-        - long long, bool, complex numbers
-        - gcc: add -std=c99
-    previous C90
 
-- volatile
+    #ANSI
 
-    http://en.wikipedia.org/wiki/Volatile_variable
+        language is standardized by an organization named ANSI
 
-    prevents funcion optimization
+        ansi is american, and it represents the USA for ISO and IEC
 
-    useful for multithreading
+        you must pay to have the latest standards
+
+        however you can always check open source documentation of compiler/stdlib
+        implementations
+        
+        - C11
+            - previously known as c1x
+            - current standard, but very limited support in many compilers
+            - supported on gcc 4.6> std=c1x
+            - threads spported
+        - C99
+            - not 100% support by many compilers
+            - http://en.wikipedia.org/wiki/C99 
+            - support for // comments
+            - long long, bool, complex numbers
+            - gcc: add -std=c99
+        - C90
+            - microsoft stated that they will not update their compilers
+                to C99 and futher. They use c as an inner language, and think
+                it would be too delicate/costly to change it. Therefore,
+                you will not get those working on ms compiler anytime soon.
+
+    #POSIX
+
+        POSIX is an operating system standardization by IEEE.
+        followed by Linux and OSX, but not by windows.
+
+        there are POSIX headers which allow c to do certain system calls
+        on POSIX compliant systems.
+        
+        they allow operations such as:
+
+        - threads
+        - ipc
+        - filesystem operations
+        - user/group info
+
+        check: <http://en.wikipedia.org/wiki/C_POSIX_library>
+
+    #glibc
+
+        std lib does not come with gcc.
+
+        on default on linux, it comes with glibc, gnu implementation of the c
+        stdlib.
+
+        - ubuntu
+
+            - headers for glibc are on ``/usr/include``. do ``locate /stdio.h``
+
+            - lib for glibc are on ``/usr/lib/i386-linux-gnu``. do ``locate /libc.a``
+
+            - the ubuntu package is called ``libc6-dev``. ``dpkg -l | grep libc``
+
+        - docs
+
+           <http://www.gnu.org/software/libc/manual/html_mono/libc.html>
+
+- multithreading/ipc/concurrency
+
+    - c11 supports it, c99 not
+
+        glibc 2.x still does not have it.
+
+    - c++11 supports it, c++03 not
+
+    - openMP is is a library supported on C, C++, fortran, windows, linux macos
+
+    - volatile
+
+        http://en.wikipedia.org/wiki/Volatile_variable
+
+        prevents funcion optimization
+
+        useful for multithreading
 
 TODO
-    - memory segments/layout : text data heap stack command line
     - file io
     - struct
     - typedef
-
     - documentation: doxigen
-    - multithreading/ipc
+
         <http://www.stack.nl/~dimitri/doxygen/docblocks.html>
 
 #hot libraries
@@ -220,8 +288,12 @@ that is, applied to specific domains of science
 #include <stdbool.h>
 #include <math.h>
 #include <time.h>
+//#include <thread.h>
+
+//POSIX
 #include <sys/stat.h>    
 #include <unistd.h>
+//END POSIX
  
 #define PI 3.14
 //BAD
@@ -282,9 +354,84 @@ int windowsVar;
         return ((b-a)*((float)rand()/RAND_MAX))+a;
     }
 
+//profiling
+
+    const int nProfRuns = 1000000;
+
+    void intAssignProf(int n)
+    {
+        int i,j;
+        for( i=0; i<n; i++ )
+            j=1;
+    }
+
+    void intSumProf(int n)
+    {
+        int i;
+        for( i=0; i<n; i++ );
+    }
+
+    void intSubProf(int n)
+    {
+        int i;
+        for( i=n; i>0; i-- );
+    }
+
+    void intMultProf(int n)
+    {
+        int i,j;
+        for( i=0; i<n; i++ )
+            j=j*1;
+    }
+
+    void intDivProf(int n)
+    {
+        int i,j;
+        for( i=0; i<n; i++ )
+            j=j/1;
+    }
+
+    void floatSumProf(int n)
+    {
+        float f;
+        int i;
+        for( i=0; i<n; i++ )
+            f=f+0.0;
+    }
+
+    void floatSubProf(int n)
+    {
+        float f;
+        int i;
+        for( i=0; i<n; i++ )
+            f=f-0.0;
+    }
+
+    void floatMultProf(int n)
+    {
+        int i;
+        float j;
+        for( i=0; i<n; i++ )
+            j=j*1.0;
+    }
+
+    void floatDivProf(int n)
+    {
+        int i;
+        float j;
+        for( i=0; i<n; i++ )
+            j=j/1.0;
+    }
+
+    void putsProf(int n)
+    {
+        int i;
+        for( i=0; i<n; i++ )
+            puts("");
+    }
+
 int main(int argc, char** argv)
 {
-
     //base types and vars
         //allowed variable names: _,[a-Z],[0-9], canot start with number
         
@@ -958,7 +1105,26 @@ int main(int argc, char** argv)
         //TRY: echo "123" | ./c_cheatsheet.out
             //this will use stdin from a pipe! no user input
 
-    puts("");
+    puts("time.h");
+        {
+            //real time
+            printf( "%ld seconds since 1970-01-01\n", time(NULL) );
+
+            puts("program virtual time:");
+                clock_t t;
+                t = clock();
+                intSumProf(nProfRuns);
+                //NOTE
+                    //optimizer may simply skip your useless test operations
+                    //and very little time will have passed
+                    //
+                    //clock() is only an approximation, and if too little time
+                    //passes, it may return 0
+                t = clock() - t;
+                printf( "clicks %d\n", t );
+                printf( "clocks per sec %d\n", CLOCKS_PER_SEC );
+                printf( "seconds %f\n", ((float)t)/CLOCKS_PER_SEC );
+        }
 
     puts("math.h");
         //constants
@@ -1022,9 +1188,8 @@ int main(int argc, char** argv)
                 puts("newdir created");
             }
 
-            int i;
             puts("enter to remove newdir:");
-            gets(s);
+            char* cp = gets(s);
             
             if( rmdir("newdir") == -1 )
             {
@@ -1036,10 +1201,24 @@ int main(int argc, char** argv)
             }
         }
 
-        puts("");
-
         //path operations
         //puts(realpath("."));
+
+#ifdef PROFILE
+        intSumProf(nProfRuns);
+        intAssignProf(nProfRuns);
+        intSubProf(nProfRuns);
+        intMultProf(nProfRuns);
+        intDivProf(nProfRuns);
+        floatSumProf(nProfRuns);
+        floatSubProf(nProfRuns);
+        floatMultProf(nProfRuns);
+        floatDivProf(nProfRuns);
+        //putsProf(nProfRuns);
+            //BAD
+            //don't do stdout on profiling
+            //system time is not counted anyways
+#endif
 
     //main returns status
         return EXIT_SUCCESS;
