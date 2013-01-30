@@ -4,7 +4,7 @@ CC := gcc
 CXX := g++
 
 CFLAGS := -Wall -Wno-unused-variable -Wno-unused-but-set-variable -std=c1x
-CXXFLAGS := -Wall -Wno-unused-variable -Wno-unused-but-set-variable -std=c++0x
+CXXFLAGS := -pthread -Wall -Wno-unused-variable -Wno-unused-but-set-variable -std=c++0x
 
 LIBS:=
 
@@ -33,7 +33,9 @@ override PROFILE_FLAGS?=
 
 RUN_PATH:=$(OUT_DIR)$(RUN)$(OUT_EXT)
 
-override OPTIMIZE_FLAGS?=-O3
+#override OPTIMIZE_FLAGS?=-O3
+override OPTIMIZE_FLAGS?=
+#dont opt for educative purposes
 
 .PHONY: all mkdir clean profile set_profile_flags
 

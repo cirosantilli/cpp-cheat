@@ -4,13 +4,26 @@ for the rest, go to c.c
 
 good general resources
 
-- http://www.cplusplus.com
+- <http://www.cplusplus.com>
+
     explains well what most the features of the language do for beginners
+
     no motivation, many features missing, no stdlib.
-- http://yosefk.com/c++fqa/
+
+- <http://en.cppreference.com/w/>
+
+    wiki
+
+    many behaviour examples
+
+- <http://yosefk.com/c++fqa/>
+
     comments on the quirks of c++
+
     fun and informative for those that know the language at intermediate level
-- http://geosoft.no/development/cppstyle.html
+
+- <http://geosoft.no/development/cppstyle.html>
+
     coding guidelines, clearly exemplified
 
 #headers
@@ -42,7 +55,7 @@ good general resources
     latest: C++11
         previously known as C++0x
         but took too long to come out
-        in gcc: add -c++0x flag
+        in gcc: add -c++0x flag. still experimental
     previous: C++03
 
     http://en.wikipedia.org/wiki/C%2B%2B11
@@ -50,13 +63,19 @@ good general resources
 - returning references
         http://stackoverflow.com/questions/795674/which-are-the-implications-of-return-a-value-as-constant-reference-and-constant?rq=1
 
+- ipc
+
+    socket model
+
 */
 
 #include <iostream>
 //cout
 
 #include <string>
-//string
+    //string
+#include <sstream>
+    //stream to a string
 
 #include <exception>
 //exception base exception class
@@ -67,9 +86,7 @@ good general resources
     //ios_base::failure	thrown by functions in the iostream library
 
 #include <vector>  
-
 #include <set>  
-
 #include <algorithm>
 
 #include <memory>
@@ -79,6 +96,10 @@ good general resources
 #include <cassert>
 
 #include <thread>
+#include <mutex>
+
+#include <chrono>
+//time operations
 
 using namespace std;
 //namespace for entire source file from now on
@@ -973,67 +994,112 @@ class ClassCast
         //ERROR
         //nope
 
+//thread
+    //TODO
+    //- recursive mutex
+
+    std::thread::id lastThreadId;
+    int nNsecs = 10;
+    int threadGlobal = 0;
+    int threadGlobalMutexed = 0;
+    std::mutex threadGlobalMutex;
+
+    void threadFunc(int threadCountToSqrt)
+    {
+        std::thread::id id = std::this_thread::get_id();
+        for(int i=0; i<threadCountToSqrt; i++)
+        for(int j=0; j<threadCountToSqrt; j++)
+        {
+            if( lastThreadId != id )
+            {
+                cout << "change " << id << " " << i << " " << j << endl;
+                lastThreadId = id;
+            }
+
+            //cout << id << " " << i << endl;
+                //NOTE
+                //cout is not thread safe
+                //order gets mixed up
+
+            //if happens
+                threadGlobal = 1;
+                if(threadGlobal == 0)
+                    cout << "threadGlobal == 0" << endl;
+                threadGlobal = 0;
+
+            //if never happens!
+                threadGlobalMutex.lock();
+                    //if not available, wait
+                //threadGlobalMutex.try_lock();
+                    //if not available, return!
+                    threadGlobalMutexed = 1;
+                    if(threadGlobalMutexed == 0)
+                        cout << "threadGlobalMutexed == 0" << endl;
+                    threadGlobalMutexed = 0;
+                threadGlobalMutex.unlock();
+
+        }
+        std::this_thread::sleep_for(std::chrono::nanoseconds(nNsecs));
+        std::this_thread::yield();
+            //done, pass to another thread
+    }
+    
 int main(int argc, char** argv)
 {
-    bool b;
-    int i = 0;
-    int is2[2];
-    unsigned int ui = 1;
-    //NOTE no warn
-    unsigned int uiNeg = -1;
-    int * ip;
 
-    //WARN makes sense, in c, no WARN!
-    //if(ui<i)
-        //cout << "ui<i" << endl;
+    //bool
+    {
+        bool b;
 
-    cout << "io" << endl;
-        //in c++ there is no more printf formatting strings
-        //must use the c libs for that
+        b = true;
+        b = 1;
 
-        cout << "cout";
-        cout << "cout2" << "cout3" << endl;
-        cout << 1;
+        if(true)
+        {
+            assert(true);
+        }
+        if(false)
+        {
+            assert(false);
+        }
 
-        cerr << "cerr";
-        cout << endl;
+        {
+            stringstream oss;
+            oss << true;
+            assert( oss.str() == "1" );
+        }
 
-        //cin
-            //cin >> i;
-            //cout << i
+        {
+            stringstream oss;
+            oss << false;
+            assert( oss.str() == "0" );
+        }
+        
+    }
 
-    cout << "for" << endl;
-        //you can define i inside the for scope only
-        for(int i=0; i<5; i++)
-            cout << i << " ";
-    cout << endl;
-
-    cout << "array" << endl;
-
-        //cin >> i;
-        //int is4[i];
-            //UNPORTABLE: gcc extension
-            //
-            //C99 supports
-            //
-            //compiler implementation:
-            //must increment/decrement stack pointer at each array
-            //meaning, one extra multiplication and sum for every VLA declared
-
-        //cin >> i;
-        //int is4[i] = {1,2}
-            //ERROR, cannot initialize. what if i<2?
-
-    cout << endl;
+    //unsigned
+    {
+        unsigned int ui = -1;
+        int i = 1;
+        //if(ui<i)
+            //WARN
+            //in c, no WARN
+    }
 
     cout << "const" << endl;
 
-        const int ic=2;
-        //ERROR: in c this is only a warning, and allows us to change ic.
-            //int* ip = ic;
- 
-        //ERROR: must be initialized, since in c++ consts really are consts
+        {
+            const int i=2;
+            //int* ip = i;
+                //ERROR
+                //in c this is only a warning, and allows us to change ic.
+        }
+    
+        {
             //const int ic2;
+                //ERROR
+                //must be initialized, since in c++ consts really are consts
+        }
 
         {
             const Class c;
@@ -1073,74 +1139,65 @@ int main(int argc, char** argv)
         //http://stackoverflow.com/questions/7058339/c-when-to-use-references-vs-pointers}
         
         {
-            int i=1;
-            cout << i << endl;
+            int i=0;
             byref(i);
-            cout << i << endl;
+            assert( i == 1 );
         }
 
         {
-            cout << "int i = 1;" << endl;
-            int i=1;
-            cout << "int& ia = i;" << endl;
+            int i=0;
             int& ia = i;
-            cout << "ia = 2;" << endl;
-            ia = 2;
-            cout << "i = " << endl;
-            cout << i << endl;
-            //2
-            cout << "&ia" << endl;
-            cout << &ia << endl;
-            cout << "&i" << endl;
-            cout << &i << endl;
-            //SAME
+            ia = 1;
+            assert( i == 1 );
+            assert( &i == &ia );
                 //therefore no extra memory is used for references
                 //whereas pointers use memory
-            cout << "int& ia2 = ia;" << endl;
             int& ia2 = ia;
-            cout << "ia2 = 3;" << endl;
-            ia2 = 3;
-            cout << "i == " << endl;
-            cout << i << endl;
-            //3
+            ia2 = 2;
+            assert( i == 2 );
 
-            //ERROR: must be a variable rhs
-                //int& ia = 5;
+            //int& ia = 0;
+                //ERROR
+                //must be a variable rhs
 
-            //ERROR: must be initialized immediatelly
-                //int& ia;
+            //int& ia;
+                //ERROR
+                //must be initialized immediatelly
         }
 
         {
-            int i = 1;
-            int * ip = &i;
+            int i = 0;
+            int* ip = &i;
             int& ia = *ip;
+            ia = 1;
+            assert( i == 1 );
         
             //ERROR: & must get a variable/dereferenced pointer, not pointers themselves!
                 //int& ia = &i;
                 //int& ia = new int;
         }
 
+        //const
         {
             int i=1;
             const int& cia = i;
-
-            //ERROR
-                //cia = 2;
-
-            //ERROR: invalid conversion
-                //int* ip = &cia;
-
             const int& cia2 = cia;
+
+            const int ci = 1;
+            const int& ciac = ci;
+
+            //cia = 2;
+                //ERROR
+
+            //int* ip = &cia;
+                //ERROR
+                //invalid conversion
 
             //ERROR: invalid conversion
                 //int& ia = cia;
 
             //ERROR: no array of references forbidden
                 //int& is[2] = {i,i};
-
-            const int ci = 1;
-            const int& ciac = ci;
 
             //int& iac = ci;
                 //ERROR
@@ -1155,24 +1212,59 @@ int main(int argc, char** argv)
             {
                 //you can modify a private
                     Base b;
-                    int& i = b.getPrivate();
-                    i = 1;
-                    cout << b.getPrivate() << endl;
-                    i = 2;
-                    cout << b.getPrivate() << endl;
+                    int& ia = b.getPrivate();
+                    ia = 0;
+                    assert( b.getPrivate() == 0 );
+                    ia = 1;
+                    assert( b.getPrivate() == 1 );
             }
 
             {
                 //now you can only see, not modify
                     Base b;
-                    const int& i = b.getPrivateConst();
-                    //i = 1;
-                    cout << i << endl;
+                    const int& ia = b.getPrivateConst();
+                    //ia = 1;
+                        //ERROR
             }
 
         cout << endl;
 
     cout << endl;
+
+    cout << "vla" << endl;
+
+        //cin >> i;
+        //int is4[i];
+            //UNPORTABLE
+            //gcc extension
+            //
+            //called variable length array VLS
+            //
+            //C99 supports this
+            //
+            //compiler implementation:
+            //must increment/decrement stack pointer at each array
+            //meaning, one extra multiplication and sum for every VLA declared
+
+        //cin >> i;
+        //int is4[i] = {1,2}
+            //ERROR, cannot initialize. what if i<2?
+
+    cout << endl;
+
+    cout << "for" << endl;
+
+        //you can define i inside the for scope only
+        for(int i=0; i<5; i++)
+        {
+            cout << i << " ";
+            //int i;
+                //ERROR
+                //already declared in this scope
+        }
+
+    cout << endl;
+
 
     cout << "functions" << endl;
 
@@ -1180,96 +1272,41 @@ int main(int argc, char** argv)
 
                 overload(1);
                 overload(1.0f);
-
                 //overload(1.0);
-                    //ERROR: ambiguous overload(int) overload(float)
+                    //ERROR
+                    //ambiguous overload(int) overload(float)
                     //compiler does not know wether convert double to float or int
 
                 //Class cOverload;
                 //overloadBase(cOverload);
-                    //ERROR ambiguous
+                    //ERROR
+                    //ambiguous
                     //coverts to Base or BaseProtected
 
                 //i=4;
                 //overloadValAddr(i);
-                    //ERROR: ambiguous
+                    //ERROR
+                    //ambiguous
 
             cout << endl;
 
             cout << "template" << endl;
 
-                cout << "factorial<9>();" << endl;
-                cout << factorial<9>() << endl;
-                    //because of this call, all factorials from
+                assert( factorial<3>() == 6 );
+                    //because of this call
+                    //all factorials from
                     //1 to 9 will be compiled
 
-                cout << "factorial<20>();" << endl;
-                cout << factorial<20>() << endl;
-                    //because of this call, all factorials from
-                    //1 to 20 will be compiled
+                assert( factorial<6>() == 720 );
 
             cout << endl;
 
     cout << endl;
 
-    cout << "data types" << endl;
-
-        //contrary to c, in cpp there is a bool type
-        b = true;
-        cout << true << endl;
-        //1
-        cout << false << endl;
-        //0
- 
-    cout << endl;
-
-    cout << "string" << endl;
-
-        //in cpp, strings are classes, much more convenient to manipulate
-        
-        {
-            //create
-            string s("s");
-            string s1 = "s1";
-            string s2;
-
-            cout << s << endl;
-            //s
-
-            cout << "concat" << endl;
-            cout << "s + s1" << endl;
-            s2 = s + s1;
-            cout << s2 << endl;
-            //s2
-
-            cout << "s == s1" << endl;
-            cout << (s == s1) << endl;
-            //0
-            
-            cout << "s == s" << endl;
-            cout << (s == s) << endl;
-
-            cout << "s.length()" << endl;
-            cout << s.length() << endl;
-            //1
-        }
-
-        {
-            string s("s");
-            s[0] = 't';
-            s[1] = 't';
-            //WARN
-            //no born check!
-        }
-    
-    cout << endl;
-
     cout << "class" << endl;
     
         Class *cp, *classPtr;
-        Class c, c1;
         Base *bp, *basePtr;
-        Member m;
 
         //creation
             {
@@ -1288,13 +1325,13 @@ int main(int argc, char** argv)
                 Class c;
                 cout << "c = Class();" << endl;
                 c = Class();
-                //total 2 constructor calls
+                    //2 constructor calls
             }
 
             {
                 cout << "Class c = Class();" << endl;
                 Class c = Class();
-                //single constructor call
+                    //1 constructor call
             }
 
             {
@@ -1303,27 +1340,25 @@ int main(int argc, char** argv)
                     //ERROR
                     //declares *FUNCTION* called ``c()`` that returns ``Class``
                     //functions inside functions like this are a gcc extension
-
             }
 
             //static
-            {
-                Class c, c1;
-                int i;
-                c.iStatic = 0;
-                cout << c1.iStatic << endl;
-                //0
-                c.iStatic = 1;
-                cout << c1.iStatic << endl;
-                //1
-                Class::iStatic = 2;
-                cout << c1.iStatic << endl;
+                {
+                    Class c, c1;
+                    int i;
+                    c.iStatic = 0;
+                    assert( Class::iStatic == 0 );
+                    c1.iStatic = 1;
+                    assert( Class::iStatic == 1 );
+                    Class::iStatic = 2;
+                    assert( Class::iStatic == 2 );
+                }
 
-                c.staticMethod();
-                Class::staticMethod();
-
-                i = c.iConstStatic;
-            }
+                {
+                    Class c;
+                    c.staticMethod();
+                    Class::staticMethod();
+                }
                 
         cout << endl;
 
@@ -1342,12 +1377,11 @@ int main(int argc, char** argv)
                 c.i = 1;
                 cout << "Class c2(c)" << endl;
                 Class c1(c);
-                //copy constructor
-                cout << c1.i << endl;
-                //1
+                    //copy constructor
+                assert( c1.i == 1 );
                 cout << "Class c2 = c" << endl;
                 Class c2 = c;
-                //SAME
+                    //SAME
                     //*COPY CONSTRUCTOR CALLED, NOT ASSIGN CONSTRUCTOR*
                     //because object is being created
                 cout << c2.i << endl;
@@ -1367,8 +1401,7 @@ int main(int argc, char** argv)
                     //OK
                     //copy base fields
                     //can transform derived into base implicitly
-                cout << b.i << endl;
-                //1
+                assert( b.i == 1 );
             }
 
             {
@@ -1378,13 +1411,13 @@ int main(int argc, char** argv)
                 c.i = 1;
                 c1.i = 2;
                 c1 = c;
-                cout << c1.i << endl;
-                //1
+                assert( c1.i == 1 );
             }
 
-            //there are default copy/assign funcs from base classes
-            //they assign/copy to base object fields inherited from derived only
-                c = Class();
+            {
+                //there are default copy/assign funcs from base classes
+                //they assign/copy to base object fields inherited from derived only
+                Class c = Class();
                 cout << "Base base(c);" << endl;
                 Base base(c);
                 cout << "base = Class();" << endl;
@@ -1394,13 +1427,15 @@ int main(int argc, char** argv)
                     //ERROR
                     //not from derived to base
 
-            //pointer conversions
                 bp = &c;
+                    //OK
+                    //pointer conversions
 
                 //bp = &m;
                 //cp = &base;
                     //ERROR
                     //can only convert from derived to base
+            }
 
         cout << endl;
 
@@ -1409,10 +1444,11 @@ int main(int argc, char** argv)
             {
                 cout << "Class os[3];" << endl;
                 Class cs[3];
-                //3x Class() calls!
-                    cs[0] = Class(1);
-                    cs[1] = Class(2);
-                    cs[2] = Class(3);
+                    //3x Class() calls!
+                cs[0] = Class(1);
+                cs[1] = Class(2);
+                cs[2] = Class(3);
+                    //more 3x Class()
 
                 //initialized
                     cout << "Class cs2[] = {Class(1), Class(2), Class(3)};" << endl;
@@ -1434,19 +1470,25 @@ int main(int argc, char** argv)
 
         cout << endl;
  
-        //ERROR
-            //Class* cp = &Class();
-                //address of what?
-            c = Class();
-            cp = &c;
+            {
+                Class c = Class();
+                cp = &c;
+
+                //Class* cp = &Class();
+                    //ERROR
+                    //address of what?
+            }
 
         cout << "operator overload" << endl;
 
-            c.i = 1;
-            c.j = 2;
-            cout << "cout << c;" << endl;
-            cout << c << endl;
-            //1 2
+            {
+                Class c;
+                c.i = 1;
+                c.j = 2;
+                cout << "cout << c;" << endl;
+                cout << c << endl;
+                //1 2
+            }
 
         cout << endl;
 
@@ -1513,18 +1555,15 @@ int main(int argc, char** argv)
                 c.Base::i = 1;
                 c.BaseAbstract::i = 2;
 
-                cout << c.i << endl;
-                cout << c.Class::i << endl;
-                cout << cp->Class::i << endl;
-                //0
+                assert( c.i          == 0 );
+                assert( c.Class::i   == 0 );
+                assert( cp->Class::i == 0 );
 
-                cout << c.Base::i << endl;
-                cout << cp->Base::i << endl;
-                //1
+                assert( c.Base::i   == 1 );
+                assert( cp->Base::i == 1 );
 
-                cout << c.BaseAbstract::i << endl;
-                cout << cp->BaseAbstract::i << endl;
-                //2
+                assert( c.BaseAbstract::i   == 2 );
+                assert( cp->BaseAbstract::i == 2 );
 
                 //c.iAmbiguous = 0;
                     //ERROR ambiguous
@@ -1620,45 +1659,52 @@ int main(int argc, char** argv)
 
     cout << "dynamic memory" << endl;
 
-        ip = new int [5];
-        ip[0] = 1;
-        delete [] ip;
+        {
+            int* ip;
+            ip = new int [5];
+            ip[0] = 1;
+            delete[] ip;
 
-        //can also alocate single int
-            //useless of course
-            //but is might be useful to allocate a single object
-            ip = new int;
-            *ip = 1;
-            delete ip;
+            //can also alocate single int
+                //useless of course
+                //but is might be useful to allocate a single object
+                ip = new int;
+                *ip = 1;
+                delete ip;
 
-        cout << "new Class;" << endl;
-        cp = new Class;
-        //SAME cp = new Class();
-        cp->i = 10;
-        delete cp;
-        //calls destructor
-        cout << endl;
+            cout << "new Class;" << endl;
+            cp = new Class;
+                //SAME cp = new Class();
+            cp->i = 10;
+            delete cp;
+                //calls destructor
+            cout << endl;
 
-        cout << "new Class[2];" << endl;
-        cp = new Class[2];
-        cp[0].i = 3;
-        cp[1].i = 4;
-        delete [] cp;
-        //calls destructors
-        cout << endl;
+            cout << "new Class[2];" << endl;
+            cp = new Class[2];
+            cp[0].i = 3;
+            cp[1].i = 4;
+            delete[] cp;
+                //calls destructors
+            cout << endl;
 
-        ip = new int;
-        delete ip;
-        //BAD: undefined behavior, maybe crash
-            //delete ip;
-        
-        ip = new int;
-        //BAD: memory leak. memory is lost forever.
             //ip = new int;
-        delete ip;
-
-        //BAD: undefined behavior, maybe crash. ip was not allocated!
             //delete ip;
+                //BAD
+                //undefined behavior, maybe crash
+                //delete ip;
+            
+            ip = new int;
+            ip = new int;
+            delete ip;
+                //BAD
+                //memory leak. memory is lost forever.
+
+            //delete ip;
+                //BAD
+                //undefined behavior, maybe crash
+                //ip was not allocated after delete!
+        }
 
     cout << "exceptions" << endl;
         //TODO
@@ -1782,210 +1828,484 @@ int main(int argc, char** argv)
 
     cout << endl;
 
-    //from stdlib, learn all containers and algorithms on them
-
-    cout << "vector" << endl;
-        //dynamic array based
-        //reallocates as necessary
-
-        //creation
-            // constructors used in the same order as described above:
-            std::vector<int> v1;                                // empty vector of ints
-            std::vector<int> v2( 4, 100 );                       // four ints with value 100
-            std::vector<int> v3( v2.begin(), v2.end() );  // iterating through second
-            std::vector<int> v4( v3 );                       // a copy of third
-
-            // the iterator constructor can also be used to construct from arrays:
-            int myints[] = {16,2,77,29};
-            std::vector<int> v5 (myints, myints + sizeof(myints)/sizeof(int) );
-
-            //NEW C++11
-            //initializer lists
-                vector<int> vInitList1 { 1, 2 };
-                vector<int> vInitList2(2);
-                vInitList2 = { 1, 2 };
+    {cout << "stdlib" << endl;
  
-        //modify
-            cout << "vector<int>(1)" << endl;
-            cout << "v1.size()" << endl;
-            v1 = vector<int>(1);
-            cout << v1.size() << endl;
-            //1
-            cout << "v1.push_back(1)" << endl;
-            cout << "v1.size()" << endl;
-            v1.push_back(1);
-            cout << v1.size() << endl;
-            //2
-            cout << "v1.pop_back(1)" << endl;
-            cout << "v1.size()" << endl;
-            v1.pop_back();
-            cout << v1.size() << endl;
-            //1
-            //ERROR
-                //cout << "v1[2] = 2" << endl;
-                //cout << "v1.size()" << endl;
-                //v1[10] = 2;
-                //cout << v1.size() << endl;
-                //1
-            cout << "v1<int>()" << endl;
-            v1 = vector<int>();
-            cout << "v1.size()" << endl;
-            cout << v1.size() << endl;
-            //0
+        cout << "string" << endl;
 
             {
-                //vectors make copies
-                    vector<string> v;
-                    std::string s = "abc";
-                    v.push_back(s);
-                    cout << v[0] << endl;
-                    //abc
-                    v[0][0] = '0';
-                    cout << v[0] << endl;
-                    //0bc
-                    v[0][0] = '0';
-                    cout << s << endl;
+                string s = "abc";
+            }
+
+            //cout works as expected
+            {
+                string s = "abc";
+                cout << s;
                     //abc
             }
 
-            //size            Return size
-            //empty           Test whether vector is empty. same as size=0
-            //resize          Change size
-            //max_size        Return maximum size (what could fit your program ram)
+            {
+                string s = "ab";
+                string s1 = "cd";
+                string s2 = s + s1;
+                assert( s2 == "abcd" );
+            }
 
-            //allocation related
-                //capacity        get how mush is allocated
-                //reserve         change how much is allocated
-                //shrink_to_fit   Shrink allocated array to fit cur size
-                //data            get pointer to allocated array
+            {
+                std::string s = "abc";
+                assert( s.length() == 3 );
+            }
 
-            //return interators
-            v1 = vector<int>(2,0);
-            v1.insert( v1.begin() + 1, 1 );
-            v1.insert( v1.end()   - 1, 1 );
-            v1.erase( v1.begin() + 1 );
-            v1.erase( v1.begin() + 1, v1.begin() + 2 );
+            {
+                string s = "abc";
+                s[0] = 'A';
+                assert( s == "Abc" );
 
-        //info
- 
-            cout << "v1 = vector<int>(0,0)" << endl;
-            cout << "v1.empty()" << endl;
-            v1 = vector<int>(2,0);
-            cout << v1.empty() << endl;
+                //s[3] = 'd';
+                    //NOTE
+                    //no born check!
+                    //compiles
+            }
 
-            cout << "v1 = vector<int>(1,0)" << endl;
-            cout << "v1.empty()" << endl;
-            v1 = vector<int>(1,0);
-            cout << v1.empty() << endl;
+            {
+                stringstream oss;
+                oss << "ab";
+                oss << "cd";
+                assert( oss.str() == "abcd" );
+            }
+        
+        cout << endl;
 
-        //random access is fast
-            
-            v1 = vector<int>(2,0);
-            v1[0] = 0;
-            cout << v1[0] << endl;
+        cout << "io" << endl;
+            //in c++ there is no more printf formatting strings
+            //must use the c libs for that
 
-            //cout << v1[2] << endl;
-            //v1[2] = 2;
-                //ERROR just like array overflow
+            cout << "cout";
+            cout << "cout2" << "cout3" << endl;
+            cout << 1;
 
-            cout << v1.back() << endl;
-            cout << v1.front() << endl;
+            cerr << "cerr";
+            cout << endl;
 
-        for (
-            vector<int>::iterator i = v1.begin();
-            i != v1.end();
-            ++i
-        )
-        {
-            cout << *i << endl;
-        }
+            //cin
+                //cin >> i;
+                //cout << i
 
-    cout << endl;
 
-    cout << "set" << endl;
-        //unique elements
-            //inserting twice does nothing
-        //
-        //immutable elements
-        //
-        //ordered
-        //inserted elements are in that order
-        //therefore, logarithmic find
+        cout << "vector" << endl;
+            //dynamic array based
+            //reallocates as necessary
 
-        {
-            set<int> s;
-            s.insert(1);
-            s.insert(2);
-            s.insert(0);
-            s.insert(1);
+            //create
 
-            //cout << s[0] << endl;
-                //ERROR
-                //no random access method
+                //empty
+                {
+                    vector<int> v;
+                    vector<int> v1 = {};
+                        //NEW C++11
+                        //initializer lists
+                    assert( v == v1 );
+                }
 
-            //int is3[3] = {0,1,2};
-            //for
-            //(
-                //set<int>::iterator it = s.begin(), i=0 ;
-                //it != s.end();
-                //it++, i++
-            //)
-            //{
-                //assert( *it == is3[i] )
-            //}
-            //0 1 2
+                //single value
+                    {
+                        vector<int> v(3,2);
+                        vector<int> v1 = {2,2,2};
+                        assert( v == v1 );
+                    }
 
-            //count
-                //can only return 1 or 0
-                assert( s.count(1) == 1 );
-                assert( s.count(3) == 0 );
-        }
+                    {
+                        vector<int> v(3);
+                        vector<int> v1 = {0,0,0};
+                        assert( v == v1 );
+                    }
 
-    cout << endl;
+                //range copy
+                {
+                    vector<int> v = {0,1,2};
+                    vector<int> v1( v.begin(), v.end() );
+                    assert( v == v1 );
+                }
 
-    cout << "algorithms" << endl;
+                //from existing array
+                {
+                    int myints[] = {0,1,2};
+                    vector<int> v (myints, myints + sizeof(myints)/sizeof(int) );
+                    vector<int> v1 = {0,1,2};
+                    assert( v == v1 );
+                }
 
-            sort( v1.begin(), v1.end() );
+                //vectors have order
+                {
+                    vector<int> v = {0,1,2};
+                    vector<int> v1 = {2,1,0};
+                    assert( v != v1 );
+                }
 
-            bool contains = binary_search( v1.begin(), v1.end(), 1 );
-            //must be already sorted
+                //size
+                    {
+                        vector<int> v;
+                        assert( v.size() == 0 );
+                        v.push_back(0);
+                        assert( v.size() == 1 );
+                    }
 
-            reverse( v1.begin(), v1.end() );
-            random_shuffle( v1.begin(), v1.end() );
-            int num_zeros = count( v1.begin(), v1.end(), 0 );
-            int highest = *max_element (v1.begin(), v1.end());
-            int lowest = *min_element (v1.begin(), v1.end());
+                //pushed back
+                    //size            no of elements pushed back
+                    //empty           same as size() == 0
+                    //resize          change size. fill with 0
+                    //max_size        maximum size (estimtion of what could fit your computer ram)
 
-            unsigned int pos = find( v1.begin(), v1.end(), 1 ) - v1.begin();
-            if( pos < v1.size() )
-                cout << pos << endl;
-            else
-                cout << "not found" << endl;
+                //allocation related
+                    //capacity        get how much is allocated
+                    //reserve         change how much is allocated
+                    //shrink_to_fit   shrink allocated array to size
+                    //data            get pointer to allocated array
 
-            cout << "min(0.1,0.2)" << endl;
-            cout << min(0.1,0.2) << endl;
-            cout << "max(0.1,0.2)" << endl;
-            cout << max(0.1,0.2) << endl;
+            //modify
 
-    cout << endl;
+                //can modify with initializers
+                    {
+                        vector<int> v;
+                        v = {0};
+                        v = {0,1};
+                        //assert( v = {0,1} );
+                            //ERROR
+                            //not possible
+                    }
 
-    cout << "memory" << endl;
+                //push_back
+                    {
+                        vector<int> v;
+                        vector<int> v1;
 
-        cout << "shared_ptr" << endl;
-            //C++11
+                        v.push_back(0);
+                        v1 = {0};
+                        assert( v == v1 );
 
-            shared_ptr<Base> spi1(new Base);
-            shared_ptr<Base> spi2(spi1);
-            cout << "spi1->method();" << endl;
-            spi1->method();
-            spi1 = shared_ptr<Base>(new Base);
-            cout << "spi2(sp1);" << endl;
-            spi2 = shared_ptr<Base>(spi1);
-            cout << "^^^^^ first base destroyed!" << endl;
+                        v.push_back(1);
+                        v1 = {0,1};
+                        assert( v == v1 );
+                    }
+
+                    //push_back makes copies
+                    {
+                        vector<string> v;
+                        string s = "abc";
+                        v.push_back(s);
+                        v[0][0] = '0';
+                        assert( v[0] == "0bc" );
+                        assert( s == "abc" );
+                            //s was not changed
+                    }
+
+                //pop_back
+                    //no return val
+                    {
+                        vector<int> v = {0,1};
+                        vector<int> v1;
+
+                        v.pop_back();
+                        v1 = {0};
+                        assert( v == v1 );
+
+                        v.pop_back();
+                        v1 = {};
+                        assert( v == v1 );
+                    }
+
+                //insert
+                    {
+                        vector<int> v = {0,1};
+                        vector<int> v1;
+                        
+                        v.insert( v.begin(), -1 );
+                        v1 = {-1,0,1};
+                        assert( v == v1 );
+
+                        v.insert( v.end(), 2 );
+                        v1 = {-1,0,1,2};
+                        assert( v == v1 );
+                    }
+
+                //erase
+                    {
+                        vector<int> v;
+                        vector<int> v1;
+
+                        v = {0,1,2,3};
+                        v.erase( v.begin() + 1, v.end() - 1 );
+                        v1 = {0,3};
+                        assert( v == v1 );
+
+                        v = {0,1,2};
+                        v.erase( v.begin() + 1 );
+                        v1 = {0,2};
+                        assert( v == v1 );
+                    }
+
+            //random access
+                //fast
+                {
+                    vector<int> v = {0,1,2};
+
+                    assert( v.front() == 0 );
+                    assert( v.back() == 2 );
+
+                    v[0] = 1;
+                    assert( v[0] == 1 );
+                    //cout << v1[2] << endl;
+                    //v1[2] = 2;
+                        //ERROR
+                        //just like array overflow
+                        //will not change vector size
+                }
+
+            //iterate
+                //could be done with random access
+                //but still use iterators
+                //if you ever want to change to a container that has slow random access
+                //it will be a breeze
+                {
+                    vector<int>::iterator it;
+                    vector<int> v = {2,1,0};
+                    int i;
+                    int is[] = {2,1,0};
+                    for(
+                        it = v.begin(), i=0;
+                        it != v.end();
+                        ++it, ++i
+                    )
+                    {
+                        assert( *it == is[i] );
+                    }
+                }
 
         cout << endl;
 
-    cout << endl;
+        cout << "set" << endl;
+            //- unique elements
+            //    inserting twice does nothing
+            //- immutable elements
+            //- always ordered
+            //    inserted elements are in that order
+            //    therefore, logarithmic find
 
+            {
+                set<int> s;
+                s.insert(1);
+                s.insert(2);
+                s.insert(0);
+                s.insert(1);
+                set<int> s1 = {0,1,2};
+                assert( s == s1 );
+            }
+
+            {
+                set<int> s = {1,2,0,1};
+                set<int> s1 = {0,1,2};
+                assert( s == s1 );
+            }
+
+            {
+                std::set<std::string> s = {"a","c","b","a"};
+                std::set<std::string> s1 = {"a","b","c"};
+                assert( s == s1 );
+            }
+
+            {
+                //cout << s[0] << endl;
+                    //ERROR
+                    //no random access method
+            }
+
+            //iterate
+                //always sorted
+                {
+                    int i;
+                    int is[] = {0,1,2};
+                    set<int>::iterator it;
+                    set<int> s = {1,2,0,1};
+                    for(
+                        it = s.begin(), i=0;
+                        it != s.end();
+                        it++, i++
+                    )
+                    {
+                        assert( *it == is[i] );
+                        //*it = 3;
+                            //ERROR
+                            //read only
+                    }
+                }
+
+                {
+                    int i;
+                    string is[] = {"a","b","c"};
+                    std::set<std::string> s = {"a","c","b","a"};
+                    std::set<std::string>::iterator it;
+                    for(
+                        it = s.begin(), i=0;
+                        it != s.end();
+                        it++, i++
+                    )
+                    {
+                        assert( *it == is[i] );
+                        cout << (*it)[0] << endl;
+                        //(*it)[0] = 'a';
+                            //ERROR
+                            //read only
+                    }
+                }
+
+            //find
+                //since always sorted, find has logarithmic complexity
+                {
+                    set<int> s = {0,1,2};
+                    set<int>::iterator it = s.find(1);
+                    assert( *it == 1 );
+                }
+
+            //you can modify objects if store pointers
+                {
+                    int i = 0;
+                    set<int*> s;
+                    s.insert(&i);
+                    set<int*>::iterator it = s.find(&i);
+                    *(*it) = 1;
+                    assert( i == 1 );
+                }
+
+            //count
+                //can only return 1 or 0
+                {
+                        set<int> s = {1,2,0,1};
+                        assert( s.count(1) == 1 );
+                        assert( s.count(3) == 0 );
+                }
+
+        cout << endl;
+
+        cout << "algorithms" << endl;
+
+            assert( min(0.1,0.2) == 0.1 );
+            assert( max(0.1,0.2) == 0.2 );
+
+            //change order
+            
+                //sort
+                {
+                    vector<int> v = {2,0,1};
+                    sort( v.begin(), v.end() );
+                    vector<int> v1 = {0,1,2};
+                    assert( v == v1 );
+                }
+
+                //reverse
+                {
+                    vector<int> v = {2,0,1};
+                    reverse( v.begin(), v.end() );
+                    vector<int> v1 = {1,0,2};
+                    assert( v == v1 );
+                }
+
+                //randomize
+                {
+                    vector<int> v = {2,0,1};
+                    random_shuffle( v.begin(), v.end() );
+                }
+
+            //find
+            
+                {
+                    vector<int> v = {2,0,1};
+                    unsigned int pos;
+
+                    pos = find( v.begin(), v.end(), 0 ) - v.begin();
+                    assert( pos == 1 );
+
+                    pos = find( v.begin(), v.end(), 1 ) - v.begin();
+                    assert( pos == 2 );
+
+                    pos = find( v.begin(), v.end(), 2 ) - v.begin();
+                    assert( pos == 0 );
+
+                    pos = find( v.begin(), v.end(), 3 ) - v.begin();
+                    assert( pos >= v.size()  );
+                }
+
+                //binary_search
+                    //container must be already sorted
+                    //log time
+                {
+                    vector<int> v = {2,0,1};
+                    sort( v.begin(), v.end() );
+                    assert( binary_search( v.begin(), v.end(), 1 ) == true );
+                    assert( binary_search( v.begin(), v.end(), 3 ) == false );
+                    assert( binary_search( v.begin(), v.end() - 1, 2 ) == false );
+                }
+
+                {
+                    vector<int> v = {2,1,2};
+                    assert( count( v.begin(), v.end(), 0 ) == 0 );
+                    assert( count( v.begin(), v.end(), 1 ) == 1 );
+                    assert( count( v.begin(), v.end(), 2 ) == 2 );
+                }
+
+                {
+                    vector<int> v = {2,0,1};
+                    assert( *max_element( v.begin(), v.end() ) == 2 );
+                    assert( *min_element( v.begin(), v.end() ) == 0 );
+                }
+
+        cout << endl;
+
+        cout << "memory" << endl;
+
+            cout << "shared_ptr" << endl;
+                //C++11
+                //before boost
+
+                {
+                    shared_ptr<Base> spi1(new Base);
+                    shared_ptr<Base> spi2(spi1);
+                    cout << "spi1->method();" << endl;
+                    spi1->method();
+                    spi1 = shared_ptr<Base>(new Base);
+                    cout << "spi2(sp1);" << endl;
+                    spi2 = shared_ptr<Base>(spi1);
+                    cout << "^^^^^ first base destroyed!" << endl;
+                }
+
+            cout << endl;
+
+        cout << endl;
+
+        cout << "thread" << endl;
+            //c++11
+            
+                //needs -pthread flag on linux
+                
+                std::thread t1( threadFunc, 1000 );
+                std::thread t2( threadFunc, 1000 );
+                    //starts them
+            
+                t1.join();
+                t2.join();
+                    //both must end
+
+                cout << "main thread id:" << std::this_thread::get_id() << endl;
+                std::this_thread::sleep_for(std::chrono::nanoseconds(nNsecs));
+                std::this_thread::yield();
+
+        cout << endl;
+
+    }cout << endl;
+
+    cout << "==================================================" << endl;
+    cout << "= ALL ASSERTS PASSED" << endl;
+    cout << "==================================================" << endl;
+
+    //global/static destructors
+    
     return EXIT_SUCCESS;
 }

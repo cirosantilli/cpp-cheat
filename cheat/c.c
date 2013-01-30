@@ -185,7 +185,7 @@ thats why is is called *pre*
 
     - openMP is is a library supported on C, C++, fortran, windows, linux macos
 
-    - volatile
+    - volatile vs mutable
 
         http://en.wikipedia.org/wiki/Volatile_variable
 

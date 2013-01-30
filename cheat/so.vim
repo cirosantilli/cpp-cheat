@@ -6,7 +6,9 @@ if expand('%:e') =~ '\(c\|cpp\)'
   "profile individual files by basename
   
 else
+
   call MapAllBuff( '<F5>'  , ':w<CR>:make<CR>' )
   call MapAllBuff( '<F6>'  , ':call RedirStdoutNewTabSingle("make run")<CR>' )
   call MapAllBuff( '<F9>'  , ':w<CR>:call RedirStdoutNewTabSingle("make profile")<CR>' )
+
 endif
