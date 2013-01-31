@@ -193,10 +193,10 @@ thats why is is called *pre*
 
         useful for multithreading
 
+        TODO
+
 TODO
     - file io
-    - struct
-    - typedef
     - documentation: doxigen
 
         <http://www.stack.nl/~dimitri/doxygen/docblocks.html>
@@ -365,6 +365,16 @@ int windowsVar;
             j=1;
     }
 
+    void doNothing(){}
+
+    void funcCallProf(int n)
+    {
+        int i;
+        for( i=0; i<n; i++ )
+            doNothing();
+    }
+
+
     void intSumProf(int n)
     {
         int i;
@@ -432,7 +442,8 @@ int windowsVar;
 
 int main(int argc, char** argv)
 {
-    //base types and vars
+    //base types and variables
+    {
         //allowed variable names: _,[a-Z],[0-9], canot start with number
         
         puts("\nbase types");
@@ -444,15 +455,17 @@ int main(int argc, char** argv)
         //int i=5;
         //int j=7;
         unsigned int ui;
-        //applications:
-            //array indexes
-            //size_t
+            //applications:
+                //array indexes
+                //size_t
         long int li = 8L;
         long long lli = 8LL; //64 bit int. defined in C99
         float f = 1.2345f;    //1 signal 23 number 8 exponent
         float f1 = 1.2345e-10f;
         float f2 = 1.f;
-        //float f = 1f; //there must be a dot
+        //float f = 1f;
+            //ERROR
+            //there must be a dot
         double d = 6.789;
         char c = 'a';
         char *cp;
@@ -536,11 +549,14 @@ int main(int argc, char** argv)
                 //lli = 0x10000000000000000; //max long long+1
 
         //bases for integers
+        {
             assert( 16 == 0x10 );
             assert( 16 == 020 );
             assert( 16 == 0b10000 );
+        }
         
         //const
+        {
             const int ic = 0;
             //int const ic = 0
                 //exact same thing!
@@ -596,8 +612,10 @@ int main(int argc, char** argv)
                 //they are only constant after they are declared
                 //this is another reason why you can't use them
                 //as arrays sizes without VSA
+        }
 
         //typecast
+        {
             printf("(double).1f = %f\n", (double).1f); //float to double
             //WARN possible
                 printf("(float).1 = %f\n", (float).1); //double to float
@@ -617,348 +635,17 @@ int main(int argc, char** argv)
                 //is3=(int[3])is4;
             //ERROR pointer to int[]
                 //is3=is4;
-    
-    puts("operators");
-    
-        puts("arithmetic");
-            assert( (1+2) == 3 );
-            assert( (2*3) == 6 );
-            assert( (4/2) == 2 );
-            assert( (1/2) == 0 );
-            assert( (1.0/2.0) == 0.5 );
-            assert( (1  /2.0) == 0.5 );
-            assert( (1/(double)2) == 0.5 );
-
-            assert( (3%3) == 0 );
-            assert( (4%3) == 1 );
-            assert( (5%3) == 2 );
-            assert( (6%3) == 0 );
-
-        puts("boolean");
-            assert( (1==1) == 1 );
-            assert( (0==1) == 0 );
-
-            assert( ( 0 >  1 ) == 0 );
-            assert( ( 0 >  0 ) == 0 );
-            assert( ( 0 > -1 ) == 1 );
-            assert( ( 0 <  1 ) == 1 );
-            assert( ( 0 <  0 ) == 0 );
-            assert( ( 0 < -1 ) == 0 );
-
-            assert( (0 >=  1) == 0 );
-            assert( (0 >=  0) == 1 );
-            assert( (0 >= -1) == 1 );
-            assert( (0 <=  1) == 1 );
-            assert( (0 <=  0) == 1 );
-            assert( (0 <= -1) == 0 );
-
-        puts("bitwise");
-
-            //NOT
-            assert( (~(char)0x00) == (char)0xFF );
-            assert( (~(char)0xFF) == (char)0x00 );
-
-            //OR
-            assert( ((char)0x00 & (char)0x00 ) == (char)0x00 );
-            assert( ((char)0xFF & (char)0x00 ) == (char)0x00 );
-            assert( ((char)0xFF & (char)0xFF ) == (char)0xFF );
-
-            //XOR
-            assert( ((char)0x00 ^ (char)0x00 ) == (char)0x00 );
-            assert( ((char)0xFF ^ (char)0x00 ) == (char)0xFF );
-            assert( ((char)0xFF ^ (char)0xFF ) == (char)0x00 );
-
-            //shift
-            assert( ( 1 << 0 ) == 1 );
-            assert( ( 1 << 1 ) == 2 );
-            assert( ( 1 << 2 ) == 4 );
-            assert( ( 1 << 3 ) == 8 );
-
-            assert( ( 8 >> 0 ) == 8 );
-            assert( ( 8 >> 1 ) == 4 );
-            assert( ( 8 >> 2 ) == 2 );
-            assert( ( 8 >> 3 ) == 1 );
-            assert( ( 8 >> 4 ) == 0 );
-            assert( ( 5 >> 1 ) == 2 );
-
-        puts("assign");
-            {
-                int i = 0;
-                assert( (i=1) == 1 );
-                //= returns right side
-                assert( i == 1 );
-
-                //increment
-                    //http://stackoverflow.com/questions/24886/is-there-a-performance-difference-between-i-and-i-in-c
-                    //which is faster?
-                    //in c, equal, in c++, ++i potentially if i is a complex object
-
-                    i=0;
-                    assert( i++ == 0 );
-                    assert( i == 1 );
-
-                    i=0;
-                    assert( ++i == 1 );
-                    assert( i == 1 );
-
-                    i=1;
-                    assert( i-- == 1 );
-                    assert( i == 0 );
-
-                    i=1;
-                    assert( --i == 0 );
-                    assert( i == 0 );
-
-                    double f = 0.0;
-                    assert( f++ == 0.0 );
-                    assert( f == 1.0 );
-
-                i=0;
-                assert( ( i += 1 ) == 1 );
-                assert( i == 1 );
-
-                i=1;
-                assert( ( i -= 1 ) == 0 );
-                assert( i == 0 );
-
-                i=1;
-                assert( ( i *= 2 ) == 2 );
-                assert( i == 2 );
-
-                i=2;
-                assert( ( i /= 2 ) == 1 );
-                assert( i == 1 );
-
-                i=3;
-                assert( ( i %= 2 ) == 1 );
-                assert( i == 1 );
-
-                i=0xFF;
-                assert( ( i &= (char)0x00 ) == (char)0x00 );
-                assert( ( (char)i == (char)0x00 ) );
-
-                //same others bitwise, except ~=
-            }
-    
-        puts("conditional");
-            assert( ( 1<2 ? 3 : 4 ) == 3 );
-            assert( ( 1>2 ? 3 : 4 ) == 4 );
-
-        puts("comma");
-            //almost useless
-            {
-                int i=0, a=1, b=2, c=3; //comma here is separator, not operator. same comma in functions calls/defs
-
-                assert( (i=0, 1) == 1 );  
-                assert( (i=0, i=1, 2) == 2 );             
-                    //ignores values on left
-                    //takes only last value on right
-                    //
-                    //WARN
-                    //operations on left has no effect
-
-                i = 2;
-                (i = 0), 1;
-                i = 0, 1;
-                assert( i == 0);
-                    //assign has precedence
-                    //
-                    //WARN
-                    //operation on right has no effect
-
-                //int j=0, 1;
-                    //ERROR
-                    //declaration int j does not return a value
-
-                i=2;
-                assert( (i=0, i) == 0);
-                i=2;
-                assert( (i=0, i++, i) == 1);
-                    //operation on left comes first
-            } 
-
-    puts("if");
-
-        if(-1)
-        {
-            assert(1);
-        } 
-        if(0)
-        {
-            assert(0);
-        } 
-        if(1)
-        {
-            assert(1);
-        } 
-
-        //scope
-            {
-                int i = 0;
-                if(1)
-                {
-                    int i = 1;
-                    assert( i == 1 );
-                }
-            }
-
-        puts("complex.h");
-            //C99
-            {
-                const double complex zd = 1.0 + 2.0*I;
-                const int complex zi = 1 + 2*I;
-                const int complex zi2 = 1 + 1*I;
-
-                assert( creal( zi + zi ) == 2 );
-                assert( cimag( zi + zi ) == 4 );
-
-                assert( creal( zi - zi2 ) == 0 );
-                assert( cimag( zi - zi2 ) == 1 );
-
-                assert( creal( zi * zi ) == -3 );
-                assert( cimag( zi * zi ) == 4 );
-
-                assert( creal( zi / zi ) == 1 );
-                assert( cimag( zi / zi ) == 0 );
-
-                assert( creal( conj(zi) ) == 1 );
-                assert( cimag( conj(zi) ) == -2 );
-            }
-
-        puts("stdbool.h");
-            //C99
-            {
-    
-            //bool b = true;
-                //ERROR
-                //no booleans true false in c, ints only! c++ only.
-                //can use stdbool.h
-
-                bool b = true;
-                bool b2 = false;
-                assert( true  == 1 );
-                assert( false == 0 );
-            }
-
-        puts("goto");
-            {
-                goto a;
-                    assert(0);
-                a:
-                assert(1);
-            }
-
-    puts("switch");
-
-        {
-            int j;
-            for( i=-1; i<3; i++ )
-            {
-                switch(i)
-                {
-                    case 0:
-
-                        assert(i==0);
-
-                        int j;
-                            //OK
-                            //new inner scope
-                        
-                        //int i = 1;
-                            //ERROR
-                            //redeclaration
-
-                        break;
-
-                    case 1:
-
-                        assert(i==1);
-
-                        //int j;
-                            //ERROR
-                            //single inner scope
-
-                        break;
-
-                    default:
-                        assert( i!=0 && i!=1 );
-                        break;
-                }
-            }
         }
+    }
 
-    puts("for");
+    //typedef
+    {
+        typedef int NEWINT;
+        NEWINT i = 1;
+    }
 
-        //no difference from while
-        //
-        //only use if when know how many times
-        //otherwise use ``while``, which is more flexible
-
-        {
-            int i;
-            int is[] = {0,1,2};
-            for( i=0; i<3; i++ )
-            {
-                assert( i == is[i] );
-                //int i;
-                    //OK new scope
-            }
-            assert( i == 3 );
-        }
-
-        {   
-            //C99
-            //putting int i=0 inside for
-            int is[] = {0,1,2};
-            for( int i=0; i<3; i++ )
-            {
-                assert( i == is[i] );
-                //int i;
-                    //ERROR
-                    //redeclaration
-            }
-        }
-        
-        {
-            //one of the few uses of the comma operator
-            int is[] = {0,1,2};
-            int js[] = {0,1,2};
-            for( int i=0, j=0; i*j<5; i++, j++ )
-            {
-                assert( i == is[i] );
-                assert( i == js[i] );
-            }
-        }
-        
-        {
-            //nested loops
-            int n = 0;
-            int is[] = {0,0,1,1};
-            int js[] = {0,1,0,1};
-            for( int i=0; i<2; i++ )
-                for( int j=0; j<2; j++ )
-                {
-                    assert( i == is[n] );
-                    assert( j == js[n] );
-                    n++;
-                }
-        }
-        
-    puts("while");
-
-        {
-            int i=0;
-            int is[] = {0,1,2};
-            while(i<3)
-            {
-                assert( i == is[i] );
-                i++;	    
-            }
-            assert( i == 3 );
-        }
-
-    puts("enum");
-
+    //enum
+    {
         {
             enum E        
             {
@@ -1007,204 +694,627 @@ int main(int argc, char** argv)
             assert( E2 == 2);
             assert( E3 == 2);
 
-            //if you don't give a value, it gets a value different from all others
+            //if you don't give a value
+            //it gets a value different from all others
                 assert( E4 != E1);
                 assert( E4 != E2);
                 assert( E4 != E3);
         }
+    }
 
-
-    puts("stdio.h");
-        //stdin, stdout, stderr
-
-        //puts: write to stdout.
-            //simpler (and faster?) than printf
-            //automatically newline terminated!
-            //can contain newlines
-            puts("puts\nputs\n");
-
-        //printf: write formated to sdtout
-            //http://www.cplusplus.com/reference/clibrary/cstdio/printf/
-
-            puts("\nprintf:");
-            printf("d 1 = %d\n", 1);
-            printf("d 0xFFFFFFFF = %d\n", 0xFFFFFFFF);
-            //-1
-            printf("u 0xFFFFFFFF = %u\n", 0xFFFFFFFF);
-            //max unsigned int
-            //WARN expects unsigned int, found int
-                //printf("u -1 = %u\n", -1);
-            printf("ld 1L = %ld\n", 1L);
-            //WARN expects unsigned int, found int
-                //printf("u -1 = %lu\n", -1);
-            printf("lld = %lld\n", 0x100000000LL); //long long (int)
-            printf("%d %d\n",1,2);
-
-            printf("f = %f\n", f);
-            printf(".2f = %.2f\n", f);
-            printf("0.2f = %.0f\n", f);
-            printf("7.2f = %7.2f\n", f); //at least 7 chars: add spaces. used to make tables.
-            printf(".2e = %.2e\n", f);
-            printf(".*e = %.*e", 2, f); //treat precision as a parameter
-
-            printf("%s\n", "a string");
-            printf("%s\n", "\t<<< \\t tab char");
-            printf("%s\n", "\0<<< \\0 null char");
-
-            printf("%c\n", 'a');
-            printf("%d\n", 'a');
-
-            printf("%x\n", 16);
-
-            printf("(void*)&f = %p\n",(void*)&f);
-            //prints the 0x address.
-            //%p must get a void pointer
-            //void* is a type, different than void. doing type cast to it.
-
-            printf("%%<<< escaping percentage\n");
-
-        //read from stdin
-        if(0){ //gets annoying after some time
-
-        //gets: deprecated.
-            //dangerous: no size check
-    
-            //gets is deprecated in c11! http://www.cplusplus.com/reference/clibrary/cstdio/fgets/
-            //printf("enter a string terminated by newline: (max %d chars, newline will be included in the string)\n", sn);
-            //gets(s);
-            //printf("you entered:\n%s\n\n",s);
-
-        //scanf : dangerous
-            //input is space separated
-            //nothing happens on error
-        
+    //struct
+    {
+        //application:
+            //delcare/pass to funcs
+            //lots of different typed data
+            //in one go
+        struct S
+        {
             int i;
-            printf("enter an integer in decimal and a newline (max 32 bits signed):\n");
-            i = scanf("%d", &i);
-            printf("you entered:\n%d\n\n", i);
-            i++;
-            //stuff is space separated
-            //try 123 456 789 at once. 456 789 stay in the buffer, and are eaten by the second scanf
-            
-            printf("enter an integer, a space, an integer and a newline (max 32 bits signed):\n");
-            i = scanf("%d %d", &i, &j);
-            printf("you entered:\n%d %d\n\n", i, j);
+            float f;
+        };
 
-            printf("enter a float and a newline:\n");
-            i = scanf("%f", &f);
-            printf("you entered:\n%.2f\n\n", f);
+        assert( sizeof(int) + sizeof(float) == sizeof(struct S) );
 
-            printf("enter an integer in hexadecimal and a newline: (max 32 bits signed)\n");
-            i = scanf("%x", &i);
-            printf("you entered (in decimal):\n%d\n\n", i);
+        {
+            struct S s = { 1, 1.0 };
+                //list init
+                //only possible for contiguous (non pointer) data
+            assert( s.i == 1 );
+            assert( s.f == 1.0 );
 
-        //fgets + error checking: best method
-    
+            s.i = 2;
+            s.f = 2;
+            assert( s.i == 2 );
+            assert( s.f == 2.0 );
         }
 
-        //TRY: echo "123" | ./c_cheatsheet.out
-            //this will use stdin from a pipe! no user input
-
-    puts("time.h");
         {
-            //real time
-            printf( "%ld seconds since 1970-01-01\n", time(NULL) );
+            struct S s = { .f = 1.0, .i = 1 };
+            assert( s.i == 1 );
+            assert( s.f == 1.0 );
+        }
 
-            puts("program virtual time:");
+        //pointer to struct
+        {
+            struct S s;
+            struct S* sp;
+            sp = &s;
+            (*sp).i = 1;
+            assert( s.i == 1 );
+        }
+
+        //arrays
+        {
+            struct S
+            {
+                //char cs[];
+                    //ERROR
+                char cs[4];
+            };
+
+            //struct S = { .cs = "abc" }
+                //ERROR
+        }
+
+        {
+            struct S {int i;} s = {1}, s2 = {2};
+            int               i = 1  , i2 = 2;
+        }
+
+        //assign
+        {
+            struct S s  =  { 1, 1.0 };
+            struct S s2 = { 2, 2.0 };
+            s = s2;
+            assert( s.i == 2 );
+            assert( s.f == 2.0 );
+        }
+
+        //typedef
+        {
+            typedef struct
+            {
+                int i;
+            } S;
+
+            S s = {1};
+            S* sp = &s;
+        }
+    }
+    
+    puts("operators");
+    {
+        puts("arithmetic");
+        {
+            assert( (1+2) == 3 );
+            assert( (2*3) == 6 );
+            assert( (4/2) == 2 );
+            assert( (1/2) == 0 );
+            assert( (1.0/2.0) == 0.5 );
+            assert( (1  /2.0) == 0.5 );
+            assert( (1/(double)2) == 0.5 );
+
+            assert( (3%3) == 0 );
+            assert( (4%3) == 1 );
+            assert( (5%3) == 2 );
+            assert( (6%3) == 0 );
+        }
+
+        puts("boolean");
+        {
+            assert( (1==1) == 1 );
+            assert( (0==1) == 0 );
+
+            assert( ( 0 >  1 ) == 0 );
+            assert( ( 0 >  0 ) == 0 );
+            assert( ( 0 > -1 ) == 1 );
+            assert( ( 0 <  1 ) == 1 );
+            assert( ( 0 <  0 ) == 0 );
+            assert( ( 0 < -1 ) == 0 );
+
+            assert( (0 >=  1) == 0 );
+            assert( (0 >=  0) == 1 );
+            assert( (0 >= -1) == 1 );
+            assert( (0 <=  1) == 1 );
+            assert( (0 <=  0) == 1 );
+            assert( (0 <= -1) == 0 );
+        }
+
+        puts("bitwise");
+        {
+            //NOT
+            assert( (~(char)0x00) == (char)0xFF );
+            assert( (~(char)0xFF) == (char)0x00 );
+
+            //OR
+            assert( ((char)0x00 & (char)0x00 ) == (char)0x00 );
+            assert( ((char)0xFF & (char)0x00 ) == (char)0x00 );
+            assert( ((char)0xFF & (char)0xFF ) == (char)0xFF );
+
+            //XOR
+            assert( ((char)0x00 ^ (char)0x00 ) == (char)0x00 );
+            assert( ((char)0xFF ^ (char)0x00 ) == (char)0xFF );
+            assert( ((char)0xFF ^ (char)0xFF ) == (char)0x00 );
+
+            //shift
+            assert( ( 1 << 0 ) == 1 );
+            assert( ( 1 << 1 ) == 2 );
+            assert( ( 1 << 2 ) == 4 );
+            assert( ( 1 << 3 ) == 8 );
+
+            assert( ( 8 >> 0 ) == 8 );
+            assert( ( 8 >> 1 ) == 4 );
+            assert( ( 8 >> 2 ) == 2 );
+            assert( ( 8 >> 3 ) == 1 );
+            assert( ( 8 >> 4 ) == 0 );
+            assert( ( 5 >> 1 ) == 2 );
+        }
+
+        puts("assign");
+        {
+            int i = 0;
+            assert( (i=1) == 1 );
+            //= returns right side
+            assert( i == 1 );
+
+            //increment
+                //http://stackoverflow.com/questions/24886/is-there-a-performance-difference-between-i-and-i-in-c
+                //which is faster?
+                //in c, equal, in c++, ++i potentially if i is a complex object
+
+                i=0;
+                assert( i++ == 0 );
+                assert( i == 1 );
+
+                i=0;
+                assert( ++i == 1 );
+                assert( i == 1 );
+
+                i=1;
+                assert( i-- == 1 );
+                assert( i == 0 );
+
+                i=1;
+                assert( --i == 0 );
+                assert( i == 0 );
+
+                double f = 0.0;
+                assert( f++ == 0.0 );
+                assert( f == 1.0 );
+
+            i=0;
+            assert( ( i += 1 ) == 1 );
+            assert( i == 1 );
+
+            i=1;
+            assert( ( i -= 1 ) == 0 );
+            assert( i == 0 );
+
+            i=1;
+            assert( ( i *= 2 ) == 2 );
+            assert( i == 2 );
+
+            i=2;
+            assert( ( i /= 2 ) == 1 );
+            assert( i == 1 );
+
+            i=3;
+            assert( ( i %= 2 ) == 1 );
+            assert( i == 1 );
+
+            i=0xFF;
+            assert( ( i &= (char)0x00 ) == (char)0x00 );
+            assert( ( (char)i == (char)0x00 ) );
+
+            //same others bitwise, except ~=
+        }
+
+        puts("conditional");
+        {
+            assert( ( 1<2 ? 3 : 4 ) == 3 );
+            assert( ( 1>2 ? 3 : 4 ) == 4 );
+        }
+
+        puts("comma operator");
+        {
+            //almost useless
+            int i=0, a=1, b=2, c=3; //comma here is separator, not operator. same comma in functions calls/defs
+
+            assert( (i=0, 1) == 1 );  
+            assert( (i=0, i=1, 2) == 2 );             
+                //ignores values on left
+                //takes only last value on right
+                //
+                //WARN
+                //operations on left has no effect
+
+            i = 2;
+            (i = 0), 1;
+            i = 0, 1;
+            assert( i == 0);
+                //assign has precedence
+                //
+                //WARN
+                //operation on right has no effect
+
+            //int j=0, 1;
+                //ERROR
+                //declaration int j does not return a value
+
+            i=2;
+            assert( (i=0, i) == 0);
+            i=2;
+            assert( (i=0, i++, i) == 1);
+                //operation on left comes first
+        } 
+    }
+
+    puts("if");
+    {
+        if(-1)
+        {
+            assert(1);
+        } 
+        if(0)
+        {
+            assert(0);
+        } 
+        if(1)
+        {
+            assert(1);
+        } 
+
+        //scope
+        {
+            int i = 0;
+            if(1)
+            {
+                int i = 1;
+                assert( i == 1 );
+            }
+        }
+
+        puts("stdbool.h");
+        {
+            //C99
+
+            //bool b = true;
+                //ERROR
+                //no booleans true false in c, ints only! c++ only.
+                //can use stdbool.h
+
+            bool b = true;
+            bool b2 = false;
+            assert( true  == 1 );
+            assert( false == 0 );
+        }
+    }
+
+    puts("goto");
+    {
+        goto a;
+            assert(0);
+        a:
+        assert(1);
+    }
+
+    //switch
+    {
+        int i, j;
+        for( i=-1; i<3; i++ )
+        {
+            switch(i)
+            {
+                case 0:
+
+                    assert(i==0);
+
+                    int j;
+                        //OK
+                        //new inner scope
+                    
+                    //int i = 1;
+                        //ERROR
+                        //redeclaration
+
+                    break;
+
+                case 1:
+
+                    assert(i==1);
+
+                    //int j;
+                        //ERROR
+                        //single inner scope
+
+                    break;
+
+                default:
+                    assert( i!=0 && i!=1 );
+                    break;
+            }
+        }
+    }
+
+    //for
+    {
+        //basic
+        {
+            //no difference from while
+            //
+            //only use if when know how many times
+            //otherwise use ``while``, which is more flexible
+
+            int i;
+            int is[] = {0,1,2};
+            for( i=0; i<3; i++ )
+            {
+                assert( i == is[i] );
+                //int i;
+                    //OK new scope
+            }
+            assert( i == 3 );
+        }
+
+        //putting int i=0 inside for
+        {   
+            //C99
+            int is[] = {0,1,2};
+            for( int i=0; i<3; i++ )
+            {
+                assert( i == is[i] );
+                //int i;
+                    //ERROR
+                    //redeclaration
+            }
+        }
+        
+        //one of the few uses of the comma operator
+        {
+            int is[] = {0,1,2};
+            int js[] = {0,1,2};
+            for( int i=0, j=0; i*j<5; i++, j++ )
+            {
+                assert( i == is[i] );
+                assert( i == js[i] );
+            }
+        }
+        
+        //nested loops
+        {
+            int n = 0;
+            int is[] = {0,0,1,1};
+            int js[] = {0,1,0,1};
+            for( int i=0; i<2; i++ )
+            {
+                for( int j=0; j<2; j++ )
+                {
+                    assert( i == is[n] );
+                    assert( j == js[n] );
+                    n++;
+                }
+            }
+        }
+    }
+
+    //while
+    {
+        {
+            int i=0;
+            int is[] = {0,1,2};
+            while(i<3)
+            {
+                assert( i == is[i] );
+                i++;	    
+            }
+            assert( i == 3 );
+        }
+
+    }
+
+    puts("preprocessor");
+    {
+        {
+#define A B
+#define B 1
+            assert( A == 1 );
+        }
+
+        {
+            //gcc -DCOMMANDLINE c.c
+            //gcc c.c
+#ifdef COMMANDLINE
+            puts("C");
+#else
+            puts("no C");
+#endif
+        }
+    }
+
+    puts("stdlib");
+    {
+        puts("complex.h");
+        {
+            //C99
+            
+            const double complex zd = 1.0 + 2.0*I;
+            const int complex zi = 1 + 2*I;
+            const int complex zi2 = 1 + 1*I;
+
+            assert( creal( zi + zi ) == 2 );
+            assert( cimag( zi + zi ) == 4 );
+
+            assert( creal( zi - zi2 ) == 0 );
+            assert( cimag( zi - zi2 ) == 1 );
+
+            assert( creal( zi * zi ) == -3 );
+            assert( cimag( zi * zi ) == 4 );
+
+            assert( creal( zi / zi ) == 1 );
+            assert( cimag( zi / zi ) == 0 );
+
+            assert( creal( conj(zi) ) == 1 );
+            assert( cimag( conj(zi) ) == -2 );
+        }
+
+        puts("stdio.h");
+        {
+            //stdin, stdout, stderr
+
+            //puts: write to stdout.
+            {
+                //simpler (and faster?) than printf
+                //automatically newline terminated!
+                //can contain newlines
+                puts("puts\nputs\n");
+            }
+
+            //printf: write formated to sdtout
+            {
+                //http://www.cplusplus.com/reference/clibrary/cstdio/printf/
+
+                puts("\nprintf:");
+                printf("d 1 = %d\n", 1);
+                printf("d 0xFFFFFFFF = %d\n", 0xFFFFFFFF);
+                //-1
+                printf("u 0xFFFFFFFF = %u\n", 0xFFFFFFFF);
+                //max unsigned int
+                //WARN expects unsigned int, found int
+                    //printf("u -1 = %u\n", -1);
+                printf("ld 1L = %ld\n", 1L);
+                //WARN expects unsigned int, found int
+                    //printf("u -1 = %lu\n", -1);
+                printf("lld = %lld\n", 0x100000000LL); //long long (int)
+                printf("%d %d\n",1,2);
+
+                printf("f = %f\n", 1.0f);
+                printf(".2f = %.2f\n", 1.0f);
+                printf("0.2f = %.0f\n", 1.0f);
+                printf("7.2f = %7.2f\n", 1.0f); //at least 7 chars: add spaces. used to make tables.
+                printf(".2e = %.2e\n", 1.0f);
+                printf(".*e = %.*e", 2, 1.0f); //treat precision as a parameter
+
+                printf("%s\n", "a string");
+                printf("%s\n", "\t<<< \\t tab char");
+                printf("%s\n", "\0<<< \\0 null char");
+
+                printf("%c\n", 'a');
+                printf("%d\n", 'a');
+
+                printf("%x\n", 16);
+
+                float f;
+                printf("(void*)&f = %p\n",(void*)&f);
+                //prints the 0x address.
+                //%p must get a void pointer
+                //void* is a type, different than void. doing type cast to it.
+
+                printf("%%<<< escaping percentage\n");
+            }
+
+            //read from stdin
+            if(0)
+            { //gets annoying after some time
+
+            //gets: deprecated.
+                //dangerous: no size check
+        
+                //gets is deprecated in c11! http://www.cplusplus.com/reference/clibrary/cstdio/fgets/
+                //printf("enter a string terminated by newline: (max %d chars, newline will be included in the string)\n", sn);
+                //gets(s);
+                //printf("you entered:\n%s\n\n",s);
+
+            //scanf : dangerous
+                //input is space separated
+                //nothing happens on error
+            
+                int i, j;
+                float f;
+                printf("enter an integer in decimal and a newline (max 32 bits signed):\n");
+                i = scanf("%d", &i);
+                printf("you entered:\n%d\n\n", i);
+                i++;
+                //stuff is space separated
+                //try 123 456 789 at once. 456 789 stay in the buffer, and are eaten by the second scanf
+                
+                printf("enter an integer, a space, an integer and a newline (max 32 bits signed):\n");
+                i = scanf("%d %d", &i, &j);
+                printf("you entered:\n%d %d\n\n", i, j);
+
+                printf("enter a float and a newline:\n");
+                i = scanf("%f", &f);
+                printf("you entered:\n%.2f\n\n", f);
+
+                printf("enter an integer in hexadecimal and a newline: (max 32 bits signed)\n");
+                i = scanf("%x", &i);
+                printf("you entered (in decimal):\n%d\n\n", i);
+
+            //fgets + error checking: best method
+        
+            }
+
+            //TRY: echo "123" | ./c_cheatsheet.out
+                //this will use stdin from a pipe! no user input
+        }
+
+        puts("time.h");
+        {
+            printf( "%ld seconds since 1970-01-01:\n", time(NULL) );
+                //real world time
+
+            puts("program virtual time:\n");
                 clock_t t;
                 t = clock();
                 intSumProf(nProfRuns);
-                //NOTE
+                    //NOTE
                     //optimizer may simply skip your useless test operations
                     //and very little time will have passed
                     //
                     //clock() is only an approximation, and if too little time
                     //passes, it may return 0
                 t = clock() - t;
-                printf( "clicks %d\n", t );
-                printf( "clocks per sec %d\n", CLOCKS_PER_SEC );
+                printf( "clicks %llu\n", (unsigned long long)t );
+                    //no specifier for this
+                    //so cast to largest thing possible and print
+                printf( "clocks per sec %ld\n", CLOCKS_PER_SEC );
                 printf( "seconds %f\n", ((float)t)/CLOCKS_PER_SEC );
         }
 
-    puts("math.h");
-        //constants
- 
-            /*printf("M_PI = %.2f\n", M_PI);*/
-            //printf("M_PI_2 = %.2f\n", M_PI_2);
-            //printf("M_PI_4 = %.2f\n", M_PI_4);
-            //DEPRECATED
+        puts("math.h");
+        {
+            //constants
+            {
+                //printf("M_PI = %.2f\n", M_PI);
+                //printf("M_PI_2 = %.2f\n", M_PI_2);
+                //printf("M_PI_4 = %.2f\n", M_PI_4);
+                    //DEPRECATED
+                    //C99
+                    //used to be in math.h
+                    //better off with const int
+            }
+
+            assert( fminl(0.1,0.2) == 0.1 );
+            assert( fmaxl(0.1,0.2) == 0.2 );
                 //C99
-                //used to be in math.h
-                //better off with const int
+            
+            assert( abs(-1.1)  == 1 );
+            assert( fabsl(-1.1) == 1.1 );
 
-        //C99
-        assert( fminl(0.1,0.2) == 0.1 );
-        assert( fmaxl(0.1,0.2) == 0.2 );
-        
-        assert( abs(-1.1)  == 1 );
-        assert( fabsl(-1.1) == 1.1 );
-
-        //random
             puts("random");
+            {
 
                 srand ( time(NULL) );
-                i = rand(); //integer between 0 and RAND_MAX
-                f = rand()/(float)RAND_MAX; //float between 0 and 1
-
-    puts("preprocessor");
-
-#define A B
-#define B 1
-        assert( A == 1 );
-
-        //gcc -DCOMMANDLINE c.c
-        //gcc c.c
-#ifdef COMMANDLINE
-        puts("C");
-#else
-        puts("no C");
-#endif
-
-    puts("");
-
-    //libraries
- 
-    //directory operations
-        //no standard portable way! http://www.devarticles.com/c/a/Cplusplus/Directories-in-Cplusplus/
-        //linux: sys/stat.h, unistd.h
-        //windows: direct.h
-        //portable heavyweight: booost: #include <boost/filesystem/operations.hpp>
-        //portable lightweight: dirent.h
-        
-        //linux only if you don't care!
-        if(0)
-        {
-            if( mkdir("newdir",0777) == -1 )
-            {
-                puts("could not create newdir");
-            }
-            else
-            {
-                puts("newdir created");
-            }
-
-            puts("enter to remove newdir:");
-            char* cp = gets(s);
-            
-            if( rmdir("newdir") == -1 )
-            {
-                puts("could not remove newdir");
-            }
-            else
-            {
-                puts("newdir removed");
+                int i = rand();
+                    //integer between 0 and RAND_MAX
+                float f = rand()/(float)RAND_MAX;
+                    //float between 0 and 1
             }
         }
-
-        //path operations
-        //puts(realpath("."));
+    }
 
 #ifdef PROFILE
+
         intSumProf(nProfRuns);
         intAssignProf(nProfRuns);
         intSubProf(nProfRuns);
@@ -1214,13 +1324,90 @@ int main(int argc, char** argv)
         floatSubProf(nProfRuns);
         floatMultProf(nProfRuns);
         floatDivProf(nProfRuns);
+        funcCallProf(nProfRuns);
+
         //putsProf(nProfRuns);
             //BAD
             //don't do stdout on profiling
             //system time is not counted anyways
+
 #endif
 
+#ifdef POSIX
+
+        //memory usage
+        {
+            struct rusage {
+                struct timeval ru_utime; /* user time used */
+                struct timeval ru_stime; /* system time used */
+                long   ru_maxrss;        /* maximum resident set size */
+                long   ru_ixrss;         /* integral shared memory size */
+                long   ru_idrss;         /* integral unshared data size */
+                long   ru_isrss;         /* integral unshared stack size */
+                long   ru_minflt;        /* page reclaims */
+                long   ru_majflt;        /* page faults */
+                long   ru_nswap;         /* swaps */
+                long   ru_inblock;       /* block input operations */
+                long   ru_oublock;       /* block output operations */
+                long   ru_msgsnd;        /* messages sent */
+                long   ru_msgrcv;        /* messages received */
+                long   ru_nsignals;      /* signals received */
+                long   ru_nvcsw;         /* voluntary context switches */
+                long   ru_nivcsw;        /* involuntary context switches */
+            };
+            int getrusage(rusage_self, *usage);
+            //RUSAGE_CHILDREN
+                //cur process only
+            //RUSAGE_CHILDREN
+                //children that terminated and have been waited for
+        }
+        
+        //directory operations
+        {
+            //no standard portable way! http://www.devarticles.com/c/a/Cplusplus/Directories-in-Cplusplus/
+            //linux: sys/stat.h, unistd.h
+            //windows: direct.h
+            //portable heavyweight: booost: #include <boost/filesystem/operations.hpp>
+            //portable lightweight: dirent.h
+            
+            //POSIX only if you don't care!
+            if(0)
+            {
+                if( mkdir("newdir",0777) == -1 )
+                {
+                    puts("could not create newdir");
+                }
+                else
+                {
+                    puts("newdir created");
+                }
+
+                puts("enter to remove newdir:");
+                char* cp = gets(s);
+                
+                if( rmdir("newdir") == -1 )
+                {
+                    puts("could not remove newdir");
+                }
+                else
+                {
+                    puts("newdir removed");
+                }
+            }
+        }
+
+        //path operations
+        {
+            //puts(realpath("."));
+        }
+#endif
+
+    puts("");
+    puts("==================================================");
+    puts("= ALL ASSERTS PASSED");
+    puts("==================================================");
+
     //main returns status
-        return EXIT_SUCCESS;
-        return EXIT_FAILURE;
+    return EXIT_SUCCESS;
+    return EXIT_FAILURE;
 }

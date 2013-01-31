@@ -516,10 +516,16 @@ class Class :
         //copy constructor
             //classes already have this by default
             //useful to customize if class does dynamic allocation!
-        Class(const Class& c) : i(c.i), z(c.z), m(c.m)
-        {
-            cout << "Class::Class(Class)" << endl;
-        }
+            Class(const Class& c) : i(c.i), z(c.z), m(c.m)
+            {
+                cout << "Class::Class(Class)" << endl;
+            }
+
+            //classes don't have constructors from base by default
+            Class(const Base& b) : Base(b)
+            {
+                cout << "Class::Class(Base)" << endl;
+            }
 
         //assign operator
             //all classes come with a default
@@ -1389,9 +1395,10 @@ int main(int argc, char** argv)
 
             {
                 Base b;
-                //Class c(b);
-                    //ERROR
-                    //no constructor
+                Class c(b);
+                    //NOTE
+                    //no default copy from base
+                    //you must write one yourself
             }
 
             {

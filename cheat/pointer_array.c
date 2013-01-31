@@ -1,123 +1,185 @@
 #include <stdio.h>
 #include <stdlib.h> //for memcpy
 #include <string.h> 
+#include <assert.h> 
+#include <wchar.h> 
+#include <locale.h>
+
+int* getArr(int i)
+{
+    //int is[] = {i};
+    //return is;
+        //WARN
+        //return adress of local var
+        //data is destroyed on return!
+
+    int* ip = (int*) malloc (sizeof(int)*1);
+    return ip;
+}
 
 //cheatsheet on pointers and arrays
-void print_22_array(int **mat, int m, int n)
+void print_array(int **mat, int m, int n)
 {
 
     int i, j;
 
-    for(i=0; i<m; i++ ){
-        for(j=0; j<n; j++ ){
+    for(i=0; i<m; i++ )
+    {
+        for(j=0; j<n; j++ )
+        {
             printf("%d ", mat[i][j]);
         }
         printf("\n");
     }
 }
 
-int main(){
+int main()
+{
 
-    int i=33, j;
-    int *pi, *pi2;
-    //must declare like that: multiple stars
-    float* fp;
     enum { mc=2, nc=4 };
 
-    puts("\npointers\n");
-
-        //*pi = 7; //bad! pi points to random address. segmentation fault coming.
-        //segmentation fault: target memory not allocated! only pointer memory
-
+    //pointer
+    {
+        int i;
+        int* pi, *pi2;
+        //*pi = 7;
+            //BAD
+            //you are modifying some random piece of memory!!!!
+            //must declare like that: multiple stars
         pi = &i;
-
-        printf("i = %d\n",i);
-        *pi = 55;
-        printf("i = %d\n",i);
-        printf("*pi = %d\n",*pi);
+        *pi = 1;
+        assert( i == 1 );
+        assert( *pi == 1 );
+        i = 2;
+        assert( i == 2 );
+        assert( *pi == 2 );
 
         printf("(void*)pi = %p\n",(void*)pi);
         printf("(void*)(pi+1) = %p\n",(void*)(pi+1));
+        printf("NULL = %p\n",NULL);
 
         pi2 = pi+1;
         printf("(void*)(pi2-pi) = %p\n",(void*)(pi2-pi));
 
-        printf("NULL = %p\n",NULL);
-
-        //fp = &i;
+        //float* fp = &i;
             //ERROR
             //incompatible pointer type
+    }
 
-    puts("arrays");
+    //array
+    {
+        {
+            {
+                int is[3];
+                is[0] = 0;
+                is[1] = 1;
+                is[2] = 2;
+                assert( is[0] == 0 );
+                assert( is[1] == 1 );
+                assert( is[2] == 2 );
+            }
 
-        puts("creation");
-            int is[3];
-            is[0] = 1;
-            is[1] = 3;
-            is[2] = 2;
+            {
+                int is[] = {0,1,2};
+                assert( is[0] == 0 );
+                assert( is[1] == 1 );
+                assert( is[2] == 2 );
+                    //allocates exact size
+                //is = {3,4,5};
+                    //ERROR
+            }
+            
+            {
+                int is[4] = {1,2};
+                assert( is[0] == 1 );
+                assert( is[1] == 2 );
+                assert( is[2] == 0 );
+                assert( is[3] == 0 );
+            }
+            
+            {
+                //int is[2] = {1, 3, 2};
+                    //WARN too small
+            }
 
-            int is2[] = {1, 3, 2}; //allocates exact size
-            int is9[5] = {1, 3, 2}; //allocates 5, non-specified = 0: is3[0] = 1, ... , is3[3] == is3[4] == 0
-            //WARN too small
-                //int is3[2] = {1, 3, 2};
-            //int * is4 = {1, 3, 2}; //TODO ? why not like string. is it because 1,3,2 are just text, and are represented as such on the text part, and not as ints?
+            //variable length
+            {
+                //enum
+                {
 
-            //scanf("%d",&i);
-            //int isVla[i];
-                //NOTE
-                //- introduced in c99
-                //- called variable length array (VLA)
-                //- implementation:
-                    //increase/decrease stack pointer
-                    //requires one addition and one multiplication per declaration
-                //- not in standard c++, but gcc implements it as an extra feature
+                    enum M {M=3};
+                    int is[M];
+                    is[2] = 1;
 
-            puts("enum");
-                enum M {M=3};
-                int is5[M];
-                is5[2] = 1;
-                printf("%d\n",is5[2]);
+                }
 
-            //DON'T DO THIS! *no scope*, so you can't use N anymore.
-                //use enum instead
-            puts("define");
-#define N 3
-                int is4[N];
-                is4[2] = 1;
-                printf("%d\n",is4[2]);
+                //define
+                {
 
-            char str2[] = "Hi world!"; //allocates on stack
-            str2[0] = 'a';
+#define DEFINESIZE 3
+                    //BAD
+                    //*no scope*, so you can't use N anymore.
+                    //use enum instead
+                    int is[DEFINESIZE];
+                    is[2] = 1;
 
-            char* str3 = "Hi world!"; //points to the text segment (program itself): not modifiable TODO confirm
-            //ERROR
-            //str3[0] = 'a';
-                //data segment cant me modified!!
-        puts("");
+                }
+
+                //VLA
+                {
+
+                    //int n
+                    //scanf("%d",&n);
+                    //int isVla[n];
+                        //NOTE
+                        //- introduced in c99
+                        //- called variable length array (VLA)
+                        //- implementation:
+                            //increase/decrease stack pointer
+                            //requires one addition and one multiplication per declaration
+                        //- not in standard c++, but gcc implements it as an extra feature
+                
+                }
+
+            }
+
+        }
  
-        puts("access");
-            printf("is[0] = %d\n",is[0]);
-            printf("is[1] = %d\n",is[1]);
-            printf("is[2] = %d\n",is[2]);
-            puts("");
-
         //pointers and arrays are different
+        {
             puts("pointers and arrays are different types:");
             printf("sizeof(int) = %d\n",sizeof(int));
             printf("sizeof(int*) = %d\n",sizeof(int*));
             printf("sizeof(int[3]) = %d\n",sizeof(int[3]));
-            //printf("sizeof(int[]) = %d\n",sizeof(int[])); //error: incomplete type!
+            //printf("sizeof(int[]) = %d\n",sizeof(int[]));
+                //ERROR
+                //incomplete type!
+        }
 
-        //
-            //locations in memory of an array
+        //locations in memory of an array
+        {
+            int is[3];
             puts("locations of array:");
-            printf("(void*)is = %p\n",(void*)is); //prints the 0x address. %p must get a void pointer
+            printf("(void*)is = %p\n",(void*)is);
             printf("(void*)&is[0] = %p\n",(void*)&is[0]);
             printf("(void*)&is[1] = %p\n",(void*)&is[1]);
             printf("(void*)&is[2] = %p\n",(void*)&is[2]);
+        }
 
+        //for combo
+        {
+            int is[] = {0,1,2};
+            int i;
+            for(i=0; i<3; i++ )
+            {
+                printf("%d ",is[i]);
+            }
+        }
 
-        //overflowing
+        {
+        //BAD
+            //overflow
+
             //printf("%d\n",is[3]);
             //is[3]=0;
             //printf("%d\n",is[1000000]);
@@ -131,41 +193,52 @@ int main(){
             
             /*printf("%d\n",is[100000]);*/
             //might run: only get segmentation fault if you hit exactly the last position!
+        }
 
-        //for combo
-            for(i=0; i<3; i++ ){
-                printf("%d ",is[i]);
-            }
-            puts("");
+        //compare
+        {
+            //memcmp is faster than for loop
+            //one catch: float NaN
 
-            //don't use this to copy: use memcpy instead
-            for(i=0; i<=3; i++ ){
-                printf("%d ",is[i]);
-            }
-            printf("\n");
+            int is[] = {0,1,2};
+            int is2[] = {0,1,2};
 
-            memcpy(is,is2,3*sizeof(int));
-            //copy 3*4 bytes from one is7 to is
-            //more efficient than for: direct memory copyint, no i++ or i<n? check
+            assert( is != is2 );
+                //compares addresses, not data!
+            
+            assert( memcmp( is, is2, 3 * sizeof(int)) == 0 );
+            is[1] = 0;
+            assert( memcmp( is, is2, 3 * sizeof(int)) < 0 );
+            is[1] = 2;
+            assert( memcmp( is, is2, 3 * sizeof(int)) > 0 );
+        }
+
+        //copy
+        {
+            int is[] = {0,1,2};
+            int is2[3];
+
+            //for(i=0; i<3; i++ ){
+            //    is2[i] = is[i];
+            //}
+                //SLOW
+                //use memcpy insted
+
+            memcpy(is2,is,3*sizeof(int));
+                //copy 3*4 bytes from one is7 to is
+                //more efficient than for: direct memory copyint, no i++ or i<n? check
+            assert( memcmp( is, is2, 3 * sizeof(int)) == 0 );
     
-            //C99 allows you to do this
-                memcpy(&is, &(int [5]){ 1,3,2 }, sizeof(is) );
+            memcpy(&is, &(int [5]){ 0,1,2 }, sizeof(is) );
+                //C99
+            assert( memcmp( is, &(int [5]){ 0,1,2 }, 3 * sizeof(int)) == 0 );
+        }
 
-        //can be of any type
-            float fs[] =    {1,2,3,-2};
-            printf("%f\n",fs[0]);
-        
-        //null terminated char array is a string!
-            char cs[] = "Hello World";
-            wchar_t  wideString[] = L"asdf";
-            wchar_t  wideString2[] = L"中文";
-
-            //wchar_t  wideString2[] = "asdf";
-                //ERROR
-                //non wide init
-            printf("%s\n",cs);
-        
-        //matrix pattern
+        //multidim
+            //BAD
+            //never use this
+            //always use single dim
+        {
             int *m1[2];
             int m11[] = {1,2,3};
             int m12[] = {4,5,6,7};
@@ -209,19 +282,22 @@ int main(){
                 //    and ensure they all have the *same size*, and then take that size,
                 //    but this would take a long time, so it just forces the user to input this
 
-                    //pass multidimentional arrays to functions
+                    {
+                        //pass multidimentional arrays to functions
                         puts("\npass multidim to func:");
                         //*never do that*: pass an array, and give m and n
                         //this is just to understand arrays better.
-                        int * mat[mc]; //two int pointers
+                        int* mat[mc]; //two int pointers
                         int mat1[][3] = {
                             {1,2,3},
                             {4,5,6}
                         };
+                        int i;
                         for (i=0; i<mc; i++){
                             mat[i] = mat1[i]; //first points to the int at address 0 of the matrix mat1
                         }
-                        print_22_array(mat,2,3);
+                        print_array(mat,2,3);
+                    }
 
             //multidimentional > 2
     
@@ -257,25 +333,152 @@ int main(){
                 //};
 
             //matrix pattern
-                printf("\n");
-                for(i=0; i<2; i++ ){
-                    printf("\n");
-                    for(j=0; j<3; j++ ){
-                        printf("%d ",m1[i][j]);
+            {
+                int i, j;
+                for( i=0; i<2; i++ )
+                {
+                    printf( "\n" );
+                    for( j = 0; j < 3; j++ )
+                    {
+                        printf( "%d ", m1[i][j] );
                     }
                 }
-                printf("\n\n");
+                printf( "\n\n" );
+            }
+        }
 
-    //malloc: dynamic allocation
-        i = 8;
+        //string
+        {
+            //text segment
+            {
+                char cs[] = "abc";
+                //char cs[] = {'a','b','c','\0'}
+                    //SAME
+                    //BAD
+                    //harder to write
+                    //you may forget the '\0'
+                assert( cs[0] == 'a'  );
+                assert( cs[1] == 'b'  );
+                assert( cs[2] == 'c'  );
+                assert( cs[3] == '\0' );
+                    //NOTE
+                    //use '\0' always
+                    //c std functions use that to see where string ends
+
+                cs[0] = 'A';
+                assert( cs[0] == 'A'  );
+
+                //cs = "Abc";
+                    //ERROR
+            }
+
+            //std string functions
+            {
+                //use '\0' to see ther string ends
+
+                char cs[] = "abc";
+                char cs2[3];
+
+                printf( "%s\n", cs );
+                    //abc
+
+                //copy
+                    strcpy( cs2, cs );
+                        //more efficient than for loop
+                    strcpy( cs2, "abc" );
+                        //OK
+
+                //compare
+                    assert( strcmp( cs, cs2 ) == 0 );
+                        //equality
+                    cs[1] = 'a';
+                    assert( strcmp( cs, cs2 ) < 0 );
+                        //smaller
+                    cs[1] = 'd';
+                    assert( strcmp( cs, cs2 ) > 0 );
+                        //larget
+            }
+    
+            //text segment
+            {
+                char* cs = "abc";
+                assert( cs[0] == 'a' );
+                    //NOTE
+                    //points to the text segment
+                    //very memory efficient
+                
+                //cs[0] = 'a';
+                    //ERROR
+                    //text segment cannot me modified
+                
+                //int * is = {1, 3, 2};
+                    //WARN
+                    //can't do this
+                    //think:
+                    //- chars are exactly as in the text segment
+                    //- integer 1 is not represented as a single byte char '1'
+                    //    but as 4 bytes
+            }
+
+            //unicode
+            {
+                char cs[] = "汉语";
+                printf("%s\n",cs);
+
+                //cs[0] = 'a';
+                //printf("%s\n",cs);
+                    //BAD
+                    //only changes first byte
+                    //you get trash all over
+                
+                //cs[0] = '英';
+                    //WARN
+                
+                //cs[0] = L'英';
+                    //WARN
+
+                setlocale( LC_CTYPE, "" );
+                    //NOTE
+                    //need this to print
+
+                wchar_t  wcs[] = L"汉语";
+
+                printf( "%ls\n", wcs );
+
+                wcs[0] = L'英';
+                printf( "%ls\n", wcs );
+
+                wcs[0] = L'a';
+                printf( "%ls\n", wcs );
+
+                //wchar_t  wideString2[] = "asdf";
+                    //ERROR
+                    //non wide init
+            }
+        }
+    }
+
+    //dynamic
+    {
+        //vs VLA
+        //- no scope
+        //
+        //      therefore can be allocated in functions
+        //      and returned to caller
+        //
+        //- heap much larger than stack
+
+        int i = 8;
         size_t bytes = sizeof(char)*i;
-        char * cp = (char*) malloc (bytes);
-        if (cp == NULL) {
+        char* cp = (char*) malloc (bytes);
+        if (cp == NULL)
+        {
             printf("could not allocate %zu bytes", bytes);
         }
         strcpy(cp,"0123456");
         printf("%s\n", cp);
         free(cp);
+    }
 
     return 0;
 }
