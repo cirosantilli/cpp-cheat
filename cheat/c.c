@@ -201,6 +201,23 @@ TODO
 
         <http://www.stack.nl/~dimitri/doxygen/docblocks.html>
 
+    - inline
+
+        function is copied pasted instead of called
+
+        effects:
+
+        - avoids function call, thus potentially faster
+        - code gets larger
+        - function pointer comparisons may differ for the same function
+        - instruction cache might be come less efficient making thigs slower
+
+        sources:
+
+        - <http://www.greenend.org.uk/rjk/tech/inline.html>
+            
+            some warnings about inline and its usage
+
 #hot libraries
 
     #opengl
@@ -374,6 +391,14 @@ int windowsVar;
             doNothing();
     }
 
+    static inline void inlineDoNothing(){}
+
+    void inlineFuncCallProf(int n)
+    {
+        int i;
+        for( i=0; i<n; i++ )
+            inlineDoNothing();
+    }
 
     void intSumProf(int n)
     {
@@ -444,34 +469,6 @@ int main(int argc, char** argv)
 {
     //base types and variables
     {
-        //allowed variable names: _,[a-Z],[0-9], canot start with number
-        
-        puts("\nbase types");
-        int i=5,j=7; //31 bit + 1 sign bit integer
-        int* ip = &i;
-        //int i;
-        //i = 5;
-        //
-        //int i=5;
-        //int j=7;
-        unsigned int ui;
-            //applications:
-                //array indexes
-                //size_t
-        long int li = 8L;
-        long long lli = 8LL; //64 bit int. defined in C99
-        float f = 1.2345f;    //1 signal 23 number 8 exponent
-        float f1 = 1.2345e-10f;
-        float f2 = 1.f;
-        //float f = 1f;
-            //ERROR
-            //there must be a dot
-        double d = 6.789;
-        char c = 'a';
-        char *cp;
-        char s[8] = "s";
-        int sn = 8;
-
         //inner scopes inside functions
         {
             int i;
@@ -484,98 +481,208 @@ int main(int argc, char** argv)
             }
         }
 
-        size_t size = sizeof(int);
-        printf( "sizeof(int) = %zu\n", sizeof(int) ); //how many bytes per int
-        //4
-        printf( "sizeof(long int) = %zu\n", sizeof(long int) ); //int and long int may be equal!!!!!! this is plataform dependent
-        //4
-        printf( "sizeof(long long) = %zu\n", sizeof(long long) ); //int and long int may be equal!!!!!! this is plataform dependent
-        //8
-        printf( "sizeof(wchar_t) = %zu\n", sizeof(wchar_t) ); //compiler specific
-        printf( "sizeof(size_t) = %zu\n", sizeof(size_t) );   //compiler specific
-
-        //modifiers for int and float
-            //short
-            //long
-            //signed
-            //unsigned 
-            
-            //stardard specifies not necessarily smaller!!!
-                //short int <=    int <= long int
-                //float <= double <= long double
-            
-            //in practice today (could change in the future):
-                //short int             2             -32,768 -> +32,767          (16kb)
-                //unsigned short int    2                   0 -> +65,535          (32Kb)
-                //unsigned int          4                   0 -> +4,294,967,295   ( 4Gb)
-                //int                   4      -2,147,483,648 -> +2,147,483,647   ( 2Gb)
-                //long int              4      -2,147,483,648 -> +2,147,483,647   ( 2Gb)
-                //long long == long int 8      (created in C99)
-                //unsigned long long
-                //signed char           1                -128 -> +127
-                //unsigned char         1                   0 -> +255
-                //float                 4    
-                //double                8    
-                //long double           12   
-
-            //ERROR: unsigned flot does not exist!
-                //unsigned float uf = 1.0f;
-
-            {
-                int i = 0xFFFFFFFF; //max unsigned int
-                printf("i = %d\n", i);
-                //-1. too large for int!
-                i++;
-                printf("i = %d\n", i);
-                //0
-            }
-
-            {
-                unsigned int ui = 0xFFFFFFFF;
-                printf("ui = %u\n", ui);
-
-                //SAME
-                ui = -1;
-                printf("ui = %u\n", ui);
-            }
-
-            //TODO what is the difference between declaring a variable signed an unsigned?
-            //all that matters is the %u or %d in the printf?
-
-            //WARN overflow
-                //i = 0x100000000; //max int+1
-
-            //WARN constant too large (even for long long)
-                //lli = 0x10000000000000000; //max long long+1
-
-        //bases for integers
+        //variable declare/init
         {
-            assert( 16 == 0x10 );
+            //allowed variable/function/struct,enum names: _[a-Z0-9_]*
+            {
+                int _;
+                //int 0a;
+                    //ERROR
+            }
+            
+            {
+                int i;
+                i = 5;
+            }
+
+            {
+                int i = 5;
+                int j = 7;
+            }
+
+            {
+                int i = 5, j = 7;
+                    //31 bit + 1 sign bit integer
+            }
+        }
+
+        //base types and their constants
+        {
+            //integer types
+            {
+                char c = 'a';
+                char c1 = (char)1;
+                unsigned char uc = (unsigned char)1;
+                    //must typecast
+
+                short int si = (short int)1;
+                int i = 1;
+                long int li = (long int)1l;
+                long long lli = 8ll;
+                    //C99
+
+                unsigned short int usi = (unsigned short int)1u;
+                    //must typecast
+                unsigned int ui = 1u;
+                unsigned long int uli = 1lu;
+                unsigned long long int ulli = 1llu;
+            }
+
+            //float types
+            {
+                float f = 1.23f;
+                    //1 signal 23 number 8 exponent
+                float f1 = 1.23e-10f;
+                float f2 = 1.f;
+                //float f = 1f;
+                    //ERROR
+                    //there must be a dot
+
+                double d = 1.23;
+                long double ld = 1.23;
+            }
+        }
+
+        //sizeof
+        {
+            //stardard does not specifies exact sizes
+            //for machine indepencence
+
+            size_t size = sizeof(int);
+ 
+            puts("sizeof (bytes):");
+            printf( "char        = %zu\n",  sizeof(char)        );
+            printf( "int         = %zu\n",  sizeof(int)         );
+            printf( "long int    = %zu\n",  sizeof(long int)    );
+            printf( "long long   = %zu\n",  sizeof(long long)   );
+            printf( "float       = %zu\n",  sizeof(float)       );
+            printf( "double      = %zu\n",  sizeof(double)      );
+            printf( "long double = %zu\n",  sizeof(long double) );
+            printf( "wchar_t     = %zu\n",  sizeof(wchar_t)     );
+            printf( "size_t      = %zu\n",  sizeof(size_t)      );
+
+            assert( sizeof( short int ) <= sizeof( int )            );
+            assert( sizeof( int )       <= sizeof( long int )       );
+            assert( sizeof( long int )  <= sizeof( long long int )  );
+
+            assert( sizeof( float )     <= sizeof( double )         );
+            assert( sizeof( double )    <= sizeof( long double )    );
+                //equality is always possible!
+            
+            assert( sizeof( unsigned int ) == sizeof( int ) );
+            assert( sizeof( unsigned long int ) == sizeof( long int ) );
+                //unsigned does not change sizeof
+        }
+
+        //unsigned
+        {
+            //applications:
+                //array indexes
+                //memory sizes (size_t)
+
+            assert( (char)-1 == (char)255 );
+            assert( (unsigned char)-1 == (unsigned char)255 );
+                //true in 2's complement
+
+            assert( (char)0 > (char)255 );
+                //true in 2's complement
+            assert( (unsigned char)0 < (unsigned char)255 );
+                //what we really want
+        }
+
+        //overflow
+        {
+            //there is no automatic overflow check on operations
+            //except at initialization
+
+            //char c = 256;
+            //char c = 255+1;
+            //unsigned char c = 257;
+                //WARN
+            //lli = 0x10000000000000000;
+                //WARN constant too large (even for long long, the largest type)
+
+            char c = 255;
+            c++;
+                //OK
+                //not at initialization
+
+            assert( 1.00000000000000000000000000000000000000000000001 == 1.0 );
+                //OK
+                //lost of precision is not checked
+        }
+
+        //other bases for integers
+        {
+            assert( 16 == 0x10    );
+            assert( 16 == 0x10l   );
+            assert( 16 == 0x10ll  );
+            assert( 16 == 0x10u   );
+            assert( 16 == 0x10ul  );
+            assert( 16 == 0x10ull );
+                //hexa
             assert( 16 == 020 );
+                //octal
             assert( 16 == 0b10000 );
+                //binary
+        }
+
+        //typecast
+        {
+            float f = 1.0;
+            float f2 = (float)1.0;
+            double d;
+            d = f;
+            f = d;
+
+            printf("(double).1f = %f\n", (double).1f); //float to double
+                //WARN possible
+            printf("(float).1 = %f\n", (float).1); //double to float
+                //WARN possible
+            printf("(int).1f = %d\n", (int).1f);
+                //WARN possible
+            printf("(int)1L = %d\n", (int)1L); //long to int
+            printf("(long)1 = %ld\n", (long)1); //int to long
+
+            printf("(int*)&f = %p\n", (int*)&f); //any pointer typecast is ok to compiler
+            printf("(int)&f = %d\n", (int)&f);   //memory address of pointer
+
+            int is3[3];
+            int is4[4];
+            int* ip = (int*)is3; //is[3] to int*
+            //ERROR
+                //is3=(int[3])is4;
+            //ERROR pointer to int[]
+                //is3=is4;
         }
         
         //const
         {
+            int i = 0;
             const int ic = 0;
             //int const ic = 0
                 //exact same thing!
             const int ic2 = i;
 
-            //ERROR: consts are... almost consts! (you can change them with a warning)
-                //ic = 1;
-            //ERROR: i already defined
-                //int i = 0;
-                //const int i = 0;
+            //ic = 1;
+                //ERROR
+                //consts are... almost consts!
+                //(you can change them with a warning)
+            
+            //int i = 0;
+            //const int i = 0;
+                //ERROR
+                //i already defined
 
-            //WARN: discards const. in c++, error!
-                //ip = &ic;
-                //*ip = 2;
+            //ip = &ic;
+            //*ip = 2;
+                //WARN: discards const. in c++, error!
                 //we changed the const!
-                    //this is why you can't int is[constint]; !!
-                    //because you can compile with only a warning and change a const
+                //this is why you can't int is[constint]; !!
+                //because you can compile with only a warning and change a const
                 
             //const pointers
+            {
                 //3 types:
                     //const*
                     //*const
@@ -588,60 +695,50 @@ int main(int argc, char** argv)
                 //ERROR: const prevents from changing value
                     //*cip = 2;
 
-                //BAD compiles without warning, but is bad since ic3 cannot get a value
+                const int ic3;
+                    //BAD
+                    //compiles without warning, but is bad since ic3 cannot get a value
                     //unless you typecast its pointer with a warning
-                    const int ic3;
 
-                //WARN
-                    //int * const ipc = &ic;
-                //ERROR: this time what the address the pointer points to is constant
-                //not its value!
-                    //ipc = &ic2;
-                //BAD: we changed the value!
-                    //*ipc = 2;
+                //int * const ipc = &ic;
+                    //WARN
+
+                //ipc = &ic2;
+                    //ERROR: this time what the address the pointer points to is constant
+                    //not its value!
+                //*ipc = 2;
+                    //BAD: we changed the value!
                 
                 const int* const cipp = &ic;
 
-            const int cis2[2] = {1,2};
-            //ERROR
-                //cis2[0] = 1;
+                const int cis2[2] = {1,2};
+                //ERROR
+                    //cis2[0] = 1;
+            }
 
             //scanf("%d",&i);
             //const 
-                //NOTE consts are *not* "compile time constants"
+                //NOTE
+                //consts are *not* "compile time constants"
                 //they are only constant after they are declared
                 //this is another reason why you can't use them
-                //as arrays sizes without VSA
-        }
-
-        //typecast
-        {
-            printf("(double).1f = %f\n", (double).1f); //float to double
-            //WARN possible
-                printf("(float).1 = %f\n", (float).1); //double to float
-            //WARN possible
-                printf("(int).1f = %d\n", (int).1f);
-            //WARN possible
-                printf("(int)1L = %d\n", (int)1L); //long to int
-            printf("(long)1 = %ld\n", (long)1); //int to long
-
-            printf("(int*)&f = %p\n", (int*)&f); //any pointer typecast is ok to compiler
-            printf("(int)&f = %d\n", (int)&f);   //memory address of pointer
-
-            int is3[3];
-            int is4[4];
-            ip = (int*)is3; //is[3] to int*
-            //ERROR
-                //is3=(int[3])is4;
-            //ERROR pointer to int[]
-                //is3=is4;
+                //as arrays sizes without VLA
         }
     }
 
     //typedef
     {
-        typedef int NEWINT;
-        NEWINT i = 1;
+        //on stdlib, convention append "_t" to typedefs is used
+        //ex: ``size_t``, ``wchar_t``, etc
+        
+        {
+            typedef int NEWINT;
+            NEWINT i = 1;
+            assert( sizeof(NEWINT) == sizeof(int) );
+        }
+
+        //NEWINT i = 1;
+            //typedef has scope
     }
 
     //enum
@@ -764,7 +861,7 @@ int main(int argc, char** argv)
 
         //assign
         {
-            struct S s  =  { 1, 1.0 };
+            struct S s  = { 1, 1.0 };
             struct S s2 = { 2, 2.0 };
             s = s2;
             assert( s.i == 2 );
@@ -787,24 +884,24 @@ int main(int argc, char** argv)
     {
         puts("arithmetic");
         {
-            assert( (1+2) == 3 );
-            assert( (2*3) == 6 );
-            assert( (4/2) == 2 );
-            assert( (1/2) == 0 );
-            assert( (1.0/2.0) == 0.5 );
-            assert( (1  /2.0) == 0.5 );
-            assert( (1/(double)2) == 0.5 );
+            assert( ( 1 + 2 )        == 3   );
+            assert( ( 2 * 3 )        == 6   );
+            assert( ( 4 / 2 )        == 2   );
+            assert( ( 1 / 2 )        == 0   );
+            assert( ( 1.0 / 2.0 )    == 0.5 );
+            assert( ( 1 / 2.0 )      == 0.5 );
+            assert( ( 1 / (double)2) == 0.5 );
 
-            assert( (3%3) == 0 );
-            assert( (4%3) == 1 );
-            assert( (5%3) == 2 );
-            assert( (6%3) == 0 );
+            assert( ( 3 % 3 ) == 0 );
+            assert( ( 4 % 3 ) == 1 );
+            assert( ( 5 % 3 ) == 2 );
+            assert( ( 6 % 3 ) == 0 );
         }
 
         puts("boolean");
         {
-            assert( (1==1) == 1 );
-            assert( (0==1) == 0 );
+            assert( ( 1 == 1 ) == 1 );
+            assert( ( 0 == 1 ) == 0 );
 
             assert( ( 0 >  1 ) == 0 );
             assert( ( 0 >  0 ) == 0 );
@@ -813,12 +910,12 @@ int main(int argc, char** argv)
             assert( ( 0 <  0 ) == 0 );
             assert( ( 0 < -1 ) == 0 );
 
-            assert( (0 >=  1) == 0 );
-            assert( (0 >=  0) == 1 );
-            assert( (0 >= -1) == 1 );
-            assert( (0 <=  1) == 1 );
-            assert( (0 <=  0) == 1 );
-            assert( (0 <= -1) == 0 );
+            assert( ( 0 >=  1 ) == 0 );
+            assert( ( 0 >=  0 ) == 1 );
+            assert( ( 0 >= -1 ) == 1 );
+            assert( ( 0 <=  1 ) == 1 );
+            assert( ( 0 <=  0 ) == 1 );
+            assert( ( 0 <= -1 ) == 0 );
         }
 
         puts("bitwise");
@@ -910,10 +1007,10 @@ int main(int argc, char** argv)
             //same others bitwise, except ~=
         }
 
-        puts("conditional");
+        puts("question mark");
         {
-            assert( ( 1<2 ? 3 : 4 ) == 3 );
-            assert( ( 1>2 ? 3 : 4 ) == 4 );
+            assert( ( 1 < 2 ? 3 : 4 ) == 3 );
+            assert( ( 1 > 2 ? 3 : 4 ) == 4 );
         }
 
         puts("comma operator");
@@ -921,8 +1018,8 @@ int main(int argc, char** argv)
             //almost useless
             int i=0, a=1, b=2, c=3; //comma here is separator, not operator. same comma in functions calls/defs
 
-            assert( (i=0, 1) == 1 );  
-            assert( (i=0, i=1, 2) == 2 );             
+            assert( ( i = 0, 1        ) == 1 );  
+            assert( ( i = 0, i = 1, 2 ) == 2 );             
                 //ignores values on left
                 //takes only last value on right
                 //
@@ -1325,6 +1422,7 @@ int main(int argc, char** argv)
         floatMultProf(nProfRuns);
         floatDivProf(nProfRuns);
         funcCallProf(nProfRuns);
+        inlineFuncCallProf(nProfRuns);
 
         //putsProf(nProfRuns);
             //BAD

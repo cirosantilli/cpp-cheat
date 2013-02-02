@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -87,20 +88,24 @@ int main(){
     //ERROR
 
     puts("static variable in functions");
+    {
         withStaticVar();
-        //a = 2, sa = 2
+            //a = 2, sa = 2
         withStaticVar();
-        //a = 2, sa = 3
-    puts("");
+            //a = 2, sa = 3
+    }
 
     puts("func pointers");
-        printf( "%d\n", intFuncIntInt(&addInt,2,1) );
-        //3
-        printf( "%d\n", intFuncIntInt(&subInt,2,1) );
-        //1
-    puts("");
+    {
+        assert( addInt != subInt );
+        assert( intFuncIntInt(&addInt,2,1) == 3 );
+        assert( intFuncIntInt(&subInt,2,1) == 1 );
+    }
 
     //func in func
+        //UNPORTABLE
+        //gnu extension
+        //not standard
         //printf("fOut() = %d",fOut());
 
     return EXIT_SUCCESS;

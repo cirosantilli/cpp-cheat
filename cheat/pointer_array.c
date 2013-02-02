@@ -200,8 +200,8 @@ int main()
             //memcmp is faster than for loop
             //one catch: float NaN
 
-            int is[] = {0,1,2};
-            int is2[] = {0,1,2};
+            int is[]  = { 0, 1, 2 };
+            int is2[] = { 0, 1, 2 };
 
             assert( is != is2 );
                 //compares addresses, not data!
@@ -240,8 +240,8 @@ int main()
             //always use single dim
         {
             int *m1[2];
-            int m11[] = {1,2,3};
-            int m12[] = {4,5,6,7};
+            int m11[] = { 1, 2, 3    };
+            int m12[] = { 4, 5, 6, 7 };
             m1[0] = m11;
             m1[1] = m12;
 
@@ -252,22 +252,25 @@ int main()
                 //int m111[2][3];
                 //m111[0] = &(int*[3]){1,2,3};
         
-            int m2[][3] = {
-                {1,2,3},
-                {4,5,6}
+            int m2[][3] =
+            {
+                { 1, 2, 3 },
+                { 4, 5, 6 }
             };
             //allocates the exact ammount: 2 pointeres to int[3]
 
-            int m3[3][3] = {
-                {1,2,3},
-                {4,5,6}
+            int m3[3][3] =
+            {
+                { 1, 2, 3 },
+                { 4, 5, 6 }
             };
             //allocates 3x3, fills only 2x3. the rest is 0 or m3[0] gets a NULL pointer?
 
             //error: last must be there
-                //int m3[][] = {
-                //    {1,2,3},
-                //    {4,5,6,7}
+                //int m3[][] =
+                //{
+                //    { 1, 2, 3    },
+                //    { 4, 5, 6, 7 }
                 //};
                 //
                 //reason:
@@ -288,12 +291,14 @@ int main()
                         //*never do that*: pass an array, and give m and n
                         //this is just to understand arrays better.
                         int* mat[mc]; //two int pointers
-                        int mat1[][3] = {
-                            {1,2,3},
-                            {4,5,6}
+                        int mat1[][3] =
+                        {
+                            { 1, 2, 3 },
+                            { 4, 5, 6 }
                         };
                         int i;
-                        for (i=0; i<mc; i++){
+                        for( i = 0; i < mc; i++ )
+                        {
                             mat[i] = mat1[i]; //first points to the int at address 0 of the matrix mat1
                         }
                         print_array(mat,2,3);
@@ -301,15 +306,17 @@ int main()
 
             //multidimentional > 2
     
-                int m4[][2][3] = {
-                    { {1,2,3}, {4,5,6} },
-                    { {7,8,9}, {10,11,12} }
+                int m4[][2][3] =
+                {
+                    { { 1, 2, 3 }, { 4 , 5,  6 } },
+                    { { 7, 8, 9 }, { 10, 11, 12} }
                 };
                 //allocates exact amount for first: 2x2x2
                 
-                int m41[3][2][3] = {
-                    { {1,2,3}, {4,5,6} },
-                    { {7,8,9}, {10,11,12} }
+                int m41[3][2][3] =
+                {
+                    { { 1, 2, 3 }, { 4 , 5,  6 } },
+                    { { 7, 8, 9 }, { 10, 11, 12} }
                 };
                 //allocates one extra for first dimension
 
@@ -335,7 +342,7 @@ int main()
             //matrix pattern
             {
                 int i, j;
-                for( i=0; i<2; i++ )
+                for( i = 0; i < 2; i++ )
                 {
                     printf( "\n" );
                     for( j = 0; j < 3; j++ )
@@ -366,7 +373,7 @@ int main()
                     //c std functions use that to see where string ends
 
                 cs[0] = 'A';
-                assert( cs[0] == 'A'  );
+                assert( cs[0] == 'A' );
 
                 //cs = "Abc";
                     //ERROR
@@ -433,13 +440,10 @@ int main()
                 
                 //cs[0] = '英';
                     //WARN
-                
-                //cs[0] = L'英';
-                    //WARN
 
                 setlocale( LC_CTYPE, "" );
                     //NOTE
-                    //need this to print
+                    //need this to print correctly
 
                 wchar_t  wcs[] = L"汉语";
 

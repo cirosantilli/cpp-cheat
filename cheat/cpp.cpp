@@ -69,707 +69,798 @@ good general resources
 
 */
 
+#include <algorithm>
+#include <chrono>
+    //time operations
+#include <exception>
+    //exception base exception class
+        //bad_alloc	thrown by new on allocation failure
+        //bad_cast	thrown by dynamic_cast when fails with a referenced type
+        //bad_exception	thrown when an exception type doesn't match any catch
+        //bad_typeid	thrown by typeid
+        //ios_base::failure	thrown by functions in the iostream library
+#include <functional>
+    //helper arithmetic/logic functions for algorithms
 #include <iostream>
-//cout
-
+    //cout, endl
+#include <iterator>
+#include <memory>
+#include <mutex>
+#include <numeric>
+    //partial sums, differences on vectors of numbers
+#include <set>  
 #include <string>
     //string
 #include <sstream>
     //stream to a string
-
-#include <exception>
-//exception base exception class
-    //bad_alloc	thrown by new on allocation failure
-    //bad_cast	thrown by dynamic_cast when fails with a referenced type
-    //bad_exception	thrown when an exception type doesn't match any catch
-    //bad_typeid	thrown by typeid
-    //ios_base::failure	thrown by functions in the iostream library
-
+#include <thread>
+#include <typeinfo>
+    //get type of vars
 #include <vector>  
-#include <set>  
-#include <algorithm>
-
-#include <memory>
-
-#include <cstdlib>
 
 #include <cassert>
-
-#include <thread>
-#include <mutex>
-
-#include <chrono>
-//time operations
+#include <cstdlib>
 
 using namespace std;
-//namespace for entire source file from now on
- 
-class Member
+
+static vector<string> callStack;
+    //keeps a list of functions that called it
+    //for testing purposes
+
+void printCallStack()
 {
-    public:
-        Member(){ cout << "Member::Member()" << endl; }
-        Member(int i){ cout << "Member::Member(int)" << endl; }
-        ~Member(){ cout << "Member::~Member()" << endl; }
-
-        void method() { cout << "Member::method()" << endl; }
-
-        int i;
-};
-
-class Nested
-{
-    public:
-
-        Nested()
-        {
-            cout << "Nested::Nested()" << endl;
-        }
-};
- 
-class Base
-{
-    public:
-
-        /*
-        default constructor
-            if no constructor is declared, a default constructor is created
-
-            if any constructor is declared, even with non default args,
-            the default is not created
-         */
-        Base() : i(0), j(1) //list initialization
-        { 
-            cout << "Base::Base()" << endl; 
-            //this->i=0;
-            //this->j=1;
-                //BAD
-                //same as list init, except if i is an object
-                //to keep uniform style, always use list init
-
-            //ic=0;
-                //ERROR: ic is const. must be initialized in list initialization.
-
-            //Base b;
-                //BAD
-                //compiles but infinite loop!
-        }
-        /*
-        list initialization has 4 main uses:
-            1) avoid calling member object constructor
-            2) initializing base classes with non default constructors
-            3) initializing const elements
-            4) initializing member references &
-        */
-
-        Base(int i, int j) : i(i), j(j)
-        {
-            cout << "Base::Base(int, int)" << endl;
-        }
-
-        //virtual Base(float f){}
-            //ERROR constructor cannot be virtual
-  
-        Base(float f) : fs4{f,f,f,f}
-        {
-            cout << "Base::Base(float)" << endl;
-        } 
-            //C++11
-            //must init entire array
-
-        /*
-        destructor
-
-        called when:
-            1) statically allocated object goes out of scope
-            2) dynamically allocated object gets deleted
-
-        major application:
-            - delocate dynamic memory that was allocated on constructor
-
-        virtual:
-            not necessary
-            *but*
-            almost always what you want a polymorphic class to which there
-            will be pointers to base classes
-        */
-        virtual ~Base()
-        {
-            cout << "Base::~Base()" << endl;
-        }
-
-        void method()
-        {
-            cout << "Base::method()" << endl;
-            int i = iAmbiguous;
-            i = iStatic;
-            i = iConstStatic;
-        }
-
-        void constMethod () const;
-
-        //return references
-
-            const int& getPrivateConst() const { return this->iPrivate; }
-            //value cannot be changed
-            
-            int& getPrivate() { return this->iPrivate; }
-            //value can be changed
-            
-            //int& getPrivate() const { return this->iPrivate; }
-                //ERROR 
-                //const method cannot return noncosnt reference!
-
-            //int* getPrivateAddress() const { return &this->iPrivate; }
-                //ERROR
-                //const method cannot return noncosnt pointer!
-
-            const int* getPrivateAddressConst() const { return &this->iPrivate; }
-
-        void methodAmbiguous(){ cout << "Base::methodAmbiguous()" << endl; }
-
-        virtual void virtualMethod(){ cout << "Base::virtualMethod()" << endl; }
-        //virtual: decides on runtime based on object type
-            //http://stackoverflow.com/questions/2391679/can-someone-explain-c-virtual-methods
- 
-        virtual Base* covariantReturn()
-        {
-            cout << "Base:covariantReturn()" << endl;
-            return new Base;
-        }
-
-        virtual void covariantArg(Base* b)
-        {
-            cout << "Base:covariantArg()" << endl;
-        }
-    
-        int i,j;
-        //ERROR: cannot initialize here
-            //int i = 0;
-
-        int iAmbiguous;
-
-        int* is;
-
-        float fs4[4];
-
-        //BAD: every class must have an assigment operator
-        //but then, assigment does something like this->ic = other->ic
-        //you could redefine the assigment, but still in your new definition
-        //ic cannot be changed
-        //http://stackoverflow.com/questions/634662/non-static-const-member-cant-use-default-assignment-operator
-            //const int ic;
-    
-        //static
-        
-            static void staticMethod();
-
-            //static void staticMethod() const;
-                //ERROR
-                //static cannot be const
-
-            static int iStatic;
-            //ERROR
-                //static int iStatic = 0;
-                    //cannot initialize here unless const
-                //int iStatic;
-                    //conclicts with static int
-            
-            const static int iConstStatic = 0;
-            //OK: const static integral type
-
-            //const static float fConstStatic = 0.0;
-                //ERROR
-                //non integral type
-            
-            const static Member member;
-            //OK default constructor? why
-            
-            const static Member member2;
-            //const static Member member2 = Member();
-                //ERROR: non integral type
-                //must be init outside
-                //
-                //why integral types are an exception (complicated):
-                    //http://stackoverflow.com/questions/13697265/static-const-double-cannot-have-an-in-class-initializer-why-is-it-so
-
-        class Nested
-        {
-            public:
-
-                Nested()
-                {
-                    cout << "Base::Nested::Nested()" << endl;
-                    cout << "privateStaticInt: " << privateStaticInt << endl;
-                    //yes, you have private access
-                }
-
-                Member m;
-        };
-        
-        class Nested2
-        {
-            public:
-
-                Nested2()
-                {
-                    cout << "Base::Nested2::Nested2()" << endl;
-                }
-
-                Nested innerIn;
-                //inner one
-                
-                ::Nested innerOut;
-                //outter one
-        };
-
-    protected:
-
-        int iProtected;
-        void fProtected(){ cout << "Base::fProtected()" << endl; }
-
-    private:
-
-        int iPrivate;
-        void fPrivate(){ cout << "Base::fPrivate()" << endl; }
-        const static int privateStaticInt = 1;
-
-};
-
-void Base::constMethod () const
-{
-    //this->i = 2;
-        //ERROR
-        //cant assign member in const func
-    
-    //this->member.method();
-        //ERROR
-        //cant call non const method inside const method!
-        
-    //this->member.i = 1;
-        //ERROR
-        //cant assign member member in const method
-
-    cout << "Base::constMethod()" << endl;
+    cout << "callStack:" << endl;
+    for( vector<string>::iterator it = callStack.begin(); it != callStack.end(); ++it )
+        cout << *it << endl;
+    cout << "END callStack" << endl;
 }
-
-//void Base::constMethod () {}
-    //ERROR
-    //must not ommit the const here either
-
-int Base::iStatic = 0;
-
-void Base::staticMethod()
-{
-    cout << "Base::staticMethod()" << endl;
-
-    //int i = this->i;
-        //ERROR
-        //no this!
-
-    int i = iStatic;
-        //OK
-        //ok to use static vars
-}
-//static void staticMethod()
-    //ERROR
-    //static linkage, like in c static
-    //meaning func only visible from current translational unit
-
-const Member Base::member2 = Member(1);
-//must come outside
-
-//int Base::k;
-    //ERROR
-    //must be declared inside 
-
-class BaseAbstract
-{
-
-    public:
-
-        BaseAbstract(){}
-        //can be called in derived classes init list
-        //can be called in derived classes init list
  
-        virtual ~BaseAbstract(){}
-
-        void method(){ cout << "BaseAbstract::method()" << endl; }
-
-        void methodAmbiguous(){ cout << "BaseAbstract::methodAmbiguous()" << endl; }
-
-        virtual void virtualMethod(){ cout << "BaseAbstract::virtualMethod()" << endl; }
-        //virtual: decides on runtime based on object type
-            //http://stackoverflow.com/questions/2391679/can-someone-explain-c-virtual-methods
-
-        virtual void pureVirtual() = 0;
-            //pure virtual function
-            //cannot instantiate this class
-            //can only instantiate derived classes that implement this
-            //if a class has a pure virtual func is called as an *abstract class* or *interface*
-            
-        //virtual void pureVirtualImplementedOtherBase() = 0;
-            //BAD
-            //won't work: must implement on derived class only
-
-        int i;
-        int iAmbiguous;
-
-    private:
-
-        virtual void privatePureVirtual() = 0;
-        //this can/must still be implemented on the base class, even if private!
-
-        //how private pure virtual can be usefull
-        void usefulPrivatePureVirtual()
-        {
-            cout << "common before" << endl;
-            privatePureVirtual();
-            cout << "common after" << endl;
-        }
-};
-
-class PureVirtualImplementedOtherBase
-{
-    public:
-
-        void pureVirtualImplementedOtherBase()
-        {
-            cout << "PureVirtualImplementedOtherBase::pureVirtualOtherBase()" << endl;
-        }
-};
-
-class BaseProtected
-{
-    public:
-
-        BaseProtected(){ cout << "BaseProtected::BaseProtected()" << endl; }
-        BaseProtected(int i){ cout << "BaseProtected::BaseProtected(int)" << endl; }
-        ~BaseProtected(){ cout << "BaseProtected::~BaseProtected()" << endl; }
-};
-
-class BasePrivate
-{
-    public:
-        BasePrivate(){ cout << "BasePrivate::BasePrivate()" << endl; }
-        BasePrivate(int i){ cout << "BasePrivate::BasePrivate(int)" << endl; }
-        ~BasePrivate(){ cout << "BasePrivate::~BasePrivate()" << endl; }
-};
-
-class Derived : private BasePrivate
-{
-};
-
-class Class :
-    public Base,
-    //public Base,      //ERROR duplicate
-    //public Derived,   //WARN cannot use BasePrivate inside: ambiguous
-    protected BaseProtected,
-    private BasePrivate,
-    public BaseAbstract,
-    public PureVirtualImplementedOtherBase
-{
-    public:
-
-        /*
-        calls base constructors first
-        */
-        Class() : i(0), z(0)
-        {
-            cout << "Class::Class()" << endl;
-        }
-
-        Class(int i) : i(i), z(0)
-        {
-            cout << "Class::Class(int)" << endl;
-        }
-
-        Class(int i, int z) : Base(i,z), BaseProtected(i), BasePrivate(i), BaseAbstract(), i(i), z(z)
-        {
-            cout << "Class::Class(int, int)" << endl;
-        }
-        //calls specific base constructors  instead of default ones
-            //another application os initialization lists
-        //works even if the BaseAbstract class is abstract!
-            //this is the only place you can do that: init list of derived classes
-        //Class() : BaseAbstract(), Base(i,z), BaseProtected(i), BasePrivate(i), i(i), z(z)
-            //warning BaseAbstract will be init after TODO ?
-        
-        //try catch in case base constructor can throw exceptions
-        Class(int i, int j, int z) try : Base(i,j), i(i), z(z)
-        {
-            cout << "Class::Class(int, int, int)" << endl;
-        }
-        catch(const exception &e)
-        {
-            throw e;
-        } 
-
-        Class(Member m) : m(m)
-        {
-            //BAD: m constructor would be called, but this is useless since we have already called it!
-            //to construct it before.
-            //This is an application of initialization constructors.
-                //this->m = m;
-            cout << "Class::Class(Member)" << endl;
-        }
-
-        //copy constructor
-            //classes already have this by default
-            //useful to customize if class does dynamic allocation!
-            Class(const Class& c) : i(c.i), z(c.z), m(c.m)
-            {
-                cout << "Class::Class(Class)" << endl;
-            }
-
-            //classes don't have constructors from base by default
-            Class(const Base& b) : Base(b)
-            {
-                cout << "Class::Class(Base)" << endl;
-            }
-
-        //assign operator
-            //all classes come with a default
-            Class& operator=(const Class& rhs)
-            {
-                cout << "Class::operator=(Class)" << endl;
-                i = rhs.i;
-                z = rhs.z;
-                m = rhs.m;
-                return *this; //so shat a = b = c may work
-            }
-        
-        /*
-        also calls Base destructor after
-        */
-        ~Class(){ cout << "Class::~Class()" << endl; }
-
-        void method(){ cout << "Class::method()" << endl; }
-        //called method overwriding
-        
-        template<class C=int>
-        void methodTemplate()
-        {
-            cout << "Class::methodTemplate()" << endl;
-        }
-            //OK
- 
-        void virtualMethod(){ cout << "Class::virtualMethod()" << endl; }
-            //different than overwriding non virtual methods. see polymorphism.
-        
-        //virtual void virtualMethod(){ cout << "Class::virtualMethod()" << endl; }
-            //OK
-            //only difference:
-            //if you have a pointer to this class, you can only use virtual if this
-            //is declared virtual
-        
-        void pureVirtual(){ cout << "Class::pureVirtual()" << endl; }
-        //definition obligatory if you want to create objects of this class
-
-        //int pureVirtual(){ return 1; }
-            //ERROR
-            //unlike function overloading, polyomorphism is decided at runtime
-            //and therefore return type must be the same as in declaration
-
-            virtual Class* covariantReturn()
-            { 
-                cout << "Class:covariantReturn()" << endl;
-                return new Class;
-            }
-                //OK
-                //because Class is derived from Base
-                //callde "covariant return type"
-  
-                //virtual Class invalidCovariantReturn(){ return Class(); }
-                    //ERROR invalid covariant
-                    
-                    
-            virtual void covariantArg(Class* c)
-            {
-                cout << "Class:covariantArg()" << endl;
-            }
-
-        int i;
-        int z;
-        Member m;
-        Nested nested;
-        //Base nested class visible from here
-
-    private:
-
-        virtual void privatePureVirtual(){ cout << "Class:privatePureVirtual()" << endl; };
-};
-
-//overload <<
-    ostream& operator<<(ostream& os, const Class& c)
+//class
+//{
+    /*
+    simple class for tests on constructor destructor order
+    */
+    class NoBaseNoMember
     {
-        os << c.i << " " << c.j;
-        return os;
-    }
+        public:
+            NoBaseNoMember(){ callStack.push_back( "NoBaseNoMember::NoBaseNoMember()"); }
+            ~NoBaseNoMember(){ callStack.push_back( "NoBaseNoMember::~NoBaseNoMember()"); }
 
-//nested
-    class NestedDerived : Class::Nested{};
-    //OK
-    //you can see the nested class from derived classes
+            void method(){ callStack.push_back("NoBaseNoMember::method()"); }
+    };
 
-class Class2 : public Base
-{
-    public:
+    class Member
+    {
+        public:
+            Member(){ callStack.push_back("Member::Member()"); }
+            Member(int i){ callStack.push_back("Member::Member(int)"); }
+            ~Member(){ callStack.push_back("Member::~Member()"); }
 
-        Class2(){}
-        void pureVirtual(){ cout << "Class2::pureVirtual()" << endl; }
+            void method() { callStack.push_back("Member::method()"); }
 
-        class Nested{};
-        //OK
-        //you can override the Nested class from the Base also
-};
+            int i;
+    };
 
-class ClassCast
-{
-    ClassCast(Class c){}
-};
-
-    //ERROR
-        //ClassDefault::ClassDefault(int i=0){}
-
-//templates class
-    //- ultra reneral! <class T, int N>
-    //-default values via: <class T=char, int N=10>
-        //c = Class<>
-    //- implementation must be put in .h files and compiled by includers
-        //cannot be put inside a .so therfore
-        //consider int N, there are int many compilation possibilities!!
-    //- no equivalent to Javas "T extends Drawable"... sad.
- 
-    //SAME
-    //template<typename T=int, int N=10>
-    template<class BASE=Base, class T=int, int N=10>
-    class TemplateClass : public BASE //OK
+    class Nested
     {
         public:
 
-            T t;
-            T ts[N];
+            Nested()
+            {
+                callStack.push_back("Nested::Nested()");
+            }
+    };
+    
+    class Base
+    {
+        public:
 
-            TemplateClass(){ cout << "TemplateClass::TemplateClass()" << endl; }
+            /*
+            default constructor
+                if no constructor is declared, a default constructor is created
 
-            //BAD: what is T = string?
-                //TemplateClass() t(0.0){ cout << "TemplateClass::TemplateClass()" << endl; }
+                if any constructor is declared, even with non default args,
+                the default is not created
+            */
+            Base() : i(0), j(1) //list initialization
+            { 
+                callStack.push_back("Base::Base()"); 
+                //this->i=0;
+                //this->j=1;
+                    //BAD
+                    //same as list init, except if i is an object
+                    //to keep uniform style, always use list init
 
-            TemplateClass(T t): t(t){ cout << "TemplateClass::TemplateClass(T)" << endl; }
+                //ic=0;
+                    //ERROR: ic is const. must be initialized in list initialization.
+
+                //Base b;
+                    //BAD
+                    //compiles but infinite loop!
+            }
+            /*
+            list initialization has 4 main uses:
+                1) avoid calling member object constructor
+                2) initializing base classes with non default constructors
+                3) initializing const elements
+                4) initializing member references &
+            */
+
+            Base(int i, int j) : i(i), j(j)
+            {
+                callStack.push_back("Base::Base(int, int)");
+            }
+
+            //virtual Base(float f){}
+                //ERROR constructor cannot be virtual
+    
+            Base(float f) : i(0), fs4{f,f,f,f}, vi{0,1,2,3}
+            {
+                callStack.push_back("Base::Base(float)");
+            } 
+                //C++11
+                //initialize arrray/std containers in list initializtion
+            
+            /*
+            destructor
+
+            called when:
+                1) statically allocated object goes out of scope
+                2) dynamically allocated object gets deleted
+
+            major application:
+                - delocate dynamic memory that was allocated on constructor
+
+            virtual:
+                not necessary
+                *but*
+                almost always what you want a polymorphic class to which there
+                will be pointers to base classes
+            */
+            virtual ~Base()
+            {
+                callStack.push_back("Base::~Base()");
+            }
 
             void method()
             {
-                cout << "TemplateClass::method()" << endl;
+                callStack.push_back("Base::method()");
+                int i = iAmbiguous;
+                i = iStatic;
+                i = iConstStatic;
             }
-            
-            void methodDefinedOutside();
 
-            T method(T){ cout << "TemplateClass::method(T)" << endl; }
+            void constMethod () const;
 
-            template<class C=int>
-            void methodTemplate()
+            //return references
+
+                const int& getPrivateConst() const { return this->iPrivate; }
+                //value cannot be changed
+                
+                int& getPrivate() { return this->iPrivate; }
+                //value can be changed
+                
+                //int& getPrivate() const { return this->iPrivate; }
+                    //ERROR 
+                    //const method cannot return noncosnt reference!
+
+                //int* getPrivateAddress() const { return &this->iPrivate; }
+                    //ERROR
+                    //const method cannot return noncosnt pointer!
+
+                const int* getPrivateAddressConst() const { return &this->iPrivate; }
+
+            void methodAmbiguous(){ callStack.push_back("Base::methodAmbiguous()"); }
+
+            virtual void virtualMethod(){ callStack.push_back("Base::virtualMethod()"); }
+            //virtual: decides on runtime based on object type
+                //http://stackoverflow.com/questions/2391679/can-someone-explain-c-virtual-methods
+    
+            virtual Base* covariantReturn()
             {
-                cout << "TemplateClass::methodTemplate()" << endl;
+                callStack.push_back("Base:covariantReturn()");
+                return new Base;
             }
-                //OK
 
-            static const int sci = 0;
+            virtual void covariantArg(Base* b)
+            {
+                callStack.push_back("Base:covariantArg()");
+            }
+        
+            int i,j;
+            //ERROR: cannot initialize here
+                //int i = 0;
 
-            //BAD impossible to define?
-                //static const TemplateClass<T,N>;
+            int iAmbiguous;
+
+            int* is;
+
+            float fs4[4];
+            std::vector<int> vi;
+
+            //BAD: every class must have an assigment operator
+            //but then, assigment does something like this->ic = other->ic
+            //you could redefine the assigment, but still in your new definition
+            //ic cannot be changed
+            //http://stackoverflow.com/questions/634662/non-static-const-member-cant-use-default-assignment-operator
+                //const int ic;
+        
+            //static
+            
+                static void staticMethod();
+
+                //static void staticMethod() const;
+                    //ERROR
+                    //static cannot be const
+
+                static int iStatic;
+                //ERROR
+                    //static int iStatic = 0;
+                        //cannot initialize here unless const
+                    //int iStatic;
+                        //conclicts with static int
+                
+                const static int iConstStatic = 0;
+                //OK: const static integral type
+
+                //const static float fConstStatic = 0.0;
+                    //ERROR
+                    //non integral type
+                
+                const static Member member;
+                //OK default constructor? why
+                
+                const static Member member2;
+                //const static Member member2 = Member();
+                    //ERROR: non integral type
+                    //must be init outside
+                    //
+                    //why integral types are an exception (complicated):
+                        //http://stackoverflow.com/questions/13697265/static-const-double-cannot-have-an-in-class-initializer-why-is-it-so
 
             class Nested
             {
                 public:
-                    T t;
-                    //NOTE
-                    //works
+
+                    Nested()
+                    {
+                        callStack.push_back("Base::Nested::Nested()");
+                        int i = privateStaticInt;
+                            //you have private access
+                    }
+
+                    Member m;
             };
+            
+            class Nested2
+            {
+                public:
+
+                    Nested2()
+                    {
+                        callStack.push_back("Base::Nested2::Nested2()");
+                    }
+
+                    Nested innerIn;
+                    //inner one
+                    
+                    ::Nested innerOut;
+                    //outter one
+            };
+
+            typedef int NESTED_INT;
+
+        protected:
+
+            int iProtected;
+            void fProtected(){ callStack.push_back("Base::fProtected()"); }
+
+        private:
+
+            int iPrivate;
+            void fPrivate(){ callStack.push_back("Base::fPrivate()"); }
+            const static int privateStaticInt = 1;
+
+            typedef int PRIVATE_NESTED_INT;
+
     };
 
-    class TemplateFixed : TemplateClass<Base,int,10> {};
-        //NOTE
-        //this is exactly the same the TemplateClass with fixed T and N
-
-    class TemplatedNestedOut : TemplateClass<Base,int,10>::Nested {};
-        //OK
-
-    //template virtual
-        template<class T=int>
-        class TemplateAbstract
-        {
-            virtual T virtualMethod(){ return 1; }
-            virtual T pureVirtualMethod() = 0;
-        };
-
-        class TemplateAbstractDerived : public TemplateAbstract<int>
-        {
-            virtual int virtualMethod(){ return 1; }
-            virtual int pureVirtualMethod(){ return 1; }
-        };
-
-    template<class BASE, class T, int N>
-    void TemplateClass<BASE,T,N>::methodDefinedOutside()
+    void Base::constMethod () const
     {
-            cout << "TemplateClass::methodDefinedOutside()" << endl;
-    }
-        //c++11
-        //even if independent on template args, still cannot be pre compiled
- 
-
-    //specialization
- 
-        template<>
-        void TemplateClass<Base,int,11>::methodDefinedOutside()
-        {
-            cout << "TemplateClass<Base,int,11>::methodDefinedOutside()" << endl;
-            //T t;
-                //ERROR
-                //T undeclared on specialiation
-        }
-            //c++11
-            //specialization of function for case 12 only
-    
-        //template<> class TemplateClass<Base,int,11> {};
+        //this->i = 2;
             //ERROR
-            //case 11 was already defined on the spcecialization of methodDefinedOutside 11
-   
+            //cant assign member in const func
+        
+        //this->member.method();
+            //ERROR
+            //cant call non const method inside const method!
+            
+        //this->member.i = 1;
+            //ERROR
+            //cant assign member member in const method
 
-        template<> class TemplateClass<Base,int,12>
+        callStack.push_back("Base::constMethod()");
+    }
+
+    //void Base::constMethod () {}
+        //ERROR
+        //must not ommit the const here either
+
+    int Base::iStatic = 0;
+
+    void Base::staticMethod()
+    {
+        callStack.push_back("Base::staticMethod()");
+
+        //int i = this->i;
+            //ERROR
+            //no this!
+
+        int i = iStatic;
+            //OK
+            //ok to use static vars
+    }
+    //static void staticMethod()
+        //ERROR
+        //static linkage, like in c static
+        //meaning func only visible from current translational unit
+
+    const Member Base::member2 = Member(1);
+    //must come outside
+
+    //int Base::k;
+        //ERROR
+        //must be declared inside 
+
+    class BaseAbstract
+    {
+
+        public:
+
+            BaseAbstract(){}
+            //can be called in derived classes init list
+            //can be called in derived classes init list
+    
+            virtual ~BaseAbstract(){}
+
+            void method(){ callStack.push_back("BaseAbstract::method()"); }
+
+            void methodAmbiguous(){ callStack.push_back("BaseAbstract::methodAmbiguous()"); }
+
+            virtual void virtualMethod(){ callStack.push_back("BaseAbstract::virtualMethod()"); }
+            //virtual: decides on runtime based on object type
+                //http://stackoverflow.com/questions/2391679/can-someone-explain-c-virtual-methods
+
+            virtual void pureVirtual() = 0;
+                //pure virtual function
+                //cannot instantiate this class
+                //can only instantiate derived classes that implement this
+                //if a class has a pure virtual func is called as an *abstract class* or *interface*
+                
+            //virtual void pureVirtualImplementedOtherBase() = 0;
+                //BAD
+                //won't work: must implement on derived class only
+
+            int i;
+            int iAmbiguous;
+
+        private:
+
+            virtual void privatePureVirtual() = 0;
+            //this can/must still be implemented on the base class, even if private!
+
+            //how private pure virtual can be usefull
+            void usefulPrivatePureVirtual()
+            {
+                callStack.push_back("common before");
+                privatePureVirtual();
+                callStack.push_back("common after");
+            }
+    };
+
+    class PureVirtualImplementedOtherBase
+    {
+        public:
+
+            void pureVirtualImplementedOtherBase()
+            {
+                callStack.push_back("PureVirtualImplementedOtherBase::pureVirtualOtherBase()");
+            }
+    };
+
+    class BaseProtected
+    {
+        public:
+
+            BaseProtected(){ callStack.push_back("BaseProtected::BaseProtected()"); }
+            BaseProtected(int i){ callStack.push_back("BaseProtected::BaseProtected(int)"); }
+            ~BaseProtected(){ callStack.push_back("BaseProtected::~BaseProtected()"); }
+    };
+
+    class BasePrivate
+    {
+        public:
+            BasePrivate(){ callStack.push_back("BasePrivate::BasePrivate()"); }
+            BasePrivate(int i){ callStack.push_back("BasePrivate::BasePrivate(int)"); }
+            ~BasePrivate(){ callStack.push_back("BasePrivate::~BasePrivate()"); }
+    };
+
+    class Derived : private BasePrivate
+    {
+    };
+
+    class Class :
+        public Base,
+        //public Base,      //ERROR duplicate
+        //public Derived,   //WARN cannot use BasePrivate inside: ambiguous
+        protected BaseProtected,
+        private BasePrivate,
+        public BaseAbstract,
+        public PureVirtualImplementedOtherBase
+    {
+        public:
+
+            /*
+            calls base constructors first
+            */
+            Class() : i(0), z(0)
+            {
+                callStack.push_back("Class::Class()");
+            }
+
+            Class(int i) : i(i), z(0)
+            {
+                callStack.push_back("Class::Class(int)");
+            }
+
+            Class(int i, int z) : Base(i,z), BaseProtected(i), BasePrivate(i), BaseAbstract(), i(i), z(z)
+            {
+                callStack.push_back("Class::Class(int, int)");
+            }
+            //calls specific base constructors  instead of default ones
+                //another application os initialization lists
+            //works even if the BaseAbstract class is abstract!
+                //this is the only place you can do that: init list of derived classes
+            //Class() : BaseAbstract(), Base(i,z), BaseProtected(i), BasePrivate(i), i(i), z(z)
+                //warning BaseAbstract will be init after TODO ?
+            
+            //try catch in case base constructor can throw exceptions
+            Class(int i, int j, int z) try : Base(i,j), i(i), z(z)
+            {
+                callStack.push_back("Class::Class(int, int, int)");
+            }
+            catch(const exception &e)
+            {
+                throw e;
+            } 
+
+            Class(Member m) : m(m)
+            {
+                //BAD: m constructor would be called, but this is useless since we have already called it!
+                //to construct it before.
+                //This is an application of initialization constructors.
+                    //this->m = m;
+                callStack.push_back("Class::Class(Member)");
+            }
+
+            //copy constructor
+                //classes already have this by default
+                //useful to customize if class does dynamic allocation!
+                Class(const Class& c) : i(c.i), z(c.z), m(c.m)
+                {
+                    callStack.push_back("Class::Class(Class)");
+                }
+
+                //classes don't have constructors from base by default
+                Class(const Base& b) : Base(b)
+                {
+                    callStack.push_back("Class::Class(Base)");
+                }
+
+            //assign operator
+                //all classes come with a default
+                Class& operator=(const Class& rhs)
+                {
+                    callStack.push_back("Class::operator=(Class)");
+                    i = rhs.i;
+                    z = rhs.z;
+                    m = rhs.m;
+                    return *this; //so shat a = b = c may work
+                }
+            
+            /*
+            also calls Base destructor after
+            */
+            ~Class(){ callStack.push_back("Class::~Class()"); }
+
+            void method(){ callStack.push_back("Class::method()"); }
+            //called method overwriding
+            
+            template<class C=int>
+            void methodTemplate()
+            {
+                callStack.push_back("Class::methodTemplate()");
+            }
+                //OK
+    
+            void virtualMethod(){ callStack.push_back("Class::virtualMethod()"); }
+                //different than overwriding non virtual methods. see polymorphism.
+            
+            //virtual void virtualMethod(){ callStack.push_back("Class::virtualMethod()"); }
+                //OK
+                //only difference:
+                //if you have a pointer to this class, you can only use virtual if this
+                //is declared virtual
+            
+            void pureVirtual(){ callStack.push_back("Class::pureVirtual()"); }
+            //definition obligatory if you want to create objects of this class
+
+            //int pureVirtual(){ return 1; }
+                //ERROR
+                //unlike function overloading, polyomorphism is decided at runtime
+                //and therefore return type must be the same as in declaration
+
+                virtual Class* covariantReturn()
+                { 
+                    callStack.push_back("Class:covariantReturn()");
+                    return new Class;
+                }
+                    //OK
+                    //because Class is derived from Base
+                    //callde "covariant return type"
+    
+                    //virtual Class invalidCovariantReturn(){ return Class(); }
+                        //ERROR invalid covariant
+                        
+                        
+                virtual void covariantArg(Class* c)
+                {
+                    callStack.push_back("Class:covariantArg()");
+                }
+
+            int i;
+            int z;
+            Member m;
+            Nested nested;
+            //Base nested class visible from here
+
+        private:
+
+            virtual void privatePureVirtual(){ callStack.push_back("Class:privatePureVirtual()"); };
+    };
+
+    //overload <<
+        ostream& operator<<(ostream& os, const Class& c)
+        {
+            os << c.i << " " << c.j;
+            return os;
+        }
+
+    //nested
+        class NestedDerived : Class::Nested{};
+        //OK
+        //you can see the nested class from derived classes
+
+    class Class2 : public Base
+    {
+        public:
+
+            Class2(){}
+            void pureVirtual(){ callStack.push_back("Class2::pureVirtual()"); }
+
+            class Nested{};
+            //OK
+            //you can override the Nested class from the Base also
+    };
+
+    class ClassCast
+    {
+        ClassCast(Class c){}
+    };
+
+    //ClassDefault::ClassDefault(int i=0){}
+        //ERROR
+
+    //templates class
+    //{
+        //- ultra reneral! <class T, int N>
+        //-default values via: <class T=char, int N=10>
+            //c = Class<>
+        //- implementation must be put in .h files and compiled by includers
+            //cannot be put inside a .so therfore
+            //consider int N, there are int many compilation possibilities!!
+        //- no equivalent to Javas "T extends Drawable"... sad.
+    
+        //SAME
+        //template<typename T=int, int N=10>
+        template<class BASE=Base, class T=int, int N=10>
+        class TemplateClass : public BASE //OK
         {
             public:
 
-                void newMethod()
-                {
-                    cout << "TemplateClass<Base,int,12>::newMethod()" << endl;
-                }
-        };
-            //NOTE
-            //specialization of entire class
-            //from now on, a completely new class is created in case 12
-    
-        //template<>
-        //void TemplateClass<Base,int,12>::methodDefinedOutside(){}
-            //ERROR
-            //case 12 class, created in class template specialization
-            //does not contain such a function
+                T t;
+                T ts[N];
 
+                TemplateClass(){ callStack.push_back("TemplateClass::TemplateClass()"); }
+
+                //BAD: what is T = string?
+                    //TemplateClass() t(0.0){ callStack.push_back("TemplateClass::TemplateClass()"); }
+
+                TemplateClass(T t): t(t){ callStack.push_back("TemplateClass::TemplateClass(T)"); }
+
+                void method()
+                {
+                    callStack.push_back("TemplateClass::method()");
+                }
+                
+                void methodDefinedOutside();
+
+                T method(T){ callStack.push_back("TemplateClass::method(T)"); }
+
+                template<class C=int>
+                void methodTemplate()
+                {
+                    callStack.push_back("TemplateClass::methodTemplate()");
+                }
+                    //OK
+
+                static const int sci = 0;
+
+                //BAD impossible to define?
+                    //static const TemplateClass<T,N>;
+
+                class Nested
+                {
+                    public:
+                        T t;
+                        //NOTE
+                        //works
+                };
+        };
+
+        class TemplateFixed : TemplateClass<Base,int,10> {};
+            //NOTE
+            //this is exactly the same the TemplateClass with fixed T and N
+
+        class TemplatedNestedOut : TemplateClass<Base,int,10>::Nested {};
+            //OK
+
+        //template virtual
+        //{
+            template<class T=int>
+            class TemplateAbstract
+            {
+                virtual T virtualMethod(){ return 1; }
+                virtual T pureVirtualMethod() = 0;
+            };
+
+            class TemplateAbstractDerived : public TemplateAbstract<int>
+            {
+                virtual int virtualMethod(){ return 1; }
+                virtual int pureVirtualMethod(){ return 1; }
+            };
+        //}
+
+        template<class BASE, class T, int N>
+        void TemplateClass<BASE,T,N>::methodDefinedOutside()
+        {
+            callStack.push_back("TemplateClass::methodDefinedOutside()");
+        }
+            //c++11
+            //even if independent on template args
+            //still cannot be pre compiled
+    
+
+        //specialization
+        //{
+            template<>
+            void TemplateClass<Base,int,11>::methodDefinedOutside()
+            {
+                callStack.push_back("TemplateClass<Base,int,11>::methodDefinedOutside()");
+                //T t;
+                    //ERROR
+                    //T undeclared on specialiation
+            }
+                //c++11
+                //specialization of function for case 12 only
+        
+            //template<> class TemplateClass<Base,int,11> {};
+                //ERROR
+                //case 11 was already defined on the spcecialization of methodDefinedOutside 11
+    
+
+            template<> class TemplateClass<Base,int,12>
+            {
+                public:
+
+                    void newMethod()
+                    {
+                        callStack.push_back("TemplateClass<Base,int,12>::newMethod()");
+                    }
+            };
+                //NOTE
+                //specialization of entire class
+                //from now on, a completely new class is created in case 12
+        
+            //template<>
+            //void TemplateClass<Base,int,12>::methodDefinedOutside(){}
+                //ERROR
+                //case 12 class, created in class template specialization
+                //does not contain such a function
+        //}
+    //}
+
+    //design patterns
+    //{
+
+        
+        //VisibleInnerIterable
+        //{
+            /*
+            this is the best way I could find to make a member
+            iterable object such as a container available outside
+
+            design goal:
+            
+            - to change container type, you only change a single typedef
+
+            difficulty:
+
+            - there is no ``Iterator`` interface that iterates over anything in the stdlib
+                for performance reasons.
+
+                By iterable understand somtehing that has an ``::iterator``,
+                a ``begin()`` and an ``end()`` methods, like stl containers
+            */
+            class VisibleInnerIterable
+            {
+                public:
+
+                    VisibleInnerIterable();
+
+                    typedef vector<int> Iterable;
+
+                    const Iterable& getIterable();
+
+                private:
+
+                    Iterable iterable;
+            };
+
+            VisibleInnerIterable::VisibleInnerIterable() : iterable{0,1,2} {}
+
+            const VisibleInnerIterable::Iterable& VisibleInnerIterable::getIterable()
+            {
+                return iterable;
+            }
+        //}
+    //}
+//}
 
 //global scope
+//{
     int global = 0;
 
-    //NOTE different from c, where these were errors
+    //NOTE
+    //different from c, where these were errors
+    //{
         int global2 = global+1;
-        int ret1(){
-            cout << "before main!" << endl;
+        int ret1()
+        {
+            callStack.push_back("before main!");
             return 1;
         }
         int global3 = ret1();
+    //}
 
-    //ERROR everything must start with a typename
+    //ERROR
+    //everything must start with a typename
+    //{
         //global = 1;
         //if(1){}
-        //cout << "global" << endl;
+        //callStack.push_back("global");
+    //}
+//}
 
 //functions
 
@@ -790,10 +881,10 @@ class ClassCast
         //void foo (int bar[] = {0 ,1});
 
     //function overloading
-        void overload(int i){ cout << "overload(int)"; }
-        void overload(int i, int j){ cout << "overload(int,int)"; }
-        void overload(float i){ cout << "overload(float)"; }
-        void overload(float i, float j, float k=0.f){ cout << "overload(float,float,float=)"; }
+        void overload(int i){ callStack.push_back("overload(int)"); }
+        void overload(int i, int j){ callStack.push_back("overload(int,int)"); }
+        void overload(float i){ callStack.push_back("overload(float)"); }
+        void overload(float i, float j, float k=0.f){ callStack.push_back("overload(float,float,float=)"); }
 
         //int overload(int i, int j, int k){return 1;}
             //OK even if return type is different
@@ -893,7 +984,7 @@ class ClassCast
 
     void f()
     {
-        cout << "::f" << endl;
+        callStack.push_back("::f");
     }
 
     void prototype();
@@ -906,7 +997,7 @@ class ClassCast
             public:
                 C()
                 {
-                    cout << "namea::C" << endl;
+                    callStack.push_back("namea::C");
                 }
         };
 
@@ -916,7 +1007,7 @@ class ClassCast
 
             void f()
             {
-                cout << "nameaa::f" << endl;
+                callStack.push_back("nameaa::f");
             }
 
             class C
@@ -924,7 +1015,7 @@ class ClassCast
                 public:
                     C()
                     {
-                        cout << "nameaa::C" << endl;
+                        callStack.push_back("nameaa::C");
                     }
             };
         }
@@ -935,7 +1026,7 @@ class ClassCast
 
             void f()
             {
-                cout << "namea::nameab::f" << endl;
+                callStack.push_back("namea::nameab::f");
 
                 ::i = 0;
                 i = 0;   //namea::nameab::i
@@ -954,7 +1045,7 @@ class ClassCast
             {
                 C()
                 {
-                    cout << "namea::nameab::C" << endl;
+                    callStack.push_back("namea::nameab::C");
                     f();
                     //no ambiguity because using inside f() only afects the function
                 }
@@ -969,7 +1060,7 @@ class ClassCast
             i = 0;   //namea::i
             namea::i = 0;  
             nameaa::i = 0; //namea::nameaa::i
-            cout << "namea::f" << endl;
+            callStack.push_back("namea::f");
         }
     }
         
@@ -1001,24 +1092,31 @@ class ClassCast
         //nope
 
 //thread
+//{
     //TODO
     //- recursive mutex
 
-    std::thread::id lastThreadId;
     int nNsecs = 10;
     int threadGlobal = 0;
     int threadGlobalMutexed = 0;
     std::mutex threadGlobalMutex;
+    std::thread::id lastThreadId;
+    std::set<std::thread::id> threadIds;
+
+    int threadGlobalEq0 = 0;
+    int threadGlobalMutexedEq0 = 0;
+    int threadChange = 0;
 
     void threadFunc(int threadCountToSqrt)
     {
         std::thread::id id = std::this_thread::get_id();
-        for(int i=0; i<threadCountToSqrt; i++)
-        for(int j=0; j<threadCountToSqrt; j++)
+        for( int i=0; i<threadCountToSqrt; i++ )
+        for( int j=0; j<threadCountToSqrt; j++ )
         {
             if( lastThreadId != id )
             {
-                cout << "change " << id << " " << i << " " << j << endl;
+                ++threadChange;
+                //threadIds.insert(id);
                 lastThreadId = id;
             }
 
@@ -1030,7 +1128,7 @@ class ClassCast
             //if happens
                 threadGlobal = 1;
                 if(threadGlobal == 0)
-                    cout << "threadGlobal == 0" << endl;
+                    ++threadGlobalEq0;
                 threadGlobal = 0;
 
             //if never happens!
@@ -1040,7 +1138,7 @@ class ClassCast
                     //if not available, return!
                     threadGlobalMutexed = 1;
                     if(threadGlobalMutexed == 0)
-                        cout << "threadGlobalMutexed == 0" << endl;
+                        ++threadGlobalMutexedEq0;
                     threadGlobalMutexed = 0;
                 threadGlobalMutex.unlock();
 
@@ -1049,6 +1147,7 @@ class ClassCast
         std::this_thread::yield();
             //done, pass to another thread
     }
+//}
     
 int main(int argc, char** argv)
 {
@@ -1093,9 +1192,9 @@ int main(int argc, char** argv)
     }
 
     cout << "const" << endl;
-
+    {
         {
-            const int i=2;
+            const int i = 2;
             //int* ip = i;
                 //ERROR
                 //in c this is only a warning, and allows us to change ic.
@@ -1130,10 +1229,10 @@ int main(int argc, char** argv)
   
             c.constMethod();
         }
-
-    cout << endl;
+    }
 
     cout << "references" << endl;
+    {
         //basically aliases, similar to int*const poinsters
         //
         //useful only for function parameters/return
@@ -1145,13 +1244,13 @@ int main(int argc, char** argv)
         //http://stackoverflow.com/questions/7058339/c-when-to-use-references-vs-pointers}
         
         {
-            int i=0;
+            int i = 0;
             byref(i);
             assert( i == 1 );
         }
 
         {
-            int i=0;
+            int i = 0;
             int& ia = i;
             ia = 1;
             assert( i == 1 );
@@ -1185,7 +1284,7 @@ int main(int argc, char** argv)
 
         //const
         {
-            int i=1;
+            int i = 1;
             const int& cia = i;
             const int& cia2 = cia;
 
@@ -1211,6 +1310,7 @@ int main(int argc, char** argv)
         }
 
         cout << "return" << endl;
+        {
             //never from functions (if new, return auto_ptr, if not new, you got an error)
             //only from methods, when data is in the object
             //just like pointers, if object dies, data dies!
@@ -1232,16 +1332,12 @@ int main(int argc, char** argv)
                     //ia = 1;
                         //ERROR
             }
-
-        cout << endl;
-
-    cout << endl;
+        }
+    }
 
     cout << "vla" << endl;
-
-        //cin >> i;
-        //int is4[i];
-            //UNPORTABLE
+    {
+        //UNPORTABLE
             //gcc extension
             //
             //called variable length array VLS
@@ -1253,91 +1349,133 @@ int main(int argc, char** argv)
             //meaning, one extra multiplication and sum for every VLA declared
 
         //cin >> i;
+        //int is4[i];
+
+        //cin >> i;
         //int is4[i] = {1,2}
             //ERROR, cannot initialize. what if i<2?
-
-    cout << endl;
+    }
 
     cout << "for" << endl;
+    {
 
         //you can define i inside the for scope only
-        for(int i=0; i<5; i++)
+        int is[] = { 0, 1, 2 };
+        for(int i=0; i<3; i++)
         {
-            cout << i << " ";
+            assert( i == is[i] );
             //int i;
                 //ERROR
                 //already declared in this scope
         }
 
-    cout << endl;
-
+    }
 
     cout << "functions" << endl;
+    {
+        cout << "overload" << endl;
+        {
+            overload( 1 );
+            assert( callStack.back() == "overload(int)" );
+            callStack.clear();
 
-            cout << "overload" << endl;
+            overload(1.0f);
+            //overload(1.0);
+                //ERROR
+                //ambiguous overload(int) overload(float)
+                //compiler does not know wether convert double to float or int
+            assert( callStack.back() == "overload(float)" );
+            callStack.clear();
 
-                overload(1);
-                overload(1.0f);
-                //overload(1.0);
-                    //ERROR
-                    //ambiguous overload(int) overload(float)
-                    //compiler does not know wether convert double to float or int
+            //Class cOverload;
+            //overloadBase(cOverload);
+                //ERROR
+                //ambiguous
+                //coverts to Base or BaseProtected
 
-                //Class cOverload;
-                //overloadBase(cOverload);
-                    //ERROR
-                    //ambiguous
-                    //coverts to Base or BaseProtected
+            //i=4;
+            //overloadValAddr(i);
+                //ERROR
+                //ambiguous
 
-                //i=4;
-                //overloadValAddr(i);
-                    //ERROR
-                    //ambiguous
+        }
 
-            cout << endl;
-
-            cout << "template" << endl;
-
-                assert( factorial<3>() == 6 );
-                    //because of this call
-                    //all factorials from
-                    //1 to 9 will be compiled
-
-                assert( factorial<6>() == 720 );
-
-            cout << endl;
-
-    cout << endl;
+        cout << "template" << endl;
+        {
+            assert( factorial<3>() == 6 );
+                //because of this call
+                //all factorials from
+                //1 to 2 will be compiled
+            assert( factorial<6>() == 720 );
+                //4 to 6 will be compiled
+        }
+    }
 
     cout << "class" << endl;
-    
-        Class *cp, *classPtr;
-        Base *bp, *basePtr;
-
+    {
         //creation
+        {
             {
-                cout << "Class c;" << endl;
-                Class c;
-                //Base Class
-                    //Base and Class constructor are called!
-                    //if no default constructor, error
-                //there is a default constructor if you don't define any constructor
-                    //but if you define any constructor (even non null), you have to write
-                    //the empty one yourself, so just write it always
+                {
+                    //Base Class
+                        //Base and Class constructor are called!
+                        //if no default constructor, error
+                    //there is a default constructor if you don't define any constructor
+                        //but if you define any constructor (even non null), you have to write
+                        //the empty one yourself, so just write it always
+                    callStack.clear();
+                    Class c;
+                    vector<string> expectedCallStack =
+                    {
+                        "Base::Base()",
+                        "BaseProtected::BaseProtected()",
+                        "BasePrivate::BasePrivate()",
+                        "Member::Member()",
+                        "Member::Member()",
+                        "Base::Nested::Nested()",
+                        "Class::Class()",
+                    };
+                    //assert( callStack == expectedCallStack );
+
+                    callStack.clear();
+                }
+
+                vector<string> expectedCallStack =
+                {
+                    "Base::Base()",
+                    "BaseProtected::BaseProtected()",
+                    "BasePrivate::BasePrivate()",
+                    "Member::Member()",
+                    "Member::Member()",
+                    "Base::Nested::Nested()",
+                    "Class::Class()",
+                };
+                //assert( callStack == expectedCallStack );
             }
 
             {
-                cout << "Class c;" << endl;
-                Class c;
-                cout << "c = Class();" << endl;
-                c = Class();
-                    //2 constructor calls
+                callStack.clear();
+
+                NoBaseNoMember c;
+                c = NoBaseNoMember();
+
+                vector<string> expectedCallStack =
+                {
+                    "NoBaseNoMember::NoBaseNoMember()",
+                    "NoBaseNoMember::NoBaseNoMember()",
+                    "NoBaseNoMember::~NoBaseNoMember()"
+                };
+                assert( callStack == expectedCallStack );
             }
 
             {
-                cout << "Class c = Class();" << endl;
-                Class c = Class();
-                    //1 constructor call
+                callStack.clear();
+                NoBaseNoMember c = NoBaseNoMember();
+                vector<string> expectedCallStack =
+                {
+                    "NoBaseNoMember::NoBaseNoMember()",
+                };
+                assert( callStack == expectedCallStack );
             }
 
             {
@@ -1347,34 +1485,35 @@ int main(int argc, char** argv)
                     //declares *FUNCTION* called ``c()`` that returns ``Class``
                     //functions inside functions like this are a gcc extension
             }
+        }
 
-            //static
-                {
-                    Class c, c1;
-                    int i;
-                    c.iStatic = 0;
-                    assert( Class::iStatic == 0 );
-                    c1.iStatic = 1;
-                    assert( Class::iStatic == 1 );
-                    Class::iStatic = 2;
-                    assert( Class::iStatic == 2 );
-                }
+        //static
+        {
+            {
+                Class c, c1;
+                int i;
+                c.iStatic = 0;
+                assert( Class::iStatic == 0 );
+                c1.iStatic = 1;
+                assert( Class::iStatic == 1 );
+                Class::iStatic = 2;
+                assert( Class::iStatic == 2 );
+            }
 
-                {
-                    Class c;
-                    c.staticMethod();
-                    Class::staticMethod();
-                }
-                
-        cout << endl;
+            {
+                Class c;
+                c.staticMethod();
+                Class::staticMethod();
+            }
+        }
 
         cout << "copy, assigment" << endl;
+        {
             //every class gets a default assign operator (=) and copy constructor
             //called shallow copy/assign
             //might not be what you want, specially when you allocate memory inside the constructor!
                 //http://stackoverflow.com/questions/3279543/what-is-the-copy-and-swap-idiom
                 //http://stackoverflow.com/questions/4172722/what-is-the-rule-of-three
-
             {
                 //copy constructor
                 //default exists always, calls copy on all memebrs
@@ -1434,7 +1573,7 @@ int main(int argc, char** argv)
                     //ERROR
                     //not from derived to base
 
-                bp = &c;
+                Base* bp = &c;
                     //OK
                     //pointer conversions
 
@@ -1443,11 +1582,10 @@ int main(int argc, char** argv)
                     //ERROR
                     //can only convert from derived to base
             }
-
-        cout << endl;
+        }
 
         cout << "arrays of objects" << endl;
-
+        {
             {
                 cout << "Class os[3];" << endl;
                 Class cs[3];
@@ -1462,45 +1600,44 @@ int main(int argc, char** argv)
                     Class cs2[] = { Class(1), Class(2), Class(3) };
                     //3x Class() calls. more efficient therefore
             }
-
-        cout << endl;
+        }
 
         cout << "temporaries" << endl;
-
+        {
             cout << "Class().method();" << endl; //an instance without name is created and destroyed
-            Class().method();
-            //Class() Class().method1() ~Class
+            {
+                Class().method();
+                    //Class() Class().method1() ~Class
 
-            cout << "cout << Class();" << endl;
-            cout << Class() << endl;
-            //i j
-
-        cout << endl;
+                Class( Class() );
+                    //i j
+                    //temporaries can be passed to functions directly
+            }
  
             {
                 Class c = Class();
-                cp = &c;
+                Class* cp = &c;
 
                 //Class* cp = &Class();
                     //ERROR
                     //address of what?
             }
+        }
 
         cout << "operator overload" << endl;
-
+        {
             {
                 Class c;
                 c.i = 1;
                 c.j = 2;
                 cout << "cout << c;" << endl;
                 cout << c << endl;
-                //1 2
+                    //1 2
             }
-
-        cout << endl;
+        }
 
         cout << "template" << endl;
-
+        {
             {
                 TemplateClass<Base,int,10> c;
                 c.ts[9] = 9;
@@ -1538,20 +1675,38 @@ int main(int argc, char** argv)
             }
 
             {
-                cout << "TemplateClass<Base,int,10>().methodDefinedOutside<>();" << endl;
-                TemplateClass<Base,int,10>().methodDefinedOutside();
-                cout << "TemplateClass<Base,int,11>().methodDefinedOutside<>();" << endl;
-                TemplateClass<Base,int,11>().methodDefinedOutside();
-                cout << "TemplateClass<Base,int,12>().methodDefinedOutside<>();" << endl;
-                TemplateClass<Base,int,12>().newMethod();
-                //TemplateClass<Base,int,12>().method();
-                    //12 class does not contain method()
+                {
+                    TemplateClass<Base,int,10> c;
+                    callStack.clear();
+                    c.methodDefinedOutside();
+                    assert( callStack.back() == "TemplateClass::methodDefinedOutside()" );
+                    //TemplateClass<Base,int,12>().method();
+                        //12 class does not contain method()
+                }
+
+                {
+                    TemplateClass<Base,int,11> c;
+                    callStack.clear();
+                    c.methodDefinedOutside();
+                    assert( callStack.back() == "TemplateClass<Base,int,11>::methodDefinedOutside()" );
+                    //TemplateClass<Base,int,12>().method();
+                        //12 class does not contain method()
+                }
+
+                {
+                    TemplateClass<Base,int,12> c;
+                    callStack.clear();
+                    c.newMethod();
+                    assert( callStack.back() == "TemplateClass<Base,int,12>::newMethod()" );
+                    //TemplateClass<Base,int,12>().method();
+                        //12 class does not contain method()
+                }
             }
 
-        cout << endl;
+        }
 
         cout << "overwridding" << endl;
-
+        {
             {
                 Class c;
                 Class* cp = &c;
@@ -1578,17 +1733,18 @@ int main(int argc, char** argv)
                 c.BaseAbstract::iAmbiguous = 0;
 
                 c.method();
-                //Class
-                c.Base::methodAmbiguous();
-                c.BaseAbstract::methodAmbiguous();
+                assert( callStack.back() == "Class::method()" ); callStack.clear();
                 //c.methodAmbiguous();
                     //ERROR ambiguous
+                c.Base::methodAmbiguous();
+                assert( callStack.back() == "Base::methodAmbiguous()" ); callStack.clear();
+                c.BaseAbstract::methodAmbiguous();
+                assert( callStack.back() == "BaseAbstract::methodAmbiguous()" ); callStack.clear();
             }
-
-        cout << endl;
+        }
 
         cout << "polymorphism" << endl;
-
+        {
             //behind the scenes a *vtable* is used to implement this
 
             //BaseAbstract b;
@@ -1597,50 +1753,45 @@ int main(int argc, char** argv)
               
             //even if you can't instantiate base, you can have pointers to it
             {
-                cout << "BaseAbstract* bap = new Class;" << endl;
                 BaseAbstract* bap = new Class;
-                //SAME
-                    //bap = &c;
-                cout << "bap->method();" << endl;
+                //BaseAbstract* bap = &c;
+                    //SAME
+                
                 bap->method();
-                //base method because non-virtual
-                cout << "bap->virtualMethod();" << endl;
+                assert( callStack.back() == "BaseAbstract::method()" ); callStack.clear();
+                    //base method because non-virtual
+
                 bap->virtualMethod();
-                //class method because virtual
+                assert( callStack.back() == "Class::virtualMethod()" ); callStack.clear();
+                    //class method because virtual
                 delete bap;
             }
 
             {
                 //you can also have BaseAbstract&
-                cout << "Class c;" << endl;
                 Class c;
-                cout << "BaseAbstract& ba = c;" << endl;
                 BaseAbstract& ba = c;
-                cout << "ba.method()" << endl;
                 ba.method();
-                //base
-                cout << "ba.virtualMethod()" << endl;
+                assert( callStack.back() == "BaseAbstract::method()" ); callStack.clear();
                 ba.virtualMethod();
-                //derived
+                assert( callStack.back() == "Class::virtualMethod()" ); callStack.clear();
             }
 
             {
-                cout << "covariantReturn" << endl;
                 Class c = Class();
                 Base* bp = &c;
                 bp = bp->covariantReturn();
-                cout << "bp->virtualMethod();" << endl;
                 bp->virtualMethod();
-                //Class
+                assert( callStack.back() == "Class::virtualMethod()" ); callStack.clear();
 
                 //classPtr = basePtr->covariantReturn();
                     //ERROR
                     //conversion from Base to Class
             }
-
-        cout << endl;
+        }
 
         cout << "typecasting" << endl;
+        {
             //http://www.cplusplus.com/doc/tutorial/typecasting/
 
             //implicit via constructor/assigment
@@ -1649,77 +1800,130 @@ int main(int argc, char** argv)
                 //A a;
                 //B b=a;
 
-        cout << endl;
+        }
 
-        cout << "inner classes" << endl;
-
+        cout << "nested classes" << endl;
+        {
             {
                 cout <<"Base::Nested baseNested;" << endl;
                 Base::Nested baseNested;
                 cout << "Base::Nested2 baseNested2;" << endl;
                 Base::Nested2 baseNested2;
             }
+        }
 
-        cout << endl;
+        cout << "nested typedefs" << endl;
+        {
+            Base::NESTED_INT i = 1;
+            //Base::PRIVATE_NESTED_INT j = 1;
+                //ERROR
+                //is private
+        }
 
-    cout << endl;
+        //design patterns
+        {
+            //VisibleInnerIterable
+            {
+                VisibleInnerIterable c;
+                VisibleInnerIterable::Iterable ita = c.getIterable();
+                VisibleInnerIterable::Iterable::iterator it = ita.begin();
+                
+                int i;
+                int is[] = {0,1,2};
+                for(
+                    it = ita.begin(), i=0;
+                    it != ita.end();
+                    ++it, ++i
+                )
+                {
+                    assert( *it == is[i] );
+                }
+            }
+        }
+    }
 
-    cout << "dynamic memory" << endl;
-
+    //dynamic memory
+    {
         {
             int* ip;
             ip = new int [5];
             ip[0] = 1;
             delete[] ip;
+        }
 
-            //can also alocate single int
-                //useless of course
-                //but is might be useful to allocate a single object
-                ip = new int;
-                *ip = 1;
-                delete ip;
+        {
+        //can also alocate single int
+            //useless of course
+            //but is might be useful to allocate a single object
+            int* ip = new int;
+            *ip = 1;
+            delete ip;
+        }
 
-            cout << "new Class;" << endl;
-            cp = new Class;
-                //SAME cp = new Class();
-            cp->i = 10;
+        {
+            NoBaseNoMember* cp = new NoBaseNoMember;
+            //NoBaseNoMember* cp = new NoBaseNoMember();
+                //SAME
+            assert( callStack.back() == "NoBaseNoMember::NoBaseNoMember()" );
+
+            cp->method();
+
             delete cp;
+            assert( callStack.back() == "NoBaseNoMember::~NoBaseNoMember()" );
                 //calls destructor
-            cout << endl;
+        }
 
-            cout << "new Class[2];" << endl;
-            cp = new Class[2];
-            cp[0].i = 3;
-            cp[1].i = 4;
+        {
+            NoBaseNoMember* cp = new NoBaseNoMember[2];
+
+            assert( callStack.back() == "NoBaseNoMember::NoBaseNoMember()" ); callStack.pop_back();
+            assert( callStack.back() == "NoBaseNoMember::NoBaseNoMember()" ); callStack.pop_back();
+
+            cp[0].method();
+            cp[1].method();
+
             delete[] cp;
-                //calls destructors
-            cout << endl;
+            assert( callStack.back() == "NoBaseNoMember::~NoBaseNoMember()" ); callStack.pop_back();
+            assert( callStack.back() == "NoBaseNoMember::~NoBaseNoMember()" ); callStack.pop_back();
+        }
 
-            //ip = new int;
+        {
+            //int* ip = new int;
             //delete ip;
                 //BAD
                 //undefined behavior, maybe crash
                 //delete ip;
-            
-            ip = new int;
-            ip = new int;
-            delete ip;
+        }
+        
+        {
+            //int* ip = new int;
+            //ip = new int;
+            //delete ip;
                 //BAD
                 //memory leak. memory is lost forever.
+        }
 
+        {
+            //int* ip;
             //delete ip;
                 //BAD
                 //undefined behavior, maybe crash
                 //ip was not allocated after delete!
         }
+    }
 
-    cout << "exceptions" << endl;
+    //exception
+    {
         //TODO
         //
-    cout << endl;
+    }
 
-    cout << "enum" << endl;
-
+    //enum
+    {
+            //delete ip;
+                //BAD
+                //undefined behavior, maybe crash
+                //ip was not allocated after delete!
         enum TEXTURE { GRASS, WALL, SKY };
         TEXTURE t = GRASS;
         //unlike c, already does typedef
@@ -1729,47 +1933,25 @@ int main(int argc, char** argv)
         //ERROR
             //enum E2 { E2=i };
             //only const expressions allowed
- 
-    cout << endl;
+    }
 
-    cout << "namespace" << endl;
-
+    //namespace
+    {
         //variables
-
-            i=0;   //inner i
-            ::i=0; //global i
-            namea::i=0; //namea i
+        {
+            int i;
+            i = 0;          //inner  i
+            ::i = 0;        //global i
+            namea::i = 0;   //namea  i
             i++;
-            cout << i << endl;
-            cout << ::i << endl;
-            cout << namea::i << endl;
-            cout << endl;
-            //1 0 0
-
-            i=0;
-            ::i=0;
-            namea::i=0;
-            ::i++;
-            cout << i << endl;
-            cout << ::i << endl;
-            cout << namea::i << endl;
-            cout << endl;
-            //0 1 0
+            assert( i        == 1 );
+            assert( ::i      == 0 );
+            assert( namea::i == 0 );
 
             f();
             namea::f();
             namea::nameaa::f();
-            cout << endl;
-
-            i=0;
-            ::i=0;
-            namea::i=0;
-            i++;
-            cout << i << endl;
-            cout << ::i << endl;
-            cout << namea::i << endl;
-            cout << endl;
-            //1 0 0
+        }
         
         { int i; }
  
@@ -1791,54 +1973,56 @@ int main(int argc, char** argv)
         }
 
         //namespace chaining
-            {
-                using namespace namea;
-                using namespace nameaa;
+        {
+            using namespace namea;
+            using namespace nameaa;
 
-                //f();
-                    //ERROR ambiguous
-                    //::f
-                    //namea::f
-                    //namea::nameaa:f
-                ::f();
-                namea::f();
-                namea::nameaa::f();
-            }
-
-        //namespace alias
-            namespace newNamea = namea;
-            { using namespace newNamea;
-                //f();
-                //ERROR ambiuous
+            //f();
+                //ERROR ambiguous
                 //::f
                 //namea::f
-            }
+                //namea::nameaa:f
+            ::f();
+            namea::f();
+            namea::nameaa::f();
+        }
+
+        //namespace alias
+        namespace newNamea = namea;
+        {
+            using namespace newNamea;
+            //f();
+            //ERROR ambiuous
+            //::f
+            //namea::f
+        }
 
         //subimport
-            { using namea::f;
-                //imports only name::f
- 
-                f();
-                    //OK
-                    //namea::f
-                    //overwrides global f()
+        {
+            using namea::f;
+            //imports only name::f
 
-                //C c;
-                    //ERROR
-                    //only f was imported
-            };
+            f();
+                //OK
+                //namea::f
+                //overwrides global f()
+
+            //C c;
+                //ERROR
+                //only f was imported
+        };
 
         using namespace namea;
             //BAD
             //namespace for the rest of this function
             //you can't unuse later
 
-    cout << endl;
+    }
 
-    {cout << "stdlib" << endl;
- 
-        cout << "string" << endl;
-
+    //stdlib
+    {
+        //string
+        {
             {
                 string s = "abc";
             }
@@ -1846,8 +2030,10 @@ int main(int argc, char** argv)
             //cout works as expected
             {
                 string s = "abc";
-                cout << s;
-                    //abc
+
+                stringstream oss;
+                oss << s;
+                assert( oss.str() == "abc" );
             }
 
             {
@@ -1879,10 +2065,10 @@ int main(int argc, char** argv)
                 oss << "cd";
                 assert( oss.str() == "abcd" );
             }
-        
-        cout << endl;
+        }
 
-        cout << "io" << endl;
+        //io
+        {
             //in c++ there is no more printf formatting strings
             //must use the c libs for that
 
@@ -1896,9 +2082,10 @@ int main(int argc, char** argv)
             //cin
                 //cin >> i;
                 //cout << i
+        }
 
-
-        cout << "vector" << endl;
+        //vector
+        {
             //dynamic array based
             //reallocates as necessary
 
@@ -1914,6 +2101,7 @@ int main(int argc, char** argv)
                 }
 
                 //single value
+                {
                     {
                         vector<int> v(3,2);
                         vector<int> v1 = {2,2,2};
@@ -1925,6 +2113,7 @@ int main(int argc, char** argv)
                         vector<int> v1 = {0,0,0};
                         assert( v == v1 );
                     }
+                }
 
                 //range copy
                 {
@@ -1949,12 +2138,12 @@ int main(int argc, char** argv)
                 }
 
                 //size
-                    {
-                        vector<int> v;
-                        assert( v.size() == 0 );
-                        v.push_back(0);
-                        assert( v.size() == 1 );
-                    }
+                {
+                    vector<int> v;
+                    assert( v.size() == 0 );
+                    v.push_back(0);
+                    assert( v.size() == 1 );
+                }
 
                 //pushed back
                     //size            no of elements pushed back
@@ -1969,127 +2158,137 @@ int main(int argc, char** argv)
                     //data            get pointer to allocated array
 
             //modify
-
+            {
                 //can modify with initializers
-                    {
-                        vector<int> v;
-                        v = {0};
-                        v = {0,1};
-                        //assert( v = {0,1} );
-                            //ERROR
-                            //not possible
-                    }
+                {
+                    vector<int> v;
+                    v = {0};
+                    v = {0,1};
+                    //assert( v = {0,1} );
+                        //ERROR
+                        //not possible
+                }
 
                 //push_back
-                    {
-                        vector<int> v;
-                        vector<int> v1;
+                {
+                    vector<int> v;
+                    vector<int> v1;
 
-                        v.push_back(0);
-                        v1 = {0};
-                        assert( v == v1 );
+                    v.push_back(0);
+                    v1 = {0};
+                    assert( v == v1 );
 
-                        v.push_back(1);
-                        v1 = {0,1};
-                        assert( v == v1 );
-                    }
+                    v.push_back(1);
+                    v1 = {0,1};
+                    assert( v == v1 );
+                }
 
-                    //push_back makes copies
-                    {
-                        vector<string> v;
-                        string s = "abc";
-                        v.push_back(s);
-                        v[0][0] = '0';
-                        assert( v[0] == "0bc" );
-                        assert( s == "abc" );
-                            //s was not changed
-                    }
+                //push_back makes copies
+                {
+                    vector<string> v;
+                    string s = "abc";
+                    v.push_back(s);
+                    v[0][0] = '0';
+                    assert( v[0] == "0bc" );
+                    assert( s == "abc" );
+                        //s was not changed
+                }
 
                 //pop_back
+                {
                     //no return val
-                    {
-                        vector<int> v = {0,1};
-                        vector<int> v1;
+                    //reason:
+                        //<http://stackoverflow.com/questions/12600330/pop-back-return-value>
+                    vector<int> v = {0,1};
+                    vector<int> v1;
 
-                        v.pop_back();
-                        v1 = {0};
-                        assert( v == v1 );
+                    v.pop_back();
+                    v1 = {0};
+                    assert( v == v1 );
 
-                        v.pop_back();
-                        v1 = {};
-                        assert( v == v1 );
-                    }
+                    v.pop_back();
+                    v1 = {};
+                    assert( v == v1 );
+                }
 
                 //insert
-                    {
-                        vector<int> v = {0,1};
-                        vector<int> v1;
-                        
-                        v.insert( v.begin(), -1 );
-                        v1 = {-1,0,1};
-                        assert( v == v1 );
+                {
+                    vector<int> v = {0,1};
+                    vector<int> v1;
+                    
+                    v.insert( v.begin(), -1 );
+                    v1 = {-1,0,1};
+                    assert( v == v1 );
 
-                        v.insert( v.end(), 2 );
-                        v1 = {-1,0,1,2};
-                        assert( v == v1 );
-                    }
+                    v.insert( v.end(), 2 );
+                    v1 = {-1,0,1,2};
+                    assert( v == v1 );
+                }
 
                 //erase
-                    {
-                        vector<int> v;
-                        vector<int> v1;
+                {
+                    vector<int> v;
+                    vector<int> v1;
 
-                        v = {0,1,2,3};
-                        v.erase( v.begin() + 1, v.end() - 1 );
-                        v1 = {0,3};
-                        assert( v == v1 );
+                    v = {0,1,2,3};
+                    v.erase( v.begin() + 1, v.end() - 1 );
+                    v1 = {0,3};
+                    assert( v == v1 );
 
-                        v = {0,1,2};
-                        v.erase( v.begin() + 1 );
-                        v1 = {0,2};
-                        assert( v == v1 );
-                    }
+                    v = {0,1,2};
+                    v.erase( v.begin() + 1 );
+                    v1 = {0,2};
+                    assert( v == v1 );
+                }
+
+                //clear
+                {
+                    vector<int> v= {0,1,2};
+                    v.clear();
+                    assert( v.size() == 0 );
+                }
+
+                //cout v;
+                    //no default operator <<
+            }
 
             //random access
+            {
                 //fast
-                {
-                    vector<int> v = {0,1,2};
+                
+                vector<int> v = {0,1,2};
 
-                    assert( v.front() == 0 );
-                    assert( v.back() == 2 );
+                assert( v.front() == 0 );
+                assert( v.back() == 2 );
 
-                    v[0] = 1;
-                    assert( v[0] == 1 );
-                    //cout << v1[2] << endl;
-                    //v1[2] = 2;
-                        //ERROR
-                        //just like array overflow
-                        //will not change vector size
-                }
+                v[0] = 1;
+                assert( v[0] == 1 );
+                //cout << v1[2] << endl;
+                //v1[2] = 2;
+                    //ERROR
+                    //just like array overflow
+                    //will not change vector size
+            }
 
             //iterate
-                //could be done with random access
-                //but still use iterators
-                //if you ever want to change to a container that has slow random access
-                //it will be a breeze
+            {
+                vector<int>::iterator it;
+                vector<int> v = {2,1,0};
+                int i;
+                int is[] = {2,1,0};
+                for(
+                    it = v.begin(), i=0;
+                    it != v.end();
+                    ++it, ++i
+                )
                 {
-                    vector<int>::iterator it;
-                    vector<int> v = {2,1,0};
-                    int i;
-                    int is[] = {2,1,0};
-                    for(
-                        it = v.begin(), i=0;
-                        it != v.end();
-                        ++it, ++i
-                    )
-                    {
-                        assert( *it == is[i] );
-                    }
+                    assert( *it == is[i] );
                 }
+            }
+        }
 
-        cout << endl;
-
-        cout << "set" << endl;
+        //set
+        {
             //- unique elements
             //    inserting twice does nothing
             //- immutable elements
@@ -2126,79 +2325,118 @@ int main(int argc, char** argv)
             }
 
             //iterate
+            {
                 //always sorted
+                int i;
+                int is[] = {0,1,2};
+                set<int>::iterator it;
+                set<int> s = {1,2,0,1};
+                for(
+                    it = s.begin(), i=0;
+                    it != s.end();
+                    it++, i++
+                )
                 {
-                    int i;
-                    int is[] = {0,1,2};
-                    set<int>::iterator it;
-                    set<int> s = {1,2,0,1};
-                    for(
-                        it = s.begin(), i=0;
-                        it != s.end();
-                        it++, i++
-                    )
-                    {
-                        assert( *it == is[i] );
-                        //*it = 3;
-                            //ERROR
-                            //read only
-                    }
+                    assert( *it == is[i] );
+                    //*it = 3;
+                        //ERROR
+                        //read only
                 }
+            }
 
+            {
+                int i;
+                string is[] = {"a","b","c"};
+                std::set<std::string> s = {"a","c","b","a"};
+                std::set<std::string>::iterator it;
+                for(
+                    it = s.begin(), i=0;
+                    it != s.end();
+                    it++, i++
+                )
                 {
-                    int i;
-                    string is[] = {"a","b","c"};
-                    std::set<std::string> s = {"a","c","b","a"};
-                    std::set<std::string>::iterator it;
-                    for(
-                        it = s.begin(), i=0;
-                        it != s.end();
-                        it++, i++
-                    )
-                    {
-                        assert( *it == is[i] );
-                        cout << (*it)[0] << endl;
-                        //(*it)[0] = 'a';
-                            //ERROR
-                            //read only
-                    }
+                    assert( *it == is[i] );
+                    char c = (*it)[0];
+                    //(*it)[0] = 'a';
+                        //ERROR
+                        //read only
                 }
+            }
 
             //find
+            {
                 //since always sorted, find has logarithmic complexity
-                {
-                    set<int> s = {0,1,2};
-                    set<int>::iterator it = s.find(1);
-                    assert( *it == 1 );
-                }
+                set<int> s = {0,1,2};
+                set<int>::iterator it = s.find(1);
+                assert( *it == 1 );
+            }
 
             //you can modify objects if store pointers
-                {
-                    int i = 0;
-                    set<int*> s;
-                    s.insert(&i);
-                    set<int*>::iterator it = s.find(&i);
-                    *(*it) = 1;
-                    assert( i == 1 );
-                }
+            {
+                int i = 0;
+                set<int*> s;
+                s.insert(&i);
+                set<int*>::iterator it = s.find(&i);
+                *(*it) = 1;
+                assert( i == 1 );
+            }
 
             //count
+            {
                 //can only return 1 or 0
-                {
-                        set<int> s = {1,2,0,1};
-                        assert( s.count(1) == 1 );
-                        assert( s.count(3) == 0 );
-                }
+                set<int> s = {1,2,0,1};
+                assert( s.count(1) == 1 );
+                assert( s.count(3) == 0 );
+            }
+        }
 
-        cout << endl;
+        //iterator
+        {
+            //iteration could be done with random access
+            //but still use iterators:
+            //- if you ever want to change to a container that
+                //has slow random access it will be a breeze
+            //- with iterators you don't need to know total container size
+            //- iterators may allow you not to keep the whole sequence in
+            //   memory, but calculate it on the fly
+            //
 
-        cout << "algorithms" << endl;
+            vector<int> v = { 1, 2 };
+            set<int> s = { 1, 2 };
 
+            //no generic iterator for all containers
+            {
+                vector<int>::iterator itVec = v.begin();
+                set<int>::iterator itSeti = s.begin();
+                //iterator it
+                //it = v.begin();
+                //it = s.begin();
+                    //DOES NOT EXIST
+                    //there is no standard iterator independent from container
+                    //this can be done via type erasure techinques
+                    //but would mean loss of performance because of lots of polymorphic calls
+                    //and stl is obssessed with performance
+            }
+
+            //no born check
+            {
+                *( v.end() - 1 );
+                    //last element
+                *( v.end() );
+                    //after last element
+                    //no born check
+                //( v.end().hasNext() );
+                    //no such method
+            }
+        }
+
+        //algorithm
+        {
             assert( min(0.1,0.2) == 0.1 );
             assert( max(0.1,0.2) == 0.2 );
 
             //change order
-            
+            {
                 //sort
                 {
                     vector<int> v = {2,0,1};
@@ -2220,9 +2458,10 @@ int main(int argc, char** argv)
                     vector<int> v = {2,0,1};
                     random_shuffle( v.begin(), v.end() );
                 }
+            }
 
             //find
-            
+            {
                 {
                     vector<int> v = {2,0,1};
                     unsigned int pos;
@@ -2241,9 +2480,10 @@ int main(int argc, char** argv)
                 }
 
                 //binary_search
+                {
                     //container must be already sorted
                     //log time
-                {
+                    
                     vector<int> v = {2,0,1};
                     sort( v.begin(), v.end() );
                     assert( binary_search( v.begin(), v.end(), 1 ) == true );
@@ -2263,50 +2503,69 @@ int main(int argc, char** argv)
                     assert( *max_element( v.begin(), v.end() ) == 2 );
                     assert( *min_element( v.begin(), v.end() ) == 0 );
                 }
+            }
+        }
 
-        cout << endl;
-
-        cout << "memory" << endl;
-
-            cout << "shared_ptr" << endl;
+        //memory
+        {
+            //shared_ptr
+            {
                 //C++11
                 //before boost
-
                 {
-                    shared_ptr<Base> spi1(new Base);
-                    shared_ptr<Base> spi2(spi1);
-                    cout << "spi1->method();" << endl;
+                    callStack.clear();
+                    shared_ptr<NoBaseNoMember> spi1(new NoBaseNoMember);
+                    shared_ptr<NoBaseNoMember> spi2(spi1);
                     spi1->method();
-                    spi1 = shared_ptr<Base>(new Base);
-                    cout << "spi2(sp1);" << endl;
-                    spi2 = shared_ptr<Base>(spi1);
-                    cout << "^^^^^ first base destroyed!" << endl;
+                    spi1 = shared_ptr<NoBaseNoMember>(new NoBaseNoMember);
+                    spi2 = shared_ptr<NoBaseNoMember>(spi1);
+                    assert( callStack.back() == "NoBaseNoMember::~NoBaseNoMember()" );
                 }
+            }
+        }
 
-            cout << endl;
+        //typeinfo
+        {
+            //get type of variables
+            
+            int i, i1;
+            Class c;
 
-        cout << endl;
+            assert( typeid(i) == typeid(int) );
+            assert( typeid(i) == typeid(i1) );
+            assert( typeid(i) != typeid(c)  );
 
-        cout << "thread" << endl;
+            std::string s( typeid(i).name() );
+                //returns string
+
+            //assert( typeid(i).name() == "int" );
+                //WARN
+                //undefined because value not specified on the standard
+        }
+
+        //thread
+        {
             //c++11
+            //needs -pthread flag on gcc linux
             
-                //needs -pthread flag on linux
-                
-                std::thread t1( threadFunc, 1000 );
-                std::thread t2( threadFunc, 1000 );
-                    //starts them
-            
-                t1.join();
-                t2.join();
-                    //both must end
+            std::thread t1( threadFunc, 1000 );
+            std::thread t2( threadFunc, 1000 );
+                //starts them
+        
+            t1.join();
+            t2.join();
+                //both must end
 
-                cout << "main thread id:" << std::this_thread::get_id() << endl;
-                std::this_thread::sleep_for(std::chrono::nanoseconds(nNsecs));
-                std::this_thread::yield();
+            assert( threadChange > 0 );
+            //assert( threadIds.size() == 2 );
+            assert( threadGlobalEq0 > 0 );
+            assert( threadGlobalMutexedEq0 == 0 );
 
-        cout << endl;
-
-    }cout << endl;
+            std::thread::id mainId = std::this_thread::get_id();
+            std::this_thread::sleep_for(std::chrono::nanoseconds(nNsecs));
+            std::this_thread::yield();
+        }
+    }
 
     cout << "==================================================" << endl;
     cout << "= ALL ASSERTS PASSED" << endl;
