@@ -1148,6 +1148,250 @@ void printCallStack()
             //done, pass to another thread
     }
 //}
+
+#ifdef PROFILE
+
+    const static int nProfRuns = 100000000;
+
+    //only the loop.
+    //discount this from every other profile run
+    void loopOnlyProf(int n)
+    {
+        int i;
+        for( i=0; i<n; i++ );
+    }
+
+    void whileOnlyProf(int n)
+    {
+        int i = 0;
+        while( i < n )
+        {
+            ++i;
+        }
+    }
+
+    void intAssignProf(int n)
+    {
+        int i,j;
+        for( i=0; i<n; i++ )
+            j=1;
+    }
+
+    void doNothing(){}
+
+    void funcCallProf(int n)
+    {
+        int i;
+        for( i=0; i<n; i++ )
+            doNothing();
+    }
+
+    static inline void inlineDoNothing(){}
+
+    void inlineFuncCallProf(int n)
+    {
+        int i;
+        for( i=0; i<n; i++ )
+            inlineDoNothing();
+    }
+
+    void intSumProf(int n)
+    {
+        int i, j = 0;
+        for( i=0; i<n; i++ )
+            j = j + 0;
+    }
+
+    void intSubProf(int n)
+    {
+        int i, j = 0;
+        for( i=n; i>0; i-- );
+            j = j - 0;
+    }
+
+    void intMultProf(int n)
+    {
+        int i, j = 1;
+        for( i=0; i<n; i++ )
+            j = j * 1;
+    }
+
+    void intDivProf(int n)
+    {
+        int i, j = 1;
+        for( i=0; i<n; i++ )
+            j = j / 1;
+    }
+
+    void floatSumProf(int n)
+    {
+        float f;
+        int i;
+        for( i=0; i<n; i++ )
+            f = f + 0.0;
+    }
+
+    void floatSubProf(int n)
+    {
+        float f;
+        int i;
+        for( i=0; i<n; i++ )
+            f = f - 0.0;
+    }
+
+    void floatMultProf(int n)
+    {
+        int i;
+        float j;
+        for( i=0; i<n; i++ )
+            j = j * 1.0;
+    }
+
+    void floatDivProf(int n)
+    {
+        int i;
+        float j;
+        for( i=0; i<n; i++ )
+            j = j / 1.0;
+    }
+
+    void putsProf(int n)
+    {
+        int i;
+        for( i = 0; i < n; ++i )
+            puts("");
+    }
+
+    void stack1bProf(int n)
+    {
+        int is[1];
+        int i;
+        for( i = 0; i < n; ++i )
+        {
+            int is[1];
+        }
+    }
+
+    void stack1kbProf(int n)
+    {
+        int is[1];
+        int i;
+        for( i = 0; i < n; ++i )
+        {
+            int is[0x800];
+        }
+    }
+
+    void stack1mbProf(int n)
+    {
+        int is[1];
+        int i;
+        for( i = 0; i < n; ++i )
+        {
+            int is[0xF0000];
+        }
+    }
+    
+    void heapMalloc1bProf(int n)
+    {
+        char* cp;
+        int i;
+        for( i = 0; i < n; ++i )
+        {
+            cp = (char*) malloc( sizeof( char ) * 1 );
+            free(cp);
+        }
+    }
+
+    void heapMalloc1kbProf(int n)
+    {
+        char* cp;
+        int i;
+        for( i = 0; i < n; ++i )
+        {
+            cp = (char*) malloc( sizeof( char ) * 0x800 );
+            free(cp);
+        }
+    }
+
+    void heapMalloc1mbProf(int n)
+    {
+        char* cp;
+        int i;
+        for( i = 0; i < n; ++i )
+        {
+            cp = (char*) malloc( sizeof( char ) * 0xF0000 );
+            free(cp);
+        }
+    }
+
+    void heapNew1bProf(int n)
+    {
+        char* cp;
+        int i;
+        for( i = 0; i < n; ++i )
+        {
+            cp = new char[1];
+            delete[] cp;
+        }
+    }
+
+    void heapNew1kbProf(int n)
+    {
+        char* cp;
+        int i;
+        for( i = 0; i < n; ++i )
+        {
+            cp = new char[0x800];
+            delete[] cp;
+        }
+    }
+
+    void heapNew1mbProf(int n)
+    {
+        char* cp;
+        int i;
+        for( i = 0; i < n; ++i )
+        {
+            cp = new char[0xF0000];
+            delete[] cp;
+        }
+    }
+
+    class BaseProf
+    {
+        public:
+            virtual void virtualMethod(){}
+    };
+
+    class ClassProf
+    {
+        public:
+            void method(){}
+            virtual void virtualMethod(){}
+    };
+
+    void methodCallProf(int n)
+    {
+        ClassProf c;
+        int i;
+        for( i = 0; i < n; ++i )
+        {
+            c.method();
+        }
+    }
+
+    void virtualMethodCallProf(int n)
+    {
+        ClassProf c;
+        int i;
+        for( i = 0; i < n; ++i )
+        {
+            c.virtualMethod();
+        }
+    }
+
+#endif
     
 int main(int argc, char** argv)
 {
@@ -1335,25 +1579,28 @@ int main(int argc, char** argv)
         }
     }
 
-    cout << "vla" << endl;
+    //vla
+    //gcc
     {
-        //UNPORTABLE
-            //gcc extension
-            //
-            //called variable length array VLS
-            //
-            //C99 supports this
-            //
-            //compiler implementation:
-            //must increment/decrement stack pointer at each array
-            //meaning, one extra multiplication and sum for every VLA declared
+        //called variable length array VLS
+        
+        //C99 supports this
+        
+        //compiler implementation:
+        //must increment/decrement stack pointer at each array
+        //meaning, one extra multiplication and sum for every VLA declared
 
-        //cin >> i;
-        //int is4[i];
+        {
+            //cin >> i;
+            //int is4[i];
+        }
 
-        //cin >> i;
-        //int is4[i] = {1,2}
-            //ERROR, cannot initialize. what if i<2?
+        {
+            //cin >> i;
+            //int is4[i] = { 1, 2 };
+                //ERROR
+                //may not be initialized
+        }
     }
 
     cout << "for" << endl;
@@ -1705,7 +1952,7 @@ int main(int argc, char** argv)
 
         }
 
-        cout << "overwridding" << endl;
+        cout << "overridding" << endl;
         {
             {
                 Class c;
@@ -1732,14 +1979,18 @@ int main(int argc, char** argv)
                 c.Base::iAmbiguous = 0;
                 c.BaseAbstract::iAmbiguous = 0;
 
+                callStack.clear();
                 c.method();
-                assert( callStack.back() == "Class::method()" ); callStack.clear();
+                assert( callStack.back() == "Class::method()" );
                 //c.methodAmbiguous();
                     //ERROR ambiguous
+                callStack.clear();
                 c.Base::methodAmbiguous();
-                assert( callStack.back() == "Base::methodAmbiguous()" ); callStack.clear();
+                assert( callStack.back() == "Base::methodAmbiguous()" );
+                
+                callStack.clear();
                 c.BaseAbstract::methodAmbiguous();
-                assert( callStack.back() == "BaseAbstract::methodAmbiguous()" ); callStack.clear();
+                assert( callStack.back() == "BaseAbstract::methodAmbiguous()" );
             }
         }
 
@@ -1757,13 +2008,16 @@ int main(int argc, char** argv)
                 //BaseAbstract* bap = &c;
                     //SAME
                 
+                callStack.clear();
                 bap->method();
-                assert( callStack.back() == "BaseAbstract::method()" ); callStack.clear();
+                assert( callStack.back() == "BaseAbstract::method()" );
                     //base method because non-virtual
 
+                callStack.clear();
                 bap->virtualMethod();
-                assert( callStack.back() == "Class::virtualMethod()" ); callStack.clear();
+                assert( callStack.back() == "Class::virtualMethod()" );
                     //class method because virtual
+                
                 delete bap;
             }
 
@@ -1771,18 +2025,24 @@ int main(int argc, char** argv)
                 //you can also have BaseAbstract&
                 Class c;
                 BaseAbstract& ba = c;
+
+                callStack.clear();
                 ba.method();
-                assert( callStack.back() == "BaseAbstract::method()" ); callStack.clear();
+                assert( callStack.back() == "BaseAbstract::method()" );
+                
+                callStack.clear();
                 ba.virtualMethod();
-                assert( callStack.back() == "Class::virtualMethod()" ); callStack.clear();
+                assert( callStack.back() == "Class::virtualMethod()" );
             }
 
             {
                 Class c = Class();
                 Base* bp = &c;
                 bp = bp->covariantReturn();
+                
+                callStack.clear();
                 bp->virtualMethod();
-                assert( callStack.back() == "Class::virtualMethod()" ); callStack.clear();
+                assert( callStack.back() == "Class::virtualMethod()" );
 
                 //classPtr = basePtr->covariantReturn();
                     //ERROR
@@ -1861,6 +2121,7 @@ int main(int argc, char** argv)
         }
 
         {
+            callStack.clear();
             NoBaseNoMember* cp = new NoBaseNoMember;
             //NoBaseNoMember* cp = new NoBaseNoMember();
                 //SAME
@@ -1868,20 +2129,22 @@ int main(int argc, char** argv)
 
             cp->method();
 
+            callStack.clear();
             delete cp;
             assert( callStack.back() == "NoBaseNoMember::~NoBaseNoMember()" );
                 //calls destructor
         }
 
         {
+            callStack.clear();
             NoBaseNoMember* cp = new NoBaseNoMember[2];
-
             assert( callStack.back() == "NoBaseNoMember::NoBaseNoMember()" ); callStack.pop_back();
             assert( callStack.back() == "NoBaseNoMember::NoBaseNoMember()" ); callStack.pop_back();
 
             cp[0].method();
             cp[1].method();
 
+            callStack.clear();
             delete[] cp;
             assert( callStack.back() == "NoBaseNoMember::~NoBaseNoMember()" ); callStack.pop_back();
             assert( callStack.back() == "NoBaseNoMember::~NoBaseNoMember()" ); callStack.pop_back();
@@ -2532,8 +2795,8 @@ int main(int argc, char** argv)
             Class c;
 
             assert( typeid(i) == typeid(int) );
-            assert( typeid(i) == typeid(i1) );
-            assert( typeid(i) != typeid(c)  );
+            assert( typeid(i) == typeid(i1)  );
+            assert( typeid(i) != typeid(c)   );
 
             std::string s( typeid(i).name() );
                 //returns string
@@ -2558,20 +2821,64 @@ int main(int argc, char** argv)
 
             assert( threadChange > 0 );
             //assert( threadIds.size() == 2 );
-            assert( threadGlobalEq0 > 0 );
+            //assert( threadGlobalEq0 > 0 );
             assert( threadGlobalMutexedEq0 == 0 );
 
             std::thread::id mainId = std::this_thread::get_id();
-            std::this_thread::sleep_for(std::chrono::nanoseconds(nNsecs));
+            std::this_thread::sleep_for( std::chrono::nanoseconds( nNsecs ) );
             std::this_thread::yield();
         }
     }
+
+#ifdef PROFILE
+
+        loopOnlyProf(nProfRuns);
+        whileOnlyProf(nProfRuns);
+
+        intAssignProf(nProfRuns);
+        intSumProf(nProfRuns);
+        intSubProf(nProfRuns);
+        intMultProf(nProfRuns);
+        intDivProf(nProfRuns);
+
+        floatSumProf(nProfRuns);
+        floatSubProf(nProfRuns);
+        floatMultProf(nProfRuns);
+        floatDivProf(nProfRuns);
+
+        funcCallProf(nProfRuns);
+        inlineFuncCallProf(nProfRuns);
+
+        //allocation
+        {
+            stack1bProf(nProfRuns);
+            stack1kbProf(nProfRuns);
+            stack1mbProf(nProfRuns);
+
+            heapMalloc1bProf(nProfRuns);
+            heapMalloc1kbProf(nProfRuns);
+            //heapMalloc1mbProf(nProfRuns);
+            
+            heapNew1bProf(nProfRuns);
+            heapNew1kbProf(nProfRuns);
+            //heapNew1mbProf(nProfRuns);
+                //new is faster!
+        }
+
+        methodCallProf(nProfRuns);
+        virtualMethodCallProf(nProfRuns);
+            //2x as expensive than function call
+        
+        //putsProf(nProfRuns);
+            //BAD
+            //don't do stdout on profiling
+            //system time is not counted anyways
+#endif
 
     cout << "==================================================" << endl;
     cout << "= ALL ASSERTS PASSED" << endl;
     cout << "==================================================" << endl;
 
     //global/static destructors
-    
     return EXIT_SUCCESS;
 }

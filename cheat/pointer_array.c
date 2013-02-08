@@ -115,30 +115,40 @@ int main()
 
                 //define
                 {
-
 #define DEFINESIZE 3
                     //BAD
                     //*no scope*, so you can't use N anymore.
                     //use enum instead
                     int is[DEFINESIZE];
                     is[2] = 1;
-
                 }
 
                 //VLA
                 {
+                    //- C99
+                    //- implementation:
+                        //increase/decrease stack pointer
+                        //requires one addition and one multiplication per declaration
+                    {
+                        int n = 2;
+                        //scanf( "%d", &n );
+                            //OK
+                        int isVla[n];
+                    }
 
-                    //int n
-                    //scanf("%d",&n);
-                    //int isVla[n];
-                        //NOTE
-                        //- introduced in c99
-                        //- called variable length array (VLA)
-                        //- implementation:
-                            //increase/decrease stack pointer
-                            //requires one addition and one multiplication per declaration
-                        //- not in standard c++, but gcc implements it as an extra feature
-                
+                    {
+                        //int n = 2;
+                        //int isVla[n] = { 1, 2 };
+                            //ERROR
+                            //cannot be initialized
+                    }
+
+                    {
+                        //const int n = 2;
+                        //int isVla[n] = { 1, 2 };
+                            //ERROR
+                            //cannot be initialized
+                    }
                 }
 
             }
@@ -371,32 +381,62 @@ int main()
                     //NOTE
                     //use '\0' always
                     //c std functions use that to see where string ends
-
+                
                 cs[0] = 'A';
-                assert( cs[0] == 'A' );
+                assert( strcmp(cs,"Abc") == 0 );
 
                 //cs = "Abc";
                     //ERROR
+            }
+
+            //can use across lines.
+            //no newline added.
+            {
+                char cs[] = "ab"
+                            "cd";
+                assert( strcmp( cs, "abcd" ) == 0 );
             }
 
             //std string functions
             {
                 //use '\0' to see ther string ends
 
-                char cs[] = "abc";
-                char cs2[3];
 
-                printf( "%s\n", cs );
-                    //abc
+                //printf, sprintf
+                {
+                    char cs[] = "abc";
+                    char cs2[4];
+                    sprintf(cs2, "%s", cs );
+                    assert( strcmp( cs, cs2 ) == 0 );
+                }
+
+                //length
+                {
+                    char cs[] = "abc";
+                    assert( strlen(cs) == 3 );
+                }
 
                 //copy
+                {
+                    char cs[] = "abc";
+                    char cs2[4];
+                    char cs3[1];
+
                     strcpy( cs2, cs );
                         //more efficient than for loop
                     strcpy( cs2, "abc" );
                         //OK
+                    //strcpy( cs3, "abc" );
+                        //BAD
+                        //no born checking as always
+                }
 
                 //compare
+                {
+                    char cs[] = "abc";
+                    char cs2[] = "abc";
                     assert( strcmp( cs, cs2 ) == 0 );
+                    assert( strcmp( cs, "abc" ) == 0 );
                         //equality
                     cs[1] = 'a';
                     assert( strcmp( cs, cs2 ) < 0 );
@@ -404,6 +444,7 @@ int main()
                     cs[1] = 'd';
                     assert( strcmp( cs, cs2 ) > 0 );
                         //larget
+                }
             }
     
             //text segment

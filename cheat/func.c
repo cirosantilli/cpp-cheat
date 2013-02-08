@@ -2,9 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-//ERROR no func overload in c
-    //void overload(int n){}
-    //void overload(float n){}
+//void overload(int n){}
+//void overload(float n){}
+    //ERROR no func overload in c
 
 void fInt(int i){puts("fInt");}
 void fFloat(float f){puts("fInt");}
@@ -64,28 +64,14 @@ float pow2f(float a, float b)
      }
      return res;
 }
- 
-//UNPORTABLE: func in func. gcc
-    //int fOut()
-    //{
-    //    int fIn(){ return 1; };
-    //    return fIn();
-    //}
 
 int main(){
 
-    int i = 0;
-    int is[] = {0,1};
-
     //automatic conversions
+    {
         fInt(1.0);
         fFloat(1);
-
-    //ERROR no func in func
-        //void fInMain(){}
-
-    //int *is2 = {0,1};
-    //ERROR
+    }
 
     puts("static variable in functions");
     {
@@ -103,10 +89,12 @@ int main(){
     }
 
     //func in func
+    {
         //UNPORTABLE
         //gnu extension
         //not standard
         //printf("fOut() = %d",fOut());
+    }
 
     return EXIT_SUCCESS;
 }

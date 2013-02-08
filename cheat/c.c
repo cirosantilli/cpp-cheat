@@ -185,17 +185,9 @@ thats why is is called *pre*
 
     - openMP is is a library supported on C, C++, fortran, windows, linux macos
 
-    - volatile vs mutable
-
-        http://en.wikipedia.org/wiki/Volatile_variable
-
-        prevents funcion optimization
-
-        useful for multithreading
-
+    -  mutable
         TODO
 
-TODO
     - file io
     - documentation: doxigen
 
@@ -292,10 +284,10 @@ that is, applied to specific domains of science
     //does simple stuff *before* compilation
 
 #include <stdio.h>
-//printf, puts
+    //printf, puts
 
 #include <stdlib.h>
-//malloc, EXIT_SUCCESS, EXIT_FAILURE
+    //malloc, EXIT_SUCCESS, EXIT_FAILURE
 
 //define
     //define constants, or control compilation
@@ -306,8 +298,11 @@ that is, applied to specific domains of science
 #include <math.h>
 #include <time.h>
 //#include <thread.h>
+    //not yet implemented for me
 
-//POSIX
+#include <stdint.h>
+
+//BEGIN POSIX
 #include <sys/stat.h>    
 #include <unistd.h>
 //END POSIX
@@ -365,15 +360,70 @@ int windowsVar;
         //cannot create scopes here like that
         //they'd be useless
 
-//random
-    float rand_range(float a, float b)
-    { //float in a range
-        return ((b-a)*((float)rand()/RAND_MAX))+a;
+//functions
+//{
+    //void overload(int n){}
+    //void overload(float n){}
+        //ERROR no func overload in c
+
+    void fInt(int i){puts("fInt");}
+    void fFloat(float f){puts("fInt");}
+
+    void fIntPtr (int *i){}
+    void fIntArr (int i[]){}
+
+    //exact same thing
+
+    void withStaticVar()
+    {
+        int a = 1;
+        static int sa = 1;
+            //BAD
+            //- not thread safe
+            //- hard to understand
+
+        a++;
+        sa++;
+
+        printf("a = %d, sa = %d\n", a, sa);
     }
 
-//profiling
+    int addInt(int n, int m)
+    {
+        return n+m;
+    }
 
-    const int nProfRuns = 1000000;
+    int subInt(int n, int m)
+    {
+        return n-m;
+    }
+
+    int intFuncIntInt(int (*functionPtr)(int, int), int m, int n)
+    {
+        return (*functionPtr)(m, n);
+    }
+//}
+
+#ifdef PROFILE
+
+    const static int nProfRuns = 100000000;
+
+    //only the loop.
+    //discount this from every other profile run
+    void loopOnlyProf(int n)
+    {
+        int i;
+        for( i=0; i<n; i++ );
+    }
+
+    void whileOnlyProf(int n)
+    {
+        int i = 0;
+        while( i < n )
+        {
+            ++i;
+        }
+    }
 
     void intAssignProf(int n)
     {
@@ -402,28 +452,30 @@ int windowsVar;
 
     void intSumProf(int n)
     {
-        int i;
-        for( i=0; i<n; i++ );
+        int i, j = 0;
+        for( i=0; i<n; i++ )
+            j = j + 0;
     }
 
     void intSubProf(int n)
     {
-        int i;
+        int i, j = 0;
         for( i=n; i>0; i-- );
+            j = j - 0;
     }
 
     void intMultProf(int n)
     {
-        int i,j;
+        int i, j = 1;
         for( i=0; i<n; i++ )
-            j=j*1;
+            j = j * 1;
     }
 
     void intDivProf(int n)
     {
-        int i,j;
+        int i, j = 1;
         for( i=0; i<n; i++ )
-            j=j/1;
+            j = j / 1;
     }
 
     void floatSumProf(int n)
@@ -431,7 +483,7 @@ int windowsVar;
         float f;
         int i;
         for( i=0; i<n; i++ )
-            f=f+0.0;
+            f = f + 0.0;
     }
 
     void floatSubProf(int n)
@@ -439,7 +491,7 @@ int windowsVar;
         float f;
         int i;
         for( i=0; i<n; i++ )
-            f=f-0.0;
+            f = f - 0.0;
     }
 
     void floatMultProf(int n)
@@ -447,7 +499,7 @@ int windowsVar;
         int i;
         float j;
         for( i=0; i<n; i++ )
-            j=j*1.0;
+            j = j * 1.0;
     }
 
     void floatDivProf(int n)
@@ -455,15 +507,115 @@ int windowsVar;
         int i;
         float j;
         for( i=0; i<n; i++ )
-            j=j/1.0;
+            j = j / 1.0;
     }
 
     void putsProf(int n)
     {
         int i;
-        for( i=0; i<n; i++ )
+        for( i = 0; i < n; ++i )
             puts("");
     }
+
+    void stack1bProf(int n)
+    {
+        int is[1];
+        int i;
+        for( i = 0; i < n; ++i )
+        {
+            int is[1];
+        }
+    }
+
+    void stack1kbProf(int n)
+    {
+        int is[1];
+        int i;
+        for( i = 0; i < n; ++i )
+        {
+            int is[0x800];
+        }
+    }
+
+    void stack1mbProf(int n)
+    {
+        int is[1];
+        int i;
+        for( i = 0; i < n; ++i )
+        {
+            int is[0xF0000];
+        }
+    }
+    
+    void heap1bProf(int n)
+    {
+        char* cp;
+        int i;
+        for( i = 0; i < n; ++i )
+        {
+            cp = (char*) malloc( sizeof( char ) * 1 );
+            free(cp);
+        }
+    }
+
+    void heap1kbProf(int n)
+    {
+        char* cp;
+        int i;
+        for( i = 0; i < n; ++i )
+        {
+            cp = (char*) malloc( sizeof( char ) * 0x800 );
+            free(cp);
+        }
+    }
+
+    void heap1mbProf(int n)
+    {
+        char* cp;
+        int i;
+        for( i = 0; i < n; ++i )
+        {
+            cp = (char*) malloc( sizeof( char ) * 0xF0000 );
+            free(cp);
+        }
+    }
+
+#endif
+
+//algorithms
+//{
+    //simple fun algorithms
+
+    //random
+    //{
+        float rand_range(float a, float b)
+        { //float in a range
+            return ((b-a)*((float)rand()/RAND_MAX))+a;
+        }
+    //}
+    
+    //a pow b
+    int pow2(int a, int b)
+    {
+        int res = 1;
+        int i;
+        for(i=0; i<b; i++){
+        res = res*a;
+        }
+        return res;
+    }
+    
+    //TODO does not work
+    float pow2f(float a, float b)
+    {
+        float res = 1.f;
+        float i;
+        for(i=0; i<b; i++){
+        res = res*a;
+        }
+        return res;
+    }
+//}
 
 int main(int argc, char** argv)
 {
@@ -526,6 +678,20 @@ int main(int argc, char** argv)
                 unsigned int ui = 1u;
                 unsigned long int uli = 1lu;
                 unsigned long long int ulli = 1llu;
+
+                //integer constants
+                //{
+                    //by default, are of the first of the following types
+                    //that can represent the value (this is machine dependant):
+                    //
+                    //int
+                    //unsigned int
+                    //long int
+                    //unsigned long int
+                    //long long int
+                    //unsigned long long int
+                    //ERROR
+                //}
             }
 
             //float types
@@ -599,13 +765,13 @@ int main(int argc, char** argv)
             //char c = 255+1;
             //unsigned char c = 257;
                 //WARN
+            
             //lli = 0x10000000000000000;
                 //WARN constant too large (even for long long, the largest type)
 
-            char c = 255;
-            c++;
-                //OK
-                //not at initialization
+            //char c = 255;
+            //c++;
+                //WARN
 
             assert( 1.00000000000000000000000000000000000000000000001 == 1.0 );
                 //OK
@@ -615,6 +781,7 @@ int main(int argc, char** argv)
         //other bases for integers
         {
             assert( 16 == 0x10    );
+            assert( 16 == 0x10    );
             assert( 16 == 0x10l   );
             assert( 16 == 0x10ll  );
             assert( 16 == 0x10u   );
@@ -623,7 +790,8 @@ int main(int argc, char** argv)
                 //hexa
             assert( 16 == 020 );
                 //octal
-            assert( 16 == 0b10000 );
+            //assert( 16 == 0b10000 );
+                //GCC
                 //binary
         }
 
@@ -644,7 +812,7 @@ int main(int argc, char** argv)
             printf("(int)1L = %d\n", (int)1L); //long to int
             printf("(long)1 = %ld\n", (long)1); //int to long
 
-            printf("(int*)&f = %p\n", (int*)&f); //any pointer typecast is ok to compiler
+            printf("(int*)&f = %p\n", (void*)&f); //any pointer typecast is ok to compiler
             printf("(int)&f = %d\n", (int)&f);   //memory address of pointer
 
             int is3[3];
@@ -716,6 +884,7 @@ int main(int argc, char** argv)
                     //cis2[0] = 1;
             }
 
+            {
             //scanf("%d",&i);
             //const 
                 //NOTE
@@ -723,7 +892,47 @@ int main(int argc, char** argv)
                 //they are only constant after they are declared
                 //this is another reason why you can't use them
                 //as arrays sizes without VLA
+            }
         }
+
+        //volatile
+        {
+            volatile int vi;
+                //compiler will not store this value in cpu registers as optimization
+                //instead of in RAM
+                //application:
+                    //multithreading, where variable may to change value at any time
+                    //if value were stored in register, other threads could not modify it
+        }
+
+        //register
+        {
+            {
+                register int ri;
+                    //hint to compiler that ri be stored in register
+                    //instead of in RAM
+                    //
+                    //not necessarily honored
+                    //
+                    //almost always done without a hint if possible
+            }
+            
+            {
+                //register int ri;
+                //int* ip = &ri;
+                    //ERROR
+                    //cpu registers don't have addresses!
+            }
+
+            {
+                struct S { int i; };
+                register struct S s;
+                    //BAD
+                    //impossible to store compound type in registers
+                    //compiler will certainly not honor ``register`` hint
+            }
+        }
+
     }
 
     //typedef
@@ -958,7 +1167,15 @@ int main(int argc, char** argv)
             //increment
                 //http://stackoverflow.com/questions/24886/is-there-a-performance-difference-between-i-and-i-in-c
                 //which is faster?
-                //in c, equal, in c++, ++i potentially if i is a complex object
+                //- in c, equal
+                //- in c++, ++i potentially if i is a complex object
+                //why it exists if equivalent to x=x+1?
+                //- because there is an x86 instruction for that
+                //why?
+                //- because it takes less program memory ``inc eax``, instead of ``sum eax,1``
+                //- and is a *very* common instruction
+                //what about +=, -=, etc. ?
+                //- same thing: ``ax = ax + bx`` == ``sum ax,bx``
 
                 i=0;
                 assert( i++ == 0 );
@@ -980,31 +1197,31 @@ int main(int argc, char** argv)
                 assert( f++ == 0.0 );
                 assert( f == 1.0 );
 
-            i=0;
-            assert( ( i += 1 ) == 1 );
-            assert( i == 1 );
+                i=0;
+                assert( ( i += 1 ) == 1 );
+                assert( i == 1 );
 
-            i=1;
-            assert( ( i -= 1 ) == 0 );
-            assert( i == 0 );
+                i=1;
+                assert( ( i -= 1 ) == 0 );
+                assert( i == 0 );
 
-            i=1;
-            assert( ( i *= 2 ) == 2 );
-            assert( i == 2 );
+                i=1;
+                assert( ( i *= 2 ) == 2 );
+                assert( i == 2 );
 
-            i=2;
-            assert( ( i /= 2 ) == 1 );
-            assert( i == 1 );
+                i=2;
+                assert( ( i /= 2 ) == 1 );
+                assert( i == 1 );
 
-            i=3;
-            assert( ( i %= 2 ) == 1 );
-            assert( i == 1 );
+                i=3;
+                assert( ( i %= 2 ) == 1 );
+                assert( i == 1 );
 
-            i=0xFF;
-            assert( ( i &= (char)0x00 ) == (char)0x00 );
-            assert( ( (char)i == (char)0x00 ) );
+                i=0xFF;
+                assert( ( i &= (char)0x00 ) == (char)0x00 );
+                assert( ( (char)i == (char)0x00 ) );
 
-            //same others bitwise, except ~=
+                //same others bitwise, except ~=
         }
 
         puts("question mark");
@@ -1047,167 +1264,268 @@ int main(int argc, char** argv)
         } 
     }
 
-    puts("if");
+    //branching
     {
-        if(-1)
-        {
-            assert(1);
-        } 
-        if(0)
-        {
-            assert(0);
-        } 
-        if(1)
-        {
-            assert(1);
-        } 
 
-        //scope
+        //goto
         {
-            int i = 0;
+            //never use this
+            //tranlates to ``jmp`` in x86 isa
+
+            goto a;
+                assert(0);
+            a:
+            assert(1);
+        }
+
+        //if
+        {
+            if(-1)
+            {
+                assert(1);
+            } 
+            if(0)
+            {
+                assert(0);
+            } 
             if(1)
             {
-                int i = 1;
-                assert( i == 1 );
-            }
-        }
+                assert(1);
+            } 
 
-        puts("stdbool.h");
-        {
-            //C99
-
-            //bool b = true;
-                //ERROR
-                //no booleans true false in c, ints only! c++ only.
-                //can use stdbool.h
-
-            bool b = true;
-            bool b2 = false;
-            assert( true  == 1 );
-            assert( false == 0 );
-        }
-    }
-
-    puts("goto");
-    {
-        goto a;
-            assert(0);
-        a:
-        assert(1);
-    }
-
-    //switch
-    {
-        int i, j;
-        for( i=-1; i<3; i++ )
-        {
-            switch(i)
+            //scope
             {
-                case 0:
-
-                    assert(i==0);
-
-                    int j;
-                        //OK
-                        //new inner scope
-                    
-                    //int i = 1;
-                        //ERROR
-                        //redeclaration
-
-                    break;
-
-                case 1:
-
-                    assert(i==1);
-
-                    //int j;
-                        //ERROR
-                        //single inner scope
-
-                    break;
-
-                default:
-                    assert( i!=0 && i!=1 );
-                    break;
-            }
-        }
-    }
-
-    //for
-    {
-        //basic
-        {
-            //no difference from while
-            //
-            //only use if when know how many times
-            //otherwise use ``while``, which is more flexible
-
-            int i;
-            int is[] = {0,1,2};
-            for( i=0; i<3; i++ )
-            {
-                assert( i == is[i] );
-                //int i;
-                    //OK new scope
-            }
-            assert( i == 3 );
-        }
-
-        //putting int i=0 inside for
-        {   
-            //C99
-            int is[] = {0,1,2};
-            for( int i=0; i<3; i++ )
-            {
-                assert( i == is[i] );
-                //int i;
-                    //ERROR
-                    //redeclaration
-            }
-        }
-        
-        //one of the few uses of the comma operator
-        {
-            int is[] = {0,1,2};
-            int js[] = {0,1,2};
-            for( int i=0, j=0; i*j<5; i++, j++ )
-            {
-                assert( i == is[i] );
-                assert( i == js[i] );
-            }
-        }
-        
-        //nested loops
-        {
-            int n = 0;
-            int is[] = {0,0,1,1};
-            int js[] = {0,1,0,1};
-            for( int i=0; i<2; i++ )
-            {
-                for( int j=0; j<2; j++ )
+                int i = 0;
+                if(1)
                 {
-                    assert( i == is[n] );
-                    assert( j == js[n] );
-                    n++;
+                    int i = 1;
+                    assert( i == 1 );
+                }
+            }
+
+            //stdbool.h
+            {
+                //C99
+
+                //bool b = true;
+                    //ERROR
+                    //no booleans true false in c, ints only! c++ only.
+                    //can use stdbool.h
+
+                bool b = true;
+                bool b2 = false;
+                assert( true  == 1 );
+                assert( false == 0 );
+            }
+
+            //stdint.h
+            {
+                //c99
+                //N = 8, 16, 32, 64
+
+                { int32_t i; }
+                //exactly 32 bits
+
+                { int_least32_t i; }
+                //at least 32 bits
+            
+                { int_fast32_t i; }
+                //fastest operations with at least 32 bits
+                
+                { intptr_t i; }
+                //can hold pointer
+                //uniquelly defined by machine address space
+                
+                { intmax_t i; }
+                //max possible width
+
+                { uint32_t i; }
+                //all have unsigned verions prefixed by 'u'
+                
+                {
+                    {
+                        int32_t i = 0;
+                        assert( INT32_MIN < i );
+                        assert( INT32_MAX > i );
+                    }
+
+                    {
+                        int_fast32_t i = 0;
+                        assert( INT_FAST32_MIN < i );
+                        assert( INT_FAST32_MAX > i );
+                    }
+                }
+                //all have max/min ranges
+                //"_t" removed, "_max" or "_min" appended, all uppercased
+
+            }
+        }
+
+        //switch
+        {
+            int i, j;
+            for( i=-1; i<3; i++ )
+            {
+                switch(i)
+                {
+                    case 0:
+
+                        assert(i==0);
+
+                        int j;
+                            //OK
+                            //new inner scope
+                        
+                        //int i = 1;
+                            //ERROR
+                            //redeclaration
+
+                        break;
+
+                    case 1:
+
+                        assert(i==1);
+
+                        //int j;
+                            //ERROR
+                            //single inner scope
+
+                        break;
+
+                    default:
+                        assert( i!=0 && i!=1 );
+                        break;
                 }
             }
         }
-    }
 
-    //while
-    {
+        //for
         {
-            int i=0;
-            int is[] = {0,1,2};
-            while(i<3)
+            //basic
             {
-                assert( i == is[i] );
-                i++;	    
+                //in theory, whatever you can to with for you can do with while
+                //
+                //why it exists then?
+                //- because x86 has a loop instruction that increments and
+                //   contional jumps in a single step
+                //
+                //   therfore, using a simple for is more likely to tell your
+                //   compiler to use this more efficient looping instruction
+                //
+                //moral:
+                //if you when know how many loops you will do, use ``for``
+                //otherwise use ``while``
+
+                int i;
+                int is[] = { 0, 1, 2 };
+                for( i = 0; i < 3; ++i )
+                {
+                    assert( i == is[i] );
+                    int i;
+                        //OK new scope
+                }
+                assert( i == 3 );
             }
-            assert( i == 3 );
+
+            //single line
+            {
+                int i;
+                int is[] = { 0, 1, 2 };
+                for( i = 0; i < 3; ++i )
+                    assert( i == is[i] );
+                    //int i;
+                        //ERROR
+                        //redeclaration
+                        //note different if bracketes used
+            }
+
+            //putting int i=0 inside for
+            {   
+                //C99
+                int is[] = {0,1,2};
+                for( int i = 0; i < 3; ++i )
+                {
+                    assert( i == is[i] );
+                    //int i;
+                        //ERROR
+                        //redeclaration
+                }
+            }
+            
+            //one of the few uses of the comma operator
+            {
+                int is[] = {0,1,2};
+                int js[] = {0,1,2};
+                for( int i=0, j=0; i*j<5; i++, j++ )
+                {
+                    assert( i == is[i] );
+                    assert( i == js[i] );
+                }
+            }
+            
+            //nested loops
+            {
+                int n = 0;
+                int is[] = {0,0,1,1};
+                int js[] = {0,1,0,1};
+                for( int i=0; i<2; i++ )
+                {
+                    for( int j=0; j<2; j++ )
+                    {
+                        assert( i == is[n] );
+                        assert( j == js[n] );
+                        n++;
+                    }
+                }
+            }
         }
 
+        //while
+        {
+            {
+                int i=0;
+                int is[] = {0,1,2};
+                while(i<3)
+                {
+                    assert( i == is[i] );
+                    i++;	    
+                }
+                assert( i == 3 );
+            }
+
+        }
+
+        //functions
+        {
+            //automatic conversions
+            {
+                fInt(1.0);
+                fFloat(1);
+            }
+
+            puts("static variable in functions");
+            {
+                withStaticVar();
+                    //a = 2, sa = 2
+                withStaticVar();
+                    //a = 2, sa = 3
+            }
+
+            puts("func pointers");
+            {
+                assert( addInt != subInt );
+                assert( intFuncIntInt(&addInt,2,1) == 3 );
+                assert( intFuncIntInt(&subInt,2,1) == 1 );
+            }
+
+            //func in func
+            {
+                //UNPORTABLE
+                //gnu extension
+                //not standard
+                //printf("fOut() = %d",fOut());
+            }
+        }
     }
 
     puts("preprocessor");
@@ -1234,25 +1552,28 @@ int main(int argc, char** argv)
         puts("complex.h");
         {
             //C99
-            
-            const double complex zd = 1.0 + 2.0*I;
-            const int complex zi = 1 + 2*I;
-            const int complex zi2 = 1 + 1*I;
+            //int complex zi = 1 + 1*I;
+                //GCC
+            assert( sizeof( float complex  ) <= sizeof( double complex ) );
+            assert( sizeof( double complex ) <= sizeof( long double complex ) );
 
-            assert( creal( zi + zi ) == 2 );
-            assert( cimag( zi + zi ) == 4 );
+            const double complex zd =  1.0 + 2.0*I;
+            const double complex zd2 = 1.0 + 1.0*I;
 
-            assert( creal( zi - zi2 ) == 0 );
-            assert( cimag( zi - zi2 ) == 1 );
+            assert( creal( zd + zd ) == 2.0 );
+            assert( cimag( zd + zd ) == 4.0 );
 
-            assert( creal( zi * zi ) == -3 );
-            assert( cimag( zi * zi ) == 4 );
+            assert( creal( zd - zd2 ) == 0.0 );
+            assert( cimag( zd - zd2 ) == 1.0 );
 
-            assert( creal( zi / zi ) == 1 );
-            assert( cimag( zi / zi ) == 0 );
+            assert( creal( zd * zd ) == -3.0 );
+            assert( cimag( zd * zd ) ==  4.0 );
 
-            assert( creal( conj(zi) ) == 1 );
-            assert( cimag( conj(zi) ) == -2 );
+            assert( creal( zd / zd ) == 1.0 );
+            assert( cimag( zd / zd ) == 0.0 );
+
+            assert( creal( conj(zd) ) ==  1.0 );
+            assert( cimag( conj(zd) ) == -2.0 );
         }
 
         puts("stdio.h");
@@ -1274,14 +1595,14 @@ int main(int argc, char** argv)
                 puts("\nprintf:");
                 printf("d 1 = %d\n", 1);
                 printf("d 0xFFFFFFFF = %d\n", 0xFFFFFFFF);
-                //-1
+                    //-1
                 printf("u 0xFFFFFFFF = %u\n", 0xFFFFFFFF);
-                //max unsigned int
-                //WARN expects unsigned int, found int
-                    //printf("u -1 = %u\n", -1);
+                    //max unsigned int
+                //printf("u -1 = %u\n", -1);
+                    //WARN expects unsigned int, found int
                 printf("ld 1L = %ld\n", 1L);
-                //WARN expects unsigned int, found int
-                    //printf("u -1 = %lu\n", -1);
+                //printf("u -1 = %lu\n", -1);
+                    //WARN expects unsigned int, found int
                 printf("lld = %lld\n", 0x100000000LL); //long long (int)
                 printf("%d %d\n",1,2);
 
@@ -1303,9 +1624,9 @@ int main(int argc, char** argv)
 
                 float f;
                 printf("(void*)&f = %p\n",(void*)&f);
-                //prints the 0x address.
-                //%p must get a void pointer
-                //void* is a type, different than void. doing type cast to it.
+                    //prints the 0x address.
+                    //%p must get a void pointer
+                    //void* is a type, different than void. doing type cast to it.
 
                 printf("%%<<< escaping percentage\n");
             }
@@ -1327,6 +1648,7 @@ int main(int argc, char** argv)
                 //nothing happens on error
             
                 int i, j;
+                unsigned int ui;
                 float f;
                 printf("enter an integer in decimal and a newline (max 32 bits signed):\n");
                 i = scanf("%d", &i);
@@ -1344,7 +1666,7 @@ int main(int argc, char** argv)
                 printf("you entered:\n%.2f\n\n", f);
 
                 printf("enter an integer in hexadecimal and a newline: (max 32 bits signed)\n");
-                i = scanf("%x", &i);
+                i = scanf("%x", &ui);
                 printf("you entered (in decimal):\n%d\n\n", i);
 
             //fgets + error checking: best method
@@ -1362,8 +1684,9 @@ int main(int argc, char** argv)
 
             puts("program virtual time:\n");
                 clock_t t;
+                int i = 0;
                 t = clock();
-                intSumProf(nProfRuns);
+                i++;
                     //NOTE
                     //optimizer may simply skip your useless test operations
                     //and very little time will have passed
@@ -1411,18 +1734,36 @@ int main(int argc, char** argv)
     }
 
 #ifdef PROFILE
+        
+        //- turn off optimization if you want results to make evident sense
+        //- even without optimization, cache access speed is hard to predict
+        //   so what you expect may be false
+        
+        loopOnlyProf(nProfRuns);
+        whileOnlyProf(nProfRuns);
 
+        intAssignProf( nProfRuns);
         intSumProf(nProfRuns);
-        intAssignProf(nProfRuns);
         intSubProf(nProfRuns);
         intMultProf(nProfRuns);
         intDivProf(nProfRuns);
+
         floatSumProf(nProfRuns);
         floatSubProf(nProfRuns);
         floatMultProf(nProfRuns);
         floatDivProf(nProfRuns);
+
         funcCallProf(nProfRuns);
         inlineFuncCallProf(nProfRuns);
+
+        stack1bProf(nProfRuns);
+        stack1kbProf(nProfRuns);
+        stack1mbProf(nProfRuns);
+
+        heap1bProf(nProfRuns);
+        heap1kbProf(nProfRuns);
+        //heap1mbProf(nProfRuns);
+            //by far the slowest
 
         //putsProf(nProfRuns);
             //BAD
@@ -1498,6 +1839,13 @@ int main(int argc, char** argv)
         {
             //puts(realpath("."));
         }
+#endif
+
+#ifdef __GNUC__
+        //automatically defined on gcc even if ``-std -pedantic``
+
+        puts("__GUNC__");
+
 #endif
 
     puts("");
