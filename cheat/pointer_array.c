@@ -1,3 +1,5 @@
+#include <ctype.h>
+    //isspace and family
 #include <stdio.h>
 #include <stdlib.h> //for memcpy
 #include <string.h> 
@@ -58,8 +60,11 @@ int main()
         printf("(void*)(pi+1) = %p\n",(void*)(pi+1));
         printf("NULL = %p\n",NULL);
 
-        pi2 = pi+1;
+        pi2 = pi + 1;
         printf("(void*)(pi2-pi) = %p\n",(void*)(pi2-pi));
+        assert( pi2 - pi == 1 );
+            //OK
+            //implicit conversion * -> int
 
         //float* fp = &i;
             //ERROR
@@ -150,9 +155,7 @@ int main()
                             //cannot be initialized
                     }
                 }
-
             }
-
         }
  
         //pointers and arrays are different
@@ -366,7 +369,6 @@ int main()
 
         //string
         {
-            //text segment
             {
                 char cs[] = "abc";
                 //char cs[] = {'a','b','c','\0'}
@@ -389,7 +391,23 @@ int main()
                     //ERROR
             }
 
-            //can use across lines.
+            //escape chars in string conts
+            {
+                puts("escape chars:");
+                puts(">>>\"<<< double quotes");
+                puts(">>>\\<<< backslash");
+                puts(">>>\n<<< new line");
+                puts(">>>\t<<< tab char");
+                puts(">>>\f<<< feed char");
+                puts(">>>\v<<< vertical tab");
+                puts(">>>\r<<< carriage return");
+                printf(">>>%c<<< null char\n",'\0');
+                puts(">>>\x61<<< a in hexadecimal");
+                puts(">>>\xe4\xb8\xad<<< chinese for \"middle\" in utf8");
+                    //chinese utf8
+            }
+
+            //can create use across lines.
             //no newline added.
             {
                 char cs[] = "ab"
@@ -400,7 +418,6 @@ int main()
             //std string functions
             {
                 //use '\0' to see ther string ends
-
 
                 //printf, sprintf
                 {
@@ -444,6 +461,61 @@ int main()
                     cs[1] = 'd';
                     assert( strcmp( cs, cs2 ) > 0 );
                         //larget
+                }
+ 
+                //cat
+                {
+                    
+                    char s1[5];
+                    strcpy( s1, "ab" );
+                    char s2[] = "cd";
+                    strcat(s1,s2);
+                    assert( strcmp( s1, "abcd" ) == 0 );
+                    assert( strcmp( s2, "cd"   ) == 0 );
+                }
+                    
+                //strchr
+                {
+                    //search for char in string
+                    //return pointer to that char if found
+                    //return null if not found
+                    {
+                        char cs[] = "abcb";
+                        assert( strchr( cs, 'b' ) == cs + 1 );
+                        assert( strchr( cs, 'd' ) == NULL );
+                    }
+                
+                    //find all occurences of c in cs
+                    {
+                        //no direct std for this
+                        
+                        char cs[] = "abcb";
+                        char* cp;
+                        char c = 'b';
+                        int is[] = { 1, 3 };
+
+                        int i = 0;
+                        cp = strchr( cs, c );
+                        while( cp != NULL )
+                        {
+                            assert( cp - cs == is[i] );
+                            cp = strchr( cp + 1, c );
+                            ++i;
+                        }
+                    }
+                }
+
+                //isspace
+                {
+                    assert(   isspace( ' '  ) );
+                    assert(   isspace( '\n' ) );
+                    assert( ! isspace( 'a'  ) );
+                }
+
+                //isdigit
+                {
+                    assert(   isdigit('0') );
+                    assert( ! isdigit('a') );
                 }
             }
     

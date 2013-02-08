@@ -49,12 +49,6 @@
     * float 8 exp + 23 mantissa + 1 sign
     * same name bad
 
-#preprocessor
-
-does stuff before the compilation
-
-thats why is is called *pre*
-
 - include
 
     look in standard dirs directly
@@ -64,7 +58,6 @@ thats why is is called *pre*
     look in current dir first:
 
     include "file.h"
-
 
 - define, ifded
 
@@ -281,31 +274,26 @@ that is, applied to specific domains of science
 */
 
 //preprocessor
+//{
     //does simple stuff *before* compilation
-
-#include <stdio.h>
-    //printf, puts
-
-#include <stdlib.h>
-    //malloc, EXIT_SUCCESS, EXIT_FAILURE
-
-//define
-    //define constants, or control compilation
-
 #include <assert.h>
 #include <complex.h>
 #include <stdbool.h>
+#include <stdint.h>
+#include <stdlib.h>
+    //malloc, EXIT_SUCCESS, EXIT_FAILURE
+#include <stdio.h>
+    //printf, puts
 #include <math.h>
 #include <time.h>
 //#include <thread.h>
     //not yet implemented for me
 
-#include <stdint.h>
-
-//BEGIN POSIX
+#ifdef POSIX
+#include <regex.h>
 #include <sys/stat.h>    
 #include <unistd.h>
-//END POSIX
+#endif
  
 #define PI 3.14
 //BAD
@@ -336,7 +324,10 @@ int debugVar;
 int windowsVar;
 #endif
 
+//}
+
 //global scope
+//{
 
     int global = 1;
         //this is a global variable: can be accessed and modified everywhere
@@ -359,6 +350,7 @@ int windowsVar;
         //ERROR
         //cannot create scopes here like that
         //they'd be useless
+//}
 
 //functions
 //{
@@ -1528,28 +1520,31 @@ int main(int argc, char** argv)
         }
     }
 
-    puts("preprocessor");
+    //preprocessor
     {
         {
 #define A B
 #define B 1
+            //BAD
+                //you can put preprocessor directives anywhere
+                //but putting on global scope is the more standard and simple approach
             assert( A == 1 );
         }
 
         {
-            //gcc -DCOMMANDLINE c.c
-            //gcc c.c
 #ifdef COMMANDLINE
+            //gcc -DCOMMANDLINE c.c
             puts("C");
 #else
+            //gcc c.c
             puts("no C");
 #endif
         }
     }
 
-    puts("stdlib");
+    //stdlib
     {
-        puts("complex.h");
+        //complex.h
         {
             //C99
             //int complex zi = 1 + 1*I;
