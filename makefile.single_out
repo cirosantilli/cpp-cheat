@@ -7,6 +7,7 @@ override CC?=g++
 override CFLGS?=-Wall -std=c99 -pedantic-errors
 override DEBUG_DEFINE?=
 override DEBUG_FLAGS?=
+override DEFINES=#-DPOSIX #for -DDEBUG and -DPROFILE, used dedicated DEFINES
 override IN_EXT?=.cpp
 override IN_DIR?=./
 override INCLUDE_DIRS?=-I/usr/include/GL
@@ -26,7 +27,7 @@ AUXS_NODIR:=$(patsubst %$(IN_EXT),%$(AUX_EXT),$(INS_NODIR))
 AUXS:=$(addprefix $(AUX_DIR),$(AUXS_NODIR))
 OUT:=$(OUT_DIR)$(OUT_BASENAME)$(OUT_EXT)
 
-.PHONY: all mkdir clean assembler debug set_debug_flags profile set_profile_flags help
+.PHONY: all mkdir clean assembler debug set_debug_flags profile set_profile_flags help ubuntu_deps
 
 all: mkdir $(OUT)
 
@@ -58,7 +59,7 @@ $(OUT): $(AUXS)
 	$(CC) $(PROFILE_FLAGS) $^ -o "$@" $(LIBS)
 
 $(AUX_DIR)%$(AUX_EXT): $(IN_DIR)%$(IN_EXT)
-	$(CC) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(OPTIMIZE_FLAGS) $(PREDEF) $(INCLUDE_DIRS) $(CFLAGS) -c "$<" -o "$@"
+	$(CC) $(DEFINES) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(OPTIMIZE_FLAGS) $(PREDEF) $(INCLUDE_DIRS) $(CFLAGS) -c "$<" -o "$@"
 
 mkdir:
 	mkdir -p "$(AUX_DIR)"
@@ -67,8 +68,13 @@ mkdir:
 clean:
 	rm -rf $(AUX_DIR) $(OUT_DIR)
 
+ubuntu_deps:
+	sudo aptitude install -y libgtk-3-dev
+
 help:
 	@echo 'sample calls:'
+	@echo '  ubuntu_deps'
+	@echo '    #installs dependencies on Ubuntu'
 	@echo '  make'
 	@echo '  make clean'
 	@echo '  make run'

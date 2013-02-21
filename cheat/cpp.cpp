@@ -99,6 +99,7 @@ good general resources
 #include <vector>  
 
 #include <cassert>
+#include <cmath>
 #include <cstdlib>
 
 using namespace std;
@@ -154,6 +155,10 @@ void printCallStack()
     class Base
     {
         public:
+
+            typedef int NESTED_INT;
+                //best to put it on top of class
+                //so def will go for entire class
 
             /*
             default constructor
@@ -270,7 +275,7 @@ void printCallStack()
             int i,j;
             //ERROR: cannot initialize here
                 //int i = 0;
-
+            
             int iAmbiguous;
 
             int* is;
@@ -278,14 +283,20 @@ void printCallStack()
             float fs4[4];
             std::vector<int> vi;
 
-            //BAD: every class must have an assigment operator
-            //but then, assigment does something like this->ic = other->ic
-            //you could redefine the assigment, but still in your new definition
-            //ic cannot be changed
-            //http://stackoverflow.com/questions/634662/non-static-const-member-cant-use-default-assignment-operator
-                //const int ic;
+            mutable int mutableI;
+            //static mutable int staticMutableI;
+                //ERROR
+                //statics can be changed in const functions by default
+
+            //BAD
+                //every class must have an assigment operator
+                //but then, assigment does something like this->ic = other->ic
+                //you could redefine the assigment, but still in your new definition
+                //ic cannot be changed
+                //<http://stackoverflow.com/questions/634662/non-static-const-member-cant-use-default-assignment-operator>
         
             //static
+            //{
             
                 static void staticMethod();
 
@@ -317,6 +328,7 @@ void printCallStack()
                     //
                     //why integral types are an exception (complicated):
                         //http://stackoverflow.com/questions/13697265/static-const-double-cannot-have-an-in-class-initializer-why-is-it-so
+            //}
 
             class Nested
             {
@@ -348,8 +360,6 @@ void printCallStack()
                     //outter one
             };
 
-            typedef int NESTED_INT;
-
         protected:
 
             int iProtected;
@@ -378,6 +388,15 @@ void printCallStack()
         //this->member.i = 1;
             //ERROR
             //cant assign member member in const method
+        
+        this->mutableI = 1;
+            //OK
+            //mutable allows you to do that!
+            //application (multithreading):
+            //<http://stackoverflow.com/questions/105014/does-the-mutable-keyword-have-any-purpose-other-than-allowing-the-variable-to>
+
+        this->iStatic = 1;
+            //does not prevent static changes
 
         callStack.push_back("Base::constMethod()");
     }
@@ -950,6 +969,36 @@ void printCallStack()
             //ERROR
                 //T not declared
         }
+
+        //variadic
+            //c++11
+
+            //base case
+            template <typename T>
+            T variadicSum(T t) { return(t); }
+
+            template <typename T, typename ...P>
+            T variadicSum(T t, P ...p)
+            {
+                if (sizeof...(p))
+                {
+                    t += variadicSum(p...);
+                }
+                return(t);
+            }
+
+            //loop
+            //template <typename T, typename ...P>
+            //T variadicSum2(T t, P ...p)
+            //{
+                //std::vector list = {p...};
+
+                //if (sizeof...(p))
+                //{
+                    //t += variadicSum(p...);
+                //}
+                //return(t);
+            //}
 
     //recursion example
         template<int N>
@@ -1655,7 +1704,21 @@ int main(int argc, char** argv)
                 //1 to 2 will be compiled
             assert( factorial<6>() == 720 );
                 //4 to 6 will be compiled
+            
+            //variadic template
+            {
+                assert( variadicSum( 1 )       == 1 );
+                assert( variadicSum( 1, 2 )    == 3 );
+                assert( variadicSum( 1, 2, 3 ) == 6 );
+
+                assert( fabs( variadicSum( 0.1 )           - 0.1 ) < 1e-6 );
+                assert( fabs( variadicSum( 0.1, 0.2 )      - 0.3 ) < 1e-6 );
+                assert( fabs( variadicSum( 0.1, 0.2, 0.3 ) - 0.6 ) < 1e-6 );
+
+                assert( variadicSum( 1, 1.0 ) == 2.0 );
+            }
         }
+
     }
 
     cout << "class" << endl;

@@ -15,7 +15,7 @@ AUXS_NODIR:=$(patsubst %$(IN_EXT),%$(AUX_EXT),$(INS_NODIR))
 AUXS=$(addprefix $(AUX_DIR),$(AUXS_NODIR))
 OUT=$(OUT_DIR)cheat$(OUT_EXT)
 
-.PHONY: all clean mkdir run 
+.PHONY: all clean mkdir run ubuntu_deps
 
 all: mkdir $(OUT)
 
@@ -34,3 +34,6 @@ mkdir:
 
 clean:
 	rm -rf $(AUX_DIR) $(OUT_DIR)
+
+ubuntu_deps:
+	sudo aptitude install -y freeglut3-dev

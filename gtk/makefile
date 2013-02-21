@@ -3,10 +3,12 @@
 CC := gcc
 CXX := g++
 
-CFLAGS := -Wall -Wno-unused-variable -Wno-unused-but-set-variable -march=native -std=c99 -pedantic-errors
-CXXFLAGS := -pthread -Wall -Wno-unused-variable -Wno-unused-but-set-variable -march=native -std=c++0x -pedantic-errors
+PKGNAME=gtk+-3.0
 
-LIBS:=
+CFLAGS := $(shell pkg-config --cflags "$(PKGNAME)")
+CXXFLAGS := -Wall -march=native -std=c++0x -pedantic-errors
+
+LIBS := $(shell pkg-config --libs "$(PKGNAME)")
 
 IN_DIR:=./
 OUT_DIR:=_out/
@@ -24,14 +26,12 @@ INS_NODIR:=$(notdir $(INS))
 OUTS_NODIR:=$(patsubst %$(EXT),%$(OUT_EXT),$(INS_NODIR))
 CPP_OUTS:=$(addprefix $(OUT_DIR),$(OUTS_NODIR))
 
-override DEFINES=-DPOSIX
+override DEFINES=
 
 override ASSEMBLER_BASENAME?=c.c
 #override ASSEMBLER_FILE?=cpp.cpp
 
-override RUN?=c
-#override RUN?=func
-#override RUN?=cpp
+override RUN?=gtk
 
 override ASSEMBLE_EXT?=.c
 #override ASSEMBLE_EXT?=.cpp
@@ -41,15 +41,14 @@ override DEBUG_FLAGS?=
 override PROFILE_DEFINE?=
 override PROFILE_FLAGS?=
 
-RUN_BNAME:=$(RUN)$(OUT_EXT)
-RUN_PATH:=$(OUT_DIR)$(RUN_BNAME)
+RUN_PATH:=$(OUT_DIR)$(RUN)$(OUT_EXT)
 ASSEMBLE_BASENAME:=$(RUN)$(ASSEMBLE_EXT)
 
 #override OPTIMIZE_FLAGS?=-O3
 override OPTIMIZE_FLAGS?=
 #dont opt for educative purposes
 
-.PHONY: all mkdir clean profile set_profile_flags
+.PHONY: all mkdir clean profile set_profile_flags ubuntu_deps
 
 all: mkdir $(C_OUTS) $(CPP_OUTS)
 
@@ -75,13 +74,16 @@ set_profile_flags:
 	#$(eval override OPTIMIZE_FLAGS := -O0)
 
 run: all
-	( cd $(OUT_DIR) && ./$(RUN_BNAME) ) #run on out dir
+	./$(RUN_PATH)
 
 mkdir:
 	mkdir -p "$(OUT_DIR)"
 
 clean:
 	rm -rf "$(OUT_DIR)"
+
+ubuntu_deps:
+	sudo aptitude install -y libgtk-3-dev
 
 $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.c
 	$(CC) $(DEFINES) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) $(CFLAGS) -o "$@" "$<" $(LIBS)

@@ -3,10 +3,10 @@
 CC := gcc
 CXX := g++
 
-CFLAGS := -Wall -Wno-unused-variable -Wno-unused-but-set-variable -march=native -std=c99 -pedantic-errors
+CFLAGS := -Wall -Wno-unused-variable -Wno-unused-but-set-variable -march=native -std=c99 -pedantic-errors 
 CXXFLAGS := -pthread -Wall -Wno-unused-variable -Wno-unused-but-set-variable -march=native -std=c++0x -pedantic-errors
 
-LIBS:=
+LIBS:=-lX11
 
 IN_DIR:=./
 OUT_DIR:=_out/
@@ -29,9 +29,7 @@ override DEFINES=-DPOSIX
 override ASSEMBLER_BASENAME?=c.c
 #override ASSEMBLER_FILE?=cpp.cpp
 
-override RUN?=c
-#override RUN?=func
-#override RUN?=cpp
+override RUN?=x11
 
 override ASSEMBLE_EXT?=.c
 #override ASSEMBLE_EXT?=.cpp
@@ -41,8 +39,7 @@ override DEBUG_FLAGS?=
 override PROFILE_DEFINE?=
 override PROFILE_FLAGS?=
 
-RUN_BNAME:=$(RUN)$(OUT_EXT)
-RUN_PATH:=$(OUT_DIR)$(RUN_BNAME)
+RUN_PATH:=$(OUT_DIR)$(RUN)$(OUT_EXT)
 ASSEMBLE_BASENAME:=$(RUN)$(ASSEMBLE_EXT)
 
 #override OPTIMIZE_FLAGS?=-O3
@@ -75,7 +72,7 @@ set_profile_flags:
 	#$(eval override OPTIMIZE_FLAGS := -O0)
 
 run: all
-	( cd $(OUT_DIR) && ./$(RUN_BNAME) ) #run on out dir
+	./$(RUN_PATH)
 
 mkdir:
 	mkdir -p "$(OUT_DIR)"
