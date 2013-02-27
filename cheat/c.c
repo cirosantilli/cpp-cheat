@@ -104,7 +104,7 @@
 
 - language versions
 
-    #ANSI
+    #ANSI C
 
         language is standardized by an organization named ANSI
 
@@ -114,6 +114,8 @@
 
         however you can always check open source documentation of compiler/stdlib
         implementations
+
+        drafts are also free, and quite close to the actual specifications
         
         - C11
             - previously known as c1x
@@ -134,10 +136,11 @@
 
     #glibc
 
-        std lib does not come with gcc.
+        std only specifies the interface, not the implementation.
 
-        on default on linux, it comes with glibc, gnu implementation of the c
-        stdlib.
+        ``glibc``, the gnu implementation, is very dominant on linux
+
+        stdlib does not come with gcc: you could in theory choose between different implementations.
 
         - ubuntu
 
@@ -253,6 +256,22 @@ that is, applied to specific domains of science
 - tokamak
 */
 
+#ifdef POSIX
+//posix defines certain things *INSIDE*
+//ansi c headers
+
+//if you want to access them with the -ansi -c99 flags,
+//you need to define ``_XOPEN_SOURCE``
+
+//the value refers to the actual posix version
+//for example:
+
+    //500: issue 5, 1995
+    //600: issue 6, 2004
+    //700: issue 7, 2008
+#define _XOPEN_SOURCE 700
+#endif
+
 //preprocessor
 //{
     //does simple stuff *before* compilation
@@ -282,20 +301,20 @@ that is, applied to specific domains of science
     //POSIX is an operating system standardization by IEEE.
     //followed by Linux and OSX, but not by windows.
 
-    //there are POSIX headers which allow c to do direct system calls
-    //on POSIX compliant systems.
-    //
+    //many of the functions of the posix headers are very close
+    //to certain linux system calls
+    
     //they allow operations such as:
+        //- threads
+        //- ipc
+        //- filesystem operations
+        //- user/group info
 
-    //- threads
-    //- ipc
-    //- filesystem operations
-    //- user/group info
-
-    //check: <http://en.wikipedia.org/wiki/C_POSIX_library>
+    //list of headers: <http://en.wikipedia.org/wiki/C_POSIX_library>
 #include <libgen.h>
     //basename, dirname
     //whithout this, one gets the glib.c version
+#include <pthread.h>
 #include <regex.h>
 #include <sys/socket.h>
 #include <sys/stat.h>    
@@ -305,6 +324,10 @@ that is, applied to specific domains of science
 #include <sys/wait.h>
 #include <unistd.h>
     //sleep: no portable way
+
+extern char **environ;
+    //environment variables
+    //each process has a list
 #endif
 
 //#include <linux/limits.h>
@@ -321,9 +344,6 @@ that is, applied to specific domains of science
     //compiler reads
     //int 3.14 = 3.14;
     //hard to figure error msg
-
-//GOOD
-const int M_PI = 3.14;
 
 #define PI_PLUS_ONE (3.14 + 1)
     //use parenthesis or order of operation might destroy you
@@ -1087,10 +1107,9 @@ int main(int argc, char** argv)
             f = d;
 
             printf("(double).1f = %f\n", (double).1f); //float to double
-                //WARN possible
             printf("(float).1 = %f\n", (float).1); //double to float
                 //WARN possible
-            printf("(int).1f = %d\n", (int).1f);
+            printf("(int).1f = %d\n", (int).1f); //float to int
                 //WARN possible
             printf("(int)1L = %d\n", (int)1L); //long to int
             printf("(long)1 = %ld\n", (long)1); //int to long
@@ -1107,7 +1126,7 @@ int main(int argc, char** argv)
                 //is3=is4;
         }
         
-        //const
+        //#const
         {
             int i = 0;
             const int ic = 0;
@@ -1168,13 +1187,13 @@ int main(int argc, char** argv)
             }
 
             {
-            //scanf("%d",&i);
-            //const 
-                //NOTE
-                //consts are *not* "compile time constants"
-                //they are only constant after they are declared
-                //this is another reason why you can't use them
-                //as arrays sizes without VLA
+                //scanf("%d",&i);
+                    //works
+                    //NOTE
+                    //consts are *not* "compile time constants"
+                    //they are only constant after they are declared
+                    //this is another reason why you can't use them
+                    //as arrays sizes without VLA
             }
         }
 
@@ -1598,7 +1617,7 @@ int main(int argc, char** argv)
                 //incompatible pointer type
         }
 
-        //array
+        //#array
         {
             {
                 {
@@ -1627,6 +1646,13 @@ int main(int argc, char** argv)
                     assert( is[1] == 2 );
                     assert( is[2] == 0 );
                     assert( is[3] == 0 );
+                }
+
+                {
+                    int is[4]  = {1,2};
+                    int is2[4] = {1,2};
+                    //is = is2;
+                        //ERROR
                 }
                 
                 {
@@ -1753,8 +1779,10 @@ int main(int argc, char** argv)
                 assert( memcmp( is, is2, 3 * sizeof(int)) > 0 );
             }
 
-            //copy
+            //#memcpy
             {
+                //copy memory
+                
                 int is[] = {0,1,2};
                 int is2[3];
 
@@ -1772,6 +1800,15 @@ int main(int argc, char** argv)
                 memcpy(&is, &(int [5]){ 0,1,2 }, sizeof(is) );
                     //C99
                 assert( memcmp( is, &(int [5]){ 0,1,2 }, 3 * sizeof(int)) == 0 );
+            }
+
+            //#memset
+            {
+                //set memory block to a single value
+                
+                char cs[] = "abcdef";
+                memset( cs + 2, '0', 3 );
+                assert( strcmp( cs, "ab000f" ) == 0 );
             }
 
             //multidim
@@ -2362,9 +2399,9 @@ int main(int argc, char** argv)
                 int n = 0;
                 int is[] = {0,0,1,1};
                 int js[] = {0,1,0,1};
-                for( int i=0; i<2; i++ )
+                for ( int i = 0; i < 2; i++ )
                 {
-                    for( int j=0; j<2; j++ )
+                    for ( int j = 0; j < 2; j++ )
                     {
                         assert( i == is[n] );
                         assert( j == js[n] );
@@ -2374,12 +2411,12 @@ int main(int argc, char** argv)
             }
         }
 
-        //while
+        //#while
         {
             {
                 int i=0;
-                int is[] = {0,1,2};
-                while(i<3)
+                int is[] = { 0, 1, 2 };
+                while ( i < 3 )
                 {
                     assert( i == is[i] );
                     i++;	    
@@ -2387,6 +2424,38 @@ int main(int argc, char** argv)
                 assert( i == 3 );
             }
 
+            //#do-while
+            {
+                int i = 0;
+                int i2;
+                int is[] = { 0, 1, 2 };
+                do
+                {
+                    i2 = 2*i*i + 3*i + ( i % 2 );
+                    assert( i == is[i] );
+                    i++;	    
+                } while ( i2 < 7 );
+                    //don't forget the ';' !
+
+                //application:
+
+                    //loop must execute at least once
+                    //to know if it will continue
+
+                    //without do-while, you would have to either:
+                    
+                        //write:
+                        //``int i2 = 2*i*i + 3*i + ( i % 2 );``
+                        //so you have to type this huge expression twice!
+                        //so if you change one you have to change the other
+                        //and you risk to forget creating a hard to find bug
+                        
+                        //write a function that does 2*i*i + 3*i + ( i % 2 );
+                        //this function is almost useless (used only twice)
+                        //adding needless boilerplate to your code
+                
+                    //both of which are not very attractive alternatives
+            }
         }
 
         //functions
@@ -2497,32 +2566,102 @@ int main(int argc, char** argv)
 
         puts("stdlib");
         {
-            int r = system("echo a | grep b");
-            //assert( r == 1 );
-                //executes command in shell
-                //return value is system dependant
-                    //but often the command exit status
+            //#system
+            {
+                int r = system( "echo a | grep b" );
+                //assert( r == 1 );
+                    //executes command in a shell
+                    //and waits for it to end
+                    
+                    //on linux
+                        //does: /bin/sh -c
+                        //this could be written with the posix
+                        //fork + execl + wait
+
+                    //on windows uses nother shell
+                    
+                    //so in the end what you write with this is not easily portable
+                    
+                    //return value is system dependant
+                        //but often the command exit status
+            }
         }
 
         puts("stdio.h");
         {
-            //stdin, stdout, stderr
+            //#general notes
+            
+                //#EOF
+                
+                    //TODO what is EOF on a system level
+                    //what happens when I hit ctrl+d on bash + getchar?
+                    //current guess: a pipe close
+                    
+                    //in linux, EOF does not exist
+                    
+                    //the only way to know if a file is over is to make a ``sys_read`` call 
+                    //and check if you get less bytes than you ask for
+                    //(``sys_read`` returns the number of bytes read)
+                    
+                    //alternativelly, for fds that are files, you can use ``sys_stat`` in linux,
+                    //but there is no portable stat func
+
+                    //what was said for linux is similar for windows
+                    //and similar for c thus
+                    
+                    //EOF is a c concept
+                    
+                    //EOF works because there are only 256 bytes you can get from an fd
+                    //so EOF is just some int outside of the possible 0-255 range, tipically -1
+            
+            //std in/out/err
+            //stdin
+                //be careful!! stdin won't return EOF automatically
+                //
+                //for a tty you can tell the user to input a EOF (ctrl d in linux, ctrl z in windows)
+                //but as you see this is system dependent. for pipes I am yet to find how to do this,
+                //might be automatic when process closes only.
+                //
+                //the best way to know that a stdin ended is recognizing some specific
+                //pattern of the input, such as a newline with fgets, or the end of a
+                //number with scanf
+                //
+                //before this comes, the program just stops waiting for the stdin to
+                //produce this, either from user keyboard input, or from the program
+                //behind the pipe.
+        
+            //TODO
+                //setvbuf: set io buffer size, must be used on open stream
+                //flush:    flush io buffer
+                //freopen
+            
+            //#stdout
             {
-                //puts
+                //#putchar
+                {
+                    //write single char to stdout
+                    
+                    //basically useless
+                    
+                    putchar('1');
+                    putchar('c');
+                    putchar('\n');
+                }
+                //#puts
                 {
                     //write to stdout
                     //newline added!
                     puts("puts");
                 }
 
-                //printf
+                //#printf
                 {
                     //write formated to sdtout
+                    
                     //newline not added
                     
-                    //<http://www.cplusplus.com/reference/clibrary/cstdio/printf/>
+                    //ref: <http://www.cplusplus.com/reference/clibrary/cstdio/printf/>
                     
-                    puts("printf:\n");
                     printf("d 1 = %d\n", 1);
                     printf("d 0xFFFFFFFF = %d\n", 0xFFFFFFFF);
                         //-1
@@ -2536,12 +2675,14 @@ int main(int argc, char** argv)
                     printf("lld = %lld\n", 0x100000000LL); //long long (int)
                     printf("%d %d\n",1,2);
 
-                    printf("f = %f\n", 1.0f);
-                    printf(".2f = %.2f\n", 1.0f);
-                    printf("0.2f = %.0f\n", 1.0f);
-                    printf("7.2f = %7.2f\n", 1.0f); //at least 7 chars: add spaces. used to make tables.
-                    printf(".2e = %.2e\n", 1.0f);
-                    printf(".*e = %.*e", 2, 1.0f); //treat precision as a parameter
+                    //float and double
+                        //both the same
+                        printf("f = %f\n", 1.0f);
+                        printf(".2f = %.2f\n", 1.0f);
+                        printf("0.2f = %.0f\n", 1.0f);
+                        printf("7.2f = %7.2f\n", 1.0f); //at least 7 chars: add spaces. used to make tables.
+                        printf(".2e = %.2e\n", 1.0f);
+                        printf(".*e = %.*e", 2, 1.0f); //treat precision as a parameter
 
                     printf("%s\n", "a string");
                     printf("%s\n", "\t<<< \\t tab char");
@@ -2557,18 +2698,45 @@ int main(int argc, char** argv)
                         //prints the 0x address.
                         //%p must get a void pointer
                         //void* is a type, different than void. doing type cast to it.
-
+                    
                     printf("%%<<< escaping percentage\n");
+                        //note that this is printf specific
+                        //not string specific
                 }
 
-                //fputs, fprintf
+                //large strings to stdout
+                {
+                    //stdout it line buffered
+                    
+
+                    //if you fill up the buffer without any newlines
+                    //it will just print
+
+                    //buffer size cannot be accessed programatically
+                    
+                    //TODO what is the bin buffer size?
+                    //in practice, 1024 works just fine
+                    //it may be much larger than BUFSIZ
+
+                    const int bufsiz = 100000;
+                    char buf[bufsiz];
+                    memset( buf, 'z', bufsiz );
+                    buf[bufsiz] = '\0';
+                    buf[bufsiz/2] = '\n';
+                    //printf("%s\n", buf); //large amount of 'z's verywhere!
+                }
+            }
+
+            //#stderr
+            {
+                //#fputs, fprintf
                 {
                     //puts and printf to any fd, not just stdout
                     
                     fputs( "stdout", stdout );
                     fputs( "stderr", stderr );
-                    fprintf( stdout, "%d", 1 );
-                    fprintf( stderr, "%d", 1 );
+                    fprintf( stdout, "%d\n", 1 );
+                    fprintf( stderr, "%d\n", 1 );
                         //*always* put user messages on stderr
                         //even if they are not errors:
                         //stdout is just for *program to program* output
@@ -2576,83 +2744,128 @@ int main(int argc, char** argv)
                     //fputs( "stderr", stdin  );
                         //TODO what happens?
                 }
+            }
 
-                //read from stdin
+            //#stdin tty
+            {
+                //#getc, getchar
                 if(0)
                 {
-                    //gets
-                    {
-                        //deprecated c11
-                        //dangerous: no size checking possible
-                
-                        //printf("enter a string terminated by newline: (max %d chars, newline will be included in the string)\n", sn);
-                        //gets(s);
-                        //printf("you entered:\n%s\n\n",s);
-                    }
-
-                    //scanf
-                    {
-                        //complicated behaviour
-                            //input is space separated regardless of scanf string
-                        
-                        //no error checking possible
+                    //getchar == getc(stdin)
                     
-                        int i, j;
-                        unsigned int ui;
-                        float f;
-                        printf("enter an integer in decimal and a newline (max 32 bits signed):\n");
-                        i = scanf("%d", &i);
-                        printf("you entered:\n%d\n\n", i);
-                        i++;
-                        //stuff is space separated
-                        //try 123 456 789 at once. 456 789 stay in the buffer, and are eaten by the second scanf
-                        
-                        printf("enter an integer, a space, an integer and a newline (max 32 bits signed):\n");
-                        i = scanf("%d %d", &i, &j);
-                        printf("you entered:\n%d %d\n\n", i, j);
-
-                        printf("enter a float and a newline:\n");
-                        i = scanf("%f", &f);
-                        printf("you entered:\n%.2f\n\n", f);
-
-                        printf("enter an integer in hexadecimal and a newline: (max 32 bits signed)\n");
-                        i = scanf("%x", &ui);
-                        printf("you entered (in decimal):\n%d\n\n", i);
+                    //it blocks until any char is read
+                    
+                    //echo a | c.out
+                        //a
+                    //sleep 3 | c.out
+                        //EOF after 3 secs
+                    
+                    fputs( "enter a char (on linux, ctrl+d EOF): ", stderr );
+                    //fputc( 'a', stdin );
+                        //BAD
+                        //does not work
+                    char c = getchar();
+                    if ( c != EOF )
+                    {
+                        fprintf( stderr, "you entered:\n%c|<<<\n", c );
                     }
+                    else
+                    {
+                        fprintf( stderr, "EOF\n" );
+                    }
+                }
+                
+                //#gets
+                if(0)
+                {
+                    //BAD
+                    //deprecated c11
+                    //dangerous
+                        //no size checking possible
+                        //if too much input, just seg faults
+            
+                    //printf("enter a string terminated by newline: (max %d chars, newline will be included in the string)\n", sn);
+                    //gets(s);
+                    //printf("you entered:\n%s\n\n",s);
+                }
 
-                    //fgets + error checking: best method
+                //#scanf
+                if(0)
+                {
+                    //BAD
+                    
+                    //complicated behaviour
+                        //input is space separated regardless of scanf string
+                    
+                    //hard to errot check
+                    
+                    //stops reading at newline
+                
+                    int i, j;
+                    unsigned int ui;
+                    float f;
+                    printf("enter an integer in decimal and <enter> (max 32 bits signed):\n");
+                    i = scanf("%d", &i);
+                    printf("you entered:\n%d\n\n", i);
+                    i++;
+                    //stuff is space separated
+                    //try 123 456 789 at once. 456 789 stay in the buffer, and are eaten by the second scanf
+                    
+                    printf("enter an integer, a space, an integer and a <enter> (max 32 bits signed):\n");
+                    i = scanf("%d %d", &i, &j);
+                    printf("you entered:\n%d %d\n\n", i, j);
+
+                    printf("enter a float and a newline:\n");
+                    i = scanf("%f", &f);
+                    printf("you entered:\n%.2f\n\n", f);
+
+                    printf("enter an integer in hexadecimal and a <enter>: (max 32 bits signed)\n");
+                    i = scanf("%x", &ui);
+                    printf("you entered (in decimal):\n%d\n\n", i);
+                }
+
+                //#fgets
+                if(0)
+                {
+                    //together with error checking, best method formatted input method
+                    /*fgets*/
                 }
             }
 
             //files
             {
                 FILE *fp;
+                    //#FILE is a macro for a stream object
+                    
+                        //a strem object is higher level than a file descriptor
+                        
+                        //it uses file descriptors as backend in linux
+                        
+                        //linux file descriptors are identified simply by integers
+                        
+                        //by using streams you get the classical high level/low level tradeoff:
+                        
+                            //higher portability
+                                //since working with fds is posix
+                                
+                            //more convenience
+                                //since each function on streams may do lots of
+                                //operations at once on the underlying fds
+                            
+                            //less control
+                            
+                                //since OS certain specific operatins are not available
+                                
+                                //with fds in linux you can do file/pipe/FIFO/socket specific operations
+                                //for example
+                            
                 int err, had_error, fi;
                 float ff;
                 char c1;
                 char *cp1;
 
-                const int buff_size = 16, nelems = 4;
-
+                const int buff_size = 16;
                 char path[buff_size], buff[buff_size];
-                int elems_write[] = {1,2,3,4};
-                int elems_read[nelems];
-
-                //std in/out/err
-                //stdin
-                    //be careful!! stdin won't return EOF automatically
-                    //
-                    //for a tty you can tell the user to input a EOF (ctrl d in linux, ctrl z in windows)
-                    //but as you see this is system dependent. for pipes I am yet to find how to do this,
-                    //might be automatic when process closes only.
-                    //
-                    //the best way to know that a stdin ended is recognizing some specific
-                    //pattern of the input, such as a newline with fgets, or the end of a
-                    //number with scanf
-                    //
-                    //before this comes, the program just stops waiting for the stdin to
-                    //produce this, either from user keyboard input, or from the program
-                    //behind the pipe.
 
                 //fopen
                 {
@@ -2709,12 +2922,13 @@ int main(int argc, char** argv)
                     fprintf(stderr, "could not close:\n%s\n", path);
                 }
                 //don't forget to close!
-                //* there is a limited ammount of open files at a time by the os
-                //* buffered output may not have been saved before closing
+                    // there is a limited ammount of open files at a time by the os
+                    // buffered output may not have been saved before closing
                 
-                //text mode
-
+                //text io
+                {
                     //read from a file
+                    {
                         fp = fopen(path,"r");
                         if (fp==NULL)
                         {
@@ -2723,41 +2937,40 @@ int main(int argc, char** argv)
                         else
                         {
                             c1 = fgetc(fp);
-                            if (c1 == EOF)
+                            if ( c1 == EOF )
                             {
-                                if (feof(fp))
+                                if ( feof( fp ) )
                                 {
-                                    fprintf(stderr, "fgetc end of file:\n%s\n", path);
+                                    fprintf( stderr, "fgetc end of file:\n%s\n", path );
                                 }
                                 else if (ferror(fp))
                                 {
-                                    fprintf(stderr, "fgetc error reading from:\n%s\n", path);
+                                    fprintf( stderr, "fgetc error reading from:\n%s\n", path );
                                 }
                             }
-                            fprintf(stderr, "c1 = %c\n",c1);
-                            fgetc(fp);
+                            fprintf( stderr, "c1 = %c\n",c1 );
+                            fgetc( fp );
 
                             //fgets
                                 //http://www.cplusplus.com/reference/clibrary/cstdio/fgets/
                                 //reads up to:
                                 //* newline
                                 //* buff_size-1 chars
-                                //* EOF
                                 //saves result in buff, '\0' terminated
                                 if ( fgets( buff, buff_size, fp ) == NULL )
                                 {
                                     if ( feof(fp) )
                                     {
-                                            fprintf(stderr, "fgets reached the of file and read nothing:\n%s\n", path);
+                                        fprintf(stderr, "fgets reached the of file and read nothing:\n%s\n", path);
                                     }
                                     else if ( ferror(fp) )
                                     {
-                                            fprintf(stderr, "fgets error reading from:\n%s\n", path);
+                                        fprintf(stderr, "fgets error reading from:\n%s\n", path);
                                     }
                                 }
                                 else if ( feof(fp) )
                                 {
-                                        fprintf( stderr, "fgets reached the of file and read some chars before that:\n%s\n", path );
+                                    fprintf( stderr, "fgets reached the of file and read some chars before that:\n%s\n", path );
                                 }
                                 fprintf(stderr, "buff = %s",buff);
                                 fgets(buff, buff_size, fp);
@@ -2767,7 +2980,7 @@ int main(int argc, char** argv)
                                 //complicated like scanf
                                 if ( fscanf(fp, "%d\n%e\n",&fi,&ff) != 2 )
                                 {
-                                    if (feof(fp))
+                                    if ( feof( fp ) )
                                     {
                                         fprintf(stderr, "fscanf reached the of file and read nothing:\n%s\n", path);
                                     } else if (ferror(fp)) {
@@ -2781,90 +2994,80 @@ int main(int argc, char** argv)
                         {
                             fprintf(stderr, "could not close:\n%s\n", path);
                         }
+                    }
+                }
 
-                        //binary io
-                            //notice how inneficient this is for ints! 1 occupies 4 bytes and not 1!
-                            //    mostly useful for data that cannot be interpretred as text (images, executables)
-                            //better performance only on large chunks
-                            //good when you know the size of the entire input/output
-                            //including the 'b' option only makes a difference for DOS. use for compatibility (or maybe don't!)
+                //#binary io
+                {
+                    //notice how inneficient this is for small ints!
+                    //1 int occupies 4 bytes and not 1!
 
-                            strcpy( path, "b.tmp" );
-                            fp = fopen( path, "wb" );
-                            if ( fp == NULL )
-                            {
-                                fprintf(stderr, "could not open:\n%s\n", path);
-                            }
-                            else
-                            {
-
-                                //fwrite
-                                    //nelems=sizeof(buff)/sizeof(buff[0]);
-                                    //nelems=strlen(buff)+1
-
-                                    if ( fwrite(elems_write, sizeof(elems_write[0]), nelems, fp) < nelems ){ //returns number of elements written
-                                        fprintf(stderr, "could not write all the data:\n%s\n", path);
-                                    }
-
-                            }
-                            if ( fclose(fp) == EOF )
-                            {
-                                fprintf(stderr, "could not close:\n%s\n", path);
-                            }
-
-                        //read
-                            fp = fopen(path,"rb");
-                            if (fp==NULL)
-                            {
-                                fprintf(stderr, "could not open:\n%s\n", path);
-                            }
-                            else
-                            {
-                                    if ( fread( elems_read, sizeof(elems_read[0]), nelems, fp) < nelems )
-                                    { //returns number of elements written
-                                        fprintf(stderr, "could not read all the data:\n%s\n", path);
-                                    }
-                            }
-
-                            if ( fclose(fp) == EOF )
-                            {
-                                fprintf(stderr, "could not close:\n%s\n", path);
-                            }
-
-                            fprintf(stderr, "elems_read[0] = %d\n", elems_read[0]);
-                            fprintf(stderr, "elems_read[1] = %d\n", elems_read[1]);
-                            fprintf(stderr, "elems_read[2] = %d\n", elems_read[2]);
-                            fprintf(stderr, "elems_read[3] = %d\n", elems_read[3]);
-
-                //write entire string to file at once
+                    //mostly useful for data that cannot be interpretred as text (images, executables)
                     
-                    strcpy(path,"f.tmp");
-                    if ( file_write(path,"asdf\nqwer") == -1 )
+                    //better speed performance only on large chunks
+                    
+                    //good when you know the size of the entire input/output
+                    
+                    //including the 'b' option only makes a difference for DOS. use for compatibility (or maybe don't!)
+
+                    int elems_write[] = { 1, 2, 3 };
+                    const int nelems = sizeof(elems_write) / sizeof(elems_write[0]);
+                    int elems_read[nelems];
+
+                    //#fwrite
                     {
-                        report_cant_write_file(path);
+                        strcpy( path, "b.tmp" );
+                        fp = fopen( path, "wb" );
+                        if ( fp == NULL )
+                        {
+                            fprintf( stderr, "could not open:\n%s\n", path );
+                            exit(EXIT_FAILURE);
+                        }
+                        else
+                        {
+                            //returns number of elements written
+                            
+                            //common nelems source
+                                //nelems=sizeof(buff)/sizeof(buff[0]);
+                                //nelems=strlen(buff)+1
+
+                            if ( fwrite( elems_write, sizeof(elems_write[0]), nelems, fp ) < nelems )
+                            { 
+                                fprintf(stderr, "could not write all the data:\n%s\n", path);
+                            }
+                        }
+                        if ( fclose(fp) == EOF )
+                        {
+                            fprintf( stderr, "could not close:\n%s\n", path );
+                        }
                     }
 
-                //read entire file at once to a string
-                //
-                    char *s = file_read(path);
-                    if (s == NULL )
+                    //#fread
                     {
-                        report_cant_read_file(path);
+                        fp = fopen( path, "rb" );
+                        if ( fp == NULL )
+                        {
+                            fprintf(stderr, "could not open:\n%s\n", path);
+                        }
+                        else
+                        {
+                            if ( fread( elems_read, sizeof(elems_read[0]), nelems, fp) < nelems )
+                            { //returns number of elements written
+                                fprintf(stderr, "could not read all the data:\n%s\n", path);
+                            }
+                        }
+
+                        if ( fclose(fp) == EOF )
+                        {
+                            fprintf(stderr, "could not close:\n%s\n", path);
+                        }
                     }
-                    fprintf(stderr, "contents of \"%s\":\n\n%s\n", path, s);
-                    free(s);
 
-                    int arri[] = { 0, 1, -1, 12873453 };
-                    float arrf[] = { 1.1f, 1.001f, -1.1f, 1.23456e2 };
+                    assert( memcmp( elems_read, elems_write, nelems ) == 0);
+                }
 
-                    strcpy( path, "arri.tmp" );
-                    write_int_arr_file( path, arri, 4 );
-
-                    strcpy( path, "arrf.tmp" );
-                    write_float_arr_file( path, arrf, 4, 2 );
-
-                //reposition read write
-                
+                //#reposition read write
+                {
                     //ftell
                         //long int curpos = ftell(pf)
                         //if ( curpos == -1L ){
@@ -2901,6 +3104,40 @@ int main(int argc, char** argv)
 
                     //TRY: echo "123" | ./c_cheatsheet.out
                         //this will use stdin from a pipe! no user input
+                }
+
+                //#applications
+                {
+                    //write entire string to file at once
+                        
+                        char cs[] = "asdf\nqwer";
+                        strcpy(path,"f.tmp");
+                        if ( file_write( path, cs ) == -1 )
+                        {
+                            report_cant_write_file(path);
+                        }
+
+                    //read entire file at once to a string
+                    
+                        char* cp = file_read(path);
+                        if ( cp == NULL )
+                        {
+                            report_cant_read_file(path);
+                        }
+                        assert( strcmp( cs, cp ) == 0 );
+                        free(cp);
+
+                    //simple write arrays to file
+                    
+                        int arri[] = { 0, 1, -1, 12873453 };
+                        float arrf[] = { 1.1f, 1.001f, -1.1f, 1.23456e2 };
+
+                        strcpy( path, "arri.tmp" );
+                        write_int_arr_file( path, arri, 4 );
+
+                        strcpy( path, "arrf.tmp" );
+                        write_float_arr_file( path, arrf, 4, 2 );
+                }
             }
         }
 
@@ -2930,17 +3167,6 @@ int main(int argc, char** argv)
 
         //math.h
         {
-            //constants
-            {
-                //printf("M_PI = %.2f\n", M_PI);
-                //printf("M_PI_2 = %.2f\n", M_PI_2);
-                //printf("M_PI_4 = %.2f\n", M_PI_4);
-                    //DEPRECATED
-                    //C99
-                    //used to be in math.h
-                    //better off with const int
-            }
-
             assert( fminl(0.1,0.2) == 0.1 );
             assert( fmaxl(0.1,0.2) == 0.2 );
                 //C99
@@ -3000,6 +3226,16 @@ int main(int argc, char** argv)
 #endif
 
 #ifdef POSIX
+
+        //constants
+        {
+            //#define _XOPEN_SOURCE
+            //#include <math.h>
+            
+            fprintf( stderr, "%f\n", M_PI );
+            fprintf( stderr, "%f\n", M_PI_2 );
+            fprintf( stderr, "%f\n", M_PI_4 );
+        }
 
         //sleep
         {
@@ -3123,28 +3359,121 @@ int main(int argc, char** argv)
             }
         }
 
-        //process
+        //#threads
         {
-            int status;
-            int i = 0;
+            //posix threads
             
-            puts("fork");
+            //c11 is making a standard threading model
+            
+            //run single program in parallel
+            
+            //quicker to start than a process
+            
+            //each thread has its own stack,
+            //but global memory is shared
+            
+            //clone
+            {
+                //bijection to the system call
+                
+                //like ``fork``, but with shared memory and open file descriptors
+                
+                /*puts("clone");*/
+                /*{*/
+                    /*TODO*/
+                    /*implicit? with unistd.h?*/
+                    /*i = 0;*/
+                    /*pid_t pid = clone();*/
+                    /*if (pid == 0)*/
+                    /*{*/
+                        /*i++;*/
+                    /*}*/
+                    /*else if (pid < 0)*/
+                    /*{*/
+                        /*exit(1);*/
+                    /*}*/
+                    /*wait(&status);*/
+                    /*if( pid == 0 )*/
+                    /*{*/
+                        /*return EXIT_SUCCESS;*/
+                    /*}*/
+
+                    /*//no more child process*/
+                    /*assert( status == EXIT_SUCCESS );*/
+                    /*assert( i == 1 );*/
+                /*}*/
+            }
+
+            //#pthread.h
+            {
+                //library, probably based on clone
+            }
+        }
+
+        //#process
+        {
+            //linux process model
+                //#include <linux/sched.h> >> task_struct
+                //http://www.ibm.com/developerworks/library/l-linux-process-management/
+                
+            //ids
+            {
+                //every posix process has the folloing info associated to it:
+                    //real and effective userid and groupid
+                    //real is always of who executes the program
+                    //effective may be different depending on the suid and sgid bits
+                //process are free to change those ids with system calls
+                uid_t uid  = getuid();
+                uid_t euid = geteuid();
+                gid_t gid  = getgid();
+                gid_t egid = getegid();
+                printf( "uid:  %llu\n", (long long unsigned)uid  );
+                printf( "euid: %llu\n", (long long unsigned)euid );
+                printf( "gid:  %llu\n", (long long unsigned)gid  );
+                printf( "egid: %llu\n", (long long unsigned)egid );
+            }
+
+            //#fork
             {
                 //makes a copy of this process
                 //``sys_fork`` call
 
-                pid_t pID = fork();
-                if (pID == 0)
-                {
-                    puts("child");
-                        //you won't see this
-                        //different file pointers
-                    i++;
-                }
-                else if (pID < 0)
+                int status;
+                int i = 0;
+
+                fflush(stdout);
+                    //#buffering
+                    
+                        //<http://stackoverflow.com/questions/3513242/working-of-fork-in-linux-gcc>
+                    
+                        //there are three buffering methods:
+                            //unbuffered, fully buffered and line buffered
+                        
+                        //when you fork, the streams get forked too,
+                        //with unflushed data still inside
+                        
+                        //stdout and stderr flush at newlines
+                        //if you don't put newlines, if does not flush,
+                        //and fork copies the buffers
+                        
+                        //this will print everything twice
+                pid_t pid = fork();
+                if ( pid < 0 )
                 {
                     puts("failed to fork");
-                    exit(1);
+                    exit(EXIT_FAILURE);
+                }
+                else if ( pid == 0 )
+                {
+                    puts("fork child");
+                        //NOTE
+                            //this is assynchonous with the process stdout
+
+                            //so it might not be in the line program order
+                            
+                            //but they both go to the same terminal
+                    i++;
+                    exit(EXIT_SUCCESS);
                 }
                 else
                 {
@@ -3152,12 +3481,12 @@ int main(int argc, char** argv)
                 }
 
                 puts("child and parent");
-                printf("pid = %d, i = % d\n", pID, i);
+                printf("pid = %d, i = % d\n", pid, i);
 
                 wait(&status);
-                if( pID == 0 )
+                if( pid == 0 )
                 {
-                    return EXIT_SUCCESS;
+                    exit(EXIT_SUCCESS);
                 }
 
                 //no more child process
@@ -3168,48 +3497,23 @@ int main(int argc, char** argv)
                     //memory was cloned, parent i unchanged
             }
 
-            /*puts("clone");*/
-            /*{*/
-                /*TODO*/
-                /*implicit? with unistd.h?*/
-                /*i = 0;*/
-                /*pid_t pID = clone();*/
-                /*if (pID == 0)*/
-                /*{*/
-                    /*i++;*/
-                /*}*/
-                /*else if (pID < 0)*/
-                /*{*/
-                    /*exit(1);*/
-                /*}*/
-                /*wait(&status);*/
-                /*if( pID == 0 )*/
-                /*{*/
-                    /*return EXIT_SUCCESS;*/
-                /*}*/
-
-                /*//no more child process*/
-                /*assert( status == EXIT_SUCCESS );*/
-                /*assert( i == 1 );*/
-            /*}*/
-
             /*puts("vfork");*/
             /*{*/
                 /*TODO*/
                 /*implicit? with unistd.h?*/
                 /*//makes a copy of this process*/
                 /*i = 0;*/
-                /*pid_t pID = vfork();*/
-                /*if (pID == 0)*/
+                /*pid_t pid = vfork();*/
+                /*if (pid == 0)*/
                 /*{*/
                     /*i++;*/
                 /*}*/
-                /*else if (pID < 0)*/
+                /*else if (pid < 0)*/
                 /*{*/
                     /*exit(1);*/
                 /*}*/
                 /*wait(&status);*/
-                /*if( pID == 0 )*/
+                /*if( pid == 0 )*/
                 /*{*/
                     /*return EXIT_SUCCESS;*/
                 /*}*/
@@ -3219,31 +3523,279 @@ int main(int argc, char** argv)
                 /*assert( i == 1 );*/
             /*}*/
 
-            //vfork
-                //fork with shared memory
-            //clone
-                //fork with shared memory and open file descriptors
-            //wait()
-                //wait for first child to terminate
+            //#execl, execlp, execle, execv, execvp, execvpe
+            {
+                //interfaces for ``execve`` system call
+
+                //execute and *leave*
+                //ends current process!!
+                
+                //common combo:
+                    //fork + execl
+                
+                //takes variable number or args
+
+                //must end null terminated
+
+                //char 'p': path, uses PATH var to find executable
+                //TODO: char 'v', char 'e'? what's the difference?
+                
+                //calls
+                    //execl( "/bin/ls", "-l", "-h", NULL );
+                    //execlp( "ls", "-l", "-h", NULL );
+                    //execlp( "cprogram", "cprogram", "arg0", NULL );
+                        //don't forget that in a c program the first arg is the program name
+            }
+
             //waitpid()
                 //wait for child with given PID to terminate
-        }
+            
+            //IPC
+            {
+                //#pipes
+                {
+                    //#unnamed
+                    {
+                        //unidirectional child ----> parent transfer
+                        
+                        //single process must start both processes
 
-        //ids
-        {
-            //every posix process has the folloing info associated to it:
-                //real and effective userid and groupid
-                //real is always of who executes the program
-                //effective may be different depending on the suid and sgid bits
-            //process are free to change those ids with system calls
-            uid_t uid  = getuid();
-            uid_t euid = geteuid();
-            gid_t gid  = getgid();
-            gid_t egid = getegid();
-            printf( "uid:  %llu\n", (long long unsigned)uid  );
-            printf( "euid: %llu\n", (long long unsigned)euid );
-            printf( "gid:  %llu\n", (long long unsigned)gid  );
-            printf( "egid: %llu\n", (long long unsigned)egid );
+                        //no one else can see the pipe
+
+                        //data very limited per buf! BUFSIZ ~= 1000-10000 today
+
+                        //i think it is not possible to know if a ilfe pointer
+                        //is open for reading or writtin besides looking at how
+                        //it was created
+
+                        //runs inside a shell
+                            //you get all the slowness and magic of shell expansion
+                            //such as *.txt and $PATH
+
+                        //workflow:
+                            //child fills the buffer, then parent takes control
+                            //child fills ...
+                        
+                        fprintf( stderr, "BUFSIZ = %llu", (long long unsigned) BUFSIZ );
+                        //#BUFSIZ
+                        
+                            //it is implementation dependant
+                            
+                            //you could read/write much more than that
+                            
+                            //but BUFSIZ is a good value
+                                //fast
+                                //not larger than the maximum
+                            
+                            //if you try to read write more than the max,
+                            //it just flushes all when the buffer gets filled
+                            
+                            //only guarantee is BUFSIZ >= 256
+                            
+                            //the larger the buffer the faster the transfer
+                            
+                            //but if you want to be very portable, design systems
+                            //whose messages need no more than 256 bytes at a time
+                            
+                            //you could then just pass many 256 chunks at once
+                            //if your large buffer allows
+                        
+                        //#popen
+                        {
+                            //#define _XOPEN_SOURCE 700
+                            //#include <stdio.h>
+
+                            //#read
+                            {
+                                //read from command
+                                //get its exit staus
+                                
+                                FILE* read_fp;
+                                    //yes the same pointer as a file
+                                char buffer[BUFSIZ + 1];
+                                char cmd[1024];
+                                int chars_read;
+                                int exit_status;
+                                int read_cycles = 0;
+                                int desired_read_cycles = 3;
+                                int desired_last_char_read = 1;
+                                assert( desired_last_char_read < BUFSIZ );
+
+                                sprintf(
+                                    cmd, "for i in `seq %llu`; do echo -n a; done",
+                                    (long long unsigned) (desired_read_cycles-1)*BUFSIZ + desired_last_char_read
+                                );
+                                read_fp = popen( cmd, "r" );
+                                    //#popen
+                                    
+                                        //print 2*BUFSIZ + 1 times letters 'a'
+
+                                        //cmd runs inside ``sh`` directly
+
+                                        //r means read
+                                if( read_fp != NULL )
+                                {
+                                    do
+                                    {
+                                        chars_read = fread( buffer, sizeof(char), BUFSIZ, read_fp );
+                                            //yes the same func used to read files
+                                        buffer[chars_read] = '\0';
+                                        printf( "======== n bytes read: %d\n", chars_read );
+                                        //printf( "%s\n", buffer); //if you want to see a bunch of 'a's...
+                                        read_cycles++;
+                                    } while( chars_read == BUFSIZ );
+                                    exit_status = pclose( read_fp );
+                                        //#pclose
+                                            //waits for child
+
+                                            //returns child exit status
+
+                                            //if child already waited for,
+                                            //returns -1: error
+                                    assert( read_cycles == desired_read_cycles );
+                                    assert( chars_read == desired_last_char_read );
+                                    assert( exit_status == 0 );
+                                }
+                                else
+                                {
+                                    fprintf( stderr, "could not open pipe" );
+                                    exit( EXIT_FAILURE );
+                                }
+                            }
+
+                            //write to stdin of command
+                            {
+                                FILE* write_fp;
+                                char buf[BUFSIZ];
+                                int exit_status;
+
+                                memset( buf, 'c', BUFSIZ );
+                                write_fp = popen( "cat; echo", "w" );
+                                    //w for write
+                                    //simply copies to stdout and adds newline
+                                if( write_fp != NULL )
+                                {
+                                    fwrite( buf, sizeof(char), BUFSIZ, write_fp );
+                                    exit_status = pclose( write_fp );
+                                        //#pclose
+                                            //waits for child
+
+                                            //returns child exit status
+
+                                            //if child already waited for,
+                                            //returns -1: error
+                                    assert( exit_status == 0 );
+                                }
+                                else
+                                {
+                                    assert(false);
+                                }
+                            }
+                        }
+
+                        //#pipe()
+                        {
+                            //very close to the linux pipe system call
+                            
+                            //fast because no shell opened
+                            
+                            //minimal example
+                            {
+                                //usefulness starts with fork + exec
+                                
+                                int nbytes;
+                                int pipes[2];
+                                    //note the integers
+                                    //for file descriptors
+                                char data[] = "123";
+                                char buf[BUFSIZ + 1];
+                                if ( pipe(pipes) == 0 )
+                                {
+                                    nbytes = write( pipes[1], data, strlen(data) );
+                                        //cannot use the c standard fwrite
+                                        //dealing with posix specific file desciptors here
+                                        //#write
+
+                                            //system calls
+                                        
+                                            //returns the number of bytes written
+                                            //it may be less than the desired if there is not
+                                            //enough space on medium
+                                            
+                                            //if does not write enough TODO
+                                            //guess you have to do another call
+                                    assert( nbytes = strlen(data) );
+                                    nbytes = read( pipes[0], buf, BUFSIZ);
+                                    assert( nbytes = strlen(data) );
+                                    buf[nbytes] = '\0';
+                                    assert( strcmp( buf, data ) == 0 );
+                                }
+                                else
+                                {
+                                    assert(false);
+                                }
+                            }
+
+                            //fork
+                            {
+                                //parent writes to child
+                                
+                                //this works because if ever read happens before,
+                                //it blocks
+
+                                int nbytes;
+                                int file_pipes[2];
+                                const char data[] = "123";
+                                char buf[BUFSIZ + 1];
+                                pid_t pid;
+                                if ( pipe( file_pipes ) == 0 )
+                                {
+                                    fflush(stdout);
+                                    pid = fork();
+                                    if ( pid == -1 )
+                                    {
+                                        assert(false);
+                                    }
+                                    else if ( pid == 0 )
+                                    {
+                                        nbytes = read( file_pipes[0], buf, BUFSIZ );
+                                        printf( "pipe child. data: %s\n", buf );
+                                        exit(EXIT_SUCCESS);
+                                    }
+                                    else
+                                    {
+                                        nbytes = write( file_pipes[1], data, strlen(data) );
+                                        assert( nbytes == strlen(data) );
+                                        strlen(data);
+                                    }
+                                }
+                                else
+                                {
+                                    assert(false);
+                                }
+                            }
+                        }
+                    }
+
+                    //#FIFO
+                    {
+                        //aka named pipes
+                        
+                        //appear on the filesystem
+                        
+                        //therfore can be accessed as by any process
+                        
+                        //are however faster than writting to files,
+                        //since everything happens on RAM
+                        
+                        //cannot open for rw
+
+                        //application: simple client/servers!
+
+                        //#mkfifo
+                    }
+                }
+            }
         }
 #endif
 
