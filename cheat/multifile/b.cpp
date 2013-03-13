@@ -1,6 +1,6 @@
-#include "b.h"
-
 #include <iostream>
+
+#include "b.h"
 
 using namespace std;
 

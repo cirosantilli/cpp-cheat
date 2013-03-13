@@ -1,16 +1,16 @@
 #compiles c files with gcc and c++ files with g++, one by one separatelly
 
+#this is mostly for test purposes. see: ``makefile.individual_out_bins`` for a more complete makefile
+
 override CC?=gcc
 override CXX?=g++
 override CFLAGS?=-Wall -Wno-unused-variable -Wno-unused-but-set-variable
 override CXXFLAGS?=-Wall -Wno-unused-variable -Wno-unused-but-set-variable
-override LIBS?=
+override LIBS?=#-lm
 override IN_DIR?=./
 override OUT_DIR?=_out/
 override OUT_EXT?=.out
 override RUN?=c
-#override RUN?=func
-#override RUN?=cpp
 
 INS:=$(wildcard $(IN_DIR)*.c)
 INS_NODIR:=$(notdir $(INS))
@@ -26,7 +26,7 @@ CPP_OUTS:=$(addprefix $(OUT_DIR),$(OUTS_NODIR))
 #make run
 #make run RUN=cpp
 
-.PHONY: all mkdir clean
+.PHONY: all mkdir clean install
 
 all: mkdir $(C_OUTS) $(CPP_OUTS)
 

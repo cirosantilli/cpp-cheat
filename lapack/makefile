@@ -1,33 +1,90 @@
-CC=gcc -Wall -Wno-unused-variable -Wno-unused-but-set-variable
-#compile command
+#!metadata: featured
 
-IN_EXT=.c
-#extension of input files
+#compiles all files in current dir into a single output file
 
-IN_DIR=./
-#directory from which input files come. slash termianted.
+override ASSEMBLE_BASENAME?=a.c			#basename of the file to generate assembly code for
+override AUX_DIR?=_aux/
+override AUX_EXT?=.o
+override CC?=gcc
+override CFLGS?=-Wall -std=c99 -pedantic-errors
+override DEBUG_DEFINE?=
+override DEBUG_FLAGS?=
+override DEFINES=#-DPOSIX #for -DDEBUG and -DPROFILE, used dedicated DEFINES
+override IN_EXT?=.c
+override IN_DIR?=./
+override INCLUDE_DIRS?=-I/usr/include/GL
+override LIBS?=-lm -lblas -l:liblapack.so.3
+override PREDEF?=#-DDEBUG -DPROFILE -DWINDOWS 				#preprocessor defines
+override RUN_ARGS?=#0 1																#passed as command line args to bin on run
+override OPTIMIZE_FLAGS:=-O3
+override OUT_DIR?=_out/
+override OUT_BASENAME?=cheat
+override OUT_EXT?=.elf
+override PROFILE_DEFINE?=
+override PROFILE_FLAGS?=
 
-OUT_DIR=_out/
-#dir where output files such as .pdf will be put. slash terminated.
+INS:=$(wildcard $(IN_DIR)*$(IN_EXT))
+INS_NODIR:=$(notdir $(INS))
+AUXS_NODIR:=$(patsubst %$(IN_EXT),%$(AUX_EXT),$(INS_NODIR))
+AUXS:=$(addprefix $(AUX_DIR),$(AUXS_NODIR))
+OUT:=$(OUT_DIR)$(OUT_BASENAME)$(OUT_EXT)
 
-OUT_EXT=.out
-#extension of output
+.PHONY: all mkdir clean assembler debug set_debug_flags profile set_profile_flags help install_ubuntu_deps
 
-INS=$(wildcard $(IN_DIR)*$(IN_EXT))
-INS_NODIR=$(notdir $(INS))
-OUTS_NODIR=$(patsubst %$(IN_EXT),%$(OUT_EXT),$(INS_NODIR))
-OUTS=$(addprefix $(OUT_DIR),$(OUTS_NODIR))
+all: mkdir $(OUT)
 
-.PHONY: all mkdir clean
+run: all
+	./$(OUT) $(RUN_ARGS)
 
-all: mkdir $(OUTS)
+assembler: mkdir $(IN_DIR)$(ASSEMBLER_BASENAME)
+	$(eval override OPTIMIZE_FLAGS := -O0)
+	$(CC) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) $(CFLAGS) -S "$(IN_DIR)$(ASSEMBLE_BASENAME)" -o "$(OUT_DIR)$(ASSEMBLE_BASENAME).s"
 
-$(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%$(IN_EXT)
+debug: clean set_debug_flags all
+	gdb $(OUT)
 
-	$(CC) -o "$@" "$<"
+set_debug_flags:
+	$(eval override DEBUG_FLAGS := -ggdb3)
+	$(eval override DEBUG_DEFINE := -DDEBUG)
+	$(eval override OPTIMIZE_FLAGS := -O0)
+
+profile: clean set_profile_flags all run
+	mv -f gmon.out $(OUT_DIR)
+	gprof -b $(OUT) $(OUT_DIR)gmon.out | tee "$(OUT).profile_out" | less
+
+set_profile_flags:
+	$(eval PROFILE_FLAGS := -p -pg)
+	$(eval override PROFILE_DEFINE := -DPROFILE)
+	#$(eval OPTIMIZE_FLAGS := )
+
+$(OUT): $(AUXS)
+	$(CC) $(PROFILE_FLAGS) $^ -o "$@" $(LIBS)
+
+$(AUX_DIR)%$(AUX_EXT): $(IN_DIR)%$(IN_EXT)
+	$(CC) $(DEFINES) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(OPTIMIZE_FLAGS) $(PREDEF) $(INCLUDE_DIRS) $(CFLAGS) -c "$<" -o "$@"
 
 mkdir:
+	mkdir -p "$(AUX_DIR)"
 	mkdir -p "$(OUT_DIR)"
 
 clean:
-	rm -rf $(OUT_DIR) $(AUX_DIR)
+	rm -rf $(AUX_DIR) $(OUT_DIR)
+
+install_ubuntu_deps:
+	sudo aptitude install -y libatlas-dev
+
+help:
+	@echo 'sample calls:'
+	@echo '  install_ubuntu_deps'
+	@echo '    #installs dependencies on Ubuntu'
+	@echo '  make'
+	@echo '  make clean'
+	@echo '  make run'
+	@echo '    #makes then runs output'
+	@echo '  make debug'
+	@echo '    #makes with -DDEBUG and -ggdb3'
+	@echo '    #and runs with gdb -b'
+	@echo '  make profile'
+	@echo '    #clean, make with -DPROFILE and -p -pg'
+	@echo '    #runs and pipes output through less'
+	@echo '    #and saves compile output to <outname>.profile_out'

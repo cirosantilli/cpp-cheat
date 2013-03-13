@@ -1,6 +1,7 @@
 #installation on ubuntu 12.04
 
 - blas
+
     sudo aptitude install libblas3gf
 
 #naming conventions

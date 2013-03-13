@@ -7,6 +7,8 @@
     //preprocessor does things in the exact same order it sees them
 
 #include "b.h"
+#include "c.h"
+//#include "f.h"
 
 using namespace std;
 
@@ -27,7 +29,7 @@ static void staticFunc()
 
 void func(){ cout << "mainFunc" << endl; }
 
-int main(int argc, char** argv)
+int main( int argc, char** argv )
 {
     //static demostration
         staticFunc();
@@ -41,4 +43,11 @@ int main(int argc, char** argv)
     //preprocessor includes
         def++;
 
+    //#cross language
+        
+        //#c
+            c( 1, 1.0 );
+
+        //#fortran
+            //f( 1, 1.0 );
 }

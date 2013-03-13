@@ -186,13 +186,13 @@
             
             some warnings about inline and its usage
 
-#hot libraries
+##lib
 
-    #opengl
+    ##opengl
 
         sudo aptitude install freeglut3-dev
 
-    #opencv
+    ##opencv
 
         #install ubuntu 12.04
 
@@ -214,6 +214,10 @@
             opencv2 is the second version released in 2009,
 
             this is why you have both folders /usr/include/opencv and opencv2
+
+    ##check
+
+        c unit testing
 
 ##numerical computation
 
@@ -3806,10 +3810,10 @@ int main(int argc, char** argv)
 
 #endif
 
-    puts("");
-    puts("==================================================");
-    puts("= ALL ASSERTS PASSED");
-    puts("==================================================");
+    fputs( "\n", stderr );
+    fputs( "==================================================\n", stderr );
+    fputs( "= ALL ASSERTS PASSED\n", stderr );
+    fputs( "==================================================\n", stderr );
 
     //main returns status
     return EXIT_SUCCESS;

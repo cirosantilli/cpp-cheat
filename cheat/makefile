@@ -2,9 +2,11 @@
 
 CC := gcc
 CXX := g++
+FF := gfortran
 
 CFLAGS := -Wall -Wno-unused-variable -Wno-unused-but-set-variable -march=native -std=c99 -pedantic-errors
 CXXFLAGS := -pthread -Wall -Wno-unused-variable -Wno-unused-but-set-variable -march=native -std=c++0x -pedantic-errors
+FFLAGS := -pthread -Wall -Wno-unused-variable -Wno-unused-but-set-variable -march=native -std=f95 -pedantic-errors  
 
 LIBS:=
 
@@ -23,6 +25,12 @@ INS:=$(wildcard $(IN_DIR)*$(EXT))
 INS_NODIR:=$(notdir $(INS))
 OUTS_NODIR:=$(patsubst %$(EXT),%$(OUT_EXT),$(INS_NODIR))
 CPP_OUTS:=$(addprefix $(OUT_DIR),$(OUTS_NODIR))
+
+EXT:=.f
+INS:=$(wildcard $(IN_DIR)*$(EXT))
+INS_NODIR:=$(notdir $(INS))
+OUTS_NODIR:=$(patsubst %$(EXT),%$(OUT_EXT),$(INS_NODIR))
+F_OUTS:=$(addprefix $(OUT_DIR),$(OUTS_NODIR))
 
 override DEFINES=-DPOSIX
 
@@ -51,7 +59,7 @@ override OPTIMIZE_FLAGS?=
 
 .PHONY: all mkdir clean profile set_profile_flags
 
-all: mkdir $(C_OUTS) $(CPP_OUTS)
+all: mkdir $(C_OUTS) $(CPP_OUTS) $(F_OUTS)
 
 assembler: mkdir $(IN_DIR)$(ASSEMBLER_BASENAME)
 	$(eval override OPTIMIZE_FLAGS := -O0)
@@ -88,3 +96,6 @@ $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.c
 
 $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.cpp
 	$(CXX) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) $(CXXFLAGS) -o "$@" "$<" $(LIBS)
+
+$(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.f
+	$(FF) $(OPTIMIZE_FLAGS) $(FFLAGS) -o "$@" "$<" $(LIBS)

@@ -2938,9 +2938,9 @@ int main(int argc, char** argv)
             //system time is not counted anyways
 #endif
 
-    cout << "==================================================" << endl;
-    cout << "= ALL ASSERTS PASSED" << endl;
-    cout << "==================================================" << endl;
+    cerr << "==================================================" << endl;
+    cerr << "= ALL ASSERTS PASSED" << endl;
+    cerr << "==================================================" << endl;
 
     //global/static destructors
     return EXIT_SUCCESS;

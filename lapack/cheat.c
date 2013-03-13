@@ -1,9 +1,9 @@
-#include <stdlib.h>
-#include <f2c.h>
-#include <clapack.h>
-#include <cblas.h>
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
+
+#include <atlas/cblas.h>
+#include <atlas/clapack.h>
 
 void print_vecd(double * v, int n)
 {
@@ -54,6 +54,7 @@ int ipiv2[2];
 int ldb;
 int info;
 int m;
+int n;
 int ntrf;
 int k;
 
@@ -72,6 +73,7 @@ double D4[4];
 int main(void)
 {
   //SV solve system
+
     //1 2 = 5
     //3 4   11
     N = 2;
@@ -121,6 +123,7 @@ int main(void)
       /*assert_eq_vecd(b4,c4,N);*/
 
   //MM matrix multiplication
+
       //alpha*op( A )*op( B ) + beta*C,
       //0 1 * 1 2 = 3 4
       //2 3   3 4   11 16
@@ -160,4 +163,9 @@ int main(void)
   //eigenvalues and eigenvectors
       //for non symmetric, several steps are needed
       //http://www.alglib.net/eigen/nonsymmetric/nonsymmetricevd.php
+
+    fputs( "\n", stderr );
+    fputs( "==================================================\n", stderr );
+    fputs( "= ALL ASSERTS PASSED\n", stderr );
+    fputs( "==================================================\n", stderr );
 }

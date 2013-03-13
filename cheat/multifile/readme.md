@@ -1,6 +1,7 @@
-demonstrates multifile only concepts
+demonstrates concepts which only make sense for multifile compilation such as:
 
-    - static (.a) and dynamic (.so) creation/usage minimal example
-    - static keyword
-
-TODO: get .so link working
+- #include statements
+- static (.a) and dynamic (.so) creation/usage minimal example
+- ``static`` and ``extern`` keywords
+- two step ``.o`` -> exec makefile compilation
+- interlanguage compilation (c, cpp, fortran)
