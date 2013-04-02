@@ -1,108 +1,6 @@
 /*
 
-#c
-
-* download compiler
-* add to path
-
-* memory structure of program
-* assembler
-
-* hello world
-* spaces, indenting
-* comments
-* main
-* string: "a" == a\0 != 'a'
-    * printf("%c<<< null char", '\0');
-    * \n, \t, \\, \xnn, \unnnn
-
-* int, float, declare before and after
-
-* printf
-    * %%, %d, %f, %.2f, %df, %%
-
-* scanf
-
-* arrays
-    * char[] (string, why name)
-    * for array
-    * array copy function
-    * array print func
-    * matrix
-    * organizatoin on memory: address, operational system division. overflow
-    * why not blow up with is[10000000] (< 32 bits, but larger than my RAM!)
-
-* flow control
-    * if
-    * goto
-    * for
-        * for inside for (classic)
-    * while
-    * for vs while
-
-* function
-    * return value
-
-* variable types and their computer representation
-    * naming rules
-    * int 31 bits + sign (binary numbers)
-    * float 8 exp + 23 mantissa + 1 sign
-    * same name bad
-
-- include
-
-    look in standard dirs directly
-
-    include <file.h>
-
-    look in current dir first:
-
-    include "file.h"
-
-- define, ifded
-
-    debug/multi-platform
-
-#gcc
-
-- warning vs error
-
-- debugging:
-
-    - gdb
-
-        <http://www.dirac.org/linux/gdb/>
-
-- profiling/benchmarking
-
-    - which tool to use
-    
-        <http://stackoverflow.com/questions/375913/what-can-i-use-to-profile-c-code-in-linux>
-
-    - candidates tools:
-
-        - gdb
-
-            somewhat improvised
-
-        - gprof
-
-            <http://kuscsik.blogspot.com.br/2007/08/how-to-benchmark-c-code-using-gcc.html>
-
-            classical tool
-
-            flat and call graph
-
-        - valgrind
-        - google-perftools.
-        - oprofile
-        - perftools
-                sudo aptitude install linux-tools
-        - callgrind + KCacheGrind
-
-- optimizations
-
-- language versions
+#language versions
 
     #ANSI C
 
@@ -154,7 +52,7 @@
 
            <http://www.gnu.org/software/libc/manual/html_mono/libc.html>
 
-- multithreading/ipc/concurrency
+#multithreading ipc concurrency
 
     - c11 supports it, c99 not
 
@@ -186,20 +84,20 @@
             
             some warnings about inline and its usage
 
-##lib
+#lib
 
-    ##opengl
+    #opengl
 
         sudo aptitude install freeglut3-dev
 
-    ##opencv
+    #opencv
 
-        #install ubuntu 12.04
+        #install ubuntu:
 
             sudo aptitude install build-essential
             sudo aptitude install libopencv-dev opencv-doc
 
-        not sure the following    are needed in general
+        not sure the following are needed in general:
 
             sudo aptitude install libavformat-dev
             sudo aptitude install ffmpeg
@@ -209,55 +107,30 @@
 
             cp -r /usr/share/doc/opencv-doc/examples ./
 
-        with
-        
-            opencv2 is the second version released in 2009,
+        opencv2 is the second version released in 2009,
+        this is why you have both folders /usr/include/opencv and opencv2
 
-            this is why you have both folders /usr/include/opencv and opencv2
-
-    ##check
+    #check
 
         c unit testing
 
-##numerical computation
+#scientific
 
-    - blas/lapack
+    #lapacke
 
-        fortran converted. de facto basis of current linalg computations
-    
-    - eigen
+        standard (support by lapack) c interface for lapack!
 
-        http://eigen.tuxfamily.org/index.php?title=Main_Page
+    #petcs
 
-        linear algebra, eqdiffs
+        <http://www.mcs.anl.gov/petsc/documentation/index.html>
 
-    - blitz++
+    that is, applied to specific domains of science
 
-        http://blitz.sourceforge.net/
+    #ODE
 
-        linear algebra
+        physical engine
 
-    - armadillo
-
-        http://arma.sourceforge.net/
-
-        linear algebra
-
-##scientific computation
-
-that is, applied to specific domains of science
-
-- ODE
-
-    physical engine
-
-        sudo aptitude install libode-dev
-
-- tokamak
-
-    physical engine
-
-- tokamak
+            sudo aptitude install libode-dev
 */
 
 #ifdef POSIX
@@ -279,6 +152,17 @@ that is, applied to specific domains of science
 //preprocessor
 //{
     //does simple stuff *before* compilation
+
+    //#include
+
+        //look in standard dirs directly:
+
+            //#include <file.h>
+
+        //look in current dir first:
+
+            //#include "file.h"
+
 #include <assert.h>
 #include <complex.h>
 #include <ctype.h>
@@ -365,8 +249,7 @@ int windowsVar;
 
 //}
 
-//global scope
-//{
+//#global scope
 
     int global = 1;
         //this is a global variable: can be accessed and modified everywhere
@@ -391,10 +274,9 @@ int windowsVar;
         //ERROR
         //cannot create scopes here like that
         //they'd be useless
-//}
 
-//pointer array
-//{
+//#pointer array
+    
     int* getArr(int i)
     {
         //int is[] = {i};
@@ -420,10 +302,9 @@ int windowsVar;
             printf("\n");
         }
     }
-//}
 
-//functions
-//{
+//#functions
+    
     //void overload(int n){}
     //void overload(float n){}
         //ERROR no func overload in c
@@ -465,8 +346,8 @@ int windowsVar;
         return (*functionPtr)(m, n);
     }
 
-    //struct args
-    //{
+    //#struct args
+
         struct FuncReturn { int i; };
 
         struct FuncReturn structReturn( struct FuncReturn sIn )
@@ -475,7 +356,6 @@ int windowsVar;
             sOut.i = sIn.i + 1;
             return sOut;
         }
-    //}
 
     int variadicAdd( int numargs, ... )
     {
@@ -491,7 +371,6 @@ int windowsVar;
             //you MUST do this
         return sum;
     }
-//}
 
 #ifdef PROFILE
 
@@ -671,8 +550,8 @@ int windowsVar;
 
 #endif
 
-//algorithms
-//{
+//#algorithms
+    
     //simple fun algorithms
 
     //random
@@ -704,10 +583,9 @@ int windowsVar;
         }
         return res;
     }
-//}
 
-//file io
-//{
+//#file io
+    
     void report_cant_open_file (char * path){
         fprintf(stderr, "could not read from:\n%s\n", path);
     }
@@ -831,7 +709,6 @@ int windowsVar;
         return buffer;
     }
 
-
     //write null terminated string to file
     //returns -1 on fail
     int file_write(char *path, char *s)
@@ -922,7 +799,6 @@ int windowsVar;
 
         return 0;
     }
-//}
 
 int main(int argc, char** argv)
 {

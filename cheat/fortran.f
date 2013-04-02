@@ -1,31 +1,46 @@
-c fotran cheatsheet
+      !mostly focused on differences from c
+      !my goal in this is the minimal knowledge for scientific computation
+      !i also interested in c interfacing
 
-c mostly focused on differences from c
-c my goal in this is the minimal knowledge for scientific computation
-c i also interested in c interfacing
+      !#sources
 
-c #sources
-
-c good stanford intro: <http://www.stanford.edu/class/me200c/tutorial_77/>
+        !good stanford intro: <http://www.stanford.edu/class/me200c/tutorial_77/>
 
       !#function declaration
         
         !called **subroutines**
 
-        subroutine incr (i, r)
+        subroutine incr( i, r, is10 )
 
-          !args passed by reference
-
-          !declaration
-            integer i
+          !declaration:
+            integer i, is10(10)
             real r
+            !real,optional :: iopt
 
           !execution
+
+            !args passed by reference
             i = i + 1
             r = r + 1.0
+            is10(1) = is10(1) + 1
+            !iopt = 0.0
+            !if( present( iopt ) ) iopt = 1.0
 
           return
         end
+
+      subroutine assert( b )
+
+        logical b
+
+        if ( .not. b) then
+          write(*,*) 'assert failed'
+          stop 1
+        endif
+
+      end
+
+      !must always have a program:
 
       program somename
 
@@ -33,23 +48,27 @@ c good stanford intro: <http://www.stanford.edu/class/me200c/tutorial_77/>
 
           !#data types
 
-          logical b, b1, b2
-          integer i, i1, i2
+            logical b, b1, b2
+            integer i, i1, i2
 
-          !integer i = 1
-            !ERROR
-            !cannot init on declare
-            !must use param instead
+            !integer i = 1
+              !ERROR
+              !cannot init on declare
+              !must use param instead
 
-          !integer I
-            !ERROR
-            !vars are case insensitive
+            !integer I
+              !ERROR
+              !vars are case insensitive
 
-          real r, r1, r2, r3
-          character c, c1, c2
+            real r, r1, r2, r3
+            real(8) d, d2
 
-          parameter ( pi = 1, pr = 1.0 )
-            !constants
+            !double precision:
+            double precision d3, d4
+            character c, c1, c2
+
+            !constants:
+            parameter ( pi = 1, pr = 1.0 )
 
           !#array
 
@@ -71,17 +90,14 @@ c good stanford intro: <http://www.stanford.edu/class/me200c/tutorial_77/>
               integer is2x3(2,3)
 
             character cs3(3)
-  
-          !real r2
-            !ERROR
-            !can only declare at beginning!
 
           !#whitespace
-            !is ignored
-            !only newlines are important
-            !indentation is not obliged
-            !first five characters are reserved for labels
-            !only then can you write statements
+            !- multiple whitespace is ignored
+            !- all whitespace is treated equally
+            !- indentation is not forced
+            !- first five characters of each line are reserved for labels
+              !only then can you write statements
+            !- non-comment lines have a maxium length!
 !^^^^
 !!!!!
 
@@ -90,6 +106,12 @@ c good stanford intro: <http://www.stanford.edu/class/me200c/tutorial_77/>
             !c: first char
 
         !#execution
+  
+          !compile error
+          !can only declare before first execution statement:
+
+            i = 2
+            !real r2
 
           !#constants
 
@@ -101,8 +123,17 @@ c good stanford intro: <http://www.stanford.edu/class/me200c/tutorial_77/>
 
             r = 2.0
             r = 2.0e1
-            !r = 2.
-              !#error
+
+            !bad: r is a single precision variable
+                r = 2.0d1
+
+            !compile error:
+                !r = 2.
+            !needs `2.0`
+
+            !d is for explcit double precision
+                d1 = 2.0
+                d3 = 2.0d0
 
             c = 'a'
             c = "a"
@@ -116,14 +147,13 @@ c good stanford intro: <http://www.stanford.edu/class/me200c/tutorial_77/>
             is10(1) = 1
             is10(10) = 1
 
-            !is(0) = 1
-              !ERROR
+            !is10(0) = 1
+              !compile time error
               !starts at 1!!
 
-            !is(11) = 1
-              !ERROR
-              !bound checking is done
-              !TODO confirm: (at compile time because no dynamic memory)
+            !is10(11) = 1
+              !compile time error
+              !TODO confirm: at compile time because no dynamic memory
 
             isrm55(-5) = 1
             isrm55(5) = 1
@@ -150,12 +180,12 @@ c good stanford intro: <http://www.stanford.edu/class/me200c/tutorial_77/>
 
               !#compare
 
-                b = 1 < 2
-                b = 1 .lt. 2
-                b = 1 == 2
-                b = 1 .eq. 2
-                b = 1 /= 2
-                b = 1 .ne. 2
+                call assert( 1 <  2   )
+                call assert( 1 .lt. 2   )
+                call assert( 1 ==   1   )
+                call assert( 1 .eq. 1   )
+                call assert( 1 /=   2   )
+                call assert( 1 .ne. 2   )
 
               
           !#branch
@@ -188,27 +218,36 @@ c good stanford intro: <http://www.stanford.edu/class/me200c/tutorial_77/>
           
             !#for
 
-                do 30 i = 1, 5
-                  write(*,*) 'i =', i
+              do 30 i = 1, 5
+                write(*,*) 'i =', i
 30              continue
                 !10 is any unique label
 
-                do 40 i = 1, 5, 2
-                  write(*,*) 'i =', i
+              do 40 i = 1, 5, 2
+                write(*,*) 'i =', i
 40              continue
 
           !#function call
 
             i = 1
             r = 1.0
-            call incr( i, r )
-            write(*,*) i, r
+            is10(1) = 1
+            call incr( i, r, is10 )
+            call assert( i == 2       )
+            call assert( r == 2.0     )
+            call assert( is10(1) == 2 )
 
-          !#dynamic memory
+            !compile error:
+                !call incr( i, i )
+            !type checked
 
-            !not present?!
+        !#dynamic memory
 
-          !#predefined functions
+          !not present?!
+
+        !#stdlib
+
+          !#functions
 
             !abs
             !min
@@ -221,7 +260,7 @@ c good stanford intro: <http://www.stanford.edu/class/me200c/tutorial_77/>
             !exp
             !log
   
-          !#stdin/out
+          !#stdin out
 
             write (*,*) 'stdout', 1, 1.0, .true.
               !write to stdout
@@ -229,5 +268,19 @@ c good stanford intro: <http://www.stanford.edu/class/me200c/tutorial_77/>
             !read  (*,*) r
               !read from stdin
 
-        stop
+        !#3rd party
+
+        write(*,*) 'ALL ASSERTS PASSED'
+
+        !#stop
+
+          !ends the program
+
+          !0 exit status:
+
+            stop
+
+          !other exit status:
+
+            !stop 1
       end

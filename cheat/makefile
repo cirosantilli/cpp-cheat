@@ -1,18 +1,39 @@
-#compiles c files with gcc and c++ files with g++, one by one separatelly
+#compiles c files with gcc and c++ files with g++, fortran with gfortran one by one separatelly
 
-CC := gcc
-CXX := g++
-FF := gfortran
+#c/cpp
+override CC ?= gcc
+override CXX ?= g++
+override CFLAGS ?= -Wall -Wno-unused-variable -Wno-unused-but-set-variable -std=c99 -pedantic-errors
+override CXXFLAGS ?= -pthread -Wall -Wno-unused-variable -Wno-unused-but-set-variable -std=c++0x -pedantic-errors
+override LIBS ?=
 
-CFLAGS := -Wall -Wno-unused-variable -Wno-unused-but-set-variable -march=native -std=c99 -pedantic-errors
-CXXFLAGS := -pthread -Wall -Wno-unused-variable -Wno-unused-but-set-variable -march=native -std=c++0x -pedantic-errors
-FFLAGS := -pthread -Wall -Wno-unused-variable -Wno-unused-but-set-variable -march=native -std=f95 -pedantic-errors  
+#fortran
+override FF ?= gfortran
+override FFLIBS ?= -l:lapack/liblapack.so
+override FFLAGS ?= -Wall -march=native -std=f95 -pedantic-errors
 
-LIBS:=
+#paths
+override IN_DIR ?= ./
+override OUT_DIR ?= _out/
+override OUT_EXT ?= .out
 
-IN_DIR:=./
-OUT_DIR:=_out/
-OUT_EXT:=.out
+override DEFINES ?= -DPOSIX
+override ASSEMBLER_BASENAME? = c.c
+#override ASSEMBLER_FILE?=cpp.cpp
+
+override RUN ?= c
+#override RUN?=func
+#override RUN?=cpp
+
+override ASSEMBLE_EXT ?= .c
+#override ASSEMBLE_EXT?=.cpp
+
+override DEBUG_DEFINE ?=
+override DEBUG_FLAGS ?=
+override PROFILE_DEFINE ?=
+override PROFILE_FLAGS ?=
+#override OPTIMIZE_FLAGS?=-O3
+override OPTIMIZE_FLAGS?=
 
 EXT:=.c
 INS:=$(wildcard $(IN_DIR)*$(EXT))
@@ -32,32 +53,11 @@ INS_NODIR:=$(notdir $(INS))
 OUTS_NODIR:=$(patsubst %$(EXT),%$(OUT_EXT),$(INS_NODIR))
 F_OUTS:=$(addprefix $(OUT_DIR),$(OUTS_NODIR))
 
-override DEFINES=-DPOSIX
-
-override ASSEMBLER_BASENAME?=c.c
-#override ASSEMBLER_FILE?=cpp.cpp
-
-override RUN?=c
-#override RUN?=func
-#override RUN?=cpp
-
-override ASSEMBLE_EXT?=.c
-#override ASSEMBLE_EXT?=.cpp
-
-override DEBUG_DEFINE?=
-override DEBUG_FLAGS?=
-override PROFILE_DEFINE?=
-override PROFILE_FLAGS?=
-
 RUN_BNAME:=$(RUN)$(OUT_EXT)
 RUN_PATH:=$(OUT_DIR)$(RUN_BNAME)
 ASSEMBLE_BASENAME:=$(RUN)$(ASSEMBLE_EXT)
 
-#override OPTIMIZE_FLAGS?=-O3
-override OPTIMIZE_FLAGS?=
-#dont opt for educative purposes
-
-.PHONY: all mkdir clean profile set_profile_flags
+.PHONY: all mkdir clean profile set_profile_flags get_outdir
 
 all: mkdir $(C_OUTS) $(CPP_OUTS) $(F_OUTS)
 
@@ -83,7 +83,7 @@ set_profile_flags:
 	#$(eval override OPTIMIZE_FLAGS := -O0)
 
 run: all
-	( cd $(OUT_DIR) && ./$(RUN_BNAME) ) #run on out dir
+	( cd $(OUT_DIR) && ./$(RUN_BNAME) ) #run from out dir
 
 mkdir:
 	mkdir -p "$(OUT_DIR)"
@@ -98,4 +98,4 @@ $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.cpp
 	$(CXX) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) $(CXXFLAGS) -o "$@" "$<" $(LIBS)
 
 $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.f
-	$(FF) $(OPTIMIZE_FLAGS) $(FFLAGS) -o "$@" "$<" $(LIBS)
+	$(FF) $(OPTIMIZE_FLAGS) $(FFLAGS) -o "$@" "$<" $(FFLIBS)

@@ -67,6 +67,32 @@ good general resources
 
     socket model
 
+*libs
+
+    #linear algebra
+    
+        #eigen
+
+            http://eigen.tuxfamily.org/index.php?title=Main_Page
+
+            linear algebra, eqdiffs
+
+        #blitz++
+
+            http://blitz.sourceforge.net/
+
+            linear algebra
+
+        #armadillo
+
+            http://arma.sourceforge.net/
+
+            linear algebra
+
+    #tokamak
+
+        rigid body physical engine
+
 */
 
 #include <algorithm>

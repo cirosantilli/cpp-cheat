@@ -1,24 +1,45 @@
-#installation on ubuntu 12.04
+blas lapack are de-facto standards for non-parallel 
+linear algebra computations, originally written in fortran.
 
-- blas
+besides the standard fortran interface, there are also
+some c interfaces available.
+
+#scalapack
+
+    continuation of lapack.
+
+    considers paralellism.
+
+#installation on ubuntu
+
+##fortran
+
+    sudo aptitude install liblapack-dev liblapack-doc
+
+##c interface
 
     sudo aptitude install libblas3gf
 
-#naming conventions
 
-    XYYZZZ
+#function naming conventions
 
-    X: data type
-    S 	single precision (c float)
-    D 	double precision
-    C 	complex
-    Z 	double complex
+`XYYZZZ`
 
-    YY: the type of matrices
-    - GE general
-    - TR triangular
+X: data type:
 
-    ZZZ: computation
+- S: single precision (c float)
+- D: double precision
+- C: complex
+- Z: double complex
+
+YY: the type of matrices:
+
+- GE: general
+- TR: triangular
+
+ZZZ: computation to be done:
+
+- SV: SolVe linear system
 
 #sources
 

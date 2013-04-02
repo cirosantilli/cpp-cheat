@@ -1,47 +1,87 @@
-#!metadata: featured
+#compiles c files with gcc and c++ files with g++, one by one separatelly
 
-#compiles all files in current dir into a single output file
+#this is mostly for test purposes. see: ``makefile.individual_out_bins`` for a more complete makefile
 
-override ASSEMBLE_BASENAME?=a.c			#basename of the file to generate assembly code for
-override AUX_DIR?=_aux/
-override AUX_EXT?=.o
-override CC?=gcc
-override CFLGS?=-Wall -std=c99 -pedantic-errors
-override DEBUG_DEFINE?=
-override DEBUG_FLAGS?=
-override DEFINES=#-DPOSIX #for -DDEBUG and -DPROFILE, used dedicated DEFINES
-override IN_EXT?=.c
-override IN_DIR?=./
-override INCLUDE_DIRS?=-I/usr/include/GL
-override LIBS?=-lm -lblas -l:liblapack.so.3
-override PREDEF?=#-DDEBUG -DPROFILE -DWINDOWS 				#preprocessor defines
-override RUN_ARGS?=#0 1																#passed as command line args to bin on run
-override OPTIMIZE_FLAGS:=-O3
-override OUT_DIR?=_out/
-override OUT_BASENAME?=cheat
-override OUT_EXT?=.elf
-override PROFILE_DEFINE?=
-override PROFILE_FLAGS?=
+#c/cpp
+override CC				?= gcc
+override CFLAGS		?= -Wall -std=c99 -pedantic-errors
+override CXX			?= g++
+override CXXFLAGS	?= -Wall -std=c++0x -pedantic-errors
+override LIBS			?= -lm -lblas -l:liblapack.so.3
+override DEFINES 	?= -DPOSIX
 
-INS:=$(wildcard $(IN_DIR)*$(IN_EXT))
+#fortran
+override FF ?= gfortran
+override FFLIBS ?= -l:lapack/liblapack.so
+override FFLAGS ?= -Wall -march=native -std=f95 -pedantic-errors  
+
+#paths
+override IN_DIR 	?= ./
+override OUT_DIR 	?= _out/
+override OUT_EXT 	?= .out
+
+#run
+override RUN ?= c			#basename without extension of file to run
+
+override ASSEMBLER_BASENAME ?= c.c
+override ASSEMBLE_EXT 			?= .c
+override DEBUG_DEFINE 			?=
+override DEBUG_FLAGS  			?=
+override PROFILE_DEFINE 		?= #-DDEBUG
+override PROFILE_FLAGS  		?= #
+override OPTIMIZE_FLAGS			?= #-O3
+
+RUN_BNAME := $(RUN)$(OUT_EXT)
+
+EXT:=.c
+INS:=$(wildcard $(IN_DIR)*$(EXT))
 INS_NODIR:=$(notdir $(INS))
-AUXS_NODIR:=$(patsubst %$(IN_EXT),%$(AUX_EXT),$(INS_NODIR))
-AUXS:=$(addprefix $(AUX_DIR),$(AUXS_NODIR))
-OUT:=$(OUT_DIR)$(OUT_BASENAME)$(OUT_EXT)
+OUTS_NODIR:=$(patsubst %$(EXT),%$(OUT_EXT),$(INS_NODIR))
+C_OUTS:=$(addprefix $(OUT_DIR),$(OUTS_NODIR))
 
-.PHONY: all mkdir clean assembler debug set_debug_flags profile set_profile_flags help install_ubuntu_deps
+EXT:=.cpp
+INS:=$(wildcard $(IN_DIR)*$(EXT))
+INS_NODIR:=$(notdir $(INS))
+OUTS_NODIR:=$(patsubst %$(EXT),%$(OUT_EXT),$(INS_NODIR))
+CPP_OUTS:=$(addprefix $(OUT_DIR),$(OUTS_NODIR))
 
-all: mkdir $(OUT)
+EXT:=.f
+INS:=$(wildcard $(IN_DIR)*$(EXT))
+INS_NODIR:=$(notdir $(INS))
+OUTS_NODIR:=$(patsubst %$(EXT),%$(OUT_EXT),$(INS_NODIR))
+F_OUTS:=$(addprefix $(OUT_DIR),$(OUTS_NODIR))
+
+.PHONY: all mkdir clean install ubuntu_install_deps
+
+all: mkdir $(C_OUTS) $(CPP_OUTS) $(F_OUTS)
+
+ubuntu_install_deps:
+	#fotran:
+		sudo aptitude install -y liblapack-dev
+	#c:
+		sudo aptitude install -y libblas3gf-dev
+
+mkdir:
+	mkdir -p "$(OUT_DIR)"
+
+$(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.c
+	$(CC) $(CFLAGS) -o "$@" "$<" $(LIBS)
+
+$(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.cpp
+	$(CXX) $(CXXFLAGS) -o "$@" "$<" $(LIBS)
+
+$(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.f
+	$(FF) $(OPTIMIZE_FLAGS) $(FFLAGS) -o "$@" "$<" $(FFLIBS)
 
 run: all
-	./$(OUT) $(RUN_ARGS)
+	( cd $(OUT_DIR) && ./$(RUN_BNAME) ) #run from out dir
 
 assembler: mkdir $(IN_DIR)$(ASSEMBLER_BASENAME)
 	$(eval override OPTIMIZE_FLAGS := -O0)
 	$(CC) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) $(CFLAGS) -S "$(IN_DIR)$(ASSEMBLE_BASENAME)" -o "$(OUT_DIR)$(ASSEMBLE_BASENAME).s"
 
 debug: clean set_debug_flags all
-	gdb $(OUT)
+	( cd $(OUT_DIR) && gdb "$(RUN_BNAME)" )
 
 set_debug_flags:
 	$(eval override DEBUG_FLAGS := -ggdb3)
@@ -49,42 +89,12 @@ set_debug_flags:
 	$(eval override OPTIMIZE_FLAGS := -O0)
 
 profile: clean set_profile_flags all run
-	mv -f gmon.out $(OUT_DIR)
-	gprof -b $(OUT) $(OUT_DIR)gmon.out | tee "$(OUT).profile_out" | less
+	( cd $(OUT_DIR) && gprof -b $(RUN_BNAME) gmon.out | tee "$(RUN_BNAME).profile_out" | less )
 
 set_profile_flags:
-	$(eval PROFILE_FLAGS := -p -pg)
+	$(eval override PROFILE_FLAGS := -p -pg)
 	$(eval override PROFILE_DEFINE := -DPROFILE)
-	#$(eval OPTIMIZE_FLAGS := )
-
-$(OUT): $(AUXS)
-	$(CC) $(PROFILE_FLAGS) $^ -o "$@" $(LIBS)
-
-$(AUX_DIR)%$(AUX_EXT): $(IN_DIR)%$(IN_EXT)
-	$(CC) $(DEFINES) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(OPTIMIZE_FLAGS) $(PREDEF) $(INCLUDE_DIRS) $(CFLAGS) -c "$<" -o "$@"
-
-mkdir:
-	mkdir -p "$(AUX_DIR)"
-	mkdir -p "$(OUT_DIR)"
+	#$(eval override OPTIMIZE_FLAGS := -O0)
 
 clean:
-	rm -rf $(AUX_DIR) $(OUT_DIR)
-
-install_ubuntu_deps:
-	sudo aptitude install -y libatlas-dev
-
-help:
-	@echo 'sample calls:'
-	@echo '  install_ubuntu_deps'
-	@echo '    #installs dependencies on Ubuntu'
-	@echo '  make'
-	@echo '  make clean'
-	@echo '  make run'
-	@echo '    #makes then runs output'
-	@echo '  make debug'
-	@echo '    #makes with -DDEBUG and -ggdb3'
-	@echo '    #and runs with gdb -b'
-	@echo '  make profile'
-	@echo '    #clean, make with -DPROFILE and -p -pg'
-	@echo '    #runs and pipes output through less'
-	@echo '    #and saves compile output to <outname>.profile_out'
+	rm -rf "$(OUT_DIR)"
