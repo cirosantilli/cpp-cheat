@@ -1,32 +1,53 @@
-      !mostly focused on differences from c
-      !my goal in this is the minimal knowledge for scientific computation
+      !mostly focused on differences from c      !my goal in this is the minimal knowledge for scientific computation
       !i also interested in c interfacing
 
       !#sources
 
         !good stanford intro: <http://www.stanford.edu/class/me200c/tutorial_77/>
 
-      !#function declaration
+      !#function
         
-        !called **subroutines**
+        !there are two types: functions and **subr_incroutines**
 
-        subroutine incr( i, r, is10 )
+        integer function func_incr( i )
+
+          integer i
+
+          !func args are passed by value
+          i = 1
+
+          !there can be a return value:
+
+            func_incr = i + 1
+
+          return
+
+        end
+
+        subroutine subr_incr( i, r, n, is )
+
+          !subr_incroutine args are passed by reference
 
           !declaration:
-            integer i, is10(10)
+            integer i, n, is(n)
             real r
             !real,optional :: iopt
 
           !execution
 
-            !args passed by reference
             i = i + 1
             r = r + 1.0
-            is10(1) = is10(1) + 1
+            is(1) = is(1) + 1
             !iopt = 0.0
             !if( present( iopt ) ) iopt = 1.0
+            call assert( size(is) == n )
+
+          !subr_incroutine cannot return a value:
+
+            !return 1
 
           return
+
         end
 
       subroutine assert( b )
@@ -51,6 +72,14 @@
             logical b, b1, b2
             integer i, i1, i2
 
+            !for file io
+              character(256) :: arg
+              integer u
+            !looks like a linux file handle
+            
+            !you need to declare the ype of functions again:
+              integer func_incr
+
             !integer i = 1
               !ERROR
               !cannot init on declare
@@ -68,10 +97,13 @@
             character c, c1, c2
 
             !constants:
-            parameter ( pi = 1, pr = 1.0 )
+            integer parami
+            real paramr
+            parameter ( parami = 3, paramr = 1.0 )
 
           !#array
 
+            integer is2(2)
             integer is10(10)
 
             integer isrm55(-5:5)
@@ -142,6 +174,9 @@
             c = ''''
             c = """"
 
+            !compile error:
+              !parami = 2
+
           !#array
 
             is10(1) = 1
@@ -164,6 +199,10 @@
               
               !cs3 = "01"
 
+            !size function
+            !f90
+              call assert( size(is2) == 2 )
+
           !#logic
 
             b = .true. .AND. .false.
@@ -180,7 +219,7 @@
 
               !#compare
 
-                call assert( 1 <  2   )
+                call assert( 1 <  2     )
                 call assert( 1 .lt. 2   )
                 call assert( 1 ==   1   )
                 call assert( 1 .eq. 1   )
@@ -220,26 +259,36 @@
 
               do 30 i = 1, 5
                 write(*,*) 'i =', i
-30              continue
+30            continue
                 !10 is any unique label
 
               do 40 i = 1, 5, 2
                 write(*,*) 'i =', i
-40              continue
+40            continue
 
           !#function call
 
-            i = 1
-            r = 1.0
-            is10(1) = 1
-            call incr( i, r, is10 )
-            call assert( i == 2       )
-            call assert( r == 2.0     )
-            call assert( is10(1) == 2 )
+            !#function
 
-            !compile error:
-                !call incr( i, i )
-            !type checked
+              !call assert( func_incr(1) == 2 )
+              i = 1
+              i2 = func_incr( i )
+              call assert( i  == 1 )
+              call assert( i2 == 2 )
+
+            !#subroutine
+
+              i = 1
+              r = 1.0
+              is10(1) = 1
+              call subr_incr( i, r, 10, is10 )
+              call assert( i == 2       )
+              call assert( r == 2.0     )
+              call assert( is10(1) == 2 )
+
+              !compile error:
+                  !call subr_incr( i, i )
+              !type checked
 
         !#dynamic memory
 
@@ -247,9 +296,16 @@
 
         !#stdlib
 
-          !#functions
+          !#intrinsics
 
-            !abs
+            !buil-in functions
+
+            is2(1) = -1
+            is2(2) = -2
+            call assert( abs(-1)   == 1   )
+            call assert( abs(-1.0) == 1.0 )
+            write (*,*) abs(is2)
+
             !min
             !max
             !sqrt
@@ -260,13 +316,26 @@
             !exp
             !log
   
-          !#stdin out
+          !#file io
+          
+            !#stdin out
 
-            write (*,*) 'stdout', 1, 1.0, .true.
-              !write to stdout
+              is2(1) = 1
+              is2(2) = 2
+              write(*,*) 'stdout', 1, 1.0, .true., is2
+                !write to stdout
 
-            !read  (*,*) r
-              !read from stdin
+              !read  (*,*) r
+                !read from stdin
+
+            !#file
+
+              CALL get_command_argument(0, arg)
+              write(*,*)
+
+              !open( u, file='tmp', status='OLD' )
+              !write( u, * ) 'file', 1, 1.0, .true., is2
+              !close( u )
 
         !#3rd party
 

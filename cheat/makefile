@@ -3,14 +3,14 @@
 #c/cpp
 override CC ?= gcc
 override CXX ?= g++
-override CFLAGS ?= -Wall -Wno-unused-variable -Wno-unused-but-set-variable -std=c99 -pedantic-errors
-override CXXFLAGS ?= -pthread -Wall -Wno-unused-variable -Wno-unused-but-set-variable -std=c++0x -pedantic-errors
+override CFLAGS ?= -Wall -std=c99 -pedantic-errors -Wno-unused-variable -Wno-unused-but-set-variable 
+override CXXFLAGS ?= -pthread -Wall -std=c++0x -pedantic-errors -Wno-unused-variable -Wno-unused-but-set-variable 
 override LIBS ?=
 
 #fortran
 override FF ?= gfortran
 override FFLIBS ?= -l:lapack/liblapack.so
-override FFLAGS ?= -Wall -march=native -std=f95 -pedantic-errors
+override FFLAGS ?= -Wall -march=native -std=f03 -pedantic-errors -Wno-unused-variable -Wno-unused-but-set-variable 
 
 #paths
 override IN_DIR ?= ./

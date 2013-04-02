@@ -12,7 +12,7 @@ override DEFINES 	?= -DPOSIX
 
 #fortran
 override FF ?= gfortran
-override FFLIBS ?= -l:lapack/liblapack.so
+override FFLIBS ?= -l:libblas/libblas.so -l:lapack/liblapack.so
 override FFLAGS ?= -Wall -march=native -std=f95 -pedantic-errors  
 
 #paths

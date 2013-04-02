@@ -4,6 +4,19 @@ linear algebra computations, originally written in fortran.
 besides the standard fortran interface, there are also
 some c interfaces available.
 
+blas contains low level functions such as:
+
+- vector norm
+- vector sum
+- vector scalar multiplication
+- vector matrix multiplication
+- matrix matrix multiplication
+
+lapack contains higher level functions such as:
+
+- solving linear systems
+- eigenvalue/eigenvector caltulations
+
 #scalapack
 
     continuation of lapack.
@@ -14,12 +27,17 @@ some c interfaces available.
 
 ##fortran
 
-    sudo aptitude install liblapack-dev liblapack-doc
+    sudo aptitude install liblapack-dev liblapack-doc libblas-doc
 
 ##c interface
 
     sudo aptitude install libblas3gf
 
+#levels
+
+1: array array. ex: array sum.
+2: matrix array. ex: solve linear system.
+3: matrix matrix. ex: multiply two matrices.
 
 #function naming conventions
 
@@ -32,10 +50,16 @@ X: data type:
 - C: complex
 - Z: double complex
 
-YY: the type of matrices:
+##YY
+
+known type the type of input matrices
+
+examples:
 
 - GE: general
 - TR: triangular
+
+the more restrict the matrix type, the more efficient algorithms will be.
 
 ZZZ: computation to be done:
 
