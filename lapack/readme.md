@@ -1,8 +1,19 @@
-blas lapack are de-facto standards for non-parallel 
-linear algebra computations, originally written in fortran.
+blas lapack
 
-besides the standard fortran interface, there are also
-some c interfaces available.
+- linear algebra packages
+- de-facto standards
+- non-parallel 
+- originally written in fortran.
+- there are also c interfaces available.
+
+    it might be a good idea to understand how to interface fortran with c
+    before trying the c interfaces.
+
+#related projects
+
+##blas
+
+<http://www.netlib.org/blas/>
 
 blas contains low level functions such as:
 
@@ -12,16 +23,37 @@ blas contains low level functions such as:
 - vector matrix multiplication
 - matrix matrix multiplication
 
+the blas project provides `cblas.h`, which contains a c interface for blas.
+
+##lapack
+
 lapack contains higher level functions such as:
 
 - solving linear systems
 - eigenvalue/eigenvector caltulations
 
-#scalapack
+it now includes an official c interface called `lapacke`.
 
-    continuation of lapack.
+this does not ship with the ubuntu `liblapack-dev` package at the time of writting,
+but there is a `liblapacke-dev` package available which provides it.
 
-    considers paralellism.
+##scalapack
+
+<http://www.netlib.org/scalapack/>
+
+continuation of lapack.
+
+considers paralellism.
+
+##atlas
+
+<http://math-atlas.sourceforge.net/>
+
+automatically tuned blas lapack. not sure what this means, but sounds good!
+
+implements full blas, but only part of lapack.
+
+has c interface.
 
 #installation on ubuntu
 
@@ -31,7 +63,13 @@ lapack contains higher level functions such as:
 
 ##c interface
 
-    sudo aptitude install libblas3gf
+via atlas:
+
+    sudo aptitude install 
+
+via lapacke (`libblas-dev` already contains `cblas.h`):
+
+    sudo aptitude install liblapacke-dev
 
 #levels
 

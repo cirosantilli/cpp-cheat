@@ -7,7 +7,7 @@ override CC				?= gcc
 override CFLAGS		?= -Wall -std=c99 -pedantic-errors
 override CXX			?= g++
 override CXXFLAGS	?= -Wall -std=c++0x -pedantic-errors
-override LIBS			?= -lm -lblas -l:liblapack.so.3
+override LIBS			?= -lm -lblas -llapacke #-l:liblapack.so.3
 override DEFINES 	?= -DPOSIX
 
 #fortran
@@ -56,10 +56,10 @@ F_OUTS:=$(addprefix $(OUT_DIR),$(OUTS_NODIR))
 all: mkdir $(C_OUTS) $(CPP_OUTS) $(F_OUTS)
 
 ubuntu_install_deps:
-	#fotran:
+	#blas c/fotran and lapack fortran:
 		sudo aptitude install -y liblapack-dev
-	#c:
-		sudo aptitude install -y libblas3gf-dev
+	#lapack c via lapacke:
+		sudo aptitude install -y liblapacke-dev
 
 mkdir:
 	mkdir -p "$(OUT_DIR)"

@@ -203,7 +203,7 @@
                 is2x2(1,2) = 2
                 is2x2(2,1) = 3
                 is2x2(2,2) = 4
-                write(*.*) is2x2
+                write(*,*) is2x2
                   !outputs 1 3 2 4
 
             !#string
@@ -307,25 +307,36 @@
 
         !#stdlib
 
+          !unlike c, in fortran you don't need to include files,
+          !you just try to link to them directly
+
+          !therefore, the compiler won't be able to tell if the
+          !function call signatures are ok.
+
           !#intrinsics
 
             !buil-in functions
 
-            is2(1) = -1
-            is2(2) = -2
-            call assert( abs(-1)   == 1   )
-            call assert( abs(-1.0) == 1.0 )
-            write (*,*) abs(is2)
+            !#math
 
-            !min
-            !max
-            !sqrt
-            !sin
-            !cos
-            !tan
-            !atan
-            !exp
-            !log
+              is2(1) = -1
+              is2(2) = -2
+              call assert( abs(-1)   == 1   )
+              call assert( abs(-1.0) == 1.0 )
+              write (*,*) abs(is2)
+
+              !min
+              !max
+              !sqrt
+              !sin
+              !cos
+              !tan
+              !atan
+              !exp
+              !log
+
+            call get_command_argument(0, arg)
+            write(*,*) arg
   
           !#file io
           
@@ -341,10 +352,11 @@
 
             !#file
 
-              CALL get_command_argument(0, arg)
-              write(*,*)
+              !TODO
 
-              !open( u, file='tmp', status='OLD' )
+              is2(1) = 1
+              is2(2) = 2
+              !open( u, file='tmp.tmp' )
               !write( u, * ) 'file', 1, 1.0, .true., is2
               !close( u )
 
