@@ -1,8 +1,6 @@
-#include <iostream>
+#include <stdio.h>
 
 #include "a.h"
-
-using namespace std;
 
 //int i = 0;
     //ERROR already defined
@@ -11,15 +9,15 @@ static int staticInt = 0;
 
 int externInt = 0;
 
-//void func(){ cout << "mainFunc" << endl; }
+//void func(){ puts("mainFunc"); }
     //ERROR
     //redefinition
 
 static void staticFunc(){
-    cout << "a" << endl;
-    cout << staticInt << endl;
-    cout << aHStaticInt << endl;
-    cout << externInt << endl;
+    printf( "a" );
+    printf( "%d\n", staticInt );
+    printf( "%d\n", aHStaticInt );
+    printf( "%d\n", externInt );
 }
 
 void a()

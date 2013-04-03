@@ -1,4 +1,4 @@
-#include <iostream>
+#include <stdio.h>
 
 #define DEF
 #include "a.h"
@@ -7,10 +7,6 @@
     //preprocessor does things in the exact same order it sees them
 
 #include "b.h"
-#include "c.h"
-//#include "f.h"
-
-using namespace std;
 
 int i = 0;
 static int staticInt = 0;
@@ -21,13 +17,13 @@ static int staticInt = 0;
 
 static void staticFunc()
 {
-    cout << "main" << endl;
-    cout << staticInt << endl;
-    cout << aHStaticInt << endl;
-    cout << externInt << endl;
+    printf( "main"              );
+    printf( "%d\n", staticInt   );
+    printf( "%d\n", aHStaticInt );
+    printf( "%d\n", externInt   );
 }
 
-void func(){ cout << "mainFunc" << endl; }
+void func(){ puts( "mainFunc" ); }
 
 int main( int argc, char** argv )
 {
@@ -43,11 +39,5 @@ int main( int argc, char** argv )
     //preprocessor includes
         def++;
 
-    //#cross language
-        
-        //#c
-            c( 1, 1.0 );
-
-        //#fortran
-            //f( 1, 1.0 );
+    return 0;
 }
