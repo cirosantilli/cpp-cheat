@@ -10,7 +10,7 @@ override LIBS ?=
 #fortran
 override FF ?= gfortran
 override FFLIBS ?= -l:lapack/liblapack.so
-override FFLAGS ?= -Wall -march=native -std=f03 -pedantic-errors -Wno-unused-variable -Wno-unused-but-set-variable 
+override FFLAGS ?= -Wall -march=native -std=f2003 -pedantic-errors -Wno-unused-variable -Wno-unused-but-set-variable 
 
 #paths
 override IN_DIR ?= ./

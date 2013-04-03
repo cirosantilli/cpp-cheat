@@ -120,6 +120,7 @@
             !#multidimensional
 
               integer is2x3(2,3)
+              integer is2x2(2,2)
 
             character cs3(3)
 
@@ -193,7 +194,17 @@
             isrm55(-5) = 1
             isrm55(5) = 1
 
-            is2x3(1,1) = 1
+            !#multidimensional
+            
+              is2x3(1,3) = 1
+
+              !physical memory column major:
+                is2x2(1,1) = 1
+                is2x2(1,2) = 2
+                is2x2(2,1) = 3
+                is2x2(2,2) = 4
+                write(*.*) is2x2
+                  !outputs 1 3 2 4
 
             !#string
               

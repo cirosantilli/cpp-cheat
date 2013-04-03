@@ -10,7 +10,7 @@ this dir demonstrates calling fotran code from c
 
 - fortran is case insensitive, and symbols are all lowercased.
 
-- fortran arrays are column-major, c is column-minor.
+- fortran arrays are column-major, c is row-major.
 
     fortran memory:
 

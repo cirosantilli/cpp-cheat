@@ -1,8 +1,8 @@
 #ifndef F_H
 #define F_H
 
-int f_( int* i );
+void s_( int* i, float* r, double* d, int* is2x2 );
 
-void s_( int* i );
+int f_( int* i );
 
 #endif
