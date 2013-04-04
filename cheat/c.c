@@ -116,9 +116,9 @@
 
 #scientific
 
-    #lapacke
+    #lapack
 
-        standard (support by lapack) c interface for lapack!
+        linear algebra. orginally fortran, but has c interfaces.
 
     #petcs
 
@@ -2467,7 +2467,7 @@ int main(int argc, char** argv)
             }
         }
 
-        puts("stdio.h");
+        //#stdio
         {
             //#general notes
             
@@ -2712,9 +2712,9 @@ int main(int argc, char** argv)
                 }
             }
 
-            //files
+            //#file io
             {
-                FILE *fp;
+                FILE* fp;
                     //#FILE is a macro for a stream object
                     
                         //a strem object is higher level than a file descriptor
@@ -2779,7 +2779,7 @@ int main(int argc, char** argv)
 
                         //fputs
                         {
-                            //newline not appended
+                            //newline not automatically appended
                             if ( fputs("bc", fp) == EOF )
                             {
                                 report_cant_write_file(path);
@@ -3045,11 +3045,16 @@ int main(int argc, char** argv)
                 printf( "seconds %f\n", ((float)t)/CLOCKS_PER_SEC );
         }
 
-        //math.h
+        //#math.h
         {
-            assert( fminl(0.1,0.2) == 0.1 );
-            assert( fmaxl(0.1,0.2) == 0.2 );
-                //C99
+            //C99:
+                assert( fminl(0.1,0.2) == 0.1 );
+                assert( fmaxl(0.1,0.2) == 0.2 );
+
+            //exponential:
+                assert( fabs( exp(1.0) - 2.71 )     < 0.01 );
+                assert( fabs( cos(0.0) - 1.0 )      < 0.01 );
+                assert( fabs( acos(-1.0) - 3.14 )   < 0.01 ); //PI
             
             assert( abs(-1.1)  == 1 );
             assert( fabsl(-1.1) == 1.1 );
@@ -3686,10 +3691,7 @@ int main(int argc, char** argv)
 
 #endif
 
-    fputs( "\n", stderr );
-    fputs( "==================================================\n", stderr );
-    fputs( "= ALL ASSERTS PASSED\n", stderr );
-    fputs( "==================================================\n", stderr );
+    puts("\nALL ASSERTS PASSED\n");
 
     //main returns status
     return EXIT_SUCCESS;
