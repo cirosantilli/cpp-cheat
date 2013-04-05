@@ -1,9 +1,6 @@
-/* Mini Calculator */
-/* calc.lex */
-
 %{
 #include "heading.h"
-#include "tok.h"
+#include "bison.h"
 int yyerror(char *s);
 //int yylineno = 1;
 %}
@@ -21,4 +18,3 @@ int_const	{digit}+
 [\n]		{ yylineno++;	}
 
 .		{ std::cerr << "SCANNER "; yyerror(""); exit(1);	}
-

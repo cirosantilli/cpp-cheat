@@ -8,7 +8,7 @@ override CFLGS 							?= -Wall -std=c++0x -pedantic-errors
 override DEBUG_DEFINE 			?= 
 override DEBUG_FLAGS 				?= 
 override DEFINES 						?= #-DPOSIX 														#for -DDEBUG and -DPROFILE, used dedicated DEFINES
-override IN_EXT 						?= .cpp
+override IN_EXTS 						?= .c .cc .cpp
 override IN_DIR 						?= ./
 override INCLUDE_DIRS 			?= #-L/usr/include/GL
 override LIBS 							?= #-lglut -lGLU -lGL
@@ -16,23 +16,31 @@ override PREDEF 						?= #-DDEBUG -DPROFILE -DWINDOWS 				#preprocessor defines
 override RUN_ARGS 					?= #0 1																#passed as command line args to bin on run
 override OPTIMIZE_FLAGS			?= -O3
 override OUT_DIR 						?= _out/
-override OUT_BASENAME 			?= cheat
+override OUT_BASENAME_NOEXT	?= cheat
 override OUT_EXT 						?= .elf
 override PROFILE_DEFINE 		?= 
 override PROFILE_FLAGS 			?= 
 
-INS:=$(wildcard $(IN_DIR)*$(IN_EXT))
-INS_NODIR:=$(notdir $(INS))
-AUXS_NODIR:=$(patsubst %$(IN_EXT),%$(AUX_EXT),$(INS_NODIR))
-AUXS:=$(addprefix $(AUX_DIR),$(AUXS_NODIR))
-OUT:=$(OUT_DIR)$(OUT_BASENAME)$(OUT_EXT)
+INS 			:= $(foreach IN_EXT, $(IN_EXTS), $(wildcard $(IN_DIR)*$(IN_EXT)) )
+INS_NODIR := $(notdir $(INS))
+AUX_NODIR	:= $(filter %$(OBJ_EXT), $(foreach IN_EXT, $(IN_EXTS), $(patsubst %$(IN_EXT),%$(OBJ_EXT),$(INS_NODIR))))
+AUXS			:= $(addprefix $(AUX_DIR),$(AUXS_NODIR))
+
+OUT_BASENAME:= $(OUT_BASENAME_NOEXT)$(OUT_EXT)
+OUT					:= $(OUT_DIR)$(OUT_BASENAME)
 
 .PHONY: all mkdir clean assembler debug set_debug_flags profile set_profile_flags help ubuntu_install_deps
 
 all: mkdir $(OUT)
 
-run: all
-	( cd $(OUT_DIR) && ./$(OUT) $(RUN_ARGS) ) #run from out dir
+$(OUT): $(AUXS)
+	$(CC) $(PROFILE_FLAGS) $^ -o "$@" $(LIBS)
+
+$(AUX_DIR)%$(AUX_EXT): $(IN_DIR)%.c
+	$(CC) $(DEFINES) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(OPTIMIZE_FLAGS) $(PREDEF) $(INCLUDE_DIRS) $(CFLAGS) -c "$<" -o "$@"
+
+$(AUX_DIR)%$(AUX_EXT): $(IN_DIR)%.cpp
+	$(CC) $(DEFINES) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(OPTIMIZE_FLAGS) $(PREDEF) $(INCLUDE_DIRS) $(CFLAGS) -c "$<" -o "$@"
 
 assembler: mkdir $(IN_DIR)$(ASSEMBLER_BASENAME)
 	$(eval override OPTIMIZE_FLAGS := -O0)
@@ -47,26 +55,23 @@ set_debug_flags:
 	$(eval override OPTIMIZE_FLAGS := -O0)
 
 profile: clean set_profile_flags all run
-	mv -f gmon.out $(OUT_DIR)
-	gprof -b $(OUT) $(OUT_DIR)gmon.out | tee "$(OUT).profile_out" | less
+	mv -f gmon.out "$(OUT_DIR)"
+	gprof -b $(OUT) "$(OUT_DIR)"gmon.out | tee "$(OUT).profile_out" | less
 
 set_profile_flags:
 	$(eval PROFILE_FLAGS := -p -pg)
 	$(eval override PROFILE_DEFINE := -DPROFILE)
 	#$(eval OPTIMIZE_FLAGS := )
 
-$(OUT): $(AUXS)
-	$(CC) $(PROFILE_FLAGS) $^ -o "$@" $(LIBS)
-
-$(AUX_DIR)%$(AUX_EXT): $(IN_DIR)%$(IN_EXT)
-	$(CC) $(DEFINES) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(OPTIMIZE_FLAGS) $(PREDEF) $(INCLUDE_DIRS) $(CFLAGS) -c "$<" -o "$@"
+run: all
+	( cd $(OUT_DIR) && ./$(OUT_BASENAME) $(RUN_ARGS) ) #run from out dir
 
 mkdir:
 	mkdir -p "$(AUX_DIR)"
 	mkdir -p "$(OUT_DIR)"
 
 clean:
-	rm -rf $(AUX_DIR) $(OUT_DIR)
+	rm -rf "$(AUX_DIR)" "$(OUT_DIR)"
 
 ubuntu_install_deps:
 	#sudo aptitude install -y libgtk-3-dev

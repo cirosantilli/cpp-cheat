@@ -31,7 +31,7 @@ INS_NODIR:=$(notdir $(INS))
 OUTS_NODIR:=$(patsubst %$(EXT),%$(OUT_EXT),$(INS_NODIR))
 CPP_OUTS:=$(addprefix $(OUT_DIR),$(OUTS_NODIR))
 
-.PHONY: all mkdir clean install ubuntu_install_deps
+.PHONY: all mkdir clean ubuntu_install_deps
 
 all: mkdir $(C_OUTS) $(CPP_OUTS)
 

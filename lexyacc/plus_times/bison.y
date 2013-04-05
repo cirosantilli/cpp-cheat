@@ -1,6 +1,3 @@
-/* Mini Calculator */
-/* calc.y */
-
 %{
 #include "heading.h"
 int yyerror(char *s);
@@ -46,5 +43,3 @@ int yyerror(char *s)
 {
   return yyerror(string(s));
 }
-
-

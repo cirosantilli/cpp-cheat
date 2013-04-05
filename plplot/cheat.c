@@ -34,28 +34,42 @@ int main(void)
         datay2[i] = sin( i * delta + PI_2 );
     }
 
-    //#plsdev
-
-        //must come before plinit! (constructor args)
-        
-        //decides where output will go
-        
-        plsdev("xwin");
-
-        //plot to file
-
-            //plsdev("svg");
-            //plsfnam("a.svg");
-
-    //must always come before plotting calls:
-    plinit();
-
-    plot_type = 0;
+    plot_type = -1;
 
     switch(plot_type)
     {
-        //#scatter
+        //#minimal program
+        case -1:
+            plsdev("xwin");
+            plinit();
+            plenv( 0.0, (PLFLT)NPTS, -1.0, 1.0, 0, 1 );
+            plstring( NPTS, datax, datay, "*" );
+            pllab( "", "", "#frplhist" );
+            plend();
+        break;
+
+        //#major cheat
         case 0:
+
+            //#plsdev
+
+                //must come before plinit! (constructor args)
+                
+                //decides where output will go
+                
+                //if missing, will be asked for user from command line.
+                
+                //to screen:
+                
+                    plsdev("xwin");
+
+                //to file:
+
+                    //plsdev("svg");
+                    //plsfnam("a.svg");
+
+            //must always come before plotting calls:
+            plinit();
 
             //#plenv
                 
@@ -125,9 +139,19 @@ int main(void)
                     "#frplstring"  //title
                 );
 
+            //#plend
+                
+                //frees memory
+            
+                plend();
+
+        break;
+
         //#histogram
         case 1:
-
+            plsdev("xwin");
+            plinit();
+            //doest not need plenv
             plhist(
                 NPTS,
                 datay,
@@ -136,8 +160,20 @@ int main(void)
                 44,     //how many bars to plot (it averages points?)
                 0       //option flags
             );
-
             pllab( "", "", "#frplhist" );
+            plend();
+        break;
+
+        //#multiple windows
+        case 2:
+            //TODO
+            plsdev("xwin");
+            plenv( 0.0, (PLFLT)NPTS, -1.0, 1.0, 0, 1 );
+            plinit();
+            plhist( NPTS, datay, -1.1, 1.1, 44, 0 );
+            plend();
+        break;
+
     }
 
 
@@ -188,22 +224,6 @@ int main(void)
             //#<0x8nnnnnnn>: absolute FCI to be used to change fonts in mid-string. (nnnnnnn must be exactly 7 digits). (UNICODE ONLY).
             //#<0xmn>: change just one attribute of the FCI in mid-string where m is the hexdigit and n is the hexpower. If more than two digits are given (so long as the eighth digit does not mark this as an absolute FCI, see above) they are ignored. (UNICODE ONLY).
             //#<FCI COMMAND STRING/>: the FCI COMMAND STRING is currently one of "sans-serif", "serif", "monospace", "script", "symbol", "upright", "italic", "oblique" "medium", or "bold" (without the surrounding quotes). These FCI COMMAND STRINGS change one attribute of the FCI according to their name. (UNICODE ONLY). 
-
-    plend();
-
-    //multiple windows
-
-        /*plsdev("xwin");*/
-        /*plinit();*/
-        /*plhist(*/
-            /*NPTS,*/
-            /*datay,*/
-            /*-1.1,*/
-            /*1.1,*/
-            /*44,*/
-            /*0*/
-        /*);*/
-        /*plend();*/
 
     return EXIT_SUCCESS;
 }

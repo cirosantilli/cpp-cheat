@@ -2181,7 +2181,7 @@ int main(int argc, char** argv)
                 {
                     case 0:
 
-                        assert(i==0);
+                        assert( i == 0 );
 
                         int j;
                             //OK
@@ -2195,7 +2195,7 @@ int main(int argc, char** argv)
 
                     case 1:
 
-                        assert(i==1);
+                        assert( i == 1 );
 
                         //int j;
                             //ERROR
@@ -2204,7 +2204,7 @@ int main(int argc, char** argv)
                         break;
 
                     default:
-                        assert( i!=0 && i!=1 );
+                        assert( i != 0 && i != 1 );
                         break;
                 }
             }
@@ -3112,7 +3112,7 @@ int main(int argc, char** argv)
 
 #ifdef POSIX
 
-        //constants
+        //#constants
         {
             //#define _XOPEN_SOURCE
             //#include <math.h>
@@ -3122,7 +3122,7 @@ int main(int argc, char** argv)
             fprintf( stderr, "%f\n", M_PI_4 );
         }
 
-        //sleep
+        //#sleep
         {
             for(int i=0; i<3; i++)
             {
@@ -3132,7 +3132,7 @@ int main(int argc, char** argv)
             }
         }
 
-        //memory usage
+        //#memory usage
         {
             /*struct rusage {*/
                 /*struct timeval ru_utime; [> user time used <]*/

@@ -11,7 +11,7 @@
 #include <plplot/plplot.h>
 
 /*
-solves:
+equation:
 
 $Y'(t) = f(Y(t),t)$
 

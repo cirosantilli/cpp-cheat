@@ -1,4 +1,4 @@
-source: <http://alumni.cs.ucr.edu/~lgao/teaching/flex.html>, with possible modifications by me.
+original source: <http://alumni.cs.ucr.edu/~lgao/teaching/flex.html>, with possible modifications by me.
 
 usage:
 
@@ -10,6 +10,6 @@ usage:
     ./calc f
 
     ./calc
-        #stdin input, end ctrl+d
+    #stdin input, end ctrl+d
 
     make clean
