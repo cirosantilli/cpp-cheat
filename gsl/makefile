@@ -7,8 +7,8 @@ override CFLGS				?= -Wall -std=c++0x -pedantic-errors -O3
 override DEFINES			?= #-DPOSIX #for -DDEBUG and -DPROFILE, used dedicated DEFINES
 override IN_EXT				?= .c
 override IN_DIR				?= ./
-override INCLUDE_DIRS	?= -I/usr/include/GL
-override LIBS					?=  -lgsl -lgslcblas -lm
+override INCLUDE_DIRS	?= #-I/usr/include/GL
+override LIBS					?=  -lgsl -lgslcblas -lm -lplplotd
 override PREDEF				?= #-DDEBUG -DPROFILE -DWINDOWS 				#preprocessor defines
 override RUN_ARGS			?= #0 1																	#passed as command line args to bin on run
 override OUT_DIR			?= _out/
@@ -44,3 +44,5 @@ clean:
 
 install_ubuntu_deps:
 	sudo aptitude install -y libgsl0-dev gsl-doc-info
+	#if you will use plplot:
+		sudo aptitude install -y libplplot-dev plplot11-driver-xwin

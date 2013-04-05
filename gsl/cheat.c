@@ -6,6 +6,9 @@
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_odeiv2.h>
 #include <gsl/gsl_sf_bessel.h>
+#include <gsl/gsl_statistics.h>
+
+#include <plplot/plplot.h>
 
 /*
 solves:
@@ -79,13 +82,17 @@ int main (void)
         double y[2] = { 1.0, 0.0 };
 
         //number of points to print
-        int nPts = 1000;
+        const int  nPts = 1000;
 
         //time interval between each print
         double dt = t1 / nPts;
         
+        //prepare to get the output
         FILE* fp = fopen( "ode.tmp", "w" );
-        for (i = 1; i <= nPts; i++)
+        double datax[nPts];
+        double datay[nPts];
+
+        for (i = 0; i < nPts; i++)
         {
             double ti = i * dt;
 
@@ -99,15 +106,45 @@ int main (void)
                 break;
             }
 
-            //get output:
-            fprintf( fp, "%.5e %.5e %.5e\n", t, y[0], y[1] );
-            printf(      "%.5e %.5e %.5e\n", t, y[0], y[1] );
-        }
-        fclose(fp);
-        gsl_odeiv2_driver_free(d);
+            //#get output
 
-        //if you want to see the points with gnuplot (you do =)):
-            //system( "gnuplot -e 'p \"ode.tmp\" u 2:3 w lines; pause -1'" );
+                //to a file:
+                
+                    fprintf( fp, "%.5e %.5e %.5e\n", t, y[0], y[1] );
+
+                //to stdout:
+
+                    printf( "%.5e %.5e %.5e\n", t, y[0], y[1] );
+
+                //to array
+                
+                    datax[i] = y[0];
+                    datay[i] = y[1];
+        }
+                
+        //finalize
+            fclose(fp);
+            gsl_odeiv2_driver_free(d);
+
+        //plot
+
+            //#plplot
+
+                plsdev("xwin");
+                plinit();
+                plenv(
+                    gsl_stats_min( datax, 1, nPts),
+                    gsl_stats_max( datax, 1, nPts),
+                    gsl_stats_min( datay, 1, nPts),
+                    gsl_stats_max( datay, 1, nPts),
+                    0,
+                    1
+                );
+                plstring( nPts, datax, datay, "*" );
+                plend();
+
+            //#gnuplot
+                //system( "gnuplot -e 'p \"ode.tmp\" u 2:3 w lines; pause -1'" );
     }
         
     return 0;

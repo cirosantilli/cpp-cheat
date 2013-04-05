@@ -2172,7 +2172,7 @@ int main(int argc, char** argv)
             }
         }
 
-        //switch
+        //#switch
         {
             int i, j;
             for( i=-1; i<3; i++ )

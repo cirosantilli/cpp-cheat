@@ -11,10 +11,11 @@ override DEFINES 	?=
 #paths
 override IN_DIR 	?= ./
 override OUT_DIR 	?= _out/
-override OUT_EXT 	?= .out
+override OUT_EXT 	?= .elf
 
 #run
-override RUN ?= main			#basename without extension of file to run
+override RUN ?= cheat
+	#basename without extension of file to run
 
 RUN_BNAME := $(RUN)$(OUT_EXT)
 
@@ -35,6 +36,7 @@ CPP_OUTS:=$(addprefix $(OUT_DIR),$(OUTS_NODIR))
 all: mkdir $(C_OUTS) $(CPP_OUTS)
 
 ubuntu_install_deps:
+	sudo aptitude install libplplot-dev plplot11-driver-xwin
 
 mkdir:
 	mkdir -p "$(OUT_DIR)"
