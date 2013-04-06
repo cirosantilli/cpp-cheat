@@ -19,7 +19,7 @@ int yylex(void);
 %%
 
 input:		/* empty */
-		| exp	{ cout << "Result: " << $1 << endl; }
+		| exp	{ cout << $1 << endl; }
 		;
 
 exp:		INTEGER_LITERAL	{ $$ = $1; }

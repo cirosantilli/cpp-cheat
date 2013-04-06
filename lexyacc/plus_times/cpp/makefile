@@ -57,19 +57,14 @@ $(AUX_DIR)%.c $(AUX_DIR)%.h: $(IN_DIR)%.y
 clean:
 	rm -rf "$(AUX_DIR)" "$(OUT_DIR)"
 
+mkdir:
+	mkdir -p "$(AUX_DIR)" "$(OUT_DIR)"
+
 run: all
 	( cd $(OUT_DIR) && ./$(OUT_BASENAME) $(RUN_ARGS) )
 
-test:
-	(\
-		set -e;\
-		cd $(OUT_DIR);\
-		[ "`echo '1+1' | ./$(OUT_BASENAME)`" = "Result: 2" ] ;\
-	)
-	@echo ALL TESTS PASSED
-
-mkdir:
-	mkdir -p "$(AUX_DIR)" "$(OUT_DIR)"
+test: all
+	python test.py "$(OUT)"
 
 ubuntu_install_deps:
 	sudo aptitude install -y flex bison

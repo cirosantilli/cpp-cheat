@@ -149,7 +149,7 @@
 #define _XOPEN_SOURCE 700
 #endif
 
-//preprocessor
+//#preprocessor
 //{
     //does simple stuff *before* compilation
 
@@ -240,11 +240,6 @@ extern char **environ;
 #define DEBUG
 #ifdef DEBUG
 int debugVar;
-#endif
-
-#define WINDOWS
-#ifdef WINDOWS
-int windowsVar;
 #endif
 
 //}
@@ -2393,7 +2388,7 @@ int main(int argc, char** argv)
         }
     }
 
-    //preprocessor
+    //#preprocessor
     {
         {
 #define A B
@@ -2413,6 +2408,33 @@ int main(int argc, char** argv)
             puts("no C");
 #endif
         }
+
+        //#&&
+#define C 1
+#if defined(C) && C > 0
+#else
+    assert(false);
+#endif
+
+        //#standard ifdefs
+        {
+
+#if defined (__STDC_VERSION__)
+        printf( "__STDC_VERSION__ = %li", __STDC_VERSION__ );
+#endif
+
+//some vars are automatically defined by certain compilers:
+//although they are not c standards
+#ifdef __WIN32__
+        puts("__IN32__");
+#endif
+
+#ifdef __GNUC__
+        //automatically defined on gcc even if ``-std -pedantic``
+        puts("__GUNC__");
+#endif
+        }
+
     }
 
     //stdlib
@@ -3682,13 +3704,6 @@ int main(int argc, char** argv)
                 }
             }
         }
-#endif
-
-#ifdef __GNUC__
-        //automatically defined on gcc even if ``-std -pedantic``
-
-        puts("__GUNC__");
-
 #endif
 
     puts("\nALL ASSERTS PASSED\n");
