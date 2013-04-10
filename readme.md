@@ -1,14 +1,7 @@
-my simple c and cpp programs
+simple c and c++ programs, cheats and mini projects.
 
-larger projects may be in separate repos.
+larger projects may be in separate dirs.
 
-#featured
-
-- ./cheat/
-
-    contains all that I know about c and cpp and stdlibs
-
-    not beginner oriented.
-
-    attempts to understand every minute hehavior and performance
-    characteristic of the language and the stdlib
+there may be other compiled languages here for which I don't
+have much material for a separate dir, specially when I interface
+that language with c. Ex: fotran.

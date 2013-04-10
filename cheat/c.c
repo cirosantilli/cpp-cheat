@@ -242,6 +242,12 @@ extern char **environ;
 int debugVar;
 #endif
 
+//##line
+
+//from now on, counts from given line to report errors:
+
+//#line 1
+
 //}
 
 //#global scope

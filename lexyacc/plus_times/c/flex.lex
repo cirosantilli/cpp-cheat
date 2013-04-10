@@ -1,4 +1,8 @@
 %{
+//#definitions
+
+//this is copied as is to the top of the generated .c file
+
 #include <stdio.h>
 #include <stdlib.h>
 

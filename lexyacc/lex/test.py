@@ -14,7 +14,7 @@ import unittest
 
 class ProgramInput:
 
-    def __init__(self, stdin, args ):
+    def __init__(self, stdin, args = [] ):
         self.stdin  = stdin
         self.args   = args
 
@@ -30,7 +30,7 @@ class ProgramInput:
 
 class ProgramOutput:
 
-    def __init__(self, stdout, stderr, exit_status):
+    def __init__(self, stdout, stderr = '', exit_status = 0):
         self.stdout         = stdout
         self.stderr         = stderr
         self.exit_status    = exit_status
@@ -52,16 +52,56 @@ class Test(unittest.TestCase):
 
         inouts = [
 
-            #sum
-            ( ProgramInput( "1+1", [] ), ProgramOutput( "2\n", "", 0 ) ),
+            #string literals
 
-            #mult
-            ( ProgramInput( "1*1", [] ), ProgramOutput( "1\n", "", 0 ) ),
+                #multiple on line
+                ( ProgramInput( '"a" "b"' ),    ProgramOutput( 'STRING: "a"\nSTRING: "b"\n' ) ),
 
-            #sum and mult
-            ( ProgramInput( "1+1*0", [] ), ProgramOutput( "1\n", "", 0 ) ),
-            ( ProgramInput( "0*1+1", [] ), ProgramOutput( "1\n", "", 0 ) ),
+                #empty
+                ( ProgramInput( r'""' ),        ProgramOutput( 'STRING: ""\n'               ) ),
+
+                #escape
+                ( ProgramInput( r'"\""' ),      ProgramOutput( r'STRING: "\""' '\n'         ) ),
+
+                ( ProgramInput( r'"\"' ),       ProgramOutput( '', 'error\n', 1             ) ),
+
+            #multiline comments
+
+                #empty
+                ( ProgramInput( '/**/' ),           ProgramOutput( 'MCOM: /**/\n' ) ),
+
+                #ends in '*'
+                ( ProgramInput( '/***/' ),          ProgramOutput( 'MCOM: /***/\n' ) ),
+
+                #contains **
+                ( ProgramInput( '/****/' ),         ProgramOutput( 'MCOM: /****/\n' ) ),
+                ( ProgramInput( '/*** */' ),        ProgramOutput( 'MCOM: /*** */\n' ) ),
+                ( ProgramInput( '/** **/' ),        ProgramOutput( 'MCOM: /** **/\n' ) ),
+
+                #multiple
+                ( ProgramInput( '/*a*/ /*b*/' ),    ProgramOutput( 'MCOM: /*a*/\nMCOM: /*b*/\n' ) ),
+
+                #multiline
+                ( ProgramInput( '/*\na\nb*/' ),     ProgramOutput( 'MCOM: /*\na\nb*/\n' ) ),
         ]
+
+
+    '/**/' ),    
+                
+                
+    '/***/' ),   
+                
+                
+    '/****/' ),  
+    '/*** */' ), 
+    '/** **/' ), 
+                
+                
+    '/*a*/ /*b*/'
+                
+                
+    '/*\na\nb*/' 
+
 
         for inout in inouts:
 
