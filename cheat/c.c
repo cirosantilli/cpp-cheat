@@ -140,13 +140,20 @@
 //if you want to access them with the -ansi -c99 flags,
 //you need to define ``_XOPEN_SOURCE``
 
+//`POSIX_SOURCE` is another option which opens different functions.
+
 //the value refers to the actual posix version
 //for example:
 
     //500: issue 5, 1995
     //600: issue 6, 2004
     //700: issue 7, 2008
+
+//TODO what is th difference:
+
 #define _XOPEN_SOURCE 700
+#define _POSIX_C_SOURCE 200112L
+#define POSIX_SOURCE
 #endif
 
 //#preprocessor

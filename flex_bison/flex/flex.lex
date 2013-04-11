@@ -17,9 +17,12 @@
     here we can give names to patterns to make things clearer
 */
 
+mcom        \/\*([^*]|\*[^/])*\*+\/
 digit       [0-9]
 letter      [A-Za-z_]
-space       [ ]
+space       [ ]*
+float       {digit}*(\.{digit}+(e{digit}+)?)
+int         {digit}+
 identifier  {letter}({letter}|{digit})*
 
 %{
@@ -28,6 +31,19 @@ identifier  {letter}({letter}|{digit})*
 
         stuff here is copied as is to the top of the generated .c file
     */
+
+    /*
+        #fileno warning
+        
+        i have tried everything to get rid of the fileno warning, but nothing works!
+
+        TODO
+    */
+    /*#define _POSIX_C_SOURCE 200112L*/
+    /*#define __USE_POSIX */
+    /*#define _XOPEN_SOURCE 600*/
+
+    #include <stdio.h>
     #include <stdlib.h>
 
     int yyntokens = 0;
@@ -88,7 +104,7 @@ identifier  {letter}({letter}|{digit})*
 
     /* multiline comment */
     /*\/\*([^*]|\* /[])*\*\/{*/
-\/\*([^*]|\*[^/])*\*+\/ {
+{mcom} {
         fprintf(yyout, "MCOM: %s\n", yytext );
         yyntokens++;
     }
@@ -100,13 +116,13 @@ identifier  {letter}({letter}|{digit})*
     }
 
     /* c float */
-{digit}*(\.{digit}*(e{digit}*)?) {
+{float} {
         fprintf(yyout, "FLOAT: %s\n", yytext );
         yyntokens++;
     }
 
     /* c int, because float did not match */
-{digit}* {
+{int} {
         fprintf(yyout, "INT: %s\n", yytext );
         yyntokens++;
     }

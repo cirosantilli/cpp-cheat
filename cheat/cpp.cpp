@@ -2742,6 +2742,15 @@ int main(int argc, char** argv)
             }
         }
 
+        //#hashmap
+        {
+            //C++0x introduces `std::unordered_map`
+
+            //nonstandard `hash_map` already provided with gcc and msvc++
+            
+            //it is even placed in the std:: namespace, but it is *not* standard
+        }
+
         //iterator
         {
             //iteration could be done with random access

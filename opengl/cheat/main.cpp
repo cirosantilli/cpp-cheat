@@ -206,11 +206,14 @@ class Camera
     GLint windowH = 50;
 
     GLint windowPosX = 10;
-    GLint windowPosY = 10; 
+    GLint windowPosY = 10; rue
 
     int oldT;  //used to keep real time consistent
     int nFrames = 0; //total number of frames
     int maxNFrames = 100; //maximum number of frames on offscreen rendering
+
+    //if True: outputs to screen and to stdout, may not go over 60FPS.
+    //if False: outputs to stdout only, and may go over 60FPS!
     bool offscreen = true;
 
 //events

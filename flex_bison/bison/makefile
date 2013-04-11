@@ -1,19 +1,26 @@
+#flex bison makefile template
+
 #makes all input files in the current dir ( given by the input extension IN_EXTS)
 #into objects, and compiles all objects into an executable.
 
+#as usual, .l and .y are first used to generate .c and only then into objects.
+
 #basenames without extensions are always kept and must be unique across extensions.
 
-#as usual, .lex and .y are first used to generate .c and only then into objects.
+#Example: `a.y` will become `a.o`, and `a.c` will also become `a.o`, so you can't
+#have both those files in the same project!
 
 #compiler options
-override CC			:= g++
-override CFLAGS	?= -Wall -std=c++0x -pedantic
+override CC			:= gcc
+override CFLAGS	?= -Wall -std=c99 -pedantic -Wno-unused-function
 
 #paths
 override AUX_DIR 						?= _out/
 override OBJ_EXT 						?= .o
 override IN_DIR 						?= ./
-override IN_EXTS 						?= .lex .y .c .cpp
+override FLEX_EXT  				  ?= .l
+override BISON_EXT  				?= .y
+override IN_EXTS 						?= $(FLEX_EXT) $(BISON_EXT) .c
 override OUT_DIR 						?= $(AUX_DIR)
 override OUT_EXT 						?= .elf
 override OUT_BASENAME_NOEXT	?= a
@@ -27,31 +34,31 @@ OUT_BASENAME:= $(OUT_BASENAME_NOEXT)$(OUT_EXT)
 OUT					:= $(OUT_DIR)$(OUT_BASENAME)
 
 #bison generated header:
-BISON_H			:= $(addprefix $(AUX_DIR), $(notdir $(patsubst %.y, %.h, $(wildcard $(IN_DIR)*.y))))
-FLEX_C			:= $(addprefix $(AUX_DIR), $(notdir $(patsubst %.lex, %.c, $(wildcard $(IN_DIR)*.lex))))
+BISON_H			:= $(addprefix $(AUX_DIR), $(notdir $(patsubst %$(BISON_EXT), %.h, $(wildcard $(IN_DIR)*$(BISON_EXT)))))
+FLEX_C			:= $(addprefix $(AUX_DIR), $(notdir $(patsubst %$(FLEX_EXT), %.c, $(wildcard $(IN_DIR)*$(FLEX_EXT)))))
 
 .PHONY: all run test mkdir clean ubuntu_install_deps
 
-all: mkdir $(OUT)
+.SECONDARY: $(FLEX_C) $(BISON_H)
 
-.SECONDARY: $(BISON_H) $(FLEX_C)
+#must turn off possible implicit l y rules!!!
+.SUFFIXES:
+
+all: mkdir $(OUT)
 
 $(OUT): $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) -o $(OUT) -lfl
 
 $(AUX_DIR)%$(OBJ_EXT): $(IN_DIR)%.c $(BISON_H) 
-	$(CC) $(CFLAGS) -c "$<" -o "$@"
-
-$(AUX_DIR)%$(OBJ_EXT): $(IN_DIR)%.cpp $(BISON_H) 
-	$(CC) $(CFLAGS) -c "$<" -o "$@"
+	$(CC) $(CFLAGS) -I"$(AUX_DIR)" -c "$<" -o "$@"
 
 $(AUX_DIR)%$(OBJ_EXT): $(AUX_DIR)%.c $(BISON_H) 
 	$(CC) $(CFLAGS) -I. -c "$<" -o "$@"
 
-$(AUX_DIR)%.c: $(IN_DIR)%.lex
-	flex  -o "$(AUX_DIR)$*".c "$<"
+$(AUX_DIR)%.c: $(IN_DIR)%$(FLEX_EXT)
+	flex -o "$(AUX_DIR)$*".c "$<"
 
-$(AUX_DIR)%.c $(AUX_DIR)%.h: $(IN_DIR)%.y
+$(AUX_DIR)%.c $(AUX_DIR)%.h: $(IN_DIR)%$(BISON_EXT)
 	bison -v -o "$(AUX_DIR)$*".c --defines="$(AUX_DIR)$*".h "$<" 
 
 clean:

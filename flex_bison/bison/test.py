@@ -52,56 +52,21 @@ class Test(unittest.TestCase):
 
         inouts = [
 
-            #string literals
+            #print
 
-                #multiple on line
-                ( ProgramInput( '"a" "b"' ),    ProgramOutput( 'STRING: "a"\nSTRING: "b"\n' ) ),
+                ( ProgramInput( 'print 1;' ),           ProgramOutput( '1\n' ) ),
+                ( ProgramInput( 'a = 1; print a;' ),    ProgramOutput( '1\n' ) ),
 
-                #empty
-                ( ProgramInput( r'""' ),        ProgramOutput( 'STRING: ""\n'               ) ),
+            ##vars
 
-                #escape
-                ( ProgramInput( r'"\""' ),      ProgramOutput( r'STRING: "\""' '\n'         ) ),
+                ( ProgramInput( 'a = 1 + 1; print a;' ),             ProgramOutput( '2\n' ) ),
+                ( ProgramInput( 'a = 1; b = a; print b;' ),          ProgramOutput( '1\n' ) ),
 
-                ( ProgramInput( r'"\"' ),       ProgramOutput( '', 'error\n', 1             ) ),
+            ##if
 
-            #multiline comments
-
-                #empty
-                ( ProgramInput( '/**/' ),           ProgramOutput( 'MCOM: /**/\n' ) ),
-
-                #ends in '*'
-                ( ProgramInput( '/***/' ),          ProgramOutput( 'MCOM: /***/\n' ) ),
-
-                #contains **
-                ( ProgramInput( '/****/' ),         ProgramOutput( 'MCOM: /****/\n' ) ),
-                ( ProgramInput( '/*** */' ),        ProgramOutput( 'MCOM: /*** */\n' ) ),
-                ( ProgramInput( '/** **/' ),        ProgramOutput( 'MCOM: /** **/\n' ) ),
-
-                #multiple
-                ( ProgramInput( '/*a*/ /*b*/' ),    ProgramOutput( 'MCOM: /*a*/\nMCOM: /*b*/\n' ) ),
-
-                #multiline
-                ( ProgramInput( '/*\na\nb*/' ),     ProgramOutput( 'MCOM: /*\na\nb*/\n' ) ),
+                ( ProgramInput( 'if(1); print 1;' ),             ProgramOutput( '1\n' ) ),
+                #( ProgramInput( 'if(0); print 1;' ),             ProgramOutput( '\n' ) ),
         ]
-
-
-    '/**/' ),    
-                
-                
-    '/***/' ),   
-                
-                
-    '/****/' ),  
-    '/*** */' ), 
-    '/** **/' ), 
-                
-                
-    '/*a*/ /*b*/'
-                
-                
-    '/*\na\nb*/' 
-
 
         for inout in inouts:
 
