@@ -221,8 +221,9 @@ void freeNode(nodeType *p)
 
 void yyerror(char* s)
 {
-    extern int yylineno;    // defined and maintained in lex.c
-    extern char* yytext;    // defined and maintained in lex.c
+    //defined and maintained in flex file
+    extern int yylineno;
+    extern char* yytext;
     
     fprintf( stderr, "error:\n  line: %d\n  type: %s\n",  yylineno, s );
     /*exit(EXIT_FAILURE);*/
