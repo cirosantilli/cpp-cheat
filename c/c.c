@@ -1821,7 +1821,7 @@ int main(int argc, char** argv)
                 }
             }
 
-            //string
+            //#string
             {
                 {
                     char cs[] = "abc";
@@ -1873,11 +1873,13 @@ int main(int argc, char** argv)
                 {
                     //use '\0' to see ther string ends
 
-                    //printf, sprintf
+                    //#sprintf
                     {
+                        //for the possible formatrings, see <#printf>
+                        
                         char cs[] = "abc";
                         char cs2[4];
-                        sprintf(cs2, "%s", cs );
+                        sprintf( cs2, "%s", cs );
                         assert( strcmp( cs, cs2 ) == 0 );
                     }
 
@@ -2573,9 +2575,13 @@ int main(int argc, char** argv)
                 {
                     //write formated to sdtout
                     
-                    //newline not added
+                    //newline not added at end
                     
                     //ref: <http://www.cplusplus.com/reference/clibrary/cstdio/printf/>
+                    
+                    //very useful to learn, since this is also used in python and bash `printf` command.
+                    
+                    char s[256];
                     
                     printf("d 1 = %d\n", 1);
                     printf("d 0xFFFFFFFF = %d\n", 0xFFFFFFFF);
@@ -2590,14 +2596,69 @@ int main(int argc, char** argv)
                     printf("lld = %lld\n", 0x100000000LL); //long long (int)
                     printf("%d %d\n",1,2);
 
-                    //float and double
-                        //both the same
+                    //#float and double
+                    {
+                        //both the same char
+                        
                         printf("f = %f\n", 1.0f);
-                        printf(".2f = %.2f\n", 1.0f);
-                        printf("0.2f = %.0f\n", 1.0f);
-                        printf("7.2f = %7.2f\n", 1.0f); //at least 7 chars: add spaces. used to make tables.
-                        printf(".2e = %.2e\n", 1.0f);
-                        printf(".*e = %.*e", 2, 1.0f); //treat precision as a parameter
+
+                        //#control number of zeros after dot
+                        {
+                            //#fixed number
+                            {
+                                sprintf( s, "%.2f", 1.0f );
+                                char s2[] = "1.00";
+                                assert( strcmp( s, s2 ) == 0 );
+                            }
+
+                            //#given by variable
+                            {
+                                sprintf( s, "%.*f", 2, 1.0f );
+                                char s2[] = "1.00";
+                                assert( strcmp( s, s2 ) == 0 );
+                            }
+                        }
+
+                        //#control minimum number chars to output
+                        {
+                            //#pad with spaces
+                            {
+                                //useful to output text tables:
+                                //
+                                //ugly:
+                                //
+                                //12345 1
+                                //1 1
+                                //
+                                //beautiful:
+                                //
+                                //12345 1
+                                //1     1
+                                
+                                sprintf( s, "%6.2f", 1.0f );
+                                char s2[] = "  1.00";
+                                assert( strcmp( s, s2 ) == 0 );
+                            }
+
+                            //#pad with zeros
+                            {
+                                //useful for naming files:
+                                //"10" comes after  "09" ('1' > '0')
+                                //"10" comes before "9"  ('1' < '0')!
+                                
+                                sprintf( s, "%06.2f", 1.0f );
+                                char s2[] = "001.00";
+                                assert( strcmp( s, s2 ) == 0 );
+                            }
+                        }
+
+                        //#scientific
+                        {
+                            sprintf( s, "%.3e", 1.0f );
+                            char s2[] = "1.000e+00";
+                            assert( strcmp( s, s2 ) == 0 );
+                        }
+                    }
 
                     printf("%s\n", "a string");
                     printf("%s\n", "\t<<< \\t tab char");
