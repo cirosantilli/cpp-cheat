@@ -5,8 +5,8 @@
 #c/cpp
 override CC			?= gcc
 override CXX		?= g++
-override CFLAGS		?= -Wall -std=c99 -pedantic-errors
-override CXXFLAGS	?= -Wall -std=c++0x -pedantic-errors
+override CFLAGS		?= -Wall -pedantic-errors -std=c99
+override CXXFLAGS	?= -Wall -pedantic-errors -std=c++0x
 override LIBS		?= #-lm -lGL -lGLU -lglut
 override DEFINES 	?= #-D_XOPEN_SOURCE 700
 
