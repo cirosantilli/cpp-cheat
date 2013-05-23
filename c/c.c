@@ -1,5 +1,20 @@
 /*
 
+ansi c, no extensions
+
+#motivation
+
+c is amazingly important as it is used to implement:
+
+- linux kernel
+- windows kernel
+- python and ruby reference implementation
+- opengl
+
+and the list goes on and on
+
+the reason for this is that c is low level and fast
+
 #language versions
 
     #ANSI C
@@ -14,7 +29,7 @@
         implementations
 
         drafts are also free, and quite close to the actual specifications
-        
+
         - C11
             - previously known as c1x
             - current standard, but very limited support in many compilers
@@ -22,7 +37,7 @@
             - threads spported
         - C99
             - not 100% support by many compilers
-            - http://en.wikipedia.org/wiki/C99 
+            - http://en.wikipedia.org/wiki/C99
             - support for // comments
             - long long, bool, complex numbers
             - gcc: add -std=c99
@@ -34,9 +49,11 @@
 
     #glibc
 
-        std only specifies the interface, not the implementation.
+        gnu implementation of the c standard library
 
-        ``glibc``, the gnu implementation, is very dominant on linux
+        is very dominant on linux
+
+        the standards only specifies the interface, not exact implementation algorithms
 
         stdlib does not come with gcc: you could in theory choose between different implementations.
 
@@ -81,80 +98,17 @@
         sources:
 
         - <http://www.greenend.org.uk/rjk/tech/inline.html>
-            
+
             some warnings about inline and its usage
 
-#lib
+#libs
 
-    #opengl
-
-        sudo aptitude install freeglut3-dev
-
-    #opencv
-
-        #install ubuntu:
-
-            sudo aptitude install build-essential
-            sudo aptitude install libopencv-dev opencv-doc
-
-        not sure the following are needed in general:
-
-            sudo aptitude install libavformat-dev
-            sudo aptitude install ffmpeg
-            sudo aptitude install libcv2.1 libcvaux2.1 libhighgui2.1 python-opencv opencv-doc libcv-dev libcvaux-dev libhighgui-dev
-
-        now copy the examples and compile run them:
-
-            cp -r /usr/share/doc/opencv-doc/examples ./
-
-        opencv2 is the second version released in 2009,
-        this is why you have both folders /usr/include/opencv and opencv2
-
-    #check
-
-        c unit testing
-
-#scientific
-
-    #lapack
-
-        linear algebra. orginally fortran, but has c interfaces.
+    this section is a list of whose main interface is c or which have a good c interface
 
     #petcs
 
         <http://www.mcs.anl.gov/petsc/documentation/index.html>
-
-    that is, applied to specific domains of science
-
-    #ODE
-
-        physical engine
-
-            sudo aptitude install libode-dev
 */
-
-#ifdef POSIX
-//posix defines certain things *INSIDE*
-//ansi c headers
-
-//if you want to access them with the -ansi -c99 flags,
-//you need to define ``_XOPEN_SOURCE``
-
-//`POSIX_SOURCE` is another option which opens different functions.
-
-//the value refers to the actual posix version
-//for example:
-
-    //500: issue 5, 1995
-    //600: issue 6, 2004
-    //700: issue 7, 2008
-
-//TODO what is th difference:
-
-#define _XOPEN_SOURCE 700
-#define _POSIX_C_SOURCE 200112L
-#define POSIX_SOURCE
-#endif
 
 //#preprocessor
 //{
@@ -172,62 +126,40 @@
 
 #include <assert.h>
 #include <complex.h>
+
+    //isspace, etc:
+
 #include <ctype.h>
-    //isspace and family
+
 #include <locale.h>
-#include <stdarg.h>
+
     //... variable num of args
+
+#include <stdarg.h>
 #include <signal.h>
 #include <stdbool.h>
 #include <stdint.h>
+
+    //malloc, EXIT_SUCCESS, EXIT_FAILURE:
+
 #include <stdlib.h>
-    //malloc, EXIT_SUCCESS, EXIT_FAILURE
+
+    //printf, puts:
+
 #include <stdio.h>
-    //printf, puts
+
+    //strlen, strcpy:
+
 #include <string.h>
-    //strlen
 #include <math.h>
 #include <time.h>
-#include <wchar.h> 
+#include <wchar.h>
 //#include <thread.h>
     //not yet implemented for me
 
-#ifdef POSIX
-    //POSIX is an operating system standardization by IEEE.
-    //followed by Linux and OSX, but not by windows.
-
-    //many of the functions of the posix headers are very close
-    //to certain linux system calls
-    
-    //they allow operations such as:
-        //- threads
-        //- ipc
-        //- filesystem operations
-        //- user/group info
-
-    //list of headers: <http://en.wikipedia.org/wiki/C_POSIX_library>
-#include <libgen.h>
-    //basename, dirname
-    //whithout this, one gets the glib.c version
-#include <pthread.h>
-#include <regex.h>
-#include <sys/socket.h>
-#include <sys/stat.h>    
-#include <sys/types.h>
-    //lots of typedef types
-    //to printf them:
-#include <sys/wait.h>
-#include <unistd.h>
-    //sleep: no portable way
-
-extern char **environ;
-    //environment variables
-    //each process has a list
-#endif
-
 //#include <linux/limits.h>
     //PATH_MAX max path length on system
- 
+
 #define PI 3.14
 //BAD
     //use constants instead of defines unless you want to control compilation
@@ -284,7 +216,7 @@ int debugVar;
         //they'd be useless
 
 //#pointer array
-    
+
     int* getArr(int i)
     {
         //int is[] = {i};
@@ -312,7 +244,7 @@ int debugVar;
     }
 
 //#functions
-    
+
     //void overload(int n){}
     //void overload(float n){}
         //ERROR no func overload in c
@@ -522,7 +454,7 @@ int debugVar;
             int is[0xF0000];
         }
     }
-    
+
     void heap1bProf(int n)
     {
         char* cp;
@@ -559,7 +491,7 @@ int debugVar;
 #endif
 
 //#algorithms
-    
+
     //simple fun algorithms
 
     //random
@@ -569,7 +501,7 @@ int debugVar;
             return ((b-a)*((float)rand()/RAND_MAX))+a;
         }
     //}
-    
+
     //a pow b
     int pow2(int a, int b)
     {
@@ -580,7 +512,7 @@ int debugVar;
         }
         return res;
     }
-    
+
     //TODO does not work
     float pow2f(float a, float b)
     {
@@ -593,7 +525,7 @@ int debugVar;
     }
 
 //#file io
-    
+
     void report_cant_open_file (char * path){
         fprintf(stderr, "could not read from:\n%s\n", path);
     }
@@ -670,7 +602,7 @@ int debugVar;
     }
 
     //reads the entire file to a char[]
-    //returns a pointer to the start of that array 
+    //returns a pointer to the start of that array
     //memory is dynamically allocated, so caller must free it!
     //if any problem happens, returns NULL
     char * file_read(char *path)
@@ -770,7 +702,7 @@ int debugVar;
                 return -1;
             }
         }
-            
+
         if ( EOF == fclose (fp) ){
             report_cant_close_file(path);
             return -1;
@@ -785,7 +717,7 @@ int debugVar;
     {
         int i;
         FILE * fp;
-            
+
         fp = fopen(path,"w");
         if (fp == NULL){
             report_cant_open_file(path);
@@ -799,7 +731,7 @@ int debugVar;
                 return -1;
             }
         }
-            
+
         if ( EOF == fclose (fp) ){
             report_cant_close_file(path);
             return -1;
@@ -832,7 +764,7 @@ int main(int argc, char** argv)
                 //int 0a;
                     //ERROR
             }
-            
+
             {
                 int i;
                 i = 5;
@@ -906,7 +838,7 @@ int main(int argc, char** argv)
             //for machine indepencence
 
             size_t size = sizeof(int);
- 
+
             puts("sizeof (bytes):");
             printf( "char        = %zu\n",  sizeof(char)        );
             printf( "int         = %zu\n",  sizeof(int)         );
@@ -925,7 +857,7 @@ int main(int argc, char** argv)
             assert( sizeof( float )     <= sizeof( double )         );
             assert( sizeof( double )    <= sizeof( long double )    );
                 //equality is always possible!
-            
+
             assert( sizeof( unsigned int ) == sizeof( int ) );
             assert( sizeof( unsigned long int ) == sizeof( long int ) );
                 //unsigned does not change sizeof
@@ -956,7 +888,7 @@ int main(int argc, char** argv)
             //char c = 255+1;
             //unsigned char c = 257;
                 //WARN
-            
+
             //lli = 0x10000000000000000;
                 //WARN constant too large (even for long long, the largest type)
 
@@ -1013,7 +945,7 @@ int main(int argc, char** argv)
             //ERROR pointer to int[]
                 //is3=is4;
         }
-        
+
         //#const
         {
             int i = 0;
@@ -1026,7 +958,7 @@ int main(int argc, char** argv)
                 //ERROR
                 //consts are... almost consts!
                 //(you can change them with a warning)
-            
+
             //int i = 0;
             //const int i = 0;
                 //ERROR
@@ -1038,14 +970,14 @@ int main(int argc, char** argv)
                 //we changed the const!
                 //this is why you can't int is[constint]; !!
                 //because you can compile with only a warning and change a const
-                
+
             //const pointers
             {
                 //3 types:
                     //const*
                     //*const
                     //const*const
-            
+
                 const int* cip = &ic;
                 //SAME
                     //int const* icp = &ic;
@@ -1066,7 +998,7 @@ int main(int argc, char** argv)
                     //not its value!
                 //*ipc = 2;
                     //BAD: we changed the value!
-                
+
                 const int* const cipp = &ic;
 
                 const int cis2[2] = {1,2};
@@ -1112,7 +1044,7 @@ int main(int argc, char** argv)
                     //
                     //almost always done without a hint if possible
             }
-            
+
             {
                 //register int ri;
                 //int* ip = &ri;
@@ -1134,7 +1066,7 @@ int main(int argc, char** argv)
     {
         //on stdlib, convention append "_t" to typedefs is used
         //ex: ``size_t``, ``wchar_t``, etc
-        
+
         {
             typedef int NEWINT;
             NEWINT i = 1;
@@ -1148,12 +1080,12 @@ int main(int argc, char** argv)
     //enum
     {
         {
-            enum E        
+            enum E
             {
-                E1,   
-                E2,   
-                E3,   
-                E4,   
+                E1,
+                E2,
+                E3,
+                E4,
             };
 
             enum E e = E1;
@@ -1182,9 +1114,9 @@ int main(int argc, char** argv)
         }
 
         {
-            enum E        
+            enum E
             {
-                E1 = 1,   
+                E1 = 1,
                 E2 = 2,
                 E3 = 2, //equal values are ok
                 E4,
@@ -1299,7 +1231,7 @@ int main(int argc, char** argv)
         //bitfields
         {
             //*i think* enforces the field size
-            
+
             struct S
             {
                 unsigned b1 : 1;
@@ -1321,7 +1253,7 @@ int main(int argc, char** argv)
                 //WARN
                 //overflow
                 //truncate
-            
+
             int i = 2;
             s.b1 = i;
             assert( s.b1 == 0 );
@@ -1332,7 +1264,7 @@ int main(int argc, char** argv)
                 //only takes lsb
         }
     }
-    
+
     //operators
     {
         //arithmetic
@@ -1527,7 +1459,7 @@ int main(int argc, char** argv)
                     //is = {3,4,5};
                         //ERROR
                 }
-                
+
                 {
                     int is[4] = {1,2};
                     assert( is[0] == 1 );
@@ -1542,7 +1474,7 @@ int main(int argc, char** argv)
                     //is = is2;
                         //ERROR
                 }
-                
+
                 {
                     //int is[2] = {1, 3, 2};
                         //WARN too small
@@ -1598,7 +1530,7 @@ int main(int argc, char** argv)
                     }
                 }
             }
-    
+
             //pointers and arrays are different
             {
                 puts("pointers and arrays are different types:");
@@ -1644,7 +1576,7 @@ int main(int argc, char** argv)
                 //        j=is[i];
                 //}
                 //    segmentation fault
-                
+
                 /*printf("%d\n",is[100000]);*/
                 //might run: only get segmentation fault if you hit exactly the last position!
             }
@@ -1659,7 +1591,7 @@ int main(int argc, char** argv)
 
                 assert( is != is2 );
                     //compares addresses, not data!
-                
+
                 assert( memcmp( is, is2, 3 * sizeof(int)) == 0 );
                 is[1] = 0;
                 assert( memcmp( is, is2, 3 * sizeof(int)) < 0 );
@@ -1670,7 +1602,7 @@ int main(int argc, char** argv)
             //#memcpy
             {
                 //copy memory
-                
+
                 int is[] = {0,1,2};
                 int is2[3];
 
@@ -1684,7 +1616,7 @@ int main(int argc, char** argv)
                     //copy 3*4 bytes from one is7 to is
                     //more efficient than for: direct memory copyint, no i++ or i<n? check
                 assert( memcmp( is, is2, 3 * sizeof(int)) == 0 );
-        
+
                 memcpy(&is, &(int [5]){ 0,1,2 }, sizeof(is) );
                     //C99
                 assert( memcmp( is, &(int [5]){ 0,1,2 }, 3 * sizeof(int)) == 0 );
@@ -1693,7 +1625,7 @@ int main(int argc, char** argv)
             //#memset
             {
                 //set memory block to a single value
-                
+
                 char cs[] = "abcdef";
                 memset( cs + 2, '0', 3 );
                 assert( strcmp( cs, "ab000f" ) == 0 );
@@ -1712,11 +1644,11 @@ int main(int argc, char** argv)
 
                 //error: cannot know    how much memory to allocate!
                     //int m31[][3];
-        
+
                 //error: = {...} works only at declaration
                     //int m111[2][3];
                     //m111[0] = &(int*[3]){1,2,3};
-            
+
                 int m2[][3] =
                 {
                     { 1, 2, 3 },
@@ -1771,14 +1703,14 @@ int main(int argc, char** argv)
                         }
 
                 //multidimentional > 2
-        
+
                     int m4[][2][3] =
                     {
                         { { 1, 2, 3 }, { 4 , 5,  6 } },
                         { { 7, 8, 9 }, { 10, 11, 12} }
                     };
                     //allocates exact amount for first: 2x2x2
-                    
+
                     int m41[3][2][3] =
                     {
                         { { 1, 2, 3 }, { 4 , 5,  6 } },
@@ -1791,7 +1723,7 @@ int main(int argc, char** argv)
                         //    {{1,2},{3,4}},
                         //    {{5,6},{7,8}}
                         //};
-        
+
                 enum { mc=2, nc=4 };
                 int m5[mc][nc];
 
@@ -1837,7 +1769,7 @@ int main(int argc, char** argv)
                         //NOTE
                         //use '\0' always
                         //c std functions use that to see where string ends
-                    
+
                     cs[0] = 'A';
                     assert( strcmp(cs,"Abc") == 0 );
 
@@ -1876,7 +1808,7 @@ int main(int argc, char** argv)
                     //#sprintf
                     {
                         //for the possible formatrings, see <#printf>
-                        
+
                         char cs[] = "abc";
                         char cs2[4];
                         sprintf( cs2, "%s", cs );
@@ -1918,10 +1850,10 @@ int main(int argc, char** argv)
                         assert( strcmp( cs, cs2 ) > 0 );
                             //larget
                     }
-    
+
                     //cat
                     {
-                        
+
                         char s1[5];
                         strcpy( s1, "ab" );
                         char s2[] = "cd";
@@ -1929,7 +1861,7 @@ int main(int argc, char** argv)
                         assert( strcmp( s1, "abcd" ) == 0 );
                         assert( strcmp( s2, "cd"   ) == 0 );
                     }
-                        
+
                     //strchr
                     {
                         //search for char in string
@@ -1940,11 +1872,11 @@ int main(int argc, char** argv)
                             assert( strchr( cs, 'b' ) == cs + 1 );
                             assert( strchr( cs, 'd' ) == NULL );
                         }
-                    
+
                         //find all occurences of c in cs
                         {
                             //no direct std for this
-                            
+
                             char cs[] = "abcb";
                             char* cp;
                             char c = 'b';
@@ -1974,7 +1906,7 @@ int main(int argc, char** argv)
                         assert( ! isdigit('a') );
                     }
                 }
-        
+
                 //text segment
                 {
                     char* cs = "abc";
@@ -1982,11 +1914,11 @@ int main(int argc, char** argv)
                         //NOTE
                         //points to the text segment
                         //very memory efficient
-                    
+
                     //cs[0] = 'a';
                         //ERROR
                         //text segment cannot me modified
-                    
+
                     //int * is = {1, 3, 2};
                         //WARN
                         //can't do this
@@ -2006,7 +1938,7 @@ int main(int argc, char** argv)
                         //BAD
                         //only changes first byte
                         //you get trash all over
-                    
+
                     //cs[0] = '英';
                         //WARN
 
@@ -2056,8 +1988,8 @@ int main(int argc, char** argv)
             //almost useless
             int i=0, a=1, b=2, c=3; //comma here is separator, not operator. same comma in functions calls/defs
 
-            assert( ( i = 0, 1        ) == 1 );  
-            assert( ( i = 0, i = 1, 2 ) == 2 );             
+            assert( ( i = 0, 1        ) == 1 );
+            assert( ( i = 0, i = 1, 2 ) == 2 );
                 //ignores values on left
                 //takes only last value on right
                 //
@@ -2082,7 +2014,7 @@ int main(int argc, char** argv)
             i=2;
             assert( (i=0, i++, i) == 1);
                 //operation on left comes first
-        } 
+        }
     }
 
     //branching
@@ -2104,15 +2036,15 @@ int main(int argc, char** argv)
             if(-1)
             {
                 assert(1);
-            } 
+            }
             if(0)
             {
                 assert(0);
-            } 
+            }
             if(1)
             {
                 assert(1);
-            } 
+            }
 
             //scope
             {
@@ -2149,20 +2081,20 @@ int main(int argc, char** argv)
 
                 { int_least32_t i; }
                 //at least 32 bits
-            
+
                 { int_fast32_t i; }
                 //fastest operations with at least 32 bits
-                
+
                 { intptr_t i; }
                 //can hold pointer
                 //uniquelly defined by machine address space
-                
+
                 { intmax_t i; }
                 //max possible width
 
                 { uint32_t i; }
                 //all have unsigned verions prefixed by 'u'
-                
+
                 {
                     {
                         int32_t i = 0;
@@ -2196,7 +2128,7 @@ int main(int argc, char** argv)
                         int j;
                             //OK
                             //new inner scope
-                        
+
                         //int i = 1;
                             //ERROR
                             //redeclaration
@@ -2261,7 +2193,7 @@ int main(int argc, char** argv)
             }
 
             //putting int i=0 inside for
-            {   
+            {
                 //C99
                 int is[] = {0,1,2};
                 for( int i = 0; i < 3; ++i )
@@ -2272,7 +2204,7 @@ int main(int argc, char** argv)
                         //redeclaration
                 }
             }
-            
+
             //one of the few uses of the comma operator
             {
                 int is[] = {0,1,2};
@@ -2283,7 +2215,7 @@ int main(int argc, char** argv)
                     assert( i == js[i] );
                 }
             }
-            
+
             //nested loops
             {
                 int n = 0;
@@ -2309,7 +2241,7 @@ int main(int argc, char** argv)
                 while ( i < 3 )
                 {
                     assert( i == is[i] );
-                    i++;	    
+                    i++;
                 }
                 assert( i == 3 );
             }
@@ -2323,7 +2255,7 @@ int main(int argc, char** argv)
                 {
                     i2 = 2*i*i + 3*i + ( i % 2 );
                     assert( i == is[i] );
-                    i++;	    
+                    i++;
                 } while ( i2 < 7 );
                     //don't forget the ';' !
 
@@ -2333,17 +2265,17 @@ int main(int argc, char** argv)
                     //to know if it will continue
 
                     //without do-while, you would have to either:
-                    
+
                         //write:
                         //``int i2 = 2*i*i + 3*i + ( i % 2 );``
                         //so you have to type this huge expression twice!
                         //so if you change one you have to change the other
                         //and you risk to forget creating a hard to find bug
-                        
+
                         //write a function that does 2*i*i + 3*i + ( i % 2 );
                         //this function is almost useless (used only twice)
                         //adding needless boilerplate to your code
-                
+
                     //both of which are not very attractive alternatives
             }
         }
@@ -2489,16 +2421,16 @@ int main(int argc, char** argv)
                 //assert( r == 1 );
                     //executes command in a shell
                     //and waits for it to end
-                    
+
                     //on linux
                         //does: /bin/sh -c
                         //this could be written with the posix
                         //fork + execl + wait
 
                     //on windows uses nother shell
-                    
+
                     //so in the end what you write with this is not easily portable
-                    
+
                     //return value is system dependant
                         //but often the command exit status
             }
@@ -2507,30 +2439,30 @@ int main(int argc, char** argv)
         //#stdio
         {
             //#general notes
-            
+
                 //#EOF
-                
+
                     //TODO what is EOF on a system level
                     //what happens when I hit ctrl+d on bash + getchar?
                     //current guess: a pipe close
-                    
+
                     //in linux, EOF does not exist
-                    
-                    //the only way to know if a file is over is to make a ``sys_read`` call 
+
+                    //the only way to know if a file is over is to make a ``sys_read`` call
                     //and check if you get less bytes than you ask for
                     //(``sys_read`` returns the number of bytes read)
-                    
+
                     //alternativelly, for fds that are files, you can use ``sys_stat`` in linux,
                     //but there is no portable stat func
 
                     //what was said for linux is similar for windows
                     //and similar for c thus
-                    
+
                     //EOF is a c concept
-                    
+
                     //EOF works because there are only 256 bytes you can get from an fd
                     //so EOF is just some int outside of the possible 0-255 range, tipically -1
-            
+
             //std in/out/err
             //stdin
                 //be careful!! stdin won't return EOF automatically
@@ -2546,20 +2478,20 @@ int main(int argc, char** argv)
                 //before this comes, the program just stops waiting for the stdin to
                 //produce this, either from user keyboard input, or from the program
                 //behind the pipe.
-        
+
             //TODO
                 //setvbuf: set io buffer size, must be used on open stream
                 //flush:    flush io buffer
                 //freopen
-            
+
             //#stdout
             {
                 //#putchar
                 {
                     //write single char to stdout
-                    
+
                     //basically useless
-                    
+
                     putchar('1');
                     putchar('c');
                     putchar('\n');
@@ -2574,15 +2506,15 @@ int main(int argc, char** argv)
                 //#printf
                 {
                     //write formated to sdtout
-                    
+
                     //newline not added at end
-                    
+
                     //ref: <http://www.cplusplus.com/reference/clibrary/cstdio/printf/>
-                    
+
                     //very useful to learn, since this is also used in python and bash `printf` command.
-                    
+
                     char s[256];
-                    
+
                     printf("d 1 = %d\n", 1);
                     printf("d 0xFFFFFFFF = %d\n", 0xFFFFFFFF);
                         //-1
@@ -2599,7 +2531,7 @@ int main(int argc, char** argv)
                     //#float and double
                     {
                         //both the same char
-                        
+
                         printf("f = %f\n", 1.0f);
 
                         //#control number of zeros after dot
@@ -2634,7 +2566,7 @@ int main(int argc, char** argv)
                                 //
                                 //12345 1
                                 //1     1
-                                
+
                                 sprintf( s, "%6.2f", 1.0f );
                                 char s2[] = "  1.00";
                                 assert( strcmp( s, s2 ) == 0 );
@@ -2645,7 +2577,7 @@ int main(int argc, char** argv)
                                 //useful for naming files:
                                 //"10" comes after  "09" ('1' > '0')
                                 //"10" comes before "9"  ('1' < '0')!
-                                
+
                                 sprintf( s, "%06.2f", 1.0f );
                                 char s2[] = "001.00";
                                 assert( strcmp( s, s2 ) == 0 );
@@ -2674,7 +2606,7 @@ int main(int argc, char** argv)
                         //prints the 0x address.
                         //%p must get a void pointer
                         //void* is a type, different than void. doing type cast to it.
-                    
+
                     printf("%%<<< escaping percentage\n");
                         //note that this is printf specific
                         //not string specific
@@ -2683,13 +2615,13 @@ int main(int argc, char** argv)
                 //large strings to stdout
                 {
                     //stdout it line buffered
-                    
+
 
                     //if you fill up the buffer without any newlines
                     //it will just print
 
                     //buffer size cannot be accessed programatically
-                    
+
                     //TODO what is the bin buffer size?
                     //in practice, 1024 works just fine
                     //it may be much larger than BUFSIZ
@@ -2708,7 +2640,7 @@ int main(int argc, char** argv)
                 //#fputs, fprintf
                 {
                     //puts and printf to any fd, not just stdout
-                    
+
                     fputs( "stdout", stdout );
                     fputs( "stderr", stderr );
                     fprintf( stdout, "%d\n", 1 );
@@ -2728,14 +2660,14 @@ int main(int argc, char** argv)
                 if(0)
                 {
                     //getchar == getc(stdin)
-                    
+
                     //it blocks until any char is read
-                    
+
                     //echo a | c.out
                         //a
                     //sleep 3 | c.out
                         //EOF after 3 secs
-                    
+
                     fputs( "enter a char (on linux, ctrl+d EOF): ", stderr );
                     //fputc( 'a', stdin );
                         //BAD
@@ -2750,7 +2682,7 @@ int main(int argc, char** argv)
                         fprintf( stderr, "EOF\n" );
                     }
                 }
-                
+
                 //#gets
                 if(0)
                 {
@@ -2759,7 +2691,7 @@ int main(int argc, char** argv)
                     //dangerous
                         //no size checking possible
                         //if too much input, just seg faults
-            
+
                     //printf("enter a string terminated by newline: (max %d chars, newline will be included in the string)\n", sn);
                     //gets(s);
                     //printf("you entered:\n%s\n\n",s);
@@ -2769,14 +2701,14 @@ int main(int argc, char** argv)
                 if(0)
                 {
                     //BAD
-                    
+
                     //complicated behaviour
                         //input is space separated regardless of scanf string
-                    
+
                     //hard to errot check
-                    
+
                     //stops reading at newline
-                
+
                     int i, j;
                     unsigned int ui;
                     float f;
@@ -2786,7 +2718,7 @@ int main(int argc, char** argv)
                     i++;
                     //stuff is space separated
                     //try 123 456 789 at once. 456 789 stay in the buffer, and are eaten by the second scanf
-                    
+
                     printf("enter an integer, a space, an integer and a <enter> (max 32 bits signed):\n");
                     i = scanf("%d %d", &i, &j);
                     printf("you entered:\n%d %d\n\n", i, j);
@@ -2812,29 +2744,29 @@ int main(int argc, char** argv)
             {
                 FILE* fp;
                     //#FILE is a macro for a stream object
-                    
+
                         //a strem object is higher level than a file descriptor
-                        
+
                         //it uses file descriptors as backend in linux
-                        
+
                         //linux file descriptors are identified simply by integers
-                        
+
                         //by using streams you get the classical high level/low level tradeoff:
-                        
+
                             //higher portability
                                 //since working with fds is posix
-                                
+
                             //more convenience
                                 //since each function on streams may do lots of
                                 //operations at once on the underlying fds
-                            
+
                             //less control
-                            
+
                                 //since OS certain specific operatins are not available
-                                
+
                                 //with fds in linux you can do file/pipe/FIFO/socket specific operations
                                 //for example
-                            
+
                 int err, had_error, fi;
                 float ff;
                 char c1;
@@ -2900,7 +2832,7 @@ int main(int argc, char** argv)
                 //don't forget to close!
                     // there is a limited ammount of open files at a time by the os
                     // buffered output may not have been saved before closing
-                
+
                 //text io
                 {
                     //read from a file
@@ -2979,11 +2911,11 @@ int main(int argc, char** argv)
                     //1 int occupies 4 bytes and not 1!
 
                     //mostly useful for data that cannot be interpretred as text (images, executables)
-                    
+
                     //better speed performance only on large chunks
-                    
+
                     //good when you know the size of the entire input/output
-                    
+
                     //including the 'b' option only makes a difference for DOS. use for compatibility (or maybe don't!)
 
                     int elems_write[] = { 1, 2, 3 };
@@ -3002,13 +2934,13 @@ int main(int argc, char** argv)
                         else
                         {
                             //returns number of elements written
-                            
+
                             //common nelems source
                                 //nelems=sizeof(buff)/sizeof(buff[0]);
                                 //nelems=strlen(buff)+1
 
                             if ( fwrite( elems_write, sizeof(elems_write[0]), nelems, fp ) < nelems )
-                            { 
+                            {
                                 fprintf(stderr, "could not write all the data:\n%s\n", path);
                             }
                         }
@@ -3049,7 +2981,7 @@ int main(int argc, char** argv)
                         //if ( curpos == -1L ){
                         //    report_cant_move_file();
                         //}
-                
+
                     //fseek
                         //http://www.cplusplus.com/reference/clibrary/cstdio/fseek/
                         //
@@ -3070,7 +3002,7 @@ int main(int argc, char** argv)
                         // if (flush(fp) == EOF){
                         //        //error
                         // }
-                        
+
                     //freopen
                         //freopen("/dev/null", "r", stdin);
                         //this will discard stdin on linux
@@ -3085,7 +3017,7 @@ int main(int argc, char** argv)
                 //#applications
                 {
                     //write entire string to file at once
-                        
+
                         char cs[] = "asdf\nqwer";
                         strcpy(path,"f.tmp");
                         if ( file_write( path, cs ) == -1 )
@@ -3094,7 +3026,7 @@ int main(int argc, char** argv)
                         }
 
                     //read entire file at once to a string
-                    
+
                         char* cp = file_read(path);
                         if ( cp == NULL )
                         {
@@ -3104,7 +3036,7 @@ int main(int argc, char** argv)
                         free(cp);
 
                     //simple write arrays to file
-                    
+
                         int arri[] = { 0, 1, -1, 12873453 };
                         float arrf[] = { 1.1f, 1.001f, -1.1f, 1.23456e2 };
 
@@ -3151,7 +3083,7 @@ int main(int argc, char** argv)
                 assert( fabs( exp(1.0) - 2.71 )     < 0.01 );
                 assert( fabs( cos(0.0) - 1.0 )      < 0.01 );
                 assert( fabs( acos(-1.0) - 3.14 )   < 0.01 ); //PI
-            
+
             assert( abs(-1.1)  == 1 );
             assert( fabsl(-1.1) == 1.1 );
 
@@ -3168,11 +3100,11 @@ int main(int argc, char** argv)
     }
 
 #ifdef PROFILE
-        
+
         //- turn off optimization if you want results to make evident sense
         //- even without optimization, cache access speed is hard to predict
         //   so what you expect may be false
-        
+
         loopOnlyProf(nProfRuns);
         whileOnlyProf(nProfRuns);
 
@@ -3204,580 +3136,6 @@ int main(int argc, char** argv)
             //don't do stdout on profiling
             //system time is not counted anyways
 
-#endif
-
-#ifdef POSIX
-
-        //#constants
-        {
-            //#define _XOPEN_SOURCE
-            //#include <math.h>
-            
-            fprintf( stderr, "%f\n", M_PI );
-            fprintf( stderr, "%f\n", M_PI_2 );
-            fprintf( stderr, "%f\n", M_PI_4 );
-        }
-
-        //#sleep
-        {
-            for(int i=0; i<3; i++)
-            {
-                printf("%d",i);
-                //sleep(1);
-                    //sleep for 1 sec
-            }
-        }
-
-        //#memory usage
-        {
-            /*struct rusage {*/
-                /*struct timeval ru_utime; [> user time used <]*/
-                /*struct timeval ru_stime; [> system time used <]*/
-                /*long   ru_maxrss;        [> maximum resident set size <]*/
-                /*long   ru_ixrss;         [> integral shared memory size <]*/
-                /*long   ru_idrss;         [> integral unshared data size <]*/
-                /*long   ru_isrss;         [> integral unshared stack size <]*/
-                /*long   ru_minflt;        [> page reclaims <]*/
-                /*long   ru_majflt;        [> page faults <]*/
-                /*long   ru_nswap;         [> swaps <]*/
-                /*long   ru_inblock;       [> block input operations <]*/
-                /*long   ru_oublock;       [> block output operations <]*/
-                /*long   ru_msgsnd;        [> messages sent <]*/
-                /*long   ru_msgrcv;        [> messages received <]*/
-                /*long   ru_nsignals;      [> signals received <]*/
-                /*long   ru_nvcsw;         [> voluntary context switches <]*/
-                /*long   ru_nivcsw;        [> involuntary context switches <]*/
-            /*};*/
-            /*int getrusage(rusage_self, *usage);*/
-            //RUSAGE_CHILDREN
-                //cur process only
-            //RUSAGE_CHILDREN
-                //children that terminated and have been waited for
-        }
-
-        //pathname operations
-        {
-            //realpath
-            //{
-            //    //resolves symlinks recursivelly
-            //    char rp[PATH_MAX+1];
-            //    char *r = realpath( ".", rp );
-            //    if ( r )
-            //    {
-            //        printf( "realpath(\".\") = %s", rp );
-            //    }
-            //    else
-            //    {
-            //        assert(false);
-            //    }
-            //}
-            
-            //dirname basename 
-            {
-                //p may be modified
-
-                //memory is statically allocated
-                //and may change on next dirname/basename call
-            
-                //behaviour:
-                    //path         dirname    basename
-                    //"/usr/lib"    "/usr"    "lib"
-                    //"/usr/"       "/"       "usr"
-                    //"usr"         "."       "usr"
-                    //"/"           "/"       "/"
-                    //"."           "."       "."
-                    //".."          "."       ".."
-                
-                char p[1024];
-                char* res;
-
-                strcpy( p, "a/b" );
-                res = dirname( p );
-                assert( strcmp( res, "a" ) == 0 );
-
-                strcpy( p, "a/b" );
-                res = basename( p );
-                assert( strcmp( res, "b" ) == 0 );
-            }
-        }
-        
-        //directory operations
-        {
-            //no standard portable way!
-                //<http://www.devarticles.com/c/a/Cplusplus/Directories-in-Cplusplus/>
-            //posix alternatives:
-                //windows: direct.h
-                //portable heavyweight: booost: #include <boost/filesystem/operations.hpp>
-                //portable lightweight: dirent.h
-            
-            if(0)
-            {
-                //mkdir
-                {
-                    if( mkdir( "newdir", 0777 ) == -1 )
-                    {
-                        puts("could not create newdir");
-                    }
-                    else
-                    {
-                        puts("newdir created");
-                    }
-                }
-                //rmdir
-                {
-                    puts("press any key to remove newdir:");
-                    getchar();
-                    
-                    if( rmdir("newdir") == -1 )
-                    {
-                        puts("could not remove newdir");
-                    }
-                    else
-                    {
-                        puts("newdir removed");
-                    }
-                }
-            }
-        }
-
-        //#threads
-        {
-            //posix threads
-            
-            //c11 is making a standard threading model
-            
-            //run single program in parallel
-            
-            //quicker to start than a process
-            
-            //each thread has its own stack,
-            //but global memory is shared
-            
-            //clone
-            {
-                //bijection to the system call
-                
-                //like ``fork``, but with shared memory and open file descriptors
-                
-                /*puts("clone");*/
-                /*{*/
-                    /*TODO*/
-                    /*implicit? with unistd.h?*/
-                    /*i = 0;*/
-                    /*pid_t pid = clone();*/
-                    /*if (pid == 0)*/
-                    /*{*/
-                        /*i++;*/
-                    /*}*/
-                    /*else if (pid < 0)*/
-                    /*{*/
-                        /*exit(1);*/
-                    /*}*/
-                    /*wait(&status);*/
-                    /*if( pid == 0 )*/
-                    /*{*/
-                        /*return EXIT_SUCCESS;*/
-                    /*}*/
-
-                    /*//no more child process*/
-                    /*assert( status == EXIT_SUCCESS );*/
-                    /*assert( i == 1 );*/
-                /*}*/
-            }
-
-            //#pthread.h
-            {
-                //library, probably based on clone
-            }
-        }
-
-        //#process
-        {
-            //linux process model
-                //#include <linux/sched.h> >> task_struct
-                //http://www.ibm.com/developerworks/library/l-linux-process-management/
-                
-            //ids
-            {
-                //every posix process has the folloing info associated to it:
-                    //real and effective userid and groupid
-                    //real is always of who executes the program
-                    //effective may be different depending on the suid and sgid bits
-                //process are free to change those ids with system calls
-                uid_t uid  = getuid();
-                uid_t euid = geteuid();
-                gid_t gid  = getgid();
-                gid_t egid = getegid();
-                printf( "uid:  %llu\n", (long long unsigned)uid  );
-                printf( "euid: %llu\n", (long long unsigned)euid );
-                printf( "gid:  %llu\n", (long long unsigned)gid  );
-                printf( "egid: %llu\n", (long long unsigned)egid );
-            }
-
-            //#fork
-            {
-                //makes a copy of this process
-                //``sys_fork`` call
-
-                int status;
-                int i = 0;
-
-                fflush(stdout);
-                    //#buffering
-                    
-                        //<http://stackoverflow.com/questions/3513242/working-of-fork-in-linux-gcc>
-                    
-                        //there are three buffering methods:
-                            //unbuffered, fully buffered and line buffered
-                        
-                        //when you fork, the streams get forked too,
-                        //with unflushed data still inside
-                        
-                        //stdout and stderr flush at newlines
-                        //if you don't put newlines, if does not flush,
-                        //and fork copies the buffers
-                        
-                        //this will print everything twice
-                pid_t pid = fork();
-                if ( pid < 0 )
-                {
-                    puts("failed to fork");
-                    exit(EXIT_FAILURE);
-                }
-                else if ( pid == 0 )
-                {
-                    puts("fork child");
-                        //NOTE
-                            //this is assynchonous with the process stdout
-
-                            //so it might not be in the line program order
-                            
-                            //but they both go to the same terminal
-                    i++;
-                    exit(EXIT_SUCCESS);
-                }
-                else
-                {
-                    puts("parent");
-                }
-
-                puts("child and parent");
-                printf("pid = %d, i = % d\n", pid, i);
-
-                wait(&status);
-                if( pid == 0 )
-                {
-                    exit(EXIT_SUCCESS);
-                }
-
-                //no more child process
-                puts("parent after child");
-
-                assert( status == EXIT_SUCCESS );
-                assert( i == 0 );
-                    //memory was cloned, parent i unchanged
-            }
-
-            /*puts("vfork");*/
-            /*{*/
-                /*TODO*/
-                /*implicit? with unistd.h?*/
-                /*//makes a copy of this process*/
-                /*i = 0;*/
-                /*pid_t pid = vfork();*/
-                /*if (pid == 0)*/
-                /*{*/
-                    /*i++;*/
-                /*}*/
-                /*else if (pid < 0)*/
-                /*{*/
-                    /*exit(1);*/
-                /*}*/
-                /*wait(&status);*/
-                /*if( pid == 0 )*/
-                /*{*/
-                    /*return EXIT_SUCCESS;*/
-                /*}*/
-
-                /*//no more child process*/
-                /*assert( status == EXIT_SUCCESS );*/
-                /*assert( i == 1 );*/
-            /*}*/
-
-            //#execl, execlp, execle, execv, execvp, execvpe
-            {
-                //interfaces for ``execve`` system call
-
-                //execute and *leave*
-                //ends current process!!
-                
-                //common combo:
-                    //fork + execl
-                
-                //takes variable number or args
-
-                //must end null terminated
-
-                //char 'p': path, uses PATH var to find executable
-                //TODO: char 'v', char 'e'? what's the difference?
-                
-                //calls
-                    //execl( "/bin/ls", "-l", "-h", NULL );
-                    //execlp( "ls", "-l", "-h", NULL );
-                    //execlp( "cprogram", "cprogram", "arg0", NULL );
-                        //don't forget that in a c program the first arg is the program name
-            }
-
-            //waitpid()
-                //wait for child with given PID to terminate
-            
-            //IPC
-            {
-                //#pipes
-                {
-                    //#unnamed
-                    {
-                        //unidirectional child ----> parent transfer
-                        
-                        //single process must start both processes
-
-                        //no one else can see the pipe
-
-                        //data very limited per buf! BUFSIZ ~= 1000-10000 today
-
-                        //i think it is not possible to know if a ilfe pointer
-                        //is open for reading or writtin besides looking at how
-                        //it was created
-
-                        //runs inside a shell
-                            //you get all the slowness and magic of shell expansion
-                            //such as *.txt and $PATH
-
-                        //workflow:
-                            //child fills the buffer, then parent takes control
-                            //child fills ...
-                        
-                        fprintf( stderr, "BUFSIZ = %llu", (long long unsigned) BUFSIZ );
-                        //#BUFSIZ
-                        
-                            //it is implementation dependant
-                            
-                            //you could read/write much more than that
-                            
-                            //but BUFSIZ is a good value
-                                //fast
-                                //not larger than the maximum
-                            
-                            //if you try to read write more than the max,
-                            //it just flushes all when the buffer gets filled
-                            
-                            //only guarantee is BUFSIZ >= 256
-                            
-                            //the larger the buffer the faster the transfer
-                            
-                            //but if you want to be very portable, design systems
-                            //whose messages need no more than 256 bytes at a time
-                            
-                            //you could then just pass many 256 chunks at once
-                            //if your large buffer allows
-                        
-                        //#popen
-                        {
-                            //#define _XOPEN_SOURCE 700
-                            //#include <stdio.h>
-
-                            //#read
-                            {
-                                //read from command
-                                //get its exit staus
-                                
-                                FILE* read_fp;
-                                    //yes the same pointer as a file
-                                char buffer[BUFSIZ + 1];
-                                char cmd[1024];
-                                int chars_read;
-                                int exit_status;
-                                int read_cycles = 0;
-                                int desired_read_cycles = 3;
-                                int desired_last_char_read = 1;
-                                assert( desired_last_char_read < BUFSIZ );
-
-                                sprintf(
-                                    cmd, "for i in `seq %llu`; do echo -n a; done",
-                                    (long long unsigned) (desired_read_cycles-1)*BUFSIZ + desired_last_char_read
-                                );
-                                read_fp = popen( cmd, "r" );
-                                    //#popen
-                                    
-                                        //print 2*BUFSIZ + 1 times letters 'a'
-
-                                        //cmd runs inside ``sh`` directly
-
-                                        //r means read
-                                if( read_fp != NULL )
-                                {
-                                    do
-                                    {
-                                        chars_read = fread( buffer, sizeof(char), BUFSIZ, read_fp );
-                                            //yes the same func used to read files
-                                        buffer[chars_read] = '\0';
-                                        printf( "======== n bytes read: %d\n", chars_read );
-                                        //printf( "%s\n", buffer); //if you want to see a bunch of 'a's...
-                                        read_cycles++;
-                                    } while( chars_read == BUFSIZ );
-                                    exit_status = pclose( read_fp );
-                                        //#pclose
-                                            //waits for child
-
-                                            //returns child exit status
-
-                                            //if child already waited for,
-                                            //returns -1: error
-                                    assert( read_cycles == desired_read_cycles );
-                                    assert( chars_read == desired_last_char_read );
-                                    assert( exit_status == 0 );
-                                }
-                                else
-                                {
-                                    fprintf( stderr, "could not open pipe" );
-                                    exit( EXIT_FAILURE );
-                                }
-                            }
-
-                            //write to stdin of command
-                            {
-                                FILE* write_fp;
-                                char buf[BUFSIZ];
-                                int exit_status;
-
-                                memset( buf, 'c', BUFSIZ );
-                                write_fp = popen( "cat; echo", "w" );
-                                    //w for write
-                                    //simply copies to stdout and adds newline
-                                if( write_fp != NULL )
-                                {
-                                    fwrite( buf, sizeof(char), BUFSIZ, write_fp );
-                                    exit_status = pclose( write_fp );
-                                        //#pclose
-                                            //waits for child
-
-                                            //returns child exit status
-
-                                            //if child already waited for,
-                                            //returns -1: error
-                                    assert( exit_status == 0 );
-                                }
-                                else
-                                {
-                                    assert(false);
-                                }
-                            }
-                        }
-
-                        //#pipe()
-                        {
-                            //very close to the linux pipe system call
-                            
-                            //fast because no shell opened
-                            
-                            //minimal example
-                            {
-                                //usefulness starts with fork + exec
-                                
-                                int nbytes;
-                                int pipes[2];
-                                    //note the integers
-                                    //for file descriptors
-                                char data[] = "123";
-                                char buf[BUFSIZ + 1];
-                                if ( pipe(pipes) == 0 )
-                                {
-                                    nbytes = write( pipes[1], data, strlen(data) );
-                                        //cannot use the c standard fwrite
-                                        //dealing with posix specific file desciptors here
-                                        //#write
-
-                                            //system calls
-                                        
-                                            //returns the number of bytes written
-                                            //it may be less than the desired if there is not
-                                            //enough space on medium
-                                            
-                                            //if does not write enough TODO
-                                            //guess you have to do another call
-                                    assert( nbytes = strlen(data) );
-                                    nbytes = read( pipes[0], buf, BUFSIZ);
-                                    assert( nbytes = strlen(data) );
-                                    buf[nbytes] = '\0';
-                                    assert( strcmp( buf, data ) == 0 );
-                                }
-                                else
-                                {
-                                    assert(false);
-                                }
-                            }
-
-                            //fork
-                            {
-                                //parent writes to child
-                                
-                                //this works because if ever read happens before,
-                                //it blocks
-
-                                int nbytes;
-                                int file_pipes[2];
-                                const char data[] = "123";
-                                char buf[BUFSIZ + 1];
-                                pid_t pid;
-                                if ( pipe( file_pipes ) == 0 )
-                                {
-                                    fflush(stdout);
-                                    pid = fork();
-                                    if ( pid == -1 )
-                                    {
-                                        assert(false);
-                                    }
-                                    else if ( pid == 0 )
-                                    {
-                                        nbytes = read( file_pipes[0], buf, BUFSIZ );
-                                        printf( "pipe child. data: %s\n", buf );
-                                        exit(EXIT_SUCCESS);
-                                    }
-                                    else
-                                    {
-                                        nbytes = write( file_pipes[1], data, strlen(data) );
-                                        assert( nbytes == strlen(data) );
-                                        strlen(data);
-                                    }
-                                }
-                                else
-                                {
-                                    assert(false);
-                                }
-                            }
-                        }
-                    }
-
-                    //#FIFO
-                    {
-                        //aka named pipes
-                        
-                        //appear on the filesystem
-                        
-                        //therfore can be accessed as by any process
-                        
-                        //are however faster than writting to files,
-                        //since everything happens on RAM
-                        
-                        //cannot open for rw
-
-                        //application: simple client/servers!
-
-                        //#mkfifo
-                    }
-                }
-            }
-        }
 #endif
 
     puts("\nALL ASSERTS PASSED\n");

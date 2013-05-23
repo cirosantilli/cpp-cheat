@@ -1,30 +1,30 @@
 #compiles all c or cpp files in current dir into a single output file
 
-override ASSEMBLE_BASENAME 	?= a.c												#basename of the file to generate assembly code for
-override AUX_DIR 						?= _aux/
-override AUX_EXT 						?= .o
-override CC 								?= g++
-override CFLGS 							?= -Wall -std=c++0x -pedantic-errors
+override ASSEMBLE_BASENAME 		?= a.c									#basename of the file to generate assembly code for
+override AUX_DIR 				?= _aux/
+override AUX_EXT 				?= .o
+override CC 					?= g++
+override CFLGS 					?= -Wall -std=c++0x -pedantic-errors
 override DEBUG_DEFINE 			?= 
-override DEBUG_FLAGS 				?= 
-override DEFINES 						?= #-DPOSIX 														#for -DDEBUG and -DPROFILE, used dedicated DEFINES
-override IN_EXTS 						?= .c .cc .cpp
-override IN_DIR 						?= ./
+override DEBUG_FLAGS 			?= 
+override DEFINES 				?= #-DPOSIX 							#for -DDEBUG and -DPROFILE, used dedicated DEFINES
+override IN_EXTS 				?= .c .cc .cpp
+override IN_DIR 				?= ./
 override INCLUDE_DIRS 			?= #-L/usr/include/GL
-override LIBS 							?= #-lglut -lGLU -lGL
-override PREDEF 						?= #-DDEBUG -DPROFILE -DWINDOWS 				#preprocessor defines
-override RUN_ARGS 					?= #0 1																#passed as command line args to bin on run
+override LIBS 					?= #-lglut -lGLU -lGL
+override PREDEF 				?= #-DDEBUG -DPROFILE -DWINDOWS 		#preprocessor defines
+override RUN_ARGS 				?= #0 1									#passed as command line args to bin on run
 override OPTIMIZE_FLAGS			?= -O3
-override OUT_DIR 						?= _out/
-override OUT_BASENAME_NOEXT	?= cheat
-override OUT_EXT 						?= .elf
+override OUT_DIR 				?= _out/
+override OUT_BASENAME_NOEXT		?= cheat
+override OUT_EXT 				?= .elf
 override PROFILE_DEFINE 		?= 
 override PROFILE_FLAGS 			?= 
 
-INS 			:= $(foreach IN_EXT, $(IN_EXTS), $(wildcard $(IN_DIR)*$(IN_EXT)) )
-INS_NODIR := $(notdir $(INS))
+INS 		:= $(foreach IN_EXT, $(IN_EXTS), $(wildcard $(IN_DIR)*$(IN_EXT)) )
+INS_NODIR 	:= $(notdir $(INS))
 AUX_NODIR	:= $(filter %$(OBJ_EXT), $(foreach IN_EXT, $(IN_EXTS), $(patsubst %$(IN_EXT),%$(OBJ_EXT),$(INS_NODIR))))
-AUXS			:= $(addprefix $(AUX_DIR),$(AUXS_NODIR))
+AUXS		:= $(addprefix $(AUX_DIR),$(AUXS_NODIR))
 
 OUT_BASENAME:= $(OUT_BASENAME_NOEXT)$(OUT_EXT)
 OUT					:= $(OUT_DIR)$(OUT_BASENAME)
@@ -64,7 +64,7 @@ set_profile_flags:
 	#$(eval OPTIMIZE_FLAGS := )
 
 run: all
-	( cd $(OUT_DIR) && ./$(OUT_BASENAME) $(RUN_ARGS) ) #run from out dir
+	cd $(OUT_DIR) && ./$(OUT_BASENAME) $(RUN_ARGS) #run from out dir
 
 mkdir:
 	mkdir -p "$(AUX_DIR)"

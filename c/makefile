@@ -17,7 +17,7 @@ override IN_DIR ?= ./
 override OUT_DIR ?= _out/
 override OUT_EXT ?= .out
 
-override DEFINES ?= -DPOSIX
+override DEFINES ?=
 override ASSEMBLER_BASENAME? = c.c
 #override ASSEMBLER_FILE?=cpp.cpp
 
