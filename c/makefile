@@ -14,6 +14,7 @@ override FFLAGS ?= -Wall -march=native -std=f2003 -pedantic-errors -Wno-unused-v
 
 #paths
 override IN_DIR ?= ./
+override IN_EXTS ?= .c .cpp .f
 override OUT_DIR ?= _out/
 override OUT_EXT ?= .out
 
@@ -35,23 +36,11 @@ override PROFILE_FLAGS ?=
 #override OPTIMIZE_FLAGS?=-O3
 override OPTIMIZE_FLAGS?=
 
-EXT:=.c
-INS:=$(wildcard $(IN_DIR)*$(EXT))
-INS_NODIR:=$(notdir $(INS))
-OUTS_NODIR:=$(patsubst %$(EXT),%$(OUT_EXT),$(INS_NODIR))
-C_OUTS:=$(addprefix $(OUT_DIR),$(OUTS_NODIR))
-
-EXT:=.cpp
-INS:=$(wildcard $(IN_DIR)*$(EXT))
-INS_NODIR:=$(notdir $(INS))
-OUTS_NODIR:=$(patsubst %$(EXT),%$(OUT_EXT),$(INS_NODIR))
-CPP_OUTS:=$(addprefix $(OUT_DIR),$(OUTS_NODIR))
-
-EXT:=.f
-INS:=$(wildcard $(IN_DIR)*$(EXT))
-INS_NODIR:=$(notdir $(INS))
-OUTS_NODIR:=$(patsubst %$(EXT),%$(OUT_EXT),$(INS_NODIR))
-F_OUTS:=$(addprefix $(OUT_DIR),$(OUTS_NODIR))
+INS			:= $(foreach IN_EXT, $(IN_EXTS), $(wildcard $(IN_DIR)*$(IN_EXT)) )
+INS_NODIR 	:= $(notdir $(INS))
+OUTS_NODIR	:= $(shell for f in $(INS_NODIR); do echo -n "$${f%.*} "; done )
+OUTS_NODIR	:= $(addsuffix $(OUT_EXT), $(OUTS_NODIR) )
+OUTS		:= $(addprefix $(OUT_DIR), $(OUTS_NODIR))
 
 RUN_BNAME:=$(RUN)$(OUT_EXT)
 RUN_PATH:=$(OUT_DIR)$(RUN_BNAME)
@@ -59,7 +48,7 @@ ASSEMBLE_BASENAME:=$(RUN)$(ASSEMBLE_EXT)
 
 .PHONY: all mkdir clean profile set_profile_flags get_outdir
 
-all: mkdir $(C_OUTS) $(CPP_OUTS) $(F_OUTS)
+all: mkdir $(OUTS)
 
 assembler: mkdir $(IN_DIR)$(ASSEMBLER_BASENAME)
 	$(eval override OPTIMIZE_FLAGS := -O0)

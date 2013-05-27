@@ -36,18 +36,13 @@ RUN_BNAME 	:= $(RUN)$(OUT_EXT)
 
 INS			:= $(foreach IN_EXT, $(IN_EXTS), $(wildcard $(IN_DIR)*$(IN_EXT)) )
 INS_NODIR 	:= $(notdir $(INS))
-OUTS_NODIR	:= $(patsubst %$(IN_EXT),%$(OUT_EXT),$(INS_NODIR))
-OUTS		:= $(addprefix $(OUT_DIR),$(OUTS_NODIR))
+OUTS_NODIR	:= $(shell for f in $(INS_NODIR); do echo -n "$${f%.*} "; done )
+OUTS_NODIR	:= $(addsuffix $(OUT_EXT), $(OUTS_NODIR) )
+OUTS		:= $(addprefix $(OUT_DIR), $(OUTS_NODIR))
 
-.PHONY: all mkdir clean install ubuntu_install_deps
+.PHONY: all clean debug set_debug_flags help mkdir profile set_profile_flags ubuntu_install_deps
 
 all: mkdir $(OUTS)
-
-ubuntu_install_deps:
-	#sudo aptitude install -y libgtk-3-dev
-
-mkdir:
-	mkdir -p "$(OUT_DIR)"
 
 $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.c
 	$(CC) $(CFLAGS) -o "$@" "$<" $(LIBS)
@@ -57,9 +52,6 @@ $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.cpp
 
 $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.f
 	$(FF) $(OPTIMIZE_FLAGS) $(FFLAGS) -o "$@" "$<" $(FFLIBS)
-
-run: all
-	cd $(OUT_DIR) && ./$(RUN_BNAME)
 
 assembler: mkdir $(IN_DIR)$(ASSEMBLER_BASENAME)
 	$(eval override OPTIMIZE_FLAGS := -O0)
@@ -72,17 +64,6 @@ set_debug_flags:
 	$(eval override DEBUG_FLAGS := -ggdb3)
 	$(eval override DEBUG_DEFINE := -DDEBUG)
 	$(eval override OPTIMIZE_FLAGS := -O0)
-
-profile: clean set_profile_flags all run
-	cd $(OUT_DIR) && gprof -b $(RUN_BNAME) gmon.out | tee "$(RUN_BNAME).profile_out" | less
-
-set_profile_flags:
-	$(eval override PROFILE_FLAGS := -p -pg)
-	$(eval override PROFILE_DEFINE := -DPROFILE)
-	#$(eval override OPTIMIZE_FLAGS := -O0)
-
-run: all
-	cd $(OUT_DIR) && ./$(RUN_BNAME) #run from out dir
 
 clean:
 	rm -rf "$(OUT_DIR)"
@@ -102,3 +83,20 @@ help:
 	@echo '    #clean, make with -DPROFILE and -p -pg'
 	@echo '    #runs and pipes output through less'
 	@echo '    #and saves compile output to <outname>.profile_out'
+
+mkdir:
+	mkdir -p "$(OUT_DIR)"
+
+profile: clean set_profile_flags all run
+	cd $(OUT_DIR) && gprof -b $(RUN_BNAME) gmon.out | tee "$(RUN_BNAME).profile_out" | less
+
+set_profile_flags:
+	$(eval override PROFILE_FLAGS := -p -pg)
+	$(eval override PROFILE_DEFINE := -DPROFILE)
+	#$(eval override OPTIMIZE_FLAGS := -O0)
+
+run: all
+	cd $(OUT_DIR) && ./$(RUN_BNAME) #run from out dir
+
+ubuntu_install_deps:
+	#sudo aptitude install -y libgtk-3-dev

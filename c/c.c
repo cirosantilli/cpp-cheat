@@ -1,19 +1,19 @@
 /*
 
-ansi c, no extensions
+ansi c cheat, no extensions
 
 #motivation
 
-c is amazingly important as it is used to implement:
+    c is amazingly important as it is used to implement:
 
-- linux kernel
-- windows kernel
-- python and ruby reference implementation
-- opengl
+    - linux kernel
+    - windows kernel
+    - python and ruby reference implementation
+    - opengl
 
-and the list goes on and on
+    and the list goes on and on...
 
-the reason for this is that c is low level and fast
+    the reason for this is that c is low level and fast
 
 #language versions
 
