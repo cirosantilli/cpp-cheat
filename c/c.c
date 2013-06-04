@@ -2319,14 +2319,6 @@ int main( int argc, char** argv )
                 assert( intFuncIntInt(&subInt,2,1) == 1 );
             }
 
-            //func in func
-            {
-                //UNPORTABLE
-                //gnu extension
-                //not standard
-                //printf("fOut() = %d",fOut());
-            }
-
             //variable num of args ...
             {
                 assert( variadicAdd( 3, 1, 2, 3 )       == 6 );
