@@ -111,7 +111,7 @@ ansi c cheat, no extensions
 */
 
 //#preprocessor
-//{
+
     //does simple stuff *before* compilation
 
     //#include
@@ -175,7 +175,8 @@ ansi c cheat, no extensions
 #define PI_PLUS_ONE (3.14 + 1)
     //use parenthesis or order of operation might destroy you
 
-//control compilation
+//common recipe to control compilation:
+
 #define DEBUG
 #ifdef DEBUG
 int debugVar;
@@ -740,7 +741,7 @@ int debugVar;
         return 0;
     }
 
-int main(int argc, char** argv)
+int main( int argc, char** argv )
 {
     //base types and variables
     {
@@ -1771,7 +1772,7 @@ int main(int argc, char** argv)
                         //c std functions use that to see where string ends
 
                     cs[0] = 'A';
-                    assert( strcmp(cs,"Abc") == 0 );
+                    assert( strcmp(cs, "Abc") == 0 );
 
                     //cs = "Abc";
                         //ERROR
@@ -1793,12 +1794,27 @@ int main(int argc, char** argv)
                         //chinese utf8
                 }
 
-                //can create use across lines.
-                //no newline added.
+                //string constants may be concatenated
+                //no spaces are implied
                 {
-                    char cs[] = "ab"
-                                "cd";
+                    char cs[] = "ab" "cd";
                     assert( strcmp( cs, "abcd" ) == 0 );
+
+                    //this cannot be done with variables,
+                    //but can be useful if you have a string that is defined in a macro:
+					{
+#define STRING_AB "ab"
+						char cs[] = STRING_AB "cd";
+						assert( strcmp( cs, "abcd" ) == 0 );
+					}
+
+					//another application is to break a long string literal over severl lines
+					//no newline is implied
+					{
+						char cs[] = "ab"
+									"cd";
+						assert( strcmp( cs, "abcd" ) == 0 );
+					}
                 }
 
                 //std string functions
@@ -2366,20 +2382,44 @@ int main(int argc, char** argv)
         //#standard ifdefs
         {
 
+//some vars are automatically defined by certain compilers
+//although they are not c standards
+
+//string representing version of the c std lib:
 #if defined (__STDC_VERSION__)
         printf( "__STDC_VERSION__ = %li", __STDC_VERSION__ );
 #endif
 
-//some vars are automatically defined by certain compilers:
-//although they are not c standards
+//automatically defined by certain compilers on windows:
 #ifdef __WIN32__
-        puts("__IN32__");
+        puts("__WIN32__");
 #endif
 
+//automatically defined on gcc even if `-std=XX -pedantic-erors`
 #ifdef __GNUC__
-        //automatically defined on gcc even if ``-std -pedantic``
         puts("__GUNC__");
 #endif
+
+//TODO what is this
+#ifdef _LIBC
+        puts("_LIBC");
+#endif
+
+//TODO what is this. Probably architecture. Where is the list of all archs?
+#ifdef __i386__
+        puts("__i386__");
+#endif
+
+//TODO what is this
+#ifdef __ILP32__
+        puts("__ILP32__");
+#endif
+
+//TODO what is this
+#ifdef ___X32_SYSCALL_BIT
+        puts("___X32_SYSCALL_BIT");
+#endif
+
         }
 
     }

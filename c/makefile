@@ -36,15 +36,15 @@ override PROFILE_FLAGS ?=
 #override OPTIMIZE_FLAGS?=-O3
 override OPTIMIZE_FLAGS?=
 
-INS			:= $(foreach IN_EXT, $(IN_EXTS), $(wildcard $(IN_DIR)*$(IN_EXT)) )
+INS			:= $(foreach IN_EXT, $(IN_EXTS), $(wildcard $(IN_DIR)*$(IN_EXT)))
 INS_NODIR 	:= $(notdir $(INS))
-OUTS_NODIR	:= $(shell for f in $(INS_NODIR); do echo -n "$${f%.*} "; done )
-OUTS_NODIR	:= $(addsuffix $(OUT_EXT), $(OUTS_NODIR) )
+OUTS_NODIR	:= $(basename $(INS_NODIR))
+OUTS_NODIR	:= $(addsuffix $(OUT_EXT), $(OUTS_NODIR))
 OUTS		:= $(addprefix $(OUT_DIR), $(OUTS_NODIR))
 
-RUN_BNAME:=$(RUN)$(OUT_EXT)
-RUN_PATH:=$(OUT_DIR)$(RUN_BNAME)
-ASSEMBLE_BASENAME:=$(RUN)$(ASSEMBLE_EXT)
+RUN_BNAME	:= $(RUN)$(OUT_EXT)
+RUN_PATH	:= $(OUT_DIR)$(RUN_BNAME)
+ASSEMBLE_BASENAME	:= $(RUN)$(ASSEMBLE_EXT)
 
 .PHONY: all mkdir clean profile set_profile_flags get_outdir
 
