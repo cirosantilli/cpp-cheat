@@ -2395,27 +2395,26 @@ int main( int argc, char** argv )
         puts("__WIN32__");
 #endif
 
-//automatically defined on gcc even if `-std=XX -pedantic-erors`
-#ifdef __GNUC__
-        puts("__GUNC__");
-#endif
-
 //TODO what is this
+//TODO gcc specific or not? if yes move out of here.
 #ifdef _LIBC
         puts("_LIBC");
 #endif
 
 //TODO what is this. Probably architecture. Where is the list of all archs?
+//TODO gcc specific or not? if yes move out of here.
 #ifdef __i386__
         puts("__i386__");
 #endif
 
 //TODO what is this
+//TODO gcc specific or not? if yes move out of here.
 #ifdef __ILP32__
         puts("__ILP32__");
 #endif
 
 //TODO what is this
+//TODO gcc specific or not? if yes move out of here.
 #ifdef ___X32_SYSCALL_BIT
         puts("___X32_SYSCALL_BIT");
 #endif
