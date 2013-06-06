@@ -298,6 +298,10 @@ int debugVar;
             return sOut;
         }
 
+    //#variadic functions
+
+        //these are functions with a variable number or arguments, such as `printf`.
+
     int variadicAdd( int numargs, ... )
     {
         va_list listPointer;
@@ -2319,7 +2323,7 @@ int main( int argc, char** argv )
                 assert( intFuncIntInt(&subInt,2,1) == 1 );
             }
 
-            //variable num of args ...
+            //#variadic function
             {
                 assert( variadicAdd( 3, 1, 2, 3 )       == 6 );
                 assert( variadicAdd( 5, 1, 2, 3, 4, 5 ) == 15 );
