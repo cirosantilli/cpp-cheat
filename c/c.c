@@ -1794,8 +1794,7 @@ int main( int argc, char** argv )
                     puts(">>>\r<<< carriage return");
                     printf(">>>%c<<< null char\n",'\0');
                     puts(">>>\x61<<< a in hexadecimal");
-                    puts(">>>\xe4\xb8\xad<<< chinese for \"middle\" in utf8");
-                        //chinese utf8
+                    puts(">>>\xe4\xb8\xad<<< zhong1, chinese for \"middle\" in utf8");  //chinese utf8
                 }
 
                 //string constants may be concatenated
@@ -2375,42 +2374,77 @@ int main( int argc, char** argv )
     assert(false);
 #endif
 
-        //#standard ifdefs
+        //#standard preprocessor defines
         {
 
-//some vars are automatically defined by certain compilers
-//although they are not c standards
+			//some vars are automatically defined by certain compilers
+			//although they are not c standards. Those are not discussed here.
 
-//string representing version of the c std lib:
-#if defined (__STDC_VERSION__)
-        printf( "__STDC_VERSION__ = %li", __STDC_VERSION__ );
+			//List of standard defines: <http://gcc.gnu.org/onlinedocs/cpp/Standard-Predefined-Macros.html>
+
+			//string representing version of the c std lib:
+
+        printf( "__STDC_VERSION__ = %li\n", __STDC_VERSION__ );
+
+			//basename of current file
+
+		printf( "__FILE__ = %s\n", __FILE__ );
+
+			//source code line:
+
+		printf( "__LINE__ = %d\n", __LINE__ );
+
+			//if in a `.h`, position inside the `.h`
+
+        /*
+		# __func__
+
+            if inside a function, the name of that function.
+
+            this is not a normal macro, since the preprocessor cannot know
+            the current function name, because the preprocessor does not parse
+
+            c99
+		*/
+
+            printf( "__func__ = %s\n", __func__ );
+
+		printf( "__DATE__ = %s\n", __DATE__ );
+
+		printf( "__TIME__ = %s\n", __TIME__ );
+
+			//cpp compiler is being used:
+
+		printf( "__LINE__ = %d\n", __LINE__ );
+
+#ifdef __cplusplus
+        puts("__cplusplus");
 #endif
 
-//automatically defined by certain compilers on windows:
+		//automatically defined by certain compilers on windows:
+		//TODO gcc specific or not? if yes move out of here.
+
 #ifdef __WIN32__
         puts("__WIN32__");
 #endif
 
-//TODO what is this
-//TODO gcc specific or not? if yes move out of here.
+		//TODO what is this
+		//TODO gcc specific or not? if yes move out of here.
+
 #ifdef _LIBC
         puts("_LIBC");
 #endif
 
-//TODO what is this. Probably architecture. Where is the list of all archs?
-//TODO gcc specific or not? if yes move out of here.
-#ifdef __i386__
-        puts("__i386__");
-#endif
+	//TODO what is this
+	//TODO gcc specific or not? if yes move out of here.
 
-//TODO what is this
-//TODO gcc specific or not? if yes move out of here.
 #ifdef __ILP32__
         puts("__ILP32__");
 #endif
 
-//TODO what is this
-//TODO gcc specific or not? if yes move out of here.
+	//TODO what is this
+	//TODO gcc specific or not? if yes move out of here.
+
 #ifdef ___X32_SYSCALL_BIT
         puts("___X32_SYSCALL_BIT");
 #endif
@@ -3110,17 +3144,32 @@ int main( int argc, char** argv )
 
         //#math.h
         {
-            //C99:
-                assert( fminl(0.1,0.2) == 0.1 );
-                assert( fmaxl(0.1,0.2) == 0.2 );
+            //max and min for floats (C99):
+
+                assert( fminl( 0.1, 0.2 ) == 0.1 );
+                assert( fmaxl( 0.1, 0.2 ) == 0.2 );
 
             //exponential:
-                assert( fabs( exp(1.0) - 2.71 )     < 0.01 );
-                assert( fabs( cos(0.0) - 1.0 )      < 0.01 );
-                assert( fabs( acos(-1.0) - 3.14 )   < 0.01 ); //PI
 
-            assert( abs(-1.1)  == 1 );
-            assert( fabsl(-1.1) == 1.1 );
+                assert( fabs( exp(1.0)      - 2.71 )    < 0.01 );
+
+            //trig:
+
+                assert( fabs( cos(0.0)      - 1.0 )     < 0.01 );
+
+            //this is a standard way to get PI. The only problem is the slight calculation overhead.
+
+                assert( fabs( acos(-1.0)    - 3.14 )    < 0.01 );
+
+            //absolute values, integer version:
+
+                assert( abs(-1.1)  == 1 );
+
+            //absolute values, float version:
+
+                assert( fabsl(-1.1) == 1.1 );
+
+            //don't forget to use the float version!
 
             puts("random");
             {
