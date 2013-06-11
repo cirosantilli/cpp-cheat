@@ -2382,7 +2382,7 @@ int main( int argc, char** argv )
 
 			//List of standard defines: <http://gcc.gnu.org/onlinedocs/cpp/Standard-Predefined-Macros.html>
 
-			//string representing version of the c std lib:
+			//string representing version of the c std lib. Format: yyyymm (base 10):
 
         printf( "__STDC_VERSION__ = %li\n", __STDC_VERSION__ );
 
