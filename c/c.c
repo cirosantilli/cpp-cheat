@@ -79,27 +79,28 @@ ansi c cheat, no extensions
 
     - openMP is is a library supported on C, C++, fortran, windows, linux macos
 
-    - file io
-    - documentation: doxigen
+# doxigen
 
-        <http://www.stack.nl/~dimitri/doxygen/docblocks.html>
+    documentation generation from commnets
 
-    - inline
+    <http://www.stack.nl/~dimitri/doxygen/docblocks.html>
 
-        function is copied pasted instead of called
+# inline
 
-        effects:
+    function is copied pasted instead of called
 
-        - avoids function call, thus potentially faster
-        - code gets larger
-        - function pointer comparisons may differ for the same function
-        - instruction cache might be come less efficient making thigs slower
+    effects:
 
-        sources:
+    - avoids function call, thus potentially faster
+    - code gets larger
+    - function pointer comparisons may differ for the same function
+    - instruction cache might be come less efficient making thigs slower
 
-        - <http://www.greenend.org.uk/rjk/tech/inline.html>
+    sources:
 
-            some warnings about inline and its usage
+    - <http://www.greenend.org.uk/rjk/tech/inline.html>
+
+        some warnings about inline and its usage
 
 #libs
 
@@ -1140,12 +1141,17 @@ int main( int argc, char** argv )
         }
     }
 
-    //struct
+	/*
+	#struct
+
+		application:
+
+		- declare lots of data in one go
+		- pass lots of data in one go to functions
+		- avoid changing function signatures if you add a new field
+			to your struct.
+	*/
     {
-        //application:
-            //delcare/pass to funcs
-            //lots of different typed data
-            //in one go
         struct S
         {
             int i;
@@ -1181,7 +1187,7 @@ int main( int argc, char** argv )
             assert( s.i == 1 );
         }
 
-        //arrays
+        //array fields
         {
             struct S
             {
@@ -1199,7 +1205,7 @@ int main( int argc, char** argv )
             int               i = 1  , i2 = 2;
         }
 
-        //assign
+        //struct assign
         {
             struct S s  = { 1, 1.0 };
             struct S s2 = { 2, 2.0 };
@@ -1208,7 +1214,7 @@ int main( int argc, char** argv )
             assert( s.f == 2.0 );
         }
 
-        //typedef
+        //typedef struct combo
         {
             typedef struct
             {
@@ -1233,7 +1239,7 @@ int main( int argc, char** argv )
             };
         }
 
-        //bitfields
+        //#bitfields
         {
             //*i think* enforces the field size
 
@@ -1270,7 +1276,29 @@ int main( int argc, char** argv )
         }
     }
 
-    //operators
+	/*
+    #union
+
+    	like struct, but all fields share the same data space
+
+		if there are several data sizes, the struct has the size of the largest
+
+		TODO applications: <http://stackoverflow.com/questions/4788965/c-c-when-would-anyone-use-a-union-is-it-basically-a-remnant-from-the-c-only>
+    */
+	{
+		{
+			union U
+			{
+				int i;
+				int j;
+			} u;
+			u.i = 0;
+			u.j = 1;
+			assert( u.i == 1 );
+		}
+	}
+
+    //#operators
     {
         //arithmetic
         {
@@ -1308,23 +1336,23 @@ int main( int argc, char** argv )
             assert( ( 0 <= -1 ) == 0 );
         }
 
-        //bitwise
+        //#bitwise
         {
-            //NOT
+            //#NOT
             assert( (~(char)0x00) == (char)0xFF );
             assert( (~(char)0xFF) == (char)0x00 );
 
-            //OR
+            //#OR
             assert( ((char)0x00 & (char)0x00 ) == (char)0x00 );
             assert( ((char)0xFF & (char)0x00 ) == (char)0x00 );
             assert( ((char)0xFF & (char)0xFF ) == (char)0xFF );
 
-            //XOR
+            //#XOR
             assert( ((char)0x00 ^ (char)0x00 ) == (char)0x00 );
             assert( ((char)0xFF ^ (char)0x00 ) == (char)0xFF );
             assert( ((char)0xFF ^ (char)0xFF ) == (char)0x00 );
 
-            //shift
+            //#shift
             assert( ( 1 << 0 ) == 1 );
             assert( ( 1 << 1 ) == 2 );
             assert( ( 1 << 2 ) == 4 );
@@ -1338,25 +1366,38 @@ int main( int argc, char** argv )
             assert( ( 5 >> 1 ) == 2 );
         }
 
-        //assign
+        //#assign
         {
             int i = 0;
             assert( (i=1) == 1 );
             //= returns right side
             assert( i == 1 );
 
-            //increment
-                //http://stackoverflow.com/questions/24886/is-there-a-performance-difference-between-i-and-i-in-c
-                //which is faster?
-                //- in c, equal
-                //- in c++, ++i potentially if i is a complex object
-                //why it exists if equivalent to x=x+1?
-                //- because there is an x86 instruction for that
-                //why?
-                //- because it takes less program memory ``inc eax``, instead of ``sum eax,1``
-                //- and is a *very* common instruction
-                //what about +=, -=, etc. ?
-                //- same thing: ``ax = ax + bx`` == ``sum ax,bx``
+			/*
+			#pre increment vs post increment
+
+				<http://stackoverflow.com/questions/24886/is-there-a-performance-difference-between-i-and-i-in-c>
+
+				which is faster?
+
+				- in c, equal
+				- in c++, ++i potentially if i is a complex object
+
+			#why increment operators exit
+
+				why it exists if equivalent to x=x+1?
+
+				because there is an x86 instruction for that
+
+				why?
+
+				- because it takes less program memory ``inc eax``, instead of ``sum eax,1``
+				- and is a *very* common instruction
+
+				what about +=, -=, etc. ?
+
+				same thing: ``ax = ax + bx`` == ``sum ax,bx``
+            */
 
                 i=0;
                 assert( i++ == 0 );
@@ -1405,13 +1446,13 @@ int main( int argc, char** argv )
                 //same others bitwise, except ~=
         }
 
-        //question mark
+        //#question mark #?
         {
             assert( ( 1 < 2 ? 3 : 4 ) == 3 );
             assert( ( 1 > 2 ? 3 : 4 ) == 4 );
         }
 
-        //pointer
+        //#pointer
         {
             int i;
             int* pi, *pi2;
@@ -1485,7 +1526,7 @@ int main( int argc, char** argv )
                         //WARN too small
                 }
 
-                //variable length
+                //#variable length array
                 {
                     //enum
                     {
@@ -1569,24 +1610,26 @@ int main( int argc, char** argv )
 
             {
             //BAD
+
                 //overflow
 
-                //printf("%d\n",is[3]);
-                //is[3]=0;
-                //printf("%d\n",is[1000000]);
-                //is[1000000]=0;
+					//printf("%d\n",is[3]);
+					//is[3]=0;
+					//printf("%d\n",is[1000000]);
+					//is[1000000]=0;
 
-                //for(i=0; i<=1000000000; i++ ){
-                //        printf("%d\n",i);
-                //        j=is[i];
-                //}
-                //    segmentation fault
+					//for(i=0; i<=1000000000; i++ ){
+					//        printf("%d\n",i);
+					//        j=is[i];
+					//}
+					//    segmentation fault
 
-                /*printf("%d\n",is[100000]);*/
+					/*printf("%d\n",is[100000]);*/
+
                 //might run: only get segmentation fault if you hit exactly the last position!
             }
 
-            //compare
+            //#compare arrays
             {
                 //memcmp is faster than for loop
                 //one catch: float NaN
@@ -1636,10 +1679,16 @@ int main( int argc, char** argv )
                 assert( strcmp( cs, "ab000f" ) == 0 );
             }
 
-            //multidim
-                //BAD
-                //never use this
-                //always use single dim
+			/*
+			#multidimentional arrays
+
+				before using this, always consider using single dimentional arrays,
+				which are much simpler to handle.
+
+				cases where this would be a better design choice:
+
+				TODO
+            */
             {
                 int *m1[2];
                 int m11[] = { 1, 2, 3    };
@@ -2844,20 +2893,23 @@ int main( int argc, char** argv )
                 const int buff_size = 16;
                 char path[buff_size], buff[buff_size];
 
-                //fopen
+                /*
+                #fopen
+
+                    open file for read/write
+                    don't forget to fclose after using!
+                    modes:
+                        r: read. compatible with a,w
+                        w: read and write. destroy if exists, create if not.
+                        a: append. write to the end. creates if does not exist.
+                        +: can do both input and output. msut use flush or fseek
+                        x: don't destroy if exist (c11, not c++!, posix only)
+                        b: binary. means nothing in POSIX systems,
+                            on our dear DOS must be used for NL vs NLCR problems
+                            there are two different modes there
+                            Therefore, for portability, make this difference.
+                */
                 {
-                    //open file for read/write
-                    //don't forget to fclose after using!
-                    //modes:
-                        //r: read. compatible with a,w
-                        //w: read and write. destroy if exists, create if not.
-                        //a: append. write to the end. creates if does not exist.
-                        //+: can do both input and output. msut use flush or fseek
-                        //x: don't destroy if exist (c11, not c++!, posix only)
-                        //b: binary. means nothing in POSIX systems,
-                            //on our dear DOS must be used for NL vs NLCR problems
-                            //there are two different modes there
-                            //Therefore, for portability, make this difference.
                     strcpy( path, "f.tmp" );
                     fp = fopen( path, "w" );
                     if ( fp == NULL )
@@ -2894,17 +2946,51 @@ int main( int argc, char** argv )
                         }
                     }
                 }
+                /*
+                don't forget to close!
+
+                there is a limited ammount of open files at a time by the os
+
+                buffered output may not have been saved before closing
+                */
                 if( fclose(fp) == EOF )
                 {
                     fprintf(stderr, "could not close:\n%s\n", path);
                 }
-                //don't forget to close!
-                    // there is a limited ammount of open files at a time by the os
-                    // buffered output may not have been saved before closing
+
+                /*
+                #text vs binary
+
+                    example: an int 123 can be written to a file in two ways:
+
+                    - text: three bytes containing the ascii values of `1`, `2` and then `3`
+                    - binary: as the internal int representation of the c value, that is 4 bytes,
+                        with `123` in binary and zeroes at the front.
+
+                    advantages of text:
+
+                    - it is human readable since it contains only ASCII or UTF values
+                    - for small values it may be more efficient (123 is 3 bytes in ascii instead of 4 in binary)
+
+                    advantages of binary:
+
+                    - it is shorter for large integers
+                    - inevitable for data that cannot be interpretred as text (images, executables)
+
+                #b option
+
+                    'b' option to the `open` function only makes a difference for DOS
+                    (newline carriage return realted TODO confirm)
+
+                    for portability, use it consistently.
+
+                    In linux the difference between text methods and binary methods is only conceptual:
+                    some methods output human readable text (`fprintf`) and can be classified as text,
+                    while others output binary, no difference is made at file opening time
+                */
 
                 //text io
                 {
-                    //read from a file
                     {
                         fp = fopen(path,"r");
                         if (fp==NULL)
@@ -2974,19 +3060,8 @@ int main( int argc, char** argv )
                     }
                 }
 
-                //#binary io
+                //binary io
                 {
-                    //notice how inneficient this is for small ints!
-                    //1 int occupies 4 bytes and not 1!
-
-                    //mostly useful for data that cannot be interpretred as text (images, executables)
-
-                    //better speed performance only on large chunks
-
-                    //good when you know the size of the entire input/output
-
-                    //including the 'b' option only makes a difference for DOS. use for compatibility (or maybe don't!)
-
                     int elems_write[] = { 1, 2, 3 };
                     const int nelems = sizeof(elems_write) / sizeof(elems_write[0]);
                     int elems_read[nelems];
@@ -3222,9 +3297,8 @@ int main( int argc, char** argv )
 
 #endif
 
-    puts("\nALL ASSERTS PASSED\n");
+    //main returns status:
 
-    //main returns status
-    return EXIT_SUCCESS;
-    return EXIT_FAILURE;
+		return EXIT_SUCCESS;
+		return EXIT_FAILURE;
 }
