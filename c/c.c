@@ -1,6 +1,11 @@
 /*
-
 ansi c cheat, no extensions
+
+#sources
+
+	- <http://c-faq.com/index.html>
+
+		good straight to the point faq, covers specially confusing points
 
 #motivation
 
@@ -79,13 +84,13 @@ ansi c cheat, no extensions
 
     - openMP is is a library supported on C, C++, fortran, windows, linux macos
 
-# doxigen
+#doxigen
 
     documentation generation from commnets
 
     <http://www.stack.nl/~dimitri/doxygen/docblocks.html>
 
-# inline
+#inline
 
     function is copied pasted instead of called
 
@@ -111,19 +116,21 @@ ansi c cheat, no extensions
         <http://www.mcs.anl.gov/petsc/documentation/index.html>
 */
 
-//#preprocessor
+/*
+#preprocessor
 
-    //does simple stuff *before* compilation
+	does simple stuff *before* compilation
 
-    //#include
+	#include
 
-        //look in standard dirs directly:
+		look in standard dirs directly:
 
-            //#include <file.h>
+			#include <file.h>
 
-        //look in current dir first:
+		looks in current dir first:
 
-            //#include "file.h"
+			#include "file.h"
+*/
 
 #include <assert.h>
 #include <complex.h>
@@ -219,7 +226,7 @@ int debugVar;
 
 //#pointer array
 
-    int* getArr(int i)
+    int* get_arr(int i)
     {
         //int is[] = {i};
         //return is;
@@ -239,7 +246,7 @@ int debugVar;
         {
             for(j=0; j<n; j++ )
             {
-                printf("%d ", mat[i][j]);
+                printf( "%d ", mat[i][j] );
             }
             printf("\n");
         }
@@ -247,19 +254,21 @@ int debugVar;
 
 //#functions
 
-    //void overload(int n){}
-    //void overload(float n){}
-        //ERROR no func overload in c
+	/*
+	ERROR no func overload in c:
 
-    void fInt(int i){puts("fInt");}
-    void fFloat(float f){puts("fInt");}
+		void overload(int n){}
+		void overload(float n){}
+	*/
 
-    void fIntPtr (int *i){}
-    void fIntArr (int i[]){}
+    void func_int(int i){}
+    void func_float(float f){}
+    void func_double(double d){}
 
-    //exact same thing
+    void func_intPtr (int *i){}
+    void func_intArr (int i[]){}
 
-    void withStaticVar()
+    void with_static_var()
     {
         int a = 1;
         static int sa = 1;
@@ -273,7 +282,7 @@ int debugVar;
         printf("a = %d, sa = %d\n", a, sa);
     }
 
-    int addInt(int n, int m)
+    int addInt( int n, int m )
     {
         return n+m;
     }
@@ -283,9 +292,9 @@ int debugVar;
         return n-m;
     }
 
-    int intFuncIntInt(int (*functionPtr)(int, int), int m, int n)
+    int intFuncIntInt( int (*function_ptr)(int, int), int m, int n )
     {
-        return (*functionPtr)(m, n);
+        return (*function_ptr)(m, n);
     }
 
     //#struct args
@@ -303,7 +312,7 @@ int debugVar;
 
         //these are functions with a variable number or arguments, such as `printf`.
 
-    int variadicAdd( int numargs, ... )
+    int variadic_add( int numargs, ... )
     {
         va_list listPointer;
         va_start( listPointer, numargs );
@@ -320,17 +329,17 @@ int debugVar;
 
 #ifdef PROFILE
 
-    const static int nProfRuns = 100000000;
+    const static int n_prof_runs = 100000000;
 
     //only the loop.
     //discount this from every other profile run
-    void loopOnlyProf(int n)
+    void loop_only_prof(int n)
     {
         int i;
         for( i=0; i<n; i++ );
     }
 
-    void whileOnlyProf(int n)
+    void while_only_prof(int n)
     {
         int i = 0;
         while( i < n )
@@ -339,7 +348,7 @@ int debugVar;
         }
     }
 
-    void intAssignProf(int n)
+    void int_assign_prof(int n)
     {
         int i,j;
         for( i=0; i<n; i++ )
@@ -348,7 +357,7 @@ int debugVar;
 
     void doNothing(){}
 
-    void funcCallProf(int n)
+    void func_all_prof(int n)
     {
         int i;
         for( i=0; i<n; i++ )
@@ -357,42 +366,42 @@ int debugVar;
 
     static inline void inlineDoNothing(){}
 
-    void inlineFuncCallProf(int n)
+    void inline_func_call_prof(int n)
     {
         int i;
         for( i=0; i<n; i++ )
             inlineDoNothing();
     }
 
-    void intSumProf(int n)
+    void int_sum_prof(int n)
     {
         int i, j = 0;
         for( i=0; i<n; i++ )
             j = j + 0;
     }
 
-    void intSubProf(int n)
+    void int_sub_prof(int n)
     {
         int i, j = 0;
         for( i=n; i>0; i-- );
             j = j - 0;
     }
 
-    void intMultProf(int n)
+    void int_mult_prof(int n)
     {
         int i, j = 1;
         for( i=0; i<n; i++ )
             j = j * 1;
     }
 
-    void intDivProf(int n)
+    void int_div_prof(int n)
     {
         int i, j = 1;
         for( i=0; i<n; i++ )
             j = j / 1;
     }
 
-    void floatSumProf(int n)
+    void float_sum_prof(int n)
     {
         float f;
         int i;
@@ -400,7 +409,7 @@ int debugVar;
             f = f + 0.0;
     }
 
-    void floatSubProf(int n)
+    void float_sub_prof(int n)
     {
         float f;
         int i;
@@ -408,7 +417,7 @@ int debugVar;
             f = f - 0.0;
     }
 
-    void floatMultProf(int n)
+    void float_mult_prof(int n)
     {
         int i;
         float j;
@@ -416,7 +425,7 @@ int debugVar;
             j = j * 1.0;
     }
 
-    void floatDivProf(int n)
+    void float_div_prof(int n)
     {
         int i;
         float j;
@@ -431,7 +440,7 @@ int debugVar;
             puts("a");
     }
 
-    void stack1bProf(int n)
+    void stack1b_prof(int n)
     {
         int is[1];
         int i;
@@ -441,7 +450,7 @@ int debugVar;
         }
     }
 
-    void stack1kbProf(int n)
+    void stack1kb_prof(int n)
     {
         int is[1];
         int i;
@@ -451,7 +460,7 @@ int debugVar;
         }
     }
 
-    void stack1mbProf(int n)
+    void stack1mb_prof(int n)
     {
         int is[1];
         int i;
@@ -461,7 +470,7 @@ int debugVar;
         }
     }
 
-    void heap1bProf(int n)
+    void heap1b_prof(int n)
     {
         char* cp;
         int i;
@@ -472,7 +481,7 @@ int debugVar;
         }
     }
 
-    void heap1kbProf(int n)
+    void heap1kb_prof(int n)
     {
         char* cp;
         int i;
@@ -907,49 +916,128 @@ int main( int argc, char** argv )
                 //lost of precision is not checked
         }
 
-        //other bases for integers
+        //#bases for integers
         {
-            assert( 16 == 0x10    );
-            assert( 16 == 0x10    );
-            assert( 16 == 0x10l   );
-            assert( 16 == 0x10ll  );
-            assert( 16 == 0x10u   );
-            assert( 16 == 0x10ul  );
-            assert( 16 == 0x10ull );
-                //hexa
-            assert( 16 == 020 );
-                //octal
-            //assert( 16 == 0b10000 );
-                //GCC
-                //binary
+			//hexadecimal
+
+				assert( 16 == 0x10    );
+				assert( 16 == 0x10    );
+				assert( 16 == 0x10l   );
+				assert( 16 == 0x10ll  );
+				assert( 16 == 0x10u   );
+				assert( 16 == 0x10ul  );
+				assert( 16 == 0x10ull );
+
+			//octal:
+
+				assert( 16 == 020 );
+
+			//binary: no ansi way
         }
 
-        //typecast
+		/*
+		#typecast
+
+			transformation of one datatype to another
+
+			can be done either implicitly or explicitly via a typecast operator
+
+			some convertions may be possible to do implicitly but generate compiler warnings when done implicitly.
+			this may depend on the compilation flags used
+
+			some convertions can only be done explicitly.
+		*/
         {
-            float f = 1.0;
-            float f2 = (float)1.0;
-            double d;
-            d = f;
-            f = d;
+        	//doubles are rounded down on typecast to int:
 
-            printf("(double).1f = %f\n", (double).1f); //float to double
-            printf("(float).1 = %f\n", (float).1); //double to float
-                //WARN possible
-            printf("(int).1f = %d\n", (int).1f); //float to int
-                //WARN possible
-            printf("(int)1L = %d\n", (int)1L); //long to int
-            printf("(long)1 = %ld\n", (long)1); //int to long
+				assert( (int)0.1 == 0 );
 
-            printf("(int*)&f = %p\n", (void*)&f); //any pointer typecast is ok to compiler
-            printf("(int)&f = %d\n", (int)&f);   //memory address of pointer
+        	//implicit typecast based on the variable type
+        	//once again, the double is rounded down:
 
-            int is3[3];
-            int is4[4];
-            int* ip = (int*)is3; //is[3] to int*
-            //ERROR
-                //is3=(int[3])is4;
-            //ERROR pointer to int[]
-                //is3=is4;
+				{
+					int i;
+					i = 0.1;
+					assert( i == 0 );
+				}
+
+			//long to int: there may be loss of precision!
+
+				//assert( (int) 0xFFFFFFFFFFL != 0xFFFFFFFFFF );
+
+			//it is not possible to be sure about the exact values since the size of ints and longs
+			//is not fixed by ansi, but they can happen!
+
+			//#typecasts without loss of precision
+
+				//if you convert a type to a possible larger size,
+				//there will be no loss of precision
+
+				//int to long:
+
+					assert( (long) 1 == 1L );
+
+				//float to double:
+
+					assert( (double) 1.0f == 1.0 );
+
+				//array to pointer of same type:
+
+					{
+						int is[3];
+						int* ip = (int*)is;
+					}
+
+			//#impossible typecats
+
+				//certain typecasts always generates compilation errors
+
+            	//pointers of different types,
+            	//even if types for which data can be converted like floats and doubles:
+
+					{
+						int* ip;
+						int i;
+						i = ip;
+					}
+
+            	//pointers of different types,
+            	//even if types for which data can be converted like floats and doubles:
+
+					//{
+					//	float* fp;
+					//	double* dp;
+					//	dp = fp;
+					//}
+
+				//the big exception to this are void pointers, which can be converted
+				//to/from any other type
+
+					{
+						void* vp;
+						int* ip;
+						int i = 0;
+
+						//int* to void*:
+
+							vp = (void*)&i;
+
+						//void* to int*:
+
+							ip = (int*)vp;
+
+						//void* to int:
+
+							i = (int)vp;
+					}
+
+				//array to array of different size:
+
+					//{
+					//	int is1[1];
+					//	int is2[2];
+					//	is2 = (int[])is1;
+					//}
         }
 
         //#const
@@ -960,22 +1048,29 @@ int main( int argc, char** argv )
                 //exact same thing!
             const int ic2 = i;
 
-            //ic = 1;
-                //ERROR
-                //consts are... almost consts!
-                //(you can change them with a warning)
+			/*
+			ERROR: consts are... almost consts!
 
-            //int i = 0;
-            //const int i = 0;
-                //ERROR
-                //i already defined
+			almost because you can change them with only a warning
+			*/
+			{
+				//const int ic = 0;
+				//ic = 1;
+			}
 
-            //ip = &ic;
-            //*ip = 2;
-                //WARN: discards const. in c++, error!
-                //we changed the const!
-                //this is why you can't int is[constint]; !!
-                //because you can compile with only a warning and change a const
+			/*
+			WARN: discards const. in c++, error!
+
+			we changed the const with only a warning
+
+			this is why you can't int is[constint]; unless you have variable size arrays
+			*/
+			{
+				//const int ic = 0
+				//int* ip = &ic;
+				//*ip = 1;
+				//assert( ic == 1 ):
+			}
 
             //const pointers
             {
@@ -1452,7 +1547,11 @@ int main( int argc, char** argv )
             assert( ( 1 > 2 ? 3 : 4 ) == 4 );
         }
 
-        //#pointer
+		/*
+        #pointer
+
+			pointers contain addresses of variables instead of the value
+        */
         {
             int i;
             int* pi, *pi2;
@@ -1468,19 +1567,82 @@ int main( int argc, char** argv )
             assert( i == 2 );
             assert( *pi == 2 );
 
-            printf("(void*)pi = %p\n",(void*)pi);
-            printf("(void*)(pi+1) = %p\n",(void*)(pi+1));
-            printf("NULL = %p\n",NULL);
+            printf( "(void*)pi = %p\n", (void*)pi );
+            printf( "(void*)(pi+1) = %p\n",(void*)(pi+1) );
 
-            pi2 = pi + 1;
-            printf("(void*)(pi2-pi) = %p\n",(void*)(pi2-pi));
-            assert( pi2 - pi == 1 );
-                //OK
-                //implicit conversion * -> int
+			//OK: implicit conversion * -> int:
 
-            //float* fp = &i;
-                //ERROR
-                //incompatible pointer type
+				pi2 = pi + 1;
+				printf( "(void*)(pi2-pi) = %p\n", (void*)(pi2-pi) );
+				assert( pi2 - pi == 1 );
+
+			//ERROR: incompatible pointer type
+
+				//float* fp = &i;
+
+			//OK: works with explicit cast:
+
+				float* fp = (float*)&i;
+
+            /*
+            #NULL pointer
+
+            	good source: <http://c-faq.com/null/macro.html>
+
+				basic usage: indicate error as return value from function
+
+				why it works: it never points to any possible valid memory location.
+					(`&` operator never gives anything equal to it)
+            */
+
+				//how it prints like:
+
+					printf( "NULL = %p\n", NULL );
+
+				//`if(NULL)` and `if(!NULL)` in error checking code always work as expected
+
+					assert( !NULL );
+
+				/*
+					relationship to 0: `(int*)0`, `(char*)0` or any other pointer type followed by zero
+					is always converted internally to the null pointer
+
+					this is a valid way of representing the null pointer,
+					but it is better style to always use the `NULL` macro
+				*/
+
+					assert( NULL == (int*)0 );
+					assert( NULL == (char*)0 );
+
+				//ERROR: comparison of distinct pointer types requires a cast:
+
+					//assert( (int*)0 == (char*)0 );
+
+				/*
+				RUNTIME ERROR: segmentation fault:
+
+					{
+						int i = *(int*)NULL;
+					}
+
+				never dereference the NULL pointer since it is guaranteed to point to nothing
+				*/
+
+            /*
+            #void pointer
+
+				special pointer type (since there is no corresponding void data...)
+
+				cannot be dereferenced without typecast (since you don't know its size)
+
+				can be typecast to anything
+
+				should almost never be used on production code.
+
+				one libc ocurrence of void pointers is the return type of malloc:
+				it is not aware of the type of data it returns, and it is usually typecast
+				to whatever datatype needed.
+            */
         }
 
         //#array
@@ -2348,19 +2510,19 @@ int main( int argc, char** argv )
             }
         }
 
-        //functions
+        //#function
         {
-            //automatic conversions
+            //if there is a typecast possible, it all compiles fine
             {
-                fInt(1.0);
-                fFloat(1);
+                func_int(1.1);
+                func_float(1);
             }
 
             puts("static variable in functions");
             {
-                withStaticVar();
+                with_static_var();
                     //a = 2, sa = 2
-                withStaticVar();
+                with_static_var();
                     //a = 2, sa = 3
             }
 
@@ -2373,8 +2535,8 @@ int main( int argc, char** argv )
 
             //#variadic function
             {
-                assert( variadicAdd( 3, 1, 2, 3 )       == 6 );
-                assert( variadicAdd( 5, 1, 2, 3, 4, 5 ) == 15 );
+                assert( variadic_add( 3, 1, 2, 3 )       == 6 );
+                assert( variadic_add( 5, 1, 2, 3, 4, 5 ) == 15 );
             }
         }
     }
@@ -3264,33 +3426,33 @@ int main( int argc, char** argv )
         //- even without optimization, cache access speed is hard to predict
         //   so what you expect may be false
 
-        loopOnlyProf(nProfRuns);
-        whileOnlyProf(nProfRuns);
+        loop_only_prof( n_prof_runs );
+        while_only_prof( n_prof_runs );
 
-        intAssignProf( nProfRuns);
-        intSumProf(nProfRuns);
-        intSubProf(nProfRuns);
-        intMultProf(nProfRuns);
-        intDivProf(nProfRuns);
+        int_assign_prof( n_prof_runs );
+        int_sum_prof( n_prof_runs );
+        int_sub_prof( n_prof_runs );
+        int_mult_prof( n_prof_runs );
+        int_div_prof( n_prof_runs );
 
-        floatSumProf(nProfRuns);
-        floatSubProf(nProfRuns);
-        floatMultProf(nProfRuns);
-        floatDivProf(nProfRuns);
+        float_sum_prof(n_prof_runs);
+        float_sub_prof(n_prof_runs);
+        float_mult_prof(n_prof_runs);
+        float_div_prof(n_prof_runs);
 
-        funcCallProf(nProfRuns);
-        inlineFuncCallProf(nProfRuns);
+        func_all_prof(n_prof_runs);
+        inline_func_call_prof(n_prof_runs);
 
-        stack1bProf(nProfRuns);
-        stack1kbProf(nProfRuns);
-        stack1mbProf(nProfRuns);
+        stack1b_prof(n_prof_runs);
+        stack1kb_prof(n_prof_runs);
+        stack1mb_prof(n_prof_runs);
 
-        heap1bProf(nProfRuns);
-        heap1kbProf(nProfRuns);
-        //heap1mbProf(nProfRuns);
+        heap1b_prof(n_prof_runs);
+        heap1kb_prof(n_prof_runs);
+        //heap1mbProf(n_prof_runs);
             //by far the slowest
 
-        //putsProf(nProfRuns);
+        //putsProf(n_prof_runs);
             //BAD
             //don't do stdout on profiling
             //system time is not counted anyways
