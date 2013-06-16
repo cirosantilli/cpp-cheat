@@ -46,6 +46,8 @@ functions defined (handlers):
 #include <stdio.h>
 #include <signal.h>
 
+#ifdef POSIX
+
 /*
 many more signals are defined in by posix and made available in unistd
 
@@ -84,7 +86,7 @@ simple easy to understand list:
 
 - SIGUSR1 and SIGUSR2: left to users to do whatever they want with
 */
-#ifdef POSIX
+
 #include <unistd.h>
 #endif
 

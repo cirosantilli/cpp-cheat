@@ -4,6 +4,10 @@ main ansi c cheat, no extensions
 certain features do not fit nicelly into the assertion format of this
 cheat, and may have been moved to separate files.
 
+features that require user input or that make programs wait
+shall be put inside `if ( 0 ){ ... }` clauses to be turned on
+only when users want to test those features.
+
 #sources
 
     - <http://c-faq.com/index.html>
@@ -76,6 +80,24 @@ cheat, and may have been moved to separate files.
 
                 Therefore you will not get those working on ms compiler anytime soon.
 
+    #other standards
+
+        beside ansi language and libraries, you should also know about the existense of other
+        standards:
+
+        - posix c library. Offers many functions for posix compliant systems (linux, mac, not windows)
+
+        - compiler extensions
+
+            Every compiler has certain language extensions which may be fundamenta for certain project.
+
+            For example: gnu c is used on the linux kernel One major reason is support for inline assembly,
+            which lacks in ansi c.
+
+        if possible you should avoid relying on those since they are less portable.
+
+        they shall not be documented here.
+
     #glibc
 
         gnu implementation of the c standard library
@@ -114,23 +136,6 @@ cheat, and may have been moved to separate files.
 
     <http://www.stack.nl/~dimitri/doxygen/docblocks.html>
 
-#inline
-
-    function is copied pasted instead of called
-
-    effects:
-
-    - avoids function call, thus potentially faster
-    - code gets larger
-    - function pointer comparisons may differ for the same function
-    - instruction cache might be come less efficient making thigs slower
-
-    sources:
-
-    - <http://www.greenend.org.uk/rjk/tech/inline.html>
-
-        some warnings about inline and its usage
-
 #libs
 
     this section is a list of whose main interface is c or which have a good c interface
@@ -159,6 +164,7 @@ cheat, and may have been moved to separate files.
 #include <assert.h>
 #include <complex.h>   //complex constnats and arithemtic. c99.
 #include <ctype.h>     //isspace
+#include <fenv.h>
 #include <float.h>     //
 #include <iso646.h>    //and, or, etc macros
 #include <limits.h>    //*_MAX, *_MIN for integer types
@@ -1026,19 +1032,20 @@ int main( int argc, char** argv )
                 for the current architecture
             */
 
-            /*
-            #FLT_ROUNDS
+                /*
+                #FLT_ROUNDS
 
-                rounding method of sums
+                    rounding method of sums
 
-                values:
+                    values:
 
-                - -1: indeterminable
-                - 0:  toward zero
-                - 1:  to nearest
-                - 2:  toward positive infinity
-                - 3:  toward negative infinity
-            */
+                    - -1: indeterminable
+                    - 0:  toward zero
+                    - 1:  to nearest
+                    - 2:  toward positive infinity
+                    - 3:  toward negative infinity
+                */
+
                 printf( "FLT_ROUNDS = %d\n", FLT_ROUNDS );
         }
 
@@ -1089,7 +1096,15 @@ int main( int argc, char** argv )
 
                 //wow, there are non radix 2 representation implementations?!
 
-                    printf( "FLT_RADIX = %d\n", FLT_RADIX );
+                printf( "FLT_RADIX = %d\n", FLT_RADIX );
+
+        /*
+        #fenv.h
+
+            contains flags that indicate the status of floating point related registers
+
+            TODO get some interesting and basic samples working
+        */
 
         /*
         #unsigned
@@ -1625,7 +1640,7 @@ int main( int argc, char** argv )
 
     //#operators
     {
-        //arithmetic
+        //#arithmetic
         {
             assert( ( 1 + 2 )        == 3   );
             assert( ( 2 * 3 )        == 6   );
@@ -1634,6 +1649,28 @@ int main( int argc, char** argv )
             assert( ( 1.0 / 2.0 )    == 0.5 );
             assert( ( 1 / 2.0 )      == 0.5 );
             assert( ( 1 / (double)2) == 0.5 );
+
+            //#division by 0
+
+                //time to have some fun and make the program crash by uncommenting code!
+
+                //WARN: division by 0:
+
+                    //{int i = 1 / 0;}
+
+                //RUNTIME ERROR: floating point exception
+
+                    //{
+                    //    int z = 0;
+                    //    z = z / z;
+                    //}
+
+                    //{
+                    //    int z = 0;
+                    //    z = 1 / z;
+                    //}
+
+                //TODO is it possible to avoid fp exception nicely?
 
             assert( ( 3 % 3 ) == 0 );
             assert( ( 4 % 3 ) == 1 );
@@ -1865,8 +1902,7 @@ int main( int argc, char** argv )
 
                 cannot be dereferenced without typecast (since you don't know its size)
 
-                can be typecast to/from anything
-
+                can be typecast to/from anything TODO confirm
             */
             {
                 void* vp;
@@ -1900,10 +1936,22 @@ int main( int argc, char** argv )
                         determine the type of the argument. For example, a function that takes a function,
                         and parameters to that function. Here, the parameters are arbitrary. This is used
                         on the ODE solver of the gnu project GSL.
+
+                        TODO add simple examples of valid usage
                 */
         }
 
-        //#array
+        /*
+        #array
+
+            c arrays are simply lots of values put side by side on memory
+
+            because they are side by side, it is simple to get the nth value
+            quickly (random access), unless like, say, a linked list, in which
+            you have to go follow lots of links before you reach the searched value.
+
+            no bound check is done to avoid overhead.
+        */
         {
             {
                 {
@@ -2028,25 +2076,33 @@ int main( int argc, char** argv )
                 }
             }
 
+            /*
+            #bounds breaking
+
+                time to break down the program by making this access memory
+                locations it should not try to access! =)
+
+                when the os sees that, it may crash down the program with a segmentation fault.
+
+                note however that this does not always happen, as a program may
+                just access another location inside its legal memory address space
+                but in a completelly unpredicatable manner, and the os has no way to it did this
+
+                this leads to very hard to debug errors, but is invitable if you want
+                to avoid the overhead of checking arrays bounds on every dereference
+            */
             {
-            //BAD
 
-                //overflow
+                //printf("%d\n",is[3]);
+                //is[3]=0;
+                //printf("%d\n",is[1000000]);
+                //is[1000000]=0;
 
-                    //printf("%d\n",is[3]);
-                    //is[3]=0;
-                    //printf("%d\n",is[1000000]);
-                    //is[1000000]=0;
-
-                    //for(i=0; i<=1000000000; i++ ){
-                    //        printf("%d\n",i);
-                    //        j=is[i];
-                    //}
-                    //    segmentation fault
-
-                    /*printf("%d\n",is[100000]);*/
-
-                //might run: only get segmentation fault if you hit exactly the last position!
+                //for(i=0; i<=1000000000; i++ ){
+                //        printf("%d\n",i);
+                //        j=is[i];
+                //}
+                //    segmentation fault
             }
 
             //#compare arrays
@@ -2376,13 +2432,13 @@ int main( int argc, char** argv )
                         assert( strcmp( cs2, "12" ) == 0 );
                     }
 
-                    //length
+                    //#length
                     {
                         char cs[] = "abc";
-                        assert( strlen(cs) == 3 );
+                        assert( strlen( cs ) == 3 );
                     }
 
-                    //copy
+                    //#copy
                     {
                         char cs[] = "abc";
                         char cs2[4];
@@ -2397,7 +2453,7 @@ int main( int argc, char** argv )
                             //no born checking as always
                     }
 
-                    //compare
+                    //#compare
                     {
                         char cs[] = "abc";
                         char cs2[] = "abc";
@@ -2412,7 +2468,7 @@ int main( int argc, char** argv )
                             //larget
                     }
 
-                    //cat
+                    //#concatenate
                     {
 
                         char s1[5];
@@ -2423,7 +2479,7 @@ int main( int argc, char** argv )
                         assert( strcmp( s2, "cd"   ) == 0 );
                     }
 
-                    //strchr
+                    //#strchr
                     {
                         //search for char in string
                         //return pointer to that char if found
@@ -2507,24 +2563,68 @@ int main( int argc, char** argv )
             }
         }
 
-        //dynamic
-        {
-            //vs VLA
-            //- no scope
-            //
-            //      therefore can be allocated in functions
-            //      and returned to caller
-            //
-            //- heap much larger than stack
+        /*
+        #dynamic allocation #malloc
 
+            allocates ammounts of memory that are only known at runtime,
+            not compile time.
+
+            #dynamic allocation vs VLA
+
+            - no scope
+
+                therefore can be allocated in functions
+                and returned to caller
+
+            - heap much larger than stack
+        */
+        {
             int i = 8;
-            size_t bytes = sizeof(char)*i;
-            char* cp = (char*) malloc (bytes);
-            if( cp == NULL )
+            size_t bytes = sizeof( char ) * i;
+            char* cp = (char*) malloc( bytes );
+            if ( cp == NULL )
             {
                 printf("could not allocate %zu bytes", bytes);
             }
-            free(cp);
+            free( cp );
+
+            /*
+            if you try to allocate too much memory,
+            `malloc` may fail, or your os will eventually decide to kill your naughty program
+
+            time to try that out!
+            */
+            {
+                //TODO 0 how to pass more than INT_MAX to malloc to break it? =)
+
+                if ( 0 )
+                {
+                    size_t n = 1024 * 1024 * 1024;
+                    int* ip = malloc( n );
+                    if ( ip == NULL )
+                    {
+                        printf( "could not allocate %zu bytes", n );
+                    }
+                    free( ip );
+                }
+
+                //allocate 1024 Petabytes of RAM in 1 gb chunks!!!
+                //someday this will be possible and people will laugh at this...
+                //generates a segfault
+                if ( 0 )
+                {
+                    const size_t GB = 1024 * 1024 * 1024;
+                    for ( int i = 0; i < GB; i++ )
+                    {
+                        int* ip = malloc( GB );
+                        ip[0] = 0;
+                        if ( ip == NULL )
+                        {
+                            printf( "could not allocate %zu bytes", GB );
+                        }
+                    }
+                }
+            }
         }
 
         //comma operator
@@ -2581,7 +2681,7 @@ int main( int argc, char** argv )
             {
                 assert(1);
             }
-            if(0)
+            if ( 0 )
             {
                 assert(0);
             }
@@ -2911,7 +3011,7 @@ int main( int argc, char** argv )
 
         printf( "__STDC_VERSION__ = %li\n", __STDC_VERSION__ );
 
-            //basename of current file
+            //absolute or relative path of current file:
 
         printf( "__FILE__ = %s\n", __FILE__ );
 
@@ -3216,12 +3316,12 @@ int main( int argc, char** argv )
                     printf("%x\n", 16);
 
                     float f;
-                    printf("(void*)&f = %p\n",(void*)&f);
+                    printf( "(void*)&f = %p\n",(void*)&f );
                         //prints the 0x address.
                         //%p must get a void pointer
                         //void* is a type, different than void. doing type cast to it.
 
-                    printf("%%<<< escaping percentage\n");
+                    printf( "%%<<< escaping percentage\n" );
                         //note that this is printf specific
                         //not string specific
                 }
@@ -3271,7 +3371,7 @@ int main( int argc, char** argv )
             //#stdin tty
             {
                 //#getc, getchar
-                if(0)
+                if ( 0 )
                 {
                     //getchar == getc(stdin)
 
@@ -3306,7 +3406,7 @@ int main( int argc, char** argv )
                     no size checking possible
                     if too much input, just seg faults
                 */
-                if(0)
+                if ( 0 )
                 {
                         //printf("enter a string terminated by newline: (max %d chars, newline will be included in the string)\n", sn);
                         //gets(s);
@@ -3326,7 +3426,7 @@ int main( int argc, char** argv )
 
                     use only if error checking is not a priority
                 */
-                if(0)
+                if ( 0 )
                 {
                     int i, j;
                     unsigned int ui;
@@ -3352,7 +3452,7 @@ int main( int argc, char** argv )
                 }
 
                 //#fgets
-                if(0)
+                if ( 0 )
                 {
                     //together with error checking, best method formatted input method
                     /*fgets*/
@@ -3413,7 +3513,7 @@ int main( int argc, char** argv )
                 {
                     strcpy( path, "f.tmp" );
                     fp = fopen( path, "w" );
-                    if ( fp == NULL )
+                    if ( !fp )
                     {
                         report_cant_open_file(path);
                         exit( EXIT_FAILURE );
@@ -3797,6 +3897,36 @@ int main( int argc, char** argv )
             //system time is not counted anyways
 
 #endif
+
+    /*
+    #compiler hints
+
+        the following keywords only optimize generated source code,
+        but do not change the behaviour of programs.
+
+        #inline keyword
+
+            function is copied pasted instead of called
+
+            effects:
+
+            - avoids function call, thus potentially faster
+            - code gets larger
+            - function pointer comparisons may differ for the same function
+            - instruction cache might be come less efficient making thigs slower
+
+            sources:
+
+            - <http://www.greenend.org.uk/rjk/tech/inline.html>
+
+                some warnings about inline and its usage
+
+        #restrict keyword
+
+            c99
+
+            <http://en.wikipedia.org/wiki/Restrict>
+    */
 
     /*
     #trigraphs
