@@ -10,6 +10,6 @@
 
 int main( int argc, char** argv )
 {
-	puts("hello world");
-	return EXIT_SUCCESS;
+    puts("hello world");
+    return EXIT_SUCCESS;
 }
