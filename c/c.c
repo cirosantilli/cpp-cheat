@@ -50,10 +50,23 @@ only when users want to test those features.
 
         you must pay to have the latest standards
 
-        however you can always check open source documentation of compiler/stdlib
-        implementations
+        however you can get for free:
 
-        drafts are also free, and quite close to the actual specifications
+        - drafts of the latest standard which are quite close to the actual specifications
+        - older standards
+        - compiler documentations
+
+        ansi only specifies language and the library interfaces:
+        what functions, variables etc. are contained in each file,
+        but it does not specify how that should be implemented.
+
+        some features are even left for the implementors to decide such as
+        the behavoiur of [system][]
+
+        new features are often based on extension of
+        major implementations such as gnu's or microsoft's
+
+        some language versions:
 
         - C11
 
@@ -80,10 +93,12 @@ only when users want to test those features.
 
                 Therefore you will not get those working on ms compiler anytime soon.
 
-    #other standards
+        besides the versions, ansi may also publishe minor corrections of versions
+
+    #ansi extensions
 
         beside ansi language and libraries, you should also know about the existense of other
-        standards:
+        standards which extend it:
 
         - posix c library. Offers many functions for posix compliant systems (linux, mac, not windows)
 
@@ -100,25 +115,7 @@ only when users want to test those features.
 
     #glibc
 
-        gnu implementation of the c standard library
-
-        is very dominant on linux
-
-        the standards only specifies the interface, not exact implementation algorithms
-
-        stdlib does not come with gcc: you could in theory choose between different implementations.
-
-        - ubuntu
-
-            - headers for glibc are on ``/usr/include``. do ``locate /stdio.h``
-
-            - lib for glibc are on ``/usr/lib/i386-linux-gnu``. do ``locate /libc.a``
-
-            - the ubuntu package is called ``libc6-dev``. ``dpkg -l | grep libc``
-
-        - docs
-
-           <http://www.gnu.org/software/libc/manual/html_mono/libc.html>
+        name for the gnu implementation of the c standard library
 
 #multithreading ipc concurrency
 
@@ -150,6 +147,8 @@ only when users want to test those features.
 
     does simple stuff *before* compilation
 
+    by simple understand non-turing complete.
+
     #include
 
         look in standard dirs directly:
@@ -172,12 +171,12 @@ only when users want to test those features.
 #include <stdarg.h>    //... variable num of args
 #include <signal.h>
 #include <stdbool.h>   //true, false. c99
-#include <stdint.h>    //malloc, EXIT_SUCCESS, EXIT_FAILURE:
-#include <stdlib.h>    //printf, puts
-#include <stdio.h>     //strlen, strcpy
-#include <string.h>
+#include <stdint.h>    //uint32_t, etc.
+#include <stdlib.h>    //malloc, EXIT_SUCCESS, EXIT_FAILURE:
+#include <stdio.h>     //printf, puts
+#include <string.h>    //strlen, strcpy
 #include <math.h>
-#include <time.h>
+#include <time.h>      //time()
 #include <wchar.h>
 //#include <thread.h>             //c99 but not yet implemented for me
 
@@ -253,7 +252,7 @@ int debugVar;
         //cannot create scopes here like that
         //they'd be useless
 
-//#pointer array
+//#pointer #array
 
     int* get_arr( int i )
     {
@@ -546,7 +545,7 @@ int debugVar;
     //{
         float rand_range(float a, float b)
         { //float in a range
-            return ((b-a)*((float)rand()/RAND_MAX))+a;
+            return ( ( b - a ) * ( (float)rand() / RAND_MAX) ) + a;
         }
     //}
 
@@ -813,605 +812,708 @@ int main( int argc, char** argv )
         }
     }
 
-    //#base types
+    /*
+    #base types
+
+        types like `int`, `char`, `float` that are reserved language words
+        with fixed meanings.
+    */
+
+    //#variables
     {
-        //variable declare/init
+        //allowed variable/function/struct,enum names: _[a-Z0-9_]*
         {
-            //allowed variable/function/struct,enum names: _[a-Z0-9_]*
-            {
-                int _;
-                //int 0a;
-                    //ERROR
-            }
-
-            {
-                int i;
-                i = 5;
-            }
-
-            {
-                int i = 5;
-                int j = 7;
-            }
-
-            {
-                int i = 5, j = 7;
-                    //31 bit + 1 sign bit integer
-            }
-        }
-
-        /*
-        #base types
-
-            types like `int`, `char`, `float` that are reserved language words
-            with fixed meanings.
-
-        #literals
-
-            *literals* are values known at compile time
-            often used to initialize variables. Ex:
-
-            - int: `1`
-            - long: `1L`
-            - float: `1.0f`
-            - double: `1.0`and their 
-            - char: `'a'`
-            - string: `"abc"`
-        */
-        {
-            /*
-            #integer types
-
-                types that represnt integer numbers are called integer types
-
-                this classification is explicitly used on the c specification,
-                some operations or rule of the c language are only valid for integer types
-
-                `char` is also an integer type
-            */
-            {
-                //#char
-
-                    //char has fixed size 1 byte:
-
-                        assert( sizeof( char ) == 1 );
-
-                    //char literals are specified by single quotes
-
-                        { char c = 'a'; }
-
-                    //char literals are simply converted to the corresponding ascii integer value
-                    //for example, 'a' == 97:
-
-                        assert( 'a' == 97 );
-
-                    //char literals can contain any byte even those which have
-                    //no corresponding ascii value such as say, `130`.
-                    //To get those literal values, you should typecast from `int` as:
-
-                        { char c = (char)130; }
-
-                    //TODO possible via escape seqs?
-
-                    //TODO how to make a literal backslash char?
-
-                unsigned char uc = (unsigned char)1;
-
-                short int si = (short int)1;
-                int i = 1;
-                long int li = (long int)1l;
-                long long lli = 8ll;
-                    //C99
-
-                unsigned short int usi = (unsigned short int)1u;
-                    //must typecast
-                unsigned int ui = 1u;
-                unsigned long int uli = 1lu;
-                unsigned long long int ulli = 1llu;
-
-                //integer literals
-                //{
-                    //by default, are of the first of the following types
-                    //that can represent the value (this is machine dependant):
-                    //
-                    //int
-                    //unsigned int
-                    //long int
-                    //unsigned long int
-                    //long long int
-                    //unsigned long long int
-                    //ERROR
-                //}
-            }
-
-            //#floating point types
-            {
-                float f = 1.23f;
-                    //1 signal 23 number 8 exponent
-                float f1 = 1.23e-10f;
-                float f2 = 1.f;
-                //float f = 1f;
-                    //ERROR
-                    //there must be a dot
-
-                double d = 1.23;
-                long double ld = 1.23;
-            }
-        }
-
-        /*
-        #sizeof
-
-            gives the size of types in bytes
-
-            can be printed in printf with `%zu`
-
-        #size_t
-
-            `size_t` is the data type that specifies data sizes in libc
-
-            always use it in your code to have more platform independance
-
-        #size of base types
-
-            base types like int of float don't have fixed ansi sizes: only a minimum value is specified.
-            so machines are free to take optimal values in terms of speed/storage
-
-            `char` is an exception as it has a fized size of one byte.
-
-            for most modifier os similar types (ex: short int, int, long, long long)
-            the ansi also guarantees size inequalities (equality is possible)
-
-        #fixed size types
-
-            besides the base times with nonfixed sizes, ansi libc also furnishes
-            fixed sized types in
-
-            you should only use those when haveing a fixed size is crucial,
-            otherwise just use the base c types which are optimized for speed
-            according to each architecture.
-        */
-        {
-
-            size_t size = sizeof(int);
-
-            puts( "sizeof (bytes):" );
-            printf( "char        = %zu\n",  sizeof( char )          );
-            printf( "int         = %zu\n",  sizeof( int )           );
-            printf( "long int    = %zu\n",  sizeof( long int )      );
-            printf( "long long   = %zu\n",  sizeof( long long )     );
-            printf( "float       = %zu\n",  sizeof( float )         );
-            printf( "double      = %zu\n",  sizeof( double )        );
-            printf( "long double = %zu\n",  sizeof( long double )   );
-            printf( "wchar_t     = %zu\n",  sizeof( wchar_t )       );
-            printf( "size_t      = %zu\n",  sizeof( size_t )        );
-
-            //char has fixed size:
-
-                assert( sizeof( char )      == 1                        );
-
-            //size equality is always possible:
-
-                assert( sizeof( short int   ) <= sizeof( int            ) );
-                assert( sizeof( int         ) <= sizeof( long int       ) );
-                assert( sizeof( long int    ) <= sizeof( long long int  ) );
-
-                assert( sizeof( float       ) <= sizeof( double         ) );
-                assert( sizeof( double      ) <= sizeof( long double    ) );
-
-            //unsigned does not change sizeof:
-
-                assert( sizeof( unsigned int ) == sizeof( int ) );
-                assert( sizeof( unsigned long int ) == sizeof( long int ) );
-
-
-            /*
-            #limits.h
-
-                gives the maximum and minimum values that fit into base integer types
-                in the current architecure
-            */
-
-                printf( "INT_MAX = %d\n", INT_MAX );
-                printf( "INT_MIN = %d\n", INT_MIN );
-                printf( "LONG_MAX = %ld\n", LONG_MAX );
-                printf( "LLONG_MIN = %lld\n", LLONG_MIN );
-
-                /*
-                unsigned versions start with `U`
-
-                there is no min value for unsigned versions since it is necessarily 0
-                */
-
-                printf( "UINT_MAX = %u\n", UINT_MAX );
-
-            /*
-            #float.h
-
-                gives characteristics of floating point numbers and of base numerical operations
-                for the current architecture
-            */
-
-                /*
-                #FLT_ROUNDS
-
-                    rounding method of sums
-
-                    values:
-
-                    - -1: indeterminable
-                    - 0:  toward zero
-                    - 1:  to nearest
-                    - 2:  toward positive infinity
-                    - 3:  toward negative infinity
-                */
-
-                printf( "FLT_ROUNDS = %d\n", FLT_ROUNDS );
-        }
-
-            /*
-            #FLT_EVAL_METHOD
-
-                precision to which floating point operations are evaluated
-
-                it seems that floating operations on, say, floats can be evaluated
-                as long doubles always.
-
-                TODO 0: understand better
-            */
-
-                printf( "FLT_EVAL_METHOD = %d\n", FLT_EVAL_METHOD );
-
-            /*
-            #subnormal numbers
-
-                one can check if those are supported in the implementation
-
-                c11 feature TODO check. at least only in -std=c1x
-
-                values:
-
-                - -1: undeterminable
-                - 0: no
-                - 1: yes
-            */
-
-                //printf( "FLT_HAS_SUBNORM = %d\n", FLT_HAS_SUBNORM );
-                //printf( "DBL_HAS_SUBNORM = %d\n", DBL_HAS_SUBNORM );
-                //printf( "LDBL_HAS_SUBNORM = %d\n", LDBL_HAS_SUBNORM );
-
-            /*
-            #representation size
-
-                several other macros expand to the lengths of the representation
-
-                useful terms:
-
-                    1.01_b * b ^ (10)_b
-
-                - radix:
-
-                TODO lazy
-            */
-
-                //wow, there are non radix 2 representation implementations?!
-
-                printf( "FLT_RADIX = %d\n", FLT_RADIX );
-
-        /*
-        #fenv.h
-
-            contains flags that indicate the status of floating point related registers
-
-            TODO get some interesting and basic samples working
-        */
-
-        /*
-        #unsigned
-
-            c has unsigned versions
-
-            these basically have more or less double the maximum size
-            of the signed version, and are always positive.
-
-            you should always use unsigned sizes for quantities which must be positive such as:
-
-            - array indexes
-            - memory sizes (size_t)
-
-            as this will give clues to the compiler
-            and humans about the positive quality of your number
-        */
-        {
-
-            assert( (char)-1 == (char)255 );
-            assert( (unsigned char)-1 == (unsigned char)255 );
-                //true in 2's complement
-
-            assert( (char)0 > (char)255 );
-                //true in 2's complement
-            assert( (unsigned char)0 < (unsigned char)255 );
-                //what we really want
-        }
-
-        /*
-        #overflow
-
-            there is no automatic overflow check on operations
-            except at initialization and assignment by constants
-            at compile time.
-
-            therefore, is something overflows,
-            it just silently fails overflows, possibly causing a hard to find bug
-
-            there is no check because that would cost time on every basice operation.
-        */
-        {
-
-            //char c = 256;
-            //char c = 255+1;
-            //unsigned char c = 257;
-                //WARN
-
-            //lli = 0x10000000000000000;
-                //WARN constant too large (even for long long, the largest type)
-
-            //char c = 255;
-            //c++;
-                //WARN
-
-            assert( 1.00000000000000000000000000000000000000000000001 == 1.0 );
-                //OK
-                //lost of precision is not checked
-        }
-
-        //#bases for integers
-        {
-            //hexadecimal
-
-                assert( 16 == 0x10    );
-                assert( 16 == 0x10    );
-                assert( 16 == 0x10l   );
-                assert( 16 == 0x10ll  );
-                assert( 16 == 0x10u   );
-                assert( 16 == 0x10ul  );
-                assert( 16 == 0x10ull );
-
-            //octal:
-
-                assert( 16 == 020 );
-
-            //binary: no ansi way
-        }
-
-        /*
-        #typecast
-
-            transformation of one datatype to another
-
-            can be done either implicitly or explicitly via a typecast operator
-
-            some convertions may be possible to do implicitly
-            but generate compiler warnings when done implicitly.
-            this may depend on the compilation flags used
-
-            some convertions always generate compilation errors.
-
-            TODO understand this better
-        */
-        {
-            //#typecasts with data modification
-
-                //some typecasts are possible, but may alter the data to fit the new type
-
-                //doubles are rounded down on typecast to int:
-
-                    assert( (int)0.1 == 0 );
-
-                //implicit typecast based on the variable type
-                //once again, the double is rounded down:
-
-                    {
-                        int i;
-                        i = 0.1;
-                        assert( i == 0 );
-                    }
-
-                //long to int: there may be loss of precision if the long is too large to fit into the int
-
-                    //assert( (int) 0xFFFFFFFFFFL != 0xFFFFFFFFFF );
-
-                //it is not possible to be sure about the exact values since the size of ints and longs
-                //is not fixed by ansi, but they can happen!
-
-            //#typecasts without data modification
-
-                //if you convert a type to a type that is similar (floating point -> floating point)
-                //but larger in size, there will be no modification of the data
-
-                //int to long:
-
-                    assert( (long) 1 == 1L );
-
-                //float to double:
-
-                    assert( (double) 1.0f == 1.0 );
-
-                //array to pointer of same type:
-
-                    {
-                        int is[3];
-                        int* ip = (int*)is;
-                    }
-
-            //#impossible typecats
-
-                //certain typecasts always generates compilation errors
-
-                //implicit pointer to int is impossible:
-
-                    //{
-                    //    int* ip;
-                    //    int i;
-                    //    i = ip;
-                    //}
-
-                //pointer to float is impossible even with explicit typecast:
-
-                    //{
-                    //    int* ip;
-                    //    float f;
-                    //    f = (float)ip;
-                    //}
-
-                //pointers of different types,
-                //even if types for which data can be converted like floats and doubles:
-
-                    //{
-                    //    float* fp;
-                    //    double* dp;
-                    //    dp = fp;
-                    //}
-
-                //the big exception to this are void pointers, which can be converted
-                //to/from any other type
-
-                //array to array of different size:
-
-                    //{
-                    //    int is1[1];
-                    //    int is2[2];
-                    //    is2 = (int[])is1;
-                    //}
-        }
-
-        //#const
-        {
-            int i = 0;
-            const int ic = 0;
-            //int const ic = 0
-                //exact same thing!
-            const int ic2 = i;
-
-            /*
-            ERROR: consts are... almost consts!
-
-            almost because you can change them with only a warning
-            */
-            {
-                //const int ic = 0;
-                //ic = 1;
-            }
-
-            /*
-            WARN: discards const. in c++, error!
-
-            we changed the const with only a warning
-
-            this is why you can't int is[constint]; unless you have variable size arrays
-            */
-            {
-                //const int ic = 0
-                //int* ip = &ic;
-                //*ip = 1;
-                //assert( ic == 1 ):
-            }
-
-            //const pointers
-            {
-                //3 types:
-                    //const*
-                    //*const
-                    //const*const
-
-                const int* cip = &ic;
-                //SAME
-                    //int const* icp = &ic;
-                cip = &ic2;
-                //ERROR: const prevents from changing value
-                    //*cip = 2;
-
-                const int ic3;
-                    //BAD
-                    //compiles without warning, but is bad since ic3 cannot get a value
-                    //unless you typecast its pointer with a warning
-
-                //int * const ipc = &ic;
-                    //WARN
-
-                //ipc = &ic2;
-                    //ERROR: this time what the address the pointer points to is constant
-                    //not its value!
-                //*ipc = 2;
-                    //BAD: we changed the value!
-
-                const int* const cipp = &ic;
-
-                const int cis2[2] = {1,2};
+            int _;
+            //int 0a;
                 //ERROR
-                    //cis2[0] = 1;
-            }
-
-            {
-                //scanf("%d",&i);
-                    //works
-                    //NOTE
-                    //consts are *not* "compile time constants"
-                    //they are only constant after they are declared
-                    //this is another reason why you can't use them
-                    //as arrays sizes without VLA
-            }
         }
 
-        //automatic
         {
-            //no keyword, but is the name for the default way to declare var
-            //that is not volatile neither register
             int i;
-        }
-        //volatile
-        {
-            volatile int vi;
-                //compiler will not store this value in cpu registers as optimization
-                //instead of in RAM
-                //application:
-                    //multithreading, where variable may to change value at any time
-                    //if value were stored in register, other threads could not modify it
+            i = 5;
         }
 
-        //register
         {
-            {
-                register int ri;
-                    //hint to compiler that ri be stored in register
-                    //instead of in RAM
-                    //
-                    //not necessarily honored
-                    //
-                    //almost always done without a hint if possible
-            }
+            int i = 5;
+            int j = 7;
+        }
 
-            {
-                //register int ri;
-                //int* ip = &ri;
-                    //ERROR
-                    //cpu registers don't have addresses!
-            }
-
-            {
-                struct S { int i; };
-                register struct S s;
-                    //BAD
-                    //impossible to store compound type in registers
-                    //compiler will certainly not honor ``register`` hint
-            }
+        {
+            int i = 5, j = 7;
+                //31 bit + 1 sign bit integer
         }
     }
 
-    //typedef
+
+    /*
+    #literals
+
+        *literals* are values known at compile time
+        often used to initialize variables. Ex:
+
+        - int: `1`
+        - long: `1L`
+        - float: `1.0f`
+        - double: `1.0`and their 
+        - char: `'a'`
+        - string: `"abc"`
+    */
+
+    //#integer literals
     {
-        //on stdlib, convention append "_t" to typedefs is used
-        //ex: ``size_t``, ``wchar_t``, etc
+        //hexadecimal:
+
+            assert( 16 == 0x10    );
+            assert( 16 == 0x10    );
+            assert( 16 == 0x10l   );
+            assert( 16 == 0x10ll  );
+            assert( 16 == 0x10u   );
+            assert( 16 == 0x10ul  );
+            assert( 16 == 0x10ull );
+
+        //octal:
+
+            assert( 16 == 020 );
+
+        //binary: no ansi way
+    }
+
+    /*
+    #integer types
+
+        types that represnt integer numbers are called integer types
+
+        this classification is explicitly used on the c specification,
+        some operations or rule of the c language are only valid for integer types
+
+        `char` is also an integer type
+    */
+    {
+        //#char
+
+            //char has fixed size 1 byte:
+
+                assert( sizeof( char ) == 1 );
+
+            //char literals are specified by single quotes
+
+                { char c = 'a'; }
+
+            //char literals are simply converted to the corresponding ascii integer value
+            //for example, 'a' == 97:
+
+                assert( 'a' == 97 );
+
+            //char literals can contain any byte even those which have
+            //no corresponding ascii value such as say, `130`.
+            //To get those literal values, you should typecast from `int` as:
+
+                { char c = (char)130; }
+
+            //TODO possible via escape seqs?
+
+            //TODO how to make a literal backslash char?
+
+        unsigned char uc = (unsigned char)1;
+
+        short int si = (short int)1;
+        int i = 1;
+        long int li = (long int)1l;
+        long long lli = 8ll;
+            //C99
+
+        unsigned short int usi = (unsigned short int)1u;
+            //must typecast
+        unsigned int ui = 1u;
+        unsigned long int uli = 1lu;
+        unsigned long long int ulli = 1llu;
+
+        //integer literals
+        //{
+            //by default, are of the first of the following types
+            //that can represent the value (this is machine dependant):
+            //
+            //int
+            //unsigned int
+            //long int
+            //unsigned long int
+            //long long int
+            //unsigned long long int
+            //ERROR
+        //}
+    }
+
+    //#floating point types
+    {
+        float f = 1.23f;
+            //1 signal 23 number 8 exponent
+        float f1 = 1.23e-10f;
+        float f2 = 1.f;
+        //float f = 1f;
+            //ERROR
+            //there must be a dot
+
+        double d = 1.23;
+        long double ld = 1.23;
+    }
+
+    /*
+    #sizeof
+
+        gives the size of the ram representation of types in bytes
+
+        can be printed in printf with `%zu`
+
+    #size_t
+
+        `size_t` is the data type that specifies data sizes in libc
+
+        always use it in your code to have more platform independance
+
+    #size of base types
+
+        base types like int of float don't have fixed ansi sizes: only a minimum value is specified.
+        so machines are free to take optimal values in terms of speed/storage
+
+        `char` is an exception as it has a fized size of one byte.
+
+        for most modifier os similar types (ex: short int, int, long, long long)
+        the ansi also guarantees size inequalities (equality is possible)
+
+    #fixed size types
+
+        besides the base times with nonfixed sizes, c99 ansi libc also furnishes
+        fixed sized types. See
+
+        you should only use those when having a fixed size is crucial,
+        otherwise just use the base c types which are optimized for speed
+        according to each architecture.
+    */
+    {
+
+        size_t size = sizeof(int);
+
+        puts( "sizeof (bytes):" );
+        printf( "char        = %zu\n",  sizeof( char )          );
+        printf( "int         = %zu\n",  sizeof( int )           );
+        printf( "long int    = %zu\n",  sizeof( long int )      );
+        printf( "long long   = %zu\n",  sizeof( long long )     );
+        printf( "float       = %zu\n",  sizeof( float )         );
+        printf( "double      = %zu\n",  sizeof( double )        );
+        printf( "long double = %zu\n",  sizeof( long double )   );
+        printf( "wchar_t     = %zu\n",  sizeof( wchar_t )       );
+        printf( "size_t      = %zu\n",  sizeof( size_t )        );
+
+        //char has fixed size:
+
+            assert( sizeof( char )      == 1                        );
+
+        //size equality is always possible:
+
+            assert( sizeof( short int   ) <= sizeof( int            ) );
+            assert( sizeof( int         ) <= sizeof( long int       ) );
+            assert( sizeof( long int    ) <= sizeof( long long int  ) );
+
+            assert( sizeof( float       ) <= sizeof( double         ) );
+            assert( sizeof( double      ) <= sizeof( long double    ) );
+
+        //unsigned does not change sizeof:
+
+            assert( sizeof( unsigned int ) == sizeof( int ) );
+            assert( sizeof( unsigned long int ) == sizeof( long int ) );
+    }
+
+    /*
+    #stdint.h
+
+        contains several types of ints, including fixed size
+        and optimal for speed types
+
+        c99
+
+        all macros with numbers are defined for N = 8, 16, 32, 64
+    */
+    {
+
+        //exactly 32 bits:
+
+            assert( sizeof( int32_t) == 4 );
+
+        //all have unsigned verions prefixed by 'u'
+
+            assert( sizeof( uint32_t) == 4 );
+
+        //at least 32 bits:
+
+            assert( sizeof( int_least32_t ) >= 4 );
+
+        //fastest operations with at least 32 bits:
+
+            assert( sizeof( int_least32_t ) >= 4 );
+
+        //an int with the right size to hold a pointer:
+
+            assert( sizeof( int* ) == sizeof( intptr_t ) );
+
+        //uniquelly defined by machine address space
+
+        //int with max possible width:
+
+            assert( sizeof( intmax_t ) >= sizeof( long long ) );
+
+        //inttypes also includes limits for each of the defined types
+        {
+            {
+                int32_t i = 0;
+                assert( INT32_MIN < i );
+                assert( INT32_MAX > i );
+            }
+
+            {
+                int_fast32_t i = 0;
+                assert( INT_FAST32_MIN < i );
+                assert( INT_FAST32_MAX > i );
+            }
+        }
+        //all have max/min ranges
+        //"_t" removed, "_max" or "_min" appended, all uppercased
+    }
+
+    /*
+    #limits.h
+
+        gives the maximum and minimum values that fit into base integer types
+        in the current architecure
+    */
+    {
+
+        printf( "INT_MAX = %d\n", INT_MAX );
+        printf( "INT_MIN = %d\n", INT_MIN );
+        printf( "LONG_MAX = %ld\n", LONG_MAX );
+        printf( "LLONG_MIN = %lld\n", LLONG_MIN );
+
+        /*
+        unsigned versions start with `U`
+
+        there is no min value for unsigned versions since it is necessarily 0
+        */
+
+        printf( "UINT_MAX = %u\n", UINT_MAX );
+    }
+
+    /*
+    #float.h
+
+        gives characteristics of floating point numbers and of base numerical operations
+        for the current architecture
+    */
+    {
+
+        /*
+        #FLT_ROUNDS
+
+            rounding method of sums
+
+            values:
+
+            - -1: indeterminable
+            - 0:  toward zero
+            - 1:  to nearest
+            - 2:  toward positive infinity
+            - 3:  toward negative infinity
+        */
+
+        printf( "FLT_ROUNDS = %d\n", FLT_ROUNDS );
+
+        /*
+        #FLT_EVAL_METHOD
+
+            precision to which floating point operations are evaluated
+
+            it seems that floating operations on, say, floats can be evaluated
+            as long doubles always.
+
+            TODO 0: understand better
+        */
+        {
+            printf( "FLT_EVAL_METHOD = %d\n", FLT_EVAL_METHOD );
+        }
+
+        /*
+        #subnormal numbers
+
+            one can check if those are supported in the implementation
+
+            c11 feature TODO check. at least only in -std=c1x
+
+            values:
+
+            - -1: undeterminable
+            - 0: no
+            - 1: yes
+        */
+
+            //printf( "FLT_HAS_SUBNORM = %d\n", FLT_HAS_SUBNORM );
+            //printf( "DBL_HAS_SUBNORM = %d\n", DBL_HAS_SUBNORM );
+            //printf( "LDBL_HAS_SUBNORM = %d\n", LDBL_HAS_SUBNORM );
+
+        /*
+        #representation size
+
+            several other macros expand to the lengths of the representation
+
+            useful terms:
+
+                1.01_b * b ^ (10)_b
+
+            - radix:
+
+            TODO lazy
+        */
+
+            //wow, there are non radix 2 representation implementations?!
+
+            printf( "FLT_RADIX = %d\n", FLT_RADIX );
+    }
+
+    /*
+    #fenv.h
+
+        contains flags that indicate the status of floating point related registers
+
+        TODO get some interesting and basic samples working
+    */
+
+    /*
+    #unsigned
+
+        c has unsigned versions
+
+        these basically have more or less double the maximum size
+        of the signed version, and are always positive.
+
+        you should always use unsigned sizes for quantities which must be positive such as:
+
+        - array indexes
+        - memory sizes (size_t)
+
+        as this will give clues to the compiler
+        and humans about the positive quality of your number
+    */
+    {
+
+        assert( (char)-1 == (char)255 );
+        assert( (unsigned char)-1 == (unsigned char)255 );
+            //true in 2's complement
+
+        assert( (char)0 > (char)255 );
+            //true in 2's complement
+        assert( (unsigned char)0 < (unsigned char)255 );
+            //what we really want
+    }
+
+    /*
+    #overflow
+
+        there is no automatic overflow check on operations
+        except at initialization and assignment by constants
+        at compile time.
+
+        therefore, is something overflows,
+        it just silently fails overflows, possibly causing a hard to find bug
+
+        there is no check because that would cost time on every basice operation.
+    */
+    {
+
+        //char c = 256;
+        //char c = 255+1;
+        //unsigned char c = 257;
+            //WARN
+
+        //lli = 0x10000000000000000;
+            //WARN constant too large (even for long long, the largest type)
+
+        //char c = 255;
+        //c++;
+            //WARN
+
+        assert( 1.00000000000000000000000000000000000000000000001 == 1.0 );
+            //OK
+            //lost of precision is not checked
+    }
+
+    /*
+    #typecast
+
+        transformation of one datatype to another
+
+        can be done either implicitly or explicitly via a typecast operator
+
+        some convertions may be possible to do implicitly
+        but generate compiler warnings when done implicitly.
+        this may depend on the compilation flags used
+
+        some convertions always generate compilation errors.
+
+        TODO understand this better
+    */
+    {
+        //#typecasts with data modification
+
+            //some typecasts are possible, but may alter the data to fit the new type
+
+            //doubles are rounded down on typecast to int:
+
+                assert( (int)0.1 == 0 );
+
+            //implicit typecast based on the variable type
+            //once again, the double is rounded down:
+
+                {
+                    int i;
+                    i = 0.1;
+                    assert( i == 0 );
+                }
+
+            //long to int: there may be loss of precision if the long is too large to fit into the int
+
+                //assert( (int) 0xFFFFFFFFFFL != 0xFFFFFFFFFF );
+
+            //it is not possible to be sure about the exact values since the size of ints and longs
+            //is not fixed by ansi, but they can happen!
+
+        //#typecasts without data modification
+
+            //if you convert a type to a type that is similar (floating point -> floating point)
+            //but larger in size, there will be no modification of the data
+
+            //int to long:
+
+                assert( (long) 1 == 1L );
+
+            //float to double:
+
+                assert( (double) 1.0f == 1.0 );
+
+            //array to pointer of same type:
+
+                {
+                    int is[3];
+                    int* ip = (int*)is;
+                }
+
+        //#impossible typecats
+        {
+
+            //certain typecasts always generates compilation errors
+
+            //implicit pointer to int is impossible:
+
+                //{
+                //    int* ip;
+                //    int i;
+                //    i = ip;
+                //}
+
+            //pointer to float is impossible even with explicit typecast:
+
+                //{
+                //    int* ip;
+                //    float f;
+                //    f = (float)ip;
+                //}
+
+            //pointers of different types,
+            //even if types for which data can be converted like floats and doubles:
+
+                //{
+                //    float* fp;
+                //    double* dp;
+                //    dp = fp;
+                //}
+
+            //the big exception to this are void pointers, which can be converted
+            //to/from any other type
+
+            //array to array of different size:
+
+                //{
+                //    int is1[1];
+                //    int is2[2];
+                //    is2 = (int[])is1;
+                //}
+        }
+    }
+
+    //#const
+    {
+        int i = 0;
+        const int ic = 0;
+        //int const ic = 0
+            //exact same thing!
+        const int ic2 = i;
+
+        /*
+        ERROR: consts are... almost consts!
+
+        almost because you can change them with only a warning
+        */
+        {
+            //const int ic = 0;
+            //ic = 1;
+        }
+
+        /*
+        WARN: discards const. in c++, error!
+
+        we changed the const with only a warning
+
+        this is why you can't int is[constint]; unless you have variable size arrays
+        */
+        {
+            //const int ic = 0
+            //int* ip = &ic;
+            //*ip = 1;
+            //assert( ic == 1 ):
+        }
+
+        //const pointers
+        {
+            //3 types:
+                //const*
+                //*const
+                //const*const
+
+            const int* cip = &ic;
+            //SAME
+                //int const* icp = &ic;
+            cip = &ic2;
+            //ERROR: const prevents from changing value
+                //*cip = 2;
+
+            const int ic3;
+                //BAD
+                //compiles without warning, but is bad since ic3 cannot get a value
+                //unless you typecast its pointer with a warning
+
+            //int * const ipc = &ic;
+                //WARN
+
+            //ipc = &ic2;
+                //ERROR: this time what the address the pointer points to is constant
+                //not its value!
+            //*ipc = 2;
+                //BAD: we changed the value!
+
+            const int* const cipp = &ic;
+
+            const int cis2[2] = {1,2};
+            //ERROR
+                //cis2[0] = 1;
+        }
+
+        {
+            //scanf("%d",&i);
+                //works
+                //NOTE
+                //consts are *not* "compile time constants"
+                //they are only constant after they are declared
+                //this is another reason why you can't use them
+                //as arrays sizes without VLA
+        }
+    }
+
+    /*
+    #automatic
+
+        is the name for the default way to declare var
+        that is not volatile neither register
+    */
+    {
+        int i;
+    }
+
+    /*
+    #volatile
+
+        compiler will not store this value in cpu registers as optimization
+        instead of in RAM
+
+        application: multithreading, where variable may to change value at any time
+        if value were stored in register, other threads could not modify it
+    */
+    {
+        volatile int vi;
+    }
+
+    /*
+    #register
+
+        hint to compiler that ri be stored in register
+        instead of in RAM
+
+        not necessarily honored
+
+        almost always done without a hint if possible
+    */
+    {
+        {
+            register int ri;
+        }
+
+        //ERROR: cpu registers don't have addresses!
+        {
+            //register int ri;
+            //int* ip = &ri;
+        }
+
+        /*
+        BAD: impossible to store compound type in registers
+        compiler will certainly not honor `register` hint
+        */
+        {
+            struct S { int i; };
+            register struct S s;
+        }
+    }
+
+    /*
+    #inline keyword
+
+        function is copied pasted instead of called
+
+        effects:
+
+        - avoids function call, thus potentially faster
+        - code gets larger
+        - function pointer comparisons may differ for the same function
+        - instruction cache might be come less efficient making thigs slower
+
+        sources:
+
+        - <http://www.greenend.org.uk/rjk/tech/inline.html>
+
+            some warnings about inline and its usage
+    */
+
+    /*
+    #restrict keyword
+
+        c99
+
+        <http://en.wikipedia.org/wiki/Restrict>
+    */
+
+    /*
+    #typedef
+
+        create new types based on old ones
+
+        on stdlib, convention append `_t` to typedefs is used
+        ex: `size_t`, `wchar_t`, etc
+    */
+    {
 
         {
             typedef int NEWINT;
@@ -1423,7 +1525,7 @@ int main( int argc, char** argv )
             //typedef has scope
     }
 
-    //enum
+    //#enum
     {
         {
             enum E
@@ -1678,7 +1780,7 @@ int main( int argc, char** argv )
             assert( ( 6 % 3 ) == 0 );
         }
 
-        //boolean
+        //#boolean
         {
             assert( ( 1 == 1 ) == 1 );
             assert( ( 0 == 1 ) == 0 );
@@ -1753,12 +1855,12 @@ int main( int argc, char** argv )
 
                 why?
 
-                - because it takes less program memory ``inc eax``, instead of ``sum eax,1``
+                - because it takes less program memory `inc eax`, instead of `sum eax,1`
                 - and is a *very* common instruction
 
                 what about +=, -=, etc. ?
 
-                same thing: ``ax = ax + bx`` == ``sum ax,bx``
+                same thing: `ax = ax + bx` == `sum ax,bx`
             */
 
                 i=0;
@@ -1815,859 +1917,874 @@ int main( int argc, char** argv )
         }
 
         /*
-        #pointer
+        #comma operator
 
-            pointers contain addresses of variables instead of the value
+            almost useless
         */
         {
-            int i;
-            int* pi, *pi2;
-            //*pi = 7;
-                //BAD
-                //you are modifying some random piece of memory!!!!
-                //must declare like that: multiple stars
-            pi = &i;
-            *pi = 1;
-            assert( i == 1 );
-            assert( *pi == 1 );
-            i = 2;
-            assert( i == 2 );
-            assert( *pi == 2 );
-
-            printf( "(void*)pi = %p\n", (void*)pi );
-            printf( "(void*)(pi+1) = %p\n",(void*)(pi+1) );
-
-            //OK: implicit conversion * -> int:
-
-                pi2 = pi + 1;
-                printf( "(void*)(pi2-pi) = %p\n", (void*)(pi2-pi) );
-                assert( pi2 - pi == 1 );
-
-            //ERROR: incompatible pointer type
-
-                //float* fp = &i;
-
-            //OK: works with explicit cast:
-
-                float* fp = (float*)&i;
+            //comma here is separator, not operator. same comma in functions calls/defs:
+            int i=0, a=1, b=2, c=3;
 
             /*
-            #NULL pointer
+            ignores values on left
+            takes only last value on right
 
-                good source: <http://c-faq.com/null/macro.html>
-
-                basic usage: indicate error as return value from function
-
-                why it works: it never points to any possible valid memory location.
-                    (`&` operator never gives anything equal to it)
+            BAD: operations on left has no effect
             */
-
-                //how it prints like:
-
-                    printf( "NULL = %p\n", NULL );
-
-                //`if(NULL)` and `if(!NULL)` in error checking code always work as expected
-
-                    assert( !NULL );
-
-                /*
-                    relationship to 0: `(int*)0`, `(char*)0` or any other pointer type followed by zero
-                    is always converted internally to the null pointer
-
-                    this is a valid way of representing the null pointer,
-                    but it is better style to always use the `NULL` macro
-                */
-
-                    assert( NULL == (int*)0 );
-                    assert( NULL == (char*)0 );
-
-                //ERROR: comparison of distinct pointer types requires a cast:
-
-                    //assert( (int*)0 == (char*)0 );
-
-                /*
-                RUNTIME ERROR: segmentation fault:
-
-                    {
-                        int i = *(int*)NULL;
-                    }
-
-                never dereference the NULL pointer since it is guaranteed to point to nothing
-                */
-
-            /*
-            #void pointer
-
-                special pointer type (since there is no corresponding void data...)
-
-                cannot be dereferenced without typecast (since you don't know its size)
-
-                can be typecast to/from anything TODO confirm
-            */
-            {
-                void* vp;
-                int* ip;
-                int i = 0;
-
-                //int* to void*:
-
-                    vp = (void*)&i;
-
-                //void* to int*:
-
-                    ip = (int*)vp;
-
-                //void* to int:
-
-                    i = (int)vp;
-            }
-
-                /*
-                    #usage of the void pointer type
-
-                        should almost never be used since it gives little information to the compiler
-                        and code readers about the function of the variable.
-
-                        one libc ocurrence of void pointers is the return type of `malloc`:
-                        it is not aware of the type of data it returns, and it is usually typecast
-                        to whatever datatype needed.
-
-                        another possibility functions which require arguments where it is impossible to
-                        determine the type of the argument. For example, a function that takes a function,
-                        and parameters to that function. Here, the parameters are arbitrary. This is used
-                        on the ODE solver of the gnu project GSL.
-
-                        TODO add simple examples of valid usage
-                */
-        }
-
-        /*
-        #array
-
-            c arrays are simply lots of values put side by side on memory
-
-            because they are side by side, it is simple to get the nth value
-            quickly (random access), unless like, say, a linked list, in which
-            you have to go follow lots of links before you reach the searched value.
-
-            no bound check is done to avoid overhead.
-        */
-        {
-            {
-                {
-                    int is[3];
-                    is[0] = 0;
-                    is[1] = 1;
-                    is[2] = 2;
-                    assert( is[0] == 0 );
-                    assert( is[1] == 1 );
-                    assert( is[2] == 2 );
-                }
-
-                {
-                    int is[] = {0,1,2};
-                    assert( is[0] == 0 );
-                    assert( is[1] == 1 );
-                    assert( is[2] == 2 );
-                        //allocates exact size
-                    //is = {3,4,5};
-                        //ERROR
-                }
-
-                {
-                    int is[4] = {1,2};
-                    assert( is[0] == 1 );
-                    assert( is[1] == 2 );
-                    assert( is[2] == 0 );
-                    assert( is[3] == 0 );
-                }
-
-                {
-                    int is[4]  = {1,2};
-                    int is2[4] = {1,2};
-                    //is = is2;
-                        //ERROR
-                }
-
-                {
-                    //int is[2] = {1, 3, 2};
-                        //WARN too small
-                }
-
-                //#variable length array
-                {
-                    //enum
-                    {
-
-                        enum M {M=3};
-                        int is[M];
-                        is[2] = 1;
-
-                    }
-
-                    //define
-                    {
-#define DEFINESIZE 3
-                        //BAD
-                        //*no scope*, so you can't use N anymore.
-                        //use enum instead
-                        int is[DEFINESIZE];
-                        is[2] = 1;
-                    }
-
-                    //VLA
-                    {
-                        //- C99
-                        //- implementation:
-                            //increase/decrease stack pointer
-                            //requires one addition and one multiplication per declaration
-                        {
-                            int n = 2;
-                            //scanf( "%d", &n );
-                                //OK
-                            int isVla[n];
-                        }
-
-                        {
-                            //int n = 2;
-                            //int isVla[n] = { 1, 2 };
-                                //ERROR
-                                //cannot be initialized
-                        }
-
-                        {
-                            //const int n = 2;
-                            //int isVla[n] = { 1, 2 };
-                                //ERROR
-                                //cannot be initialized
-                        }
-                    }
-                }
-            }
-
-            //pointers and arrays are different
-            {
-                puts("pointers and arrays are different types:");
-                printf("sizeof(int) = %d\n",sizeof(int));
-                printf("sizeof(int*) = %d\n",sizeof(int*));
-                printf("sizeof(int[3]) = %d\n",sizeof(int[3]));
-                //printf("sizeof(int[]) = %d\n",sizeof(int[]));
-                    //ERROR
-                    //incomplete type!
-            }
-
-            //locations in memory of an array
-            {
-                int is[3];
-                puts("locations of array:");
-                printf("(void*)is = %p\n",(void*)is);
-                printf("(void*)&is[0] = %p\n",(void*)&is[0]);
-                printf("(void*)&is[1] = %p\n",(void*)&is[1]);
-                printf("(void*)&is[2] = %p\n",(void*)&is[2]);
-            }
-
-            //for combo
-            {
-                int is[] = {0,1,2};
-                int i;
-                for(i=0; i<3; i++ )
-                {
-                    printf("%d ",is[i]);
-                }
-            }
-
-            /*
-            #bounds breaking
-
-                time to break down the program by making this access memory
-                locations it should not try to access! =)
-
-                when the os sees that, it may crash down the program with a segmentation fault.
-
-                note however that this does not always happen, as a program may
-                just access another location inside its legal memory address space
-                but in a completelly unpredicatable manner, and the os has no way to it did this
-
-                this leads to very hard to debug errors, but is invitable if you want
-                to avoid the overhead of checking arrays bounds on every dereference
-            */
-            {
-
-                //printf("%d\n",is[3]);
-                //is[3]=0;
-                //printf("%d\n",is[1000000]);
-                //is[1000000]=0;
-
-                //for(i=0; i<=1000000000; i++ ){
-                //        printf("%d\n",i);
-                //        j=is[i];
-                //}
-                //    segmentation fault
-            }
-
-            //#compare arrays
-            {
-                //memcmp is faster than for loop
-                //one catch: float NaN
-
-                int is[]  = { 0, 1, 2 };
-                int is2[] = { 0, 1, 2 };
-
-                assert( is != is2 );
-                    //compares addresses, not data!
-
-                assert( memcmp( is, is2, 3 * sizeof(int)) == 0 );
-                is[1] = 0;
-                assert( memcmp( is, is2, 3 * sizeof(int)) < 0 );
-                is[1] = 2;
-                assert( memcmp( is, is2, 3 * sizeof(int)) > 0 );
-            }
-
-            //#memcpy
-            {
-                //copy memory
-
-                int is[] = {0,1,2};
-                int is2[3];
-
-                //for(i=0; i<3; i++ ){
-                //    is2[i] = is[i];
-                //}
-                    //SLOW
-                    //use memcpy insted
-
-                memcpy(is2,is,3*sizeof(int));
-                    //copy 3*4 bytes from one is7 to is
-                    //more efficient than for: direct memory copyint, no i++ or i<n? check
-                assert( memcmp( is, is2, 3 * sizeof(int)) == 0 );
-
-                memcpy(&is, &(int [5]){ 0,1,2 }, sizeof(is) );
-                    //C99
-                assert( memcmp( is, &(int [5]){ 0,1,2 }, 3 * sizeof(int)) == 0 );
-            }
-
-            //#memset
-            {
-                //set memory block to a single value
-
-                char cs[] = "abcdef";
-                memset( cs + 2, '0', 3 );
-                assert( strcmp( cs, "ab000f" ) == 0 );
-            }
-
-            /*
-            #multidimentional arrays
-
-                before using this, always consider using single dimentional arrays,
-                which are much simpler to handle.
-
-                cases where this would be a better design choice:
-
-                TODO
-            */
-            {
-                int *m1[2];
-                int m11[] = { 1, 2, 3    };
-                int m12[] = { 4, 5, 6, 7 };
-                m1[0] = m11;
-                m1[1] = m12;
-
-                //error: cannot know    how much memory to allocate!
-                    //int m31[][3];
-
-                //error: = {...} works only at declaration
-                    //int m111[2][3];
-                    //m111[0] = &(int*[3]){1,2,3};
-
-                int m2[][3] =
-                {
-                    { 1, 2, 3 },
-                    { 4, 5, 6 }
-                };
-                //allocates the exact ammount: 2 pointeres to int[3]
-
-                int m3[3][3] =
-                {
-                    { 1, 2, 3 },
-                    { 4, 5, 6 }
-                };
-                //allocates 3x3, fills only 2x3. the rest is 0 or m3[0] gets a NULL pointer?
-
-                //error: last must be there
-                    //int m3[][] =
-                    //{
-                    //    { 1, 2, 3    },
-                    //    { 4, 5, 6, 7 }
-                    //};
-                    //
-                    //reason:
-                    //    this is array of m[3] arrays!!
-                    //    the data on an array is sequentially written to RAM
-                    //    and all of its elements have a fixed size (so they can be indexed!)
-                    //
-                    //    if you don't know the sizeof(m[3]), (and you don't know the sizeof(m[]!))
-                    //    you can't put all those m[3] sequentially on the RAM.
-                    //
-                    //    the compiler could look at each element of the initialization
-                    //    and ensure they all have the *same size*, and then take that size,
-                    //    but this would take a long time, so it just forces the user to input this
-
-                        {
-                            //pass multidimentional arrays to functions
-                            puts("\npass multidim to func:");
-                            //*never do that*: pass an array, and give m and n
-                            //this is just to understand arrays better.
-                            enum { mc=2 };
-                            int* mat[mc]; //two int pointers
-                            int mat1[][3] =
-                            {
-                                { 1, 2, 3 },
-                                { 4, 5, 6 }
-                            };
-                            int i;
-                            for( i = 0; i < mc; i++ )
-                            {
-                                mat[i] = mat1[i]; //first points to the int at address 0 of the matrix mat1
-                            }
-                            print_array(mat,2,3);
-                        }
-
-                //multidimentional > 2
-
-                    int m4[][2][3] =
-                    {
-                        { { 1, 2, 3 }, { 4 , 5,  6 } },
-                        { { 7, 8, 9 }, { 10, 11, 12} }
-                    };
-                    //allocates exact amount for first: 2x2x2
-
-                    int m41[3][2][3] =
-                    {
-                        { { 1, 2, 3 }, { 4 , 5,  6 } },
-                        { { 7, 8, 9 }, { 10, 11, 12} }
-                    };
-                    //allocates one extra for first dimension
-
-                    //error: only first can be empty
-                        //int m4[][][2] = {
-                        //    {{1,2},{3,4}},
-                        //    {{5,6},{7,8}}
-                        //};
-
-                enum { mc=2, nc=4 };
-                int m5[mc][nc];
-
-                //error: TODO ? why
-                    //int m6[][nc] = {
-                    //    {1,2,3},
-                    //    {4,5,6}
-                    //};
-
-                    //int m7[mc][nc] = {
-                    //    {1,2,3},
-                    //    {4,5,6}
-                    //};
-
-                //matrix pattern
-                {
-                    int i, j;
-                    for( i = 0; i < 2; i++ )
-                    {
-                        printf( "\n" );
-                        for( j = 0; j < 3; j++ )
-                        {
-                            printf( "%d ", m1[i][j] );
-                        }
-                    }
-                    printf( "\n\n" );
-                }
-            }
-
-            /*
-            #string
-
-                by convention, *c strings* are simply char arrays
-                terminated by the null character
-
-                this convention is used throughout libc string functions,
-                such as `printf`, `strcmp` and others
-                so that you don't have to pass an additional size parameter to them
-                (those functions stop operating when they see the first null char)
-
-                nothing prevents you from making a "string" that contains a null char,
-                except that you will break a very well stabilished convention,
-                and libc functions will not work properly with it...
-
-                if you absolutelly need a "string" with a null char, just use regular
-                array functions to manipulate it, and pass string lengths around
-            */
-            {
-                {
-                    char cs[] = "abc";
-
-                    //this is exactly equivalent to:
-
-                        //char cs[] = { 'a', 'b', 'c', '\0' }
-
-                    //but much harder to write
-                    //and you may forget the terminating '\0'
-
-                    assert( cs[0] == 'a'  );
-                    assert( cs[1] == 'b'  );
-                    assert( cs[2] == 'c'  );
-                    assert( cs[3] == '\0' );
-
-                    cs[0] = 'A';
-                    assert( strcmp(cs, "Abc") == 0 );
-
-                    //ERROR: you cannot assign a tring to memory like this,
-                    //except at initialization
-
-                        //cs = "Abc";
-
-                    //you probably want [strcpy][]
-                }
-
-                /*
-                #text segment
-
-                    c allows you to point directly to the text segment
-
-                    in short, the text segment is the part of RAM memory reserved to a process
-                    that contains the instructions of the process, and not, say, regular variables.
-
-                    process are not allows to modify those intructions at runtime,
-                    and therefore you cannot modify strings that point to the text segment.
-
-                    using text segment pointers has the upside of being memory efficient as you
-                    don't copy the text from
-
-                    note however that you cannot modify that string
-                */
-                {
-                    //to create a pointer to text segment, initialize it as follows:
-
-                        char* cs = "abc";
-                        assert( cs[0] == 'a' );
-
-                    //RUNTIME ERROR: text segment cannot be modified
-
-                        //cs[0] = '0';
-
-                    //TODO why can't you do the same thing with integers? ex:
-
-                        //int * is = { 1, 3, 2 };
-                }
-
-                //#string literals
-                {
-                    //escape chars in string conts
-                    {
-                        puts("escape chars:");
-                        puts(">>>\"<<< double quotes");
-                        puts(">>>\\<<< backslash");
-                        puts(">>>\n<<< new line");
-                        puts(">>>\t<<< tab char");
-                        puts(">>>\f<<< feed char");
-                        puts(">>>\v<<< vertical tab");
-                        puts(">>>\r<<< carriage return");
-                        printf(">>>%c<<< null char\n",'\0');
-                        puts(">>>\x61<<< a in hexadecimal");
-                        puts(">>>\xe4\xb8\xad<<< zhong1, chinese for \"middle\" in utf8");  //chinese utf8
-                    }
-
-                    //string literals may be concatenated
-                    //no spaces are implied
-                    {
-                        char cs[] = "ab" "cd";
-                        assert( strcmp( cs, "abcd" ) == 0 );
-
-                        //this cannot be done with variables,
-                        //but can be useful if you have a string that is defined in a macro:
-                        {
-#define STRING_AB "ab"
-                            char cs[] = STRING_AB "cd";
-                            assert( strcmp( cs, "abcd" ) == 0 );
-                        }
-
-                        //another application is to break a long string literal over severl lines
-                        //no newline is implied
-                        {
-                            char cs[] = "ab"
-                                        "cd";
-                            assert( strcmp( cs, "abcd" ) == 0 );
-                        }
-                    }
-                }
-
-                //#libc string functions
-                {
-                    //use '\0' to see ther string ends
-
-                    //#sprintf
-                    {
-                        //for the possible formatrings, see [printf][]
-
-                        char cs[] = "123";
-                        char cs2[4];
-                        sprintf( cs2, "%s", cs );
-                        assert( strcmp( cs, cs2 ) == 0 );
-                    }
-
-                    /*
-                    #snprintf
-
-                        like `sprintf`, but writes at most n bytes, so it is safer,
-                        because it may not be possible or easy to calculate the resulting
-                        size of a formated string.
-
-                        NOTE: the size given *includes* the null terminator
-
-                        c99
-                    */
-                    {
-                        char cs[] = "123";
-                        char cs2[3];
-                        snprintf( cs2, 3, "%s", cs );
-                        assert( strcmp( cs2, "12" ) == 0 );
-                    }
-
-                    //#length
-                    {
-                        char cs[] = "abc";
-                        assert( strlen( cs ) == 3 );
-                    }
-
-                    //#copy
-                    {
-                        char cs[] = "abc";
-                        char cs2[4];
-                        char cs3[1];
-
-                        strcpy( cs2, cs );
-                            //more efficient than for loop
-                        strcpy( cs2, "abc" );
-                            //OK
-                        //strcpy( cs3, "abc" );
-                            //BAD
-                            //no born checking as always
-                    }
-
-                    //#compare
-                    {
-                        char cs[] = "abc";
-                        char cs2[] = "abc";
-                        assert( strcmp( cs, cs2 ) == 0 );
-                        assert( strcmp( cs, "abc" ) == 0 );
-                            //equality
-                        cs[1] = 'a';
-                        assert( strcmp( cs, cs2 ) < 0 );
-                            //smaller
-                        cs[1] = 'd';
-                        assert( strcmp( cs, cs2 ) > 0 );
-                            //larget
-                    }
-
-                    //#concatenate
-                    {
-
-                        char s1[5];
-                        strcpy( s1, "ab" );
-                        char s2[] = "cd";
-                        strcat( s1, s2 );
-                        assert( strcmp( s1, "abcd" ) == 0 );
-                        assert( strcmp( s2, "cd"   ) == 0 );
-                    }
-
-                    //#strchr
-                    {
-                        //search for char in string
-                        //return pointer to that char if found
-                        //return null if not found
-                        {
-                            char cs[] = "abcb";
-                            assert( strchr( cs, 'b' ) == cs + 1 );
-                            assert( strchr( cs, 'd' ) == NULL );
-                        }
-
-                        //find all occurences of c in cs
-                        {
-                            //no direct std for this
-
-                            char cs[] = "abcb";
-                            char* cp;
-                            char c = 'b';
-                            int is[] = { 1, 3 };
-
-                            int i = 0;
-                            cp = strchr( cs, c );
-                            while( cp != NULL )
-                            {
-                                assert( cp - cs == is[i] );
-                                cp = strchr( cp + 1, c );
-                                ++i;
-                            }
-                        }
-                    }
-
-                    /*
-                    #ctype
-
-                        character classficiation functions
-                    */
-
-                        //#isspace
-
-                            assert(   isspace( ' '  ) );
-                            assert(   isspace( '\n' ) );
-                            assert( ! isspace( 'a'  ) );
-
-                        //#isdigit
-
-                            assert(   isdigit('0') );
-                            assert( ! isdigit('a') );
-                }
-
-                //#unicode
-                {
-                    char cs[] = "汉语";
-                    printf("%s\n",cs);
-
-                    //cs[0] = 'a';
-                    //printf("%s\n",cs);
-                        //BAD
-                        //only changes first byte
-                        //you get trash all over
-
-                    //cs[0] = '英';
-                        //WARN
-
-                    setlocale( LC_CTYPE, "" );
-                        //NOTE
-                        //need this to print correctly
-
-                    wchar_t  wcs[] = L"汉语";
-
-                    printf( "%ls\n", wcs );
-
-                    wcs[0] = L'英';
-                    printf( "%ls\n", wcs );
-
-                    wcs[0] = L'a';
-                    printf( "%ls\n", wcs );
-
-                    //wchar_t  wideString2[] = "asdf";
-                        //ERROR
-                        //non wide init
-                }
-            }
-        }
-
-        /*
-        #dynamic allocation #malloc
-
-            allocates ammounts of memory that are only known at runtime,
-            not compile time.
-
-            #dynamic allocation vs VLA
-
-            - no scope
-
-                therefore can be allocated in functions
-                and returned to caller
-
-            - heap much larger than stack
-        */
-        {
-            int i = 8;
-            size_t bytes = sizeof( char ) * i;
-            char* cp = (char*) malloc( bytes );
-            if ( cp == NULL )
-            {
-                printf("could not allocate %zu bytes", bytes);
-            }
-            free( cp );
-
-            /*
-            if you try to allocate too much memory,
-            `malloc` may fail, or your os will eventually decide to kill your naughty program
-
-            time to try that out!
-            */
-            {
-                //TODO 0 how to pass more than INT_MAX to malloc to break it? =)
-
-                if ( 0 )
-                {
-                    size_t n = 1024 * 1024 * 1024;
-                    int* ip = malloc( n );
-                    if ( ip == NULL )
-                    {
-                        printf( "could not allocate %zu bytes", n );
-                    }
-                    free( ip );
-                }
-
-                //allocate 1024 Petabytes of RAM in 1 gb chunks!!!
-                //someday this will be possible and people will laugh at this...
-                //generates a segfault
-                if ( 0 )
-                {
-                    const size_t GB = 1024 * 1024 * 1024;
-                    for ( int i = 0; i < GB; i++ )
-                    {
-                        int* ip = malloc( GB );
-                        ip[0] = 0;
-                        if ( ip == NULL )
-                        {
-                            printf( "could not allocate %zu bytes", GB );
-                        }
-                    }
-                }
-            }
-        }
-
-        //comma operator
-        {
-            //almost useless
-            int i=0, a=1, b=2, c=3; //comma here is separator, not operator. same comma in functions calls/defs
-
             assert( ( i = 0, 1        ) == 1 );
             assert( ( i = 0, i = 1, 2 ) == 2 );
-                //ignores values on left
-                //takes only last value on right
-                //
-                //WARN
-                //operations on left has no effect
 
-            i = 2;
-            (i = 0), 1;
-            i = 0, 1;
-            assert( i == 0);
-                //assign has precedence
-                //
-                //WARN
-                //operation on right has no effect
+            /*
+            assign has precedence over comma
+            BAD: operation on right has no effect
+            */
+            {
+                i = 2;
+                (i = 0), 1;
+                i = 0, 1;
+                assert( i == 0);
+            }
 
             //int j=0, 1;
                 //ERROR
                 //declaration int j does not return a value
 
-            i=2;
-            assert( (i=0, i) == 0);
-            i=2;
-            assert( (i=0, i++, i) == 1);
-                //operation on left comes first
+            //operation on left comes first
+            {
+                i=2;
+                assert( (i=0, i) == 0);
+                i=2;
+                assert( (i=0, i++, i) == 1);
+            }
         }
     }
 
-    //branching
+    /*
+    #pointer
+
+        pointers contain addresses of variables instead of the value
+
+        using the dereference operator `*`, you can get the value from the address
+    */
+    {
+        int i;
+        int* pi, *pi2;
+        //*pi = 7;
+            //BAD
+            //you are modifying some random piece of memory!!!!
+            //must declare like that: multiple stars
+        pi = &i;
+        *pi = 1;
+        assert( i == 1 );
+        assert( *pi == 1 );
+        i = 2;
+        assert( i == 2 );
+        assert( *pi == 2 );
+
+        printf( "(void*)pi = %p\n", (void*)pi );
+        printf( "(void*)(pi+1) = %p\n",(void*)(pi+1) );
+
+        //OK: implicit conversion * -> int:
+
+            pi2 = pi + 1;
+            printf( "(void*)(pi2-pi) = %p\n", (void*)(pi2-pi) );
+            assert( pi2 - pi == 1 );
+
+        //ERROR: incompatible pointer type
+
+            //float* fp = &i;
+
+        //OK: works with explicit cast:
+
+            float* fp = (float*)&i;
+
+        /*
+        #NULL pointer
+
+            good source: <http://c-faq.com/null/macro.html>
+
+            basic usage: indicate error as return value from function
+        */
+        {
+            //why it works: it never points to any possible valid memory location.
+            //(`&` operator never gives anything equal to it).
+            //this is so guaranteed that gcc emmits a warning in the following code
+            {
+                //int i = 0;
+                //assert( &i != NULL );
+            }
+
+            //how it prints like:
+
+                printf( "NULL = %p\n", NULL );
+
+            //`if(NULL)` and `if(!NULL)` in error checking code always work as expected
+
+                assert( !NULL );
+
+            /*
+                relationship to 0: `(int*)0`, `(char*)0` or any other pointer type followed by zero
+                is always converted internally to the null pointer
+
+                this is a valid way of representing the null pointer,
+                but it is better style to always use the `NULL` macro
+            */
+            {
+                assert( NULL == (int*)0 );
+                assert( NULL == (char*)0 );
+            }
+
+            //ERROR: comparison of distinct pointer types requires a cast:
+            {
+                //assert( (int*)0 == (char*)0 );
+            }
+
+            //never dereference the NULL pointer since it is guaranteed to point to nothing
+            {
+                //RUNTIME ERROR: segmentation fault
+                    //int i = *(int*)NULL;
+            }
+        }
+
+        /*
+        #void pointer
+
+            special pointer type (since there is no corresponding void data...)
+
+            cannot be dereferenced without typecast (since you don't know its size)
+
+            can be typecast to/from anything TODO confirm
+        */
+        {
+            void* vp;
+            int* ip;
+            int i = 0;
+
+            //int* to void*:
+
+                vp = (void*)&i;
+
+            //void* to int*:
+
+                ip = (int*)vp;
+
+            //void* to int:
+
+                i = (int)vp;
+        }
+
+            /*
+                #usage of the void pointer type
+
+                    should almost never be used since it gives little information to the compiler
+                    and code readers about the function of the variable.
+
+                    one libc ocurrence of void pointers is the return type of `malloc`:
+                    it is not aware of the type of data it returns, and it is usually typecast
+                    to whatever datatype needed.
+
+                    another possibility functions which require arguments where it is impossible to
+                    determine the type of the argument. For example, a function that takes a function,
+                    and parameters to that function. Here, the parameters are arbitrary. This is used
+                    on the ODE solver of the gnu project GSL.
+
+                    TODO add simple examples of valid usage
+            */
+    }
+
+    /*
+    #array
+
+        c arrays are simply lots of values put side by side on memory
+
+        because they are side by side, it is simple to get the nth value
+        quickly (random access), unless like, say, a linked list, in which
+        you have to go follow lots of links before you reach the searched value.
+
+        no bound check is done to avoid overhead.
+    */
+    {
+        {
+            {
+                int is[3];
+                is[0] = 0;
+                is[1] = 1;
+                is[2] = 2;
+                assert( is[0] == 0 );
+                assert( is[1] == 1 );
+                assert( is[2] == 2 );
+            }
+
+            {
+                int is[] = {0,1,2};
+                assert( is[0] == 0 );
+                assert( is[1] == 1 );
+                assert( is[2] == 2 );
+                    //allocates exact size
+                //is = {3,4,5};
+                    //ERROR
+            }
+
+            {
+                int is[4] = {1,2};
+                assert( is[0] == 1 );
+                assert( is[1] == 2 );
+                assert( is[2] == 0 );
+                assert( is[3] == 0 );
+            }
+
+            {
+                int is[4]  = {1,2};
+                int is2[4] = {1,2};
+                //is = is2;
+                    //ERROR
+            }
+
+            {
+                //int is[2] = {1, 3, 2};
+                    //WARN too small
+            }
+
+            //#variable length array
+            {
+                //enum
+                {
+
+                    enum M {M=3};
+                    int is[M];
+                    is[2] = 1;
+
+                }
+
+                //define
+                {
+#define DEFINESIZE 3
+                    //BAD
+                    //*no scope*, so you can't use N anymore.
+                    //use enum instead
+                    int is[DEFINESIZE];
+                    is[2] = 1;
+                }
+
+                //VLA
+                {
+                    //- C99
+                    //- implementation:
+                        //increase/decrease stack pointer
+                        //requires one addition and one multiplication per declaration
+                    {
+                        int n = 2;
+                        //scanf( "%d", &n );
+                            //OK
+                        int isVla[n];
+                    }
+
+                    {
+                        //int n = 2;
+                        //int isVla[n] = { 1, 2 };
+                            //ERROR
+                            //cannot be initialized
+                    }
+
+                    {
+                        //const int n = 2;
+                        //int isVla[n] = { 1, 2 };
+                            //ERROR
+                            //cannot be initialized
+                    }
+                }
+            }
+        }
+
+        //pointers and arrays are different
+        {
+            puts("pointers and arrays are different types:");
+            printf("sizeof(int) = %d\n",sizeof(int));
+            printf("sizeof(int*) = %d\n",sizeof(int*));
+            printf("sizeof(int[3]) = %d\n",sizeof(int[3]));
+            //printf("sizeof(int[]) = %d\n",sizeof(int[]));
+                //ERROR
+                //incomplete type!
+        }
+
+        //locations in memory of an array
+        {
+            int is[3];
+            puts("locations of array:");
+            printf("(void*)is = %p\n",(void*)is);
+            printf("(void*)&is[0] = %p\n",(void*)&is[0]);
+            printf("(void*)&is[1] = %p\n",(void*)&is[1]);
+            printf("(void*)&is[2] = %p\n",(void*)&is[2]);
+        }
+
+        //for combo
+        {
+            int is[] = {0,1,2};
+            int i;
+            for(i=0; i<3; i++ )
+            {
+                printf("%d ",is[i]);
+            }
+        }
+
+        /*
+        #bounds breaking
+
+            time to break down the program by making this access memory
+            locations it should not try to access! =)
+
+            when the os sees that, it may crash down the program with a segmentation fault.
+
+            note however that this does not always happen, as a program may
+            just access another location inside its legal memory address space
+            but in a completelly unpredicatable manner, and the os has no way to it did this
+
+            this leads to very hard to debug errors, but is invitable if you want
+            to avoid the overhead of checking arrays bounds on every dereference
+        */
+        {
+
+            //printf("%d\n",is[3]);
+            //is[3]=0;
+            //printf("%d\n",is[1000000]);
+            //is[1000000]=0;
+
+            //for(i=0; i<=1000000000; i++ ){
+            //        printf("%d\n",i);
+            //        j=is[i];
+            //}
+            //    segmentation fault
+        }
+
+        //#compare arrays
+        {
+            //memcmp is faster than for loop
+            //one catch: float NaN
+
+            int is[]  = { 0, 1, 2 };
+            int is2[] = { 0, 1, 2 };
+
+            assert( is != is2 );
+                //compares addresses, not data!
+
+            assert( memcmp( is, is2, 3 * sizeof(int)) == 0 );
+            is[1] = 0;
+            assert( memcmp( is, is2, 3 * sizeof(int)) < 0 );
+            is[1] = 2;
+            assert( memcmp( is, is2, 3 * sizeof(int)) > 0 );
+        }
+
+        //#memcpy
+        {
+            //copy memory
+
+            int is[] = {0,1,2};
+            int is2[3];
+
+            //for(i=0; i<3; i++ ){
+            //    is2[i] = is[i];
+            //}
+                //SLOW
+                //use memcpy insted
+
+            memcpy(is2,is,3*sizeof(int));
+                //copy 3*4 bytes from one is7 to is
+                //more efficient than for: direct memory copyint, no i++ or i<n? check
+            assert( memcmp( is, is2, 3 * sizeof(int)) == 0 );
+
+            memcpy(&is, &(int [5]){ 0,1,2 }, sizeof(is) );
+                //C99
+            assert( memcmp( is, &(int [5]){ 0,1,2 }, 3 * sizeof(int)) == 0 );
+        }
+
+        //#memset
+        {
+            //set memory block to a single value
+
+            char cs[] = "abcdef";
+            memset( cs + 2, '0', 3 );
+            assert( strcmp( cs, "ab000f" ) == 0 );
+        }
+
+        /*
+        #multidimentional arrays
+
+            before using this, always consider using single dimentional arrays,
+            which are much simpler to handle.
+
+            cases where this would be a better design choice:
+
+            TODO
+        */
+        {
+            int *m1[2];
+            int m11[] = { 1, 2, 3    };
+            int m12[] = { 4, 5, 6, 7 };
+            m1[0] = m11;
+            m1[1] = m12;
+
+            //error: cannot know    how much memory to allocate!
+                //int m31[][3];
+
+            //error: = {...} works only at declaration
+                //int m111[2][3];
+                //m111[0] = &(int*[3]){1,2,3};
+
+            int m2[][3] =
+            {
+                { 1, 2, 3 },
+                { 4, 5, 6 }
+            };
+            //allocates the exact ammount: 2 pointeres to int[3]
+
+            int m3[3][3] =
+            {
+                { 1, 2, 3 },
+                { 4, 5, 6 }
+            };
+            //allocates 3x3, fills only 2x3. the rest is 0 or m3[0] gets a NULL pointer?
+
+            //error: last must be there
+                //int m3[][] =
+                //{
+                //    { 1, 2, 3    },
+                //    { 4, 5, 6, 7 }
+                //};
+                //
+                //reason:
+                //    this is array of m[3] arrays!!
+                //    the data on an array is sequentially written to RAM
+                //    and all of its elements have a fixed size (so they can be indexed!)
+                //
+                //    if you don't know the sizeof(m[3]), (and you don't know the sizeof(m[]!))
+                //    you can't put all those m[3] sequentially on the RAM.
+                //
+                //    the compiler could look at each element of the initialization
+                //    and ensure they all have the *same size*, and then take that size,
+                //    but this would take a long time, so it just forces the user to input this
+
+                    {
+                        //pass multidimentional arrays to functions
+                        puts("\npass multidim to func:");
+                        //*never do that*: pass an array, and give m and n
+                        //this is just to understand arrays better.
+                        enum { mc=2 };
+                        int* mat[mc]; //two int pointers
+                        int mat1[][3] =
+                        {
+                            { 1, 2, 3 },
+                            { 4, 5, 6 }
+                        };
+                        int i;
+                        for( i = 0; i < mc; i++ )
+                        {
+                            mat[i] = mat1[i]; //first points to the int at address 0 of the matrix mat1
+                        }
+                        print_array(mat,2,3);
+                    }
+
+            //multidimentional > 2
+
+                int m4[][2][3] =
+                {
+                    { { 1, 2, 3 }, { 4 , 5,  6 } },
+                    { { 7, 8, 9 }, { 10, 11, 12} }
+                };
+                //allocates exact amount for first: 2x2x2
+
+                int m41[3][2][3] =
+                {
+                    { { 1, 2, 3 }, { 4 , 5,  6 } },
+                    { { 7, 8, 9 }, { 10, 11, 12} }
+                };
+                //allocates one extra for first dimension
+
+                //error: only first can be empty
+                    //int m4[][][2] = {
+                    //    {{1,2},{3,4}},
+                    //    {{5,6},{7,8}}
+                    //};
+
+            enum { mc=2, nc=4 };
+            int m5[mc][nc];
+
+            //error: TODO ? why
+                //int m6[][nc] = {
+                //    {1,2,3},
+                //    {4,5,6}
+                //};
+
+                //int m7[mc][nc] = {
+                //    {1,2,3},
+                //    {4,5,6}
+                //};
+
+            //matrix pattern
+            {
+                int i, j;
+                for( i = 0; i < 2; i++ )
+                {
+                    printf( "\n" );
+                    for( j = 0; j < 3; j++ )
+                    {
+                        printf( "%d ", m1[i][j] );
+                    }
+                }
+                printf( "\n\n" );
+            }
+        }
+
+        /*
+        #string
+
+            by convention, *c strings* are simply char arrays
+            terminated by the null character
+
+            this convention is used throughout libc string functions,
+            such as `printf`, `strcmp` and others
+            so that you don't have to pass an additional size parameter to them
+            (those functions stop operating when they see the first null char)
+
+            nothing prevents you from making a "string" that contains a null char,
+            except that you will break a very well stabilished convention,
+            and libc functions will not work properly with it...
+
+            if you absolutelly need a "string" with a null char, just use regular
+            array functions to manipulate it, and pass string lengths around
+        */
+        {
+            {
+                char cs[] = "abc";
+
+                //this is exactly equivalent to:
+
+                    //char cs[] = { 'a', 'b', 'c', '\0' }
+
+                //but much harder to write
+                //and you may forget the terminating '\0'
+
+                assert( cs[0] == 'a'  );
+                assert( cs[1] == 'b'  );
+                assert( cs[2] == 'c'  );
+                assert( cs[3] == '\0' );
+
+                cs[0] = 'A';
+                assert( strcmp(cs, "Abc") == 0 );
+
+                //ERROR: you cannot assign a tring to memory like this,
+                //except at initialization
+
+                    //cs = "Abc";
+
+                //you probably want [strcpy][]
+            }
+
+            /*
+            #text segment
+
+                c allows you to point directly to the text segment
+
+                in short, the text segment is the part of RAM memory reserved to a process
+                that contains the instructions of the process, and not, say, regular variables.
+
+                process are not allows to modify those intructions at runtime,
+                and therefore you cannot modify strings that point to the text segment.
+
+                using text segment pointers has the upside of being memory efficient as you
+                don't copy the text from
+
+                note however that you cannot modify that string
+            */
+            {
+                //to create a pointer to text segment, initialize it as follows:
+
+                    char* cs = "abc";
+                    assert( cs[0] == 'a' );
+
+                //RUNTIME ERROR: text segment cannot be modified
+
+                    //cs[0] = '0';
+
+                //TODO why can't you do the same thing with integers? ex:
+
+                    //int * is = { 1, 3, 2 };
+            }
+
+            //#string literals
+            {
+                //escape chars in string conts
+                {
+                    puts("escape chars:");
+                    puts(">>>\"<<< double quotes");
+                    puts(">>>\\<<< backslash");
+                    puts(">>>\n<<< new line");
+                    puts(">>>\t<<< tab char");
+                    puts(">>>\f<<< feed char");
+                    puts(">>>\v<<< vertical tab");
+                    puts(">>>\r<<< carriage return");
+                    printf(">>>%c<<< null char\n",'\0');
+                    puts(">>>\x61<<< a in hexadecimal");
+                    puts(">>>\xe4\xb8\xad<<< zhong1, chinese for \"middle\" in utf8");  //chinese utf8
+                }
+
+                //string literals may be concatenated
+                //no spaces are implied
+                {
+                    char cs[] = "ab" "cd";
+                    assert( strcmp( cs, "abcd" ) == 0 );
+
+                    //this cannot be done with variables,
+                    //but can be useful if you have a string that is defined in a macro:
+                    {
+#define STRING_AB "ab"
+                        char cs[] = STRING_AB "cd";
+                        assert( strcmp( cs, "abcd" ) == 0 );
+                    }
+
+                    //another application is to break a long string literal over severl lines
+                    //no newline is implied
+                    {
+                        char cs[] = "ab"
+                                    "cd";
+                        assert( strcmp( cs, "abcd" ) == 0 );
+                    }
+                }
+            }
+
+            //#libc string functions
+            {
+                //use '\0' to see ther string ends
+
+                //#sprintf
+                {
+                    //for the possible formatrings, see [printf][]
+
+                    char cs[] = "123";
+                    char cs2[4];
+                    sprintf( cs2, "%s", cs );
+                    assert( strcmp( cs, cs2 ) == 0 );
+                }
+
+                /*
+                #snprintf
+
+                    like `sprintf`, but writes at most n bytes, so it is safer,
+                    because it may not be possible or easy to calculate the resulting
+                    size of a formated string.
+
+                    NOTE: the size given *includes* the null terminator
+
+                    c99
+                */
+                {
+                    char cs[] = "123";
+                    char cs2[3];
+                    snprintf( cs2, 3, "%s", cs );
+                    assert( strcmp( cs2, "12" ) == 0 );
+                }
+
+                //#length
+                {
+                    char cs[] = "abc";
+                    assert( strlen( cs ) == 3 );
+                }
+
+                //#copy
+                {
+                    char cs[] = "abc";
+                    char cs2[4];
+                    char cs3[1];
+
+                    strcpy( cs2, cs );
+                        //more efficient than for loop
+                    strcpy( cs2, "abc" );
+                        //OK
+                    //strcpy( cs3, "abc" );
+                        //BAD
+                        //no born checking as always
+                }
+
+                //#compare
+                {
+                    char cs[] = "abc";
+                    char cs2[] = "abc";
+                    assert( strcmp( cs, cs2 ) == 0 );
+                    assert( strcmp( cs, "abc" ) == 0 );
+                        //equality
+                    cs[1] = 'a';
+                    assert( strcmp( cs, cs2 ) < 0 );
+                        //smaller
+                    cs[1] = 'd';
+                    assert( strcmp( cs, cs2 ) > 0 );
+                        //larget
+                }
+
+                //#concatenate
+                {
+
+                    char s1[5];
+                    strcpy( s1, "ab" );
+                    char s2[] = "cd";
+                    strcat( s1, s2 );
+                    assert( strcmp( s1, "abcd" ) == 0 );
+                    assert( strcmp( s2, "cd"   ) == 0 );
+                }
+
+                //#strchr
+                {
+                    //search for char in string
+                    //return pointer to that char if found
+                    //return null if not found
+                    {
+                        char cs[] = "abcb";
+                        assert( strchr( cs, 'b' ) == cs + 1 );
+                        assert( strchr( cs, 'd' ) == NULL );
+                    }
+
+                    //find all occurences of c in cs
+                    {
+                        //no direct std for this
+
+                        char cs[] = "abcb";
+                        char* cp;
+                        char c = 'b';
+                        int is[] = { 1, 3 };
+
+                        int i = 0;
+                        cp = strchr( cs, c );
+                        while( cp != NULL )
+                        {
+                            assert( cp - cs == is[i] );
+                            cp = strchr( cp + 1, c );
+                            ++i;
+                        }
+                    }
+                }
+
+                /*
+                #ctype
+
+                    character classficiation functions
+                */
+
+                    //#isspace
+
+                        assert(   isspace( ' '  ) );
+                        assert(   isspace( '\n' ) );
+                        assert( ! isspace( 'a'  ) );
+
+                    //#isdigit
+
+                        assert(   isdigit('0') );
+                        assert( ! isdigit('a') );
+            }
+
+            //#unicode
+            {
+                char cs[] = "汉语";
+                printf("%s\n",cs);
+
+                //cs[0] = 'a';
+                //printf("%s\n",cs);
+                    //BAD
+                    //only changes first byte
+                    //you get trash all over
+
+                //cs[0] = '英';
+                    //WARN
+
+                setlocale( LC_CTYPE, "" );
+                    //NOTE
+                    //need this to print correctly
+
+                wchar_t  wcs[] = L"汉语";
+
+                printf( "%ls\n", wcs );
+
+                wcs[0] = L'英';
+                printf( "%ls\n", wcs );
+
+                wcs[0] = L'a';
+                printf( "%ls\n", wcs );
+
+                //wchar_t  wideString2[] = "asdf";
+                    //ERROR
+                    //non wide init
+            }
+        }
+    }
+
+    /*
+    #dynamic allocation #malloc
+
+        allocates ammounts of memory that are only known at runtime,
+        not compile time.
+
+        #dynamic allocation vs VLA
+
+        - no scope
+
+            therefore can be allocated in functions
+            and returned to caller
+
+        - heap much larger than stack
+    */
+    {
+        int i = 8;
+        size_t bytes = sizeof( char ) * i;
+        char* cp = (char*) malloc( bytes );
+        if ( cp == NULL )
+        {
+            printf("could not allocate %zu bytes", bytes);
+        }
+        free( cp );
+
+        /*
+        if you try to allocate too much memory,
+        `malloc` may fail, or your os will eventually decide to kill your naughty program
+
+        time to try that out!
+        */
+        {
+            //TODO 0 how to pass more than INT_MAX to malloc to break it? =)
+
+            if ( 0 )
+            {
+                size_t n = 1024 * 1024 * 1024;
+                int* ip = malloc( n );
+                if ( ip == NULL )
+                {
+                    printf( "could not allocate %zu bytes", n );
+                }
+                free( ip );
+            }
+
+            //allocate 1024 Petabytes of RAM in 1 gb chunks!!!
+            //someday this will be possible and people will laugh at this...
+            //generates a segfault
+            if ( 0 )
+            {
+                const size_t GB = 1024 * 1024 * 1024;
+                for ( int i = 0; i < GB; i++ )
+                {
+                    int* ip = malloc( GB );
+                    ip[0] = 0;
+                    if ( ip == NULL )
+                    {
+                        printf( "could not allocate %zu bytes", GB );
+                    }
+                }
+            }
+        }
+    }
+
+    //#branching
     {
 
-        //goto
+        //#goto
         {
             //never use this
-            //tranlates to ``jmp`` in x86 isa
+            //tranlates to `jmp` in x86 isa
 
             goto a;
                 assert(0);
@@ -2675,9 +2792,9 @@ int main( int argc, char** argv )
             assert(1);
         }
 
-        //if
+        //#if
         {
-            if(-1)
+            if ( -1 )
             {
                 assert(1);
             }
@@ -2685,85 +2802,47 @@ int main( int argc, char** argv )
             {
                 assert(0);
             }
-            if(1)
+            if ( 1 )
             {
                 assert(1);
             }
 
-            //scope
+            //#scope
             {
                 int i = 0;
-                if(1)
+                if ( 1 )
                 {
                     int i = 1;
                     assert( i == 1 );
                 }
             }
-
-            //stdbool.h
-            {
-                //C99
-
-                //bool b = true;
-                    //ERROR
-                    //no booleans true false in c, ints only! c++ only.
-                    //can use stdbool.h
-
-                bool b = true;
-                bool b2 = false;
-                assert( true  == 1 );
-                assert( false == 0 );
-            }
-
-            //stdint.h
-            {
-                //c99
-                //N = 8, 16, 32, 64
-
-                { int32_t i; }
-                //exactly 32 bits
-
-                { int_least32_t i; }
-                //at least 32 bits
-
-                { int_fast32_t i; }
-                //fastest operations with at least 32 bits
-
-                { intptr_t i; }
-                //can hold pointer
-                //uniquelly defined by machine address space
-
-                { intmax_t i; }
-                //max possible width
-
-                { uint32_t i; }
-                //all have unsigned verions prefixed by 'u'
-
-                {
-                    {
-                        int32_t i = 0;
-                        assert( INT32_MIN < i );
-                        assert( INT32_MAX > i );
-                    }
-
-                    {
-                        int_fast32_t i = 0;
-                        assert( INT_FAST32_MIN < i );
-                        assert( INT_FAST32_MAX > i );
-                    }
-                }
-                //all have max/min ranges
-                //"_t" removed, "_max" or "_min" appended, all uppercased
-
-            }
         }
 
-        //#switch
+        /*
+        #stdbool.h
+
+            defines bool, true and false
+
+            c99
+        */
+        {
+
+            bool b = true;
+            bool b2 = false;
+            assert( true  == 1 );
+            assert( false == 0 );
+        }
+
+        /*
+        #switch
+
+            only exists for readability (TODO 0 check: no preformance gain?)
+        */
         {
             int i, j;
-            for( i=-1; i<3; i++ )
+            for( i = -1; i < 3; i++ )
             {
-                switch(i)
+                switch ( i )
                 {
                     case 0:
 
@@ -2796,7 +2875,7 @@ int main( int argc, char** argv )
             }
         }
 
-        //for
+        //#for
         {
             //basic
             {
@@ -2810,8 +2889,8 @@ int main( int argc, char** argv )
                 //   compiler to use this more efficient looping instruction
                 //
                 //moral:
-                //if you when know how many loops you will do, use ``for``
-                //otherwise use ``while``
+                //if you when know how many loops you will do, use `for`
+                //otherwise use `while`
 
                 int i;
                 int is[] = { 0, 1, 2 };
@@ -2911,7 +2990,7 @@ int main( int argc, char** argv )
                     //without do-while, you would have to either:
 
                         //write:
-                        //``int i2 = 2*i*i + 3*i + ( i % 2 );``
+                        //`int i2 = 2*i*i + 3*i + ( i % 2 );`
                         //so you have to type this huge expression twice!
                         //so if you change one you have to change the other
                         //and you risk to forget creating a hard to find bug
@@ -2924,7 +3003,15 @@ int main( int argc, char** argv )
             }
         }
 
-        //#function
+        /*
+        #function
+
+            a function is basically a branch, but in which you have to:
+
+            - know where to jump back to after return
+            - pass arguments
+            - get back a return value
+        */
         {
             //if there is a typecast possible, it all compiles fine
             {
@@ -2955,20 +3042,31 @@ int main( int argc, char** argv )
         }
     }
 
-    puts("command line args");
+    //#command line args
     {
-        printf("%s",argv[0]);
+        printf( "argv[0] = %s\n", argv[0] );
         int i = 0;
         if ( argc > i )
         {
             i++;
-            printf( "%s", argv[i]);
+            printf( "argv[%d] = %s\n", i, argv[0] );
         }
         if ( argc > i )
         {
             i++;
-            printf( "%s", argv[i]);
+            printf( "argv[%d] = %s\n", i, argv[0] );
         }
+    }
+
+    //#enviroment variables
+    {
+        //#getenv
+
+            //printf( "getenv( \"HOME\" ) = \"%s\"\n", getenv( "HOME" ) );
+            //assert( getenv( "HOME" ) );
+            //assert( ! getenv( "IDONTEXIST" ) );
+
+        //TODO: setenv in POSIX but not in ANSI C?
     }
 
     //#preprocessor
@@ -3075,875 +3173,25 @@ int main( int argc, char** argv )
 #endif
 
         }
-
     }
-
-    //stdlib
-    {
-        //complex.h
-        {
-            //C99
-            //int complex zi = 1 + 1*I;
-                //GCC
-            assert( sizeof( float complex  ) <= sizeof( double complex ) );
-            assert( sizeof( double complex ) <= sizeof( long double complex ) );
-
-            const double complex zd =  1.0 + 2.0*I;
-            const double complex zd2 = 1.0 + 1.0*I;
-
-            assert( creal( zd + zd ) == 2.0 );
-            assert( cimag( zd + zd ) == 4.0 );
-
-            assert( creal( zd - zd2 ) == 0.0 );
-            assert( cimag( zd - zd2 ) == 1.0 );
-
-            assert( creal( zd * zd ) == -3.0 );
-            assert( cimag( zd * zd ) ==  4.0 );
-
-            assert( creal( zd / zd ) == 1.0 );
-            assert( cimag( zd / zd ) == 0.0 );
-
-            assert( creal( conj(zd) ) ==  1.0 );
-            assert( cimag( conj(zd) ) == -2.0 );
-        }
-
-        puts("stdlib");
-        {
-            //#system
-            {
-                int r = system( "echo a | grep b" );
-                //assert( r == 1 );
-                    //executes command in a shell
-                    //and waits for it to end
-
-                    //on linux
-                        //does: /bin/sh -c
-                        //this could be written with the posix
-                        //fork + execl + wait
-
-                    //on windows uses nother shell
-
-                    //so in the end what you write with this is not easily portable
-
-                    //return value is system dependant
-                        //but often the command exit status
-            }
-        }
-
-        //#stdio
-        {
-            //#general notes
-
-                //#EOF
-
-                    //TODO what is EOF on a system level
-                    //what happens when I hit ctrl+d on bash + getchar?
-                    //current guess: a pipe close
-
-                    //in linux, EOF does not exist
-
-                    //the only way to know if a file is over is to make a ``sys_read`` call
-                    //and check if you get less bytes than you ask for
-                    //(``sys_read`` returns the number of bytes read)
-
-                    //alternativelly, for fds that are files, you can use ``sys_stat`` in linux,
-                    //but there is no portable stat func
-
-                    //what was said for linux is similar for windows
-                    //and similar for c thus
-
-                    //EOF is a c concept
-
-                    //EOF works because there are only 256 bytes you can get from an fd
-                    //so EOF is just some int outside of the possible 0-255 range, tipically -1
-
-            //std in/out/err
-            //stdin
-                //be careful!! stdin won't return EOF automatically
-                //
-                //for a tty you can tell the user to input a EOF (ctrl d in linux, ctrl z in windows)
-                //but as you see this is system dependent. for pipes I am yet to find how to do this,
-                //might be automatic when process closes only.
-                //
-                //the best way to know that a stdin ended is recognizing some specific
-                //pattern of the input, such as a newline with fgets, or the end of a
-                //number with scanf
-                //
-                //before this comes, the program just stops waiting for the stdin to
-                //produce this, either from user keyboard input, or from the program
-                //behind the pipe.
-
-            //TODO
-                //setvbuf: set io buffer size, must be used on open stream
-                //flush:    flush io buffer
-                //freopen
-
-            //#stdout
-            {
-                //#putchar
-                {
-                    //write single char to stdout
-
-                    //basically useless
-
-                    putchar('1');
-                    putchar('c');
-                    putchar('\n');
-                }
-                //#puts
-                {
-                    //write to stdout
-                    //newline added!
-                    puts("puts");
-                }
-
-                /*
-                #printf
-
-                    write formated to sdtout
-
-                    newline not added at end
-
-                    it is very useful to learn the format strings,
-                    since this has become a defacto standard and is also used
-                    in python format strings and bash `printf` command.
-
-                    good source with most types: <http://www.cplusplus.com/reference/clibrary/cstdio/printf/>
-                */
-                {
-                    char s[256];
-
-                    //int:
-
-                        printf("d INT_MAX = %d\n", INT_MAX);
-
-                    //long int:
-
-                        printf("d LONG_MAX = %ld\n", LONG_MAX);
-
-                    //long long (int):
-
-                        printf("lld LLONG_MAX = %lld\n", LLONG_MAX);
-
-                    //you must keep unsigned correctness
-                    //or prepare to get bitten by overflow problems:
-
-                        printf( "u UINT_MAX = %u\n", UINT_MAX );
-                        printf( "d UINT_MAX = %d\n", UINT_MAX ); //-1
-
-                    //note how printf treats `UINT_MAX` as a signed integer
-                    //which in 2's complement equals `-1`.
-
-                    //WARN: expects unsigned int, found int
-                    //that is, you must keep unsigned correctness
-
-                        //printf("u -1 = %u\n", -1);
-                        //printf("u -1 = %lu\n", -1);
-
-                    printf("%d %d\n",1,2);
-
-                    //#float and double
-                    {
-                        //both the same char
-
-                        printf("f = %f\n", 1.0f);
-
-                        //#control number of zeros after dot
-                        {
-                            //#fixed number
-                            {
-                                sprintf( s, "%.2f", 1.0f );
-                                char s2[] = "1.00";
-                                assert( strcmp( s, s2 ) == 0 );
-                            }
-
-                            //#given by variable
-                            {
-                                sprintf( s, "%.*f", 2, 1.0f );
-                                char s2[] = "1.00";
-                                assert( strcmp( s, s2 ) == 0 );
-                            }
-                        }
-
-                        //#control minimum number chars to output
-                        {
-                            //#pad with spaces
-                            {
-                                //useful to output text tables:
-                                //
-                                //ugly:
-                                //
-                                //12345 1
-                                //1 1
-                                //
-                                //beautiful:
-                                //
-                                //12345 1
-                                //1     1
-
-                                sprintf( s, "%6.2f", 1.0f );
-                                char s2[] = "  1.00";
-                                assert( strcmp( s, s2 ) == 0 );
-                            }
-
-                            //#pad with zeros
-                            {
-                                //useful for naming files:
-                                //"10" comes after  "09" ('1' > '0')
-                                //"10" comes before "9"  ('1' < '0')!
-
-                                sprintf( s, "%06.2f", 1.0f );
-                                char s2[] = "001.00";
-                                assert( strcmp( s, s2 ) == 0 );
-                            }
-                        }
-
-                        //#scientific
-                        {
-                            sprintf( s, "%.3e", 1.0f );
-                            char s2[] = "1.000e+00";
-                            assert( strcmp( s, s2 ) == 0 );
-                        }
-                    }
-
-                    printf("%s\n", "a string");
-                    printf("%s\n", "\t<<< \\t tab char");
-                    printf("%s\n", "\0<<< \\0 null char");
-
-                    printf("%c\n", 'a');
-                    printf("%d\n", 'a');
-
-                    printf("%x\n", 16);
-
-                    float f;
-                    printf( "(void*)&f = %p\n",(void*)&f );
-                        //prints the 0x address.
-                        //%p must get a void pointer
-                        //void* is a type, different than void. doing type cast to it.
-
-                    printf( "%%<<< escaping percentage\n" );
-                        //note that this is printf specific
-                        //not string specific
-                }
-
-                //large strings to stdout
-                {
-                    //stdout it line buffered
-
-
-                    //if you fill up the buffer without any newlines
-                    //it will just print
-
-                    //buffer size cannot be accessed programatically
-
-                    //TODO what is the bin buffer size?
-                    //in practice, 1024 works just fine
-                    //it may be much larger than BUFSIZ
-
-                    const int bufsiz = 100000;
-                    char buf[bufsiz];
-                    memset( buf, 'z', bufsiz );
-                    buf[bufsiz] = '\0';
-                    buf[bufsiz/2] = '\n';
-                    //printf("%s\n", buf); //large amount of 'z's verywhere!
-                }
-            }
-
-            //#stderr
-            {
-                //#fputs, fprintf
-                {
-                    //puts and printf to any fd, not just stdout
-
-                    fputs( "stdout", stdout );
-                    fputs( "stderr", stderr );
-                    fprintf( stdout, "%d\n", 1 );
-                    fprintf( stderr, "%d\n", 1 );
-                        //*always* put user messages on stderr
-                        //even if they are not errors:
-                        //stdout is just for *program to program* output
-                        //not program to human messages
-                    //fputs( "stderr", stdin  );
-                        //TODO what happens?
-                }
-            }
-
-            //#stdin tty
-            {
-                //#getc, getchar
-                if ( 0 )
-                {
-                    //getchar == getc(stdin)
-
-                    //it blocks until any char is read
-
-                    //echo a | c.out
-                        //a
-                    //sleep 3 | c.out
-                        //EOF after 3 secs
-
-                    fputs( "enter a char (on linux, ctrl+d EOF): ", stderr );
-                    //fputc( 'a', stdin );
-                        //BAD
-                        //does not work
-                    char c = getchar();
-                    if ( c != EOF )
-                    {
-                        fprintf( stderr, "you entered:\n%c|<<<\n", c );
-                    }
-                    else
-                    {
-                        fprintf( stderr, "EOF\n" );
-                    }
-                }
-
-                /*
-                #gets
-
-                    deprecated c11
-
-                    dangerous:
-                    no size checking possible
-                    if too much input, just seg faults
-                */
-                if ( 0 )
-                {
-                        //printf("enter a string terminated by newline: (max %d chars, newline will be included in the string)\n", sn);
-                        //gets(s);
-                        //printf("you entered:\n%s\n\n",s);
-                }
-
-                /*
-                #scanf
-
-                    complicated behaviour
-
-                    input is space separated regardless of scanf string
-
-                    hard to do error checking
-
-                    stops reading at newline
-
-                    use only if error checking is not a priority
-                */
-                if ( 0 )
-                {
-                    int i, j;
-                    unsigned int ui;
-                    float f;
-                    printf("enter an integer in decimal and <enter> (max 32 bits signed):\n");
-                    i = scanf("%d", &i);
-                    printf("you entered:\n%d\n\n", i);
-                    i++;
-                    //stuff is space separated
-                    //try 123 456 789 at once. 456 789 stay in the buffer, and are eaten by the second scanf
-
-                    printf("enter an integer, a space, an integer and a <enter> (max 32 bits signed):\n");
-                    i = scanf("%d %d", &i, &j);
-                    printf("you entered:\n%d %d\n\n", i, j);
-
-                    printf("enter a float and a newline:\n");
-                    i = scanf("%f", &f);
-                    printf("you entered:\n%.2f\n\n", f);
-
-                    printf("enter an integer in hexadecimal and a <enter>: (max 32 bits signed)\n");
-                    i = scanf("%x", &ui);
-                    printf("you entered (in decimal):\n%d\n\n", i);
-                }
-
-                //#fgets
-                if ( 0 )
-                {
-                    //together with error checking, best method formatted input method
-                    /*fgets*/
-                }
-            }
-
-            //#file io
-            {
-                FILE* fp;
-                    //#FILE is a macro for a stream object
-
-                        //a strem object is higher level than a file descriptor
-
-                        //it uses file descriptors as backend in linux
-
-                        //linux file descriptors are identified simply by integers
-
-                        //by using streams you get the classical high level/low level tradeoff:
-
-                            //higher portability
-                                //since working with fds is posix
-
-                            //more convenience
-                                //since each function on streams may do lots of
-                                //operations at once on the underlying fds
-
-                            //less control
-
-                                //since OS certain specific operatins are not available
-
-                                //with fds in linux you can do file/pipe/FIFO/socket specific operations
-                                //for example
-
-                int err, had_error, fi;
-                float ff;
-                char c1;
-                char *cp1;
-
-                const int buff_size = 16;
-                char path[buff_size], buff[buff_size];
-
-                /*
-                #fopen
-
-                    open file for read/write
-                    don't forget to fclose after using!
-                    modes:
-                        r: read. compatible with a,w
-                        w: read and write. destroy if exists, create if not.
-                        a: append. write to the end. creates if does not exist.
-                        +: can do both input and output. msut use flush or fseek
-                        x: don't destroy if exist (c11, not c++!, posix only)
-                        b: binary. means nothing in POSIX systems,
-                            on our dear DOS must be used for NL vs NLCR problems
-                            there are two different modes there
-                            Therefore, for portability, make this difference.
-                */
-                {
-                    strcpy( path, "f.tmp" );
-                    fp = fopen( path, "w" );
-                    if ( !fp )
-                    {
-                        report_cant_open_file(path);
-                        exit( EXIT_FAILURE );
-                    }
-                    else
-                    {
-                        //fputc
-                        if ( fputc( 'a', fp ) == EOF )
-                        {
-                            report_cant_write_file( path );
-                            exit( EXIT_FAILURE );
-                        }
-
-                        //fputs
-                        {
-                            //newline not automatically appended
-                            if ( fputs("bc", fp) == EOF )
-                            {
-                                report_cant_write_file(path);
-                                exit(EXIT_FAILURE);
-                            }
-                        }
-
-                        //fprintf
-                        {
-                            // http://www.cplusplus.com/reference/clibrary/cstdio/fprintf/
-                            if ( fprintf( fp, "%d\n%.2e\n", 123, 12.3f ) < 0 )
-                            {
-                                report_cant_write_file(path);
-                            }
-                        }
-                    }
-                }
-                /*
-                don't forget to close!
-
-                there is a limited ammount of open files at a time by the os
-
-                buffered output may not have been saved before closing
-                */
-                if( fclose(fp) == EOF )
-                {
-                    fprintf(stderr, "could not close:\n%s\n", path);
-                }
-
-                /*
-                #text vs binary
-
-                    example: an int 123 can be written to a file in two ways:
-
-                    - text: three bytes containing the ascii values of `1`, `2` and then `3`
-                    - binary: as the internal int representation of the c value, that is 4 bytes,
-                        with `123` in binary and zeroes at the front.
-
-                    advantages of text:
-
-                    - it is human readable since it contains only ASCII or UTF values
-                    - for small values it may be more efficient (123 is 3 bytes in ascii instead of 4 in binary)
-
-                    advantages of binary:
-
-                    - it is shorter for large integers
-                    - inevitable for data that cannot be interpretred as text (images, executables)
-
-                #b option
-
-                    'b' option to the `open` function only makes a difference for DOS
-                    (newline carriage return realted TODO confirm)
-
-                    for portability, use it consistently.
-
-                    In linux the difference between text methods and binary methods is only conceptual:
-                    some methods output human readable text (`fprintf`) and can be classified as text,
-                    while others output binary, no difference is made at file opening time
-                */
-
-                //text io
-                {
-                    {
-                        fp = fopen(path,"r");
-                        if (fp==NULL)
-                        {
-                            report_cant_open_file(path);
-                        }
-                        else
-                        {
-                            c1 = fgetc(fp);
-                            if ( c1 == EOF )
-                            {
-                                if ( feof( fp ) )
-                                {
-                                    fprintf( stderr, "fgetc end of file:\n%s\n", path );
-                                }
-                                else if (ferror(fp))
-                                {
-                                    fprintf( stderr, "fgetc error reading from:\n%s\n", path );
-                                }
-                            }
-                            fprintf( stderr, "c1 = %c\n",c1 );
-                            fgetc( fp );
-
-                            //fgets
-                                //http://www.cplusplus.com/reference/clibrary/cstdio/fgets/
-                                //reads up to:
-                                //* newline
-                                //* buff_size-1 chars
-                                //saves result in buff, '\0' terminated
-                                if ( fgets( buff, buff_size, fp ) == NULL )
-                                {
-                                    if ( feof(fp) )
-                                    {
-                                        fprintf(stderr, "fgets reached the of file and read nothing:\n%s\n", path);
-                                    }
-                                    else if ( ferror(fp) )
-                                    {
-                                        fprintf(stderr, "fgets error reading from:\n%s\n", path);
-                                    }
-                                }
-                                else if ( feof(fp) )
-                                {
-                                    fprintf( stderr, "fgets reached the of file and read some chars before that:\n%s\n", path );
-                                }
-                                fprintf(stderr, "buff = %s",buff);
-                                fgets(buff, buff_size, fp);
-                                fprintf(stderr, "buff = %s",buff);
-
-                            //fscanf
-                                //complicated like scanf
-                                if ( fscanf(fp, "%d\n%e\n",&fi,&ff) != 2 )
-                                {
-                                    if ( feof( fp ) )
-                                    {
-                                        fprintf(stderr, "fscanf reached the of file and read nothing:\n%s\n", path);
-                                    } else if (ferror(fp)) {
-                                        fprintf(stderr, "fscanf error reading from:\n%s\n", path);
-                                    }
-                                }
-                                fprintf( stderr, "%d %.2e\n", fi, ff );
-                        }
-
-                        if ( fclose(fp) == EOF )
-                        {
-                            fprintf(stderr, "could not close:\n%s\n", path);
-                        }
-                    }
-                }
-
-                //binary io
-                {
-                    int elems_write[] = { 1, 2, 3 };
-                    const int nelems = sizeof(elems_write) / sizeof(elems_write[0]);
-                    int elems_read[nelems];
-
-                    //#fwrite
-                    {
-                        strcpy( path, "b.tmp" );
-                        fp = fopen( path, "wb" );
-                        if ( fp == NULL )
-                        {
-                            fprintf( stderr, "could not open:\n%s\n", path );
-                            exit(EXIT_FAILURE);
-                        }
-                        else
-                        {
-                            //returns number of elements written
-
-                            //common nelems source
-                                //nelems=sizeof(buff)/sizeof(buff[0]);
-                                //nelems=strlen(buff)+1
-
-                            if ( fwrite( elems_write, sizeof(elems_write[0]), nelems, fp ) < nelems )
-                            {
-                                fprintf(stderr, "could not write all the data:\n%s\n", path);
-                            }
-                        }
-                        if ( fclose(fp) == EOF )
-                        {
-                            fprintf( stderr, "could not close:\n%s\n", path );
-                        }
-                    }
-
-                    //#fread
-                    {
-                        fp = fopen( path, "rb" );
-                        if ( fp == NULL )
-                        {
-                            fprintf(stderr, "could not open:\n%s\n", path);
-                        }
-                        else
-                        {
-                            if ( fread( elems_read, sizeof(elems_read[0]), nelems, fp) < nelems )
-                            { //returns number of elements written
-                                fprintf(stderr, "could not read all the data:\n%s\n", path);
-                            }
-                        }
-
-                        if ( fclose(fp) == EOF )
-                        {
-                            fprintf(stderr, "could not close:\n%s\n", path);
-                        }
-                    }
-
-                    assert( memcmp( elems_read, elems_write, nelems ) == 0);
-                }
-
-                //#reposition read write
-                {
-                    //ftell
-                        //long int curpos = ftell(pf)
-                        //if ( curpos == -1L ){
-                        //    report_cant_move_file();
-                        //}
-
-                    //fseek
-                        //http://www.cplusplus.com/reference/clibrary/cstdio/fseek/
-                        //
-                        //SET: beginning
-                        //CUR: current
-                        //END: end
-                        //
-                        //for binary, n bytes, for read, no necessarily
-                        //
-                        //if ( fseek ( pf, 0 , SEEK_SET ) != 0 ) {
-                        //    report_cant_move_file();
-                        //}
-
-                    //flush(fp)
-                        //for output streams only.
-                        //makes sure all the data is put on the stream.
-                        //
-                        // if (flush(fp) == EOF){
-                        //        //error
-                        // }
-
-                    //freopen
-                        //freopen("/dev/null", "r", stdin);
-                        //this will discard stdin on linux
-
-                    //TODO ? fgetpos, fsetpos, rewind
-                    //
-
-                    //TRY: echo "123" | ./c_cheatsheet.out
-                        //this will use stdin from a pipe! no user input
-                }
-
-                //#applications
-                {
-                    //write entire string to file at once
-
-                        char cs[] = "asdf\nqwer";
-                        strcpy(path,"f.tmp");
-                        if ( file_write( path, cs ) == -1 )
-                        {
-                            report_cant_write_file(path);
-                        }
-
-                    //read entire file at once to a string
-
-                        char* cp = file_read(path);
-                        if ( cp == NULL )
-                        {
-                            report_cant_read_file(path);
-                        }
-                        assert( strcmp( cs, cp ) == 0 );
-                        free(cp);
-
-                    //simple write arrays to file
-
-                        int arri[] = { 0, 1, -1, 12873453 };
-                        float arrf[] = { 1.1f, 1.001f, -1.1f, 1.23456e2 };
-
-                        strcpy( path, "arri.tmp" );
-                        write_int_arr_file( path, arri, 4 );
-
-                        strcpy( path, "arrf.tmp" );
-                        write_float_arr_file( path, arrf, 4, 2 );
-                }
-            }
-        }
-
-        puts("time.h");
-        {
-            printf( "%ld seconds since 1970-01-01:\n", time(NULL) );
-                //real world time
-
-            puts("program virtual time:\n");
-                clock_t t;
-                int i = 0;
-                t = clock();
-                i++;
-                    //NOTE
-                    //optimizer may simply skip your useless test operations
-                    //and very little time will have passed
-                    //
-                    //clock() is only an approximation, and if too little time
-                    //passes, it may return 0
-                t = clock() - t;
-                printf( "clicks %llu\n", (unsigned long long)t );
-                    //no specifier for this
-                    //so cast to largest thing possible and print
-                printf( "clocks per sec %ld\n", CLOCKS_PER_SEC );
-                printf( "seconds %f\n", ((float)t)/CLOCKS_PER_SEC );
-        }
-
-        //#math.h
-        {
-            //max and min for floats (C99):
-
-                assert( fminl( 0.1, 0.2 ) == 0.1 );
-                assert( fmaxl( 0.1, 0.2 ) == 0.2 );
-
-            //exponential:
-
-                assert( fabs( exp(1.0)      - 2.71 )    < 0.01 );
-
-            //trig:
-
-                assert( fabs( cos(0.0)      - 1.0 )     < 0.01 );
-
-            //this is a standard way to get PI. The only problem is the slight calculation overhead.
-
-                assert( fabs( acos(-1.0)    - 3.14 )    < 0.01 );
-
-            //absolute values, integer version:
-
-                assert( abs(-1.1)  == 1 );
-
-            //absolute values, float version:
-
-                assert( fabsl(-1.1) == 1.1 );
-
-            //don't forget to use the float version!
-
-            puts("random");
-            {
-
-                srand ( time(NULL) );
-                int i = rand();
-                    //integer between 0 and RAND_MAX
-                float f = rand()/(float)RAND_MAX;
-                    //float between 0 and 1
-            }
-        }
-    }
-
-#ifdef PROFILE
-
-        //- turn off optimization if you want results to make evident sense
-        //- even without optimization, cache access speed is hard to predict
-        //   so what you expect may be false
-
-        loop_only_prof( n_prof_runs );
-        while_only_prof( n_prof_runs );
-
-        int_assign_prof( n_prof_runs );
-        int_sum_prof( n_prof_runs );
-        int_sub_prof( n_prof_runs );
-        int_mult_prof( n_prof_runs );
-        int_div_prof( n_prof_runs );
-
-        float_sum_prof(n_prof_runs);
-        float_sub_prof(n_prof_runs);
-        float_mult_prof(n_prof_runs);
-        float_div_prof(n_prof_runs);
-
-        func_all_prof(n_prof_runs);
-        inline_func_call_prof(n_prof_runs);
-
-        stack1b_prof(n_prof_runs);
-        stack1kb_prof(n_prof_runs);
-        stack1mb_prof(n_prof_runs);
-
-        heap1b_prof(n_prof_runs);
-        heap1kb_prof(n_prof_runs);
-        //heap1mbProf(n_prof_runs);
-            //by far the slowest
-
-        //putsProf(n_prof_runs);
-            //BAD
-            //don't do stdout on profiling
-            //system time is not counted anyways
-
-#endif
-
-    /*
-    #compiler hints
-
-        the following keywords only optimize generated source code,
-        but do not change the behaviour of programs.
-
-        #inline keyword
-
-            function is copied pasted instead of called
-
-            effects:
-
-            - avoids function call, thus potentially faster
-            - code gets larger
-            - function pointer comparisons may differ for the same function
-            - instruction cache might be come less efficient making thigs slower
-
-            sources:
-
-            - <http://www.greenend.org.uk/rjk/tech/inline.html>
-
-                some warnings about inline and its usage
-
-        #restrict keyword
-
-            c99
-
-            <http://en.wikipedia.org/wiki/Restrict>
-    */
 
     /*
     #trigraphs
 
         absolutelly obscure feature for very old systems which do not support certain
-        characters either because of the input method or encoding.
+        characters or because of keyboards which don't support them easily
 
         it is so obscure that gcc even emmits a warning if you use those!!
 
         is the first substitution made to source, even before the preprocessor
 
-        they are commented out here so that compilers that gcc won't annoy us with their warnings
+        they are commented out here so that compilers like
+        gcc won't annoy us with warnings
     */
-
+    {
             //assert( '??=' == '#' );
             //assert( '??(' == '[' );
-            //assert( '??/' == '\' );   //TODO literal backslash?
+            //assert( '??/' == '\' );   //TODO 0 literal backslash?
             //assert( '??)' == ']' );
             //assert( '??'' == '^' );
             //assert( '??<' == '{' );
@@ -3951,10 +3199,824 @@ int main( int argc, char** argv )
             //assert( '??>' == '}' );
             //assert( '??-' == '~' );
 
-        //TODO how to escape a trigraph on a string literal, say: `??=` ?
+        //TODO 0 how to escape a trigraph on a string literal, say: `??=` ?
         //is it necessary to use `\x`?
 
             //printf( "??" )
+    }
+
+    /*
+    #complex.h
+
+        C99
+    */
+    {
+        assert( sizeof( float complex  ) <= sizeof( double complex ) );
+        assert( sizeof( double complex ) <= sizeof( long double complex ) );
+
+        const double complex zd =  1.0 + 2.0*I;
+        const double complex zd2 = 1.0 + 1.0*I;
+
+        assert( creal( zd + zd ) == 2.0 );
+        assert( cimag( zd + zd ) == 4.0 );
+
+        assert( creal( zd - zd2 ) == 0.0 );
+        assert( cimag( zd - zd2 ) == 1.0 );
+
+        assert( creal( zd * zd ) == -3.0 );
+        assert( cimag( zd * zd ) ==  4.0 );
+
+        assert( creal( zd / zd ) == 1.0 );
+        assert( cimag( zd / zd ) == 0.0 );
+
+        assert( creal( conj(zd) ) ==  1.0 );
+        assert( cimag( conj(zd) ) == -2.0 );
+
+        /*
+        #complex integer
+
+            complex integer types are not specified.
+
+            GCC adds them as an extension
+        */
+
+            //int complex zi = 1 + 1*I;
+    }
+
+    /*
+    #stdlib.h
+    */
+    {
+        /*
+        #system
+
+            executes command in a shell and waits for it to end before continuing current program
+
+            the shell is implementation dependant
+
+            - linux: `/bin/sh`
+
+            so in the end what you write with this is not very portable
+
+            return value is also implementation dependant but is often the command exit status
+            or an error reserved value
+        */
+        {
+            //linux test:
+
+                //int r = system( "echo a | grep b" );
+                //assert( r == 1 );
+        }
+    }
+
+    //#stdio
+    {
+        //#general notes
+
+            //#EOF
+
+                //TODO what is EOF on a system level
+                //what happens when I hit ctrl+d on bash + getchar?
+                //current guess: a pipe close
+
+                //in linux, EOF does not exist
+
+                //the only way to know if a file is over is to make a `sys_read` call
+                //and check if you get less bytes than you ask for
+                //(`sys_read` returns the number of bytes read)
+
+                //alternativelly, for fds that are files, you can use `sys_stat` in linux,
+                //but there is no portable stat func
+
+                //what was said for linux is similar for windows
+                //and similar for c thus
+
+                //EOF is a c concept
+
+                //EOF works because there are only 256 bytes you can get from an fd
+                //so EOF is just some int outside of the possible 0-255 range, tipically -1
+
+        //std in/out/err
+        //stdin
+            //be careful!! stdin won't return EOF automatically
+            //
+            //for a tty you can tell the user to input a EOF (ctrl d in linux, ctrl z in windows)
+            //but as you see this is system dependent. for pipes I am yet to find how to do this,
+            //might be automatic when process closes only.
+            //
+            //the best way to know that a stdin ended is recognizing some specific
+            //pattern of the input, such as a newline with fgets, or the end of a
+            //number with scanf
+            //
+            //before this comes, the program just stops waiting for the stdin to
+            //produce this, either from user keyboard input, or from the program
+            //behind the pipe.
+
+        //TODO
+            //setvbuf: set io buffer size, must be used on open stream
+            //flush:    flush io buffer
+            //freopen
+
+        //#stdout
+        {
+            //#putchar
+            {
+                //write single char to stdout
+
+                //basically useless
+
+                putchar('1');
+                putchar('c');
+                putchar('\n');
+            }
+            //#puts
+            {
+                //write to stdout
+                //newline added!
+                puts("puts");
+            }
+
+            /*
+            #printf
+
+                write formated to sdtout
+
+                newline not added at end
+
+                it is very useful to learn the format strings,
+                since this has become a defacto standard and is also used
+                in python format strings and bash `printf` command.
+
+                good source with most types: <http://www.cplusplus.com/reference/clibrary/cstdio/printf/>
+            */
+            {
+                char s[256];
+
+                //int:
+
+                    printf("d INT_MAX = %d\n", INT_MAX);
+
+                //long int:
+
+                    printf("d LONG_MAX = %ld\n", LONG_MAX);
+
+                //long long (int):
+
+                    printf("lld LLONG_MAX = %lld\n", LLONG_MAX);
+
+                //you must keep unsigned correctness
+                //or prepare to get bitten by overflow problems:
+
+                    printf( "u UINT_MAX = %u\n", UINT_MAX );
+                    printf( "d UINT_MAX = %d\n", UINT_MAX ); //-1
+
+                //note how printf treats `UINT_MAX` as a signed integer
+                //which in 2's complement equals `-1`.
+
+                //WARN: expects unsigned int, found int
+                //that is, you must keep unsigned correctness
+
+                    //printf("u -1 = %u\n", -1);
+                    //printf("u -1 = %lu\n", -1);
+
+                printf("%d %d\n",1,2);
+
+                //#float and double
+                {
+                    //both the same char
+
+                    printf("f = %f\n", 1.0f);
+
+                    //#control number of zeros after dot
+                    {
+                        //#fixed number
+                        {
+                            sprintf( s, "%.2f", 1.0f );
+                            char s2[] = "1.00";
+                            assert( strcmp( s, s2 ) == 0 );
+                        }
+
+                        //#given by variable
+                        {
+                            sprintf( s, "%.*f", 2, 1.0f );
+                            char s2[] = "1.00";
+                            assert( strcmp( s, s2 ) == 0 );
+                        }
+                    }
+
+                    //#control minimum number chars to output
+                    {
+                        //#pad with spaces
+                        {
+                            //useful to output text tables:
+                            //
+                            //ugly:
+                            //
+                            //12345 1
+                            //1 1
+                            //
+                            //beautiful:
+                            //
+                            //12345 1
+                            //1     1
+
+                            sprintf( s, "%6.2f", 1.0f );
+                            char s2[] = "  1.00";
+                            assert( strcmp( s, s2 ) == 0 );
+                        }
+
+                        //#pad with zeros
+                        {
+                            //useful for naming files:
+                            //"10" comes after  "09" ('1' > '0')
+                            //"10" comes before "9"  ('1' < '0')!
+
+                            sprintf( s, "%06.2f", 1.0f );
+                            char s2[] = "001.00";
+                            assert( strcmp( s, s2 ) == 0 );
+                        }
+                    }
+
+                    //#scientific
+                    {
+                        sprintf( s, "%.3e", 1.0f );
+                        char s2[] = "1.000e+00";
+                        assert( strcmp( s, s2 ) == 0 );
+                    }
+                }
+
+                printf("%s\n", "a string");
+                printf("%s\n", "\t<<< \\t tab char");
+                printf("%s\n", "\0<<< \\0 null char");
+
+                printf("%c\n", 'a');
+                printf("%d\n", 'a');
+
+                printf("%x\n", 16);
+
+                float f;
+                printf( "(void*)&f = %p\n",(void*)&f );
+                    //prints the 0x address.
+                    //%p must get a void pointer
+                    //void* is a type, different than void. doing type cast to it.
+
+                printf( "%%<<< escaping percentage\n" );
+                    //note that this is printf specific
+                    //not string specific
+            }
+
+            //large strings to stdout
+            {
+                //stdout it line buffered
+
+
+                //if you fill up the buffer without any newlines
+                //it will just print
+
+                //buffer size cannot be accessed programatically
+
+                //TODO what is the bin buffer size?
+                //in practice, 1024 works just fine
+                //it may be much larger than BUFSIZ
+
+                const int bufsiz = 100000;
+                char buf[bufsiz];
+                memset( buf, 'z', bufsiz );
+                buf[bufsiz] = '\0';
+                buf[bufsiz/2] = '\n';
+                //printf("%s\n", buf); //large amount of 'z's verywhere!
+            }
+        }
+
+        //#stderr
+        {
+            //#fputs, fprintf
+            {
+                //puts and printf to any fd, not just stdout
+
+                fputs( "stdout", stdout );
+                fputs( "stderr", stderr );
+                fprintf( stdout, "%d\n", 1 );
+                fprintf( stderr, "%d\n", 1 );
+                    //*always* put user messages on stderr
+                    //even if they are not errors:
+                    //stdout is just for *program to program* output
+                    //not program to human messages
+                //fputs( "stderr", stdin  );
+                    //TODO what happens?
+            }
+        }
+
+        //#stdin tty
+        {
+            //#getc, getchar
+            if ( 0 )
+            {
+                //getchar == getc(stdin)
+
+                //it blocks until any char is read
+
+                //echo a | c.out
+                    //a
+                //sleep 3 | c.out
+                    //EOF after 3 secs
+
+                fputs( "enter a char (on linux, ctrl+d EOF): ", stderr );
+                //fputc( 'a', stdin );
+                    //BAD
+                    //does not work
+                char c = getchar();
+                if ( c != EOF )
+                {
+                    fprintf( stderr, "you entered:\n%c|<<<\n", c );
+                }
+                else
+                {
+                    fprintf( stderr, "EOF\n" );
+                }
+            }
+
+            /*
+            #gets
+
+                deprecated c11
+
+                dangerous:
+                no size checking possible
+                if too much input, just seg faults
+            */
+            if ( 0 )
+            {
+                    //printf("enter a string terminated by newline: (max %d chars, newline will be included in the string)\n", sn);
+                    //gets(s);
+                    //printf("you entered:\n%s\n\n",s);
+            }
+
+            /*
+            #scanf
+
+                complicated behaviour
+
+                input is space separated regardless of scanf string
+
+                hard to do error checking
+
+                stops reading at newline
+
+                use only if error checking is not a priority
+            */
+            if ( 0 )
+            {
+                int i, j;
+                unsigned int ui;
+                float f;
+                printf( "enter an integer in decimal and <enter> (max 32 bits signed):\n" );
+                i = scanf( "%d", &i );
+                printf( "you entered: %d\n", i );
+                i++;
+                //stuff is space separated
+                //try 123 456 789 at once. 456 789 stay in the buffer, and are eaten by the second scanf
+
+                printf( "enter an integer, a space, an integer and a <enter> (max 32 bits signed):\n" );
+                i = scanf( "%d %d", &i, &j );
+                printf( "you entered: %d %d\n", i, j );
+
+                printf( "enter a float and a newline:\n" );
+                i = scanf( "%f", &f );
+                printf( "you entered: %.2f\n", f );
+
+                printf( "enter an integer in hexadecimal and a <enter>: (max 32 bits signed)\n" );
+                i = scanf( "%x", &ui );
+                printf( "you entered (in decimal): %d\n", i );
+            }
+
+            //#fgets
+            if ( 0 )
+            {
+                //together with error checking, best method formatted input method
+                /*fgets*/
+            }
+        }
+
+        //#file io
+        {
+            FILE* fp;
+                //#FILE is a macro for a stream object
+
+                    //a strem object is higher level than a file descriptor
+
+                    //it uses file descriptors as backend in linux
+
+                    //linux file descriptors are identified simply by integers
+
+                    //by using streams you get the classical high level/low level tradeoff:
+
+                        //higher portability
+                            //since working with fds is posix
+
+                        //more convenience
+                            //since each function on streams may do lots of
+                            //operations at once on the underlying fds
+
+                        //less control
+
+                            //since OS certain specific operatins are not available
+
+                            //with fds in linux you can do file/pipe/FIFO/socket specific operations
+                            //for example
+
+            int err, had_error, fi;
+            float ff;
+            char c1;
+            char *cp1;
+
+            const int buff_size = 16;
+            char path[buff_size], buff[buff_size];
+
+            /*
+            #fopen
+
+                open file for read/write
+                don't forget to fclose after using!
+                modes:
+                    r: read. compatible with a,w
+                    w: read and write. destroy if exists, create if not.
+                    a: append. write to the end. creates if does not exist.
+                    +: can do both input and output. msut use flush or fseek
+                    x: don't destroy if exist (c11, not c++!, posix only)
+                    b: binary. means nothing in POSIX systems,
+                        on our dear DOS must be used for NL vs NLCR problems
+                        there are two different modes there
+                        Therefore, for portability, make this difference.
+            */
+            {
+                strcpy( path, "f.tmp" );
+                fp = fopen( path, "w" );
+                if ( !fp )
+                {
+                    report_cant_open_file(path);
+                    exit( EXIT_FAILURE );
+                }
+                else
+                {
+                    //fputc
+                    if ( fputc( 'a', fp ) == EOF )
+                    {
+                        report_cant_write_file( path );
+                        exit( EXIT_FAILURE );
+                    }
+
+                    //fputs
+                    {
+                        //newline not automatically appended
+                        if ( fputs("bc", fp) == EOF )
+                        {
+                            report_cant_write_file(path);
+                            exit(EXIT_FAILURE);
+                        }
+                    }
+
+                    //fprintf
+                    {
+                        // http://www.cplusplus.com/reference/clibrary/cstdio/fprintf/
+                        if ( fprintf( fp, "%d\n%.2e\n", 123, 12.3f ) < 0 )
+                        {
+                            report_cant_write_file(path);
+                        }
+                    }
+                }
+            }
+            /*
+            don't forget to close!
+
+            there is a limited ammount of open files at a time by the os
+
+            buffered output may not have been saved before closing
+            */
+            if( fclose(fp) == EOF )
+            {
+                fprintf(stderr, "could not close:\n%s\n", path);
+            }
+
+            /*
+            #text vs binary
+
+                example: an int 123 can be written to a file in two ways:
+
+                - text: three bytes containing the ascii values of `1`, `2` and then `3`
+                - binary: as the internal int representation of the c value, that is 4 bytes,
+                    with `123` in binary and zeroes at the front.
+
+                advantages of text:
+
+                - it is human readable since it contains only ASCII or UTF values
+                - for small values it may be more efficient (123 is 3 bytes in ascii instead of 4 in binary)
+
+                advantages of binary:
+
+                - it is shorter for large integers
+                - inevitable for data that cannot be interpretred as text (images, executables)
+
+            #b option
+
+                'b' option to the `open` function only makes a difference for DOS
+                (newline carriage return realted TODO confirm)
+
+                for portability, use it consistently.
+
+                In linux the difference between text methods and binary methods is only conceptual:
+                some methods output human readable text (`fprintf`) and can be classified as text,
+                while others output binary, no difference is made at file opening time
+            */
+
+            //text io
+            {
+                {
+                    fp = fopen(path,"r");
+                    if (fp==NULL)
+                    {
+                        report_cant_open_file(path);
+                    }
+                    else
+                    {
+                        c1 = fgetc(fp);
+                        if ( c1 == EOF )
+                        {
+                            if ( feof( fp ) )
+                            {
+                                fprintf( stderr, "fgetc end of file:\n%s\n", path );
+                            }
+                            else if (ferror(fp))
+                            {
+                                fprintf( stderr, "fgetc error reading from:\n%s\n", path );
+                            }
+                        }
+                        fprintf( stderr, "c1 = %c\n",c1 );
+                        fgetc( fp );
+
+                        //fgets
+                            //http://www.cplusplus.com/reference/clibrary/cstdio/fgets/
+                            //reads up to:
+                            //* newline
+                            //* buff_size-1 chars
+                            //saves result in buff, '\0' terminated
+                            if ( fgets( buff, buff_size, fp ) == NULL )
+                            {
+                                if ( feof(fp) )
+                                {
+                                    fprintf(stderr, "fgets reached the of file and read nothing:\n%s\n", path);
+                                }
+                                else if ( ferror(fp) )
+                                {
+                                    fprintf(stderr, "fgets error reading from:\n%s\n", path);
+                                }
+                            }
+                            else if ( feof(fp) )
+                            {
+                                fprintf( stderr, "fgets reached the of file and read some chars before that:\n%s\n", path );
+                            }
+                            fprintf(stderr, "buff = %s",buff);
+                            fgets(buff, buff_size, fp);
+                            fprintf(stderr, "buff = %s",buff);
+
+                        //fscanf
+                            //complicated like scanf
+                            if ( fscanf(fp, "%d\n%e\n",&fi,&ff) != 2 )
+                            {
+                                if ( feof( fp ) )
+                                {
+                                    fprintf(stderr, "fscanf reached the of file and read nothing:\n%s\n", path);
+                                } else if (ferror(fp)) {
+                                    fprintf(stderr, "fscanf error reading from:\n%s\n", path);
+                                }
+                            }
+                            fprintf( stderr, "%d %.2e\n", fi, ff );
+                    }
+
+                    if ( fclose(fp) == EOF )
+                    {
+                        fprintf(stderr, "could not close:\n%s\n", path);
+                    }
+                }
+            }
+
+            //binary io
+            {
+                int elems_write[] = { 1, 2, 3 };
+                const int nelems = sizeof(elems_write) / sizeof(elems_write[0]);
+                int elems_read[nelems];
+
+                //#fwrite
+                {
+                    strcpy( path, "b.tmp" );
+                    fp = fopen( path, "wb" );
+                    if ( fp == NULL )
+                    {
+                        fprintf( stderr, "could not open:\n%s\n", path );
+                        exit(EXIT_FAILURE);
+                    }
+                    else
+                    {
+                        //returns number of elements written
+
+                        //common nelems source
+                            //nelems=sizeof(buff)/sizeof(buff[0]);
+                            //nelems=strlen(buff)+1
+
+                        if ( fwrite( elems_write, sizeof(elems_write[0]), nelems, fp ) < nelems )
+                        {
+                            fprintf(stderr, "could not write all the data:\n%s\n", path);
+                        }
+                    }
+                    if ( fclose(fp) == EOF )
+                    {
+                        fprintf( stderr, "could not close:\n%s\n", path );
+                    }
+                }
+
+                //#fread
+                {
+                    fp = fopen( path, "rb" );
+                    if ( fp == NULL )
+                    {
+                        fprintf(stderr, "could not open:\n%s\n", path);
+                    }
+                    else
+                    {
+                        if ( fread( elems_read, sizeof(elems_read[0]), nelems, fp) < nelems )
+                        { //returns number of elements written
+                            fprintf(stderr, "could not read all the data:\n%s\n", path);
+                        }
+                    }
+
+                    if ( fclose(fp) == EOF )
+                    {
+                        fprintf(stderr, "could not close:\n%s\n", path);
+                    }
+                }
+
+                assert( memcmp( elems_read, elems_write, nelems ) == 0);
+            }
+
+            //#reposition read write
+            {
+                //ftell
+                    //long int curpos = ftell(pf)
+                    //if ( curpos == -1L ){
+                    //    report_cant_move_file();
+                    //}
+
+                //fseek
+                    //http://www.cplusplus.com/reference/clibrary/cstdio/fseek/
+                    //
+                    //SET: beginning
+                    //CUR: current
+                    //END: end
+                    //
+                    //for binary, n bytes, for read, no necessarily
+                    //
+                    //if ( fseek ( pf, 0 , SEEK_SET ) != 0 ) {
+                    //    report_cant_move_file();
+                    //}
+
+                //flush(fp)
+                    //for output streams only.
+                    //makes sure all the data is put on the stream.
+                    //
+                    // if (flush(fp) == EOF){
+                    //        //error
+                    // }
+
+                //freopen
+                    //freopen("/dev/null", "r", stdin);
+                    //this will discard stdin on linux
+
+                //TODO ? fgetpos, fsetpos, rewind
+                //
+
+                //TRY: echo "123" | ./c_cheatsheet.out
+                    //this will use stdin from a pipe! no user input
+            }
+
+            //#applications
+            {
+                //write entire string to file at once
+
+                    char cs[] = "asdf\nqwer";
+                    strcpy(path,"f.tmp");
+                    if ( file_write( path, cs ) == -1 )
+                    {
+                        report_cant_write_file(path);
+                    }
+
+                //read entire file at once to a string
+
+                    char* cp = file_read(path);
+                    if ( cp == NULL )
+                    {
+                        report_cant_read_file(path);
+                    }
+                    assert( strcmp( cs, cp ) == 0 );
+                    free(cp);
+
+                //simple write arrays to file
+
+                    int arri[] = { 0, 1, -1, 12873453 };
+                    float arrf[] = { 1.1f, 1.001f, -1.1f, 1.23456e2 };
+
+                    strcpy( path, "arri.tmp" );
+                    write_int_arr_file( path, arri, 4 );
+
+                    strcpy( path, "arrf.tmp" );
+                    write_float_arr_file( path, arrf, 4, 2 );
+            }
+        }
+    }
+
+    //#time.h
+    {
+        /*
+        #time()
+
+            seconds since 1970
+        */
+
+            printf( "%ld seconds since 1970-01-01:\n", time(NULL) );
+
+        //#CLOCKS_PER_SEC
+
+            printf( "CLOCKS_PER_SEC =  %ld\n", CLOCKS_PER_SEC );
+
+        /*
+        #clock()
+
+            program virtual time in number of clock clicks
+
+            precision is limited, and if too little clicks passes, it may return 0
+        */
+            puts("clock:\n");
+            clock_t t;
+            int i = 0;
+            t = clock();
+            /*
+            NOTE:
+            optimizer may simply skip your useless test operations
+            and very little time will have passed
+            */
+                i++; //useless test operation
+            t = clock() - t;
+            printf( "clicks %llu\n", (unsigned long long)t );
+                //no specifier for this
+                //so cast to largest thing possible and print
+            printf( "seconds %f\n", ((float)t)/CLOCKS_PER_SEC );
+    }
+
+    //#math.h
+    {
+        //max and min for floats (C99):
+
+            assert( fminl( 0.1, 0.2 ) == 0.1 );
+            assert( fmaxl( 0.1, 0.2 ) == 0.2 );
+
+        //exponential:
+
+            assert( fabs( exp(1.0)      - 2.71 )    < 0.01 );
+
+        //trig:
+
+            assert( fabs( cos(0.0)      - 1.0 )     < 0.01 );
+
+        //this is a standard way to get PI. The only problem is the slight calculation overhead.
+
+            assert( fabs( acos(-1.0)    - 3.14 )    < 0.01 );
+
+        //absolute values, integer version:
+
+            assert( abs(-1.1)  == 1 );
+
+        //absolute values, float version:
+
+            assert( fabsl(-1.1) == 1.1 );
+
+        //don't forget to use the float version!
+
+        //#random
+        {
+            //seed the random number generator with the current time
+
+            //
+
+            srand ( time( NULL ) );
+
+            //integer between 0 and RAND_MAX:
+
+                int i = rand();
+
+            //float between 0 and 1:
+
+                float f = rand()/(float)RAND_MAX;
+        }
+    }
 
     /*
     #iso646.h
@@ -3976,8 +4038,51 @@ int main( int argc, char** argv )
         - xor:      ^
         - xor_eq:   ^=
     */
-
+    {
         assert( true and true );
+    }
+
+#ifdef PROFILE
+
+    //- turn off optimization if you want results to make evident sense
+    //- even without optimization, cache access speed is hard to predict
+    //   so what you expect may be false
+
+    loop_only_prof( n_prof_runs );
+    while_only_prof( n_prof_runs );
+
+    int_assign_prof( n_prof_runs );
+    int_sum_prof( n_prof_runs );
+    int_sub_prof( n_prof_runs );
+    int_mult_prof( n_prof_runs );
+    int_div_prof( n_prof_runs );
+
+    float_sum_prof(n_prof_runs);
+    float_sub_prof(n_prof_runs);
+    float_mult_prof(n_prof_runs);
+    float_div_prof(n_prof_runs);
+
+    func_all_prof(n_prof_runs);
+    inline_func_call_prof(n_prof_runs);
+
+    stack1b_prof(n_prof_runs);
+    stack1kb_prof(n_prof_runs);
+    stack1mb_prof(n_prof_runs);
+
+    heap1b_prof(n_prof_runs);
+    heap1kb_prof(n_prof_runs);
+
+    //by far the slowest
+
+        //heap1mbProf(n_prof_runs);
+
+    //BAD:
+    //don't do stdout on profiling
+    //system time is not counted anyways
+
+        //putsProf(n_prof_runs);
+
+#endif
 
     //main returns status:
 
