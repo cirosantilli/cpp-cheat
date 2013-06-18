@@ -16,11 +16,6 @@ Unless the process implements a handler for this process,
 this has the effect of destroying the process,
 which is what happens by default for most, but not all signals.
 
-# sources
-
-- http://www.alexonlinux.com/signal-handling-in-linux
-- http://www.kernel.org/doc/man-pages/online/pages/man7/signal.7.html
-
 # ansi c
 
 there is a small C ANSI signal interface,
@@ -29,11 +24,11 @@ which is the case for linux
 
 6 signals defined:
 
-- SIGINT:  (Interrupt) Ask the process to terminate, possibly nicely. Sample cause: bash ctrl+c.
 - SIGABRT: (Abort) Abnormal termination, such as is initiated by the abort function.
 - SIGFPE:  (Floating-Point Exception) Erroneous arithmetic operation, such as zero divide or an operation resulting in overflow (not necessarily with a floating-point operation).
 - SIGILL:  (Illegal Instruction) Invalid function image, such as an illegal instruction. This is generally due to a corruption in the code or to an attempt to execute data.
 - SIGSEGV: (Segmentation Violation) Invalid access to storage: When a program tries to read or write outside the memory it has allocated.
+- SIGINT:  (Interrupt) Ask the process to terminate, possibly nicely. Sample cause: bash ctrl+c.
 - SIGTERM: (Terminate) Termination request sent to program. Major cause: shutdown, window close.
 
 functions defined (handlers):
@@ -41,83 +36,82 @@ functions defined (handlers):
 - SIG_DFL Default handling: The signal is handled by the default action for that particular signal.
 - SIG_IGN Ignore Signal: The signal is ignored.
 - SIG_ERR Special return value indicating failure.
+
+# sources
+
+- <http://www.alexonlinux.com/signal-handling-in-linux>
+
+    good intro, covers lots of POSIX / linux specific stuff,
+    but also has nice examples that help understand the ANSI C model.
 */
 
-#include <stdio.h>
 #include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-#ifdef POSIX
-
-/*
-many more signals are defined in by posix and made available in unistd
-
-simple easy to understand list:
-
-- SIGKILL
-
-    kills program immeiatelly
-
-    contrary to `SIGINT`, programs cannot handle those signals
-    and try to finish off nicely: the program finishes immediatelly.
-
-- SIGSTOP
-
-    freezes program. ctrl+z.
-
-    programs cannot handle this signal, it always freezes the process immediatelly
-
-- SIGHUP
-
-    controlling terminal was killed
-
-    this is why killing the terminal kills the process by default
-
-- SIGPIPE
-
-    process write to a pipe with no readers on other side
-
-- SIGCHLD
-
-    child terminated
-
-- SIGALRM
-
-    received after the alarm call after given no of secs
-
-- SIGUSR1 and SIGUSR2: left to users to do whatever they want with
-*/
-
-#include <unistd.h>
-#endif
-
-void signal_handler(int sig)
+void signal_handler( int sig )
 {
-    //sig arg allows us to use a single function for several different signals
-    printf("sig: %d\n", sig);
-    (void) signal(SIGINT, SIG_DFL);
-      //reassign SIGINT to SIG_DFL handler which takes the default action for the signal
-      //each process has a default action
-      //in linux, the default actions are:
-        //Term   Default action is to terminate the process.
-        //Ign    Default action is to ignore the signal.
-        //Core   Default action is to terminate the process and dump core (see core(5)).
-        //Stop   Default action is to stop the process.
-        //Cont   Default action is to continue the process if it is currently stopped.
-      //the most common being Term
-}
+    //sig arg allows us to use a single function for several different signals:
+    //just look at it and decide which action to take based on the signal number
 
+        printf( "sig: %d\n", sig );
+
+    //after the signal is dealt with, the handler is then changed to its default action
+    //if you want to continue using this handler for future signals, you have to reregister
+    //it here: TODO confirm. If I remove this it does not work.
+
+        signal( sig, signal_handler );
+
+    //you can change the action handler at any time
+    //for example, if you uncomment this line, only the first signal will be ignored
+    //and but the second will be dealt with the default action:
+
+        //(void) signal( sig, SIG_DFL );
+}
 
 int main()
 {
-    (void) signal(SIGINT, signal_handler);
-    (void) signal(SIGTERM, signal_handler);
-        //registers signal_handler as handler for SIGINT and SIGTERM
+    /*
+        registers signal_handler as handler for SIGINT and SIGTERM:
 
-    while(1)
+        you can get a SIGINT on terminals via C-C on linux or C-Z on windows
+        while the program runs on the foreground:
+
+        you can get a SIGTERM by
+
+        - opening a new termianal (ex: `xterm` on linux)
+        - running this program on that terminal
+
+        from the current terminal, and then closing the first terminal.
+    */
+
+        signal( SIGINT, signal_handler );
+        signal( SIGTERM, signal_handler );
+
+    int i = 0;
+    while ( i < 10 )
     {
-        puts("a");
-#ifdef POSIX
-        sleep(1);
-#endif
+        printf( "%d\n", i );
+        i++;
+
+        /*
+        TODO how to wait here for say 1 sec, so that user can try signals out?
+        there is no simple ANSI way of doing that...
+
+        on posix we would:
+        */
+
+            //sleep( 1 );
     }
+
+    //TODO why does this not work:
+
+        //puts( "press any key to exit" );
+        //getchar();
+
+    //if the user enters a C-C, the program exits
+
+    //try with fgets
+
+    return EXIT_SUCCESS;
 }

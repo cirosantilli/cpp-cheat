@@ -3509,7 +3509,7 @@ int main( int argc, char** argv )
 
         //#stdin tty
         {
-            //#getc, getchar
+            //#getc, #getchar
             if ( 0 )
             {
                 //getchar == getc(stdin)
@@ -3595,6 +3595,8 @@ int main( int argc, char** argv )
             {
                 //together with error checking, best method formatted input method
                 /*fgets*/
+
+                //TODO
             }
         }
 

@@ -16,7 +16,7 @@ override FFLAGS ?= -Wall -march=native -std=f2003 -pedantic-errors -Wno-unused-v
 override IN_DIR ?= ./
 override IN_EXTS ?= .c .cpp .f
 override OUT_DIR ?= _out/
-override OUT_EXT ?= .out
+override OUT_EXT ?=
 
 override DEFINES ?=
 override ASSEMBLER_BASENAME? = c.c
