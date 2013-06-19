@@ -88,30 +88,37 @@ int main()
         signal( SIGINT, signal_handler );
         signal( SIGTERM, signal_handler );
 
-    int i = 0;
-    while ( i < 10 )
-    {
-        printf( "%d\n", i );
-        i++;
+    //int i = 0;
+    //while ( i < 10 )
+    //{
+    //    printf( "%d\n", i );
+    //    i++;
 
-        /*
-        TODO how to wait here for say 1 sec, so that user can try signals out?
-        there is no simple ANSI way of doing that...
+    //    /*
+    //    TODO how to wait here for say 1 sec, so that user can try signals out?
+    //    there is no simple ANSI way of doing that...
 
-        on posix we would:
-        */
+    //    on posix we would:
+    //    */
 
-            //sleep( 1 );
-    }
+    //        //sleep( 1 );
+    //}
 
     //TODO why does this not work:
 
         //puts( "press any key to exit" );
         //getchar();
 
+    //nor does this:
+
+        //puts( "press any key to exit" );
+        //const int bufsiz = 16;
+        //char buf[bufsiz];
+        //fgets( buf, bufsiz, stdin );
+
     //if the user enters a C-C, the program exits
 
-    //try with fgets
+    //TODO is it because C-C also outputs chars to the stream, including a newline?
 
     return EXIT_SUCCESS;
 }

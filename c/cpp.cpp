@@ -2,7 +2,7 @@
 this will focus in differences between cpp and c.
 for the rest, go to c.c
 
-good general resources
+#sources
 
 - <http://www.cplusplus.com>
 
@@ -26,6 +26,22 @@ good general resources
 
     coding guidelines, clearly exemplified
 
+#standard
+
+    like c, c++ is standardized by ISO under the id: ISO/IEC 14882
+
+    like any standard c++ has several versions noted by year
+
+    the first standard is quite recent dating from 1998.
+
+    #C++11
+
+        previously known as C++0x, but took too long to come out
+
+        in gcc: add -c++0x flag. still experimental.
+
+    #C++03
+
 #headers
 
     stdlib headers don't have the .h extension
@@ -38,7 +54,7 @@ good general resources
 
     - std bin is located at: ``/usr/lib/i386-linux-gnu/libstdc++.so.X``. Try ``locate libstdc++``.
     - std headers are located at: ``/usr/include/c++/4.X/``. Try ``locate /iostream``.
-        
+
         Note: c++ std headers have no ``.h`` extension, just like when included.
 
     - the ubuntu package is called ``libstdc++6.X``. ``dpkg -l | grep libstd``
@@ -50,16 +66,6 @@ good general resources
         cX puts things in std:: namespace. *always* use it.
         X.h puts *all* in the global namespace. *never* use it.
 
-- language versions
-
-    latest: C++11
-        previously known as C++0x
-        but took too long to come out
-        in gcc: add -c++0x flag. still experimental
-    previous: C++03
-
-    http://en.wikipedia.org/wiki/C%2B%2B11
-
 - returning references
         http://stackoverflow.com/questions/795674/which-are-the-implications-of-return-a-value-as-constant-reference-and-constant?rq=1
 
@@ -70,7 +76,7 @@ good general resources
 *libs
 
     #linear algebra
-    
+
         #eigen
 
             http://eigen.tuxfamily.org/index.php?title=Main_Page
@@ -114,7 +120,7 @@ good general resources
 #include <mutex>
 #include <numeric>
     //partial sums, differences on vectors of numbers
-#include <set>  
+#include <set>
 #include <string>
     //string
 #include <sstream>
@@ -122,7 +128,7 @@ good general resources
 #include <thread>
 #include <typeinfo>
     //get type of vars
-#include <vector>  
+#include <vector>
 
 #include <cassert>
 #include <cmath>
@@ -141,7 +147,7 @@ void printCallStack()
         cout << *it << endl;
     cout << "END callStack" << endl;
 }
- 
+
 //class
 //{
     /*
@@ -177,7 +183,7 @@ void printCallStack()
                 callStack.push_back("Nested::Nested()");
             }
     };
-    
+
     class Base
     {
         public:
@@ -194,8 +200,8 @@ void printCallStack()
                 the default is not created
             */
             Base() : i(0), j(1) //list initialization
-            { 
-                callStack.push_back("Base::Base()"); 
+            {
+                callStack.push_back("Base::Base()");
                 //this->i=0;
                 //this->j=1;
                     //BAD
@@ -224,14 +230,14 @@ void printCallStack()
 
             //virtual Base(float f){}
                 //ERROR constructor cannot be virtual
-    
+
             Base(float f) : i(0), fs4{f,f,f,f}, vi{0,1,2,3}
             {
                 callStack.push_back("Base::Base(float)");
-            } 
+            }
                 //C++11
                 //initialize arrray/std containers in list initializtion
-            
+
             /*
             destructor
 
@@ -267,12 +273,12 @@ void printCallStack()
 
                 const int& getPrivateConst() const { return this->iPrivate; }
                 //value cannot be changed
-                
+
                 int& getPrivate() { return this->iPrivate; }
                 //value can be changed
-                
+
                 //int& getPrivate() const { return this->iPrivate; }
-                    //ERROR 
+                    //ERROR
                     //const method cannot return noncosnt reference!
 
                 //int* getPrivateAddress() const { return &this->iPrivate; }
@@ -286,7 +292,7 @@ void printCallStack()
             virtual void virtualMethod(){ callStack.push_back("Base::virtualMethod()"); }
             //virtual: decides on runtime based on object type
                 //http://stackoverflow.com/questions/2391679/can-someone-explain-c-virtual-methods
-    
+
             virtual Base* covariantReturn()
             {
                 callStack.push_back("Base:covariantReturn()");
@@ -297,11 +303,11 @@ void printCallStack()
             {
                 callStack.push_back("Base:covariantArg()");
             }
-        
+
             int i,j;
             //ERROR: cannot initialize here
                 //int i = 0;
-            
+
             int iAmbiguous;
 
             int* is;
@@ -320,10 +326,10 @@ void printCallStack()
                 //you could redefine the assigment, but still in your new definition
                 //ic cannot be changed
                 //<http://stackoverflow.com/questions/634662/non-static-const-member-cant-use-default-assignment-operator>
-        
+
             //static
             //{
-            
+
                 static void staticMethod();
 
                 //static void staticMethod() const;
@@ -336,17 +342,17 @@ void printCallStack()
                         //cannot initialize here unless const
                     //int iStatic;
                         //conclicts with static int
-                
+
                 const static int iConstStatic = 0;
                 //OK: const static integral type
 
                 //const static float fConstStatic = 0.0;
                     //ERROR
                     //non integral type
-                
+
                 const static Member member;
                 //OK default constructor? why
-                
+
                 const static Member member2;
                 //const static Member member2 = Member();
                     //ERROR: non integral type
@@ -369,7 +375,7 @@ void printCallStack()
 
                     Member m;
             };
-            
+
             class Nested2
             {
                 public:
@@ -381,7 +387,7 @@ void printCallStack()
 
                     Nested innerIn;
                     //inner one
-                    
+
                     ::Nested innerOut;
                     //outter one
             };
@@ -406,15 +412,15 @@ void printCallStack()
         //this->i = 2;
             //ERROR
             //cant assign member in const func
-        
+
         //this->member.method();
             //ERROR
             //cant call non const method inside const method!
-            
+
         //this->member.i = 1;
             //ERROR
             //cant assign member member in const method
-        
+
         this->mutableI = 1;
             //OK
             //mutable allows you to do that!
@@ -455,7 +461,7 @@ void printCallStack()
 
     //int Base::k;
         //ERROR
-        //must be declared inside 
+        //must be declared inside
 
     class BaseAbstract
     {
@@ -465,7 +471,7 @@ void printCallStack()
             BaseAbstract(){}
             //can be called in derived classes init list
             //can be called in derived classes init list
-    
+
             virtual ~BaseAbstract(){}
 
             void method(){ callStack.push_back("BaseAbstract::method()"); }
@@ -481,7 +487,7 @@ void printCallStack()
                 //cannot instantiate this class
                 //can only instantiate derived classes that implement this
                 //if a class has a pure virtual func is called as an *abstract class* or *interface*
-                
+
             //virtual void pureVirtualImplementedOtherBase() = 0;
                 //BAD
                 //won't work: must implement on derived class only
@@ -568,7 +574,7 @@ void printCallStack()
                 //this is the only place you can do that: init list of derived classes
             //Class() : BaseAbstract(), Base(i,z), BaseProtected(i), BasePrivate(i), i(i), z(z)
                 //warning BaseAbstract will be init after TODO ?
-            
+
             //try catch in case base constructor can throw exceptions
             Class(int i, int j, int z) try : Base(i,j), i(i), z(z)
             {
@@ -577,7 +583,7 @@ void printCallStack()
             catch(const exception &e)
             {
                 throw e;
-            } 
+            }
 
             Class(Member m) : m(m)
             {
@@ -612,7 +618,7 @@ void printCallStack()
                     m = rhs.m;
                     return *this; //so shat a = b = c may work
                 }
-            
+
             /*
             also calls Base destructor after
             */
@@ -620,23 +626,23 @@ void printCallStack()
 
             void method(){ callStack.push_back("Class::method()"); }
             //called method overwriding
-            
+
             template<class C=int>
             void methodTemplate()
             {
                 callStack.push_back("Class::methodTemplate()");
             }
                 //OK
-    
+
             void virtualMethod(){ callStack.push_back("Class::virtualMethod()"); }
                 //different than overwriding non virtual methods. see polymorphism.
-            
+
             //virtual void virtualMethod(){ callStack.push_back("Class::virtualMethod()"); }
                 //OK
                 //only difference:
                 //if you have a pointer to this class, you can only use virtual if this
                 //is declared virtual
-            
+
             void pureVirtual(){ callStack.push_back("Class::pureVirtual()"); }
             //definition obligatory if you want to create objects of this class
 
@@ -646,18 +652,18 @@ void printCallStack()
                 //and therefore return type must be the same as in declaration
 
                 virtual Class* covariantReturn()
-                { 
+                {
                     callStack.push_back("Class:covariantReturn()");
                     return new Class;
                 }
                     //OK
                     //because Class is derived from Base
                     //callde "covariant return type"
-    
+
                     //virtual Class invalidCovariantReturn(){ return Class(); }
                         //ERROR invalid covariant
-                        
-                        
+
+
                 virtual void covariantArg(Class* c)
                 {
                     callStack.push_back("Class:covariantArg()");
@@ -715,7 +721,7 @@ void printCallStack()
             //cannot be put inside a .so therfore
             //consider int N, there are int many compilation possibilities!!
         //- no equivalent to Javas "T extends Drawable"... sad.
-    
+
         //SAME
         //template<typename T=int, int N=10>
         template<class BASE=Base, class T=int, int N=10>
@@ -737,7 +743,7 @@ void printCallStack()
                 {
                     callStack.push_back("TemplateClass::method()");
                 }
-                
+
                 void methodDefinedOutside();
 
                 T method(T){ callStack.push_back("TemplateClass::method(T)"); }
@@ -794,7 +800,7 @@ void printCallStack()
             //c++11
             //even if independent on template args
             //still cannot be pre compiled
-    
+
 
         //specialization
         //{
@@ -808,11 +814,11 @@ void printCallStack()
             }
                 //c++11
                 //specialization of function for case 12 only
-        
+
             //template<> class TemplateClass<Base,int,11> {};
                 //ERROR
                 //case 11 was already defined on the spcecialization of methodDefinedOutside 11
-    
+
 
             template<> class TemplateClass<Base,int,12>
             {
@@ -826,7 +832,7 @@ void printCallStack()
                 //NOTE
                 //specialization of entire class
                 //from now on, a completely new class is created in case 12
-        
+
             //template<>
             //void TemplateClass<Base,int,12>::methodDefinedOutside(){}
                 //ERROR
@@ -838,7 +844,7 @@ void printCallStack()
     //design patterns
     //{
 
-        
+
         //VisibleInnerIterable
         //{
             /*
@@ -846,7 +852,7 @@ void printCallStack()
             iterable object such as a container available outside
 
             design goal:
-            
+
             - to change container type, you only change a single typedef
 
             difficulty:
@@ -950,7 +956,7 @@ void printCallStack()
             //or wil get ``call is ambiguous`` compile time error
             //because compiler cannot decide between
                 //here the default arg can be usefull for a call of type float float
-         
+
         //TODO why does this compile, that is, how not to make an ambiguous call with overload(int)
             void overloadValAddr(const int i){}
             void overloadValAddr(const int& i){}
@@ -1042,7 +1048,7 @@ void printCallStack()
             //without this, compilation error
             //for me, blows max template recursion depth of 1024
             //this can be reset with ``-ftemplate-depth``
- 
+
 
 //namespaces
     //- *never* use ``using namespace X`` on a header file
@@ -1133,12 +1139,12 @@ void printCallStack()
         {
             ::i = 0;
             i = 0;   //namea::i
-            namea::i = 0;  
+            namea::i = 0;
             nameaa::i = 0; //namea::nameaa::i
             callStack.push_back("namea::f");
         }
     }
-        
+
     namespace namea
     {
         //can add new members
@@ -1366,7 +1372,7 @@ void printCallStack()
             int is[0xF0000];
         }
     }
-    
+
     void heapMalloc1bProf(int n)
     {
         char* cp;
@@ -1467,7 +1473,7 @@ void printCallStack()
     }
 
 #endif
-    
+
 int main(int argc, char** argv)
 {
 
@@ -1498,7 +1504,7 @@ int main(int argc, char** argv)
             oss << false;
             assert( oss.str() == "0" );
         }
-        
+
     }
 
     //unsigned
@@ -1518,7 +1524,7 @@ int main(int argc, char** argv)
                 //ERROR
                 //in c this is only a warning, and allows us to change ic.
         }
-    
+
         {
             //const int ic2;
                 //ERROR
@@ -1545,7 +1551,7 @@ int main(int argc, char** argv)
                 //to call it, must tell compiler it doesnt
                 //see constMethod
                 //therefore, *BE CONST OBSESSIVE!* mark as const every const method!
-  
+
             c.constMethod();
         }
     }
@@ -1561,7 +1567,7 @@ int main(int argc, char** argv)
         //
         //http://stackoverflow.com/questions/752658/is-the-practice-of-returning-a-c-reference-variable-evil
         //http://stackoverflow.com/questions/7058339/c-when-to-use-references-vs-pointers}
-        
+
         {
             int i = 0;
             byref(i);
@@ -1595,7 +1601,7 @@ int main(int argc, char** argv)
             int& ia = *ip;
             ia = 1;
             assert( i == 1 );
-        
+
             //ERROR: & must get a variable/dereferenced pointer, not pointers themselves!
                 //int& ia = &i;
                 //int& ia = new int;
@@ -1658,9 +1664,9 @@ int main(int argc, char** argv)
     //gcc
     {
         //called variable length array VLS
-        
+
         //C99 supports this
-        
+
         //compiler implementation:
         //must increment/decrement stack pointer at each array
         //meaning, one extra multiplication and sum for every VLA declared
@@ -1730,7 +1736,7 @@ int main(int argc, char** argv)
                 //1 to 2 will be compiled
             assert( factorial<6>() == 720 );
                 //4 to 6 will be compiled
-            
+
             //variadic template
             {
                 assert( variadicSum( 1 )       == 1 );
@@ -1853,7 +1859,7 @@ int main(int argc, char** argv)
             {
                 //copy constructor
                 //default exists always, calls copy on all memebrs
-                
+
                 Class c;
                 c.i = 1;
                 cout << "Class c2(c)" << endl;
@@ -1949,7 +1955,7 @@ int main(int argc, char** argv)
                     //i j
                     //temporaries can be passed to functions directly
             }
- 
+
             {
                 Class c = Class();
                 Class* cp = &c;
@@ -1995,7 +2001,7 @@ int main(int argc, char** argv)
                 cout << "c.Base::method();" << endl;
                 c.Base::method();
             }
-                
+
 
             //tci10 = TemplateClass<float,20>();
                 //BAD: wont work, unless you defined an assign operator for this case
@@ -2076,7 +2082,7 @@ int main(int argc, char** argv)
                 callStack.clear();
                 c.Base::methodAmbiguous();
                 assert( callStack.back() == "Base::methodAmbiguous()" );
-                
+
                 callStack.clear();
                 c.BaseAbstract::methodAmbiguous();
                 assert( callStack.back() == "BaseAbstract::methodAmbiguous()" );
@@ -2090,13 +2096,13 @@ int main(int argc, char** argv)
             //BaseAbstract b;
                 //ERROR: BaseAbstract cannot be instantiated because it contains a pure virtual method
                 //virtual = 0;. That method must be implemented on derived classes
-              
+
             //even if you can't instantiate base, you can have pointers to it
             {
                 BaseAbstract* bap = new Class;
                 //BaseAbstract* bap = &c;
                     //SAME
-                
+
                 callStack.clear();
                 bap->method();
                 assert( callStack.back() == "BaseAbstract::method()" );
@@ -2106,7 +2112,7 @@ int main(int argc, char** argv)
                 bap->virtualMethod();
                 assert( callStack.back() == "Class::virtualMethod()" );
                     //class method because virtual
-                
+
                 delete bap;
             }
 
@@ -2118,7 +2124,7 @@ int main(int argc, char** argv)
                 callStack.clear();
                 ba.method();
                 assert( callStack.back() == "BaseAbstract::method()" );
-                
+
                 callStack.clear();
                 ba.virtualMethod();
                 assert( callStack.back() == "Class::virtualMethod()" );
@@ -2128,7 +2134,7 @@ int main(int argc, char** argv)
                 Class c = Class();
                 Base* bp = &c;
                 bp = bp->covariantReturn();
-                
+
                 callStack.clear();
                 bp->virtualMethod();
                 assert( callStack.back() == "Class::virtualMethod()" );
@@ -2176,7 +2182,7 @@ int main(int argc, char** argv)
                 VisibleInnerIterable c;
                 VisibleInnerIterable::Iterable ita = c.getIterable();
                 VisibleInnerIterable::Iterable::iterator it = ita.begin();
-                
+
                 int i;
                 int is[] = {0,1,2};
                 for(
@@ -2246,7 +2252,7 @@ int main(int argc, char** argv)
                 //undefined behavior, maybe crash
                 //delete ip;
         }
-        
+
         {
             //int* ip = new int;
             //ip = new int;
@@ -2304,9 +2310,9 @@ int main(int argc, char** argv)
             namea::f();
             namea::nameaa::f();
         }
-        
+
         { int i; }
- 
+
         {
             using namespace namea;
             //brackets limit the using namespace
@@ -2567,7 +2573,7 @@ int main(int argc, char** argv)
                 {
                     vector<int> v = {0,1};
                     vector<int> v1;
-                    
+
                     v.insert( v.begin(), -1 );
                     v1 = {-1,0,1};
                     assert( v == v1 );
@@ -2607,7 +2613,7 @@ int main(int argc, char** argv)
             //random access
             {
                 //fast
-                
+
                 vector<int> v = {0,1,2};
 
                 assert( v.front() == 0 );
@@ -2747,7 +2753,7 @@ int main(int argc, char** argv)
             //C++0x introduces `std::unordered_map`
 
             //nonstandard `hash_map` already provided with gcc and msvc++
-            
+
             //it is even placed in the std:: namespace, but it is *not* standard
         }
 
@@ -2844,7 +2850,7 @@ int main(int argc, char** argv)
                 {
                     //container must be already sorted
                     //log time
-                    
+
                     vector<int> v = {2,0,1};
                     sort( v.begin(), v.end() );
                     assert( binary_search( v.begin(), v.end(), 1 ) == true );
@@ -2888,7 +2894,7 @@ int main(int argc, char** argv)
         //typeinfo
         {
             //get type of variables
-            
+
             int i, i1;
             Class c;
 
@@ -2908,11 +2914,11 @@ int main(int argc, char** argv)
         {
             //c++11
             //needs -pthread flag on gcc linux
-            
+
             std::thread t1( threadFunc, 1000 );
             std::thread t2( threadFunc, 1000 );
                 //starts them
-        
+
             t1.join();
             t2.join();
                 //both must end
@@ -2956,7 +2962,7 @@ int main(int argc, char** argv)
             heapMalloc1bProf(nProfRuns);
             heapMalloc1kbProf(nProfRuns);
             //heapMalloc1mbProf(nProfRuns);
-            
+
             heapNew1bProf(nProfRuns);
             heapNew1kbProf(nProfRuns);
             //heapNew1mbProf(nProfRuns);
@@ -2966,17 +2972,14 @@ int main(int argc, char** argv)
         methodCallProf(nProfRuns);
         virtualMethodCallProf(nProfRuns);
             //2x as expensive than function call
-        
+
         //putsProf(nProfRuns);
             //BAD
             //don't do stdout on profiling
             //system time is not counted anyways
 #endif
 
-    cerr << "==================================================" << endl;
-    cerr << "= ALL ASSERTS PASSED" << endl;
-    cerr << "==================================================" << endl;
-
-    //global/static destructors
     return EXIT_SUCCESS;
+
+    //global/static destructors happen at exit time
 }

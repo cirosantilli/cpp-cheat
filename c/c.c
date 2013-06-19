@@ -16,7 +16,9 @@ only when users want to test those features.
 
     - <http://www.open-std.org/jtc1/sc22/wg14/www/standards>
 
-        latest free draft versions of the ansi c specs
+        official directory containing the latest free draft versions of the ansi c specs
+
+        the latest is: <http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1570.pdf>
 
         the closest to the ansi standard that you can get for free (it is a paid standard...)
 
@@ -52,7 +54,11 @@ only when users want to test those features.
 
         however you can get for free:
 
-        - drafts of the latest standard which are quite close to the actual specifications
+        - drafts of the latest standard which are quite close to the actual specifications.
+
+            It is strongly recommended that you download this now and try as much as you can to get familiar with it,
+            as it is *the* official source.
+
         - older standards
         - compiler documentations
 
@@ -859,25 +865,6 @@ int main( int argc, char** argv )
         - string: `"abc"`
     */
 
-    //#integer literals
-    {
-        //hexadecimal:
-
-            assert( 16 == 0x10    );
-            assert( 16 == 0x10    );
-            assert( 16 == 0x10l   );
-            assert( 16 == 0x10ll  );
-            assert( 16 == 0x10u   );
-            assert( 16 == 0x10ul  );
-            assert( 16 == 0x10ull );
-
-        //octal:
-
-            assert( 16 == 020 );
-
-        //binary: no ansi way
-    }
-
     /*
     #integer types
 
@@ -890,7 +877,7 @@ int main( int argc, char** argv )
     */
     {
         //#char
-
+        {
             //char has fixed size 1 byte:
 
                 assert( sizeof( char ) == 1 );
@@ -913,34 +900,69 @@ int main( int argc, char** argv )
             //TODO possible via escape seqs?
 
             //TODO how to make a literal backslash char?
+        }
 
-        unsigned char uc = (unsigned char)1;
+        //short has no specific literals, must typecast:
 
-        short int si = (short int)1;
-        int i = 1;
-        long int li = (long int)1l;
-        long long lli = 8ll;
-            //C99
+        { short si = (short int)1; }
+        { int i = 1; }
+        { long li = (long int)1l; }
+        { long li = (long int)1L; }
+        { long long lli = 8ll; }
+        { long long lli = 8LL; }
 
-        unsigned short int usi = (unsigned short int)1u;
-            //must typecast
-        unsigned int ui = 1u;
-        unsigned long int uli = 1lu;
-        unsigned long long int ulli = 1llu;
+        //ERROR: no mixed cases allowed
 
-        //integer literals
-        //{
-            //by default, are of the first of the following types
-            //that can represent the value (this is machine dependant):
-            //
-            //int
-            //unsigned int
-            //long int
-            //unsigned long int
-            //long long int
-            //unsigned long long int
-            //ERROR
-        //}
+            //{ long long lli = 8Ll; }
+
+        //short, long and long long are the same as the int versions:
+
+            assert( sizeof( short ) == sizeof( short int ) );
+            assert( sizeof( long ) == sizeof( long int ) );
+            assert( sizeof( long long ) == sizeof( long long int ) );
+
+        //I prefer the version without `int` at the end
+
+        //unsigned:
+
+            { unsigned char uc = (unsigned char)1; }
+            { unsigned short usi = (unsigned short int)1u; }
+            { unsigned int ui = 1u; }
+            { unsigned int ui = 1U; }
+            { unsigned long uli = 1lu; }
+            { unsigned long uli = 1LU; }
+            { unsigned long long ulli = 1llu; }
+            { unsigned long long ulli = 1LLU; }
+
+            //we do not recommend those unless you are into code obfsucation:
+
+                { unsigned long uli = 1Lu; }
+                { unsigned long uli = 1lU; }
+                { unsigned long long ulli = 1LLu; }
+                { unsigned long long ulli = 1llU; }
+
+            //ERROR:
+
+                //{ unsigned long long ulli = 1Llu; }
+
+        //#bases for integer literals
+        {
+            //hexadecimal:
+
+                assert( 16 == 0x10    );
+                assert( 16 == 0x10    );
+                assert( 16 == 0x10l   );
+                assert( 16 == 0x10ll  );
+                assert( 16 == 0x10u   );
+                assert( 16 == 0x10ul  );
+                assert( 16 == 0x10ull );
+
+            //octal:
+
+                assert( 16 == 020 );
+
+            //binary: no ansi way
+        }
     }
 
     //#floating point types
@@ -949,12 +971,14 @@ int main( int argc, char** argv )
             //1 signal 23 number 8 exponent
         float f1 = 1.23e-10f;
         float f2 = 1.f;
-        //float f = 1f;
-            //ERROR
-            //there must be a dot
 
-        double d = 1.23;
-        long double ld = 1.23;
+        //ERROR: there must be a dot
+
+            //float f = 1f;
+
+        { double d = 1.23; }
+        { long double ld = 1.23l; }
+        { long double ld = 1.23L; }
     }
 
     /*
@@ -1057,11 +1081,20 @@ int main( int argc, char** argv )
 
         //uniquelly defined by machine address space
 
-        //int with max possible width:
+        /*
+        #intmax_t #uintmax_t
 
+            int with max possible width
+
+            [there is no floating point version](http://stackoverflow.com/questions/17189423/how-to-get-the-largest-precision-floating-point-data-type-of-implemenation-and-i/17189562?noredirect=1#comment24893431_17189562)
+            for those macros
+        */
+        {
             assert( sizeof( intmax_t ) >= sizeof( long long ) );
+            assert( sizeof( uintmax_t ) >= sizeof( unsigned long long ) );
+        }
 
-        //inttypes also includes limits for each of the defined types
+        //inttypes also includes limits for each of the defined types:
         {
             {
                 int32_t i = 0;
@@ -1267,14 +1300,22 @@ int main( int argc, char** argv )
 
                 assert( (int)0.1 == 0 );
 
-            //implicit typecast based on the variable type
-            //once again, the double is rounded down:
+            //however doubles that are too large to in the int are silently TODO what happens exactly
+
+                printf( "typecast 1e10 = %d\n", (int)1e2 );
+                printf( "typecast 1e100 = %d\n", (int)1e100 );
+
+            //so don't rely on typecasting for rounding!
+
+            //implicit typecast based on the variable type:
 
                 {
                     int i;
                     i = 0.1;
                     assert( i == 0 );
                 }
+
+            //once again, the double is rounded down
 
             //long to int: there may be loss of precision if the long is too large to fit into the int
 
@@ -1510,8 +1551,13 @@ int main( int argc, char** argv )
 
         create new types based on old ones
 
-        on stdlib, convention append `_t` to typedefs is used
+        on libc, convention append `_t` to typedefs is used
         ex: `size_t`, `wchar_t`, etc
+
+        some of those macros are defined to be strcitly integer types (like size_t)
+        while others can be either integer or floating points according to the implementation.
+
+        to print integer typedefs such with `printf`, see `printf`
     */
     {
 
@@ -2690,12 +2736,13 @@ int main( int argc, char** argv )
                     //only changes first byte
                     //you get trash all over
 
-                //cs[0] = '英';
-                    //WARN
+                //WARN
 
-                setlocale( LC_CTYPE, "" );
-                    //NOTE
-                    //need this to print correctly
+                    //cs[0] = '英';
+
+                //you *need* setlocale to print correctly:
+
+                    setlocale( LC_CTYPE, "" );
 
                 wchar_t  wcs[] = L"汉语";
 
@@ -2707,9 +2754,9 @@ int main( int argc, char** argv )
                 wcs[0] = L'a';
                 printf( "%ls\n", wcs );
 
-                //wchar_t  wideString2[] = "asdf";
-                    //ERROR
-                    //non wide init
+                //ERROR: non wide init
+
+                    //wchar_t  wideString2[] = "asdf";
             }
         }
     }
@@ -2875,22 +2922,25 @@ int main( int argc, char** argv )
             }
         }
 
+        /*
+        #for vs while
+
+            in theory, whatever you can to with for you can do with while
+
+            however x86 has a loop instruction that increments and
+            contional jumps in a single step
+
+            therefore, using a simple for is a better hinto to your
+            compiler to use this more efficient looping instruction
+
+            moral: if you when know how many loops you will do, use `for`,
+            otherwise use `while`
+        */
+
         //#for
         {
-            //basic
+            //basic example
             {
-                //in theory, whatever you can to with for you can do with while
-                //
-                //why it exists then?
-                //- because x86 has a loop instruction that increments and
-                //   contional jumps in a single step
-                //
-                //   therfore, using a simple for is more likely to tell your
-                //   compiler to use this more efficient looping instruction
-                //
-                //moral:
-                //if you when know how many loops you will do, use `for`
-                //otherwise use `while`
 
                 int i;
                 int is[] = { 0, 1, 2 };
@@ -3269,55 +3319,86 @@ int main( int argc, char** argv )
         }
     }
 
-    //#stdio
+    /*
+    #stdio
+
+        stream Input and Output
+    */
     {
-        //#general notes
+        /*
+        #stream
 
-            //#EOF
+            an stream is an abstraction over different input/output methods
+            such as regular files, stdin/stdout/stderr (pipes in linux), etc.
+            so that all of them can be treated on an uniform basis once you opened the stream.
 
-                //TODO what is EOF on a system level
-                //what happens when I hit ctrl+d on bash + getchar?
-                //current guess: a pipe close
+            most functions have a form which outputs only to stdout,
+            and most input functions have a form which reads only from sdtin
+            coupled with a general form that outputs to any stream.
 
-                //in linux, EOF does not exist
+            unfortunatelly, sometimes there are subtle differences between those two
+            forms, so beawere!
 
-                //the only way to know if a file is over is to make a `sys_read` call
-                //and check if you get less bytes than you ask for
-                //(`sys_read` returns the number of bytes read)
+        #FILE
 
-                //alternativelly, for fds that are files, you can use `sys_stat` in linux,
-                //but there is no portable stat func
+            FILE is a macro that represents a stream object
 
-                //what was said for linux is similar for windows
-                //and similar for c thus
+            its name is FILE of course because files are one of the main types of streams.
 
-                //EOF is a c concept
+        #stream vs file descriptors
 
-                //EOF works because there are only 256 bytes you can get from an fd
-                //so EOF is just some int outside of the possible 0-255 range, tipically -1
-
-        //std in/out/err
-        //stdin
-            //be careful!! stdin won't return EOF automatically
-            //
-            //for a tty you can tell the user to input a EOF (ctrl d in linux, ctrl z in windows)
-            //but as you see this is system dependent. for pipes I am yet to find how to do this,
-            //might be automatic when process closes only.
-            //
-            //the best way to know that a stdin ended is recognizing some specific
-            //pattern of the input, such as a newline with fgets, or the end of a
-            //number with scanf
-            //
-            //before this comes, the program just stops waiting for the stdin to
-            //produce this, either from user keyboard input, or from the program
-            //behind the pipe.
+            a file descriptor is a POSIX concept and thus shall not be discussed here.
 
         //TODO
             //setvbuf: set io buffer size, must be used on open stream
             //flush:    flush io buffer
             //freopen
+        */
 
-        //#stdout
+        /*
+        #EOF
+
+            TODO what is EOF on a system level
+            what happens when I hit ctrl+d on bash + getchar?
+            current guess: a pipe close
+
+            in linux, EOF does not exist
+
+            the only way to know if a file is over is to make a `sys_read` call
+            and check if you get less bytes than you ask for
+            (`sys_read` returns the number of bytes read)
+
+            alternativelly, for fds that are files, you can use `sys_stat` in linux,
+            but there is no portable stat func
+
+            what was said for linux is similar for windows
+            and similar for c thus
+
+            EOF is a c concept
+
+            EOF works because there are only 256 bytes you can get from an fd
+            so EOF is just some int outside of the possible 0-255 range, tipically -1
+        */
+
+        /*
+        #stdin
+
+            be careful!! stdin won't return EOF automatically
+
+            for a tty you can tell the user to input a EOF (ctrl d in linux, ctrl z in windows)
+            but as you see this is system dependent. for pipes I am yet to find how to do this,
+            might be automatic when process closes only.
+
+            the best way to know that a stdin ended is recognizing some specific
+            pattern of the input, such as a newline with fgets, or the end of a
+            number with scanf
+
+            before this comes, the program just stops waiting for the stdin to
+            produce this, either from user keyboard input, or from the program
+            behind the pipe.
+        */
+
+        //#stream output
         {
             //#putchar
             {
@@ -3347,7 +3428,12 @@ int main( int argc, char** argv )
                 since this has become a defacto standard and is also used
                 in python format strings and bash `printf` command.
 
-                good source with most types: <http://www.cplusplus.com/reference/clibrary/cstdio/printf/>
+                does may not be up to data with the latest new modifiers.
+
+                # sources
+
+                    readable documentation on the c++11 format strings <http://www.cplusplus.com/reference/clibrary/cstdio/printf/>
+                    should be close to the latest c, and backwards compatible
             */
             {
                 char s[256];
@@ -3381,11 +3467,16 @@ int main( int argc, char** argv )
 
                 printf("%d %d\n",1,2);
 
-                //#float and double
+                //#floating point numbers
                 {
-                    //both the same char
+                    //float and double (both the same char, float gets typecast):
 
-                    printf("f = %f\n", 1.0f);
+                        printf( "printf float = %f\n", 1.0f );
+                        printf( "printf double = %f\n", 1.0 );
+
+                    //long double:
+
+                        printf( "f = %f\n", 1.0 );
 
                     //#control number of zeros after dot
                     {
@@ -3403,72 +3494,120 @@ int main( int argc, char** argv )
                             assert( strcmp( s, s2 ) == 0 );
                         }
                     }
+                }
 
-                    //#control minimum number chars to output
+                //#control minimum number chars to output
+                {
+                    //#pad with spaces
                     {
-                        //#pad with spaces
-                        {
-                            //useful to output text tables:
-                            //
-                            //ugly:
-                            //
-                            //12345 1
-                            //1 1
-                            //
-                            //beautiful:
-                            //
-                            //12345 1
-                            //1     1
+                        //useful to output text tables:
+                        //
+                        //ugly:
+                        //
+                        //12345 1
+                        //1 1
+                        //
+                        //beautiful:
+                        //
+                        //12345 1
+                        //1     1
 
-                            sprintf( s, "%6.2f", 1.0f );
-                            char s2[] = "  1.00";
-                            assert( strcmp( s, s2 ) == 0 );
-                        }
-
-                        //#pad with zeros
-                        {
-                            //useful for naming files:
-                            //"10" comes after  "09" ('1' > '0')
-                            //"10" comes before "9"  ('1' < '0')!
-
-                            sprintf( s, "%06.2f", 1.0f );
-                            char s2[] = "001.00";
-                            assert( strcmp( s, s2 ) == 0 );
-                        }
+                        sprintf( s, "%6.2f", 1.0f );
+                        char s2[] = "  1.00";
+                        assert( strcmp( s, s2 ) == 0 );
                     }
 
-                    //#scientific
+                    //#pad with zeros
                     {
-                        sprintf( s, "%.3e", 1.0f );
-                        char s2[] = "1.000e+00";
+                        //useful for naming files:
+                        //"10" comes after  "09" ('1' > '0')
+                        //"10" comes before "9"  ('1' < '0')!
+
+                        sprintf( s, "%06.2f", 1.0f );
+                        char s2[] = "001.00";
                         assert( strcmp( s, s2 ) == 0 );
                     }
                 }
 
-                printf("%s\n", "a string");
-                printf("%s\n", "\t<<< \\t tab char");
-                printf("%s\n", "\0<<< \\0 null char");
+                //#scientific
+                {
+                    sprintf( s, "%.3e", 1.0f );
+                    char s2[] = "1.000e+00";
+                    assert( strcmp( s, s2 ) == 0 );
+                }
 
-                printf("%c\n", 'a');
-                printf("%d\n", 'a');
+                //srings:
 
-                printf("%x\n", 16);
+                    printf( "%s\n", "a string" );
 
-                float f;
-                printf( "(void*)&f = %p\n",(void*)&f );
-                    //prints the 0x address.
-                    //%p must get a void pointer
-                    //void* is a type, different than void. doing type cast to it.
+                printf( "%s\n", "\t<<< \\t tab char" );
+                printf( "%s\n", "\0<<< \\0 null char" );
 
-                printf( "%%<<< escaping percentage\n" );
-                    //note that this is printf specific
-                    //not string specific
+                //chars:
+
+                    printf( "%c\n", 'a' );
+                    printf( "%d\n", 'a' );
+
+                //hexadecimal output:
+
+                    printf( "%x\n", 16 );
+
+                //pointers:
+
+                    float f;
+                    printf( "(void*)&f = %p\n", (void*)&f );
+                        //prints the 0x address.
+                        //%p must get a void pointer
+                        //void* is a type, different than void. doing type cast to it.
+
+                    printf( "%%<<< escaping percentage\n" );
+                        //note that this is printf specific
+                        //not string specific
+
+                /*
+                #printf typedefs
+
+                    some integer typedefs have a specific printf format, others don't
+
+                    others don't. For those, rirst cast them to `uintmax_t` and then printf with `%ju`
+                */
+                {
+                    //have specific format strings
+
+                        printf( "printf size_t = %zu\n", (size_t)1 );
+                        printf( "printf size_t = %jd\n", (intmax_t)1 );
+                        printf( "printf size_t = %ju\n", (uintmax_t)1 );
+
+
+                    //don't have specific format strings: TODO find one, clock_t is not defined integer or float
+
+                        //printf( "printf clock_t = %ju\n", (uintmax_t)(clock_t)1 );
+
+                    /*
+                    if a typedef is not guaranteed to be either an integer type or a floating point type,
+                    just cast it to the largest floating point type possible
+
+                    TODO is there a definete way to determine this like uintmax_t for integer types?
+
+                    */
+
+                        printf( "printf clock_t = %Lf\n", (long double)(clock_t)1 );
+                }
+            }
+
+            /*
+            #fprintf
+
+                same as printf, but to an arbitrary stream
+            */
+            {
+                FILE* fp = stderr;
+                fprintf( stderr, "fprintf = %d\n", 1 );
             }
 
             //large strings to stdout
             {
                 //stdout it line buffered
-
 
                 //if you fill up the buffer without any newlines
                 //it will just print
@@ -3488,14 +3627,22 @@ int main( int argc, char** argv )
             }
         }
 
-        //#stderr
+        /*
+        #stderr
+
+            the `stderr` stream is open and accessible via `FILE* stderr`,
+            so you can output ot it with any function which outputs to a stream such as
+            `fputs` or `fprintf`.
+
+            the `stdout` identifier is also made available, but seldom used since
+            most functions have a version which by default outputs to stdout.
+        */
         {
-            //#fputs, fprintf
             {
                 //puts and printf to any fd, not just stdout
 
-                fputs( "stdout", stdout );
-                fputs( "stderr", stderr );
+                fputs( "stdout\n", stdout );
+                fputs( "stderr\n", stderr );
                 fprintf( stdout, "%d\n", 1 );
                 fprintf( stderr, "%d\n", 1 );
                     //*always* put user messages on stderr
@@ -3507,14 +3654,23 @@ int main( int argc, char** argv )
             }
         }
 
-        //#stdin tty
+        //#stream input
         {
-            //#getc, #getchar
+            /*
+            #getchar
+
+                getchar == getc(stdin)
+
+            #getc
+
+                get single char from given stream (should be called fgetc...)
+
+                it blocks until any char made available.
+
+                whatever char entered including on a tty is made available immediatelly.
+            */
             if ( 0 )
             {
-                //getchar == getc(stdin)
-
-                //it blocks until any char is read
 
                 //echo a | c.out
                     //a
@@ -3553,6 +3709,57 @@ int main( int argc, char** argv )
             }
 
             /*
+            #fgets
+
+                reads up to whichever comes first:
+
+                - a newline char
+                - buff_size - 1 chars have been read
+                - the end of file was reached
+
+                if the input comes from stdin on a tty
+                and if user inputs more than the buffer size, this will wait until the user enters
+                <enter>, and only at that point will those bytes be made available for `fgets`,
+                the exceding chars remaining in the buffer if you try to read again.
+
+                saves result in buff, '\0' terminated
+
+                this is the safest method io method to get a line at time,
+                since it allows the programmer to deal with very long lines.
+
+                the trailling newline is included in the input.
+            */
+            if ( 1 )
+            {
+                FILE* fp = stdin;
+                const int buff_size = 4;
+                char buff[buff_size];
+                fprintf( stderr, "enter a string and press enter (max %d bytes):\n", buff_size - 1 );
+                if ( fgets( buff, buff_size, fp ) == NULL )
+                {
+                    if ( feof( fp ) )
+                    {
+                        fprintf( stderr, "fgets was already at the end of the stream and read nothing" );
+                    }
+                    else if ( ferror( fp ) )
+                    {
+                        fprintf( stderr, "fgets error reading from stream" );
+                    }
+                }
+                //some bytes are left in the buffer, may want to reread it.
+                else if ( ! feof( fp ) )
+                {
+                    //TODO why does this not work with stdin from a tty nor pipe?
+                    //why is eof not reached even if user inputs 1 single char?
+
+                        //fprintf( stderr, "you entered more than the maximum number of bytes\n" );
+
+                    //TODO why does this not work? why is eof not reached even if user inputs 1 single char?
+                }
+                fprintf( stderr, "you entered:\n%s", buff );
+            }
+
+            /*
             #scanf
 
                 complicated behaviour
@@ -3564,6 +3771,8 @@ int main( int argc, char** argv )
                 stops reading at newline
 
                 use only if error checking is not a priority
+
+                to do proper error checking, try `fgets` and the `strtol` family
             */
             if ( 0 )
             {
@@ -3573,7 +3782,6 @@ int main( int argc, char** argv )
                 printf( "enter an integer in decimal and <enter> (max 32 bits signed):\n" );
                 i = scanf( "%d", &i );
                 printf( "you entered: %d\n", i );
-                i++;
                 //stuff is space separated
                 //try 123 456 789 at once. 456 789 stay in the buffer, and are eaten by the second scanf
 
@@ -3590,43 +3798,95 @@ int main( int argc, char** argv )
                 printf( "you entered (in decimal): %d\n", i );
             }
 
-            //#fgets
+            /*
+            #fscanf
+
+                complicated like scanf
+            */
             if ( 0 )
             {
-                //together with error checking, best method formatted input method
-                /*fgets*/
-
-                //TODO
+                FILE* fp = stdin;
+                int i;
+                float f;
+                puts( "enter a int a space and a float (scientific notation) and then EOF (ctrl-d in linux):" );
+                if ( fscanf( stdin, "%d %e\n", &i, &f ) != 2 )
+                {
+                    if ( feof( fp ) )
+                    {
+                        fprintf( stderr, "fscanf reached the of file and read nothing\n" );
+                    } else if ( ferror( fp ) ) {
+                        fprintf( stderr, "fscanf error reading from stream\n" );
+                    }
+                }
+                fprintf( stderr, "you entered: %d %.2e\n", i, f );
             }
         }
 
-        //#file io
+        /*
+        #file streams
+
+            to get streams that deal with files, use fopen
+
+            to close those streams, use fclose
+
+            #fopen
+
+                open file for read/write
+
+                don't forget to fclose after using! open streams are a process resource.
+
+                modes:
+
+                - r: read. compatible with a,w
+                - w: read and write. destroy if exists, create if not.
+                - a: append. write to the end. creates if does not exist.
+                - +: can do both input and output. msut use flush or fseek
+                - x: don't destroy if exist (c11, not c++!, posix only)
+                - b: binary. means nothing in POSIX systems,
+                    on our dear DOS must be used for NL vs NLCR problems
+                    there are two different modes there
+                    Therefore, for portability, make this difference.
+
+            #text vs binary
+
+                #text vs binary for numerical types
+
+                    example: an int 123 can be written to a file in two ways:
+
+                    - text: three bytes containing the ascii values of `1`, `2` and then `3`
+                    - binary: as the internal int representation of the c value, that is 4 bytes,
+                        with `123` in binary and zeroes at the front.
+
+                    advantages of text:
+
+                    - it is human readable since it contains only ASCII or UTF values
+                    - for small values it may be more efficient (123 is 3 bytes in ascii instead of 4 in binary)
+
+                    advantages of binary:
+
+                    - it is shorter for large integers
+                    - inevitable for data that cannot be interpretred as text (images, executables)
+
+                #newline vs carriage return newline
+
+                    newline carriage return realated TODO confirm
+
+                    for portability, use it consistently.
+
+                    In linux the difference between text methods and binary methods is only conceptual:
+                    some methods output human readable text (`fprintf`) and can be classified as text,
+                    while others output binary, no difference is made at file opening time
+
+            #fclose
+
+                don't forget to close!
+
+                there is a limited ammount of open files at a time by the os
+
+                buffered output may not have been saved before closing
+        */
         {
             FILE* fp;
-                //#FILE is a macro for a stream object
-
-                    //a strem object is higher level than a file descriptor
-
-                    //it uses file descriptors as backend in linux
-
-                    //linux file descriptors are identified simply by integers
-
-                    //by using streams you get the classical high level/low level tradeoff:
-
-                        //higher portability
-                            //since working with fds is posix
-
-                        //more convenience
-                            //since each function on streams may do lots of
-                            //operations at once on the underlying fds
-
-                        //less control
-
-                            //since OS certain specific operatins are not available
-
-                            //with fds in linux you can do file/pipe/FIFO/socket specific operations
-                            //for example
-
             int err, had_error, fi;
             float ff;
             char c1;
@@ -3635,22 +3895,7 @@ int main( int argc, char** argv )
             const int buff_size = 16;
             char path[buff_size], buff[buff_size];
 
-            /*
-            #fopen
-
-                open file for read/write
-                don't forget to fclose after using!
-                modes:
-                    r: read. compatible with a,w
-                    w: read and write. destroy if exists, create if not.
-                    a: append. write to the end. creates if does not exist.
-                    +: can do both input and output. msut use flush or fseek
-                    x: don't destroy if exist (c11, not c++!, posix only)
-                    b: binary. means nothing in POSIX systems,
-                        on our dear DOS must be used for NL vs NLCR problems
-                        there are two different modes there
-                        Therefore, for portability, make this difference.
-            */
+            //simple example of file io:
             {
                 strcpy( path, "f.tmp" );
                 fp = fopen( path, "w" );
@@ -3661,258 +3906,137 @@ int main( int argc, char** argv )
                 }
                 else
                 {
-                    //fputc
                     if ( fputc( 'a', fp ) == EOF )
                     {
                         report_cant_write_file( path );
                         exit( EXIT_FAILURE );
                     }
-
-                    //fputs
-                    {
-                        //newline not automatically appended
-                        if ( fputs("bc", fp) == EOF )
-                        {
-                            report_cant_write_file(path);
-                            exit(EXIT_FAILURE);
-                        }
-                    }
-
-                    //fprintf
-                    {
-                        // http://www.cplusplus.com/reference/clibrary/cstdio/fprintf/
-                        if ( fprintf( fp, "%d\n%.2e\n", 123, 12.3f ) < 0 )
-                        {
-                            report_cant_write_file(path);
-                        }
-                    }
                 }
-            }
-            /*
-            don't forget to close!
-
-            there is a limited ammount of open files at a time by the os
-
-            buffered output may not have been saved before closing
-            */
-            if( fclose(fp) == EOF )
-            {
-                fprintf(stderr, "could not close:\n%s\n", path);
-            }
-
-            /*
-            #text vs binary
-
-                example: an int 123 can be written to a file in two ways:
-
-                - text: three bytes containing the ascii values of `1`, `2` and then `3`
-                - binary: as the internal int representation of the c value, that is 4 bytes,
-                    with `123` in binary and zeroes at the front.
-
-                advantages of text:
-
-                - it is human readable since it contains only ASCII or UTF values
-                - for small values it may be more efficient (123 is 3 bytes in ascii instead of 4 in binary)
-
-                advantages of binary:
-
-                - it is shorter for large integers
-                - inevitable for data that cannot be interpretred as text (images, executables)
-
-            #b option
-
-                'b' option to the `open` function only makes a difference for DOS
-                (newline carriage return realted TODO confirm)
-
-                for portability, use it consistently.
-
-                In linux the difference between text methods and binary methods is only conceptual:
-                some methods output human readable text (`fprintf`) and can be classified as text,
-                while others output binary, no difference is made at file opening time
-            */
-
-            //text io
-            {
+                if( fclose(fp) == EOF )
                 {
-                    fp = fopen(path,"r");
-                    if (fp==NULL)
-                    {
-                        report_cant_open_file(path);
-                    }
-                    else
-                    {
-                        c1 = fgetc(fp);
-                        if ( c1 == EOF )
-                        {
-                            if ( feof( fp ) )
-                            {
-                                fprintf( stderr, "fgetc end of file:\n%s\n", path );
-                            }
-                            else if (ferror(fp))
-                            {
-                                fprintf( stderr, "fgetc error reading from:\n%s\n", path );
-                            }
-                        }
-                        fprintf( stderr, "c1 = %c\n",c1 );
-                        fgetc( fp );
+                    fprintf(stderr, "could not close:\n%s\n", path);
+                }
+            }
+        }
 
-                        //fgets
-                            //http://www.cplusplus.com/reference/clibrary/cstdio/fgets/
-                            //reads up to:
-                            //* newline
-                            //* buff_size-1 chars
-                            //saves result in buff, '\0' terminated
-                            if ( fgets( buff, buff_size, fp ) == NULL )
-                            {
-                                if ( feof(fp) )
-                                {
-                                    fprintf(stderr, "fgets reached the of file and read nothing:\n%s\n", path);
-                                }
-                                else if ( ferror(fp) )
-                                {
-                                    fprintf(stderr, "fgets error reading from:\n%s\n", path);
-                                }
-                            }
-                            else if ( feof(fp) )
-                            {
-                                fprintf( stderr, "fgets reached the of file and read some chars before that:\n%s\n", path );
-                            }
-                            fprintf(stderr, "buff = %s",buff);
-                            fgets(buff, buff_size, fp);
-                            fprintf(stderr, "buff = %s",buff);
+        //#binary io
+        {
+            int elems_write[] = { 1, 2, 3 };
+            const int nelems = sizeof(elems_write) / sizeof(elems_write[0]);
+            int elems_read[nelems];
 
-                        //fscanf
-                            //complicated like scanf
-                            if ( fscanf(fp, "%d\n%e\n",&fi,&ff) != 2 )
-                            {
-                                if ( feof( fp ) )
-                                {
-                                    fprintf(stderr, "fscanf reached the of file and read nothing:\n%s\n", path);
-                                } else if (ferror(fp)) {
-                                    fprintf(stderr, "fscanf error reading from:\n%s\n", path);
-                                }
-                            }
-                            fprintf( stderr, "%d %.2e\n", fi, ff );
-                    }
+            FILE* fp;
+            char path[] = "fwrite.tmp";
 
-                    if ( fclose(fp) == EOF )
+            //#fwrite
+            {
+                fp = fopen( path, "wb" );
+                if ( fp == NULL )
+                {
+                    fprintf( stderr, "could not open:\n%s\n", path );
+                    exit(EXIT_FAILURE);
+                }
+                else
+                {
+                    //returns number of elements written
+
+                    //common nelems source
+                        //nelems=sizeof(buff)/sizeof(buff[0]);
+                        //nelems=strlen(buff)+1
+
+                    if ( fwrite( elems_write, sizeof(elems_write[0]), nelems, fp ) < nelems )
                     {
-                        fprintf(stderr, "could not close:\n%s\n", path);
+                        fprintf(stderr, "could not write all the data:\n%s\n", path);
                     }
+                }
+                if ( fclose(fp) == EOF )
+                {
+                    fprintf( stderr, "could not close:\n%s\n", path );
                 }
             }
 
-            //binary io
+            //#fread
             {
-                int elems_write[] = { 1, 2, 3 };
-                const int nelems = sizeof(elems_write) / sizeof(elems_write[0]);
-                int elems_read[nelems];
-
-                //#fwrite
+                fp = fopen( path, "rb" );
+                if ( fp == NULL )
                 {
-                    strcpy( path, "b.tmp" );
-                    fp = fopen( path, "wb" );
-                    if ( fp == NULL )
-                    {
-                        fprintf( stderr, "could not open:\n%s\n", path );
-                        exit(EXIT_FAILURE);
-                    }
-                    else
-                    {
-                        //returns number of elements written
-
-                        //common nelems source
-                            //nelems=sizeof(buff)/sizeof(buff[0]);
-                            //nelems=strlen(buff)+1
-
-                        if ( fwrite( elems_write, sizeof(elems_write[0]), nelems, fp ) < nelems )
-                        {
-                            fprintf(stderr, "could not write all the data:\n%s\n", path);
-                        }
-                    }
-                    if ( fclose(fp) == EOF )
-                    {
-                        fprintf( stderr, "could not close:\n%s\n", path );
+                    fprintf(stderr, "could not open:\n%s\n", path);
+                }
+                else
+                {
+                    if ( fread( elems_read, sizeof(elems_read[0]), nelems, fp) < nelems )
+                    { //returns number of elements written
+                        fprintf(stderr, "could not read all the data:\n%s\n", path);
                     }
                 }
 
-                //#fread
+                if ( fclose(fp) == EOF )
                 {
-                    fp = fopen( path, "rb" );
-                    if ( fp == NULL )
-                    {
-                        fprintf(stderr, "could not open:\n%s\n", path);
-                    }
-                    else
-                    {
-                        if ( fread( elems_read, sizeof(elems_read[0]), nelems, fp) < nelems )
-                        { //returns number of elements written
-                            fprintf(stderr, "could not read all the data:\n%s\n", path);
-                        }
-                    }
-
-                    if ( fclose(fp) == EOF )
-                    {
-                        fprintf(stderr, "could not close:\n%s\n", path);
-                    }
+                    fprintf(stderr, "could not close:\n%s\n", path);
                 }
-
-                assert( memcmp( elems_read, elems_write, nelems ) == 0);
             }
 
-            //#reposition read write
-            {
-                //ftell
-                    //long int curpos = ftell(pf)
-                    //if ( curpos == -1L ){
-                    //    report_cant_move_file();
-                    //}
+            assert( memcmp( elems_read, elems_write, nelems ) == 0);
+        }
 
-                //fseek
-                    //http://www.cplusplus.com/reference/clibrary/cstdio/fseek/
-                    //
-                    //SET: beginning
-                    //CUR: current
-                    //END: end
-                    //
-                    //for binary, n bytes, for read, no necessarily
-                    //
-                    //if ( fseek ( pf, 0 , SEEK_SET ) != 0 ) {
-                    //    report_cant_move_file();
-                    //}
+        //#reposition read write
+        {
+            //#ftell
+                //long int curpos = ftell(pf)
+                //if ( curpos == -1L ){
+                //    report_cant_move_file();
+                //}
 
-                //flush(fp)
-                    //for output streams only.
-                    //makes sure all the data is put on the stream.
-                    //
-                    // if (flush(fp) == EOF){
-                    //        //error
-                    // }
-
-                //freopen
-                    //freopen("/dev/null", "r", stdin);
-                    //this will discard stdin on linux
-
-                //TODO ? fgetpos, fsetpos, rewind
+            //#fseek
+                //http://www.cplusplus.com/reference/clibrary/cstdio/fseek/
                 //
+                //SET: beginning
+                //CUR: current
+                //END: end
+                //
+                //for binary, n bytes, for read, no necessarily
+                //
+                //if ( fseek ( pf, 0 , SEEK_SET ) != 0 ) {
+                //    report_cant_move_file();
+                //}
 
-                //TRY: echo "123" | ./c_cheatsheet.out
-                    //this will use stdin from a pipe! no user input
-            }
+            //#flush(fp)
+                //for output streams only.
+                //makes sure all the data is put on the stream.
+                //
+                // if (flush(fp) == EOF){
+                //        //error
+                // }
 
-            //#applications
+            //#freopen
+                //freopen("/dev/null", "r", stdin);
+                //this will discard stdin on linux
+
+            //TODO ? fgetpos, fsetpos, rewind
+            //
+
+            //TRY: echo "123" | ./c_cheatsheet.out
+                //this will use stdin from a pipe! no user input
+        }
+
+        //#applications
+        {
+            //string to from file
             {
-                //write entire string to file at once
+                FILE* fp;
+                char path[] = "str_file.tmp";
+                char cs[] = "asdf\nqwer";
 
-                    char cs[] = "asdf\nqwer";
-                    strcpy(path,"f.tmp");
+                //write entire string to file at once
+                {
                     if ( file_write( path, cs ) == -1 )
                     {
                         report_cant_write_file(path);
                     }
+                }
 
                 //read entire file at once to a string
-
+                {
                     char* cp = file_read(path);
                     if ( cp == NULL )
                     {
@@ -3920,17 +4044,22 @@ int main( int argc, char** argv )
                     }
                     assert( strcmp( cs, cp ) == 0 );
                     free(cp);
+                }
+            }
 
-                //simple write arrays to file
+            //simple write arrays to file
+            {
+                FILE* fp;
+                char path[16];
 
-                    int arri[] = { 0, 1, -1, 12873453 };
-                    float arrf[] = { 1.1f, 1.001f, -1.1f, 1.23456e2 };
+                int arri[] = { 0, 1, -1, 12873453 };
+                float arrf[] = { 1.1f, 1.001f, -1.1f, 1.23456e2 };
 
-                    strcpy( path, "arri.tmp" );
-                    write_int_arr_file( path, arri, 4 );
+                strcpy( path, "arri.tmp" );
+                write_int_arr_file( path, arri, 4 );
 
-                    strcpy( path, "arrf.tmp" );
-                    write_float_arr_file( path, arrf, 4, 2 );
+                strcpy( path, "arrf.tmp" );
+                write_float_arr_file( path, arrf, 4, 2 );
             }
         }
     }
@@ -3943,34 +4072,43 @@ int main( int argc, char** argv )
             seconds since 1970
         */
 
-            printf( "%ld seconds since 1970-01-01:\n", time(NULL) );
+            printf( "time() = %ld\n", time(NULL) );
 
         //#CLOCKS_PER_SEC
 
-            printf( "CLOCKS_PER_SEC =  %ld\n", CLOCKS_PER_SEC );
+            printf( "CLOCKS_PER_SEC = %ld\n", CLOCKS_PER_SEC );
 
         /*
         #clock()
 
-            program virtual time in number of clock clicks
+            program virtual time in number of processor clock clicks
 
-            precision is limited, and if too little clicks passes, it may return 0
+            precision is quite limited, and if too few clicks pass, it may return 0.
         */
-            puts("clock:\n");
+        if ( 0 )
+        {
             clock_t t;
             int i = 0;
             t = clock();
+
             /*
-            NOTE:
-            optimizer may simply skip your useless test operations
+            busy waiting
+
+            WARNING: optimizer may simply skip your useless test operations
             and very little time will have passed
             */
-                i++; //useless test operation
+                int j = 0;
+                for ( int i = 0; i < CLOCKS_PER_SEC * 10; i++ ){ j++; }
+
             t = clock() - t;
-            printf( "clicks %llu\n", (unsigned long long)t );
-                //no specifier for this
-                //so cast to largest thing possible and print
-            printf( "seconds %f\n", ((float)t)/CLOCKS_PER_SEC );
+
+            //there is no printf specifier for `clock_t`
+            //so cast to largest possible integer type:
+
+                printf( "clicks = %llu\n", (intmax_t)t );
+
+            printf( "seconds = %f\n", ((float)t) / CLOCKS_PER_SEC );
+        }
     }
 
     //#math.h
