@@ -25,12 +25,12 @@ install:
 #readelf -d shows that the ouptut stores the relative path
 mainso.elf: main.o libab.so
 	gcc $(CFLGS) -L"." main.o -o mainso.elf -lab
-		#will look for lib with basename *exactly* ``libab.so``,
-		#``libab.so.1`` will not do!
+		#will look for lib with basename *exactly* `libab.so`,
+		#`libab.so.1` will not do!
 	#gcc $(CFLGS) -L"." main.o -o mainso.elf -l:libab.so
 		#with ':' uses full basename
 		#APPLICATION
-		#select an specific version such as ``libab.so.1``
+		#select an specific version such as `libab.so.1`
 	#env LIBRARY_PATH=$LIBRARY_PATH:. gcc $(CFLGS) main.c -o mainso.elf -lab
 
 #this is not recommended

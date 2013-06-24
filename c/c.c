@@ -177,6 +177,7 @@ only when users want to test those features.
 #include <stdarg.h>    //... variable num of args
 #include <signal.h>
 #include <stdbool.h>   //true, false. c99
+#include <stddef.h>    //offsetof
 #include <stdint.h>    //uint32_t, etc.
 #include <stdlib.h>    //malloc, EXIT_SUCCESS, EXIT_FAILURE:
 #include <stdio.h>     //printf, puts
@@ -331,9 +332,11 @@ int debugVar;
         return (*function_ptr)(m, n);
     }
 
-    //#struct args
+    /*
+    #function struct args
 
-        //how to deal with passing structs to/from functions
+        how to deal with passing structs to/from functions
+    */
 
         struct FuncReturn { int i; };
 
@@ -1761,6 +1764,30 @@ int main( int argc, char** argv )
             s.b1 = i;
             assert( s.b1 == 1 );
                 //only takes lsb
+        }
+
+        /*
+        #offsetof
+
+            get distance of member variable from the start of the struct
+
+            appliction: get the struct that corresponds to a given pointer to a field.
+            this is used in the kernel via `container_of`, and can be used to implement
+            linked lists in ansi c: <http://stackoverflow.com/questions/10269685/kernels-container-of-any-way-to-make-it-iso-conforming>
+        */
+        {
+            struct foo
+            {
+                char a;
+                char b[2];
+                int c;
+                char d;
+            };
+
+            printf( "offsetof( struct foo, a ) = %zu\n", offsetof( struct foo, a ) );
+            printf( "offsetof( struct foo, b ) = %zu\n", offsetof( struct foo, b ) );
+            printf( "offsetof( struct foo, c ) = %zu\n", offsetof( struct foo, c ) );
+            printf( "offsetof( struct foo, d ) = %zu\n", offsetof( struct foo, d ) );
         }
     }
 
@@ -3729,7 +3756,7 @@ int main( int argc, char** argv )
 
                 the trailling newline is included in the input.
             */
-            if ( 1 )
+            if ( 0 )
             {
                 FILE* fp = stdin;
                 const int buff_size = 4;
