@@ -1649,11 +1649,11 @@ int main( int argc, char** argv )
             float f;
         };
 
+        /*
+        initialize by order
+        */
         {
             struct S s = { 1, 1.0 };
-                //- list init
-                //- only possible for contiguous (non pointer) data
-                //- overwrides outter struct
             assert( s.i == 1 );
             assert( s.f == 1.0 );
 
@@ -1663,8 +1663,12 @@ int main( int argc, char** argv )
             assert( s.f == 2.0 );
         }
 
+        //initialize by name
         {
-            struct S s = { .f = 1.0, .i = 1 };
+            struct S s = {
+                .f = 1.0,
+                .i = 1
+            };
             assert( s.i == 1 );
             assert( s.f == 1.0 );
         }
@@ -1687,8 +1691,9 @@ int main( int argc, char** argv )
                 char cs[4];
             };
 
-            //struct S = { .cs = "abc" }
-                //ERROR
+            //ERROR
+
+                //struct S = { .cs = "abc" }
         }
 
         {
@@ -1739,11 +1744,19 @@ int main( int argc, char** argv )
                 unsigned b1 : 1;
                 unsigned b2 : 2;
                 unsigned b3 : 3;
-                    //adds padding to next int
-                int i;
+
+                //padding untill next int is added automatically because
+                //next data is not a bitfield and accesses is faster if it is aligned
+
+                    int i;
+
                 unsigned b4 : 1;
-                unsigned : 0;
-                    //adds padding to next int
+
+                //manually adds padding untill next field
+                //even if it is a bitfield
+
+                    unsigned : 0;
+
                 unsigned b5 : 1;
             } s ;
             assert( sizeof(struct S) == 16 );
@@ -3465,6 +3478,10 @@ int main( int argc, char** argv )
             {
                 char s[256];
 
+                //char:
+
+                    printf( "%c\n", 'a' );
+
                 //int:
 
                     printf("d INT_MAX = %d\n", INT_MAX);
@@ -3570,11 +3587,6 @@ int main( int argc, char** argv )
                 printf( "%s\n", "\t<<< \\t tab char" );
                 printf( "%s\n", "\0<<< \\0 null char" );
 
-                //chars:
-
-                    printf( "%c\n", 'a' );
-                    printf( "%d\n", 'a' );
-
                 //hexadecimal output:
 
                     printf( "%x\n", 16 );
@@ -3605,7 +3617,6 @@ int main( int argc, char** argv )
                         printf( "printf size_t = %jd\n", (intmax_t)1 );
                         printf( "printf size_t = %ju\n", (uintmax_t)1 );
 
-
                     //don't have specific format strings: TODO find one, clock_t is not defined integer or float
 
                         //printf( "printf clock_t = %ju\n", (uintmax_t)(clock_t)1 );
@@ -3614,7 +3625,8 @@ int main( int argc, char** argv )
                     if a typedef is not guaranteed to be either an integer type or a floating point type,
                     just cast it to the largest floating point type possible
 
-                    TODO is there a definete way to determine this like uintmax_t for integer types?
+                    unfortunatelly, as of c11 there is no way to get the largets floating point type
+                    as can be done for integers: <http://stackoverflow.com/questions/17189423/how-to-get-the-largest-precision-floating-point-data-type-of-implemenation-and-i/17189562>
 
                     */
 
