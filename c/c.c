@@ -108,7 +108,7 @@ only when users want to test those features.
 
         - posix c library. Offers many functions for posix compliant systems (linux, mac, not windows)
 
-        - compiler extensions
+        - compiler and libc extensions
 
             Every compiler has certain language extensions which may be fundamenta for certain project.
 
@@ -1649,9 +1649,7 @@ int main( int argc, char** argv )
             float f;
         };
 
-        /*
-        initialize by order
-        */
+        //initialize by order
         {
             struct S s = { 1, 1.0 };
             assert( s.i == 1 );
