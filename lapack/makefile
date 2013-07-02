@@ -3,33 +3,33 @@
 #this is mostly for test purposes. see: ``makefile.individual_out_bins`` for a more complete makefile
 
 #c/cpp
-override CC				?= gcc
-override CFLAGS		?= -Wall -std=c99 -pedantic-errors
-override CXX			?= g++
-override CXXFLAGS	?= -Wall -std=c++0x -pedantic-errors
-override LIBS			?= -lm -lblas -llapacke #-l:liblapack.so.3
-override DEFINES 	?= -DPOSIX
+CC				?= gcc
+CFLAGS		?= -Wall -std=c99 -pedantic-errors
+CXX			?= g++
+CXXFLAGS	?= -Wall -std=c++0x -pedantic-errors
+LIBS			?= -lm -lblas -llapacke #-l:liblapack.so.3
+DEFINES 	?= -DPOSIX
 
 #fortran
-override FF ?= gfortran
-override FFLIBS ?= -l:libblas/libblas.so -l:lapack/liblapack.so
-override FFLAGS ?= -Wall -march=native -std=f95 -pedantic-errors  
+FF ?= gfortran
+FFLIBS ?= -l:libblas/libblas.so -l:lapack/liblapack.so
+FFLAGS ?= -Wall -march=native -std=f95 -pedantic-errors  
 
 #paths
-override IN_DIR 	?= ./
-override OUT_DIR 	?= _out/
-override OUT_EXT 	?= .out
+IN_DIR 	?= ./
+OUT_DIR 	?= _out/
+OUT_EXT 	?= .out
 
 #run
-override RUN ?= c			#basename without extension of file to run
+RUN ?= c			#basename without extension of file to run
 
-override ASSEMBLER_BASENAME ?= c.c
-override ASSEMBLE_EXT 			?= .c
-override DEBUG_DEFINE 			?=
-override DEBUG_FLAGS  			?=
-override PROFILE_DEFINE 		?= #-DDEBUG
-override PROFILE_FLAGS  		?= #
-override OPTIMIZE_FLAGS			?= #-O3
+ASSEMBLER_BASENAME ?= c.c
+ASSEMBLE_EXT 			?= .c
+DEBUG_DEFINE 			?=
+DEBUG_FLAGS  			?=
+PROFILE_DEFINE 		?= #-DDEBUG
+PROFILE_FLAGS  		?= #
+OPTIMIZE_FLAGS			?= #-O3
 
 RUN_BNAME := $(RUN)$(OUT_EXT)
 
@@ -77,24 +77,24 @@ run: all
 	( cd $(OUT_DIR) && ./$(RUN_BNAME) ) #run from out dir
 
 assembler: mkdir $(IN_DIR)$(ASSEMBLER_BASENAME)
-	$(eval override OPTIMIZE_FLAGS := -O0)
+	$(eval OPTIMIZE_FLAGS := -O0)
 	$(CC) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) $(CFLAGS) -S "$(IN_DIR)$(ASSEMBLE_BASENAME)" -o "$(OUT_DIR)$(ASSEMBLE_BASENAME).s"
 
 debug: clean set_debug_flags all
 	( cd $(OUT_DIR) && gdb "$(RUN_BNAME)" )
 
 set_debug_flags:
-	$(eval override DEBUG_FLAGS := -ggdb3)
-	$(eval override DEBUG_DEFINE := -DDEBUG)
-	$(eval override OPTIMIZE_FLAGS := -O0)
+	$(eval DEBUG_FLAGS := -ggdb3)
+	$(eval DEBUG_DEFINE := -DDEBUG)
+	$(eval OPTIMIZE_FLAGS := -O0)
 
 profile: clean set_profile_flags all run
 	( cd $(OUT_DIR) && gprof -b $(RUN_BNAME) gmon.out | tee "$(RUN_BNAME).profile_out" | less )
 
 set_profile_flags:
-	$(eval override PROFILE_FLAGS := -p -pg)
-	$(eval override PROFILE_DEFINE := -DPROFILE)
-	#$(eval override OPTIMIZE_FLAGS := -O0)
+	$(eval PROFILE_FLAGS := -p -pg)
+	$(eval PROFILE_DEFINE := -DPROFILE)
+	#$(eval OPTIMIZE_FLAGS := -O0)
 
 clean:
 	rm -rf "$(OUT_DIR)"

@@ -1,40 +1,40 @@
 #compiles c files with gcc and c++ files with g++, fortran with gfortran one by one separatelly
 
 #c/cpp
-override CC ?= gcc
-override CXX ?= g++
-override CFLAGS ?= -Wall -std=c99 -pedantic-errors -Wno-unused-variable -Wno-unused-but-set-variable
-override CXXFLAGS ?= -pthread -Wall -std=c++0x -pedantic-errors -Wno-unused-variable -Wno-unused-but-set-variable
-override LIBS ?=
+CC ?= gcc
+CXX ?= g++
+CFLAGS ?= -Wall -std=c99 -pedantic-errors -Wno-unused-variable -Wno-unused-but-set-variable
+CXXFLAGS ?= -pthread -Wall -std=c++0x -pedantic-errors -Wno-unused-variable -Wno-unused-but-set-variable
+LIBS ?=
 
 #fortran
-override FF ?= gfortran
-override FFLIBS ?= -l:lapack/liblapack.so
-override FFLAGS ?= -Wall -march=native -std=f2003 -pedantic-errors -Wno-unused-variable -Wno-unused-but-set-variable
+FF ?= gfortran
+FFLIBS ?= -l:lapack/liblapack.so
+FFLAGS ?= -Wall -march=native -std=f2003 -pedantic-errors -Wno-unused-variable -Wno-unused-but-set-variable
 
 #paths
-override IN_DIR ?= ./
-override IN_EXTS ?= .c .cpp .f
-override OUT_DIR ?= _out/
-override OUT_EXT ?=
+IN_DIR ?= ./
+IN_EXTS ?= .c .cpp .f
+OUT_DIR ?= _out/
+OUT_EXT ?=
 
-override DEFINES ?=
-override ASSEMBLER_BASENAME? = c.c
-#override ASSEMBLER_FILE?=cpp.cpp
+DEFINES ?=
+ASSEMBLER_BASENAME? = c.c
+ASSEMBLER_FILE?=cpp.cpp
 
-override RUN ?= c
-#override RUN?=func
-#override RUN?=cpp
+RUN ?= c
+RUN?=func
+RUN?=cpp
 
-override ASSEMBLE_EXT ?= .c
-#override ASSEMBLE_EXT?=.cpp
+ASSEMBLE_EXT ?= .c
+ASSEMBLE_EXT?=.cpp
 
-override DEBUG_DEFINE ?=
-override DEBUG_FLAGS ?=
-override PROFILE_DEFINE ?=
-override PROFILE_FLAGS ?=
-#override OPTIMIZE_FLAGS?=-O3
-override OPTIMIZE_FLAGS?=
+DEBUG_DEFINE ?=
+DEBUG_FLAGS ?=
+PROFILE_DEFINE ?=
+PROFILE_FLAGS ?=
+OPTIMIZE_FLAGS?=-O3
+OPTIMIZE_FLAGS?=
 
 INS			:= $(foreach IN_EXT, $(IN_EXTS), $(wildcard $(IN_DIR)*$(IN_EXT)))
 INS_NODIR 	:= $(notdir $(INS))
@@ -51,25 +51,25 @@ ASSEMBLE_BASENAME	:= $(RUN)$(ASSEMBLE_EXT)
 all: mkdir $(OUTS)
 
 assembler: mkdir $(IN_DIR)$(ASSEMBLER_BASENAME)
-	$(eval override OPTIMIZE_FLAGS := -O0)
+	$(eval OPTIMIZE_FLAGS := -O0)
 	$(CC) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) $(CFLAGS) -S "$(IN_DIR)$(ASSEMBLE_BASENAME)" -o "$(OUT_DIR)$(ASSEMBLE_BASENAME).s"
 
 debug: clean set_debug_flags all
 	gdb "$(RUN_PATH)"
 
 set_debug_flags:
-	$(eval override DEBUG_FLAGS := -ggdb3)
-	$(eval override DEBUG_DEFINE := -DDEBUG)
-	$(eval override OPTIMIZE_FLAGS := -O0)
+	$(eval DEBUG_FLAGS := -ggdb3)
+	$(eval DEBUG_DEFINE := -DDEBUG)
+	$(eval OPTIMIZE_FLAGS := -O0)
 
 profile: clean set_profile_flags all run
 	mv -f gmon.out $(OUT_DIR)
 	gprof -b $(RUN_PATH) $(OUT_DIR)gmon.out | tee "$(RUN_PATH).profile_out" | less
 
 set_profile_flags:
-	$(eval override PROFILE_FLAGS := -p -pg)
-	$(eval override PROFILE_DEFINE := -DPROFILE)
-	#$(eval override OPTIMIZE_FLAGS := -O0)
+	$(eval PROFILE_FLAGS := -p -pg)
+	$(eval PROFILE_DEFINE := -DPROFILE)
+	#$(eval OPTIMIZE_FLAGS := -O0)
 
 run: all
 	( cd $(OUT_DIR) && ./$(RUN_BNAME) ) #run from out dir

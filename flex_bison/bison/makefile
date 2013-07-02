@@ -11,19 +11,19 @@
 #have both those files in the same project!
 
 #compiler options
-override CC			:= gcc
-override CFLAGS	?= -Wall -std=c99 -pedantic -Wno-unused-function
+CC			:= gcc
+CFLAGS	?= -Wall -std=c99 -pedantic -Wno-unused-function
 
 #paths
-override AUX_DIR 						?= _out/
-override OBJ_EXT 						?= .o
-override IN_DIR 						?= ./
-override FLEX_EXT  				  ?= .l
-override BISON_EXT  				?= .y
-override IN_EXTS 						?= $(FLEX_EXT) $(BISON_EXT) .c
-override OUT_DIR 						?= $(AUX_DIR)
-override OUT_EXT 						?= .elf
-override OUT_BASENAME_NOEXT	?= a
+AUX_DIR 						?= _out/
+OBJ_EXT 						?= .o
+IN_DIR 						?= ./
+FLEX_EXT  				  ?= .l
+BISON_EXT  				?= .y
+IN_EXTS 						?= $(FLEX_EXT) $(BISON_EXT) .c
+OUT_DIR 						?= $(AUX_DIR)
+OUT_EXT 						?= .elf
+OUT_BASENAME_NOEXT	?= a
 
 INS 				:= $(foreach IN_EXT, $(IN_EXTS), $(wildcard $(IN_DIR)*$(IN_EXT)) )
 INS_NODIR 	:= $(notdir $(INS))

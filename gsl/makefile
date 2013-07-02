@@ -1,19 +1,19 @@
 #compiles all files in current dir into a single output file
 
-override AUX_DIR			?= _aux/
-override AUX_EXT			?= .o
-override CC						?= g++
-override CFLGS				?= -Wall -std=c++0x -pedantic-errors -O3
-override DEFINES			?= #-DPOSIX #for -DDEBUG and -DPROFILE, used dedicated DEFINES
-override IN_EXT				?= .c
-override IN_DIR				?= ./
-override INCLUDE_DIRS	?= #-I/usr/include/GL
-override LIBS					?=  -lgsl -lgslcblas -lm -lplplotd
-override PREDEF				?= #-DDEBUG -DPROFILE -DWINDOWS 				#preprocessor defines
-override RUN_ARGS			?= #0 1																	#passed as command line args to bin on run
-override OUT_DIR			?= _out/
-override OUT_NAME   	?= main
-override OUT_EXT			?= .elf
+AUX_DIR			?= _aux/
+AUX_EXT			?= .o
+CC						?= g++
+CFLGS				?= -Wall -std=c++0x -pedantic-errors -O3
+DEFINES			?= #-DPOSIX #for -DDEBUG and -DPROFILE, used dedicated DEFINES
+IN_EXT				?= .c
+IN_DIR				?= ./
+INCLUDE_DIRS	?= #-I/usr/include/GL
+LIBS					?=  -lgsl -lgslcblas -lm -lplplotd
+PREDEF				?= #-DDEBUG -DPROFILE -DWINDOWS 				#preprocessor defines
+RUN_ARGS			?= #0 1																	#passed as command line args to bin on run
+OUT_DIR			?= _out/
+OUT_NAME   	?= main
+OUT_EXT			?= .elf
 
 INS:=$(wildcard $(IN_DIR)*$(IN_EXT))
 INS_NODIR:=$(notdir $(INS))

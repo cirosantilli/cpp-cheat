@@ -26,26 +26,26 @@ INS_NODIR:=$(notdir $(INS))
 OUTS_NODIR:=$(patsubst %$(EXT),%$(OUT_EXT),$(INS_NODIR))
 CPP_OUTS:=$(addprefix $(OUT_DIR),$(OUTS_NODIR))
 
-override DEFINES=
+DEFINES=
 
-override ASSEMBLER_BASENAME?=c.c
-#override ASSEMBLER_FILE?=cpp.cpp
+ASSEMBLER_BASENAME?=c.c
+ASSEMBLER_FILE?=cpp.cpp
 
-override RUN?=gtk
+RUN?=min
 
-override ASSEMBLE_EXT?=.c
-#override ASSEMBLE_EXT?=.cpp
+ASSEMBLE_EXT?=.c
+ASSEMBLE_EXT?=.cpp
 
-override DEBUG_DEFINE?=
-override DEBUG_FLAGS?=
-override PROFILE_DEFINE?=
-override PROFILE_FLAGS?=
+DEBUG_DEFINE?=
+DEBUG_FLAGS?=
+PROFILE_DEFINE?=
+PROFILE_FLAGS?=
 
 RUN_PATH:=$(OUT_DIR)$(RUN)$(OUT_EXT)
 ASSEMBLE_BASENAME:=$(RUN)$(ASSEMBLE_EXT)
 
-#override OPTIMIZE_FLAGS?=-O3
-override OPTIMIZE_FLAGS?=
+OPTIMIZE_FLAGS?=-O3
+OPTIMIZE_FLAGS?=
 #dont opt for educative purposes
 
 .PHONY: all mkdir clean profile set_profile_flags ubuntu_deps
@@ -53,25 +53,25 @@ override OPTIMIZE_FLAGS?=
 all: mkdir $(C_OUTS) $(CPP_OUTS)
 
 assembler: mkdir $(IN_DIR)$(ASSEMBLER_BASENAME)
-	$(eval override OPTIMIZE_FLAGS := -O0)
+	$(eval OPTIMIZE_FLAGS := -O0)
 	$(CC) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) $(CFLAGS) -S "$(IN_DIR)$(ASSEMBLE_BASENAME)" -o "$(OUT_DIR)$(ASSEMBLE_BASENAME).s"
 
 debug: clean set_debug_flags all
 	gdb "$(RUN_PATH)"
 
 set_debug_flags:
-	$(eval override DEBUG_FLAGS := -ggdb3)
-	$(eval override DEBUG_DEFINE := -DDEBUG)
-	$(eval override OPTIMIZE_FLAGS := -O0)
+	$(eval DEBUG_FLAGS := -ggdb3)
+	$(eval DEBUG_DEFINE := -DDEBUG)
+	$(eval OPTIMIZE_FLAGS := -O0)
 
 profile: clean set_profile_flags all run
 	mv -f gmon.out $(OUT_DIR)
 	gprof -b $(RUN_PATH) $(OUT_DIR)gmon.out | tee "$(RUN_PATH).profile_out" | less
 
 set_profile_flags:
-	$(eval override PROFILE_FLAGS := -p -pg)
-	$(eval override PROFILE_DEFINE := -DPROFILE)
-	#$(eval override OPTIMIZE_FLAGS := -O0)
+	$(eval PROFILE_FLAGS := -p -pg)
+	$(eval PROFILE_DEFINE := -DPROFILE)
+	#$(eval OPTIMIZE_FLAGS := -O0)
 
 run: all
 	./$(RUN_PATH)

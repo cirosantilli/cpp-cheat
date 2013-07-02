@@ -1,20 +1,20 @@
 #this is mostly for test purposes. see: ``makefile.individual_out_bins`` for a more complete makefile
 
 #c/cpp
-override CC				?= gcc
-override CFLAGS		?= -Wall -std=c99 -pedantic-errors
-override CXX			?= g++
-override CXXFLAGS	?= -Wall -std=c++0x -pedantic-errors
-override LIBS			?= -lplplotd
-override DEFINES 	?=
+CC				?= gcc
+CFLAGS		?= -Wall -std=c99 -pedantic-errors
+CXX			?= g++
+CXXFLAGS	?= -Wall -std=c++0x -pedantic-errors
+LIBS			?= -lplplotd
+DEFINES 	?=
 
 #paths
-override IN_DIR 	?= ./
-override OUT_DIR 	?= _out/
-override OUT_EXT 	?= .elf
+IN_DIR 	?= ./
+OUT_DIR 	?= _out/
+OUT_EXT 	?= .elf
 
 #run
-override RUN ?= cheat
+RUN ?= cheat
 	#basename without extension of file to run
 
 RUN_BNAME := $(RUN)$(OUT_EXT)
