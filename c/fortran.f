@@ -362,8 +362,6 @@
 
         !#3rd party
 
-        write(*,*) 'ALL ASSERTS PASSED'
-
         !#stop
 
           !ends the program

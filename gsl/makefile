@@ -22,7 +22,7 @@ AUXS:=$(addprefix $(AUX_DIR),$(AUXS_NODIR))
 OUT_BNAME:=$(OUT_NAME)$(OUT_EXT)
 OUT:=$(OUT_DIR)$(OUT_BNAME)
 
-.PHONY: all mkdir clean assembler debug set_debug_flags profile set_profile_flags help install_ubuntu_deps
+.PHONY: all mkdir clean assembler debug set_debug_flags profile set_profile_flags help install-deps-ubuntu
 
 all: mkdir $(OUT)
 
@@ -42,7 +42,7 @@ mkdir:
 clean:
 	rm -rf $(AUX_DIR) $(OUT_DIR)
 
-install_ubuntu_deps:
-	sudo aptitude install -y libgsl0-dev gsl-doc-info
+install-deps-ubuntu:
+	sudo apt-get install -y libgsl0-dev gsl-doc-info
 	#if you will use plplot:
 		sudo aptitude install -y libplplot-dev plplot11-driver-xwin

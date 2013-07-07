@@ -5,11 +5,13 @@ CC ?= gcc
 CXX ?= g++
 CFLAGS ?= -Wall -std=c99 -pedantic-errors -Wno-unused-variable -Wno-unused-but-set-variable
 CXXFLAGS ?= -pthread -Wall -std=c++0x -pedantic-errors -Wno-unused-variable -Wno-unused-but-set-variable
-LIBS ?=
+
+#m is required by certain standrad math libraries
+LIBS ?= -lm
 
 #fortran
 FF ?= gfortran
-FFLIBS ?= -l:lapack/liblapack.so
+FFLIBS ?=
 FFLAGS ?= -Wall -march=native -std=f2003 -pedantic-errors -Wno-unused-variable -Wno-unused-but-set-variable
 
 #paths
@@ -36,7 +38,7 @@ PROFILE_FLAGS ?=
 OPTIMIZE_FLAGS?=-O3
 OPTIMIZE_FLAGS?=
 
-INS			:= $(foreach IN_EXT, $(IN_EXTS), $(wildcard $(IN_DIR)*$(IN_EXT)))
+INS		:= $(foreach IN_EXT, $(IN_EXTS), $(wildcard $(IN_DIR)*$(IN_EXT)))
 INS_NODIR 	:= $(notdir $(INS))
 OUTS_NODIR	:= $(basename $(INS_NODIR))
 OUTS_NODIR	:= $(addsuffix $(OUT_EXT), $(OUTS_NODIR))
@@ -46,7 +48,7 @@ RUN_BNAME	:= $(RUN)$(OUT_EXT)
 RUN_PATH	:= $(OUT_DIR)$(RUN_BNAME)
 ASSEMBLE_BASENAME	:= $(RUN)$(ASSEMBLE_EXT)
 
-.PHONY: all mkdir clean profile set_profile_flags get_outdir
+.PHONY: all clean get_outdir install-deps-ubuntu mkdir profile set_profile_flags testall
 
 all: mkdir $(OUTS)
 
@@ -72,13 +74,21 @@ set_profile_flags:
 	#$(eval OPTIMIZE_FLAGS := -O0)
 
 run: all
-	( cd $(OUT_DIR) && ./$(RUN_BNAME) ) #run from out dir
+	cd $(OUT_DIR) && ./$(RUN_BNAME)
+
+testall: all
+	cd $(OUT_DIR) && set -e && for OUT in $(OUTS_NODIR); do ./$$OUT; done
+	@echo "All tests passed."
 
 mkdir:
 	mkdir -p "$(OUT_DIR)"
 
 clean:
 	rm -rf "$(OUT_DIR)"
+
+install-deps-ubuntu:
+	sudo apt-get install -y g++
+	sudo apt-get install -y gfortran
 
 $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.c
 	$(CC) $(DEFINES) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) $(CFLAGS) -o "$@" "$<" $(LIBS)

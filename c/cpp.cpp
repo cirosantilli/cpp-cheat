@@ -44,27 +44,32 @@ for the rest, go to c.c
 
 #headers
 
-    stdlib headers don't have the .h extension
+    stdlib headers that are not c stdlib headers don't have the .h extension
 
-    when writting new libs, you use the extension ``.h`` or ``.hpp``
+    with `g++` those get linked to automatically
 
-    with ``g++`` those get linked to automatically
+    when writting new libs, you can use either `.h` or `.hpp` as extensions.
 
     the main c++ lib on linux is the GNU Standard C++ Library vX
 
-    - std bin is located at: ``/usr/lib/i386-linux-gnu/libstdc++.so.X``. Try ``locate libstdc++``.
-    - std headers are located at: ``/usr/include/c++/4.X/``. Try ``locate /iostream``.
+    - std bin is located at: `/usr/lib/i386-linux-gnu/libstdc++.so.X`. Try `locate libstdc++`.
+    - std headers are located at: `/usr/include/c++/4.X/`. Try `locate /iostream`.
 
-        Note: c++ std headers have no ``.h`` extension, just like when included.
+        Note: c++ std headers have no `.h` extension, just like when included.
 
-    - the ubuntu package is called ``libstdc++6.X``. ``dpkg -l | grep libstd``
+    - the ubuntu package is called `libstdc++6.X`. `dpkg -l | grep libstd`
 
     #c stdlin can be accessed
 
-        math vs cmath, X vs cX
+	c++ is a backwards compatible extension of c, therefore it must provide all the c headers with the exact same semantincs.
 
-        cX puts things in std:: namespace. *always* use it.
-        X.h puts *all* in the global namespace. *never* use it.
+        However, it also provides a cNAME version to every NAME.h, ex: `math.h` vs `cmath`.
+
+        The difference is the following:
+
+        - cX puts things in std:: namespace. *always* use it on new code, since this reduces the probability of a name conflicts, and is the standard c++ way of doing things.
+
+        - X.h puts *all* in the global namespace, it is exactly the same as the c headers. *never* use it in the code.
 
 - returning references
         http://stackoverflow.com/questions/795674/which-are-the-implications-of-return-a-value-as-constant-reference-and-constant?rq=1
@@ -857,11 +862,11 @@ void printCallStack()
 
             difficulty:
 
-            - there is no ``Iterator`` interface that iterates over anything in the stdlib
+            - there is no `Iterator` interface that iterates over anything in the stdlib
                 for performance reasons.
 
-                By iterable understand somtehing that has an ``::iterator``,
-                a ``begin()`` and an ``end()`` methods, like stl containers
+                By iterable understand somtehing that has an `::iterator`,
+                a `begin()` and an `end()` methods, like stl containers
             */
             class VisibleInnerIterable
             {
@@ -953,7 +958,7 @@ void printCallStack()
             //BAD
             //compiles, but is useless to give a default,
             //since when calling, caller is *forced* to give a value for j
-            //or wil get ``call is ambiguous`` compile time error
+            //or wil get `call is ambiguous` compile time error
             //because compiler cannot decide between
                 //here the default arg can be usefull for a call of type float float
 
@@ -1047,11 +1052,11 @@ void printCallStack()
             //NOTE
             //without this, compilation error
             //for me, blows max template recursion depth of 1024
-            //this can be reset with ``-ftemplate-depth``
+            //this can be reset with `-ftemplate-depth`
 
 
 //namespaces
-    //- *never* use ``using namespace X`` on a header file
+    //- *never* use `using namespace X` on a header file
 
     //namespace 2D{}
         //ERROR
@@ -1824,7 +1829,7 @@ int main(int argc, char** argv)
                 //Class c();
                 //c.i = 1;
                     //ERROR
-                    //declares *FUNCTION* called ``c()`` that returns ``Class``
+                    //declares *FUNCTION* called `c()` that returns `Class`
                     //functions inside functions like this are a gcc extension
             }
         }

@@ -1,10 +1,11 @@
-#define GL_GLEXT_PROTOTYPES
-#include <iostream>
 #include <cstdio>
+#include <iostream>
 #include <stdlib.h>
 
-#include <glut.h>  // both opengl (gl.h, rendering) and glu (glu.h, opengl utilities), besides glut.h (windowing, input/output)
-#include <glext.h> // extensions
+#define GL_GLEXT_PROTOTYPES
+
+#include <GL/glut.h>  // both opengl (gl.h, rendering) and glu (glu.h, opengl utilities), besides glut.h (windowing, input/output)
+#include <GL/glext.h> // extensions
 
 #include "vec3.h"
 #include "glInfo.h"
@@ -206,7 +207,7 @@ class Camera
     GLint windowH = 50;
 
     GLint windowPosX = 10;
-    GLint windowPosY = 10; rue
+    GLint windowPosY = 10;
 
     int oldT;  //used to keep real time consistent
     int nFrames = 0; //total number of frames
@@ -214,7 +215,7 @@ class Camera
 
     //if True: outputs to screen and to stdout, may not go over 60FPS.
     //if False: outputs to stdout only, and may go over 60FPS!
-    bool offscreen = true;
+    bool offscreen = false;
 
 //events
     bool mouseLeftDown;

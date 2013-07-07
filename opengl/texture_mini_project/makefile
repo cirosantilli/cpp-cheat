@@ -1,5 +1,5 @@
-CC=g++
-LIBS=-lglut -lGLU -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_ml -lopencv_video -lopencv_features2d -lopencv_calib3d -lopencv_objdetect -lopencv_contrib -lopencv_legacy -lopencv_flann -lm
+CC := g++
+LIBS := -lGL -lGLU -lglut -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_ml -lopencv_video -lopencv_features2d -lopencv_calib3d -lopencv_objdetect -lopencv_contrib -lopencv_legacy -lopencv_flann -lm
 #compile command
 
 IN_EXT=.cpp
@@ -34,3 +34,8 @@ mkdir:
 
 clean:
 	rm -rf $(OUT_DIR) $(SAUX_DIR)
+
+install-deps-ubuntu:
+	sudo apt-get install g++
+	sudo apt-get install freeglut
+	sudo apt-get install libopencv-dev

@@ -1,8 +1,12 @@
-#include <GL/glut.h> // includes both opengl (gl.h, rendering) and glu (glu.h, opengl utilities), besides glut.h (windowing, input/output)
-#include <stdlib.h>
 #include <iostream>
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
+
+#define GL_GLEXT_PROTOTYPES
+
+#include <GL/glut.h>
+#include <GL/glext.h>
 
 using namespace std;
 

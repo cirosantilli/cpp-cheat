@@ -18,7 +18,7 @@ FFLAGS ?= -Wall -march=native -std=f95 -pedantic-errors
 #paths
 IN_DIR 	?= ./
 OUT_DIR 	?= _out/
-OUT_EXT 	?= .out
+OUT_EXT 	?=
 
 #run
 RUN ?= c			#basename without extension of file to run
@@ -51,15 +51,16 @@ INS_NODIR:=$(notdir $(INS))
 OUTS_NODIR:=$(patsubst %$(EXT),%$(OUT_EXT),$(INS_NODIR))
 F_OUTS:=$(addprefix $(OUT_DIR),$(OUTS_NODIR))
 
-.PHONY: all mkdir clean install ubuntu_install_deps
+.PHONY: all mkdir clean install install-deps-ubuntu
 
 all: mkdir $(C_OUTS) $(CPP_OUTS) $(F_OUTS)
 
-ubuntu_install_deps:
+install-deps-ubuntu:
+		sudo apt-get install -y gfortran
 	#blas c/fotran and lapack fortran:
-		sudo aptitude install -y liblapack-dev
+		sudo apt-get install -y liblapack-dev
 	#lapack c via lapacke:
-		sudo aptitude install -y liblapacke-dev
+		sudo apt-get install -y liblapacke-dev
 
 mkdir:
 	mkdir -p "$(OUT_DIR)"
@@ -74,7 +75,7 @@ $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.f
 	$(FF) $(OPTIMIZE_FLAGS) $(FFLAGS) -o "$@" "$<" $(FFLIBS)
 
 run: all
-	( cd $(OUT_DIR) && ./$(RUN_BNAME) ) #run from out dir
+	cd $(OUT_DIR) && ./$(RUN_BNAME)
 
 assembler: mkdir $(IN_DIR)$(ASSEMBLER_BASENAME)
 	$(eval OPTIMIZE_FLAGS := -O0)

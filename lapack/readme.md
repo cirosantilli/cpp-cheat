@@ -1,13 +1,20 @@
-blas lapack
+Automatic dependencies installation may be available for your system in a make target of type:
+`make install-deps-XXX`, for example, `make install-deps-ubuntu`.
+
+#intro
 
 - linear algebra packages
 - de-facto standards
 - non-parallel 
-- originally written in fortran.
-- there are also c interfaces available.
+- originally written in fortran
+- there are also c interfaces available
 
-    it might be a good idea to understand how to interface fortran with c
-    before trying the c interfaces.
+it might be a good idea to understand how to interface fortran with c
+before trying the c interfaces
+
+#install
+
+
 
 #related projects
 
