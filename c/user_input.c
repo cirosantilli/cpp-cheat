@@ -20,8 +20,11 @@ void flush_stdin_to_newline()
     char junk[16];
     do
     {
-        fgets(junk,16,stdin);
-    } while ( junk[strlen(junk)-1]!='\n' );
+        if ( fgets( junk, 16, stdin ) == NULL )
+        {
+            //TODO deal with error proprely
+        }
+    } while ( junk[strlen( junk ) -1 ] != '\n' );
 
 }
 
@@ -40,7 +43,10 @@ void ugstr(char* out, int max)
     bool done=false;
     while(!done)
     {
-        fgets(out, max, stdin);
+        if ( fgets( out, max, stdin ) == NULL )
+        {
+            //TODO deal with error proprely
+        }
 
         char *newline = strchr(out, '\n'); /* search for newline character */
         if ( newline == NULL ) //no newline. too much input. reask.
@@ -252,18 +258,21 @@ float upfloat ()
 
 int main()
 {
-    /*const int l = 20;*/
-    /*char str[l];*/
-    /*upstr(str,l);*/
-    /*printf("user entered:\n%s\n",str);*/
+    if ( 0 )
+    {
+        const int l = 20;
+        char str[l];
+        upstr(str,l);
+        printf("user entered:\n%s\n",str);
 
-    /*int i;*/
-    /*i = upint(10);*/
-    /*printf("user entered:\n%d\n",i);*/
+        int i;
+        i = upint(10);
+        printf("user entered:\n%d\n",i);
 
-    float f;
-    f = upfloat();
-    printf ("user entered:\n%f\n", f);
+        float f;
+        f = upfloat();
+        printf ("user entered:\n%f\n", f);
+    }
 
     return 0;
 }
