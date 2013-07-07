@@ -5,7 +5,9 @@ CC ?= gcc
 CXX ?= g++
 CFLAGS ?= -Wall -std=c99 -pedantic-errors -Wno-unused-variable -Wno-unused-but-set-variable
 CXXFLAGS ?= -pthread -Wall -std=c++0x -pedantic-errors -Wno-unused-variable -Wno-unused-but-set-variable
-LIBS ?=
+
+#m is required by certain standrad math libraries
+LIBS ?= -lm
 
 #fortran
 FF ?= gfortran
@@ -85,8 +87,8 @@ clean:
 	rm -rf "$(OUT_DIR)"
 
 install-deps-ubuntu:
-	sudo apt-get install g++
-	sudo apt-get install gfortran
+	sudo apt-get install -y g++
+	sudo apt-get install -y gfortran
 
 $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.c
 	$(CC) $(DEFINES) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) $(CFLAGS) -o "$@" "$<" $(LIBS)

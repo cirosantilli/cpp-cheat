@@ -10,7 +10,7 @@ int main( int argc, char** argv )
   string infile = "sky.jpg";
   string outfile = "_out/sky2.jpg";
   double d;
-  int i,i2, nRows, nCols, channels;
+  int i2, nRows, nCols, channels;
   Mat I, I1, I2, I3, I4, I5;
 
   //create

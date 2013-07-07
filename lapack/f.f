@@ -179,7 +179,5 @@
 
           !#
 
-        write(*,*) 'ALL ASSERTS PASSED'
-
         stop
       end

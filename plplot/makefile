@@ -11,7 +11,7 @@ DEFINES 	?=
 #paths
 IN_DIR 	?= ./
 OUT_DIR 	?= _out/
-OUT_EXT 	?= .elf
+OUT_EXT 	?=
 
 #run
 RUN ?= cheat
@@ -31,12 +31,12 @@ INS_NODIR:=$(notdir $(INS))
 OUTS_NODIR:=$(patsubst %$(EXT),%$(OUT_EXT),$(INS_NODIR))
 CPP_OUTS:=$(addprefix $(OUT_DIR),$(OUTS_NODIR))
 
-.PHONY: all mkdir clean ubuntu_install_deps
+.PHONY: all mkdir clean install-deps-ubuntu
 
 all: mkdir $(C_OUTS) $(CPP_OUTS)
 
-ubuntu_install_deps:
-	sudo aptitude install libplplot-dev plplot11-driver-xwin
+install-deps-ubuntu:
+	sudo apt-get install libplplot-dev plplot11-driver-xwin
 
 mkdir:
 	mkdir -p "$(OUT_DIR)"

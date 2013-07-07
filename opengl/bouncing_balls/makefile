@@ -1,5 +1,5 @@
-CC=gcc
-LIBS=-lglut -lGLU
+CC	:= cc
+LIBS 	:= -lGL -lGLU -lglut -lm
 #compile command
 
 IN_EXT=.cpp

@@ -48,7 +48,7 @@ OPTIMIZE_FLAGS?=-O3
 OPTIMIZE_FLAGS?=
 #dont opt for educative purposes
 
-.PHONY: all mkdir clean profile set_profile_flags ubuntu_deps
+.PHONY: all mkdir clean profile set_profile_flags install-deps-ubuntu
 
 all: mkdir $(C_OUTS) $(CPP_OUTS)
 
@@ -82,8 +82,8 @@ mkdir:
 clean:
 	rm -rf "$(OUT_DIR)"
 
-ubuntu_deps:
-	sudo aptitude install -y libgtk-3-dev
+install-deps-ubuntu:
+	sudo apt-get install -y libgtk-3-dev
 
 $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.c
 	$(CC) $(DEFINES) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) $(CFLAGS) -o "$@" "$<" $(LIBS)

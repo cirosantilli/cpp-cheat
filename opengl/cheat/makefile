@@ -1,13 +1,12 @@
-CC=g++
-LIBS=-lglut -lGLU -lGL
-INCLUDE_DIRS=-I/usr/include/GL
+CC 		:= g++
+LIBS 		:= -lGL -lGLU -lglut 
 
-IN_EXT=.cpp
-IN_DIR=./
-AUX_DIR=_aux/
-AUX_EXT=.o
-OUT_DIR=_out/
-OUT_EXT=
+IN_EXT 	:=.cpp
+IN_DIR 	:=./
+AUX_DIR :=_aux/
+AUX_EXT :=.o
+OUT_DIR :=_out/
+OUT_EXT :=
 
 INS=$(wildcard $(IN_DIR)*$(IN_EXT))
 INS_NODIR:=$(notdir $(INS))
@@ -15,7 +14,7 @@ AUXS_NODIR:=$(patsubst %$(IN_EXT),%$(AUX_EXT),$(INS_NODIR))
 AUXS=$(addprefix $(AUX_DIR),$(AUXS_NODIR))
 OUT=$(OUT_DIR)cheat$(OUT_EXT)
 
-.PHONY: all clean mkdir run ubuntu_deps
+.PHONY: all clean mkdir run install-deps-ubuntu
 
 all: mkdir $(OUT)
 
@@ -35,5 +34,6 @@ mkdir:
 clean:
 	rm -rf $(AUX_DIR) $(OUT_DIR)
 
-ubuntu_deps:
+install-deps-ubuntu:
+	sudo aptitude install -y g++
 	sudo aptitude install -y freeglut3-dev

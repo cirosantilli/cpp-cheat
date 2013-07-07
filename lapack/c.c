@@ -114,6 +114,5 @@ int main(void)
         assert_eqd( b2[0], c2[0], err );
         assert_eqd( b2[1], c2[1], err );
 
-    fputs( "\nALL ASSERTS PASSED\n", stderr );
     return EXIT_SUCCESS;
 }

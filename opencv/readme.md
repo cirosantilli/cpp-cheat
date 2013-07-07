@@ -1,17 +1,20 @@
-#install ubuntu 12.04
+#dependencies
 
-    sudo aptitude install build-essential
-    sudo aptitude install libopencv-dev opencv-doc
+Relies on POSIX 7 utilities such as `make`, `sh`, `cp`, etc.
 
-not sure the following  are needed in general:
+Non-POSIX dependencies:
+	
+- g++
+- all the opencv libraries listed on the makefile `LIBS` variable in the library search path
+- `<opencv2/opencv.hpp>` in the header search path
 
-    sudo aptitude install libavformat-dev
-    sudo aptitude install ffmpeg
-    sudo aptitude install libcv2.1 libcvaux2.1 libhighgui2.1 python-opencv opencv-doc libcv-dev libcvaux-dev libhighgui-dev
+There may be an automated installation procedure for your system via targets of type: `make install-deps-SYSTEM`, for example `install-deps-ubuntu`.
 
-##test install
+##test opencv is working
 
-now copy the examples and compile run them:
+If something goes wrong, you will want to first test that OpenCV is working properly.
+
+You can do that by running the example files
 
     cp -r /usr/share/doc/opencv-doc/examples ./
     cd examples/c
