@@ -1,17 +1,17 @@
 #this is mostly for test purposes. see: ``makefile.individual_out_bins`` for a more complete makefile
 
 #c/cpp
-CC				?= gcc
+CC			?= gcc
 CFLAGS		?= -Wall -std=c99 -pedantic-errors
 CXX			?= g++
 CXXFLAGS	?= -Wall -std=c++0x -pedantic-errors
-LIBS			?= -lplplotd
+LIBS		?= -lm -lplplotd
 DEFINES 	?=
 
 #paths
 IN_DIR 	?= ./
-OUT_DIR 	?= _out/
-OUT_EXT 	?=
+OUT_DIR ?= _out/
+OUT_EXT ?=
 
 #run
 RUN ?= cheat

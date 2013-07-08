@@ -62,54 +62,49 @@ class Vector3D{
       this->z = z;
     }
 
-    GLfloat* toArray(){
-      GLfloat out[] = {x, y, z};
-      return out;
-    }
-
     //vector sum
-    Vector3D operator+(Vector3D otherv){ 
+    Vector3D operator+(Vector3D otherv){
       return Vector3D( this->x + otherv.x, this->y + otherv.y, this->z + otherv.z);
     }
 
     //vector subtraction
-    Vector3D operator-(Vector3D otherv){ 
+    Vector3D operator-(Vector3D otherv){
       return Vector3D( this->x - otherv.x, this->y - otherv.y, this->z - otherv.z);
     }
 
     //multiplication by constant
-    Vector3D operator*(GLfloat a){ 
+    Vector3D operator*(GLfloat a){
       return Vector3D( this->x * a, this->y * a, this->z * a);
     }
 
     //division by constant
-    Vector3D operator/(GLfloat a){ 
+    Vector3D operator/(GLfloat a){
       return Vector3D( this->x / a, this->y / a, this->z / a);
     }
 
     //dot product
-    GLfloat dot(Vector3D otherv){ 
+    GLfloat dot(Vector3D otherv){
       return this->x * otherv.x + this->y * otherv.y + this->z * otherv.z;
     }
 
     //returns the euclidean norm of this vector
-    GLfloat norm(){ 
+    GLfloat norm(){
       return sqrt( this->dot(*this) );
     }
-    
+
     //returns the taxi norm of this vector (largest absolute value of a corrdinate)
-    GLfloat taxi_norm(){ 
+    GLfloat taxi_norm(){
       //return max(abs(x), abs(y), abs(z));
       return 0.0;
     }
 
     //returns a unit vector in the same direction as this vector
-    Vector3D unit(){  
+    Vector3D unit(){
       return (*this) / this->norm();
     }
 
     //euclidean distance
-    GLfloat eucl(Vector3D other){  
+    GLfloat eucl(Vector3D other){
       return (*this - other).norm();
     }
 
@@ -151,12 +146,12 @@ class Sphere{
 
     /*draws the sphere*/
     void draw(){
-    
+
       glPushMatrix();
 
         glTranslatef( center.x, center.y, center.z );
 
-        glLineWidth(1.0); 
+        glLineWidth(1.0);
         glColor3fv(BLACK);
         glutWireSphere(SPHERE_RADIUS, SPHERE_SLICES, SPHERE_STACKS);
 
@@ -172,7 +167,7 @@ class Sphere{
 GLfloat fast_forward = 2.0; //how much faster than reality the video is. 2.0 means the video will appear 2x as fast as reality
 GLfloat REST_COEF = 0.95;
 Vector3D GRAVITY = Vector3D(0.0, -0.98, 0.0); //working unit is 10m
- 
+
 //single sphere simulation
 int total_spheres = 1;
 Sphere spheres[1] = {
@@ -186,7 +181,7 @@ Sphere spheres[1] = {
 //bool* collided_other; //which spheres have collided in this round.spheres that collide stop moving in this round in this round, and get speeds that will separate them.
 
 /*Stuff that is only set once for all.*/
-void init(int argc, char** argv) 
+void init(int argc, char** argv)
 {
 
 
@@ -219,7 +214,7 @@ void init(int argc, char** argv)
 
   glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
 
-  glutInitWindowSize(500, 500); 
+  glutInitWindowSize(500, 500);
   glutInitWindowPosition(100, 100);
 
   glutCreateWindow(argv[0]);
@@ -227,7 +222,7 @@ void init(int argc, char** argv)
   glClearColor(clear_color_r,clear_color_g,clear_color_b,1.0);
 
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); //default mode
-  
+
   glEnable(GL_POLYGON_OFFSET_FILL);
   glEnable(GL_POLYGON_OFFSET_LINE);
   glEnable(GL_DEPTH_TEST);
@@ -245,7 +240,7 @@ void calc_new_scene(void){
   old_t = t;
 
   //calculate new scene based on dt (ms)
- 
+
   for( int i=0; i<total_spheres; i++){
 
     //cout << "\n---------------------------\n";
@@ -295,7 +290,7 @@ void draw_cube(){
       glVertex3fv(vs[1]);
       glVertex3fv(vs[3]);
       glVertex3fv(vs[2]);
-    glEnd(); 
+    glEnd();
 
     //right
     glBegin(GL_POLYGON);
@@ -303,7 +298,7 @@ void draw_cube(){
       glVertex3fv(vs[2]);
       glVertex3fv(vs[6]);
       glVertex3fv(vs[4]);
-    glEnd(); 
+    glEnd();
 
     //bottom
     glBegin(GL_POLYGON);
@@ -311,19 +306,19 @@ void draw_cube(){
       glVertex3fv(vs[1]);
       glVertex3fv(vs[5]);
       glVertex3fv(vs[4]);
-    glEnd(); 
-    
+    glEnd();
+
     //left
     glBegin(GL_POLYGON);
       glVertex3fv(vs[1]);
       glVertex3fv(vs[3]);
       glVertex3fv(vs[7]);
       glVertex3fv(vs[5]);
-    glEnd(); 
-    
+    glEnd();
+
     //3d shapes are not primitives, so you must call them from glut (or glu)
     glColor3fv(WHITE);
-    glLineWidth(2.0); 
+    glLineWidth(2.0);
     glutWireCube(2.0);
 
   glPopMatrix();
@@ -361,10 +356,10 @@ void display(void)
 
 void reshape(int w, int h)
 {
-   glViewport(0, 0,(GLsizei) w,(GLsizei) h); 
+   glViewport(0, 0,(GLsizei) w,(GLsizei) h);
 
    glMatrixMode(GL_PROJECTION);
-   
+
    glLoadIdentity();
 
    glFrustum(-1.0, 1.0, -1.0, 1.0, 1.5, 20.0);
@@ -386,7 +381,7 @@ int main(int argc, char** argv)
 
   init(argc,argv);
 
-  glutDisplayFunc(display); 
+  glutDisplayFunc(display);
   glutReshapeFunc(reshape);
 
   glutIdleFunc(calc_new_scene); //called after render is done, typically to recalculate positions for the next frame
