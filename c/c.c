@@ -2358,33 +2358,42 @@ int main( int argc, char** argv )
             assert( memcmp( is, is2, 3 * sizeof(int)) > 0 );
         }
 
-        //#memcpy
-        {
-            //copy memory
+        /*
+        #memcpy
 
-            int is[] = {0,1,2};
+            Copy one array into another.
+
+            Potentially faster than a for loop like:
+
+            for(i=0; i<3; i++ ){
+                is2[i] = is[i];
+            }
+
+            Since in some architectures this can be implemented with more efficient instructions
+            than a naive for, and your compiler may not be smart enough to optimize this if you use a for.
+        */
+        {
+            int is[] = { 0, 1, 2 };
             int is2[3];
 
-            //for(i=0; i<3; i++ ){
-            //    is2[i] = is[i];
-            //}
-                //SLOW
-                //use memcpy insted
-
-            memcpy(is2,is,3*sizeof(int));
+            memcpy( is2, is, 3 * sizeof( int ) );
                 //copy 3*4 bytes from one is7 to is
                 //more efficient than for: direct memory copyint, no i++ or i<n? check
             assert( memcmp( is, is2, 3 * sizeof(int)) == 0 );
 
+            //C99 allows this:
             memcpy(&is, &(int [5]){ 0,1,2 }, sizeof(is) );
-                //C99
             assert( memcmp( is, &(int [5]){ 0,1,2 }, 3 * sizeof(int)) == 0 );
         }
 
-        //#memset
-        {
-            //set memory block to a single value
+        /*
+        #memset
 
+            Set memory block to a single value.
+
+            Like memcpy, potentially more efficient than a for loop.
+        */
+        {
             char cs[] = "abcdef";
             memset( cs + 2, '0', 3 );
             assert( strcmp( cs, "ab000f" ) == 0 );
@@ -2800,27 +2809,43 @@ int main( int argc, char** argv )
     }
 
     /*
-    #dynamic allocation #malloc
+    #dynamic allocation
 
-        allocates ammounts of memory that are only known at runtime,
+        Allocates ammounts of memory that are only known at runtime,
         not compile time.
+
+        #malloc
+
+            The main way to get new dynamic memory.
+
+            Returns a `void*` which can be used for any type.
+
+            Typecast from `void*` is implicitly done without warning.
+
+        #free
+
+            Main way to free dynamic memory after you are done with it.
 
         #dynamic allocation vs VLA
 
-        - no scope
+            Dynamic memory has the following characteristics which VLA does not:
 
-            therefore can be allocated in functions
-            and returned to caller
+            - no scope
 
-        - heap much larger than stack
+                therefore can be allocated in functions
+                and returned to caller
+
+            - heap much larger than stack
+
+            So it is more flexible, at the cost of some runtime speed.
     */
     {
         int i = 8;
         size_t bytes = sizeof( char ) * i;
-        char* cp = (char*) malloc( bytes );
+        char* cp = malloc( bytes );
         if ( cp == NULL )
         {
-            printf("could not allocate %zu bytes", bytes);
+            printf( "could not allocate %zu bytes", bytes );
         }
         free( cp );
 
@@ -3146,19 +3171,24 @@ int main( int argc, char** argv )
         }
     }
 
-    //#enviroment variables
+    /*
+    #environment variables
+
+        #getenv
+
+            Returns NULL if not found.
+
+        TODO: setenv in POSIX but not in ANSI C?
+    */
     {
-        //#getenv
-
-            //printf( "getenv( \"HOME\" ) = \"%s\"\n", getenv( "HOME" ) );
-            //assert( getenv( "HOME" ) );
-            //assert( ! getenv( "IDONTEXIST" ) );
-
-        //TODO: setenv in POSIX but not in ANSI C?
+        printf( "getenv\n" );
+        printf( "  HOME = %s\n", getenv( "HOME" ) );
+        printf( "  USERPROFILE = %s\n", getenv( "USERPROFILE" ) );
     }
 
     //#preprocessor
     {
+        //#define
         {
 #define A B
 #define B 1
@@ -3168,6 +3198,7 @@ int main( int argc, char** argv )
             assert( A == 1 );
         }
 
+        //#ifdef
         {
 #ifdef COMMANDLINE
             //gcc -DCOMMANDLINE c.c
@@ -3184,6 +3215,14 @@ int main( int argc, char** argv )
 #else
     assert(false);
 #endif
+
+        /*
+        #error
+
+            Print an error message to stderr and stop compilation.
+        */
+
+//#error "the error message"
 
         //#standard preprocessor defines
         {
@@ -3589,17 +3628,25 @@ int main( int argc, char** argv )
 
                     printf( "%x\n", 16 );
 
-                //pointers:
+                /*
+                pointers
 
-                    float f;
-                    printf( "(void*)&f = %p\n", (void*)&f );
-                        //prints the 0x address.
-                        //%p must get a void pointer
-                        //void* is a type, different than void. doing type cast to it.
+                        prints the hexadeciamal linear address.
+
+                        The value is not predictable by processes: the kernel assigns it to a process.
+
+                        %p excpects get a `void`.
+                */
+                {
+                        int i;
+                        printf( "&i = %p\n", (void*)&i );
+                        printf( "NULL = %p\n", NULL );
+                }
+
+                //note that this is printf specific
+                //not string specific
 
                     printf( "%%<<< escaping percentage\n" );
-                        //note that this is printf specific
-                        //not string specific
 
                 /*
                 #printf typedefs
@@ -4260,6 +4307,45 @@ int main( int argc, char** argv )
         //putsProf(n_prof_runs);
 
 #endif
+
+    /*
+    #process memory model
+
+        Lets have some fun reverse engeneering the process memory space modeul used on your OS!
+
+        This is all undefined behaviour on ANSI C, but the test code is the same on all OS.
+
+        On Linux 3.8 machine you will probably see the following:
+
+        - the two stack variables are likely to be 4 bytes apart
+            since itegers are usually 4 bytes wide,
+            and your compiler is unlikelly to separate them
+            (although the behaviour not specified in ANSI C)
+
+            argc and argv are very close to env, and relatively close to the stack variables.
+
+        - heap and globals are relatively close to each other
+            but very far (much farther than the memory such a program
+            is ever likelly to use) from the stack variables.
+
+        All of this reflects how the process is represented in main memory.
+    */
+    {
+            int stack1;
+            int stack2;
+            void* heap;
+
+            printf( "processs memory model\n" );
+            printf( "  &stack1 = %p\n", (void*)&stack1 );
+            printf( "  &stack2 = %p\n", (void*)&stack2 );
+            printf( "  &argc = %p\n", (void*)&argc );
+            printf( "  &argv = %p\n", (void*)argv );
+            printf( "  &env = %p\n", getenv( "HOME" ) );
+            printf( "  &global = %p\n", (void*)&global );
+            heap = malloc( 1 );
+            printf( "  &heap = %p\n", heap );
+            free( heap );
+    }
 
     //main returns status:
 
