@@ -964,7 +964,7 @@ int main( int argc, char** argv )
 
                 assert( 16 == 020 );
 
-            //binary: no ansi way
+            //binary: no ANSI way
         }
     }
 
@@ -1481,11 +1481,12 @@ int main( int argc, char** argv )
     /*
     #volatile
 
-        compiler will not store this value in cpu registers as optimization
-        instead of in RAM
+        Compiler will not store this value in cpu registers or cache as speed optimization
+        instead of in RAM.
 
-        application: multithreading, where variable may to change value at any time
-        if value were stored in register, other threads could not modify it
+        Application: multithreading, where variable may to change value at any time
+        if value were stored in register, other threads in other processes will see and old version
+        of it.
     */
     {
         volatile int vi;
@@ -2947,10 +2948,14 @@ int main( int argc, char** argv )
         #switch
 
             only exists for readability (TODO 0 check: no preformance gain?)
+
+        #case
+
+            see switch
         */
         {
             int i, j;
-            for( i = -1; i < 3; i++ )
+            for( i = -1; i < 6; i++ )
             {
                 switch ( i )
                 {
@@ -2966,7 +2971,7 @@ int main( int argc, char** argv )
                             //ERROR
                             //redeclaration
 
-                        break;
+                    break;
 
                     case 1:
 
@@ -2976,11 +2981,20 @@ int main( int argc, char** argv )
                             //ERROR
                             //single inner scope
 
-                        break;
+                    break;
+
+                    case 2:
+                    case 3:
+
+                        //same action for multiple cases
+
+                        assert( i == 2 || i == 3 );
+
+                    break;
 
                     default:
                         assert( i != 0 && i != 1 );
-                        break;
+                    break;
                 }
             }
         }
@@ -3624,18 +3638,20 @@ int main( int argc, char** argv )
                 printf( "%s\n", "\t<<< \\t tab char" );
                 printf( "%s\n", "\0<<< \\0 null char" );
 
-                //hexadecimal output:
+                //hexadecimal output (unsigned):
 
-                    printf( "%x\n", 16 );
+                    printf( "16  in hex = %x\n", 16 );
+                    printf( "-1  in hex = %x\n", -1 );
+                    printf( "16l in hex = %lx\n", 0x16l );
 
                 /*
                 pointers
 
                         prints the hexadeciamal linear address.
 
-                        The value is not predictable by processes: the kernel assigns it to a process.
+                        %p excpects a `void*`.
 
-                        %p excpects get a `void`.
+                        NULL pointer has a special representation as `(nil)`.
                 */
                 {
                         int i;

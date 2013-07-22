@@ -1665,16 +1665,19 @@ int main(int argc, char** argv)
         }
     }
 
-    //vla
-    //gcc
+    /*
+    #vla
+
+        called variable length array VLS
+
+        C99 supports this
+
+        compiler implementation:
+        must increment/decrement stack pointer at each array
+        meaning, one extra multiplication and sum for every VLA declared
+
+    */
     {
-        //called variable length array VLS
-
-        //C99 supports this
-
-        //compiler implementation:
-        //must increment/decrement stack pointer at each array
-        //meaning, one extra multiplication and sum for every VLA declared
 
         {
             //cin >> i;
@@ -1689,7 +1692,7 @@ int main(int argc, char** argv)
         }
     }
 
-    cout << "for" << endl;
+    //#for
     {
 
         //you can define i inside the for scope only
@@ -1704,9 +1707,9 @@ int main(int argc, char** argv)
 
     }
 
-    cout << "functions" << endl;
+    //#function
     {
-        cout << "overload" << endl;
+        //#overload
         {
             overload( 1 );
             assert( callStack.back() == "overload(int)" );
@@ -1733,7 +1736,7 @@ int main(int argc, char** argv)
 
         }
 
-        cout << "template" << endl;
+        //#template
         {
             assert( factorial<3>() == 6 );
                 //because of this call
@@ -1758,7 +1761,7 @@ int main(int argc, char** argv)
 
     }
 
-    cout << "class" << endl;
+    //#class
     {
         //creation
         {
@@ -1854,7 +1857,7 @@ int main(int argc, char** argv)
             }
         }
 
-        cout << "copy, assigment" << endl;
+        //#copy vs assign
         {
             //every class gets a default assign operator (=) and copy constructor
             //called shallow copy/assign
@@ -1931,7 +1934,7 @@ int main(int argc, char** argv)
             }
         }
 
-        cout << "arrays of objects" << endl;
+        //#array of objects
         {
             {
                 cout << "Class os[3];" << endl;
@@ -1943,13 +1946,15 @@ int main(int argc, char** argv)
                     //more 3x Class()
 
                 //initialized
+                {
                     cout << "Class cs2[] = {Class(1), Class(2), Class(3)};" << endl;
                     Class cs2[] = { Class(1), Class(2), Class(3) };
                     //3x Class() calls. more efficient therefore
+                }
             }
         }
 
-        cout << "temporaries" << endl;
+        //#temporaries
         {
             cout << "Class().method();" << endl; //an instance without name is created and destroyed
             {
@@ -1971,7 +1976,7 @@ int main(int argc, char** argv)
             }
         }
 
-        cout << "operator overload" << endl;
+        //#operator overload
         {
             {
                 Class c;
@@ -1983,7 +1988,7 @@ int main(int argc, char** argv)
             }
         }
 
-        cout << "template" << endl;
+        //#template
         {
             {
                 TemplateClass<Base,int,10> c;
@@ -2052,7 +2057,7 @@ int main(int argc, char** argv)
 
         }
 
-        cout << "overridding" << endl;
+        //#method overridding
         {
             {
                 Class c;
@@ -2094,7 +2099,7 @@ int main(int argc, char** argv)
             }
         }
 
-        cout << "polymorphism" << endl;
+        //#polymorphism
         {
             //behind the scenes a *vtable* is used to implement this
 
@@ -2150,7 +2155,7 @@ int main(int argc, char** argv)
             }
         }
 
-        cout << "typecasting" << endl;
+        //#typecasting
         {
             //http://www.cplusplus.com/doc/tutorial/typecasting/
 
@@ -2162,7 +2167,7 @@ int main(int argc, char** argv)
 
         }
 
-        cout << "nested classes" << endl;
+        //#nested classes
         {
             {
                 cout <<"Base::Nested baseNested;" << endl;
@@ -2172,7 +2177,7 @@ int main(int argc, char** argv)
             }
         }
 
-        cout << "nested typedefs" << endl;
+        //#nested typedefs
         {
             Base::NESTED_INT i = 1;
             //Base::PRIVATE_NESTED_INT j = 1;
@@ -2180,7 +2185,7 @@ int main(int argc, char** argv)
                 //is private
         }
 
-        //design patterns
+        //#design patterns
         {
             //VisibleInnerIterable
             {
@@ -2202,7 +2207,7 @@ int main(int argc, char** argv)
         }
     }
 
-    //dynamic memory
+    //#dynamic memory
     {
         {
             int* ip;
@@ -2275,13 +2280,13 @@ int main(int argc, char** argv)
         }
     }
 
-    //exception
+    //#exception
     {
         //TODO
         //
     }
 
-    //enum
+    //#enum
     {
             //delete ip;
                 //BAD
@@ -2298,7 +2303,7 @@ int main(int argc, char** argv)
             //only const expressions allowed
     }
 
-    //namespace
+    //#namespace
     {
         //variables
         {
@@ -2382,9 +2387,9 @@ int main(int argc, char** argv)
 
     }
 
-    //stdlib
+    //#stdlib
     {
-        //string
+        //#string
         {
             {
                 string s = "abc";
@@ -2430,7 +2435,7 @@ int main(int argc, char** argv)
             }
         }
 
-        //io
+        //#io
         {
             //in c++ there is no more printf formatting strings
             //must use the c libs for that
@@ -2447,7 +2452,7 @@ int main(int argc, char** argv)
                 //cout << i
         }
 
-        //vector
+        //#vector
         {
             //dynamic array based
             //reallocates as necessary
@@ -2650,7 +2655,7 @@ int main(int argc, char** argv)
             }
         }
 
-        //set
+        //#set
         {
             //- unique elements
             //    inserting twice does nothing
@@ -2762,16 +2767,22 @@ int main(int argc, char** argv)
             //it is even placed in the std:: namespace, but it is *not* standard
         }
 
-        //iterator
+        /*
+        #iterator
+
+            iteration could be done with random access in certain data structures with a for loop.
+
+            but still use iterators:
+
+            - if you ever want to change to a container that
+                has slow random access it will be a breeze
+
+            - with iterators you don't need to know total container size
+
+            - iterators may allow you not to keep the whole sequence in
+               memory, but calculate it on the fly
+        */
         {
-            //iteration could be done with random access
-            //but still use iterators:
-            //- if you ever want to change to a container that
-                //has slow random access it will be a breeze
-            //- with iterators you don't need to know total container size
-            //- iterators may allow you not to keep the whole sequence in
-            //   memory, but calculate it on the fly
-            //
 
             vector<int> v = { 1, 2 };
             set<int> s = { 1, 2 };
@@ -2802,14 +2813,14 @@ int main(int argc, char** argv)
             }
         }
 
-        //algorithm
+        //#algorithm
         {
             assert( min(0.1,0.2) == 0.1 );
             assert( max(0.1,0.2) == 0.2 );
 
             //change order
             {
-                //sort
+                //#sort
                 {
                     vector<int> v = {2,0,1};
                     sort( v.begin(), v.end() );
@@ -2817,7 +2828,7 @@ int main(int argc, char** argv)
                     assert( v == v1 );
                 }
 
-                //reverse
+                //#reverse
                 {
                     vector<int> v = {2,0,1};
                     reverse( v.begin(), v.end() );
@@ -2825,14 +2836,14 @@ int main(int argc, char** argv)
                     assert( v == v1 );
                 }
 
-                //randomize
+                //#randomize
                 {
                     vector<int> v = {2,0,1};
                     random_shuffle( v.begin(), v.end() );
                 }
             }
 
-            //find
+            //#find
             {
                 {
                     vector<int> v = {2,0,1};
@@ -2880,10 +2891,14 @@ int main(int argc, char** argv)
 
         //memory
         {
-            //shared_ptr
+            /*
+            #shared_ptr
+
+                Introuced in C++11.
+
+                Before that as part of boost.
+            */
             {
-                //C++11
-                //before boost
                 {
                     callStack.clear();
                     shared_ptr<NoBaseNoMember> spi1(new NoBaseNoMember);
@@ -2896,7 +2911,7 @@ int main(int argc, char** argv)
             }
         }
 
-        //typeinfo
+        //#typeinfo
         {
             //get type of variables
 
@@ -2915,10 +2930,13 @@ int main(int argc, char** argv)
                 //undefined because value not specified on the standard
         }
 
-        //thread
+        /*
+        #thread
+
+            c++11
+            needs -pthread flag on gcc linux
+        */
         {
-            //c++11
-            //needs -pthread flag on gcc linux
 
             std::thread t1( threadFunc, 1000 );
             std::thread t2( threadFunc, 1000 );
