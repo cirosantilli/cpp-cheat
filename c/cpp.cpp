@@ -332,7 +332,7 @@ void printCallStack()
                 //ic cannot be changed
                 //<http://stackoverflow.com/questions/634662/non-static-const-member-cant-use-default-assignment-operator>
 
-            //static
+            //#static
             //{
 
                 static void staticMethod();
@@ -346,7 +346,7 @@ void printCallStack()
                     //static int iStatic = 0;
                         //cannot initialize here unless const
                     //int iStatic;
-                        //conclicts with static int
+                        //concflicts with static int
 
                 const static int iConstStatic = 0;
                 //OK: const static integral type

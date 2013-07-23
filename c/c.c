@@ -2841,24 +2841,97 @@ int main( int argc, char** argv )
             So it is more flexible, at the cost of some runtime speed.
     */
     {
-        int i = 8;
-        size_t bytes = sizeof( char ) * i;
-        char* cp = malloc( bytes );
-        if ( cp == NULL )
         {
-            printf( "could not allocate %zu bytes", bytes );
+            size_t bytes = sizeof( int ) * 2;
+            int* is = malloc( bytes );
+            if ( is == NULL )
+            {
+                printf( "malloc failed\n" );
+            }
+            else
+            {
+                is[0] = 1;
+                assert( is[0] == 1 );
+                free( is );
+            }
         }
-        free( cp );
 
         /*
-        if you try to allocate too much memory,
-        `malloc` may fail, or your os will eventually decide to kill your naughty program
+        #realloc
 
-        time to try that out!
+            Change size of allocated memory with malloc.
+
+            If you already have allocated some memory, it might be faster to enlargen it
+            rather than to free it and reallocate.
+
+            The library may however choose to move your memory somewhere else if not enough is available
+
+            You must use a second pointer to get its value, because in case the reallocation fails,
+            you still need the old pointer to clear up old memory.
         */
         {
-            //TODO 0 how to pass more than INT_MAX to malloc to break it? =)
+            size_t bytes = sizeof( int ) * 2;
+            int* is = malloc( bytes );
+            if ( is == NULL )
+            {
+                printf( "malloc failed\n" );
+            }
+            else
+            {
+                is[1] = 1;
+                //you must use a second pointer here
+                int* is2 = realloc( is, sizeof(int) * 4 );
+                if ( is2 == NULL )
+                {
+                    printf( "realloc failed\n" );
+                }
+                else
+                {
+                    is = is2;
+                    is[3] = 1;
+                    //old values are untouched:
+                    assert( is[1] == 1 );
+                    assert( is[3] == 1 );
+                }
+                free( is );
+            }
+        }
 
+        /*
+        #calloc
+
+            Like malloc but initializes allocated bytes to zero.
+
+            why calloc? <http://www.quora.com/C-programming-language/What-does-the-c-stand-for-in-calloc>
+            Clear seems most likely.
+
+            Takes number of elements and elemetn size separately.
+        */
+        {
+            int* is = calloc( 2, sizeof(int) );
+            if ( is == NULL )
+            {
+                printf( "calloc failed\n" );
+            }
+            else
+            {
+                assert( is[0] == 0 );
+                assert( is[1] == 0 );
+                free( is );
+            }
+        }
+
+        /*
+        #bad things
+
+            if you try to allocate too much memory,
+            `malloc` may fail, or your os will eventually decide to kill your naughty program
+
+            time to try that out!
+
+            TODO 0 how to pass more than INT_MAX to malloc to break it? =)
+        */
+        {
             if ( 0 )
             {
                 size_t n = 1024 * 1024 * 1024;
@@ -2870,9 +2943,11 @@ int main( int argc, char** argv )
                 free( ip );
             }
 
-            //allocate 1024 Petabytes of RAM in 1 gb chunks!!!
-            //someday this will be possible and people will laugh at this...
-            //generates a segfault
+            /*
+            allocate 1024 Petabytes of RAM in 1 gb chunks!!!
+            someday this will be possible and people will laugh at this...
+            generates a segfault
+            */
             if ( 0 )
             {
                 const size_t GB = 1024 * 1024 * 1024;
