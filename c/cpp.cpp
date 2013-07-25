@@ -1,6 +1,14 @@
 /*
 this will focus in differences between cpp and c.
-for the rest, go to c.c
+for the rest, look for a c cheat.
+
+Major differences include:
+
+- classes. Adds enourmous complexity and capabilities to the language.
+- templates
+- stdlib containers
+- function overloading
+- namespaces
 
 #sources
 
@@ -42,43 +50,15 @@ for the rest, go to c.c
 
     #C++03
 
-#headers
-
-    stdlib headers that are not c stdlib headers don't have the .h extension
-
-    with `g++` those get linked to automatically
-
-    when writting new libs, you can use either `.h` or `.hpp` as extensions.
-
-    the main c++ lib on linux is the GNU Standard C++ Library vX
-
-    - std bin is located at: `/usr/lib/i386-linux-gnu/libstdc++.so.X`. Try `locate libstdc++`.
-    - std headers are located at: `/usr/include/c++/4.X/`. Try `locate /iostream`.
-
-        Note: c++ std headers have no `.h` extension, just like when included.
-
-    - the ubuntu package is called `libstdc++6.X`. `dpkg -l | grep libstd`
-
-    #c stdlin can be accessed
-
-	c++ is a backwards compatible extension of c, therefore it must provide all the c headers with the exact same semantincs.
-
-        However, it also provides a cNAME version to every NAME.h, ex: `math.h` vs `cmath`.
-
-        The difference is the following:
-
-        - cX puts things in std:: namespace. *always* use it on new code, since this reduces the probability of a name conflicts, and is the standard c++ way of doing things.
-
-        - X.h puts *all* in the global namespace, it is exactly the same as the c headers. *never* use it in the code.
-
-- returning references
-        http://stackoverflow.com/questions/795674/which-are-the-implications-of-return-a-value-as-constant-reference-and-constant?rq=1
-
-- ipc
+#ipc
 
     socket model
 
-*libs
+    TODO
+
+#libs
+
+    C++ has many major interesting libs.
 
     #linear algebra
 
@@ -106,38 +86,62 @@ for the rest, go to c.c
 
 */
 
+/*
+#headers
+
+    stdlib headers that are not c stdlib headers don't have the .h extension
+
+    with `g++` those get linked to automatically
+
+    when writting new libs, you can use either `.h` or `.hpp` as extensions.
+
+    the main c++ lib on linux is the GNU Standard C++ Library vX
+
+    - std bin is located at: `/usr/lib/i386-linux-gnu/libstdc++.so.X`. Try `locate libstdc++`.
+    - std headers are located at: `/usr/include/c++/4.X/`. Try `locate /iostream`.
+
+        Note: c++ std headers have no `.h` extension, just like when included.
+
+    - the ubuntu package is called `libstdc++6.X`. `dpkg -l | grep libstd`
+
+    #c headers
+
+        c++ is a backwards compatible extension of c, therefore it must provide all the c headers with the exact same semantincs.
+
+        However, it also provides a cNAME version to every NAME.h, ex: `math.h` vs `cmath`.
+
+        The difference is the following:
+
+        - cX puts things in std:: namespace. *always* use the CNAME version on new code,
+            since this reduces the probability of a name conflicts, and is the standard c++ way of doing things.
+
+        - X.h puts *all* in the global namespace, it is exactly the same as the c headers.
+            *never* use it in new code.
+*/
+
 #include <algorithm>
-#include <chrono>
-    //time operations
-#include <exception>
-    //exception base exception class
-        //bad_alloc	thrown by new on allocation failure
-        //bad_cast	thrown by dynamic_cast when fails with a referenced type
-        //bad_exception	thrown when an exception type doesn't match any catch
-        //bad_typeid	thrown by typeid
-        //ios_base::failure	thrown by functions in the iostream library
-#include <functional>
-    //helper arithmetic/logic functions for algorithms
-#include <iostream>
-    //cout, endl
+#include <chrono>       //time operations
+#include <exception>    //bad_alloc, bad_cast, bad_exception, bad_typeid, ios_base::failure
+#include <functional>   //helper arithmetic/logic functions for algorithms
+#include <iostream>     //cout, endl
 #include <iterator>
 #include <memory>
 #include <mutex>
-#include <numeric>
-    //partial sums, differences on vectors of numbers
+#include <numeric>      //partial sums, differences on vectors of numbers
 #include <set>
-#include <string>
-    //string
-#include <sstream>
-    //stream to a string
+#include <string>       //string
+#include <sstream>      //stream to a string
 #include <thread>
-#include <typeinfo>
-    //get type of vars
+#include <typeinfo>     //get type of vars
 #include <vector>
+
+//c headers:
 
 #include <cassert>
 #include <cmath>
 #include <cstdlib>
+#include <cstring>
+#include <cstring>
 
 using namespace std;
 
@@ -559,7 +563,7 @@ void printCallStack()
             /*
             calls base constructors first
             */
-            Class() : i(0), z(0)
+            Class() : i(0), z(1)
             {
                 callStack.push_back("Class::Class()");
             }
@@ -1055,16 +1059,15 @@ void printCallStack()
             //this can be reset with `-ftemplate-depth`
 
 
-//namespaces
-    //- *never* use `using namespace X` on a header file
+/*
+#namespaces
+*/
 
-    //namespace 2D{}
-        //ERROR
-        //same naming rules as vars
+    //ERROR: same naming rules as vars
+        //namespace 2D{}
 
-    namespace D2{}
-        //BAD
-        //by convention, start upper case
+    //BAD: by convention, namespaces starts with lower case
+        namespace D2{}
 
     int i;
 
@@ -1481,8 +1484,11 @@ void printCallStack()
 
 int main(int argc, char** argv)
 {
+    /*
+    #bool
 
-    //bool
+        in C++, unlike in C, bool is part of the language.
+    */
     {
         bool b;
 
@@ -1512,7 +1518,7 @@ int main(int argc, char** argv)
 
     }
 
-    //unsigned
+    //#unsigned
     {
         unsigned int ui = -1;
         int i = 1;
@@ -1521,7 +1527,7 @@ int main(int argc, char** argv)
             //in c, no WARN
     }
 
-    cout << "const" << endl;
+    //#const
     {
         {
             const int i = 2;
@@ -1561,18 +1567,24 @@ int main(int argc, char** argv)
         }
     }
 
-    cout << "references" << endl;
-    {
-        //basically aliases, similar to int*const poinsters
-        //
-        //useful only for function parameters/return
-        //
-        //just link pointers, you have to watch scope. if the original object dies,
-        //you get a dangling reference
-        //
-        //http://stackoverflow.com/questions/752658/is-the-practice-of-returning-a-c-reference-variable-evil
-        //http://stackoverflow.com/questions/7058339/c-when-to-use-references-vs-pointers}
+    /*
+    #&
 
+        See references.
+
+    #references
+
+        Basically aliases, similar to int* const poinsters
+
+        Useful only for function arguments or / return values.
+
+        Just like for pointers, you have to watch scope. if the original object dies,
+        you get a dangling reference
+
+        - <http://stackoverflow.com/questions/752658/is-the-practice-of-returning-a-c-reference-variable-evil>
+        - <http://stackoverflow.com/questions/7058339/c-when-to-use-references-vs-pointers>
+    */
+    {
         {
             int i = 0;
             byref(i);
@@ -1612,7 +1624,7 @@ int main(int argc, char** argv)
                 //int& ia = new int;
         }
 
-        //const
+        //#const
         {
             int i = 1;
             const int& cia = i;
@@ -1624,29 +1636,31 @@ int main(int argc, char** argv)
             //cia = 2;
                 //ERROR
 
-            //int* ip = &cia;
-                //ERROR
-                //invalid conversion
+            //ERROR
+            //invalid conversion
+                //int* ip = &cia;
 
-            //ERROR: invalid conversion
-                //int& ia = cia;
+            //int& ia = cia;
+                //ERROR: invalid conversion
 
-            //ERROR: no array of references forbidden
-                //int& is[2] = {i,i};
+            //int& is[2] = {i,i};
+                //ERROR: no array of references forbidden
 
             //int& iac = ci;
                 //ERROR
                 //must be const int&
         }
 
-        cout << "return" << endl;
-        {
-            //never from functions (if new, return auto_ptr, if not new, you got an error)
-            //only from methods, when data is in the object
-            //just like pointers, if object dies, data dies!
+        /*
+        #return references
 
+            never from functions (if new, return auto_ptr, if not new, you got an error)
+            only from methods, when data is in the object
+            just like pointers, if object dies, data dies!
+        */
+        {
+            //you can modify a private
             {
-                //you can modify a private
                     Base b;
                     int& ia = b.getPrivate();
                     ia = 0;
@@ -1655,12 +1669,12 @@ int main(int argc, char** argv)
                     assert( b.getPrivate() == 1 );
             }
 
+            //now you can only see, not modify
             {
-                //now you can only see, not modify
-                    Base b;
-                    const int& ia = b.getPrivateConst();
+                Base b;
+                const int& ia = b.getPrivateConst();
+                //ERROR:
                     //ia = 1;
-                        //ERROR
             }
         }
     }
@@ -1678,7 +1692,6 @@ int main(int argc, char** argv)
 
     */
     {
-
         {
             //cin >> i;
             //int is4[i];
@@ -1689,6 +1702,21 @@ int main(int argc, char** argv)
             //int is4[i] = { 1, 2 };
                 //ERROR
                 //may not be initialized
+        }
+    }
+
+    //#enum
+    {
+        //unlike c, already does typedef
+        {
+            enum TEXTURE { GRASS, WALL, SKY };
+            TEXTURE t = GRASS;
+        }
+
+        //ERROR: only const expressions allowed
+        {
+            //int i = 0;
+            //enum E2 { E2=i };
         }
     }
 
@@ -1759,6 +1787,21 @@ int main(int argc, char** argv)
             }
         }
 
+    }
+
+    //#exception
+    {
+        //TODO
+
+        /*
+        #standard exceptions
+
+            - bad_alloc         thrown by new on allocation failure
+            - bad_cast          thrown by dynamic_cast when fails with a referenced type
+            - bad_exception     thrown when an exception type doesn't match any catch
+            - bad_typeid        thrown by typeid
+            - ios_base::failure thrown by functions in the iostream library
+        */
     }
 
     //#class
@@ -1951,6 +1994,18 @@ int main(int argc, char** argv)
                     Class cs2[] = { Class(1), Class(2), Class(3) };
                     //3x Class() calls. more efficient therefore
                 }
+            }
+
+            /*
+            #memset
+
+                Like many C functions, memset does not work with objects, because objects
+                may contain extra data such as a VTABLE.
+            */
+            if ( 0 )
+            {
+                Class *var = new Class;
+                std::memset(var, 0, sizeof(Class));
             }
         }
 
@@ -2207,19 +2262,26 @@ int main(int argc, char** argv)
         }
     }
 
-    //#dynamic memory
+    /*
+    #dynamic memory
+
+        C++ replaces C's malloc and free with new and delete.
+
+    #realloc
+
+        There is no direct replacement to realloc or calloc as of C++11
+        <http://stackoverflow.com/questions/3482941/how-do-you-realloc-in-c>
+    */
     {
         {
             int* ip;
-            ip = new int [5];
+            ip = new int[5];
             ip[0] = 1;
             delete[] ip;
         }
 
+        //allocate single object / base type
         {
-        //can also alocate single int
-            //useless of course
-            //but is might be useful to allocate a single object
             int* ip = new int;
             *ip = 1;
             delete ip;
@@ -2278,32 +2340,55 @@ int main(int argc, char** argv)
                 //undefined behavior, maybe crash
                 //ip was not allocated after delete!
         }
+
+        /*
+        #calloc
+
+            There is an analogue to calloc in the language called *value-initialization*.
+
+            <http://stackoverflow.com/questions/808464/c-new-call-that-behaves-like-calloc>
+        */
+        {
+            //base types
+            {
+                int* is = new int[2]();
+                assert( is[0] == 0 );
+                assert( is[1] == 0 );
+                delete[] is;
+            }
+
+            //works for structs
+            {
+                struct T { int a; };
+                T *t = new T[1]();
+                assert( t[0].a == 0 );
+                delete[] t;
+            }
+
+            /*
+            Works for objects.
+
+            Note how the default constructor was called since `z == 1`.
+            */
+            {
+                Class *cs = new Class[1]();
+                assert( cs[0].i == 0 );
+                assert( cs[0].z == 1 );
+                delete[] cs;
+            }
+
+            //but only works with default constructors
+            {
+                //Class *cs = new [1](1);
+            }
+        }
     }
 
-    //#exception
-    {
-        //TODO
-        //
-    }
+    /*
+    #namespace
 
-    //#enum
-    {
-            //delete ip;
-                //BAD
-                //undefined behavior, maybe crash
-                //ip was not allocated after delete!
-        enum TEXTURE { GRASS, WALL, SKY };
-        TEXTURE t = GRASS;
-        //unlike c, already does typedef
-        //check this to give values
-            //http://msdn.microsoft.com/en-us/library/2dzy4k6e%28v=vs.71%29.aspx
-
-        //ERROR
-            //enum E2 { E2=i };
-            //only const expressions allowed
-    }
-
-    //#namespace
+    - *never* use `using namespace X` on a header file
+    */
     {
         //variables
         {

@@ -1,7 +1,7 @@
 /*
-main ansi c cheat, no extensions
+Main ansi c cheat, no extensions
 
-certain features do not fit nicelly into the assertion format of this
+Certain features do not fit nicelly into the assertion format of this
 cheat, and may have been moved to separate files.
 
 features that require user input or that make programs wait
@@ -181,7 +181,7 @@ only when users want to test those features.
 #include <stdint.h>    //uint32_t, etc.
 #include <stdlib.h>    //malloc, EXIT_SUCCESS, EXIT_FAILURE:
 #include <stdio.h>     //printf, puts
-#include <string.h>    //strlen, strcpy
+#include <string.h>    //strlen, strcpy, memset
 #include <math.h>
 #include <time.h>      //time()
 #include <wchar.h>
@@ -2053,7 +2053,7 @@ int main( int argc, char** argv )
     */
     {
         int i;
-        int* pi, *pi2;
+        int *pi, *pi2;
         //*pi = 7;
             //BAD
             //you are modifying some random piece of memory!!!!
@@ -2082,6 +2082,30 @@ int main( int argc, char** argv )
         //OK: works with explicit cast:
 
             float* fp = (float*)&i;
+
+        /*
+        #single line multiple pointer declaration
+
+            You must put an asterisk for each pointer, or they are not taken to be pointers!
+
+            This is not very intuitive since the asterisk is part of the type, not of the variable.
+        */
+        {
+            //correct
+            {
+                int i, *ip ;
+                ip = &i;
+            }
+
+            //ERROR: ip2 is not a pointer, but an int!
+            {
+                //int i;
+                //int* ip, ip2;
+                //ip = &i;
+                //ip2 = &i;
+            }
+        }
+
 
         /*
         #NULL pointer
