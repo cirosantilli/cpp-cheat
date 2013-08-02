@@ -1,0 +1,5 @@
+CFLAGS_EXTRA	:= -Wno-unused-variable -Wno-unused-but-set-variable
+CXXFLAGS_EXTRA	:= -Wno-unused-variable -Wno-unused-but-set-variable
+FFLAGS_EXTRA 	:= -Wno-unused-variable -Wno-unused-but-set-variable
+RUN				:= c
+PHONY			:= install-deps-ubuntu

@@ -125,7 +125,7 @@ Major differences include:
 #include <functional>   //helper arithmetic/logic functions for algorithms
 #include <iostream>     //cout, endl
 #include <iterator>
-#include <memory>
+#include <memory>       //shared_ptr
 #include <mutex>
 #include <numeric>      //partial sums, differences on vectors of numbers
 #include <set>
@@ -1574,11 +1574,21 @@ int main(int argc, char** argv)
 
     #references
 
-        Basically aliases, similar to int* const poinsters
+        Basically aliases, similar to `int* const` poinsters or java objects.
 
-        Useful only for function arguments or / return values.
+        Useful only for function arguments or / return values. In that case the pros are:
 
-        Just like for pointers, you have to watch scope. if the original object dies,
+        - callers that have an object don't need to dereference it with `&`
+
+        - it is self documenting on the code that the given reference always points to the same thing
+            either to modify it or to pass it efficiently without copy.
+
+        The cons are:
+
+        - callers don't know without looking at the signature if they are passing references or copies,
+            and wether they should expect that it is possible that the functio modifies their object.
+
+        Just like for pointers, you have to watch scope. If the original object dies,
         you get a dangling reference
 
         - <http://stackoverflow.com/questions/752658/is-the-practice-of-returning-a-c-reference-variable-evil>
@@ -1652,7 +1662,7 @@ int main(int argc, char** argv)
         }
 
         /*
-        #return references
+        #return references from functions
 
             never from functions (if new, return auto_ptr, if not new, you got an error)
             only from methods, when data is in the object
@@ -1806,7 +1816,7 @@ int main(int argc, char** argv)
 
     //#class
     {
-        //creation
+        //create
         {
             {
                 {
@@ -1880,7 +1890,7 @@ int main(int argc, char** argv)
             }
         }
 
-        //static
+        //#static
         {
             {
                 Class c, c1;
@@ -1900,17 +1910,19 @@ int main(int argc, char** argv)
             }
         }
 
-        //#copy vs assign
-        {
-            //every class gets a default assign operator (=) and copy constructor
-            //called shallow copy/assign
-            //might not be what you want, specially when you allocate memory inside the constructor!
-                //http://stackoverflow.com/questions/3279543/what-is-the-copy-and-swap-idiom
-                //http://stackoverflow.com/questions/4172722/what-is-the-rule-of-three
-            {
-                //copy constructor
-                //default exists always, calls copy on all memebrs
+        /*
+        #copy vs assign
 
+        every class gets a default assign operator (=) and copy constructor (`Classname(Classname other)`).
+
+        the defaults might not be what you want, specially when you allocate memory inside the constructor!
+
+        http://stackoverflow.com/questions/3279543/what-is-the-copy-and-swap-idiom
+        http://stackoverflow.com/questions/4172722/what-is-the-rule-of-three
+        */
+        {
+            //#copy constructor
+            {
                 Class c;
                 c.i = 1;
                 cout << "Class c2(c)" << endl;
@@ -1925,55 +1937,53 @@ int main(int argc, char** argv)
                 cout << c2.i << endl;
             }
 
-            {
-                Base b;
-                Class c(b);
-                    //NOTE
-                    //no default copy from base
-                    //you must write one yourself
-            }
+            /*
+            #assign operator for classes.
 
+                Default assign calls assign (=) on all members.
+            */
             {
-                Class c;
-                c.Base::i = 1;
-                Base b(c);
-                    //OK
-                    //copy base fields
-                    //can transform derived into base implicitly
-                assert( b.i == 1 );
-            }
-
-            {
-                //assign operator
-                //default assign calls assign (=) on all members
                 Class c, c1;
                 c.i = 1;
                 c1.i = 2;
                 c1 = c;
                 assert( c1.i == 1 );
+
+                //there are still two separate copies of the object
+                c1.i = 2;
+                assert( c.i == 1 );
             }
 
+            /*
+            There is no default copy constructor/assign operator inherited from base clases,
+            you must write one yourself.
+            */
             {
-                //there are default copy/assign funcs from base classes
-                //they assign/copy to base object fields inherited from derived only
-                Class c = Class();
-                cout << "Base base(c);" << endl;
-                Base base(c);
-                cout << "base = Class();" << endl;
-                base = Class();
+                Base b;
+                Class c(b);
+            }
 
-                //c = base;
-                    //ERROR
-                    //not from derived to base
+            /*
+            It is however possible to assing / copy from derived to base class.
+            */
+            {
+                Class c;
+                c.Base::i = 1;
+                Base b(c);
+                assert( b.i == 1 );
+            }
 
-                Base* bp = &c;
-                    //OK
-                    //pointer conversions
+            /*
+            #equality operator for classes
 
-                //bp = &m;
-                //cp = &base;
-                    //ERROR
-                    //can only convert from derived to base
+                There is no default `==` operator for classes.
+
+                You msut define your own.
+            */
+            {
+                Class c0 = Class();
+                Class c1 = Class();
+                //assert( c0 == c1 );
             }
         }
 
@@ -2262,6 +2272,25 @@ int main(int argc, char** argv)
         }
     }
 
+    //#typeid
+    {
+        //get type of variables
+
+        int i, i1;
+        Class c;
+
+        assert( typeid(i) == typeid(int) );
+        assert( typeid(i) == typeid(i1)  );
+        assert( typeid(i) != typeid(c)   );
+
+        std::string s( typeid(i).name() );
+            //returns string
+
+        //assert( typeid(i).name() == "int" );
+            //WARN
+            //undefined because value not specified on the standard
+    }
+
     /*
     #dynamic memory
 
@@ -2520,30 +2549,43 @@ int main(int argc, char** argv)
             }
         }
 
-        //#io
-        {
-            //in c++ there is no more printf formatting strings
-            //must use the c libs for that
+        /*
+        #file io
 
-            cout << "cout";
+        #printf
+
+            In c++ there is no more printf formatting strings
+            must use the c libs for that.
+
+        #endl
+
+            System dependent newline.
+        */
+        {
+            cout << "cout" << endl;
             cout << "cout2" << "cout3" << endl;
-            cout << 1;
+            cout << 1 << endl;
 
             cerr << "cerr";
             cout << endl;
 
             //cin
+
+                //cout << "Enter an integer:" << endl
                 //cin >> i;
                 //cout << i
         }
 
-        //#vector
+        /*
+        #vector
+
+            Dynamic array that grows / shrinks as necessary.
+
+            $O(1)$ random access.
+        */
         {
-            //dynamic array based
-            //reallocates as necessary
-
             //create
-
+            {
                 //empty
                 {
                     vector<int> v;
@@ -2598,17 +2640,26 @@ int main(int argc, char** argv)
                     assert( v.size() == 1 );
                 }
 
-                //pushed back
-                    //size            no of elements pushed back
-                    //empty           same as size() == 0
-                    //resize          change size. fill with 0
-                    //max_size        maximum size (estimtion of what could fit your computer ram)
+                //size related:
 
-                //allocation related
-                    //capacity        get how much is allocated
-                    //reserve         change how much is allocated
-                    //shrink_to_fit   shrink allocated array to size
-                    //data            get pointer to allocated array
+                //size            no of elements pushed back
+                //empty           same as size() == 0
+                //resize          change size. fill with 0
+                //max_size        maximum size (estimtion of what could fit your computer ram)
+
+                //allocation related:
+
+                //- capacity        get how much is allocated
+                //- reserve         change how much is allocated
+                //- shrink_to_fit   shrink allocated array to size
+                //- data            get pointer to allocated array
+
+            }
+
+            //compare
+            {
+                //TODO how to check if two vectors are equal?
+            }
 
             //modify
             {
@@ -2616,10 +2667,11 @@ int main(int argc, char** argv)
                 {
                     vector<int> v;
                     v = {0};
-                    v = {0,1};
-                    //assert( v = {0,1} );
-                        //ERROR
-                        //not possible
+                    v = {0, 1};
+
+                    //ERROR
+                    //not possible
+                        //assert( v = {0,1} );
                 }
 
                 //push_back
@@ -2636,7 +2688,11 @@ int main(int argc, char** argv)
                     assert( v == v1 );
                 }
 
-                //push_back makes copies
+                /*
+                push_back makes copies with assign `=`
+
+                If you want references, use pointers.
+                */
                 {
                     vector<string> v;
                     string s = "abc";
@@ -2647,16 +2703,19 @@ int main(int argc, char** argv)
                         //s was not changed
                 }
 
-                //pop_back
+                /*
+                #pop_back
+
+                    Remove last element from vector.
+
+                    No return val. Rationale: <http://stackoverflow.com/questions/12600330/pop-back-return-value>
+                */
                 {
-                    //no return val
-                    //reason:
-                        //<http://stackoverflow.com/questions/12600330/pop-back-return-value>
-                    vector<int> v = {0,1};
+                    vector<int> v = { 0, 1 };
                     vector<int> v1;
 
                     v.pop_back();
-                    v1 = {0};
+                    v1 = { 0 };
                     assert( v == v1 );
 
                     v.pop_back();
@@ -2696,7 +2755,7 @@ int main(int argc, char** argv)
 
                 //clear
                 {
-                    vector<int> v= {0,1,2};
+                    vector<int> v= { 0, 1, 2 };
                     v.clear();
                     assert( v.size() == 0 );
                 }
@@ -2709,27 +2768,37 @@ int main(int argc, char** argv)
             {
                 //fast
 
-                vector<int> v = {0,1,2};
+                vector<int> v = { 0, 1, 2 };
 
-                assert( v.front() == 0 );
-                assert( v.back() == 2 );
+                //first element
 
-                v[0] = 1;
-                assert( v[0] == 1 );
-                //cout << v1[2] << endl;
-                //v1[2] = 2;
-                    //ERROR
-                    //just like array overflow
-                    //will not change vector size
+                    assert( v.front() == 0 );
+                    assert( v.front() == v[0] );
+
+                //last element
+
+                    assert( v.back() == 2 );
+
+                //nth element:
+
+                    v[0] = 1;
+                    assert( v[0] == 1 );
+
+                //BAD:
+                //just like array overflow
+                //will not change vector size,
+                //and is unlikelly to give an error
+
+                    //v1[2] = 2;
             }
 
             //iterate
             {
                 vector<int>::iterator it;
-                vector<int> v = {2,1,0};
+                vector<int> v = { 2, 1, 0 };
                 int i;
                 int is[] = {2,1,0};
-                for(
+                for (
                     it = v.begin(), i=0;
                     it != v.end();
                     ++it, ++i
@@ -2740,15 +2809,16 @@ int main(int argc, char** argv)
             }
         }
 
-        //#set
-        {
-            //- unique elements
-            //    inserting twice does nothing
-            //- immutable elements
-            //- always ordered
-            //    inserted elements are in that order
-            //    therefore, logarithmic find
+        /*
+        #set
 
+            - unique elements: inserting twice does nothing
+
+            - immutable elements
+
+            - always ordered: $O(log)$ find
+        */
+        {
             {
                 set<int> s;
                 s.insert(1);
@@ -2781,11 +2851,11 @@ int main(int argc, char** argv)
             {
                 //always sorted
                 int i;
-                int is[] = {0,1,2};
+                int is[] = { 0, 1, 2 };
                 set<int>::iterator it;
-                set<int> s = {1,2,0,1};
+                set<int> s = { 1, 2, 0, 1 };
                 for(
-                    it = s.begin(), i=0;
+                    it = s.begin(), i = 0;
                     it != s.end();
                     it++, i++
                 )
@@ -2843,21 +2913,24 @@ int main(int argc, char** argv)
             }
         }
 
-        //#hashmap
+        /*
+        #hashmap
+
+            C++0x introduces `std::unordered_map`.
+
+            Nonstandard `hash_map` already provided with gcc and msvc++.
+
+            It is placed in the `std::` namespace, but it is *not* ISO.
+        */
         {
-            //C++0x introduces `std::unordered_map`
-
-            //nonstandard `hash_map` already provided with gcc and msvc++
-
-            //it is even placed in the std:: namespace, but it is *not* standard
         }
 
         /*
         #iterator
 
-            iteration could be done with random access in certain data structures with a for loop.
+            Iteration could be done with random access in certain data structures with a for i loop.
 
-            but still use iterators:
+            But still use iterators:
 
             - if you ever want to change to a container that
                 has slow random access it will be a breeze
@@ -2868,31 +2941,34 @@ int main(int argc, char** argv)
                memory, but calculate it on the fly
         */
         {
-
             vector<int> v = { 1, 2 };
             set<int> s = { 1, 2 };
 
-            //no generic iterator for all containers
+            /*
+            there is no standard iterator independent from container
+            this can be done via type erasure techinques
+            but would mean loss of performance because of lots of polymorphic calls
+            and STL is obssessed with performance
+            */
             {
                 vector<int>::iterator itVec = v.begin();
                 set<int>::iterator itSeti = s.begin();
-                //iterator it
-                //it = v.begin();
-                //it = s.begin();
-                    //DOES NOT EXIST
-                    //there is no standard iterator independent from container
-                    //this can be done via type erasure techinques
-                    //but would mean loss of performance because of lots of polymorphic calls
-                    //and stl is obssessed with performance
+                //DOES NOT EXIST:
+
+                    //iterator it
+                    //it = v.begin();
+                    //it = s.begin();
             }
 
-            //no born check
+            //no born checking is done
             {
                 *( v.end() - 1 );
                     //last element
+
                 *( v.end() );
                     //after last element
                     //no born check
+
                 //( v.end().hasNext() );
                     //no such method
             }
@@ -2900,8 +2976,8 @@ int main(int argc, char** argv)
 
         //#algorithm
         {
-            assert( min(0.1,0.2) == 0.1 );
-            assert( max(0.1,0.2) == 0.2 );
+            assert( min( 0.1, 0.2 ) == 0.1 );
+            assert( max( 0.1, 0.2 ) == 0.2 );
 
             //change order
             {
@@ -2972,9 +3048,105 @@ int main(int argc, char** argv)
                     assert( *min_element( v.begin(), v.end() ) == 0 );
                 }
             }
+
+            /*
+            #heap
+
+                <http://en.wikipedia.org/wiki/Heap_%28data_structure%29>
+
+                In short:
+
+                - getting largest element is O(1)
+                - removing the largest element is O(lg) for all implementation
+                - other operations (insertion) may be O(1) or O(lg) depending on the implementation
+
+                this makes for a good priority queue.
+
+                There is no heap data structure in C++: only heap operations over random access data structures.
+                This is why this is under algoritms.
+
+                Why random access structure works: <https://github.com/cirosantilli/comp-sci/blob/1.0/src/heap.md#array-implementation>
+
+                Type not guaranteed: it seems that most implementations use binary heaps.
+
+                For specific heaps such as Fibonacci, consider [Boost](http://www.boost.org/doc/libs/1_49_0/doc/html/heap.html).
+
+                <http://stackoverflow.com/questions/14118367/stl-for-fibonacci-heap>
+            */
+            {
+                int myints[] = { 10, 20, 30, 5, 15 };
+                std::vector<int> v( myints, myints + 5 );
+
+                /*
+                #make_heap
+
+                    Make random access data structure into a heap.
+
+                    This changes the element order so that the range has heap properties
+
+                    Worst case time: $O(n)$.
+                */
+                    std::make_heap( v.begin(), v.end() );
+                    assert( v.front() == 30 );
+
+                /*
+                #pop_heap
+
+                    Remove the largest element from the heap.
+
+                    That element is moved to the end of the data structure, but since the
+                    heap should have its length reduced by one, that element will then be out of the heap.
+
+                    Assumes that the input range is already a heap (made with `make_heap` for example).
+                */
+                    std::pop_heap( v.begin(), v.end() );
+
+                    //the element still exists on the data structure
+                    assert( v.back() == 30 );
+
+                    //the second largest element hat become the largets
+                    assert( v.front() == 20 );
+
+                    //remove the element from the data structure definitively
+                    v.pop_back();
+
+                /*
+                #push_heap
+
+                    Insert element into a heap.
+
+                    Assumes that:
+
+                    - the range 0 - ( end - 1 ) was already a heap
+                    - the new element to be inserted into that heap is at end.
+                */
+
+                    //add the new element to the data structure
+                    v.push_back( 99 );
+
+                    //reorganize the data so that the last element will be placed in the heap
+                    std::push_heap( v.begin(), v.end() );
+
+                    assert( v.front() == 99 );
+
+                /*
+                #sort_heap
+
+                    Assumes that the input range is a heap, and sorts it in increasing order.
+
+                    The assumption that we have a heap allows for $O(ln)$ sorting,
+                    much faster than the optimal bound $O(n log n)$.
+
+                    This is exactly what the heapsort alrotithm does: make_heap and then sort_heap.
+                */
+
+                    std::sort_heap( v.begin(), v.end() );
+                    //assert( v )
+                    //v == 5 10 15 20 99
+            }
         }
 
-        //memory
+        //#memory
         {
             /*
             #shared_ptr
@@ -2994,25 +3166,6 @@ int main(int argc, char** argv)
                     assert( callStack.back() == "NoBaseNoMember::~NoBaseNoMember()" );
                 }
             }
-        }
-
-        //#typeinfo
-        {
-            //get type of variables
-
-            int i, i1;
-            Class c;
-
-            assert( typeid(i) == typeid(int) );
-            assert( typeid(i) == typeid(i1)  );
-            assert( typeid(i) != typeid(c)   );
-
-            std::string s( typeid(i).name() );
-                //returns string
-
-            //assert( typeid(i).name() == "int" );
-                //WARN
-                //undefined because value not specified on the standard
         }
 
         /*

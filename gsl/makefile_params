@@ -1,0 +1,2 @@
+LIBS	:= -lgsl -lgslcblas -lm -lplplotd
+PHONY	:= install-deps-ubuntu

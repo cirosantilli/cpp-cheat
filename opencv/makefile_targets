@@ -1,0 +1,7 @@
+#TODO how to factor out the makefile for this case?
+#the problem is that the compiled output needs input files (sky.jpg) to work with
+#and those files must be put on the same output directory as the executable (_out)
+
+install-deps-ubuntu:
+	sudo apt-get install -y g++
+	sudo apt-get install -y libopencv-dev

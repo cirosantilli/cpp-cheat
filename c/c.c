@@ -1672,6 +1672,15 @@ int main( int argc, char** argv )
             assert( s.f == 1.0 );
         }
 
+	//only works for init
+        {
+            struct S s;
+            //s = {
+            //    .f = 1.0,
+            //    .i = 1
+            //};
+        }
+
         //pointer to struct
         {
             struct S s;
@@ -2105,7 +2114,6 @@ int main( int argc, char** argv )
                 //ip2 = &i;
             }
         }
-
 
         /*
         #NULL pointer
@@ -2640,6 +2648,7 @@ int main( int argc, char** argv )
                     puts(">>>\f<<< feed char");
                     puts(">>>\v<<< vertical tab");
                     puts(">>>\r<<< carriage return");
+                    puts(">>>\a<<< alert (your terminal may interpret this as a sound beep or not)");
                     printf(">>>%c<<< null char\n",'\0');
                     puts(">>>\x61<<< a in hexadecimal");
                     puts(">>>\xe4\xb8\xad<<< zhong1, chinese for \"middle\" in utf8");  //chinese utf8
@@ -3301,7 +3310,7 @@ int main( int argc, char** argv )
 
     //#preprocessor
     {
-        //#define
+        //##define
         {
 #define A B
 #define B 1
@@ -3311,7 +3320,7 @@ int main( int argc, char** argv )
             assert( A == 1 );
         }
 
-        //#ifdef
+        //##ifdef
         {
 #ifdef COMMANDLINE
             //gcc -DCOMMANDLINE c.c
@@ -3322,6 +3331,26 @@ int main( int argc, char** argv )
 #endif
         }
 
+	/*
+        ##if
+
+	    The preprocessor can do certain integer arithmetic operations such as:
+	    +, -, ==, <.
+        */
+	{
+#define INIF 1
+#if INIF + 1 == 2
+#else
+            assert(false);
+#endif
+
+#if 16 == 0x10
+#else
+            assert(false);
+#endif
+	}
+
+
         //#&&
 #define C 1
 #if defined(C) && C > 0
@@ -3330,7 +3359,7 @@ int main( int argc, char** argv )
 #endif
 
         /*
-        #error
+        ##error
 
             Print an error message to stderr and stop compilation.
         */
@@ -4312,32 +4341,63 @@ int main( int argc, char** argv )
 
     //#math.h
     {
+        const double err = 10e-6;
+
+        //#abs
+        {
+            //absolute values, integer version:
+
+                assert( abs(-1.1)  == 1 );
+
+            //absolute values, float version:
+
+                assert( fabsl(-1.1) == 1.1 );
+        }
+
         //max and min for floats (C99):
 
             assert( fminl( 0.1, 0.2 ) == 0.1 );
             assert( fmaxl( 0.1, 0.2 ) == 0.2 );
 
-        //exponential:
+        //don't forget to use the float versions which starts with f!
 
-            assert( fabs( exp(1.0)      - 2.71 )    < 0.01 );
+        //#rounding
+        {
+            assert( fabs( floor(0.5)        - 0.0  )    < err );
+            assert( fabs( ceil(0.5)         - 1.0  )    < err );
 
-        //trig:
+            //many more: round, rint, lrint, each with a subtle differences between them
+        }
 
-            assert( fabs( cos(0.0)      - 1.0 )     < 0.01 );
+        //#exp
+        {
 
-        //this is a standard way to get PI. The only problem is the slight calculation overhead.
+            //#exponential #exp
 
-            assert( fabs( acos(-1.0)    - 3.14 )    < 0.01 );
+                assert( fabs( exp(1.0)          - 2.71 )    < 0.01 );
 
-        //absolute values, integer version:
+            //#log #ln
 
-            assert( abs(-1.1)  == 1 );
+                assert( fabs( log( exp(1.0) )   - 1.0 )     < err );
 
-        //absolute values, float version:
+            //#pow power
 
-            assert( fabsl(-1.1) == 1.1 );
+                assert( fabs( pow(2.0, 3.0)     - 8.0  )    < err );
+        }
 
-        //don't forget to use the float version!
+        //#trig
+        {
+                assert( fabs( cos(0.0)          - 1.0 )     < err );
+
+            //this is a standard way to get PI.
+            //The only problem is the slight calculation overhead.
+
+                assert( fabs( acos(-1.0)        - 3.14 )    < 0.01 );
+        }
+
+        //#erf: TODO understand
+
+        //#gamma: tgamma, lgamma: TODO understand
 
         //#random
         {

@@ -1,0 +1,5 @@
+PKGNAME	:= gtk+-3.0
+CFLAGS 	:= $(shell pkg-config --cflags "$(PKGNAME)")
+LIBS 	:= $(shell pkg-config --libs "$(PKGNAME)")
+RUN		:= min
+PHONY	:= install-deps-ubuntu

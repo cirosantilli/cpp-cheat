@@ -3,23 +3,23 @@
 ASSEMBLE_BASENAME 		?= a.c									#basename of the file to generate assembly code for
 AUX_DIR 				?= _aux/
 AUX_EXT 				?= .o
-CC 					?= g++
+CC 						?= g++
 CFLGS 					?= -Wall -std=c++0x -pedantic-errors
-DEBUG_DEFINE 			?= 
-DEBUG_FLAGS 			?= 
+DEBUG_DEFINE 			?=
+DEBUG_FLAGS 			?=
 DEFINES 				?= #-DPOSIX 							#for -DDEBUG and -DPROFILE, used dedicated DEFINES
 IN_EXTS 				?= .c .cc .cpp
-IN_DIR 				?= ./
+IN_DIR 					?= ./
 INCLUDE_DIRS 			?= #-L/usr/include/GL
 LIBS 					?= #-lglut -lGLU -lGL
-PREDEF 				?= #-DDEBUG -DPROFILE -DWINDOWS 		#preprocessor defines
+PREDEF 					?= #-DDEBUG -DPROFILE -DWINDOWS 		#preprocessor defines
 RUN_ARGS 				?= #0 1									#passed as command line args to bin on run
 OPTIMIZE_FLAGS			?= -O3
 OUT_DIR 				?= _out/
 OUT_BASENAME_NOEXT		?= cheat
-OUT_EXT 				?= .elf
-PROFILE_DEFINE 		?= 
-PROFILE_FLAGS 			?= 
+OUT_EXT 				?=
+PROFILE_DEFINE 			?=
+PROFILE_FLAGS 			?=
 
 INS 		:= $(foreach IN_EXT, $(IN_EXTS), $(wildcard $(IN_DIR)*$(IN_EXT)) )
 INS_NODIR 	:= $(notdir $(INS))

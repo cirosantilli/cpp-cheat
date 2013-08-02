@@ -70,27 +70,25 @@ void assert_eqvd( int n, double * v1, double * v2, double err){
 
 int main(void)
 {
-
-    
     int info, ipiv2[2];
     float err = 1e-6;
     float x2[2], b2[2], c2[2];
     float a2x2[2][2];
 
     //#cblas
- 
+
         x2[0] =  1.0;
         x2[1] = -2.0;
         assert_eqd( cblas_snrm2(2, x2, 1), sqrt(5.0), err );
 
     //#lapacke
-    
+
         //1 2 x = 5
         //3 4 y   11
 
         //x = 1
         //y = 1
-        
+
         a2x2[0][0] = 1.0;
         a2x2[1][0] = 2.0;
         a2x2[0][1] = 3.0;

@@ -1,0 +1,7 @@
+install-deps-ubuntu:
+	#fortran compiler:
+	sudo apt-get install -y gfortran
+	#blas c/fotran and lapack fortran:
+	sudo apt-get install -y liblapack-dev
+	#lapack c via lapacke:
+	sudo apt-get install -y liblapacke-dev

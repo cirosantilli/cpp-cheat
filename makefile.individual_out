@@ -2,35 +2,40 @@
 
 #this is mostly for test purposes. see: ``makefile.individual_out_bins`` for a more complete makefile
 
+-include makefile_params
+
 #c/cpp
 CC			?= gcc
-CXX		?= g++
-CFLAGS		?= -Wall -pedantic-errors -std=c99
-CXXFLAGS	?= -Wall -pedantic-errors -std=c++0x
+CXX			?= g++
+CFLAGS		?= -std=c99   -Wall -pedantic-errors  -march=native $(CFLAGS_EXTRA)
+CXXFLAGS	?= -std=c++0x -Wall -pedantic-errors  -march=native $(CXXFLAGS_EXTRA)
 LIBS		?= #-lm -lGL -lGLU -lglut
 DEFINES 	?= #-D_XOPEN_SOURCE 700
 
 #fortran
-FF ?= gfortran
-FFLIBS ?= #-l:lapack/liblapack.so
-FFLAGS ?= -Wall -march=native -std=f95 -pedantic-errors
+FF 		?= gfortran
+FFLIBS 	?= #-l:lapack/liblapack.so
+FFLAGS 	?= -std=f2003 -Wall -pedantic-errors -march=native $(FFLAGS_EXTRA)
 
 #paths
-IN_DIR 	?= ./
+IN_DIR 		?= ./
 IN_EXTS 	?= .c .cpp .f
 OUT_DIR 	?= _out/
-OUT_EXT 	?= .elf
+OUT_EXT 	?= #.elf
 
-#run
-RUN ?= c			#basename without extension of file to run
+#basename without extension of file to run
+RUN ?= main
 
-ASSEMBLER_BASENAME ?= c.c
+ASSEMBLER_BASENAME 	?= c.c
 ASSEMBLE_EXT 		?= .c
 DEBUG_DEFINE 		?=
 DEBUG_FLAGS  		?=
-PROFILE_DEFINE 	?= #-DDEBUG
-PROFILE_FLAGS  	?= #
-OPTIMIZE_FLAGS		?= #-O3
+PROFILE_DEFINE 		?= #-DDEBUG
+PROFILE_FLAGS  		?= #
+OPTIMIZE_FLAGS		?= -O3
+
+#extra phony targets
+PHONY				?=
 
 RUN_BNAME 	:= $(RUN)$(OUT_EXT)
 
@@ -40,15 +45,15 @@ OUTS_NODIR	:= $(basename $(INS_NODIR))
 OUTS_NODIR	:= $(addsuffix $(OUT_EXT), $(OUTS_NODIR))
 OUTS		:= $(addprefix $(OUT_DIR), $(OUTS_NODIR))
 
-.PHONY: all clean debug set_debug_flags help mkdir profile set_profile_flags ubuntu_install_deps
+.PHONY: all clean debug set_debug_flags help mkdir profile set_profile_flags $(PHONY)
 
 all: mkdir $(OUTS)
 
 $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.c
-	$(CC) $(CFLAGS) -o "$@" "$<" $(LIBS)
+	$(CC) $(CFLAGS) $(OPTIMIZE_FLAGS) -o "$@" "$<" $(LIBS)
 
 $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.cpp
-	$(CXX) $(CXXFLAGS) -o "$@" "$<" $(LIBS)
+	$(CXX) $(CXXFLAGS) $(OPTIMIZE_FLAGS) -o "$@" "$<" $(LIBS)
 
 $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.f
 	$(FF) $(OPTIMIZE_FLAGS) $(FFLAGS) -o "$@" "$<" $(FFLIBS)
@@ -56,6 +61,9 @@ $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.f
 assembler: mkdir $(IN_DIR)$(ASSEMBLER_BASENAME)
 	$(eval OPTIMIZE_FLAGS := -O0)
 	$(CC) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) $(CFLAGS) -S "$(IN_DIR)$(ASSEMBLE_BASENAME)" -o "$(OUT_DIR)$(ASSEMBLE_BASENAME).s"
+
+clean:
+	rm -rf "$(OUT_DIR)"
 
 debug: clean set_debug_flags all
 	cd $(OUT_DIR) && gdb "$(RUN_BNAME)"
@@ -65,38 +73,18 @@ set_debug_flags:
 	$(eval DEBUG_DEFINE := -DDEBUG)
 	$(eval OPTIMIZE_FLAGS := -O0)
 
-clean:
-	rm -rf "$(OUT_DIR)"
-
-help:
-	@echo 'sample invocations:'
-	@echo '  ubuntu_install_deps'
-	@echo '    #installs dependencies on Ubuntu'
-	@echo '  make'
-	@echo '  make clean'
-	@echo '  make run'
-	@echo '    #makes then runs output'
-	@echo '  make debug'
-	@echo '    #makes with -DDEBUG and -ggdb3'
-	@echo '    #and runs with gdb -b'
-	@echo '  make profile'
-	@echo '    #clean, make with -DPROFILE and -p -pg'
-	@echo '    #runs and pipes output through less'
-	@echo '    #and saves compile output to <outname>.profile_out'
-
 mkdir:
 	mkdir -p "$(OUT_DIR)"
 
 profile: clean set_profile_flags all run
 	cd $(OUT_DIR) && gprof -b $(RUN_BNAME) gmon.out | tee "$(RUN_BNAME).profile_out" | less
 
+run: all
+	cd $(OUT_DIR) && ./$(RUN_BNAME) #run from out dir
+
 set_profile_flags:
 	$(eval PROFILE_FLAGS := -p -pg)
 	$(eval PROFILE_DEFINE := -DPROFILE)
 	#$(eval OPTIMIZE_FLAGS := -O0)
 
-run: all
-	cd $(OUT_DIR) && ./$(RUN_BNAME) #run from out dir
-
-ubuntu_install_deps:
-	#sudo aptitude install -y libgtk-3-dev
+-include makefile_targets
