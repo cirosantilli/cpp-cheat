@@ -7,8 +7,8 @@
 #c/cpp
 CC			?= gcc
 CXX			?= g++
-CFLAGS		?= -std=c99   -Wall -pedantic-errors  -march=native $(CFLAGS_EXTRA)
-CXXFLAGS	?= -std=c++0x -Wall -pedantic-errors  -march=native $(CXXFLAGS_EXTRA)
+CFLAGS		?= -std=c99   -Wall -pedantic-errors -march=native $(CFLAGS_EXTRA)
+CXXFLAGS	?= -std=c++0x -Wall -pedantic-errors -march=native $(CXXFLAGS_EXTRA)
 LIBS		?= #-lm -lGL -lGLU -lglut
 DEFINES 	?= #-D_XOPEN_SOURCE 700
 

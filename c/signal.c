@@ -54,7 +54,8 @@ which is the case for linux
 
     Invalid access to storage: When a program tries to read or write outside the memory it has allocated.
 
-- SIGINT:  (Interrupt) Ask the process to terminate, possibly nicely. Sample cause: bash ctrl+c.
+- SIGINT:  (Interrupt) Ask the process to terminate, possibly nicely. Sample cause: linux terminal ctrl+c.
+
 - SIGTERM: (Terminate) Termination request sent to program. Major cause: shutdown, window close.
 
 functions defined (handlers):

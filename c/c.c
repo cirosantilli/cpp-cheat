@@ -42,7 +42,7 @@ only when users want to test those features.
     - is quite low level, so you can do low level things other languages can't
     - is low level, so it can be very fast (if you program it correctly)
 
-#language versions
+#standards
 
     #ANSI C
 
@@ -50,7 +50,13 @@ only when users want to test those features.
 
         ansi is american, and it represents the USA for ISO and IEC
 
-        you must pay to have the latest standards
+        You must pay to have the latest standards, but C99 seems to be available for free [here](http://www.open-std.org/jtc1/sc22/wg14/www/standards.html)
+        (unlike C90, which has larger library support).
+
+        Drafts are also available for free, and are very close to the actual standards.
+
+        A list of links to the standards can be found at: <http://stackoverflow.com/questions/81656/where-do-i-find-the-current-c-or-c-standard-documents>
+        Interestinly, as of 2013, C90 costs 141 dollars, but C11 only 30.
 
         however you can get for free:
 
@@ -60,6 +66,7 @@ only when users want to test those features.
             as it is *the* official source.
 
         - older standards
+
         - compiler documentations
 
         ansi only specifies language and the library interfaces:
@@ -146,6 +153,14 @@ only when users want to test those features.
     #petcs
 
         <http://www.mcs.anl.gov/petsc/documentation/index.html>
+
+#funny
+
+    <http://www.ioccc.org/>
+
+    <http://www.ioccc.org/years.html>. Amazing.
+
+    ioccc entry explained in detail: <http://stackoverflow.com/questions/15393441/obfuscated-c-code-contest-2006-please-explain-sykes2-c>
 */
 
 /*
@@ -174,14 +189,15 @@ only when users want to test those features.
 #include <iso646.h>    //and, or, etc macros
 #include <limits.h>    //*_MAX, *_MIN for integer types
 #include <locale.h>
-#include <stdarg.h>    //... variable num of args
+#include <setjmp.h>    //setjmp, longjmp
 #include <signal.h>
+#include <stdarg.h>    //... variable num of args
 #include <stdbool.h>   //true, false. c99
 #include <stddef.h>    //offsetof
 #include <stdint.h>    //uint32_t, etc.
 #include <stdlib.h>    //malloc, EXIT_SUCCESS, EXIT_FAILURE:
 #include <stdio.h>     //printf, puts
-#include <string.h>    //strlen, strcpy, memset
+#include <string.h>    //sprintf, strlen, strcpy, memset
 #include <math.h>
 #include <time.h>      //time()
 #include <wchar.h>
@@ -259,7 +275,7 @@ int debugVar;
         //cannot create scopes here like that
         //they'd be useless
 
-//#pointer #array
+//pointer array
 
     int* get_arr( int i )
     {
@@ -286,6 +302,21 @@ int debugVar;
             printf( "\n" );
         }
     }
+
+/*
+int goto_func( int i ) {
+    goto goto_func_after;
+    return 1;
+}
+*/
+
+int setjmp_func( bool jmp, jmp_buf env_buf )
+{
+    if ( jmp )
+        longjmp( env_buf, 1 );
+    else
+        return 1;
+}
 
 //#functions
 
@@ -657,10 +688,15 @@ int debugVar;
 
     }
 
-    //reads the entire file to a char[]
-    //returns a pointer to the start of that array
-    //memory is dynamically allocated, so caller must free it!
-    //if any problem happens, returns NULL
+    /*
+    reads the entire file to a char[]
+
+    returns a pointer to the start of that array
+
+    memory is dynamically allocated, so caller must free it!
+
+    if any problem happens, returns NULL
+    */
     char * file_read(char *path)
     {
         FILE * fp;
@@ -705,8 +741,11 @@ int debugVar;
         return buffer;
     }
 
-    //write null terminated string to file
-    //returns -1 on fail
+    /*
+    write null terminated string to file
+
+    returns -1 on fail
+    */
     int file_write(char *path, char *s)
     {
         FILE * fp;
@@ -736,11 +775,13 @@ int debugVar;
         return 0;
     }
 
-    //writes an array of ints to a file
-    //
-    //ints are space separated, with a trailling space
-    //
-    //on errror, returns, -1, succes 0
+    /*
+    writes an array of ints to a file
+
+    ints are space separated, with a trailling space
+
+    on errror, returns, -1, succes 0
+    */
     int write_int_arr_file(char * path, int *arr, int len)
     {
         int i;
@@ -1118,7 +1159,7 @@ int main( int argc, char** argv )
     /*
     #limits.h
 
-        gives the maximum and minimum values that fit into base integer types
+        Gives the maximum and minimum values that fit into base integer types
         in the current architecure
     */
     {
@@ -2258,8 +2299,23 @@ int main( int argc, char** argv )
             }
 
             {
+                /*WARN too small*/
                 //int is[2] = {1, 3, 2};
-                    //WARN too small
+            }
+
+            /*
+            Obscure and confusing access syntax that you should never use except to surprise your friends.
+
+            All that the standard says is that: a[b] = *( a + b ). If a is the int and b the pointer or the contrary
+            does not matter: all that matters is that one is an int and the other a pointer.
+
+            This seems to have been left like this since it is easier to compile.
+
+            <http://stackoverflow.com/questions/381542/in-c-arrays-why-is-this-true-a5-5a>
+            */
+            {
+                int is[] = {1, 3, 2};
+                assert( is[1] == 1[is] );
             }
 
             //#variable length array
@@ -2678,10 +2734,14 @@ int main( int argc, char** argv )
                 }
             }
 
-            //#libc string functions
-            {
-                //use '\0' to see ther string ends
+            /*
+            #string.h
 
+                String operations.
+
+                Uses '\0' to see ther string ends so callers don't need to give lengths.
+            */
+            {
                 //#sprintf
                 {
                     //for the possible formatrings, see [printf][]
@@ -2999,18 +3059,6 @@ int main( int argc, char** argv )
 
     //#branching
     {
-
-        //#goto
-        {
-            //never use this
-            //tranlates to `jmp` in x86 isa
-
-            goto a;
-                assert(0);
-            a:
-            assert(1);
-        }
-
         //#if
         {
             if ( -1 )
@@ -3275,6 +3323,79 @@ int main( int argc, char** argv )
                 assert( variadic_add( 5, 1, 2, 3, 4, 5 ) == 15 );
             }
         }
+
+        /*
+        #goto
+
+            One of the most basic loops: tranlates to `jmp` in x86.
+
+            However, avoid using this as it may generate unreadable code.
+
+            One common use case is error handling in a large function,
+            where if a test fails, jump to the end of the function which deals with each type of error.
+        */
+        {
+            goto a;
+                assert(0);
+            a:
+                assert(1);
+
+            /*
+            Labels have scope, so this is not possible.
+
+            If you really want to do this, see longjmp.
+            */
+            {
+                /*
+                    goto_func (1);
+                    goto_func_after:
+                */
+            }
+        }
+
+        /*
+        #setjmp.h
+
+            Jumps without scope restrictions of goto labels.
+
+            #setjmp
+
+                Saves register states, including instruction and pointer registers.
+
+                Return value:
+
+                - 0 if did not return from longjmp
+                - != 0 if just returned from a lonjmp
+
+                Application: error handling a la exception. Return val encodes the exception type.
+
+            #longjmp
+
+                Restores register states.
+
+            #longjmp and signals
+
+                If you longjmp from a signal handler you can recatch the signal afterwards.
+        */
+        {
+            jmp_buf env_buffer;
+            int val;
+
+            val = setjmp( env_buffer );
+            printf( "setjmp = %i\n", val );
+            if ( val != 0 )
+            {
+                //returned from longjmp
+                //val encodes the error code
+            } else {
+
+                //this is evaulated normally
+                assert( setjmp_func( false, env_buffer ) == 1 );
+
+                //this assert is never evaluated
+                assert( setjmp_func( true, env_buffer ) * 0 == 1 );
+            }
+        }
     }
 
     //#command line args
@@ -3310,14 +3431,74 @@ int main( int argc, char** argv )
 
     //#preprocessor
     {
-        //##define
+        /*
+        ##define
+
+            You can put preprocessor directives anywhere
+            but putting on global scope is the more standard and simple approach
+
+            Use defines with discretion: they make it much harder to debug!
+        */
         {
+            //constants
+            {
 #define A B
 #define B 1
-            //BAD
-                //you can put preprocessor directives anywhere
-                //but putting on global scope is the more standard and simple approach
-            assert( A == 1 );
+                assert( A == 1 );
+            }
+
+            //cannot redefine macros
+            {
+//#define A 1
+//#define A 2
+                //assert( A == 2 );
+            }
+
+            //functions
+            {
+#define SUM( x, y ) x + y
+                assert( SUM( 1, 1 ) == 2 );
+                //compiles as:
+                    //assert( 1 + 1 == 2 )
+                //not:
+                    //assert( 2 == 2 )
+            }
+        }
+
+        /*
+        #double hash
+
+        ###
+
+            `##` concatenates two symbols in the preprocessor
+        */
+        {
+            //basic
+            {
+#define CAT( x, y ) x ## y
+                int CAT( c_, d ) = 1;
+                assert( c_d == 1);
+            }
+
+            //preprocessor variable gotcha: <http://stackoverflow.com/questions/1489932/c-preprocessor-and-concatenation>
+            {
+                {
+#define VAR 3
+#define CAT_VAR_FAIL(x) x ## _ ## VAR
+                    int CAT_VAR_FAIL(b) = 1;
+                    assert( b_VAR == 1 );
+                }
+
+                //solution
+                {
+#define VAR 3
+#define PASTER(x,y) x ## _ ## y
+#define EVALUATOR(x,y)  PASTER(x,y)
+#define CAT_VAR(x) EVALUATOR(x, VAR)
+                    int CAT_VAR(b) = 1;
+                    assert( b_3 == 1 );
+                }
+            }
         }
 
         //##ifdef
@@ -3350,7 +3531,6 @@ int main( int argc, char** argv )
 #endif
 	}
 
-
         //#&&
 #define C 1
 #if defined(C) && C > 0
@@ -3363,8 +3543,9 @@ int main( int argc, char** argv )
 
             Print an error message to stderr and stop compilation.
         */
-
+        {
 //#error "the error message"
+        }
 
         //#standard preprocessor defines
         {
@@ -3447,15 +3628,15 @@ int main( int argc, char** argv )
     /*
     #trigraphs
 
-        absolutelly obscure feature for very old systems which do not support certain
+        Absolutelly obscure feature for very old systems which do not support certain
         characters or because of keyboards which don't support them easily
 
-        it is so obscure that gcc even emmits a warning if you use those!!
+        It is so obscure that gcc even emmits a warning if you use those!!
 
-        is the first substitution made to source, even before the preprocessor
+        Is the first substitution made to source, even before the preprocessor.
 
-        they are commented out here so that compilers like
-        gcc won't annoy us with warnings
+        They are commented out here so that compilers like
+        gcc won't annoy us with warnings.
     */
     {
             //assert( '??=' == '#' );
@@ -3803,8 +3984,8 @@ int main( int argc, char** argv )
                     //have specific format strings
 
                         printf( "printf size_t = %zu\n", (size_t)1 );
-                        printf( "printf size_t = %jd\n", (intmax_t)1 );
-                        printf( "printf size_t = %ju\n", (uintmax_t)1 );
+                        printf( "printf intmax_t = %jd\n", (intmax_t)1 );
+                        printf( "printf uintmax_t = %ju\n", (uintmax_t)1 );
 
                     //don't have specific format strings: TODO find one, clock_t is not defined integer or float
 

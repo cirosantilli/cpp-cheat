@@ -1,0 +1,2 @@
+LIBS 	:= -lrt -lasound -ljack -lpthread -lportaudio
+PHONY	:= install-deps-ubuntu

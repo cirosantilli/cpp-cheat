@@ -14,15 +14,17 @@ Major differences include:
 
 - <http://www.cplusplus.com>
 
-    explains well what most the features of the language do for beginners
+    Explains well what most the features of the language do for beginners.
 
-    no motivation, many features missing, no stdlib.
+    TODO is this site official in some way?
 
 - <http://en.cppreference.com/w/>
 
-    wiki
+    wiki driven.
 
-    many behaviour examples
+    Attempts to document all the language and stdlibs.
+
+    Many behaviour examples.
 
 - <http://yosefk.com/c++fqa/>
 
@@ -34,13 +36,20 @@ Major differences include:
 
     coding guidelines, clearly exemplified
 
-#standard
+#standards
 
-    like c, c++ is standardized by ISO under the id: ISO/IEC 14882
+    like C, C++ is standardized by ISO under the id: ISO/IEC 14882.
 
-    like any standard c++ has several versions noted by year
+    The latest standard costs 30 dollars as of 2013, but free drafts are also available.
 
-    the first standard is quite recent dating from 1998.
+    Links to several versions: <http://stackoverflow.com/questions/81656/where-do-i-find-the-current-c-or-c-standard-documents>
+
+    Drafts are freely available at: <http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/>.
+    N3337 seems to be very close to C++11.
+
+    like any standard c++ has several versions noted by year.
+
+    The first standard is quite recent dating from 1998.
 
     #C++11
 
@@ -84,18 +93,31 @@ Major differences include:
 
         rigid body physical engine
 
+#funny
+
+- <http://stackoverflow.com/questions/1642028/what-is-the-name-of-this-operator>
+
+    How can this have so many upvotes??
+
+- <http://stackoverflow.com/questions/6163683/cycles-in-family-tree-software>
+
+    Funny...
+
+- <https://groups.google.com/forum/#!msg/comp.lang.c++.moderated/VRhp2vEaheU/IN1YDXhz8TMJ>
+
+    Obscure language features.
 */
 
 /*
 #headers
 
-    stdlib headers that are not c stdlib headers don't have the .h extension
+    C++ stdlib headers that are not C stdlib headers don't have the .h extension.
 
-    with `g++` those get linked to automatically
+    With `g++` the C++ standard library is linked against automatically. 
 
-    when writting new libs, you can use either `.h` or `.hpp` as extensions.
+    When writting new libs, you can use either `.h` or `.hpp` as extensions.
 
-    the main c++ lib on linux is the GNU Standard C++ Library vX
+    The main c++ lib on linux is the GNU Standard C++ Library vX.
 
     - std bin is located at: `/usr/lib/i386-linux-gnu/libstdc++.so.X`. Try `locate libstdc++`.
     - std headers are located at: `/usr/include/c++/4.X/`. Try `locate /iostream`.
@@ -106,7 +128,7 @@ Major differences include:
 
     #c headers
 
-        c++ is a backwards compatible extension of c, therefore it must provide all the c headers with the exact same semantincs.
+        C++ is a backwards compatible extension of C, therefore it must provide all the C headers with the exact same semantincs.
 
         However, it also provides a cNAME version to every NAME.h, ex: `math.h` vs `cmath`.
 
@@ -115,24 +137,30 @@ Major differences include:
         - cX puts things in std:: namespace. *always* use the CNAME version on new code,
             since this reduces the probability of a name conflicts, and is the standard c++ way of doing things.
 
+            Note however that macro expansion happens *before* namespaces are even compiled,
+            so you still refer to macros like EXIT_SUCCESS as EXIT_SUCCESS and not `std::EXIT_SUCCESS`.
+
         - X.h puts *all* in the global namespace, it is exactly the same as the c headers.
             *never* use it in new code.
 */
 
 #include <algorithm>
-#include <chrono>       //time operations
-#include <exception>    //bad_alloc, bad_cast, bad_exception, bad_typeid, ios_base::failure
-#include <functional>   //helper arithmetic/logic functions for algorithms
-#include <iostream>     //cout, endl
+#include <chrono>           //time operations
+#include <exception>        //bad_alloc, bad_cast, bad_exception, bad_typeid, ios_base::failure
+#include <functional>       //helper arithmetic/logic functions for algorithms
+#include <iostream>         //cout, endl
 #include <iterator>
-#include <memory>       //shared_ptr
+#include <map>              //map, multimap
+#include <memory>           //shared_ptr
 #include <mutex>
-#include <numeric>      //partial sums, differences on vectors of numbers
-#include <set>
-#include <string>       //string
-#include <sstream>      //stream to a string
+#include <numeric>          //partial sums, differences on vectors of numbers
+#include <set>              //set, multiset
+#include <string>           //string
+#include <sstream>          //stream to a string
 #include <thread>
-#include <typeinfo>     //get type of vars
+#include <typeinfo>         //get type of vars
+#include <unordered_map>    //unordered_map, unordered_multimap
+#include <utility>          //pair
 #include <vector>
 
 //c headers:
@@ -156,6 +184,55 @@ void printCallStack()
         cout << *it << endl;
     cout << "END callStack" << endl;
 }
+
+/*exception*/
+
+    void exception_func_int()
+    {
+        throw 1;
+    }
+
+    class myexception: public exception
+    {
+        virtual const char* what() const throw()
+        {
+            return "myexception::what()";
+        }
+    };
+
+    //exception specifications
+
+            //All exceptions are catchable (default):
+            void exception_func_all() { throw 0; }
+
+            //only int exceptions are catchable
+            void exception_func_int_only( bool throw_int ) throw (int)
+            {
+                if ( throw_int )
+                    throw 1;
+                else
+                    throw 'c';
+            }
+
+            //only int and exception or derived excpetions are catchable:
+            void exception_func_int_exception_only( int which ) throw ( int, exception )
+            {
+                switch (which)
+                {
+                    case 0: throw 0; break;
+                    case 1: throw myexception(); break;
+                    default: throw 'c'; break;
+                }
+            }
+
+            //no exceptions are catchable
+            void exception_func_none() throw() { throw 1; }
+
+            void exception_func_none_wrapper()
+            {
+                exception_func_none();
+            }
+
 
 //class
 //{
@@ -1619,7 +1696,7 @@ int main(int argc, char** argv)
 
             //int& ia;
                 //ERROR
-                //must be initialized immediatelly
+                //must be initialized imediatelly
         }
 
         {
@@ -1689,6 +1766,39 @@ int main(int argc, char** argv)
         }
     }
 
+        /*
+        #auto
+
+            C++11 keyword
+
+            Completelly differs in meaning with the useless C `auto` keyword.
+
+            Variable type is infered based on return value of initialization.
+
+            Major application: create an iterator without speficying container type.
+        */
+        {
+            //basic usage
+            {
+                //the compiler infers the type of i from the initialization.
+                auto i = 1;
+            }
+
+            //address
+            {
+                int i = 1;
+                auto& ai = i;
+                ai = 2;
+                assert( i == 2 );
+            }
+
+            //ERROR must initialize immediately.
+            {
+                //auto i;
+                //i = 1;
+            }
+        }
+
     /*
     #vla
 
@@ -1753,25 +1863,34 @@ int main(int argc, char** argv)
             assert( callStack.back() == "overload(int)" );
             callStack.clear();
 
-            overload(1.0f);
-            //overload(1.0);
-                //ERROR
-                //ambiguous overload(int) overload(float)
-                //compiler does not know wether convert double to float or int
+            //base type conversions
+            {
+                overload(1.0f);
+
+                /*
+                ERROR
+                ambiguous overload(int) overload(float)
+                compiler does not know wether convert double to float or int
+                */
+                //overload(1.0);
+            }
+
             assert( callStack.back() == "overload(float)" );
             callStack.clear();
 
-            //Class cOverload;
-            //overloadBase(cOverload);
-                //ERROR
-                //ambiguous
-                //coverts to Base or BaseProtected
+            /*
+            ERROR: ambiguous
+            should compiler coverts to Base or BaseProtected? Both are possible via the default copy constructors.
+            */
+            {
+                Class cOverload;
+                //overloadBase(cOverload);
+            }
 
             //i=4;
             //overloadValAddr(i);
                 //ERROR
                 //ambiguous
-
         }
 
         //#template
@@ -1799,11 +1918,23 @@ int main(int argc, char** argv)
 
     }
 
-    //#exception
-    {
-        //TODO
+    /*
+    #exception
 
-        /*
+        Great source: <http://www.cplusplus.com/doc/tutorial/exceptions/>
+
+        Application: centralize error handling in a single place, even if outside executing functions.
+
+        The application is similar to C's longjmp, but the implementation is different.
+        TODO how are they implemented in assembly code? <http://stackoverflow.com/questions/490773/how-is-the-c-exception-handling-runtime-implemented>
+        It is more magic than C longjmp as it does type checking.
+
+        Anything can be thrown, but the most standard and extensible method is to throw subclasses of exception,
+        so just do that always.
+
+        There is no finally block: <http://stackoverflow.com/questions/161177/does-c-support-finally-blocks-and-whats-this-raii-i-keep-hearing-about>
+        Deinitializations are left for destructors.
+
         #standard exceptions
 
             - bad_alloc         thrown by new on allocation failure
@@ -1811,7 +1942,132 @@ int main(int argc, char** argv)
             - bad_exception     thrown when an exception type doesn't match any catch
             - bad_typeid        thrown by typeid
             - ios_base::failure thrown by functions in the iostream library
+    */
+    {
+        /*
+        Exceptions can jump out of functions.
+
+        This is their main reason for existing!
         */
+        {
+            try
+            {
+                exception_func_int();
+            }
+            catch ( int i ) {
+                assert( i == 1 );
+            }
+        }
+
+        /*
+        Catch blocks work like function overloads and catch by type.
+        */
+        try
+        {
+            throw 'c';
+        }
+        catch (int i)   { assert(false); }
+        catch (char c)  {  }
+
+        /*
+        `...` is the default case
+        */
+        try
+        {
+            throw 1.0;
+        }
+        catch (int i)   { assert(false); }
+        catch (char c)  { assert(false); }
+        catch (...)     { }
+
+        /*
+        Derived classes.
+
+        Just like for function overloading, base classes catch for derived classes.
+        */
+        {
+            try
+            {
+                throw myexception();
+            }
+            catch ( std::exception& ex )    { }
+            /*
+            This compiles, but generates a warning, since the first catch will always catch instead of this one.
+            */
+            //catch ( myexception& ex )       { assert(false); }
+            catch (...)                     { assert(false); }
+
+            /*
+            this is a more common exception ordering, first derived then base.
+            */
+            {
+                try
+                {
+                    throw myexception();
+                }
+                catch ( myexception& ex )       { }
+                catch ( std::exception& ex )    { assert(false); }
+                catch (...)                     { assert(false); }
+            }
+        }
+
+        /*
+        Uncaught exceptions.
+
+        Uncaught exceptions explose at top level and terminate the program.
+
+        Check out the error messages generated by each exception.
+
+        Classes that derive from exception and implement `what()` can print custom messages,
+        which may contain useful debug info. This is a major point in favor of using exception
+        classes instead of base types.
+        */
+        {
+            //throw 1;
+            //throw 'c';
+            //throw 1.0;
+            //throw myexception();
+        }
+
+        /*
+        Exception specifications
+
+            Functions can specify which exceptions are catchable with the following syntax:
+        */
+        {
+            try
+            {
+                exception_func_int_only( true );
+            }
+            catch ( int i )  { }
+            catch (...)      { assert(false); }
+
+            try
+            {
+                //exception_func_int_only( false );
+            }
+            catch (...) { /* not even ... this can catch non int exceptions thrown by this function */ }
+
+            try
+            {
+                exception_func_int_exception_only( 1 );
+            }
+            catch ( int i )             { }
+            catch ( myexception& ex )   { }
+            catch (...)                 { assert(false); }
+
+            try
+            {
+                //exception_func_none();
+            }
+            catch (...) { /* no exception thrown by this function is catchable */ }
+
+            try
+            {
+                //exception_func_none_wrapper();
+            }
+            catch (...) { /* the same goes if we wrap the function */ }
+        }
     }
 
     //#class
@@ -1913,12 +2169,13 @@ int main(int argc, char** argv)
         /*
         #copy vs assign
 
-        every class gets a default assign operator (=) and copy constructor (`Classname(Classname other)`).
+            every class gets a default assign operator (=) and copy constructor (`Classname(Classname other)`).
 
-        the defaults might not be what you want, specially when you allocate memory inside the constructor!
+            the defaults might not be what you want, specially when you allocate memory inside the constructor!
 
-        http://stackoverflow.com/questions/3279543/what-is-the-copy-and-swap-idiom
-        http://stackoverflow.com/questions/4172722/what-is-the-rule-of-three
+            <http://stackoverflow.com/questions/3279543/what-is-the-copy-and-swap-idiom>
+
+            <http://stackoverflow.com/questions/4172722/what-is-the-rule-of-three>
         */
         {
             //#copy constructor
@@ -1964,7 +2221,7 @@ int main(int argc, char** argv)
             }
 
             /*
-            It is however possible to assing / copy from derived to base class.
+            It is possible to assing / copy from derived to base class.
             */
             {
                 Class c;
@@ -2019,7 +2276,14 @@ int main(int argc, char** argv)
             }
         }
 
-        //#temporaries
+        /*
+        #temporary objects
+
+            TODO do they exist in C?
+
+            TODO temporaries and references / pointers: show that one should only pass temporaries
+                to const refernces / pointers
+        */
         {
             cout << "Class().method();" << endl; //an instance without name is created and destroyed
             {
@@ -2164,10 +2428,32 @@ int main(int argc, char** argv)
             }
         }
 
-        //#polymorphism
-        {
-            //behind the scenes a *vtable* is used to implement this
+        /*
+        #polymorphism
 
+            - loop an array of several dereived classes
+            - call a single base class method
+            - uses the correct derived override
+
+            Implementation: *vtable* is used to implement this.
+
+        #vtable
+
+            <http://en.wikipedia.org/wiki/Virtual_method_table>
+
+            Whenever you create a pointer to a class with a virtual method,
+            that pointer points to a pointer that identifies the class type,
+            and points to the correct method.
+
+            Consequence: every call to a virtual methods means:
+
+            - an extra pointer dereference
+            - an extra pointer stored in memory
+
+            Also virtual functions cannot be inlined.
+
+        */
+        {
             //BaseAbstract b;
                 //ERROR: BaseAbstract cannot be instantiated because it contains a pure virtual method
                 //virtual = 0;. That method must be implemented on derived classes
@@ -2218,18 +2504,6 @@ int main(int argc, char** argv)
                     //ERROR
                     //conversion from Base to Class
             }
-        }
-
-        //#typecasting
-        {
-            //http://www.cplusplus.com/doc/tutorial/typecasting/
-
-            //implicit via constructor/assigment
-                //class A {};
-                //class B { public: B (A a) {} };
-                //A a;
-                //B b=a;
-
         }
 
         //#nested classes
@@ -2292,9 +2566,45 @@ int main(int argc, char** argv)
     }
 
     /*
+    #typecasting
+
+        Sources:
+
+        - <http://www.cplusplus.com/doc/tutorial/typecasting/>
+        - <http://stackoverflow.com/questions/28002/regular-cast-vs-static-cast-vs-dynamic-cast>
+        - <http://stackoverflow.com/questions/332030/when-should-static-cast-dynamic-cast-and-reinterpret-cast-be-used>
+    */
+    {
+        //TODO
+
+        //implicit via constructor/assigment
+            //class A {};
+            //class B { public: B (A a) {} };
+            //A a;
+            //B b=a;
+    }
+
+    /*
+    #explicit
+    */
+    {
+        //TODO
+
+        //<http://stackoverflow.com/questions/121162/what-does-the-explicit-keyword-in-c-mean>
+    }
+
+    /*
     #dynamic memory
 
         C++ replaces C's malloc and free with new and delete.
+
+        Use it always instead of malloc on new code.
+
+    #new
+
+        Allocate dynamic memory.
+
+        Throw `std::bad_alloc` in case of error.
 
     #realloc
 
@@ -2302,9 +2612,19 @@ int main(int argc, char** argv)
         <http://stackoverflow.com/questions/3482941/how-do-you-realloc-in-c>
     */
     {
+        /*
+            basic usage with proper error checking
+        */
         {
             int* ip;
-            ip = new int[5];
+            try
+            {
+                ip = new int[5];
+            }
+            catch( std::bad_alloc& ba )
+            {
+                assert( false );
+            }
             ip[0] = 1;
             delete[] ip;
         }
@@ -2589,17 +2909,19 @@ int main(int argc, char** argv)
                 //empty
                 {
                     vector<int> v;
+
+                    //NEW way in C++11
+                    //initializer lists
                     vector<int> v1 = {};
-                        //NEW C++11
-                        //initializer lists
+
                     assert( v == v1 );
                 }
 
                 //single value
                 {
                     {
-                        vector<int> v(3,2);
-                        vector<int> v1 = {2,2,2};
+                        vector<int> v( 3, 2 );
+                        vector<int> v1 = { 2, 2, 2 };
                         assert( v == v1 );
                     }
 
@@ -2612,23 +2934,23 @@ int main(int argc, char** argv)
 
                 //range copy
                 {
-                    vector<int> v = {0,1,2};
+                    vector<int> v = { 0, 1, 2 };
                     vector<int> v1( v.begin(), v.end() );
                     assert( v == v1 );
                 }
 
                 //from existing array
                 {
-                    int myints[] = {0,1,2};
-                    vector<int> v (myints, myints + sizeof(myints)/sizeof(int) );
-                    vector<int> v1 = {0,1,2};
+                    int myints[] = { 0, 1, 2 };
+                    vector<int> v( myints, myints + sizeof( myints ) / sizeof( int ) );
+                    vector<int> v1 = { 0, 1, 2 };
                     assert( v == v1 );
                 }
 
                 //vectors have order
                 {
-                    vector<int> v = {0,1,2};
-                    vector<int> v1 = {2,1,0};
+                    vector<int> v =  { 0, 1, 2};
+                    vector<int> v1 = { 2, 1, 0};
                     assert( v != v1 );
                 }
 
@@ -2636,7 +2958,7 @@ int main(int argc, char** argv)
                 {
                     vector<int> v;
                     assert( v.size() == 0 );
-                    v.push_back(0);
+                    v.push_back( 0 );
                     assert( v.size() == 1 );
                 }
 
@@ -2656,22 +2978,16 @@ int main(int argc, char** argv)
 
             }
 
-            //compare
-            {
-                //TODO how to check if two vectors are equal?
-            }
-
             //modify
             {
                 //can modify with initializers
                 {
                     vector<int> v;
-                    v = {0};
-                    v = {0, 1};
+                    v = { 0 };
+                    v = { 0, 1 };
 
-                    //ERROR
-                    //not possible
-                        //assert( v = {0,1} );
+                    //ERROR not possible to compare vectors to initializers
+                        //assert( v == {0,1} );
                 }
 
                 //push_back
@@ -2679,28 +2995,30 @@ int main(int argc, char** argv)
                     vector<int> v;
                     vector<int> v1;
 
-                    v.push_back(0);
-                    v1 = {0};
+                    v.push_back( 0 );
+                    v1 = { 0 };
                     assert( v == v1 );
 
                     v.push_back(1);
-                    v1 = {0,1};
+                    v1 = { 0, 1 };
                     assert( v == v1 );
                 }
 
                 /*
                 push_back makes copies with assign `=`
 
-                If you want references, use pointers.
+                If you want references, use pointers, or even better, auto_ptr.
                 */
                 {
                     vector<string> v;
                     string s = "abc";
-                    v.push_back(s);
+
+                    v.push_back( s );
                     v[0][0] = '0';
                     assert( v[0] == "0bc" );
+
+                    //s was not changed
                     assert( s == "abc" );
-                        //s was not changed
                 }
 
                 /*
@@ -2729,11 +3047,11 @@ int main(int argc, char** argv)
                     vector<int> v1;
 
                     v.insert( v.begin(), -1 );
-                    v1 = {-1,0,1};
+                    v1 = { -1, 0, 1 };
                     assert( v == v1 );
 
                     v.insert( v.end(), 2 );
-                    v1 = {-1,0,1,2};
+                    v1 = { -1, 0, 1, 2 };
                     assert( v == v1 );
                 }
 
@@ -2742,14 +3060,14 @@ int main(int argc, char** argv)
                     vector<int> v;
                     vector<int> v1;
 
-                    v = {0,1,2,3};
+                    v = { 0, 1, 2, 3 };
                     v.erase( v.begin() + 1, v.end() - 1 );
-                    v1 = {0,3};
+                    v1 = { 0, 3 };
                     assert( v == v1 );
 
-                    v = {0,1,2};
+                    v = { 0, 1, 2 };
                     v.erase( v.begin() + 1 );
-                    v1 = {0,2};
+                    v1 = { 0, 2 };
                     assert( v == v1 );
                 }
 
@@ -2760,8 +3078,8 @@ int main(int argc, char** argv)
                     assert( v.size() == 0 );
                 }
 
-                //cout v;
-                    //no default operator <<
+                //ERROR no default operator `<<`
+                    //cout v;
             }
 
             //random access
@@ -2792,21 +3110,7 @@ int main(int argc, char** argv)
                     //v1[2] = 2;
             }
 
-            //iterate
-            {
-                vector<int>::iterator it;
-                vector<int> v = { 2, 1, 0 };
-                int i;
-                int is[] = {2,1,0};
-                for (
-                    it = v.begin(), i=0;
-                    it != v.end();
-                    ++it, ++i
-                )
-                {
-                    assert( *it == is[i] );
-                }
-            }
+            //iterate: vector has random access iterators
         }
 
         /*
@@ -2814,115 +3118,385 @@ int main(int argc, char** argv)
 
             - unique elements: inserting twice does nothing
 
-            - immutable elements
+            - always ordered: $O(log)$ find / insert
 
-            - always ordered: $O(log)$ find
+            - immutable elements: it is not possible to modify an object,
+                one must first remove it and resinsert.
+
+                This is so because modification may mean reordering.
         */
         {
+            //C++11 initializer list
             {
-                set<int> s;
-                s.insert(1);
-                s.insert(2);
-                s.insert(0);
-                s.insert(1);
-                set<int> s1 = {0,1,2};
-                assert( s == s1 );
-            }
-
-            {
-                set<int> s = {1,2,0,1};
-                set<int> s1 = {0,1,2};
-                assert( s == s1 );
-            }
-
-            {
-                std::set<std::string> s = {"a","c","b","a"};
-                std::set<std::string> s1 = {"a","b","c"};
-                assert( s == s1 );
-            }
-
-            {
-                //cout << s[0] << endl;
-                    //ERROR
-                    //no random access method
-            }
-
-            //iterate
-            {
-                //always sorted
-                int i;
-                int is[] = { 0, 1, 2 };
-                set<int>::iterator it;
-                set<int> s = { 1, 2, 0, 1 };
-                for(
-                    it = s.begin(), i = 0;
-                    it != s.end();
-                    it++, i++
-                )
                 {
-                    assert( *it == is[i] );
-                    //*it = 3;
-                        //ERROR
-                        //read only
+                    set<int> s = { 1, 2, 0, 1 };
+                    set<int> s1 = { 0, 1, 2 };
+                    assert( s == s1 );
+                }
+
+                {
+                    std::set<std::string> s = { "a", "c", "b", "a" };
+                    std::set<std::string> s1 = { "a","b", "c" };
+                    assert( s == s1 );
                 }
             }
 
-            {
-                int i;
-                string is[] = {"a","b","c"};
-                std::set<std::string> s = {"a","c","b","a"};
-                std::set<std::string>::iterator it;
-                for(
-                    it = s.begin(), i=0;
-                    it != s.end();
-                    it++, i++
-                )
-                {
-                    assert( *it == is[i] );
-                    char c = (*it)[0];
-                    //(*it)[0] = 'a';
-                        //ERROR
-                        //read only
-                }
-            }
-
-            //find
-            {
-                //since always sorted, find has logarithmic complexity
-                set<int> s = {0,1,2};
-                set<int>::iterator it = s.find(1);
-                assert( *it == 1 );
-            }
-
-            //you can modify objects if store pointers
+            //you can modify objects if you store pointers
             {
                 int i = 0;
                 set<int*> s;
-                s.insert(&i);
+                s.insert( &i );
                 set<int*>::iterator it = s.find(&i);
                 *(*it) = 1;
                 assert( i == 1 );
             }
 
-            //count
+            /*
+            insert
+
+                Like for vector, insert makes copies.
+
+                Return is a pair conatining:
+
+                - if the item was not present, an iterator to the item inserted and true
+                - if the item was     present, an iterator to the existing item inserted and false
+            */
             {
-                //can only return 1 or 0
-                set<int> s = {1,2,0,1};
+                std::pair<set<int,std::string>::iterator,bool> ret;
+                set<int> s;
+
+                ret = s.insert(1);
+                assert( ret.first == s.find(1) );
+                assert( ret.second == true );
+
+                ret = s.insert(2);
+                assert( ret.first == s.find(2) );
+                assert( ret.second == true );
+
+                ret = s.insert(0);
+                assert( ret.first == s.find(0) );
+                assert( ret.second == true );
+
+                //item already present:
+                //nothing is done and returns false on the pair
+                ret = s.insert(1);
+                assert( ret.first == s.find(1) );
+                assert( ret.second == false );
+
+                set<int> s1 = { 0, 1, 2 };
+                assert( s == s1 );
+            }
+
+            /*
+            erase
+
+                Remove element from set.
+
+                Returns number of elements removed.
+            */
+            {
+                set<int> s = { 0, 1, 2 };
+
+                assert( s.erase(1) == 1 );
+                set<int> s2 = { 0, 2 };
+                assert( s == s2 );
+
+                assert( s.erase(1) == 0 );
+            }
+
+            //ERROR no random access since it uses bidirection iterator
+            {
+                //cout << s[0] << endl;
+            }
+
+            //size
+            {
+                set<int> s;
+                assert( s.size() == 0 );
+                s.insert( 0 );
+                assert( s.size() == 1 );
+            }
+
+            /*
+            iterate
+
+                Biderectional iterator.
+
+                Always sorted.
+            */
+
+            /*
+            find
+
+                If found, returns an iterator pointing to the element.
+                Else, returns `map::end()`
+
+                find is `log n` time since the container is ordered.
+
+                log n time complexity since always sorted
+            */
+            {
+                set<int> s = { 0, 1, 2 };
+                set<int>::iterator it;
+
+                it = s.find( 1 );
+                assert( *it == 1 );
+
+                it = s.find( 3 );
+                assert( it == s.end() );
+            }
+
+            /*
+            count
+
+                Count how many times an item is in the set.
+
+                Can only return 1 or 0.
+
+                Equivalent to doing a find.
+            */
+            {
+                set<int> s = { 1, 2, 0, 1 };
                 assert( s.count(1) == 1 );
                 assert( s.count(3) == 0 );
             }
         }
 
         /*
-        #hashmap
+        #tuple
 
-            C++0x introduces `std::unordered_map`.
+            Hold a ordered collection of elements.
 
-            Nonstandard `hash_map` already provided with gcc and msvc++.
+            Each element can be of a different type.
 
-            It is placed in the `std::` namespace, but it is *not* ISO.
+            The length is always fixed.
         */
         {
+            //create
+            {
+                std::tuple<int,char,std::string> t0( 0, 'a', "a" );
+                std::tuple<int,char,std::string> t1 = std::make_tuple( 0, 'a', "a" );
+                std::tuple<int,char> t2 = std::pair<int,char>( 0, 'a' );
+            }
+
+            //get: read write access. Copies are made from input elements
+            {
+                std::string s = "abc";
+                std::tuple<int,std::string> t0( 0, s );
+
+                assert( std::get<0>(t0) == 0 );
+                assert( std::get<1>(t0) == "abc" );
+
+                std::get<0>(t0) = 1;
+                assert( std::get<0>(t0) == 1 );
+
+                std::get<1>(t0)[0] = '0';
+                assert( std::get<1>(t0) == "0bc" );
+                //s did not change
+                assert( s == "abc" );
+            }
+
+            //relational
+            {
+                std::tuple<int,char> t0( 0, 'a' );
+                std::tuple<int,char> t1( 0, 'a' );
+                std::tuple<int,char> t2( 1, 'b' );
+
+                assert( t0 == t1 );
+                assert( t0 != t2 );
+                assert( t0 < t2 );
+            }
+
+            //swap contents of two tuples of same type
+            {
+                std::tuple<int,char> t0( 0, 'a' );
+                std::tuple<int,char> t1( 1, 'b' );
+
+                std::tuple<int,char> old_t0 = t0;
+                std::tuple<int,char> old_t1 = t1;
+
+                t0.swap( t1 );
+
+                assert( t0 == old_t1 );
+                assert( t1 == old_t0 );
+            }
+        }
+
+        /*
+        #pair
+
+            Two elements. Particular case of tuple.
+            Methods which exist for tuple will not be discussed.
+
+            Specially important because of unordered_map.
+
+            Also consider the more general tuple.
+        */
+        {
+            //access: can also be done via `.first` and `.second` in addition to `get`.
+            {
+                std::pair<int,char> p( 0, 'a' );
+                assert( std::get<0>(p) == p.first );
+                assert( std::get<1>(p) == p.second );
+            }
+        }
+
+        /*
+        #hashmap
+
+            See map.
+
+            Nonstandard `hash_map` already provided with gcc and msvc++.
+            It is placed in the `std::` namespace, but it is *not* ISO.
+
+        #map
+
+            <http://www.cplusplus.com/reference/map/map/>
+
+            Also comes in an unordered version `unordered_map`.
+
+            Ordered.
+
+            Also comes in an multiple value input version `multimap`.
+
+            Keys must implement
+
+        #unordered_map
+
+            TODO complexity comparison to map.
+        */
+        {
+            /*
+            emplace
+
+                put a value pair into the map without creating the pair explicitly
+
+                needs gcc 4.8: <http://stackoverflow.com/questions/15812276/stdset-has-no-member-emplace>
+            */
+            {
+                //std::map<int,std::string> m;
+                //m.emplace( 0, "zero" );
+                //m.emplace( 1, "one" );
+                //m.emplace( 2, "two" );
+            }
+
+            /*
+            insert
+
+                Insert pair into map.
+
+                The return value is similar to that of a set insertion with respec to the key.
+            */
+            {
+                std::map<int,std::string> m;
+                std::pair<map<int,std::string>::iterator,bool> ret;
+
+                ret = m.insert( std::pair<int,std::string>( 0, "zero" ) );
+                assert( ret.first == m.find(0) );
+                assert( ret.second == true );
+
+                ret = m.insert( std::pair<int,std::string>( 1, "one" ) );
+                assert( ret.first == m.find(1) );
+                assert( ret.second == true );
+
+                //key already present
+                ret = m.insert( std::pair<int,std::string>( 1, "one2" ) );
+                assert( m[1] == "one" );
+                assert( ret.first == m.find(1) );
+                assert( ret.second == false );
+            }
+
+            /*
+            iterate
+
+                maps are iterated in key order
+
+                iteration returns key value pairs
+            */
+            {
+                std::map<int,std::string> m;
+                m.insert( std::pair<int,std::string>( 1, "one" ) );
+                m.insert( std::pair<int,std::string>( 0, "zero" ) );
+
+                int i = 0;
+                int is[] = { 0, 1 };
+                for ( auto& im : m )
+                {
+                    assert( im.first == is[i] );
+                    //cout << im->second << endl;
+                    ++i;
+                }
+            }
+
+            /*
+            [] operator
+
+                get value from a given key
+
+                WARNING: if the key does not exist, it is inserted with a value with default constructor.
+
+                This can be avoided by using `find` instead of `[]`.
+            */
+            {
+                std::map<int,std::string> m;
+                m.insert( std::pair<int,std::string>( 0, "zero" ) );
+                m.insert( std::pair<int,std::string>( 1, "one" ) );
+
+                assert( m[0] == "zero" );
+                assert( m[1] == "one" );
+
+                //inserts `(3,"")` because `""` is the value for the default string constructor
+                assert( m[2] == "" );
+                assert( m.size() == 3 );
+            }
+
+            /*
+            find
+
+                Similar to `std::set` find with respect to the keys:
+                returns an iterator pointing to the pair which has given key, not the value.
+
+                If not found, returns `map::end()`
+
+                This is perferrable to `[]` since it does not insert non existing elements.
+            */
+            {
+                std::map<int,std::string> m;
+                m.insert( std::pair<int,std::string>( 0, "zero" ) );
+                m.insert( std::pair<int,std::string>( 1, "one" ) );
+
+                assert( m.find(0)->second == "zero" );
+                assert( m.find(1)->second == "one" );
+
+                assert( m.find(2) == m.end() );
+                assert( m.size() == 2 );
+            }
+
+            /*
+            erase
+
+                Remove element from map.
+
+                Returns number of elements removed.
+            */
+            {
+                int ret;
+
+                std::map<int,std::string> m;
+                m.insert( std::pair<int,std::string>( 0, "zero" ) );
+                m.insert( std::pair<int,std::string>( 1, "one" ) );
+
+                std::map<int,std::string> m2;
+                m2.insert( std::pair<int,std::string>( 0, "zero" ) );
+
+                ret = m.erase( 1 );
+                assert( ret = 1 );
+
+                assert( m == m2 );
+
+                ret = m.erase( 1 );
+                assert( ret == 0 );
+            }
         }
 
         /*
@@ -2939,29 +3513,216 @@ int main(int argc, char** argv)
 
             - iterators may allow you not to keep the whole sequence in
                memory, but calculate it on the fly
+
+            #iterator classes
+
+                Iterators are categorized into classes depending on the operations they can do:
+
+                    <http://www.cplusplus.com/reference/iterator/>
+
+                The clases are (from least to most versatile):
+
+                - Input Output
+                - Forward
+                - Bidirectional
+                - Random Access
+
+                The most versatile iterators (random access) behave much like pointers,
+                and overload most pointer operations such as integer increment `it + 1` and
+                pointer dereference `*it` in a similar way to pointers.
+
+                Those classes are not language enforced via inheritance like in Java,
+                but could be used by programmers to implement typedefs that explain
+                the types of operations permitted. So if you are going to use a typedef
+                solution not to tie yourself to a given container, consider naming the
+                typdefed as one of the classes to indicate the operationt can do:
+
+                    typedef random_it vector<int>::iterator;
         */
         {
-            vector<int> v = { 1, 2 };
-            set<int> s = { 1, 2 };
 
             /*
-            there is no standard iterator independent from container
-            this can be done via type erasure techinques
-            but would mean loss of performance because of lots of polymorphic calls
-            and STL is obssessed with performance
+            #foreach
+
+                See range based for.
+
+            #range based for
+
+                C++11
+
+                Like python foreach or Java improved-for loop.
+
+                This is the best way to iterate a container with C++11.
+
+                Much easier to write or read.
+
+                Also have the advantage that you don't need to specify iterator type!
+
+                Behind the scenes, this method is still based on iterators,
+                and the class to be iterated needs to implement:
+
+                - begin()
+                - end()
+
+                And the iterator returned must implement:
+
+                - operator++()
+                - operator!=()
+                - operator*()
             */
             {
-                vector<int>::iterator itVec = v.begin();
-                set<int>::iterator itSeti = s.begin();
-                //DOES NOT EXIST:
+                vector<int> v = { 1, 2, 0 };
+                int i;
+                int is[] = { 1, 2, 0 };
 
-                    //iterator it
-                    //it = v.begin();
-                    //it = s.begin();
+                //forward
+                {
+                    i = 0;
+                    for ( auto& iv : v )
+                    {
+                        assert( iv == is[i] );
+                        //cout << *it << endl;
+                        i++;
+                    }
+                }
+
+                /*
+                backwards
+
+                    TODO possible? Seems not out of the C++11 box: <http://stackoverflow.com/questions/8542591/c11-reverse-range-based-for-loop>
+
+                    Best workaround with auto.
+                */
+                {
+                    vector<int> v = { 1, 2, 0 };
+                    int i;
+                    int is[] = { 1, 2, 0 };
+
+                    //forward
+                    {
+                        i = 2;
+                        for ( auto it = v.rbegin(); it != v.rend(); it++ )
+                        {
+                            assert( *it == is[i] );
+                            //cout << *it << endl;
+                            i--;
+                        }
+                    }
+                }
+            }
+            /*
+            basic usage before C++11
+            */
+            {
+                /*
+                #forward iteration
+
+                    Can be done on all containers.
+
+                    #begin
+
+                        Returns an iterator to the first element.
+
+                    #end
+
+                        Returns an iterator to the first element *after* the last.
+                */
+                {
+                    vector<int>::iterator it;
+                    vector<int> v = { 1, 2, 0 };
+                    int i;
+                    int is[] = { 1, 2, 0 };
+
+                    i = 0;
+                    for (
+                        it = v.begin();
+                        it != v.end();
+                        ++it
+                    )
+                    {
+                        assert( *it == is[i] );
+                        //cout << *it << endl;
+                        ++i;
+                    }
+                }
+
+                /*
+                #backwards iteration
+
+                    Can only be done on biderectional containers.
+
+                    #rbegin
+
+                        Reversed begin.
+
+                        Returns a `reverse_iterator` that points to the last emlement.
+
+                        ++ on reversed iterators decreases them.
+
+                    #rend
+
+                        Returns a reversed iterator to the element before the first.
+                */
+                {
+                    vector<int>::reverse_iterator it;
+                    vector<int> v = { 1, 2, 0 };
+                    int i;
+                    int is[] = { 1, 2, 0 };
+
+                    i = 2;
+                    for (
+                        it = v.rbegin();
+                        it != v.rend();
+                        ++it
+                    )
+                    {
+                        assert( *it == is[i] );
+                        //cout << *it << endl;
+                        --i;
+                    }
+                }
             }
 
-            //no born checking is done
+            /*
+            #generic containers
+
+                There is no standard iterator independent from container.
+
+                This can be done via type erasure techinques.
+
+                But would mean loss of performance because of lots of polymorphic calls
+                and STL is obssessed with performance.
+
+                The best solution seems to use typedefs:
+
+                    typedef it_t vector<int>::iterator;
+
+                And then if ever your container changes all you have to do is modify one single typedef:
+
+                    typedef it_t set<int>::iterator;
+
+                TODO isnt auto and range based for a better solution in c++11?
+            */
             {
+                vector<int> v = { 1, 2 };
+                set<int> s = { 1, 2 };
+                vector<int>::iterator itVec = v.begin();
+                set<int>::iterator itSeti = s.begin();
+
+                //DOES NOT EXIST:
+                    //iterator<int> itVec = v.begin();
+                    //iterator<int> itSeti = s.begin();
+
+                //best workaround with auto:
+
+                    auto vit = v.begin();
+                    auto sit = v.begin();
+            }
+
+            //no born checking is not done
+            {
+                vector<int> v = { 1, 2 };
+
                 *( v.end() - 1 );
                     //last element
 
@@ -3172,7 +3933,8 @@ int main(int argc, char** argv)
         #thread
 
             c++11
-            needs -pthread flag on gcc linux
+
+            needs `-pthread` flag on g++ linux
         */
         {
 
