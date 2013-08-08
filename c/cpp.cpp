@@ -1916,6 +1916,34 @@ int main(int argc, char** argv)
             }
         }
 
+        /*
+        #temporary objects
+
+            TODO do they exist in C?
+
+            TODO temporaries and references / pointers: show that one should only pass temporaries
+                to const refernces / pointers
+        */
+        {
+            cout << "Class().method();" << endl; //an instance without name is created and destroyed
+            {
+                Class().method();
+                    //Class() Class().method1() ~Class
+
+                Class( Class() );
+                    //i j
+                    //temporaries can be passed to functions directly
+            }
+
+            {
+                Class c = Class();
+                Class* cp = &c;
+
+                //Class* cp = &Class();
+                    //ERROR
+                    //address of what?
+            }
+        }
     }
 
     /*
@@ -2273,35 +2301,6 @@ int main(int argc, char** argv)
             {
                 Class *var = new Class;
                 std::memset(var, 0, sizeof(Class));
-            }
-        }
-
-        /*
-        #temporary objects
-
-            TODO do they exist in C?
-
-            TODO temporaries and references / pointers: show that one should only pass temporaries
-                to const refernces / pointers
-        */
-        {
-            cout << "Class().method();" << endl; //an instance without name is created and destroyed
-            {
-                Class().method();
-                    //Class() Class().method1() ~Class
-
-                Class( Class() );
-                    //i j
-                    //temporaries can be passed to functions directly
-            }
-
-            {
-                Class c = Class();
-                Class* cp = &c;
-
-                //Class* cp = &Class();
-                    //ERROR
-                    //address of what?
             }
         }
 

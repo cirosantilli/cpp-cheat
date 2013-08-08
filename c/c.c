@@ -199,6 +199,7 @@ only when users want to test those features.
 #include <stdio.h>     //printf, puts
 #include <string.h>    //sprintf, strlen, strcpy, memset
 #include <math.h>
+//#include <tgmath.h>    //
 #include <time.h>      //time()
 #include <wchar.h>
 //#include <thread.h>             //c99 but not yet implemented for me
@@ -331,21 +332,30 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
     void func_float(float f){}
     void func_double(double d){}
 
+    void func_string(char s[]){ assert( strcmp( s, "abc" ) == 0 ); }
+    void func_string_const(char const s[]){ assert( strcmp( s, "abc" ) == 0 ); }
+    void func_array(int a[]){}
+
+    struct func_struct { int i; };
+    void func_struct(struct func_struct s){
+        assert( s.i == 1 );
+    }
+
     void func_int_ptr (int *i){}
     void func_int_arr (int i[]){}
 
-    void with_static_var()
+    void with_static_var( int *i_out, int *si_out )
     {
-        int a = 1;
-        static int sa = 1;
-            //BAD
-            //- not thread safe
-            //- hard to understand
+        int i = 0;
 
-        a++;
-        sa++;
+        //static initialization is evaluated only once
+        //the first time this function is called
+        static int si = 0;
 
-        printf("a = %d, sa = %d\n", a, sa);
+        i++;
+        si++;
+        *i_out = i;
+        *si_out = si;
     }
 
     int add_int( int n, int m )
@@ -364,7 +374,7 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
     }
 
     /*
-    #function struct args
+    function struct args
 
         how to deal with passing structs to/from functions
     */
@@ -912,10 +922,11 @@ int main( int argc, char** argv )
     /*
     #integer types
 
-        types that represnt integer numbers are called integer types
+        Types that represent integer numbers are called integer types.
 
-        this classification is explicitly used on the c specification,
-        some operations or rule of the c language are only valid for integer types
+        This classification is explicitly used on the C specification,
+        some operations or rule of the c language are only valid for integer types,
+        while others work also for floating point types.
 
         `char` is also an integer type
     */
@@ -930,32 +941,43 @@ int main( int argc, char** argv )
 
                 { char c = 'a'; }
 
-            //char literals are simply converted to the corresponding ascii integer value
-            //for example, 'a' == 97:
+            //char literals can be cast to integers by replacing them with
+            //their corresponding ascii integer value for example, 'a' == 97:
 
                 assert( 'a' == 97 );
 
-            //char literals can contain any byte even those which have
-            //no corresponding ascii value such as say, `130`.
-            //To get those literal values, you should typecast from `int` as:
+            /*
+            char literals can contain any byte even those which have
+            no corresponding ASCII value such as say, `130`.
+
+            To get those literal values, the only way is to typecast from `int` as:
+            */
 
                 { char c = (char)130; }
 
-            //TODO possible via escape seqs?
+            //TODO possible via escape seqs like in strings?
 
             //TODO how to make a literal backslash char?
         }
 
-        //short has no specific literals, must typecast:
+        /*
+        #short
 
+            short has no specific literals, must typecast.
+        */
+
+        { short si = 1; }
         { short si = (short int)1; }
         { int i = 1; }
-        { long li = (long int)1l; }
-        { long li = (long int)1L; }
-        { long long lli = 8ll; }
-        { long long lli = 8LL; }
+        { long li = (long)1l; }
+        { long li = (long)1L; }
 
-        //ERROR: no mixed cases allowed
+        //long long int is C99
+
+            { long long lli = 8ll; }
+            { long long lli = 8LL; }
+
+        //ERROR: mixed cases not allowed
 
             //{ long long lli = 8Ll; }
 
@@ -964,8 +986,6 @@ int main( int argc, char** argv )
             assert( sizeof( short ) == sizeof( short int ) );
             assert( sizeof( long ) == sizeof( long int ) );
             assert( sizeof( long long ) == sizeof( long long int ) );
-
-        //I prefer the version without `int` at the end
 
         //unsigned:
 
@@ -1210,7 +1230,7 @@ int main( int argc, char** argv )
             it seems that floating operations on, say, floats can be evaluated
             as long doubles always.
 
-            TODO 0: understand better
+            TODO0 understand better
         */
         {
             printf( "FLT_EVAL_METHOD = %d\n", FLT_EVAL_METHOD );
@@ -1567,7 +1587,9 @@ int main( int argc, char** argv )
     /*
     #inline keyword
 
-        function is copied pasted instead of called
+        Signals the compiler that it may be worth to copy paste the function instead of calling it.
+
+        The compiler is not obliged
 
         effects:
 
@@ -1586,7 +1608,10 @@ int main( int argc, char** argv )
     /*
     #restrict keyword
 
-        c99
+        C99
+
+        No behaviour change, but allows for further compiler optimization,
+        so it should be used whenever possible.
 
         <http://en.wikipedia.org/wiki/Restrict>
     */
@@ -1677,12 +1702,17 @@ int main( int argc, char** argv )
     /*
     #struct
 
-        application:
+        Application:
 
         - declare lots of data in one go
+
         - pass lots of data in one go to functions
+
         - avoid changing function signatures if you add a new field
             to your struct.
+
+        Typedef: C structs are flawed in the sense that you must preffix
+        it is common to give typedefs to structs, so that if someday you
     */
     {
         struct S
@@ -1703,54 +1733,243 @@ int main( int argc, char** argv )
             assert( s.f == 2.0 );
         }
 
-        //initialize by name
+        //define and initialize at the same time
         {
-            struct S s = {
-                .f = 1.0,
-                .i = 1
-            };
-            assert( s.i == 1 );
-            assert( s.f == 1.0 );
+            struct S { int i; int j; } s0 = { 0, 1 }, s1 = { 2, 3 };
+            assert( s0.i == 0 );
+            assert( s1.i == 2 );
+
+            struct S s2 = { 4, 5 };
         }
 
-	//only works for init
+        /*
+        #designated initializer for structs
+
+            C99.
+
+            Allows to struc values by their name instead of order.
+
+            Sources:
+
+            - oracle: <http://docs.oracle.com/cd/E19205-01/819-5265/bjazo/index.html>
+        */
         {
-            struct S s;
-            //s = {
-            //    .f = 1.0,
-            //    .i = 1
-            //};
+            {
+                struct S s = {
+                    .f = 1.0,
+                    .i = 1
+                };
+                assert( s.i == 1 );
+                assert( s.f == 1.0 );
+            }
+
+            //can be mixed with array initializers
+            {
+                //TODO understand better
+
+                struct { int z[3], count; } w[] = { [0].z = {1}, [1].z[0] = 2 };
+
+                //struct { int z[2], count; } S;
+                //struct S s[] = {
+                //    [0].z = {0, 1},
+                //    [1].z = {2, 3}
+                //};
+            }
+
+        }
+
+        {
+            /*
+            assignment only works for initialization,
+            unless use a c99 compound literal
+            */
+            {
+                struct S { int i; };
+                struct S s;
+                //s = { 1 };
+                //s = { .i = 1 };
+            }
+
+            /*
+            #compound literals for structs
+
+                c99 compound literals allow to assign structs to struct literals.
+            */
+            {
+                struct S { int i; int j; };
+
+                {
+                    struct S s;
+                    s = ( struct S ){ 1, 2 };
+                    assert( s.i == 1 );
+                    assert( s.j == 2 );
+                }
+
+                {
+                    struct S s;
+                    s = ( struct S ){ .j = 2, .i = 1 };
+                    assert( s.i == 1 );
+                    assert( s.j == 2 );
+                }
+            }
         }
 
         //pointer to struct
         {
             struct S s;
             struct S* sp;
+
             sp = &s;
-            (*sp).i = 1;
+
+            //equivalent `a->b` equals `(*a).b`
+
+                sp->i = 1;
+                //(*sp).i = 1;
+
             assert( s.i == 1 );
         }
 
-        //array fields
+        //array of structs initialization
         {
             struct S
             {
-                //char cs[];
-                    //ERROR
-                char cs[4];
+                int i;
+                int j;
             };
 
-            //ERROR
+            //non designated
+            {
+                struct S ss[] = {
+                    { 0, 1 },
+                    { 2, 3 },
+                };
 
-                //struct S = { .cs = "abc" }
+                assert( ss[0].i == 0 );
+                assert( ss[0].j == 1 );
+                assert( ss[1].i == 2 );
+                assert( ss[1].j == 3 );
+            }
+
+            //designated
+            {
+                struct S ss[] = {
+                    { .j = 1, .i = 0 },
+                    { .j = 3, .i = 2 },
+                };
+
+                assert( ss[0].i == 0 );
+                assert( ss[0].j == 1 );
+                assert( ss[1].i == 2 );
+                assert( ss[1].j == 3 );
+            }
         }
 
+        /*
+        array fields
+
+            length must be specified,
+            allocates that many objects of the given type
+        */
         {
-            struct S {int i;} s = {1}, s2 = {2};
-            int               i = 1  , i2 = 2;
+            {
+                struct S
+                {
+                    //ERROR:
+                        //int is[];
+                    int is0[2];
+                    int is1[2];
+                };
+
+                struct S s = { { 0, 1 }, { 2, 3 } };
+                assert( s.is0[0] == 0 );
+                assert( s.is0[1] == 1 );
+                assert( s.is1[0] == 2 );
+                assert( s.is1[1] == 3 );
+
+                //non designated init
+                {
+                    struct S ss[] = {
+                        { { 0, 1 }, { 2, 3 } },
+                        { { 4, 5 }, { 6, 7 } }
+                    };
+                    assert( ss[0].is0[0] == 0 );
+                    assert( ss[0].is0[1] == 1 );
+                    assert( ss[0].is1[0] == 2 );
+                    assert( ss[0].is1[1] == 3 );
+                    assert( ss[1].is0[0] == 4 );
+                    assert( ss[1].is0[1] == 5 );
+                    assert( ss[1].is1[0] == 6 );
+                    assert( ss[1].is1[1] == 7 );
+                }
+
+                //designated init
+                {
+                    struct S ss[] = {
+                        { .is0 = { 0, 1 }, .is1 = { 2, 3 } },
+                        { .is0 = { 4, 5 }, .is1 = { 6, 7 } },
+                    };
+                    assert( ss[0].is0[0] == 0 );
+                    assert( ss[0].is0[1] == 1 );
+                    assert( ss[0].is1[0] == 2 );
+                    assert( ss[0].is1[1] == 3 );
+                    assert( ss[1].is0[0] == 4 );
+                    assert( ss[1].is0[1] == 5 );
+                    assert( ss[1].is1[0] == 6 );
+                    assert( ss[1].is1[1] == 7 );
+                }
+            }
+
+            //works for strings
+            {
+                struct S
+                {
+                    char cs[3];
+                    int i;
+                };
+
+                {
+                    struct S s = { .cs = "ab", .i = 1 };
+                    assert( strcmp( s.cs, "ab" ) == 0 );
+                    assert( s.i == 1 );
+                }
+
+                {
+                    struct S s = { "ab", 1 };
+                    assert( strcmp( s.cs, "ab" ) == 0 );
+                    assert( s.i == 1 );
+                }
+
+                //struct S s = { "ab" };
+            }
         }
 
-        //struct assign
+        /*
+        substructure init: it all works as expected
+        */
+        {
+            struct S1 { int i; int j; };
+            struct S0 { struct S1 s; };
+
+            //non-designated init
+            {
+                struct S0 s = { { 1, 2 } };
+                assert( s.s.i == 1 );
+                assert( s.s.j == 2 );
+            }
+
+            //designated init
+            {
+                struct S0 s = { .s = { .j = 2, .i = 1 } };
+                assert( s.s.i == 1 );
+                assert( s.s.j == 2 );
+            }
+        }
+
+        /*
+        assign
+
+            Assigns fields one by one.
+        */
         {
             struct S s  = { 1, 1.0 };
             struct S s2 = { 2, 2.0 };
@@ -1759,7 +1978,23 @@ int main( int argc, char** argv )
             assert( s.f == 2.0 );
         }
 
-        //typedef struct combo
+        //equality `==` does not exist. There have been failed proposals.
+        {
+            struct S { int i; };
+            struct S s  = { 1 };
+            struct S s2 = { 1 };
+            //assert( s == s2 );
+        }
+
+        /*
+        Inequalities do not exist: `<` `>` `<=` `>=`
+
+        Possible rationale: if `s.a < s2.a` and `s.b > s2.b`, what does `s < s2` eval to?
+        */
+
+        /*
+        typedef struct combo: avoid typing struct all over
+        */
         {
             typedef struct
             {
@@ -1770,24 +2005,89 @@ int main( int argc, char** argv )
             S* sp = &s;
         }
 
-        //struct size
-        {
-            //the way data is packed in a struct is not specified in the standard
-            //common compiler strategy: put one data per 32 bits
-            //makes acess faster, using slightly more memory
-            assert( sizeof(int) + sizeof(float) <= sizeof(struct S) );
+        /*
+        struct size
 
+            the way data is packed in a struct is not specified in the standard
+
+            common compiler strategy: align data to 32 bits
+            which makes acess faster, using slightly more memory
+        */
+        {
             struct S
             {
-                char c1;
-                char c2;
+                char c;
+                int i;
             };
+
+            //likelly to be 8 on a 2013 32 bit machine:
+            printf( "struct sizeof = %d\n", sizeof( struct S ) );
+
+            assert( sizeof(char) + sizeof(float) <= sizeof(struct S) );
         }
 
-        //#bitfields
-        {
-            //*i think* enforces the field size
+        /*
+        #anonymous structure
 
+            It is possible to crate structs which don't have a name.
+
+            Only the structs declared immediatiely after definition can be used.
+        */
+        {
+            //basic
+            {
+                struct { int i; int j; } s;
+                s.i = 0;
+                assert( s.i == 0 );
+            }
+
+            //initialize
+            {
+                struct { int i; int j; } s = { 0, 1 };
+                assert( s.i == 0 );
+                assert( s.j == 1 );
+            }
+
+            //initialize array good style
+            {
+                struct { int i; int j; } s[] = { { 0, 1 }, { 2, 3 } };
+                assert( s[0].i == 0 );
+                assert( s[0].j == 1 );
+                assert( s[1].i == 2 );
+                assert( s[1].j == 3 );
+            }
+
+            /*
+            initialize array bad style
+
+                Generates a warning on gcc 4.7 and is horrible to read.
+            */
+            {
+                //struct { int i; int j; } s[] = { 0, 1, 2, 3 };
+                //assert( s[0].i == 0 );
+                //assert( s[0].j == 1 );
+                //assert( s[1].i == 2 );
+                //assert( s[1].j == 3 );
+            }
+        }
+
+        /*
+        #anonymous substructure and union
+
+            C11
+
+            <http://stackoverflow.com/questions/1972003/how-to-use-anonymous-structs-unions-in-c>
+        */
+        {
+            //TODO
+        }
+
+        /*
+        #bitfields
+
+            Gives support for fields which contain a single bit in the language.
+        */
+        {
             struct S
             {
                 unsigned b1 : 1;
@@ -1808,7 +2108,8 @@ int main( int argc, char** argv )
 
                 unsigned b5 : 1;
             } s ;
-            assert( sizeof(struct S) == 16 );
+
+            assert( sizeof( struct S ) == 16 );
 
             s.b1 = 1;
             assert( s.b1 == 1 );
@@ -2274,7 +2575,7 @@ int main( int argc, char** argv )
             }
 
             {
-                int is[] = {0,1,2};
+                int is[] = { 0, 1, 2 };
                 assert( is[0] == 0 );
                 assert( is[1] == 1 );
                 assert( is[2] == 2 );
@@ -2284,7 +2585,7 @@ int main( int argc, char** argv )
             }
 
             {
-                int is[4] = {1,2};
+                int is[4] = { 1, 2 };
                 assert( is[0] == 1 );
                 assert( is[1] == 2 );
                 assert( is[2] == 0 );
@@ -2292,8 +2593,8 @@ int main( int argc, char** argv )
             }
 
             {
-                int is[4]  = {1,2};
-                int is2[4] = {1,2};
+                int is[4]  = { 1, 2 };
+                int is2[4] = { 1, 2 };
                 //is = is2;
                     //ERROR
             }
@@ -2322,11 +2623,9 @@ int main( int argc, char** argv )
             {
                 //enum
                 {
-
                     enum M {M=3};
                     int is[M];
                     is[2] = 1;
-
                 }
 
                 //define
@@ -2454,9 +2753,9 @@ int main( int argc, char** argv )
 
             Potentially faster than a for loop like:
 
-            for(i=0; i<3; i++ ){
-                is2[i] = is[i];
-            }
+                for(i=0; i<3; i++ ){
+                    is2[i] = is[i];
+                }
 
             Since in some architectures this can be implemented with more efficient instructions
             than a naive for, and your compiler may not be smart enough to optimize this if you use a for.
@@ -2466,13 +2765,13 @@ int main( int argc, char** argv )
             int is2[3];
 
             memcpy( is2, is, 3 * sizeof( int ) );
-                //copy 3*4 bytes from one is7 to is
-                //more efficient than for: direct memory copyint, no i++ or i<n? check
-            assert( memcmp( is, is2, 3 * sizeof(int)) == 0 );
+            assert( memcmp( is, is2, 3 * sizeof( int ) ) == 0 );
 
-            //C99 allows this:
-            memcpy(&is, &(int [5]){ 0,1,2 }, sizeof(is) );
-            assert( memcmp( is, &(int [5]){ 0,1,2 }, 3 * sizeof(int)) == 0 );
+            //C99 compound literals allow this
+            {
+                memcpy( &is, &(int [5]){ 0, 1, 2 }, sizeof( is ) );
+                assert( memcmp( is, &(int [5]){ 0, 1, 2 }, 3 * sizeof( int ) ) == 0 );
+            }
         }
 
         /*
@@ -2903,6 +3202,66 @@ int main( int argc, char** argv )
     }
 
     /*
+    #compound literals.
+
+        Before C99 there were no literals for arrays, structs or unions,
+        while literals existed for ints, chars and even strings (which are arrays of chars...)
+
+        Compound literals are exactly that: literals for types that are made up of many smaller
+        pieces, thus compounded.
+    */
+    {
+        //int useless examples
+        {
+            int i;
+
+            i = ( int ){ 1 };
+            assert( i == 1 );
+
+            i = ( int ){ 1 } + ( int ){ 1 };
+            assert( i == 2 );
+        }
+
+        /*
+        address
+
+            It is possible to take the address of compound literals.
+
+            This means that the compound literal is an unnamed stack variable,
+            and takes stack space.
+        */
+        {
+            int *ip;
+            ip = &( int ){ 1 };
+            (*ip)++;
+            assert( *ip == 2 );
+        }
+
+        //array
+        {
+            int *is;
+
+            is = (int[2]){ 0, 1 };
+            assert( is[0] == 0 );
+            assert( is[1] == 1 );
+
+            /*
+            memory leak: the old is was the only reference to the compound literal
+            generated, and we now overwrote it! But the old one is still on the stack,
+            and since it does not have a name, it cannot be referenced.
+
+            To avoid the leak, use memcpy.
+            */
+
+            //is = (int[2]){ 2, 3 };
+            //assert( is[0] == 2 );
+            //assert( is[1] == 3 );
+        }
+
+        //struct: see compound literal for struct
+    }
+
+    /*
     #dynamic allocation
 
         Allocates ammounts of memory that are only known at runtime,
@@ -3022,7 +3381,7 @@ int main( int argc, char** argv )
 
             time to try that out!
 
-            TODO 0 how to pass more than INT_MAX to malloc to break it? =)
+            TODO0 how to pass more than INT_MAX to malloc to break it? =)
         */
         {
             if ( 0 )
@@ -3103,7 +3462,7 @@ int main( int argc, char** argv )
         /*
         #switch
 
-            only exists for readability (TODO 0 check: no preformance gain?)
+            only exists for readability (TODO0 check: no preformance gain?)
 
         #case
 
@@ -3296,28 +3655,75 @@ int main( int argc, char** argv )
             - get back a return value
         */
         {
-            //if there is a typecast possible, it all compiles fine
+            //Arguments
             {
-                func_int(1.1);
-                func_float(1);
+                func_int( 1.1 );
+                func_float( 1 );
+
+                /*
+                pass strings to functions
+
+                    The following works.
+
+                    It initializes the string on stack and then passes a pointer to it.
+
+                    The caller must make sure that the function does not modify the array and return useful values on it,
+                    since there is no way for the caller to retreive the new value of such string.
+
+                    Ideally, all calling functions that can receive such strings should be const.
+                */
+                {
+                    func_string( "abc" );
+                    func_string_const( "abc" );
+                }
             }
 
-            puts("static variable in functions");
-            {
-                with_static_var();
-                    //a = 2, sa = 2
-                with_static_var();
-                    //a = 2, sa = 3
-            }
+            /*
+            #function pointers
 
-            puts("func pointers");
+                Functions can be stored in pointers and used through them.
+
+                This is spcially useful to many related lots of functions inside a single
+                struct to achieve a similar effect to that found on object oriented programming.
+            */
             {
                 assert( add_int != subInt );
                 assert( int_func_int_int(&add_int,2,1) == 3 );
                 assert( int_func_int_int(&subInt,2,1) == 1 );
             }
 
-            //#variadic function
+            /*
+            #static variable in functions
+
+                It is as if the variable were a global.
+
+                Use with caution:
+
+                - hard to understand
+                - not thread safe
+            */
+            {
+                int i;
+                int si;
+
+                with_static_var( &i, &si );
+                assert( i == 1 );
+                assert( si == 1 );
+
+                with_static_var( &i, &si );
+                assert( i == 1 );
+                assert( si == 2 );
+            }
+
+            /*
+            #variadic function
+
+                Takes a variable number of arguments.
+
+                Used for example on `printf`.
+
+                Possible to implement efficiently because of C 's calling convention.
+            */
             {
                 assert( variadic_add( 3, 1, 2, 3 )       == 6 );
                 assert( variadic_add( 5, 1, 2, 3, 4, 5 ) == 15 );
@@ -3547,76 +3953,91 @@ int main( int argc, char** argv )
 //#error "the error message"
         }
 
-        //#standard preprocessor defines
-        {
-
-            //some vars are automatically defined by certain compilers
-            //although they are not c standards. Those are not discussed here.
-
-            //List of standard defines: <http://gcc.gnu.org/onlinedocs/cpp/Standard-Predefined-Macros.html>
-
-            //string representing version of the c std lib. Format: yyyymm (base 10):
-
-        printf( "__STDC_VERSION__ = %li\n", __STDC_VERSION__ );
-
-            //absolute or relative path of current file:
-
-        printf( "__FILE__ = %s\n", __FILE__ );
-
-            //source code line:
-
-        printf( "__LINE__ = %d\n", __LINE__ );
-
-            //if in a `.h`, position inside the `.h`
-
         /*
-        # __func__
+        #standard preprocessor defines
 
-            if inside a function, the name of that function.
+            some preprocessor vars are automatically defined by certain compilers
+            although they are not c standards. Those are not discussed here.
 
-            this is not a normal macro, since the preprocessor cannot know
-            the current function name, because the preprocessor does not parse
-
-            c99
+            List of standard defines: <http://gcc.gnu.org/onlinedocs/cpp/Standard-Predefined-Macros.html>
         */
+        {
+            /*
+            #stdc_version
 
-            printf( "__func__ = %s\n", __func__ );
+                String representing version of the c std lib. Format: yyyymm (base 10).
 
-        printf( "__DATE__ = %s\n", __DATE__ );
+                Some values:
 
-        printf( "__TIME__ = %s\n", __TIME__ );
+                - C11: 201112L
+                - C99: 199901L
+            */
+            {
+                printf( "__STDC_VERSION__ = %li\n", __STDC_VERSION__ );
+            }
 
-            //cpp compiler is being used:
+                //absolute or relative path of current file:
 
-        printf( "__LINE__ = %d\n", __LINE__ );
+            printf( "__FILE__ = %s\n", __FILE__ );
+
+            /*
+            #LINE
+
+                Current source code line.
+
+                Useful for debugging.
+
+                If in a `.h`, position inside the `.h` before inclusion.
+            */
+            {
+                printf( "__LINE__ = %d\n", __LINE__ );
+            }
+
+            /*
+            # __func__
+
+                if inside a function, the name of that function.
+
+                this is not a normal macro, since the preprocessor cannot know
+                the current function name, because the preprocessor does not parse
+
+                c99
+            */
+            {
+                printf( "__func__ = %s\n", __func__ );
+            }
+
+            printf( "__DATE__ = %s\n", __DATE__ );
+
+            printf( "__TIME__ = %s\n", __TIME__ );
 
 #ifdef __cplusplus
-        puts("__cplusplus");
+            puts("__cplusplus");
 #endif
 
         //automatically defined by certain compilers on windows:
-        //TODO gcc specific or not? if yes move out of here.
+        //TODO0 gcc specific or not? if yes move out of here.
 
 #ifdef __WIN32__
-        puts("__WIN32__");
+            puts("__WIN32__");
 #endif
 
-        //TODO what is this
-        //TODO gcc specific or not? if yes move out of here.
+        //TODO0 what is this
+        //TODO0 gcc specific or not? if yes move out of here.
 
 #ifdef _LIBC
         puts("_LIBC");
 #endif
 
-    //TODO what is this
-    //TODO gcc specific or not? if yes move out of here.
+    //TODO0 what is this
+    //TODO0 gcc specific or not? if yes move out of here.
 
 #ifdef __ILP32__
         puts("__ILP32__");
 #endif
 
-    //TODO what is this
-    //TODO gcc specific or not? if yes move out of here.
+    //TODO0 what is this
+    //TODO0 gcc specific or not? if yes move out of here.
 
 #ifdef ___X32_SYSCALL_BIT
         puts("___X32_SYSCALL_BIT");
@@ -3641,7 +4062,7 @@ int main( int argc, char** argv )
     {
             //assert( '??=' == '#' );
             //assert( '??(' == '[' );
-            //assert( '??/' == '\' );   //TODO 0 literal backslash?
+            //assert( '??/' == '\' );   //TODO0 literal backslash?
             //assert( '??)' == ']' );
             //assert( '??'' == '^' );
             //assert( '??<' == '{' );
@@ -3649,48 +4070,10 @@ int main( int argc, char** argv )
             //assert( '??>' == '}' );
             //assert( '??-' == '~' );
 
-        //TODO 0 how to escape a trigraph on a string literal, say: `??=` ?
+        //TODO0 how to escape a trigraph on a string literal, say: `??=` ?
         //is it necessary to use `\x`?
 
             //printf( "??" )
-    }
-
-    /*
-    #complex.h
-
-        C99
-    */
-    {
-        assert( sizeof( float complex  ) <= sizeof( double complex ) );
-        assert( sizeof( double complex ) <= sizeof( long double complex ) );
-
-        const double complex zd =  1.0 + 2.0*I;
-        const double complex zd2 = 1.0 + 1.0*I;
-
-        assert( creal( zd + zd ) == 2.0 );
-        assert( cimag( zd + zd ) == 4.0 );
-
-        assert( creal( zd - zd2 ) == 0.0 );
-        assert( cimag( zd - zd2 ) == 1.0 );
-
-        assert( creal( zd * zd ) == -3.0 );
-        assert( cimag( zd * zd ) ==  4.0 );
-
-        assert( creal( zd / zd ) == 1.0 );
-        assert( cimag( zd / zd ) == 0.0 );
-
-        assert( creal( conj(zd) ) ==  1.0 );
-        assert( cimag( conj(zd) ) == -2.0 );
-
-        /*
-        #complex integer
-
-            complex integer types are not specified.
-
-            GCC adds them as an extension
-        */
-
-            //int complex zi = 1 + 1*I;
     }
 
     /*
@@ -4104,7 +4487,7 @@ int main( int argc, char** argv )
             /*
             #gets
 
-                deprecated c11
+                deprecated, removed in c11.
 
                 dangerous:
                 no size checking possible
@@ -4520,7 +4903,11 @@ int main( int argc, char** argv )
         }
     }
 
-    //#math.h
+    /*
+    #math.h
+
+        Mathematical functions
+    */
     {
         const double err = 10e-6;
 
@@ -4599,6 +4986,69 @@ int main( int argc, char** argv )
     }
 
     /*
+    #complex.h
+
+        C99. Possible insertion rationale: replace FORTRAN for numerical computations.
+
+        There is no direct printf way to print complex numbers:
+        <http://stackoverflow.com/questions/4099433/c-complex-number-and-printf>
+
+        All functions provided by this header are prefixed by `c`.
+
+        Quick func list: <http://en.wikipedia.org/wiki/Tgmath.h#Complex_numbers>
+    */
+    {
+        const double err = 10e-6;
+
+        assert( sizeof( float complex  ) <= sizeof( double complex ) );
+        assert( sizeof( double complex ) <= sizeof( long double complex ) );
+
+        const double complex zd =  1.0 + 2.0*I;
+        const double complex zd2 = 1.0 + 1.0*I;
+
+        //addition
+        assert( creal( zd + zd ) == 2.0 );
+        assert( cimag( zd + zd ) == 4.0 );
+
+        //subtraction
+        assert( creal( zd - zd2 ) == 0.0 );
+        assert( cimag( zd - zd2 ) == 1.0 );
+
+        //multiplication
+        assert( creal( zd * zd ) == -3.0 );
+        assert( cimag( zd * zd ) ==  4.0 );
+
+        //division
+        assert( creal( zd / zd ) == 1.0 );
+        assert( cimag( zd / zd ) == 0.0 );
+
+        //conjugation
+        assert( creal( conj(zd) ) ==  1.0 );
+        assert( cimag( conj(zd) ) == -2.0 );
+
+        //absolute value == norm == module
+        assert( abs( cabs( 3.0 + 4.0 * I ) - 5.0 ) < err );
+
+        //cproj
+        //TODO0 understand
+
+        //csin
+        //TODO0 predict result and assert it
+        //assert( cabs( csin( I ) -  ) < err );
+
+        /*
+        #complex integer
+
+            complex integer types are not specified.
+
+            GCC adds them as an extension
+        */
+        {
+            //int complex zi = 1 + 1*I;
+        }
+    }
+
+    /*
     #iso646.h
 
         obscure header with macros that avoid using characters such as `|` or '~'
@@ -4620,6 +5070,17 @@ int main( int argc, char** argv )
     */
     {
         assert( true and true );
+    }
+
+    /*
+    #tgmath.h
+
+        TODO
+
+        http://libreprogramming.org/books/c/tgmath/
+        http://carolina.mff.cuni.cz/~trmac/blog/2005/the-ugliest-c-feature-tgmathh/
+    */
+    {
     }
 
 #ifdef PROFILE
