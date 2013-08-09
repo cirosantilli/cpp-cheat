@@ -46,7 +46,7 @@ only when users want to test those features.
 
     #ANSI C
 
-        language and standard library (libc) are standardized by an organization named ANSI
+        Language and standard library (libc) are standardized by an organization named ANSI
 
         ansi is american, and it represents the USA for ISO and IEC
 
@@ -73,29 +73,35 @@ only when users want to test those features.
         what functions, variables etc. are contained in each file,
         but it does not specify how that should be implemented.
 
-        some features are even left for the implementors to decide such as
+        Some features are even left for the implementors to decide such as
         the behavoiur of [system][]
 
-        new features are often based on extension of
+        New features are often based on extension of
         major implementations such as gnu's or microsoft's
 
-        some language versions:
+        #C89
 
-        - C11
+            ANSI ratified the standard in 89, and ISO in 90 with formatting changes,
+            C89 and C90 are almost the same.
 
-            - previously known as c1x
-            - latest standard, but limited support in most compilers
-            - supported on gcc 4.6>. Flag: `-std=c1x`.
-                It is not recommended to use this yet as support is low.
-            - threads spported
+        #C90
 
-        - C99
+            See C89
+
+        #C99
+
+            <http://en.wikipedia.org/wiki/C99>
 
             - large support, but not 100% by many compilers
+
             - <http://en.wikipedia.org/wiki/C99>
+
             - support for // comments
+
             - long long, bool, complex numbers
+
             - gcc flag: add `-std=c99`
+
             - microsoft stated that they will not update their compilers
                 to C99 and futher.
 
@@ -106,11 +112,22 @@ only when users want to test those features.
 
                 Therefore you will not get those working on ms compiler anytime soon.
 
-        besides the versions, ansi may also publishe minor corrections of versions
+        #C11
+
+            <http://en.wikipedia.org/wiki/C11_%28C_standard_revision%29>
+
+            - latest standard, but very limited support in most compilers as of 2013.
+
+            - previously known as c1x
+
+            - supported on gcc 4.6>. Flag: `-std=c1x`.
+                It is not recommended to use this yet as support is low.
+
+            - threads spported
 
     #ansi extensions
 
-        beside ansi language and libraries, you should also know about the existense of other
+        Beside ansi language and libraries, you should also know about the existense of other
         standards which extend it:
 
         - posix c library. Offers many functions for posix compliant systems (linux, mac, not windows)
@@ -328,16 +345,21 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
         void overload(float n){}
     */
 
+    int int_func_int(int i){
+        return i;
+    }
     void func_int(int i){}
     void func_float(float f){}
     void func_double(double d){}
 
-    void func_string(char s[]){ assert( strcmp( s, "abc" ) == 0 ); }
-    void func_string_const(char const s[]){ assert( strcmp( s, "abc" ) == 0 ); }
-    void func_array(int a[]){}
+    void func_string_abc(char s[]){ assert( strcmp( s, "abc" ) == 0 ); }
+    void func_string_const_abc(char const s[]){ assert( strcmp( s, "abc" ) == 0 ); }
+    void func_array(int a[]){
+        assert( a[0] == 1 );
+    }
 
     struct func_struct { int i; };
-    void func_struct(struct func_struct s){
+    void func_struct_1 (struct func_struct s){
         assert( s.i == 1 );
     }
 
@@ -850,25 +872,42 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
 int main( int argc, char** argv )
 {
     /*
-    //#scope inside a function
+    #scope of brace pairs inside a function #braces
 
-        every pair of keys, or constructs that uses keys such as `if`
+        Every pair of braces, or constructs that uses braces such as `if`
         create a new scope
 
-        you may define variables in that scope with the same names as external ones,
+        You may define variables in that scope with the same names as external ones,
         but if you do so the external ones will become completelly invisible
     */
     {
-        int i;
-
-        //ERROR redeclaration
-
-            //int i;
-
         {
-            int i;
+            int i = 0;
+            //int i; //ERROR redeclaration
+            {
+                int i = 1;
+                /* impossible to access the outer `i` from now on in this scope! */
+                //assert( i_outter == 0 );
+            }
+            assert( i == 0 );
+        }
 
-            //NOTE: impossible to access the outer `i` from now on in this scope!
+        /*
+        If a variable is declared in a scope ( between a pair of braces ),
+        there is no guarantee that it outlives that scope.
+
+        Nothing however prevents the compiler from leaving it around and occupying space,
+        this is implementation specific.
+
+        <http://stackoverflow.com/questions/2759371/in-c-do-braces-act-as-a-stack-frame>
+        */
+        {
+            int *ip;
+            {
+                int i = 1;
+                ip = &i;
+            }
+            //assert( *ip == 1 ); //BAD undetermined behaviour
         }
     }
 
@@ -884,8 +923,7 @@ int main( int argc, char** argv )
         //allowed variable/function/struct,enum names: _[a-Z0-9_]*
         {
             int _;
-            //int 0a;
-                //ERROR
+            //int 0a; //ERROR name cannot start with digit.
         }
 
         {
@@ -914,9 +952,15 @@ int main( int argc, char** argv )
         - int: `1`
         - long: `1L`
         - float: `1.0f`
-        - double: `1.0`and their 
+        - double: `1.0`and their
         - char: `'a'`
         - string: `"abc"`
+
+        C99 introduces compound literals, which allow creation of literals for
+
+        - arrays
+        - structs
+        - unions.
     */
 
     /*
@@ -1045,18 +1089,120 @@ int main( int argc, char** argv )
         { long double ld = 1.23L; }
     }
 
+#if __STDC_VERSION__ >= 199901L
+
+    /*
+    #compound literals
+
+        C99
+
+        Before C99 there were no literals for arrays, structs or unions,
+        while literals existed for ints, chars and even strings (which are arrays of chars...)
+
+        Compound literals are exactly that: literals for types that are made up of many smaller
+        pieces, thus compounded.
+
+        Great source: <www.drdobbs.com/the-new-c-compound-literals/184401404>
+    */
+    {
+        //int useless examples
+        {
+            int i;
+
+            i = ( int ){ 1 };
+            assert( i == 1 );
+
+            i = ( int ){ 1 } + ( int ){ 1 };
+            assert( i == 2 );
+
+            //any expression is fine
+            {
+                i = 0;
+                i = ( int ){ i + 1 };
+                assert( i == 1 );
+            }
+        }
+
+        /*
+        address
+
+            Compound literals yield lvalues.
+
+            It is possible to take the address of compound literals.
+
+            This means that the compound literal is an unnamed stack variable,
+            and takes stack space.
+        */
+        {
+            int *ip;
+            ip = &( int ){ 1 };
+            (*ip)++;
+            assert( *ip == 2 );
+        }
+
+        //#compound literals for arrays
+        {
+            int *is;
+
+            is = (int[2]){ 0, 1 };
+            assert( is[0] == 0 );
+            assert( is[1] == 1 );
+
+            //reassign is to a new array
+            //old memory becomes innacessible
+            is = (int[2]){ 2, 3 };
+            assert( is[0] == 2 );
+            assert( is[1] == 3 );
+
+            //the effect is the same as `int is[] = { 1 }`
+            //that is: fill with zeroes.
+            is = (int[2]){ 1 };
+            assert( is[0] == 1 );
+            assert( is[1] == 0 );
+        }
+
+        //Major application: pass initialized arrays and structs to functions.
+        {
+            func_array( ( int[] ){ 1 } );
+            func_struct_1( ( struct func_struct ){ .i = 1 } );
+        }
+
+        //struct: see compound literal for struct
+
+        /*
+        scope
+
+        Just like for normal variable declaration,
+        compound literal memory can only be accessed in the scope in which it is declared.
+
+        <http://stackoverflow.com/questions/14955194/lifetime-of-referenced-compound-array-literals>
+        */
+        {
+            int *p;
+            {
+                p = (int []){1, 2};
+                assert(p[0] == 1);
+            }
+            //assert(p[0] == 1); //BAD *p is undefined
+        }
+    }
+
+#endif
+
     /*
     #sizeof
 
-        gives the size of the ram representation of types in bytes
+        Gives the size of the RAM representation of types in bytes.
 
-        can be printed in printf with `%zu`
+        The return type is `size_t.
 
     #size_t
 
-        `size_t` is the data type that specifies data sizes in libc
+        `size_t` is the data type that specifies data sizes in libc.
 
-        always use it in your code to have more platform independance
+        Always use it in your code instead of `int` to have greater portability.
+
+        Can be printed in `printf` with `%zu`.
 
     #size of base types
 
@@ -1570,12 +1716,12 @@ int main( int argc, char** argv )
 
         //ERROR: cpu registers don't have addresses!
         {
-            //register int ri;
+            register int ri;
             //int* ip = &ri;
         }
 
         /*
-        BAD: impossible to store compound type in registers
+        BAD: impossible to store compound types in registers
         compiler will certainly not honor `register` hint
         */
         {
@@ -1605,6 +1751,8 @@ int main( int argc, char** argv )
             some warnings about inline and its usage
     */
 
+#if __STDC_VERSION__ >= 199901L
+
     /*
     #restrict keyword
 
@@ -1615,6 +1763,8 @@ int main( int argc, char** argv )
 
         <http://en.wikipedia.org/wiki/Restrict>
     */
+
+#endif
 
     /*
     #typedef
@@ -1742,6 +1892,8 @@ int main( int argc, char** argv )
             struct S s2 = { 4, 5 };
         }
 
+#if __STDC_VERSION__ >= 199901L
+
         /*
         #designated initializer for structs
 
@@ -1751,7 +1903,7 @@ int main( int argc, char** argv )
 
             Sources:
 
-            - oracle: <http://docs.oracle.com/cd/E19205-01/819-5265/bjazo/index.html>
+            - oracle tutorial with examples: <http://docs.oracle.com/cd/E19205-01/819-5265/bjazo/index.html>
         */
         {
             {
@@ -1763,20 +1915,29 @@ int main( int argc, char** argv )
                 assert( s.f == 1.0 );
             }
 
-            //can be mixed with array initializers
+            //can be mixed with array designated initializers
             {
-                //TODO understand better
+                struct S { int a[2]; int i; };
 
-                struct { int z[3], count; } w[] = { [0].z = {1}, [1].z[0] = 2 };
+                struct S ss[] = {
+                    [0].a = {0, 1},
+                    [0].i = 2,
+                    [1].a[0] = 3,
+                    [1].a[1] = 4,
+                    [1].i = 5
+                };
 
-                //struct { int z[2], count; } S;
-                //struct S s[] = {
-                //    [0].z = {0, 1},
-                //    [1].z = {2, 3}
-                //};
+                assert( ss[0].a[0] == 0 );
+                assert( ss[0].a[1] == 1 );
+                assert( ss[0].i == 2 );
+
+                assert( ss[1].a[0] == 3 );
+                assert( ss[1].a[1] == 4 );
+                assert( ss[1].i == 5 );
             }
-
         }
+
+#endif
 
         {
             /*
@@ -1850,6 +2011,8 @@ int main( int argc, char** argv )
                 assert( ss[1].j == 3 );
             }
 
+#if __STDC_VERSION__ >= 199901L
+
             //designated
             {
                 struct S ss[] = {
@@ -1863,6 +2026,8 @@ int main( int argc, char** argv )
                 assert( ss[1].j == 3 );
             }
         }
+
+#endif
 
         /*
         array fields
@@ -1902,6 +2067,8 @@ int main( int argc, char** argv )
                     assert( ss[1].is1[1] == 7 );
                 }
 
+#if __STDC_VERSION__ >= 199901L
+
                 //designated init
                 {
                     struct S ss[] = {
@@ -1917,6 +2084,9 @@ int main( int argc, char** argv )
                     assert( ss[1].is1[0] == 6 );
                     assert( ss[1].is1[1] == 7 );
                 }
+
+#endif
+
             }
 
             //works for strings
@@ -1957,12 +2127,17 @@ int main( int argc, char** argv )
                 assert( s.s.j == 2 );
             }
 
+#if __STDC_VERSION__ >= 199901L
+
             //designated init
             {
                 struct S0 s = { .s = { .j = 2, .i = 1 } };
                 assert( s.s.i == 1 );
                 assert( s.s.j == 2 );
             }
+
+#endif
+
         }
 
         /*
@@ -2564,109 +2739,212 @@ int main( int argc, char** argv )
     */
     {
         {
+            int is[3];
+            is[0] = 0;
+            is[1] = 1;
+            is[2] = 2;
+            assert( is[0] == 0 );
+            assert( is[1] == 1 );
+            assert( is[2] == 2 );
+        }
+
+        {
+            int is[] = { 0, 1, 2 };
+            assert( is[0] == 0 );
+            assert( is[1] == 1 );
+            assert( is[2] == 2 );
+                //allocates exact size
+            //is = {3,4,5};
+                //ERROR
+        }
+
+        {
+            int is[4] = { 1, 2 };
+            assert( is[0] == 1 );
+            assert( is[1] == 2 );
+            assert( is[2] == 0 );
+            assert( is[3] == 0 );
+        }
+
+        {
+            int is[4]  = { 1, 2 };
+            int is2[4] = { 1, 2 };
+            //is = is2; //ERROR incompatible pointer types
+        }
+
+        {
+            /*WARN too small*/
+            //int is[2] = { 1, 3, 2 };
+        }
+
+#if __STDC_VERSION__ >= 199901L
+        /*
+        #designated initializer for arrays
+
+            C99
+
+            Allows to initialize array elements in any order.
+        */
+        {
             {
-                int is[3];
-                is[0] = 0;
-                is[1] = 1;
-                is[2] = 2;
+                int is[] = {
+                    [1] = 1,
+                    [0] = 0,
+                };
                 assert( is[0] == 0 );
                 assert( is[1] == 1 );
-                assert( is[2] == 2 );
             }
 
+            //missing elements are zeroed
             {
-                int is[] = { 0, 1, 2 };
+                int is[2] = {
+                    [1] = 1,
+                };
                 assert( is[0] == 0 );
                 assert( is[1] == 1 );
-                assert( is[2] == 2 );
-                    //allocates exact size
-                //is = {3,4,5};
-                    //ERROR
-            }
-
-            {
-                int is[4] = { 1, 2 };
-                assert( is[0] == 1 );
-                assert( is[1] == 2 );
-                assert( is[2] == 0 );
-                assert( is[3] == 0 );
-            }
-
-            {
-                int is[4]  = { 1, 2 };
-                int is2[4] = { 1, 2 };
-                //is = is2;
-                    //ERROR
-            }
-
-            {
-                /*WARN too small*/
-                //int is[2] = {1, 3, 2};
             }
 
             /*
-            Obscure and confusing access syntax that you should never use except to surprise your friends.
+            Multiple assignments for a single int.
 
-            All that the standard says is that: a[b] = *( a + b ). If a is the int and b the pointer or the contrary
-            does not matter: all that matters is that one is an int and the other a pointer.
+            BAD but possible.x
 
-            This seems to have been left like this since it is easier to compile.
-
-            <http://stackoverflow.com/questions/381542/in-c-arrays-why-is-this-true-a5-5a>
+            Only last takes effect.
             */
             {
-                int is[] = {1, 3, 2};
-                assert( is[1] == 1[is] );
+                int is[1] = {
+                    [0] = 0,
+                    [0] = 1,
+                };
+                assert( is[0] == 1 );
             }
 
-            //#variable length array
+            //arrays of structs can refer multiple times to the same struct
             {
-                //enum
+                struct S { int i; int j; };
+
+                struct S ss[] = {
+                    [0].i = 0,
+                    [0].j = 1,
+                    [1].i = 2,
+                    [1].j = 3,
+                };
+
+                assert( ss[0].i == 0 );
+                assert( ss[0].j == 1 );
+                assert( ss[1].i == 2 );
+                assert( ss[1].j == 3 );
+            }
+
+            /*
+            mix designated and non designated initialization
+
+            non deignated pick off where the last designated left
+
+            non specified ones are zero.
+            */
+            {
                 {
-                    enum M {M=3};
-                    int is[M];
-                    is[2] = 1;
+                    int is[4] = {
+                        -1,             //[0]
+                                        //[1] was not specified, so it is 0.
+                        [2] = 1,
+                        2,              //[3], because it comes after [2]
+                    };
+                    assert( is[0] == -1 );
+                    assert( is[1] == 0 );
+                    assert( is[2] == 1 );
+                    assert( is[3] == 2 );
                 }
 
-                //define
+                //possible to overwrite values
                 {
-#define DEFINESIZE 3
-                    //BAD
-                    //*no scope*, so you can't use N anymore.
-                    //use enum instead
-                    int is[DEFINESIZE];
-                    is[2] = 1;
-                }
-
-                //VLA
-                {
-                    //- C99
-                    //- implementation:
-                        //increase/decrease stack pointer
-                        //requires one addition and one multiplication per declaration
-                    {
-                        int n = 2;
-                        //scanf( "%d", &n );
-                            //OK
-                        int isVla[n];
-                    }
-
-                    {
-                        //int n = 2;
-                        //int isVla[n] = { 1, 2 };
-                            //ERROR
-                            //cannot be initialized
-                    }
-
-                    {
-                        //const int n = 2;
-                        //int isVla[n] = { 1, 2 };
-                            //ERROR
-                            //cannot be initialized
-                    }
+                    int is[2] = {
+                        0,          //[0] first assign
+                        1,          //[1] first assign
+                        [0] = 2,    //[0] second assign, overwrites first
+                        3,          //[1] because comes after [0], second assign, overwrites first
+                    };
+                    assert( is[0] == 2 );
+                    assert( is[1] == 3 );
                 }
             }
         }
+#endif
+
+        /*
+        Obscure and confusing access syntax that you should never use except to surprise your friends.
+
+        All that the standard says is that: a[b] = *( a + b ). If a is the int and b the pointer or the contrary
+        does not matter: all that matters is that one is an int and the other a pointer.
+
+        This seems to have been left like this since it is easier to compile.
+
+        <http://stackoverflow.com/questions/381542/in-c-arrays-why-is-this-true-a5-5a>
+        */
+        {
+            int is[] = { 1, 3, 2 };
+            assert( is[1] == 1[is] );
+        }
+
+        /*
+        store array length in variables
+        */
+        {
+            //enum
+            {
+                enum M {M=3};
+                int is[M];
+                is[2] = 1;
+            }
+
+            //define
+            {
+#define DEFINESIZE 3
+                //BAD
+                //*no scope*, so you can't use N anymore.
+                //use enum instead
+                int is[DEFINESIZE];
+                is[2] = 1;
+            }
+
+#if __STDC_VERSION__ >= 199901L
+
+            /*
+            #vla #variable length array
+
+                C99
+
+                implementation:
+
+                - increase/decrease stack pointer
+                - requires one addition and one multiplication per declaration
+            */
+            {
+                {
+                    int n = 2;
+                    //scanf( "%d", &n );
+                        //OK
+                    int isVla[n];
+                }
+
+                {
+                    //int n = 2;
+                    //int isVla[n] = { 1, 2 };
+                        //ERROR
+                        //cannot be initialized
+                }
+
+                {
+                    //const int n = 2;
+                    //int isVla[n] = { 1, 2 };
+                        //ERROR
+                        //cannot be initialized
+                }
+            }
+        }
+
+#endif
 
         //pointers and arrays are different
         {
@@ -2674,10 +2952,10 @@ int main( int argc, char** argv )
             printf("sizeof(int) = %d\n",sizeof(int));
             printf("sizeof(int*) = %d\n",sizeof(int*));
             printf("sizeof(int[3]) = %d\n",sizeof(int[3]));
+            /*ERROR: incomplete type*/
             //printf("sizeof(int[]) = %d\n",sizeof(int[]));
-                //ERROR
-                //incomplete type!
         }
+
 
         //locations in memory of an array
         {
@@ -2715,7 +2993,6 @@ int main( int argc, char** argv )
             to avoid the overhead of checking arrays bounds on every dereference
         */
         {
-
             //printf("%d\n",is[3]);
             //is[3]=0;
             //printf("%d\n",is[1000000]);
@@ -3201,221 +3478,6 @@ int main( int argc, char** argv )
         }
     }
 
-    /*
-    #compound literals.
-
-        Before C99 there were no literals for arrays, structs or unions,
-        while literals existed for ints, chars and even strings (which are arrays of chars...)
-
-        Compound literals are exactly that: literals for types that are made up of many smaller
-        pieces, thus compounded.
-    */
-    {
-        //int useless examples
-        {
-            int i;
-
-            i = ( int ){ 1 };
-            assert( i == 1 );
-
-            i = ( int ){ 1 } + ( int ){ 1 };
-            assert( i == 2 );
-        }
-
-        /*
-        address
-
-            It is possible to take the address of compound literals.
-
-            This means that the compound literal is an unnamed stack variable,
-            and takes stack space.
-        */
-        {
-            int *ip;
-            ip = &( int ){ 1 };
-            (*ip)++;
-            assert( *ip == 2 );
-        }
-
-        //array
-        {
-            int *is;
-
-            is = (int[2]){ 0, 1 };
-            assert( is[0] == 0 );
-            assert( is[1] == 1 );
-
-            /*
-            memory leak: the old is was the only reference to the compound literal
-            generated, and we now overwrote it! But the old one is still on the stack,
-            and since it does not have a name, it cannot be referenced.
-
-            To avoid the leak, use memcpy.
-            */
-
-            //is = (int[2]){ 2, 3 };
-            //assert( is[0] == 2 );
-            //assert( is[1] == 3 );
-        }
-
-        //struct: see compound literal for struct
-    }
-
-    /*
-    #dynamic allocation
-
-        Allocates ammounts of memory that are only known at runtime,
-        not compile time.
-
-        #malloc
-
-            The main way to get new dynamic memory.
-
-            Returns a `void*` which can be used for any type.
-
-            Typecast from `void*` is implicitly done without warning.
-
-        #free
-
-            Main way to free dynamic memory after you are done with it.
-
-        #dynamic allocation vs VLA
-
-            Dynamic memory has the following characteristics which VLA does not:
-
-            - no scope
-
-                therefore can be allocated in functions
-                and returned to caller
-
-            - heap much larger than stack
-
-            So it is more flexible, at the cost of some runtime speed.
-    */
-    {
-        {
-            size_t bytes = sizeof( int ) * 2;
-            int* is = malloc( bytes );
-            if ( is == NULL )
-            {
-                printf( "malloc failed\n" );
-            }
-            else
-            {
-                is[0] = 1;
-                assert( is[0] == 1 );
-                free( is );
-            }
-        }
-
-        /*
-        #realloc
-
-            Change size of allocated memory with malloc.
-
-            If you already have allocated some memory, it might be faster to enlargen it
-            rather than to free it and reallocate.
-
-            The library may however choose to move your memory somewhere else if not enough is available
-
-            You must use a second pointer to get its value, because in case the reallocation fails,
-            you still need the old pointer to clear up old memory.
-        */
-        {
-            size_t bytes = sizeof( int ) * 2;
-            int* is = malloc( bytes );
-            if ( is == NULL )
-            {
-                printf( "malloc failed\n" );
-            }
-            else
-            {
-                is[1] = 1;
-                //you must use a second pointer here
-                int* is2 = realloc( is, sizeof(int) * 4 );
-                if ( is2 == NULL )
-                {
-                    printf( "realloc failed\n" );
-                }
-                else
-                {
-                    is = is2;
-                    is[3] = 1;
-                    //old values are untouched:
-                    assert( is[1] == 1 );
-                    assert( is[3] == 1 );
-                }
-                free( is );
-            }
-        }
-
-        /*
-        #calloc
-
-            Like malloc but initializes allocated bytes to zero.
-
-            why calloc? <http://www.quora.com/C-programming-language/What-does-the-c-stand-for-in-calloc>
-            Clear seems most likely.
-
-            Takes number of elements and elemetn size separately.
-        */
-        {
-            int* is = calloc( 2, sizeof(int) );
-            if ( is == NULL )
-            {
-                printf( "calloc failed\n" );
-            }
-            else
-            {
-                assert( is[0] == 0 );
-                assert( is[1] == 0 );
-                free( is );
-            }
-        }
-
-        /*
-        #bad things
-
-            if you try to allocate too much memory,
-            `malloc` may fail, or your os will eventually decide to kill your naughty program
-
-            time to try that out!
-
-            TODO0 how to pass more than INT_MAX to malloc to break it? =)
-        */
-        {
-            if ( 0 )
-            {
-                size_t n = 1024 * 1024 * 1024;
-                int* ip = malloc( n );
-                if ( ip == NULL )
-                {
-                    printf( "could not allocate %zu bytes", n );
-                }
-                free( ip );
-            }
-
-            /*
-            allocate 1024 Petabytes of RAM in 1 gb chunks!!!
-            someday this will be possible and people will laugh at this...
-            generates a segfault
-            */
-            if ( 0 )
-            {
-                const size_t GB = 1024 * 1024 * 1024;
-                for ( int i = 0; i < GB; i++ )
-                {
-                    int* ip = malloc( GB );
-                    ip[0] = 0;
-                    if ( ip == NULL )
-                    {
-                        printf( "could not allocate %zu bytes", GB );
-                    }
-                }
-            }
-        }
-    }
-
     //#branching
     {
         //#if
@@ -3433,7 +3495,7 @@ int main( int argc, char** argv )
                 assert(1);
             }
 
-            //#scope
+            //scope
             {
                 int i = 0;
                 if ( 1 )
@@ -3648,36 +3710,52 @@ int main( int argc, char** argv )
         /*
         #function
 
-            a function is basically a branch, but in which you have to:
+            A function is basically a branch, but in which you have to:
 
             - know where to jump back to after return
             - pass arguments
             - get back a return value
         */
         {
-            //Arguments
             {
                 func_int( 1.1 );
                 func_float( 1 );
-
-                /*
-                pass strings to functions
-
-                    The following works.
-
-                    It initializes the string on stack and then passes a pointer to it.
-
-                    The caller must make sure that the function does not modify the array and return useful values on it,
-                    since there is no way for the caller to retreive the new value of such string.
-
-                    Ideally, all calling functions that can receive such strings should be const.
-                */
-                {
-                    func_string( "abc" );
-                    func_string_const( "abc" );
-                }
             }
 
+            //return value is not an lval, so one cannot get its address
+            {
+                int *ip;
+                //ip = &int_func_int( 1 ); //ERROR
+            }
+
+            /*
+            pass string literals to functions
+
+                The following works.
+
+                It initializes the string on stack and then passes a pointer to it.
+
+                The caller must make sure that the function does not modify the array and return useful values on it,
+                since there is no way for the caller to retreive the new value of such string.
+
+                Ideally, all calling functions that can receive such strings should be const.
+            */
+            {
+                func_string_abc( "abc" );
+                func_string_const_abc( "abc" );
+            }
+
+#if __STDC_VERSION__ >= 199901L
+
+            /*
+            pass struct and array literals to function
+            using C99 compound literals
+            */
+            {
+                func_array( ( int[] ){ 1 } );
+                func_struct_1( ( struct func_struct ){ .i = 1 } );
+            }
+#endif
             /*
             #function pointers
 
@@ -3688,8 +3766,8 @@ int main( int argc, char** argv )
             */
             {
                 assert( add_int != subInt );
-                assert( int_func_int_int(&add_int,2,1) == 3 );
-                assert( int_func_int_int(&subInt,2,1) == 1 );
+                assert( int_func_int_int( &add_int, 2, 1 ) == 3 );
+                assert( int_func_int_int( &subInt, 2, 1 ) == 1 );
             }
 
             /*
@@ -3862,12 +3940,26 @@ int main( int argc, char** argv )
 
             //functions
             {
+                {
 #define SUM( x, y ) x + y
                 assert( SUM( 1, 1 ) == 2 );
                 //compiles as:
                     //assert( 1 + 1 == 2 )
                 //not:
                     //assert( 2 == 2 )
+                }
+
+#if __STDC_VERSION__ >= 199901L
+
+                //#variadic macro functions
+                {
+                    char s[4];
+#define SPRINTF( string, format, ...) sprintf( string, format, __VA_ARGS__ )
+                    SPRINTF( s, "%c%c", 'a', 'b' );
+                    assert( strcmp( s, "ab" ) == 0 );
+                }
+
+#endif
             }
         }
 
@@ -3963,7 +4055,7 @@ int main( int argc, char** argv )
         */
         {
             /*
-            #stdc_version
+            #__stdc_version__
 
                 String representing version of the c std lib. Format: yyyymm (base 10).
 
@@ -3975,6 +4067,15 @@ int main( int argc, char** argv )
             {
                 printf( "__STDC_VERSION__ = %li\n", __STDC_VERSION__ );
             }
+
+            /*
+            #__cplusplus
+
+                Defined only if using C++ compiler.
+            */
+#ifdef __cplusplus
+            printf( "__cplusplus\n" );
+#endif
 
                 //absolute or relative path of current file:
 
@@ -4010,10 +4111,6 @@ int main( int argc, char** argv )
             printf( "__DATE__ = %s\n", __DATE__ );
 
             printf( "__TIME__ = %s\n", __TIME__ );
-
-#ifdef __cplusplus
-            puts("__cplusplus");
-#endif
 
         //automatically defined by certain compilers on windows:
         //TODO0 gcc specific or not? if yes move out of here.
@@ -4075,6 +4172,162 @@ int main( int argc, char** argv )
 
             //printf( "??" )
     }
+
+    /*
+    #dynamic allocation
+
+        Allocates ammounts of memory that are only known at runtime,
+        not compile time.
+
+        #malloc
+
+            The main way to get new dynamic memory.
+
+            Returns a `void*` which can be used for any type.
+
+            Typecast from `void*` is implicitly done without warning.
+
+        #free
+
+            Main way to free dynamic memory after you are done with it.
+
+        #dynamic allocation vs VLA
+
+            Dynamic memory has the following characteristics which VLA does not:
+
+            - no scope
+
+                therefore can be allocated in functions
+                and returned to caller
+
+            - heap much larger than stack
+
+            So it is more flexible, at the cost of some runtime speed.
+    */
+    {
+        {
+            size_t bytes = sizeof( int ) * 2;
+            int* is = malloc( bytes );
+            if ( is == NULL )
+            {
+                printf( "malloc failed\n" );
+            }
+            else
+            {
+                is[0] = 1;
+                assert( is[0] == 1 );
+                free( is );
+            }
+        }
+
+        /*
+        #realloc
+
+            Change size of allocated memory with malloc.
+
+            If you already have allocated some memory, it might be faster to enlargen it
+            rather than to free it and reallocate.
+
+            The library may however choose to move your memory somewhere else if not enough is available
+
+            You must use a second pointer to get its value, because in case the reallocation fails,
+            you still need the old pointer to clear up old memory.
+        */
+        {
+            size_t bytes = sizeof( int ) * 2;
+            int* is = malloc( bytes );
+            if ( is == NULL )
+            {
+                printf( "malloc failed\n" );
+            }
+            else
+            {
+                is[1] = 1;
+                //you must use a second pointer here
+                int* is2 = realloc( is, sizeof(int) * 4 );
+                if ( is2 == NULL )
+                {
+                    printf( "realloc failed\n" );
+                }
+                else
+                {
+                    is = is2;
+                    is[3] = 1;
+                    //old values are untouched:
+                    assert( is[1] == 1 );
+                    assert( is[3] == 1 );
+                }
+                free( is );
+            }
+        }
+
+        /*
+        #calloc
+
+            Like malloc but initializes allocated bytes to zero.
+
+            why calloc? <http://www.quora.com/C-programming-language/What-does-the-c-stand-for-in-calloc>
+            Clear seems most likely.
+
+            Takes number of elements and elemetn size separately.
+        */
+        {
+            int* is = calloc( 2, sizeof(int) );
+            if ( is == NULL )
+            {
+                printf( "calloc failed\n" );
+            }
+            else
+            {
+                assert( is[0] == 0 );
+                assert( is[1] == 0 );
+                free( is );
+            }
+        }
+
+        /*
+        #bad things
+
+            if you try to allocate too much memory,
+            `malloc` may fail, or your os will eventually decide to kill your naughty program
+
+            time to try that out!
+
+            TODO0 how to pass more than INT_MAX to malloc to break it? =)
+        */
+        {
+            if ( 0 )
+            {
+                size_t n = 1024 * 1024 * 1024;
+                int* ip = malloc( n );
+                if ( ip == NULL )
+                {
+                    printf( "could not allocate %zu bytes", n );
+                }
+                free( ip );
+            }
+
+            /*
+            allocate 1024 Petabytes of RAM in 1 gb chunks!!!
+            someday this will be possible and people will laugh at this...
+            generates a segfault
+            */
+            if ( 0 )
+            {
+                const size_t GB = 1024 * 1024 * 1024;
+                for ( int i = 0; i < GB; i++ )
+                {
+                    int* ip = malloc( GB );
+                    ip[0] = 0;
+                    if ( ip == NULL )
+                    {
+                        printf( "could not allocate %zu bytes", GB );
+                    }
+                }
+            }
+        }
+    }
+
 
     /*
     #stdlib.h
@@ -4378,7 +4631,7 @@ int main( int argc, char** argv )
                     if a typedef is not guaranteed to be either an integer type or a floating point type,
                     just cast it to the largest floating point type possible
 
-                    unfortunatelly, as of c11 there is no way to get the largets floating point type
+                    Unfortunatelly, as of c11 there is no way to get the largets floating point type
                     as can be done for integers: <http://stackoverflow.com/questions/17189423/how-to-get-the-largest-precision-floating-point-data-type-of-implemenation-and-i/17189562>
 
                     */
@@ -4484,10 +4737,12 @@ int main( int argc, char** argv )
                 }
             }
 
+#if __STDC_VERSION__ < 201112L
+
             /*
             #gets
 
-                deprecated, removed in c11.
+                Deprecated, removed in C11.
 
                 dangerous:
                 no size checking possible
@@ -4495,10 +4750,12 @@ int main( int argc, char** argv )
             */
             if ( 0 )
             {
-                    //printf("enter a string terminated by newline: (max %d chars, newline will be included in the string)\n", sn);
-                    //gets(s);
-                    //printf("you entered:\n%s\n\n",s);
+                //printf("enter a string terminated by newline: (max %d chars, newline will be included in the string)\n", sn);
+                //gets(s);
+                //printf("you entered:\n%s\n\n",s);
             }
+
+#endif
 
             /*
             #fgets
@@ -4939,18 +5196,14 @@ int main( int argc, char** argv )
 
         //#exp
         {
-
-            //#exponential #exp
-
-                assert( fabs( exp(1.0)          - 2.71 )    < 0.01 );
+            //exp
+            assert( fabs( exp(1.0)          - 2.71 )    < 0.01 );
 
             //#log #ln
+            assert( fabs( log( exp(1.0) )   - 1.0 )     < err );
 
-                assert( fabs( log( exp(1.0) )   - 1.0 )     < err );
-
-            //#pow power
-
-                assert( fabs( pow(2.0, 3.0)     - 8.0  )    < err );
+            //#pow
+            assert( fabs( pow(2.0, 3.0)     - 8.0  )    < err );
         }
 
         //#trig
@@ -4959,29 +5212,25 @@ int main( int argc, char** argv )
 
             //this is a standard way to get PI.
             //The only problem is the slight calculation overhead.
-
+            {
                 assert( fabs( acos(-1.0)        - 3.14 )    < 0.01 );
+            }
         }
 
-        //#erf: TODO understand
+        //#erf: TODO0 understand
 
-        //#gamma: tgamma, lgamma: TODO understand
+        //#gamma: tgamma, lgamma: TODO0 understand
 
         //#random
         {
             //seed the random number generator with the current time
-
-            //
-
             srand ( time( NULL ) );
 
             //integer between 0 and RAND_MAX:
-
-                int i = rand();
+            int i = rand();
 
             //float between 0 and 1:
-
-                float f = rand()/(float)RAND_MAX;
+            float f = rand()/(float)RAND_MAX;
         }
     }
 

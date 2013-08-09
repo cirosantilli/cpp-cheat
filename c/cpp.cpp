@@ -2,39 +2,49 @@
 this will focus in differences between cpp and c.
 for the rest, look for a c cheat.
 
-Major differences include:
+#C++ vs C
 
-- classes. Adds enourmous complexity and capabilities to the language.
-- templates
-- stdlib containers
-- function overloading
-- namespaces
+    C and C++ are two completelly different standards.
+
+    C++ attempts to be as much as possible extension of C.
+
+    As such, when new C versions such as C99 come out, it is impossible that C++ will immediately
+    follow, but it is very likely that the new C features will be incorporated into C++ if possible
+    in the following versions.
+
+    Major differences include:
+
+    - classes. Adds enourmous complexity and capabilities to the language.
+    - templates
+    - stdlib containers
+    - function overloading
+    - namespaces
 
 #sources
 
-- <http://www.cplusplus.com>
+    - <http://www.cplusplus.com>
 
-    Explains well what most the features of the language do for beginners.
+        Explains well what most the features of the language do for beginners.
 
-    TODO is this site official in some way?
+        TODO is this site official in some way?
 
-- <http://en.cppreference.com/w/>
+    - <http://en.cppreference.com/w/>
 
-    wiki driven.
+        wiki driven.
 
-    Attempts to document all the language and stdlibs.
+        Attempts to document all the language and stdlibs.
 
-    Many behaviour examples.
+        Many behaviour examples.
 
-- <http://yosefk.com/c++fqa/>
+    - <http://yosefk.com/c++fqa/>
 
-    comments on the quirks of c++
+        comments on the quirks of c++
 
-    fun and informative for those that know the language at intermediate level
+        fun and informative for those that know the language at intermediate level
 
-- <http://geosoft.no/development/cppstyle.html>
+    - <http://geosoft.no/development/cppstyle.html>
 
-    coding guidelines, clearly exemplified
+        coding guidelines, clearly exemplified
 
 #standards
 
@@ -47,23 +57,42 @@ Major differences include:
     Drafts are freely available at: <http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/>.
     N3337 seems to be very close to C++11.
 
-    like any standard c++ has several versions noted by year.
+    Like any standard c++ has several versions noted by year.
+    There are also minor revisions knows as technical reports.
 
-    The first standard is quite recent dating from 1998.
+    #C++89
+
+        First version.
+
+    #C++03
+
+        Bug fix release, not many new features.
 
     #C++11
 
-        previously known as C++0x, but took too long to come out
+        <https://en.wikipedia.org/wiki/C%2B%2B11>
 
-        in gcc: add -c++0x flag. still experimental.
+        Previously known as C++0x, but took too long to come out.
 
-    #C++03
+        Unlike C++03, *lots* of new features.
+
+        In gcc: add `-std=c++0x` flag. Still marked experimental,
+        but good support for the basic features.
+
+    #C++14
+
+        The future as of 2013. The language seems to be accelerating speed of changes
+        since this is expected only 3 years after the last standard. Cool.
+
+#POD
+
+        <http://stackoverflow.com/questions/146452/what-are-pod-types-in-c>
 
 #ipc
 
     socket model
 
-    TODO
+    TODO0
 
 #libs
 
@@ -127,8 +156,6 @@ Major differences include:
     - the ubuntu package is called `libstdc++6.X`. `dpkg -l | grep libstd`
 
     #c headers
-
-        C++ is a backwards compatible extension of C, therefore it must provide all the C headers with the exact same semantincs.
 
         However, it also provides a cNAME version to every NAME.h, ex: `math.h` vs `cmath`.
 
@@ -234,18 +261,77 @@ void printCallStack()
             }
 
 
-//class
+//#class
 //{
+    class Empty {};
+
     /*
-    simple class for tests on constructor destructor order
+    This class has no default constructor since another constructor was defined.
+    */
+    class NoDefaultCtor
+    {
+        public:
+            NoDefaultCtor( int i ){}
+    };
+
+    /*
+    This class defines a default constructor since it will also provide a non default one.
+    */
+    class ExplicitDefaultCtor
+    {
+        public:
+            int i;
+            ExplicitDefaultCtor(){}
+            ExplicitDefaultCtor( int i ) : i(i){}
+    };
+
+    /*
+    Simple class for tests on constructor destructor order.
+
+    This class has no members which are objects and no base classes.
     */
     class NoBaseNoMember
     {
         public:
+            int i;
             NoBaseNoMember(){ callStack.push_back( "NoBaseNoMember::NoBaseNoMember()"); }
+            NoBaseNoMember( int i ) : i(i){ callStack.push_back( "NoBaseNoMember::NoBaseNoMember(int)"); }
             ~NoBaseNoMember(){ callStack.push_back( "NoBaseNoMember::~NoBaseNoMember()"); }
 
             void method(){ callStack.push_back("NoBaseNoMember::method()"); }
+    };
+
+    class NoBaseNoMember0
+    {
+        public:
+            NoBaseNoMember0(){ callStack.push_back( "NoBaseNoMember0::NoBaseNoMember0()"); }
+            ~NoBaseNoMember0(){ callStack.push_back( "NoBaseNoMember0::~NoBaseNoMember0()"); }
+            void method(){ callStack.push_back("NoBaseNoMember0::method()"); }
+    };
+
+    class NoBaseNoMember1
+    {
+        public:
+            NoBaseNoMember1(){ callStack.push_back( "NoBaseNoMember1::NoBaseNoMember1()"); }
+            ~NoBaseNoMember1(){ callStack.push_back( "NoBaseNoMember1::~NoBaseNoMember1()"); }
+            void method(){ callStack.push_back("NoBaseNoMember1::method()"); }
+    };
+
+    class InitializerList
+    {
+        public:
+            int i;
+            float f;
+    };
+
+    class MemberConstructorTest
+    {
+        public:
+            NoBaseNoMember0 member0;
+            NoBaseNoMember1 member1;
+            MemberConstructorTest(){ callStack.push_back( "MemberConstructorTest::MemberConstructorTest()"); }
+            ~MemberConstructorTest(){ callStack.push_back( "MemberConstructorTest::~MemberConstructorTest()"); }
+            void method(){ callStack.push_back("MemberConstructorTest::method()"); }
     };
 
     class Member
@@ -278,13 +364,6 @@ void printCallStack()
                 //best to put it on top of class
                 //so def will go for entire class
 
-            /*
-            default constructor
-                if no constructor is declared, a default constructor is created
-
-                if any constructor is declared, even with non default args,
-                the default is not created
-            */
             Base() : i(0), j(1) //list initialization
             {
                 callStack.push_back("Base::Base()");
@@ -322,24 +401,8 @@ void printCallStack()
                 callStack.push_back("Base::Base(float)");
             }
                 //C++11
-                //initialize arrray/std containers in list initializtion
+                //initialize array/std containers in list initializtion
 
-            /*
-            destructor
-
-            called when:
-                1) statically allocated object goes out of scope
-                2) dynamically allocated object gets deleted
-
-            major application:
-                - delocate dynamic memory that was allocated on constructor
-
-            virtual:
-                not necessary
-                *but*
-                almost always what you want a polymorphic class to which there
-                will be pointers to base classes
-            */
             virtual ~Base()
             {
                 callStack.push_back("Base::~Base()");
@@ -999,10 +1062,9 @@ void printCallStack()
     //}
 //}
 
-//functions
-
-    //passing by argument
-        //c++ only. convenience only?
+//#function
+//{
+    //pass by reference c++ only. convenience only?
         //http://stackoverflow.com/questions/114180/pointer-vs-reference
         void byref (int& i){i++;}
         void bypointer (int *i){(*i)++;}
@@ -1135,6 +1197,13 @@ void printCallStack()
             //for me, blows max template recursion depth of 1024
             //this can be reset with `-ftemplate-depth`
 
+        //#auto
+
+            //int func_auto(int a){
+            //    ++a;
+            //    return (int)a;
+            //}
+//}
 
 /*
 #namespaces
@@ -1766,38 +1835,38 @@ int main(int argc, char** argv)
         }
     }
 
-        /*
-        #auto
+    /*
+    #auto
 
-            C++11 keyword
+        C++11 keyword
 
-            Completelly differs in meaning with the useless C `auto` keyword.
+        Completelly differs in meaning with the useless C `auto` keyword.
 
-            Variable type is infered based on return value of initialization.
+        Variable type is infered based on return value of initialization.
 
-            Major application: create an iterator without speficying container type.
-        */
+        Major application: create an iterator without speficying container type.
+    */
+    {
+        //basic usage
         {
-            //basic usage
-            {
-                //the compiler infers the type of i from the initialization.
-                auto i = 1;
-            }
-
-            //address
-            {
-                int i = 1;
-                auto& ai = i;
-                ai = 2;
-                assert( i == 2 );
-            }
-
-            //ERROR must initialize immediately.
-            {
-                //auto i;
-                //i = 1;
-            }
+            //the compiler infers the type of i from the initialization.
+            auto i = 1;
         }
+
+        //reference
+        {
+            int i = 1;
+            auto& ai = i;
+            ai = 2;
+            assert( i == 2 );
+        }
+
+        //ERROR must initialize immediately.
+        {
+            //auto i;
+            //i = 1;
+        }
+    }
 
     /*
     #vla
@@ -1852,8 +1921,45 @@ int main(int argc, char** argv)
                 //ERROR
                 //already declared in this scope
         }
-
     }
+
+#if __cplusplus >= 201103L
+
+    /*
+    #range based for for arrays
+
+        Stop writing for loops!
+
+        Also has a version for iterators.
+
+        It seems that the array length is deduced at compile time!
+    */
+    {
+        {
+            int is[] = { 1, 2 };
+            for (int &i : is) {
+                i *= 2;
+            }
+            assert( is[0] == 2 );
+            assert( is[1] == 4 );
+        }
+
+        /*
+        does not work for dynamic memory since
+        there would be no way to know the array size at compile time
+        */
+        {
+            //int *is = new int[2];
+            //is[0] = 1;
+            //is[0] = 2;
+            //for (int &i : is) {
+            //    i *= 2;
+            //}
+            //delete[] is;
+        }
+    }
+
+#endif
 
     //#function
     {
@@ -2040,15 +2146,15 @@ int main(int argc, char** argv)
         }
 
         /*
-        Uncaught exceptions.
+        #uncaught exceptions.
 
-        Uncaught exceptions explose at top level and terminate the program.
+            Uncaught exceptions explose at top level and terminate the program.
 
-        Check out the error messages generated by each exception.
+            Check out the error messages generated by each exception.
 
-        Classes that derive from exception and implement `what()` can print custom messages,
-        which may contain useful debug info. This is a major point in favor of using exception
-        classes instead of base types.
+            Classes that derive from exception and implement `what()` can print custom messages,
+            which may contain useful debug info. This is a major point in favor of using exception
+            classes instead of base types.
         */
         {
             //throw 1;
@@ -2100,46 +2206,44 @@ int main(int argc, char** argv)
 
     //#class
     {
-        //create
+        /*
+        #constructor
+
+            Called whenever object is created to initialize the object.
+        */
         {
             {
-                {
-                    //Base Class
-                        //Base and Class constructor are called!
-                        //if no default constructor, error
-                    //there is a default constructor if you don't define any constructor
-                        //but if you define any constructor (even non null), you have to write
-                        //the empty one yourself, so just write it always
-                    callStack.clear();
-                    Class c;
-                    vector<string> expectedCallStack =
-                    {
-                        "Base::Base()",
-                        "BaseProtected::BaseProtected()",
-                        "BasePrivate::BasePrivate()",
-                        "Member::Member()",
-                        "Member::Member()",
-                        "Base::Nested::Nested()",
-                        "Class::Class()",
-                    };
-                    //assert( callStack == expectedCallStack );
+                callStack.clear();
 
-                    callStack.clear();
-                }
+                NoBaseNoMember c; //constructor was called!
 
-                vector<string> expectedCallStack =
-                {
-                    "Base::Base()",
-                    "BaseProtected::BaseProtected()",
-                    "BasePrivate::BasePrivate()",
-                    "Member::Member()",
-                    "Member::Member()",
-                    "Base::Nested::Nested()",
-                    "Class::Class()",
+                vector<string> expectedCallStack = {
+                    "NoBaseNoMember::NoBaseNoMember()",
                 };
-                //assert( callStack == expectedCallStack );
+                assert( callStack == expectedCallStack );
             }
 
+            {
+                callStack.clear();
+
+                NoBaseNoMember c = NoBaseNoMember(); //exact same as `NoBaseNoMember c;`
+
+                vector<string> expectedCallStack = {
+                    "NoBaseNoMember::NoBaseNoMember()",
+                };
+                assert( callStack == expectedCallStack );
+            }
+
+            /*
+            Two constructors and *one destructor* called!
+
+            Operation order:
+
+            - `NoBaseNoMember c;` calls a constructor
+            - `NoBaseNoMember();` calls a constructor
+            - assignment is made
+            - the object created by `NoBaseNoMember();` goes out of scope and is destroyed
+            */
             {
                 callStack.clear();
 
@@ -2150,31 +2254,202 @@ int main(int argc, char** argv)
                 {
                     "NoBaseNoMember::NoBaseNoMember()",
                     "NoBaseNoMember::NoBaseNoMember()",
-                    "NoBaseNoMember::~NoBaseNoMember()"
+                    "NoBaseNoMember::~NoBaseNoMember()",
                 };
                 assert( callStack == expectedCallStack );
+
+                /*
+                #default constructor
+
+                    TODO0 what does it do? int = 0, float = 0.0? calls
+
+                    Constructor that takes no arguments.
+
+                    This constructor is special in the sense that it is implicitly called in certain cases.
+
+                    If no constructor is declared, a default constructor is created.
+
+                    If any constructor is declared, even with non default args,
+                    the default is not created.
+
+                    It is a good idea to always implement a default constructor,
+                    since this is the only way arrays of fiexed numbers o fobjects can be created before C++03.
+                */
+                {
+                    //the default constructor exists
+                    {
+                        Empty e = Empty();
+                    }
+
+                    //this class does not have a default constructor
+                    {
+                        //NoDefaultCtor o = NoDefaultCtor();
+                        //NoDefaultCtor os[2]; //ERROR cannot be done because this class has not default constructors.
+                    }
+                }
+
+                /*
+                the default constructor does not necessarily initialize built-in types
+
+                <http://stackoverflow.com/questions/2417065/does-the-default-constructor-initialize-built-in-types>
+                */
+                {
+                    NoBaseNoMember o;
+                    //assert( o.i == 0 ) //undefined behaviour
+                }
             }
 
+            /*
+            common syntax gotcha
+
+            declares *FUNCTION* called `c()` that returns `Class`
+
+            functions inside functions like this are a gcc extension
+            */
+            {
+                //Class c(); //ERROR, does not exist
+                //c.i = 1;
+            }
+        }
+
+        /*
+        #initializer list
+        */
+        {
+            //works like in C structs
+            {
+                InitializerList o = { 1, 1.1f };
+                assert( o.i == 1 );
+                assert( o.f == 1.1f );
+                //assert( o.f == 1.1 ); //TODO0 why does this fail even if `assert( 1.0 == 1.0f )`?
+            }
+        }
+
+        /*
+        #destructor
+
+            Called when:
+
+            1) statically allocated object goes out of scope
+            2) dynamically allocated object gets deleted
+
+            Major application:
+
+            - delocate dynamic memory that was allocated on constructor
+
+            virtual:
+
+            not necessary
+            *but*
+            almost always what you want a polymorphic class to which there
+            will be pointers to base classes
+        */
+        {
+            callStack.clear();
+
+            {
+                NoBaseNoMember b;
+            } //destructor is called now!
+
+            vector<string> expectedCallStack = {
+                "NoBaseNoMember::NoBaseNoMember()",
+                "NoBaseNoMember::~NoBaseNoMember()"
+            };
+            assert( callStack == expectedCallStack );
+        }
+
+        //array of objects
+        {
+            //default constructor is called when array is created.
             {
                 callStack.clear();
-                NoBaseNoMember c = NoBaseNoMember();
-                vector<string> expectedCallStack =
-                {
+                NoBaseNoMember os[2]; //default constructor called
+                vector<string> expectedCallStack = {
+                    "NoBaseNoMember::NoBaseNoMember()",
                     "NoBaseNoMember::NoBaseNoMember()",
                 };
                 assert( callStack == expectedCallStack );
             }
 
+            /*
+            to initialize the objects with a non default constructor
+            one flexible possibility is to use simply use assignment.
+
+            The downside of this method is that constructors are called twice
+            for each array element. To overcome this if you know the size of the array
+            beforehand you can use initialized arrays.
+            */
             {
-                //Class c();
-                //c.i = 1;
-                    //ERROR
-                    //declares *FUNCTION* called `c()` that returns `Class`
-                    //functions inside functions like this are a gcc extension
+                callStack.clear();
+
+                NoBaseNoMember os[2]; //default constructor called
+                os[0] = NoBaseNoMember(0);
+                os[1] = NoBaseNoMember(1);
+
+                vector<string> expectedCallStack = {
+                    "NoBaseNoMember::NoBaseNoMember()",
+                    "NoBaseNoMember::NoBaseNoMember()",
+                    "NoBaseNoMember::NoBaseNoMember(int)",
+                    "NoBaseNoMember::~NoBaseNoMember()",
+                    "NoBaseNoMember::NoBaseNoMember(int)",
+                    "NoBaseNoMember::~NoBaseNoMember()",
+                };
+                //assert( callStack == expectedCallStack );
+            }
+
+            /*
+            Faster because does not call default constructors and extra destructors.
+            */
+            {
+                callStack.clear();
+
+                NoBaseNoMember os[] = { NoBaseNoMember(0), NoBaseNoMember(1) };
+
+                vector<string> expectedCallStack = {
+                    "NoBaseNoMember::NoBaseNoMember(int)",
+                    "NoBaseNoMember::NoBaseNoMember(int)",
+                };
+                assert( callStack == expectedCallStack );
+            }
+
+            /*
+            #memset
+
+                Like many C functions, memset does not work with objects, because objects
+                may contain extra data such as a VTABLE.
+            */
+            if ( 0 )
+            {
+                Class *var = new Class;
+                std::memset( var, 0, sizeof(Class) );
             }
         }
 
-        //#static
+        /*
+        Member class constructors are called before outter class in declaration order.
+
+        Member class destructors are called after outter class in reverse declaration order.
+        */
+        {
+            callStack.clear();
+
+            {
+                MemberConstructorTest o;
+            }
+
+            vector<string> expectedCallStack =
+            {
+                "NoBaseNoMember0::NoBaseNoMember0()",
+                "NoBaseNoMember1::NoBaseNoMember1()",
+                "MemberConstructorTest::MemberConstructorTest()",
+                "MemberConstructorTest::~MemberConstructorTest()",
+                "NoBaseNoMember1::~NoBaseNoMember1()",
+                "NoBaseNoMember0::~NoBaseNoMember0()",
+            };
+            assert( callStack == expectedCallStack );
+        }
+
+        //#static fields
         {
             {
                 Class c, c1;
@@ -2269,38 +2544,6 @@ int main(int argc, char** argv)
                 Class c0 = Class();
                 Class c1 = Class();
                 //assert( c0 == c1 );
-            }
-        }
-
-        //#array of objects
-        {
-            {
-                cout << "Class os[3];" << endl;
-                Class cs[3];
-                    //3x Class() calls!
-                cs[0] = Class(1);
-                cs[1] = Class(2);
-                cs[2] = Class(3);
-                    //more 3x Class()
-
-                //initialized
-                {
-                    cout << "Class cs2[] = {Class(1), Class(2), Class(3)};" << endl;
-                    Class cs2[] = { Class(1), Class(2), Class(3) };
-                    //3x Class() calls. more efficient therefore
-                }
-            }
-
-            /*
-            #memset
-
-                Like many C functions, memset does not work with objects, because objects
-                may contain extra data such as a VTABLE.
-            */
-            if ( 0 )
-            {
-                Class *var = new Class;
-                std::memset(var, 0, sizeof(Class));
             }
         }
 
@@ -3545,7 +3788,7 @@ int main(int argc, char** argv)
 
                 See range based for.
 
-            #range based for
+            #range based for for iterators
 
                 C++11
 
@@ -3783,10 +4026,14 @@ int main(int argc, char** argv)
                     assert( pos >= v.size()  );
                 }
 
-                //binary_search
+                /*
+                binary_search
+
+                container must be already sorted
+
+                log complexity
+                */
                 {
-                    //container must be already sorted
-                    //log time
 
                     vector<int> v = {2,0,1};
                     sort( v.begin(), v.end() );
@@ -3908,6 +4155,9 @@ int main(int argc, char** argv)
 
         //#memory
         {
+
+#if __cplusplus >= 201103L
+
             /*
             #shared_ptr
 
@@ -3926,7 +4176,11 @@ int main(int argc, char** argv)
                     assert( callStack.back() == "NoBaseNoMember::~NoBaseNoMember()" );
                 }
             }
+
+#endif
         }
+
+#if __cplusplus >= 201103L
 
         /*
         #thread
@@ -3953,6 +4207,31 @@ int main(int argc, char** argv)
             std::thread::id mainId = std::this_thread::get_id();
             std::this_thread::sleep_for( std::chrono::nanoseconds( nNsecs ) );
             std::this_thread::yield();
+        }
+    }
+
+#endif
+
+    /*
+    #standard preprocessor defines
+    */
+    {
+        /*
+        #__cplusplus
+
+            Defined only if using C++ compiler.
+
+            Its value is the actual C++ version in use in a similar way to __STDC_VERSION__
+
+            Values:
+
+            - C98: 199711L
+            - C11: 201103L
+        */
+        {
+#ifdef __cplusplus
+        printf( "__cplusplus = %li\n", __cplusplus );
+#endif
         }
     }
 
