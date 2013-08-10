@@ -324,6 +324,22 @@ void printCallStack()
             float f;
     };
 
+#if __cplusplus >= 201103L
+
+    class InitializerListCtor
+    {
+        public:
+
+            std::vector<int> v;
+
+            InitializerListCtor(std::initializer_list<int> list) {
+                for ( auto& i : list )
+                    v.push_back( i );
+            }
+    };
+
+#endif
+
     class MemberConstructorTest
     {
         public:
@@ -2323,6 +2339,41 @@ int main(int argc, char** argv)
                 assert( o.f == 1.1f );
                 //assert( o.f == 1.1 ); //TODO0 why does this fail even if `assert( 1.0 == 1.0f )`?
             }
+
+#if __cplusplus >= 201103L
+
+            /*
+            #initializer list constructor
+
+                c++11 allows for an explicit usage of the initializer list
+
+                This is useful in cases where you don't know beforehand how many arguments
+                a constructor should receive.
+
+                For example, the STL Vector class gets an initializer list constructor on C++11,
+                which allows one to initialize it to any constant.
+
+                TODO0 could this not be achieved via cstdarg?
+            */
+            {
+                //STL vector usage example
+                {
+                    std::vector<int> v = { 0, 1 };
+                    //std::vector<int> v = std::vector<int>( { 0, 1 } ); //SAME
+                    assert( v[0] == 0 );
+                    assert( v[1] == 1 );
+                    assert( v == std::vector<int>( { 0, 1 } ) );
+                    //assert( v == { 0, 1 } );  //ERROR
+                }
+
+                //how to use it in a class
+                {
+                    InitializerListCtor o = { 0, 1 };
+                    assert( o.v == std::vector<int>( { 0, 1 } ) );
+                }
+            }
+
+#endif
         }
 
         /*
@@ -2808,7 +2859,7 @@ int main(int argc, char** argv)
     }
 
     /*
-    #typecasting
+    #typecast
 
         Sources:
 
@@ -3204,20 +3255,21 @@ int main(int argc, char** argv)
                     assert( v.size() == 1 );
                 }
 
-                //size related:
+                /*
+                size related:
 
-                //size            no of elements pushed back
-                //empty           same as size() == 0
-                //resize          change size. fill with 0
-                //max_size        maximum size (estimtion of what could fit your computer ram)
+                - size            no of elements pushed back
+                - empty           same as size() == 0
+                - resize          change size. fill with 0
+                - max_size        maximum size (estimtion of what could fit your computer ram)
 
-                //allocation related:
+                allocation related:
 
-                //- capacity        get how much is allocated
-                //- reserve         change how much is allocated
-                //- shrink_to_fit   shrink allocated array to size
-                //- data            get pointer to allocated array
-
+                - capacity        get how much is allocated
+                - reserve         change how much is allocated
+                - shrink_to_fit   shrink allocated array to size
+                - data            get pointer to allocated array
+                */
             }
 
             //modify
@@ -3227,12 +3279,10 @@ int main(int argc, char** argv)
                     vector<int> v;
                     v = { 0 };
                     v = { 0, 1 };
-
-                    //ERROR not possible to compare vectors to initializers
-                        //assert( v == {0,1} );
+                    assert( v == std::vector<int>( { 0, 1 } ) );
                 }
 
-                //push_back
+                //#push_back
                 {
                     vector<int> v;
                     vector<int> v1;
@@ -3244,23 +3294,23 @@ int main(int argc, char** argv)
                     v.push_back(1);
                     v1 = { 0, 1 };
                     assert( v == v1 );
-                }
 
-                /*
-                push_back makes copies with assign `=`
+                    /*
+                    push_back makes copies with assign `=`
 
-                If you want references, use pointers, or even better, auto_ptr.
-                */
-                {
-                    vector<string> v;
-                    string s = "abc";
+                    If you want references, use pointers, or even better, auto_ptr.
+                    */
+                    {
+                        vector<string> v;
+                        string s = "abc";
 
-                    v.push_back( s );
-                    v[0][0] = '0';
-                    assert( v[0] == "0bc" );
+                        v.push_back( s );
+                        v[0][0] = '0';
+                        assert( v[0] == "0bc" );
 
-                    //s was not changed
-                    assert( s == "abc" );
+                        //s was not changed
+                        assert( s == "abc" );
+                    }
                 }
 
                 /*
@@ -3283,7 +3333,7 @@ int main(int argc, char** argv)
                     assert( v == v1 );
                 }
 
-                //insert
+                //#insert
                 {
                     vector<int> v = {0,1};
                     vector<int> v1;
@@ -3297,7 +3347,7 @@ int main(int argc, char** argv)
                     assert( v == v1 );
                 }
 
-                //erase
+                //#erase
                 {
                     vector<int> v;
                     vector<int> v1;
@@ -3313,7 +3363,7 @@ int main(int argc, char** argv)
                     assert( v == v1 );
                 }
 
-                //clear
+                //#clear
                 {
                     vector<int> v= { 0, 1, 2 };
                     v.clear();
@@ -3324,9 +3374,8 @@ int main(int argc, char** argv)
                     //cout v;
             }
 
-            //random access
+            //random access is O(1) since array backed
             {
-                //fast
 
                 vector<int> v = { 0, 1, 2 };
 
@@ -3979,8 +4028,10 @@ int main(int argc, char** argv)
 
         //#algorithm
         {
-            assert( min( 0.1, 0.2 ) == 0.1 );
-            assert( max( 0.1, 0.2 ) == 0.2 );
+            {
+                assert( min( 0.1, 0.2 ) == 0.1 );
+                assert( max( 0.1, 0.2 ) == 0.2 );
+            }
 
             //change order
             {
@@ -4007,53 +4058,58 @@ int main(int argc, char** argv)
                 }
             }
 
-            //#find
+            /*
+            #find
+
+                return iterator to found element
+            */
             {
-                {
-                    vector<int> v = {2,0,1};
-                    unsigned int pos;
+                vector<int> v = {2,0,1};
+                unsigned int pos;
 
-                    pos = find( v.begin(), v.end(), 0 ) - v.begin();
-                    assert( pos == 1 );
+                pos = find( v.begin(), v.end(), 0 ) - v.begin();
+                assert( pos == 1 );
 
-                    pos = find( v.begin(), v.end(), 1 ) - v.begin();
-                    assert( pos == 2 );
+                pos = find( v.begin(), v.end(), 1 ) - v.begin();
+                assert( pos == 2 );
 
-                    pos = find( v.begin(), v.end(), 2 ) - v.begin();
-                    assert( pos == 0 );
+                pos = find( v.begin(), v.end(), 2 ) - v.begin();
+                assert( pos == 0 );
 
-                    pos = find( v.begin(), v.end(), 3 ) - v.begin();
-                    assert( pos >= v.size()  );
-                }
+                pos = find( v.begin(), v.end(), 3 ) - v.begin();
+                assert( pos >= v.size()  );
+            }
 
-                /*
-                binary_search
+            /*
+            #binary_search
 
-                container must be already sorted
+                Container must be already sorted.
 
                 log complexity
-                */
-                {
+            */
+            {
 
-                    vector<int> v = {2,0,1};
-                    sort( v.begin(), v.end() );
-                    assert( binary_search( v.begin(), v.end(), 1 ) == true );
-                    assert( binary_search( v.begin(), v.end(), 3 ) == false );
-                    assert( binary_search( v.begin(), v.end() - 1, 2 ) == false );
-                }
+                vector<int> v = {2,0,1};
+                sort( v.begin(), v.end() );
+                assert( binary_search( v.begin(), v.end(), 1 ) == true );
+                assert( binary_search( v.begin(), v.end(), 3 ) == false );
+                assert( binary_search( v.begin(), v.end() - 1, 2 ) == false );
+            }
 
-                {
-                    vector<int> v = {2,1,2};
-                    assert( count( v.begin(), v.end(), 0 ) == 0 );
-                    assert( count( v.begin(), v.end(), 1 ) == 1 );
-                    assert( count( v.begin(), v.end(), 2 ) == 2 );
-                }
+            //#count
+            {
+                vector<int> v = {2,1,2};
+                assert( count( v.begin(), v.end(), 0 ) == 0 );
+                assert( count( v.begin(), v.end(), 1 ) == 1 );
+                assert( count( v.begin(), v.end(), 2 ) == 2 );
+            }
 
-                {
-                    vector<int> v = {2,0,1};
-                    assert( *max_element( v.begin(), v.end() ) == 2 );
-                    assert( *min_element( v.begin(), v.end() ) == 0 );
-                }
+
+            //#max_element #min_element
+            {
+                vector<int> v = {2,0,1};
+                assert( *max_element( v.begin(), v.end() ) == 2 );
+                assert( *min_element( v.begin(), v.end() ) == 0 );
             }
 
             /*

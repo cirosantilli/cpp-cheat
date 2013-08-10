@@ -4040,6 +4040,8 @@ int main( int argc, char** argv )
         ##error
 
             Print an error message to stderr and stop compilation.
+
+            Useful to enforce preprocessor conditions.
         */
         {
 //#error "the error message"
