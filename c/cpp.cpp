@@ -22,29 +22,45 @@ for the rest, look for a c cheat.
 
 #sources
 
-    - <http://www.cplusplus.com>
+    #free
 
-        Explains well what most the features of the language do for beginners.
+        - <http://www.cplusplus.com>
 
-        TODO is this site official in some way?
+            Explains well what most the features of the language do for beginners.
 
-    - <http://en.cppreference.com/w/>
+            Not official in any way, despite the amazing url and google rank.
 
-        wiki driven.
+        - <http://en.cppreference.com/w/>
 
-        Attempts to document all the language and stdlibs.
+            Similar to cplusplus.com, but seems to have more info.
 
-        Many behaviour examples.
+            Wiki driven.
 
-    - <http://yosefk.com/c++fqa/>
+            Attempts to document all the language and stdlibs.
 
-        comments on the quirks of c++
+            Many behaviour examples.
 
-        fun and informative for those that know the language at intermediate level
+        - <http://geosoft.no/development/cppstyle.html>
 
-    - <http://geosoft.no/development/cppstyle.html>
+            coding guidelines, clearly exemplified
 
-        coding guidelines, clearly exemplified
+        - <http://herbsutter.com/gotw/>
+
+            Herb Sutter Guru of the week.
+
+            Hard topics with simple examples.
+
+        - <http://yosefk.com/c++fqa/>
+
+            Comments on the quirks of c++.
+
+            Fun and informative for those that know the language at intermediate level.
+
+    #non free
+
+        - <http://stackoverflow.com/questions/388242/the-definitive-c-book-guide-and-list>
+
+            List of books.
 
 #standards
 
@@ -293,12 +309,54 @@ void printCallStack()
     class NoBaseNoMember
     {
         public:
+
             int i;
+
+            //default constructor
             NoBaseNoMember(){ callStack.push_back( "NoBaseNoMember::NoBaseNoMember()"); }
-            NoBaseNoMember( int i ) : i(i){ callStack.push_back( "NoBaseNoMember::NoBaseNoMember(int)"); }
+
+            //copy constructor
+            NoBaseNoMember( const NoBaseNoMember& other ) : i(other.i) {
+                callStack.push_back( "NoBaseNoMember::NoBaseNoMember(NoBaseNoMember)");
+            }
+
+            //copy
+            NoBaseNoMember( int i ) : i(i) { callStack.push_back( "NoBaseNoMember::NoBaseNoMember(int)"); }
+
+            //destructor
             ~NoBaseNoMember(){ callStack.push_back( "NoBaseNoMember::~NoBaseNoMember()"); }
 
             void method(){ callStack.push_back("NoBaseNoMember::method()"); }
+
+            static NoBaseNoMember create()
+            {
+                return NoBaseNoMember();
+            }
+
+            static NoBaseNoMember createNrvo()
+            {
+                NoBaseNoMember c;
+                return c;
+            }
+
+            /* it would be hard or impossible to do RVO for this function */
+            static NoBaseNoMember createNrvoHard(bool b = false)
+            {
+                //2 int constructors
+                NoBaseNoMember cf = NoBaseNoMember(0);
+                NoBaseNoMember ct = NoBaseNoMember(1);
+                return b ? ct : cf;
+                //2 int destructors
+            }
+
+            static void temporaryReference( NoBaseNoMember& temp )
+            {
+                temp.i = 0;
+            }
+
+            static void temporaryReferenceConst( const NoBaseNoMember& temp )
+            {
+            }
     };
 
     class NoBaseNoMember0
@@ -436,13 +494,15 @@ void printCallStack()
 
             //return references
 
-                const int& getPrivateConst() const { return this->iPrivate; }
+                int& getRefIPublic() { return this->iPublic; }
+
+                const int& getPrivateConstRef() const { return this->iPrivate; }
                 //value cannot be changed
 
-                int& getPrivate() { return this->iPrivate; }
+                int& getPrivateRef() { return this->iPrivate; }
                 //value can be changed
 
-                //int& getPrivate() const { return this->iPrivate; }
+                //int& getPrivateRef() const { return this->iPrivate; }
                     //ERROR
                     //const method cannot return noncosnt reference!
 
@@ -469,10 +529,12 @@ void printCallStack()
                 callStack.push_back("Base:covariantArg()");
             }
 
-            int i,j;
+            int i, j;
+
             //ERROR: cannot initialize here
                 //int i = 0;
 
+            int iPublic;
             int iAmbiguous;
 
             int* is;
@@ -493,7 +555,6 @@ void printCallStack()
                 //<http://stackoverflow.com/questions/634662/non-static-const-member-cant-use-default-assignment-operator>
 
             //#static
-            //{
 
                 static void staticMethod();
 
@@ -525,7 +586,6 @@ void printCallStack()
                     //
                     //why integral types are an exception (complicated):
                         //http://stackoverflow.com/questions/13697265/static-const-double-cannot-have-an-in-class-initializer-why-is-it-so
-            //}
 
             class Nested
             {
@@ -586,11 +646,18 @@ void printCallStack()
             //ERROR
             //cant assign member member in const method
 
+        /*
+        #multable
+
+            OK
+
+            Mutable allows you to change it even in a const method.
+
+            Application to multithreading:
+            <http://stackoverflow.com/questions/105014/does-the-mutable-keyword-have-any-purpose-other-than-allowing-the-variable-to>
+        */
+
         this->mutableI = 1;
-            //OK
-            //mutable allows you to do that!
-            //application (multithreading):
-            //<http://stackoverflow.com/questions/105014/does-the-mutable-keyword-have-any-purpose-other-than-allowing-the-variable-to>
 
         this->iStatic = 1;
             //does not prevent static changes
@@ -1053,13 +1120,12 @@ void printCallStack()
     //}
 //}
 
-//global scope
-//{
+//#global scope
+
     int global = 0;
 
-    //NOTE
-    //different from c, where these were errors
-    //{
+    //differently from C, computations can be done to initialize globals
+
         int global2 = global+1;
         int ret1()
         {
@@ -1067,61 +1133,75 @@ void printCallStack()
             return 1;
         }
         int global3 = ret1();
-    //}
 
-    //ERROR
-    //everything must start with a typename
-    //{
+    //ERROR arbitrary computations cannot be done however, only those that initialize a global
+
         //global = 1;
         //if(1){}
         //callStack.push_back("global");
-    //}
-//}
 
 //#function
-//{
-    //pass by reference c++ only. convenience only?
+
+    //pass by reference
+
         //http://stackoverflow.com/questions/114180/pointer-vs-reference
+
         void byref (int& i){i++;}
         void bypointer (int *i){(*i)++;}
 
-    //default args. c++ only. creates several functions!
+    //return reference to temporary
+
+        std::string getString() { return "abc"; }
+        int getInt() { return 0; }
+
+    //default args. C++ only. creates several functions!
+
         void defaultArgs (int i, int j=0)
         {
             cout << i;
             cout << j;
         }
 
-    //ERROR: can't pass default values for arrays
-        //void foo (int bar[] = {0 ,1});
+    //ERROR: no compound literals in c++
+
+        //void foo (int bar[] = (int[2]){0 ,1});
 
     //function overloading
+
         void overload(int i){ callStack.push_back("overload(int)"); }
         void overload(int i, int j){ callStack.push_back("overload(int,int)"); }
         void overload(float i){ callStack.push_back("overload(float)"); }
         void overload(float i, float j, float k=0.f){ callStack.push_back("overload(float,float,float=)"); }
 
-        //int overload(int i, int j, int k){return 1;}
-            //OK even if return type is different
-            //all is decided at compile time
+        //OK even if return type is different
+        //all is decided at compile time
+
+            //int overload(int i, int j, int k){return 1;}
 
         //ERROR: conflict with int
+
             //void overload(const int i){ }
+
         //ERROR: cannot differentiate by output since output is used to decide if other parts of code make sense
+
             //int overload(){ return 0; }
             //float overload(){ return 0.f; }
+
         //ERROR: conflict with int int
+
             //void overload(int i, int j=0){ cout << "int int="; }
 
-        //void overload(float i, float j=1){ cout << "float float="; }
-            //BAD
-            //compiles, but is useless to give a default,
-            //since when calling, caller is *forced* to give a value for j
-            //or wil get `call is ambiguous` compile time error
-            //because compiler cannot decide between
-                //here the default arg can be usefull for a call of type float float
+        //BAD
+        //compiles, but is useless to give a default,
+        //since when calling, caller is *forced* to give a value for j
+        //or wil get `call is ambiguous` compile time error
+        //because compiler cannot decide between
+        //here the default arg can be usefull for a call of type float float
+
+            //void overload(float i, float j=1){ cout << "float float="; }
 
         //TODO why does this compile, that is, how not to make an ambiguous call with overload(int)
+
             void overloadValAddr(const int i){}
             void overloadValAddr(const int& i){}
 
@@ -1129,27 +1209,25 @@ void printCallStack()
         void overloadBase(BaseProtected b){}
 
     //default args
+
         void defaultArgProto( int i=0 );
         void defaultArgProto( int i ){}
 
-        void defaultArgDef( int i );
-        void defaultArgDef( int i=0 ){}
-            //NOTE
-            //usually not what you want
-            //since includers will not see the default version
+        //BAD
+        //usually not what you want
+        //since includers will not see the default version
 
-        //void defaultArgBoth(int i=0);
-        //void defaultArgBoth(int i=0){}
-            //ERROR
-            //cannot go in both places
+            void defaultArgDef( int i );
+            void defaultArgDef( int i=0 ){}
 
-    //int outter()
-    //{
-        //int inner(){ return 1; }
-        //return inner();
-    //}
+        //ERROR
+        //default cannot go in declaration and definition
+
+            //void defaultArgBoth(int i=0);
+            //void defaultArgBoth(int i=0){}
 
     //templates
+
         template<class T=int>
         void fTemplate(T t)
         {
@@ -1166,7 +1244,8 @@ void printCallStack()
                 //T not declared
         }
 
-        //variadic
+        //variadic template
+
             //c++11
 
             //base case
@@ -1196,30 +1275,30 @@ void printCallStack()
                 //return(t);
             //}
 
-    //recursion example
-        template<int N>
-        int factorial()
-        {
-            return N*factorial<N-1>();
-        }
+        //template recursion example
 
-        template<>
-        int factorial<0>()
-        {
-            return 1;
-        }
-            //NOTE
-            //without this, compilation error
-            //for me, blows max template recursion depth of 1024
-            //this can be reset with `-ftemplate-depth`
+            template<int N>
+            int factorial()
+            {
+                return N*factorial<N-1>();
+            }
 
-        //#auto
+            template<>
+            int factorial<0>()
+            {
+                return 1;
+            }
+                //NOTE
+                //without this, compilation error
+                //for me, blows max template recursion depth of 1024
+                //this can be reset with `-ftemplate-depth`
 
-            //int func_auto(int a){
-            //    ++a;
-            //    return (int)a;
-            //}
-//}
+    //auto
+
+        //int func_auto(int a){
+        //    ++a;
+        //    return (int)a;
+        //}
 
 /*
 #namespaces
@@ -1691,41 +1770,95 @@ int main(int argc, char** argv)
 
     //#const
     {
+        /*
+        In C++, consts cannot be changed not even through pointers.
+
+        C this is only a warning, and allows us to change ic.
+        */
         {
             const int i = 2;
             //int* ip = i;
-                //ERROR
-                //in c this is only a warning, and allows us to change ic.
         }
 
+        //unlike for constexpr, const does not need to have value define at compile time
+        {
+            std::srand( time( NULL ) );
+            const int i = std::rand();
+        }
+
+        //consts must be initialized at declaration because they cannot be modified after.
         {
             //const int ic2;
-                //ERROR
-                //must be initialized, since in c++ consts really are consts
         }
 
+        //const for classes
         {
             const Class c;
 
-            //ERROR
+            //cannot reassign
+
                 //cc = Class();
 
-            //ERROR
+            //cannot assign members
+
                 //cc.i = 1;
 
-            const int& cia = c.i;
+            //can create const refs to
 
-            //int& ia = cc.i;
-                //ERROR
+                const int& cia = c.i;
 
-            //c.method();
-                //ERROR
-                //method might change c
-                //to call it, must tell compiler it doesnt
-                //see constMethod
-                //therefore, *BE CONST OBSESSIVE!* mark as const every const method!
+            //cannot create non const refs
 
-            c.constMethod();
+                //int& ia = cc.i;
+
+            /*
+            Can only call const methods,
+            because a non const method could change the object.
+
+            Therefore, *BE CONST OBSESSIVE!* mark as const every method that does not change the object!
+            */
+            {
+                //c.method();
+                c.constMethod();
+            }
+        }
+
+        /*
+        C++ adds a special rule: binding a const reference to a on stack
+        makes it live to the end of the reference's lifetime
+
+        TODO0 why must it be const? rationale
+        TODO0 why the special no base destructor rule mentioned in the gotw article? rationale
+
+        <http://herbsutter.com/2008/01/01/gotw-88-a-candidate-for-the-most-important-const/>
+        <http://stackoverflow.com/questions/2784262/does-a-const-reference-prolong-the-life-of-a-temporary>
+        */
+        {
+            //objects
+            {
+                //OK
+                {
+                    const std::string& s = getString();
+                    assert( s == "abc" );
+                }
+
+                //ERRROR invilid initialization of non const reference
+                {
+                    //std::string& s = getString();
+                    //assert( s == "abc" );
+                }
+            }
+
+            //same for ints
+            {
+                {
+                    //int& ia = getInt();
+                }
+
+                {
+                    const int& ia = getInt();
+                }
+            }
         }
     }
 
@@ -1782,6 +1915,10 @@ int main(int argc, char** argv)
             //int& ia;
                 //ERROR
                 //must be initialized imediatelly
+
+            //int& ia;
+                //ERROR
+                //must be initialized imediatelly
         }
 
         {
@@ -1796,7 +1933,7 @@ int main(int argc, char** argv)
                 //int& ia = new int;
         }
 
-        //#const
+        //#const ereferences
         {
             int i = 1;
             const int& cia = i;
@@ -1826,30 +1963,94 @@ int main(int argc, char** argv)
         /*
         #return references from functions
 
-            never from functions (if new, return auto_ptr, if not new, you got an error)
-            only from methods, when data is in the object
-            just like pointers, if object dies, data dies!
+            Just like when returning pointers from functions,
+            one must take care not to return dangling references.
         */
         {
-            //you can modify a private
-            {
-                    Base b;
-                    int& ia = b.getPrivate();
-                    ia = 0;
-                    assert( b.getPrivate() == 0 );
-                    ia = 1;
-                    assert( b.getPrivate() == 1 );
-            }
-
-            //now you can only see, not modify
+            /*
+            One simple case in which lifetime is simple to guarantee is
+            returning members from objects which the callee owns. For example:
+            */
             {
                 Base b;
-                const int& ia = b.getPrivateConst();
-                //ERROR:
+                int& ia = b.getRefIPublic();
+                ia = 0;
+                assert( b.iPublic == 0 );
+                ia = 1;
+                assert( b.iPublic == 1 );
+            }
+
+            //you can modify a private if you non const reference to it
+            {
+                    Base b;
+                    int& ia = b.getPrivateRef();
+                    ia = 0;
+                    assert( b.getPrivateRef() == 0 );
+                    ia = 1;
+                    assert( b.getPrivateRef() == 1 );
+            }
+
+            //if the reference is const it does not work anymore
+            {
+                Base b;
+
+                {
+                    const int& ia = b.getPrivateConstRef();
                     //ia = 1;
+                }
+
+                //ERROR invalid initialization
+                {
+                    //int& ia = b.getPrivateConstRef();
+                }
             }
         }
     }
+
+#if __cplusplus >= 201103L
+
+    /*
+    #constexpr
+
+        c++11 keyword
+
+        Compile time ensures that an expression is a compile time constant.
+
+    #constexpr function
+
+        TODO
+    */
+    {
+        constexpr int i = 0;
+        constexpr int i2 = i + 1;
+
+        //ERROR constexprs are read only
+
+            //i = 1;
+
+        //WARN unitialized constexpr
+
+            //constexpr int i3;
+
+        //unlike for const, this fails, because it is not calculable at compile time
+        {
+            std::srand( time( NULL ) );
+            //constexpr int i = std::rand();
+        }
+
+        /*
+        cannot have constexpr to complex types
+
+        TODO0 rationale
+        */
+        {
+            //constexpr std::string s = "abc";
+        }
+    }
+
+#endif
+
+#if __cplusplus >= 201103L
 
     /*
     #auto
@@ -1861,6 +2062,8 @@ int main(int argc, char** argv)
         Variable type is infered based on return value of initialization.
 
         Major application: create an iterator without speficying container type.
+
+        More succint than auto when possible to use, but less general.
     */
     {
         //basic usage
@@ -1882,7 +2085,54 @@ int main(int argc, char** argv)
             //auto i;
             //i = 1;
         }
+
+        //does not imply reference while decltype does
+        {
+            int i = 0;
+            int& ir = i;
+            auto ir2 = ir;
+            ir2 = 1;
+            assert( i == 0 );
+        }
     }
+
+#endif
+
+#if __cplusplus >= 201103L
+
+    /*
+    #decltype
+
+        C++11 keyword
+
+        Replace decltype with type of an expression at compile time.
+
+        More powerful than `auto`.
+    */
+    {
+        int i = 1;
+        float f = 2.0;
+        decltype( i + f ) f2 = 1.5;
+        assert( f2 == 1.5 );
+
+        //implies reference while auto does not
+        {
+            int i = 0;
+            int& ir = i;
+            decltype(ir) ir2 = ir;
+            ir2 = 1;
+            assert( i == 1 );
+        }
+
+        //can be used basically anywhere
+        {
+            int i = 0;
+            std::vector<decltype(i)> v;
+            v.push_back(0);
+        }
+    }
+
+#endif
 
     /*
     #vla
@@ -2035,35 +2285,6 @@ int main(int argc, char** argv)
                 assert( fabs( variadicSum( 0.1, 0.2, 0.3 ) - 0.6 ) < 1e-6 );
 
                 assert( variadicSum( 1, 1.0 ) == 2.0 );
-            }
-        }
-
-        /*
-        #temporary objects
-
-            TODO do they exist in C?
-
-            TODO temporaries and references / pointers: show that one should only pass temporaries
-                to const refernces / pointers
-        */
-        {
-            cout << "Class().method();" << endl; //an instance without name is created and destroyed
-            {
-                Class().method();
-                    //Class() Class().method1() ~Class
-
-                Class( Class() );
-                    //i j
-                    //temporaries can be passed to functions directly
-            }
-
-            {
-                Class c = Class();
-                Class* cp = &c;
-
-                //Class* cp = &Class();
-                    //ERROR
-                    //address of what?
             }
         }
     }
@@ -2230,20 +2451,7 @@ int main(int argc, char** argv)
         {
             {
                 callStack.clear();
-
-                NoBaseNoMember c; //constructor was called!
-
-                vector<string> expectedCallStack = {
-                    "NoBaseNoMember::NoBaseNoMember()",
-                };
-                assert( callStack == expectedCallStack );
-            }
-
-            {
-                callStack.clear();
-
-                NoBaseNoMember c = NoBaseNoMember(); //exact same as `NoBaseNoMember c;`
-
+                NoBaseNoMember c; //default constructor was called!
                 vector<string> expectedCallStack = {
                     "NoBaseNoMember::NoBaseNoMember()",
                 };
@@ -2251,80 +2459,84 @@ int main(int argc, char** argv)
             }
 
             /*
-            Two constructors and *one destructor* called!
+            This is how non default constructors should be called.
 
-            Operation order:
-
-            - `NoBaseNoMember c;` calls a constructor
-            - `NoBaseNoMember();` calls a constructor
-            - assignment is made
-            - the object created by `NoBaseNoMember();` goes out of scope and is destroyed
+            The call stack is not predictable becuase of copy ellision,
+            but will be a single constructor in most compilers.
             */
             {
-                callStack.clear();
+                NoBaseNoMember c = NoBaseNoMember(1);
+                assert( c.i == 1 );
+            }
 
-                NoBaseNoMember c;
-                c = NoBaseNoMember();
+            /*
+            #default constructor
 
-                vector<string> expectedCallStack =
+                Constructor that takes no arguments.
+
+                This constructor is special in the sense that it is implicitly called in certain cases.
+
+                If no constructor is declared, a default constructor is created.
+
+                If any case constructor is declared, even with non default args,
+                the default is not created.
+
+                It is a good idea to always implement a default constructor,
+                since this is the only way arrays of fiexed numbers o fobjects can be created before C++03.
+            */
+            {
+                //the default constructor exists
                 {
-                    "NoBaseNoMember::NoBaseNoMember()",
-                    "NoBaseNoMember::NoBaseNoMember()",
-                    "NoBaseNoMember::~NoBaseNoMember()",
-                };
-                assert( callStack == expectedCallStack );
-
-                /*
-                #default constructor
-
-                    TODO0 what does it do? int = 0, float = 0.0? calls
-
-                    Constructor that takes no arguments.
-
-                    This constructor is special in the sense that it is implicitly called in certain cases.
-
-                    If no constructor is declared, a default constructor is created.
-
-                    If any constructor is declared, even with non default args,
-                    the default is not created.
-
-                    It is a good idea to always implement a default constructor,
-                    since this is the only way arrays of fiexed numbers o fobjects can be created before C++03.
-                */
-                {
-                    //the default constructor exists
-                    {
-                        Empty e = Empty();
-                    }
-
-                    //this class does not have a default constructor
-                    {
-                        //NoDefaultCtor o = NoDefaultCtor();
-                        //NoDefaultCtor os[2]; //ERROR cannot be done because this class has not default constructors.
-                    }
+                    Empty e = Empty();
                 }
 
-                /*
-                the default constructor does not necessarily initialize built-in types
+                //this class does not have a default constructor
+                {
+                    //NoDefaultCtor o = NoDefaultCtor();
+                    //NoDefaultCtor os[2]; //ERROR cannot be done because this class has not default constructors.
+                }
+            }
+
+            /*
+            The default constructor does not necessarily initialize built-in types:
 
                 <http://stackoverflow.com/questions/2417065/does-the-default-constructor-initialize-built-in-types>
-                */
-                {
-                    NoBaseNoMember o;
-                    //assert( o.i == 0 ) //undefined behaviour
-                }
+            */
+            {
+                NoBaseNoMember o;
+                //assert( o.i == 0 ) //undefined behaviour
             }
 
             /*
             common syntax gotcha
 
-            declares *FUNCTION* called `c()` that returns `Class`
-
-            functions inside functions like this are a gcc extension
             */
             {
-                //Class c(); //ERROR, does not exist
-                //c.i = 1;
+                /*
+                Declares *FUNCTION* called `c()` that returns `Class` inside function main.
+
+                Functions inside functions (known as local functions to gcc) exist only as extensions
+                in gcc for example.
+
+                Functions inside functions like this are a gcc extension.
+                */
+                {
+                    //Class c();
+                    //c.i = 1;
+                }
+
+                //If you want to call a default constructor, use:
+                {
+                    Class c;
+                }
+
+                /*
+                If you want to call a non-default constructor, use the following,
+                which usually only calls a single constructor because of copy ellision.
+                */
+                {
+                    Class c = Class(1);
+                }
             }
         }
 
@@ -2521,6 +2733,95 @@ int main(int argc, char** argv)
         }
 
         /*
+        #temporary objects
+
+            Temporary objects are objects without a name that exist for short time on the stack.
+
+            May exist in C as an implmentation method for structs,
+            but their effect is not noticeable because there are no constructors or destructors in C.
+        */
+        {
+            /*
+            Two constructors and *one destructor* called!
+
+            Operation order:
+
+            - `NoBaseNoMember c;` calls a constructor
+            - `NoBaseNoMember();` calls a constructor of a temporary object
+            - assignment is made
+            - the object created by `NoBaseNoMember();` goes out of scope and is destroyed
+
+            Therefore the following may be more effecitive due to copy ellision:
+
+                NoBaseNoMember c = NoBaseNoMember();
+
+            in which case only a single constructor is called.
+            Copy ellision in this case is widely implemented.
+            */
+            {
+                callStack.clear();
+
+                NoBaseNoMember c;       //1 constructor
+                c = NoBaseNoMember();   //1 constructor of the temporary, 1 assign, 1 destructor of the temporary
+
+                vector<string> expectedCallStack =
+                {
+                    "NoBaseNoMember::NoBaseNoMember()",
+                    "NoBaseNoMember::NoBaseNoMember()",
+                    "NoBaseNoMember::~NoBaseNoMember()",
+                };
+                assert( callStack == expectedCallStack );
+            }
+
+            /*
+            Methods of temporaries can be called.
+
+            Constructor and destructor are called, so this is not very efficient,
+            and a static method would probably be better in this case.
+            */
+            {
+                callStack.clear();
+                NoBaseNoMember().method();
+                vector<string> expectedCallStack =
+                {
+                    "NoBaseNoMember::NoBaseNoMember()",
+                    "NoBaseNoMember::method()",
+                    "NoBaseNoMember::~NoBaseNoMember()",
+                };
+                assert( callStack == expectedCallStack );
+            }
+
+            /*
+            Cannot get address of a temporary on current scope
+            as it will certainly go out of scope and leave a dangling reference.
+            */
+            {
+                Class c = Class();
+                Class* cp = &c;
+                //cp = &Class();
+            }
+
+            /*
+            Temporaries can be passed to functions.
+
+            This is essentially the same as passing them to copy constructors or assigns.
+
+            This is valid because the temporary object is valid until the end of the full expression
+            in which it is created; that is, until after the function call returns.
+
+            Temporaries can be passed by address only as const parameters of functions.
+            TODO why? Modifying it for return makes no sense, but why not usint it as a buffer?
+            isn't its lifetime longer than the function call? Is this related to const lifetime lenghening?
+            */
+            {
+                NoBaseNoMember b;
+                NoBaseNoMember::temporaryReference( b );
+                //NoBaseNoMember::temporaryReference( NoBaseNoMember() );
+                NoBaseNoMember::temporaryReferenceConst( NoBaseNoMember() );
+            }
+        }
+
+        /*
         #copy vs assign
 
             every class gets a default assign operator (=) and copy constructor (`Classname(Classname other)`).
@@ -2551,7 +2852,7 @@ int main(int argc, char** argv)
             /*
             #assign operator for classes.
 
-                Default assign calls assign (=) on all members.
+                There is a default assign operator which calls assign (=) on all members.
             */
             {
                 Class c, c1;
@@ -2589,12 +2890,217 @@ int main(int argc, char** argv)
 
                 There is no default `==` operator for classes.
 
-                You msut define your own.
+                You must define your own.
             */
             {
                 Class c0 = Class();
                 Class c1 = Class();
                 //assert( c0 == c1 );
+            }
+
+            /*
+            #copy and swap idom
+
+                TODO <http://stackoverflow.com/questions/3279543/what-is-the-copy-and-swap-idiom>
+            */
+            {
+            }
+
+            /*
+            #move semantics
+
+                TODO <http://stackoverflow.com/questions/3106110/what-is-move-semantics>
+            */
+            {
+            }
+
+            /*
+            #as-if rule
+
+                <http://en.cppreference.com/w/cpp/language/as_if>
+
+                Rule that specifies that compilers can optimize any behaviour that is not fixed by the standard.
+
+                The following are specified:
+
+                - Accesses (reads and writes) to the volatile objects occur in the same order as written.
+
+                - At program termination, the data written to all files is exactly as if the program was executed as written.
+
+                - All input and output operations occur in the same order and with the same content
+                    as if the program was executed as written.
+
+                The only exception to the ruls is copy ellision.
+            */
+
+            /*
+            #copy elision
+
+                <http://en.cppreference.com/w/cpp/language/copy_elision>
+                <http://stackoverflow.com/questions/12953127/what-are-copy-elision-and-return-value-optimization>
+
+                Exceptions to the as-if rules, which specifies cases in which compilers
+                may reduce the number of copy operations made, which is detectable in C++'
+                because of possible side effects constructors and destructors (such as printing to stdout
+                or modifying a global vector).
+            */
+            {
+                /*
+                #temporary copy ellision
+
+                    If no copy elision is done:
+
+                    1) temporary object constructor
+                    2) copy temporary to c
+                    3) temporary object destructor
+
+                    If copy elision is done:
+
+                    1) c is constructed directly.
+
+                    Therefore both results are possible and the result is unpredictable:
+
+                        vector<string> expectedCallStack = {
+                            "NoBaseNoMember::NoBaseNoMember()",
+                        };
+
+                        vector<string> expectedCallStack = {
+                            "NoBaseNoMember::NoBaseNoMember()",
+                            "NoBaseNoMember::~NoBaseNoMember()",
+                        };
+
+                        assert( callStack == expectedCallStack );
+                */
+                {
+                    {
+                        callStack.clear();
+                        NoBaseNoMember c = NoBaseNoMember();
+                        std::cout << "temporary copy elision" << std::endl;
+                        for ( auto s : callStack ) std::cout << "  " << s << std::endl;
+                    }
+
+                    {
+                        callStack.clear();
+                        NoBaseNoMember c;
+                        c = NoBaseNoMember();
+                        std::cout << "no temporary copy elision" << std::endl;
+                        for ( auto s : callStack ) std::cout << "  " << s << std::endl;
+                    }
+                }
+
+                /*
+                #RVO
+
+                    Return value optimization.
+
+                    Like in C, when a function returns an object, the compiler adds a hidden pointer
+                    to the function.
+
+                    Ex: definition
+
+                        static NoBaseNoMember create()
+                        {
+                            return NoBaseNoMember();
+                        }
+
+                    gets converted to:
+
+                        static create( NoBaseNoMember* hiddenTemp)
+                        {
+                            //1 constructor, 1 copy, 1 destructor if no temporary copy elision
+                            //1 constructor                       if    temporary copy elision
+                            *hiddenPtr = NoBaseNoMember();
+                        }
+
+                    And calls:
+
+                        c = NoBaseNoMember::create();
+
+                    Get converted to either:
+
+                        NoBaseNoMember hiddenTemp;      //1 constructor call
+                        NoBaseNoMember::create(&hiddenTemp);
+                        s = temp;                       //1 copy
+                                                        //1 destructor for the temporary object
+
+                    If no RVO was made, giving:
+
+                    - 2 constructors
+                    - 1 or 2 copies
+                    - 1 or 2 destructors
+
+                    or simply:
+
+                        getNoBaseNoMember(&s);
+
+                    if RVO is made which adds up to:
+
+                    - 1 constructor
+                    - 0 or 1 copies
+                    - 1 destructor
+                */
+                {
+                    NoBaseNoMember c;
+                    callStack.clear();
+
+                    c = NoBaseNoMember::create();
+                    std::cout << "RVO" << std::endl;
+                    for ( auto s : callStack ) std::cout << "  " << s << std::endl;
+                }
+
+                /*
+                #NRVO
+
+                    Named RVO.
+
+                    Like RVO, but harder to make since takes a named object instead of a temporary return value,
+                    that is:
+
+                        NoBaseNoMember c;
+                        return c
+
+                    instead of:
+
+                        return NoBaseNoMember();
+
+                    In many cases this cannot be done, and it is hard or impossible for the compiler to optimize this.
+                */
+                {
+                    /* should be possible if the compiler is smart enough */
+                    {
+                        NoBaseNoMember c;
+                        callStack.clear();
+                        c = NoBaseNoMember::createNrvo();
+                        std::cout << "NRVO" << std::endl;
+                        for ( auto s : callStack ) std::cout << "  " << s << std::endl;
+                    }
+
+                    /*
+                    TODO0 why do I get:
+
+                        NoBaseNoMember::NoBaseNoMember(int)
+                        NoBaseNoMember::NoBaseNoMember(int)
+                        NoBaseNoMember::NoBaseNoMember(NoBaseNoMember)  //copy from temporary to C
+                        NoBaseNoMember::~NoBaseNoMember()               //destructor for the temporary
+                        NoBaseNoMember::~NoBaseNoMember()               //destructor for 0
+                        NoBaseNoMember::~NoBaseNoMember()               //destructor for 1
+
+                    - where is the constructor of the temporary object?
+                    */
+                    {
+                        NoBaseNoMember c;
+                        callStack.clear();
+                        c = NoBaseNoMember::createNrvoHard();
+                        std::cout << "NRVO hard" << std::endl;
+                        for ( auto s : callStack ) std::cout << "  " << s << std::endl;
+                    }
+                }
+
+                /*
+                #exception copy elision
+                */
+                {
+                }
             }
         }
 

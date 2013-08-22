@@ -201,9 +201,11 @@ only when users want to test those features.
 #include <assert.h>
 #include <complex.h>   //complex constnats and arithemtic. c99.
 #include <ctype.h>     //isspace
+#include <errno.h>
 #include <fenv.h>
 #include <float.h>     //
 #include <iso646.h>    //and, or, etc macros
+#include <inttypes.h>  //PRIxPTR
 #include <limits.h>    //*_MAX, *_MIN for integer types
 #include <locale.h>
 #include <setjmp.h>    //setjmp, longjmp
@@ -358,8 +360,22 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
         assert( a[0] == 1 );
     }
 
+    struct get_struct_struct
+    {
+        int i;
+        int j;
+    };
+
+    struct get_struct_struct get_struct()
+    {
+        struct get_struct_struct s = { 0, 1 };
+        return s;
+    }
+
     struct func_struct { int i; };
-    void func_struct_1 (struct func_struct s){
+
+    void func_struct_1( struct func_struct s )
+    {
         assert( s.i == 1 );
     }
 
@@ -869,6 +885,14 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
         return 0;
     }
 
+        //+1 for the null char
+#define PRIxPTR_WIDTH ( (int)(sizeof(void*)*2) )
+
+//process address space
+
+    int BSS;
+    int DATA = 1;
+
 int main( int argc, char** argv )
 {
     /*
@@ -918,14 +942,61 @@ int main( int argc, char** argv )
         with fixed meanings.
     */
 
-    //#variables
+    /*
+    #identifiers.
+
+        Identifiers are names either for variables, functions, structs or enums.
+
+    */
     {
-        //allowed variable/function/struct,enum names: _[a-Z0-9_]*
+
+        /*
+        Allowed identifiers follow the regex: _[a-Z0-9_]*
+        */
         {
-            int _;
-            //int 0a; //ERROR name cannot start with digit.
+            //ERROR name cannot start with digit.
+
+                //int 0a;
         }
 
+        /*
+        C99 specifies that:
+
+            All identifiers that begin with an underscore and either an uppercase letter
+            or another underscore are always reserved for any use.
+
+            All identifiers that begin with an underscore are always reserved
+            for use as identifiers with file scope in both the ordinary and tag name spaces.
+
+        TODO0 understand what `identifiers with file scope` mean.
+
+        Which means that: while it is possible for users to define (multichar) identifiers that start with underscore,
+        they should never do it for forward compatibility, as those variables may acquire special values in the future.
+
+        POSIX adds many further per header reserved names which it would be wise to follow even on ANSI C:
+        <http://pubs.opengroup.org/onlinepubs/9699919799/functions/V2_chap02.html> section "The Name Space".
+
+        The following compile for now, but may break in any future version of the standard.
+        */
+        {
+            int _not_yet_a_keyword;
+            int _Not_yet_a_keyword;
+            int __not_yet_a_keyword;
+        }
+
+        /*
+        Standard seems to say nothing of this edge case, since `_` is not followed by any letter TODO0 confirm
+
+        Still, it would be very cryptic to use such an identifier ( it is used in Python / Django! )
+        */
+        {
+            int _;
+        }
+    }
+
+
+    //#variables
+    {
         {
             int i;
             i = 5;
@@ -941,7 +1012,6 @@ int main( int argc, char** argv )
                 //31 bit + 1 sign bit integer
         }
     }
-
 
     /*
     #literals
@@ -1200,6 +1270,8 @@ int main( int argc, char** argv )
 
         `size_t` is the data type that specifies data sizes in libc.
 
+        `size_t` is large enough to represent any array index.
+
         Always use it in your code instead of `int` to have greater portability.
 
         Can be printed in `printf` with `%zu`.
@@ -1257,6 +1329,8 @@ int main( int argc, char** argv )
             assert( sizeof( unsigned long int ) == sizeof( long int ) );
     }
 
+#if __STDC_VERSION__ >= 199901L
+
     /*
     #stdint.h
 
@@ -1285,9 +1359,23 @@ int main( int argc, char** argv )
 
             assert( sizeof( int_least32_t ) >= 4 );
 
-        //an int with the right size to hold a pointer:
+        /*
+        #intptr_t
 
-            assert( sizeof( int* ) == sizeof( intptr_t ) );
+            An integer type large enough to hold a pointer.
+
+            Could be larger than the minimum however.
+
+        #uintptr_t
+
+            Unsigned version.
+
+        TODO0 example of real life application?
+        */
+        {
+            assert( sizeof( void* ) == sizeof( intptr_t ) );
+            assert( sizeof( void* ) == sizeof( uintptr_t ) );
+        }
 
         //uniquelly defined by machine address space
 
@@ -1321,6 +1409,8 @@ int main( int argc, char** argv )
         //all have max/min ranges
         //"_t" removed, "_max" or "_min" appended, all uppercased
     }
+
+#endif
 
     /*
     #limits.h
@@ -1682,7 +1772,14 @@ int main( int argc, char** argv )
         that is not volatile neither register
     */
     {
-        int i;
+        //SAME:
+
+            int i;
+            auto int i2;
+
+        //ERROR:
+
+            //auto i3;
     }
 
     /*
@@ -1691,9 +1788,30 @@ int main( int argc, char** argv )
         Compiler will not store this value in cpu registers or cache as speed optimization
         instead of in RAM.
 
-        Application: multithreading, where variable may to change value at any time
-        if value were stored in register, other threads in other processes will see and old version
-        of it.
+        Applications:
+
+        - allow access to memory mapped devices
+        - allow uses of variables between setjmp and longjmp
+        - allow uses of sig_atomic_t variables in signal handlers.
+        - multithreading, where variable may to change value at any time on another thread.
+
+            For example on global scope:
+
+                int other_task_finished;
+
+            And on some function which must wait for another thread to finish a task:
+
+                other_task_finished = 0;
+                while( other_task_finished == 0 ){
+                    yield();
+                }
+                //continue
+
+            If the value were stored in register, other threads in other processes may never see an update.
+
+            Concurrent operations on volatile variables are not guaranteed to be atomic.
+
+            Unfortunatelly, this cannot be demonstrated as of ANSI C99 since there is no multithread support.
     */
     {
         volatile int vi;
@@ -2351,6 +2469,32 @@ int main( int argc, char** argv )
         }
     }
 
+    /*
+    #order of evaulation
+
+        It is undetermined behaviour in `f1() * f2()` if `f1` or `f2` happens first.
+    */
+    {
+        /*
+        In this ismple case, gcc is smart enough to notice this and emmit a warning.
+
+        The expression could yield both:
+
+            1 - 2 = -1
+
+        or:
+
+            2 - 1 = 1
+
+        TODO0 how why did this give me `0` on gcc? 2 - 2?
+        */
+        {
+            int i = 0;
+            //printf( "++i - ++i = %d\n", ++i - ++i );
+        }
+
+    }
+
     //#operators
     {
         //#arithmetic
@@ -2640,11 +2784,13 @@ int main( int argc, char** argv )
             basic usage: indicate error as return value from function
         */
         {
-            //why it works: it never points to any possible valid memory location.
-            //(`&` operator never gives anything equal to it).
-            //this is so guaranteed that gcc emmits a warning in the following code
+            /*
+            why it works: it never points to any possible valid memory location.
+            (`&` operator never gives anything equal to it).
+            this is so guaranteed that gcc emmits a warning in the following code
+            */
             {
-                //int i = 0;
+                int i = 0;
                 //assert( &i != NULL );
             }
 
@@ -2673,26 +2819,54 @@ int main( int argc, char** argv )
                 //assert( (int*)0 == (char*)0 );
             }
 
-            //never dereference the NULL pointer since it is guaranteed to point to nothing
+            /*
+            Never dereference the NULL pointer since it is guaranteed to point to nothing.
+
+            TODO0 to ANSI C, undefined behaviour? or guaranteed error?
+
+            May lead to a Segmentation fault.
+            */
             {
-                //RUNTIME ERROR: segmentation fault
-                    //int i = *(int*)NULL;
+                //volatile int i = *(int*)NULL;
             }
         }
 
         /*
         #void pointer
 
-            special pointer type (since there is no corresponding void data...)
+            Cannot be dereferenced without typecast.
 
-            cannot be dereferenced without typecast (since you don't know its size)
-
-            can be typecast to/from anything TODO confirm
+            Can be typecast to/from anything TODO confirm.
         */
         {
+
             void* vp;
             int* ip;
             int i = 0;
+
+            /*
+            There is no corresponding data type
+
+            Since there is no data, there is no data size
+
+            This means that `sizeof(void)` is not possible, nor is pointer arithmetic operations..
+            */
+            {
+                /*ERROR*/
+                //void v;
+
+                //ERROR: invalid application of sizeof to void type
+
+                    //printf( "sizeof ( void ) = %d\n", sizeof( void ) );
+
+                //it is however possible to get the size of a `void*` TODO0 it is the same size of all other pointers
+
+                    printf( "sizeof ( void* ) = %d\n", sizeof( void* ) );
+
+                //ERROR: invalid application of sizeof to void type
+
+                    //vp = vp + 1;
+            }
 
             //int* to void*:
 
@@ -2705,6 +2879,7 @@ int main( int argc, char** argv )
             //void* to int:
 
                 i = (int)vp;
+
         }
 
             /*
@@ -2980,36 +3155,69 @@ int main( int argc, char** argv )
         /*
         #bounds breaking
 
-            time to break down the program by making this access memory
+            Time to break down the program by making this access memory
             locations it should not try to access! =)
 
-            when the os sees that, it may crash down the program with a segmentation fault.
+            The C standard specifies that such actions lead to unspecified behaviour.
 
-            note however that this does not always happen, as a program may
+            It may lead to Segmentation faults or not.
+
+            Note however that this does not always happen, as a program may
             just access another location inside its legal memory address space
             but in a completelly unpredicatable manner, and the os has no way to it did this
 
-            this leads to very hard to debug errors, but is invitable if you want
+            This leads to very hard to debug errors, but is invitable if you want
             to avoid the overhead of checking arrays bounds on every dereference
         */
         {
-            //printf("%d\n",is[3]);
-            //is[3]=0;
-            //printf("%d\n",is[1000000]);
-            //is[1000000]=0;
 
-            //for(i=0; i<=1000000000; i++ ){
-            //        printf("%d\n",i);
-            //        j=is[i];
-            //}
-            //    segmentation fault
+            int is[2] = { 0, 1 };
+            volatile int j;
+            size_t i;
+
+            /*
+            GCC 4.7 is smart enough to warn agains this one.
+            */
+            {
+                //j = is[2];
+            }
+
+            /*
+            GCC 4.7 is not smart enough to warn agains this one!
+
+            May lead to segmentation faults, but this is unlikely.
+
+            Unspecified behaviour.
+            */
+            if ( 0 )
+            {
+                srand( time( NULL ) );
+                i = rand() % 2;
+                printf( "overflow = %d\n", is[2 + i] );
+            }
+
+            //this will amost certainly lead to a segmentation fault
+            if ( 0 )
+            {
+                for ( size_t i = 0; i < SIZE_MAX; i++ )
+                {
+                    is[i] = 0;
+                    //j = is[i];
+                }
+                assert( is[0] == 0 );
+            }
         }
 
-        //#compare arrays
-        {
-            //memcmp is faster than for loop
-            //one catch: float NaN
+        /*
+        #memcmp
 
+            Compare arrays like strcmp
+
+            memcmp may be is faster than for loop because the compiler may optimize it better.
+
+            One catch: float NaN.
+        */
+        {
             int is[]  = { 0, 1, 2 };
             int is2[] = { 0, 1, 2 };
 
@@ -3259,13 +3467,15 @@ int main( int argc, char** argv )
                     char* cs = "abc";
                     assert( cs[0] == 'a' );
 
-                //RUNTIME ERROR: text segment cannot be modified
-
+                //segmentation fault: text segment cannot be modified
+                {
                     //cs[0] = '0';
+                }
 
                 //TODO why can't you do the same thing with integers? ex:
-
+                {
                     //int * is = { 1, 3, 2 };
+                }
             }
 
             //#string literals
@@ -3318,26 +3528,34 @@ int main( int argc, char** argv )
                 Uses '\0' to see ther string ends so callers don't need to give lengths.
             */
             {
-                //#sprintf
-                {
-                    //for the possible formatrings, see [printf][]
+                /*
+                #sprintf
 
+                    Same as printf, but stores result in a given string.
+
+                    Make sure that the string is large enough to contain the output.
+
+                    If this is a hard and important task, consider `snprintf` + malloc.
+                */
+                {
                     char cs[] = "123";
                     char cs2[4];
                     sprintf( cs2, "%s", cs );
                     assert( strcmp( cs, cs2 ) == 0 );
                 }
 
+#if __STDC_VERSION__ >= 199901L
+
                 /*
                 #snprintf
 
-                    like `sprintf`, but writes at most n bytes, so it is safer,
+                    Like `sprintf`, but writes at most n bytes, so it is safer,
                     because it may not be possible or easy to calculate the resulting
                     size of a formated string.
 
-                    NOTE: the size given *includes* the null terminator
+                    The size given *includes* the null terminator.
 
-                    c99
+                    C99
                 */
                 {
                     char cs[] = "123";
@@ -3346,13 +3564,23 @@ int main( int argc, char** argv )
                     assert( strcmp( cs2, "12" ) == 0 );
                 }
 
-                //#length
+#endif
+
+                /*
+                #strlen
+
+                    Get string length (up to first '\0' ).
+                */
                 {
                     char cs[] = "abc";
                     assert( strlen( cs ) == 3 );
                 }
 
-                //#copy
+                /*
+                #strcpy
+
+                    Copy one string (up to first '\0') into another location.
+                */
                 {
                     char cs[] = "abc";
                     char cs2[4];
@@ -3367,10 +3595,21 @@ int main( int argc, char** argv )
                         //no born checking as always
                 }
 
-                //#compare
+                /*
+                #strncpy
+
+                    strcpy with maximum chars to copy.
+                */
+
+                /*
+                #strcmp
+
+                    Compare two strings
+                */
                 {
                     char cs[] = "abc";
                     char cs2[] = "abc";
+
                     assert( strcmp( cs, cs2 ) == 0 );
                     assert( strcmp( cs, "abc" ) == 0 );
                         //equality
@@ -3382,7 +3621,11 @@ int main( int argc, char** argv )
                         //larget
                 }
 
-                //#concatenate
+                /*
+                #strcat
+
+                    Concatenate two strings.
+                */
                 {
 
                     char s1[5];
@@ -3393,21 +3636,28 @@ int main( int argc, char** argv )
                     assert( strcmp( s2, "cd"   ) == 0 );
                 }
 
-                //#strchr
+                /*
+                #strchr
+
+                    Search for char in string.
+
+                    Return pointer to that char if found.
+
+                    Return null if not found.
+                */
                 {
-                    //search for char in string
-                    //return pointer to that char if found
-                    //return null if not found
                     {
                         char cs[] = "abcb";
                         assert( strchr( cs, 'b' ) == cs + 1 );
                         assert( strchr( cs, 'd' ) == NULL );
                     }
 
-                    //find all occurences of c in cs
-                    {
-                        //no direct std for this
+                    /*
+                    find all occurences of c in cs
 
+                    no direct libc function for this
+                    */
+                    {
                         char cs[] = "abcb";
                         char* cp;
                         char c = 'b';
@@ -3425,24 +3675,46 @@ int main( int argc, char** argv )
                 }
 
                 /*
-                #ctype
+                #ctype.h
 
                     character classficiation functions
                 */
-
+                {
                     //#isspace
-
+                    {
                         assert(   isspace( ' '  ) );
                         assert(   isspace( '\n' ) );
                         assert( ! isspace( 'a'  ) );
+                    }
 
                     //#isdigit
-
+                    {
                         assert(   isdigit('0') );
                         assert( ! isdigit('a') );
+                    }
+                }
+
+                /*
+                #strerror
+
+                    returns a readonly pointer to the description of the error with the given number:
+
+                        char *strerror( int errnum );
+
+                    Also consider perror if you want to print those error messages to stderr.
+                */
+                {
+                    printf( "strerror(EDOM) = \"%s\"\n", strerror(EDOM) );
+                }
             }
 
-            //#unicode
+            /*
+            #unicode
+
+                Use wchar.
+
+            #wchar
+            */
             {
                 char cs[] = "汉语";
                 printf("%s\n",cs);
@@ -3475,6 +3747,33 @@ int main( int argc, char** argv )
 
                     //wchar_t  wideString2[] = "asdf";
             }
+
+            /*
+            #strcoll
+            */
+            {
+                //TODO0 example
+            }
+
+            /*
+            #strcspn
+
+                How many characters in s1 are there before the first character present in s2.
+            */
+            {
+                assert( strcspn( "ab01", "10" ) == 2 );
+                assert( strcspn( "a0b1", "10" ) == 1 );
+            }
+
+            /*
+            #strpbrk
+
+                Point to the first character in s1 that is in s2.
+            */
+            {
+                char *s1 = "ab01";
+                assert( strpbrk( s1, "10" ) - s1 == 2 );
+            }
         }
     }
 
@@ -3484,15 +3783,15 @@ int main( int argc, char** argv )
         {
             if ( -1 )
             {
-                assert(1);
+                assert( 1 );
             }
             if ( 0 )
             {
-                assert(0);
+                assert( 0 );
             }
             if ( 1 )
             {
-                assert(1);
+                assert( 1 );
             }
 
             //scope
@@ -3756,6 +4055,63 @@ int main( int argc, char** argv )
                 func_struct_1( ( struct func_struct ){ .i = 1 } );
             }
 #endif
+
+            /*
+            Return a struct from a function.
+
+            Behaviour defined by the standards.
+
+            assembly implementation is not specified by ANSI C, but common techiques used in cdecl like conventions:
+
+            - put struct into several registers
+
+            - automatically add a hidden argument to functions that return structs,
+                allocated data on caller and pass a pointer to the struct,
+                and let the callee modify that pointer to return it.
+
+            Ex: definition
+
+                struct get_struct_struct get_struct()
+                {
+                    struct get_struct_struct s = { 0, 1 };
+                    return s;
+                }
+
+            gets converted to:
+
+                void get_struct( struct get_struct_struct* sp)
+                {
+                    struct get_struct_struct s = { 0, 1 };
+                    *sp = s;
+                }
+
+            And calls:
+
+                s = get_struct();
+
+            Get converted to:
+
+                struct get_struct_struct temp;
+                get_struct(&temp);
+                s = temp;
+
+            or simply:
+
+                get_struct(&s);
+
+            In C it is not possible to detect which convertion was made by the compiler.
+
+            In C++ however, constructors and destructors allow to differenciated between the two above cases,
+            and RVO specifies that both are valid options that the compiler may take, and that the actual
+            results are unpredictable.
+            */
+            {
+                struct get_struct_struct s;
+                s = get_struct();
+                assert( s.i == 0 );
+                assert( s.j == 1 );
+            }
+
             /*
             #function pointers
 
@@ -4330,6 +4686,42 @@ int main( int argc, char** argv )
         }
     }
 
+    /*
+    #assert.h
+
+        Defines the assert *macro*, which exits 1 and prints out the expression that caused the error.
+
+    #NDEBUG
+
+        If defined *when assert.h* is included, asserts do nothing.
+    */
+    {
+        //assert( 1 + 1 == 2 );
+    }
+
+    /*
+    #errno.h
+
+        Used for error handling.
+
+        Defines errno, which can be set by user or library functions to indicate the error type.
+
+        Also define a few possible values which libc may set `errno` to:
+
+        - EDOM
+        - EILSEQ
+        - ERANGE
+
+        *Many* more such errors are defined for example by POSIX.
+
+        Each error has an error message string associated to it.
+        To get that error message, consider using `strerror`.
+        To print an error message to stderr, consider using `perror`.
+    */
+    {
+        errno = 0; //no error
+        errno = EDOM; //EDOM error
+    }
 
     /*
     #stdlib.h
@@ -4358,7 +4750,7 @@ int main( int argc, char** argv )
     }
 
     /*
-    #stdio
+    #stdio.h
 
         stream Input and Output
     */
@@ -4381,17 +4773,25 @@ int main( int argc, char** argv )
 
             FILE is a macro that represents a stream object
 
-            its name is FILE of course because files are one of the main types of streams.
+            Its name is FILE of course because files are one of the main types of streams.
+
+            However, streams can represent other resources in the filesystem in general
+            such as Linux FIFOs or sockets.
 
         #stream vs file descriptors
 
-            a file descriptor is a POSIX concept and thus shall not be discussed here.
-
-        //TODO
-            //setvbuf: set io buffer size, must be used on open stream
-            //flush:    flush io buffer
-            //freopen
+            A file descriptor is a POSIX concept and thus shall not be discussed here.
         */
+
+        /*
+        #BUFSIZ
+
+            TODO understand
+        */
+        {
+            printf( "BUFSIZ = %ju\n", (uintmax_t) BUFSIZ );
+            assert( BUFSIZ >= 256 );
+        }
 
         /*
         #EOF
@@ -4419,6 +4819,32 @@ int main( int argc, char** argv )
         */
 
         /*
+        #stderr
+
+            The `stderr` macro is a `FILE*` that represents the standard error.
+
+            Is is always open when the program starts.
+
+            The output to stderr may not be synchronized with that of stdout,
+            so this message could appear anywhere relative to other things that were
+            printed to stdout.
+        */
+        {
+            fputs( "stderr\n", stderr );
+        }
+
+        /*
+        #stdout
+
+            Sames as stderr but for stdout.
+
+            Less useful since most IO functions have a convenience form that writes to stdout.
+        */
+        {
+            fputs( "stdout\n", stderr );
+        }
+
+        /*
         #stdin
 
             be careful!! stdin won't return EOF automatically
@@ -4438,47 +4864,88 @@ int main( int argc, char** argv )
 
         //#stream output
         {
-            //#putchar
+            /*
+            #putchar
+
+                Write single char to stdout.
+
+                Basically useless subset of putc which writes to any stream,
+                and very slow since it may mean several stream IO operations.
+            */
             {
-                //write single char to stdout
-
-                //basically useless
-
-                putchar('1');
+                putchar('p');
+                putchar('u');
+                putchar('t');
                 putchar('c');
+                putchar('h');
+                putchar('a');
+                putchar('r');
                 putchar('\n');
             }
-            //#puts
+
+            /*
+            #putc
+
+                putchar to any stream.
+
+                Why is it not called fputc?
+            */
             {
-                //write to stdout
-                //newline added!
+                putc('p', stdout);
+                putc('u', stdout);
+                putc('t', stdout);
+                putc('c', stdout);
+                putc('\n', stdout);
+            }
+
+            /*
+            #puts
+
+                Write to stdout.
+
+                Newline appended at end.
+            */
+            {
                 puts("puts");
+            }
+
+            /*
+            #fputs
+
+                Write to any stream.
+
+                Unlike puts, *no* newline is automatically appended at end!
+
+                Very confusing.
+            */
+            {
+                fputs("fputs\n", stdout);
             }
 
             /*
             #printf
 
-                write formated to sdtout
+                Write formated string to sdtout.
 
-                newline not added at end
+                Does not automaticaly append newlines.
 
-                it is very useful to learn the format strings,
-                since this has become a defacto standard and is also used
-                in python format strings and bash `printf` command.
+                It is very useful to learn the format strings,
+                since this has become a de facto standard and is also used
+                for example in python format strings and bash `printf` command.
 
-                does may not be up to data with the latest new modifiers.
+                html readable documentation on the c++11 printf format strings <http://www.cplusplus.com/reference/clibrary/cstdio/printf/>
+                should be close to the latest C, and backwards compatible
 
-                # sources
-
-                    readable documentation on the c++11 format strings <http://www.cplusplus.com/reference/clibrary/cstdio/printf/>
-                    should be close to the latest c, and backwards compatible
+                Since the formatting behaviour is identical to that of sprintf,
+                sprintf tests may be used here if the output is predictable so that output can be asserted.
             */
             {
                 char s[256];
 
                 //char:
 
-                    printf( "%c\n", 'a' );
+                    sprintf( s, "%c", 'a' );
+                    assert( strcmp( s, "a" ) == 0 );
 
                 //int:
 
@@ -4496,7 +4963,9 @@ int main( int argc, char** argv )
                 //or prepare to get bitten by overflow problems:
 
                     printf( "u UINT_MAX = %u\n", UINT_MAX );
-                    printf( "d UINT_MAX = %d\n", UINT_MAX ); //-1
+
+                    sprintf( s, "%d", UINT_MAX );
+                    assert( strcmp( s, "-1" ) == 0 );
 
                 //note how printf treats `UINT_MAX` as a signed integer
                 //which in 2's complement equals `-1`.
@@ -4525,71 +4994,86 @@ int main( int argc, char** argv )
                         //#fixed number
                         {
                             sprintf( s, "%.2f", 1.0f );
-                            char s2[] = "1.00";
-                            assert( strcmp( s, s2 ) == 0 );
+                            assert( strcmp( s, "1.00" ) == 0 );
                         }
 
                         //#given by variable
                         {
                             sprintf( s, "%.*f", 2, 1.0f );
-                            char s2[] = "1.00";
-                            assert( strcmp( s, s2 ) == 0 );
+                            assert( strcmp( s, "1.00" ) == 0 );
                         }
                     }
                 }
 
                 //#control minimum number chars to output
                 {
-                    //#pad with spaces
-                    {
-                        //useful to output text tables:
-                        //
-                        //ugly:
-                        //
-                        //12345 1
-                        //1 1
-                        //
-                        //beautiful:
-                        //
-                        //12345 1
-                        //1     1
+                    /*
+                    #pad with spaces
 
+                        Useful to output nicely formatted tables.
+
+                        Ugly:
+
+                            12345 1
+                            1 1
+
+                        Beautiful:
+
+                        12345 1
+                        1     1
+
+                    */
+                    {
                         sprintf( s, "%6.2f", 1.0f );
-                        char s2[] = "  1.00";
-                        assert( strcmp( s, s2 ) == 0 );
+                        assert( strcmp( s, "  1.00" ) == 0 );
                     }
 
-                    //#pad with zeros
-                    {
-                        //useful for naming files:
-                        //"10" comes after  "09" ('1' > '0')
-                        //"10" comes before "9"  ('1' < '0')!
+                    /*
+                    #pad with zeros
 
+                        useful for naming files:
+
+                        "10" comes after  "09" ('1' > '0')
+
+                        "10" comes before "9"  ('1' < '0')!
+                    */
+                    {
                         sprintf( s, "%06.2f", 1.0f );
-                        char s2[] = "001.00";
-                        assert( strcmp( s, s2 ) == 0 );
+                        assert( strcmp( s, "001.00" ) == 0 );
                     }
                 }
 
                 //#scientific
                 {
+                    char s[10];
                     sprintf( s, "%.3e", 1.0f );
-                    char s2[] = "1.000e+00";
-                    assert( strcmp( s, s2 ) == 0 );
+                    assert( strcmp( s, "1.000e+00" ) == 0 );
                 }
 
-                //srings:
+                //srings
+                {
+                    char s[4];
+                    sprintf( s, "%s", "abc" );
+                    assert( strcmp( s, "abc" ) == 0 );
 
-                    printf( "%s\n", "a string" );
-
-                printf( "%s\n", "\t<<< \\t tab char" );
-                printf( "%s\n", "\0<<< \\0 null char" );
+                    /*
+                    still not possible to print a null char with this
+                    substitution is done before
+                    */
+                    {
+                        char s[] = "000";
+                        sprintf( s, "%s", "a\0b" );
+                        //TODO0 why does this fail?
+                        //assert( memcmp( s, "a\00", 3 ) == 0 );
+                    }
+                }
 
                 //hexadecimal output (unsigned):
-
+                {
                     printf( "16  in hex = %x\n", 16 );
                     printf( "-1  in hex = %x\n", -1 );
                     printf( "16l in hex = %lx\n", 0x16l );
+                }
 
                 /*
                 pointers
@@ -4597,37 +5081,121 @@ int main( int argc, char** argv )
                         prints the hexadeciamal linear address.
 
                         %p excpects a `void*`.
-
-                        NULL pointer has a special representation as `(nil)`.
                 */
                 {
-                        int i;
-                        printf( "&i = %p\n", (void*)&i );
-                        printf( "NULL = %p\n", NULL );
+                    char s[ PRIxPTR_WIDTH + 3 ]; //2 for "0x" and one for trailling '\0'
+
+                    /*
+                    non null pointers are printed in a (bad?) notation starting with `0x`
+
+                    Also, trailling zeroes on the number are removed,
+                    so address 16 is represented as `0x10`
+                    */
+                    {
+                        sprintf( s, "%p", (void*)16 );
+                        assert( strcmp( s, "0x10" ) == 0 );
+                    }
+
+                    /* NULL pointer has a special representation as `(nil)` */
+                    {
+                        sprintf( s, "%p", NULL );
+                        assert( strcmp( s, "(nil)" ) == 0 );
+                    }
+
+#if __STDC_VERSION__ >= 199901L
+
+                    /*
+                    #PRIxPTR
+
+                        0 pad pointers.
+
+                        To print pointers and line them up nicely, one must take into account that trailling zeroes are ommited.
+
+                        One option is to space pad:
+
+                            %10
+
+                        But this produces:
+
+                                  0x10
+                            0x10000000
+
+                        which is still ugly.
+
+                        The ideal would then be to pad with zeros as in:
+
+                            0x00000010
+                            0x10000000
+
+                        The notation:
+
+                            %010p
+
+                        is not supported TODO0 why not?
+
+                        The solution to this introduced in C99 is to use `uintptr + PRIxPTR`:
+                        <http://stackoverflow.com/questions/1255099/whats-the-proper-use-of-printf-to-display-pointers-padded-with-0s>
+
+                        There seems to be no convenient way to take into account pointer sizes except defining thingg manually:
+                        For example, x32 uses 4 bytes, x64 8, etc.
+
+                    */
+                    {
+                        printf( "PRIxPTR usage = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)(void*)1 );
+                    }
                 }
-
-                //note that this is printf specific
-                //not string specific
-
-                    printf( "%%<<< escaping percentage\n" );
+#endif
 
                 /*
-                #printf typedefs
+                Escape percentage
 
-                    some integer typedefs have a specific printf format, others don't
-
-                    others don't. For those, rirst cast them to `uintmax_t` and then printf with `%ju`
+                    Note that this is printf specific,
+                    not string literal specific,
+                    since percentages only have special meanings for `printf`.
                 */
                 {
-                    //have specific format strings
+                    char s[2];
+                    sprintf( s, "%%" );
+                    assert( strcmp( s, "%" ) == 0 );
+                }
 
+                /*
+                typedefs
+
+                    How to printf standard typedefs.
+                */
+                {
+                    //If they have specific format strings. Just use them..
+                    {
                         printf( "printf size_t = %zu\n", (size_t)1 );
                         printf( "printf intmax_t = %jd\n", (intmax_t)1 );
                         printf( "printf uintmax_t = %ju\n", (uintmax_t)1 );
+                    }
+
+                    /*
+                    There is no specific printf format, but there is a macro that expands
+                    to part of a format string that allows to print it correctly.
+                    */
+                    {
+#if __STDC_VERSION__ >= 199901L
+                        printf( "printf PRIxPTR uintptr_t = %" PRIxPTR "\n", (uintptr_t)16 );
+                        printf( "printf PRIdPTR uintptr_t = %" PRIdPTR "\n", (uintptr_t)16 );
+
+                        /*
+                        sprintf has a different macro defined for it!
+                        */
+                        {
+                            char s[256];
+                            sprintf( s, "%" SCNxPTR, (uintptr_t)1 );
+                            printf( "sprintf uintptr_t = %s\n", s );
+                        }
+#endif
+                    }
 
                     //don't have specific format strings: TODO find one, clock_t is not defined integer or float
-
+                    {
                         //printf( "printf clock_t = %ju\n", (uintmax_t)(clock_t)1 );
+                    }
 
                     /*
                     if a typedef is not guaranteed to be either an integer type or a floating point type,
@@ -4637,33 +5205,38 @@ int main( int argc, char** argv )
                     as can be done for integers: <http://stackoverflow.com/questions/17189423/how-to-get-the-largest-precision-floating-point-data-type-of-implemenation-and-i/17189562>
 
                     */
-
+                    {
                         printf( "printf clock_t = %Lf\n", (long double)(clock_t)1 );
+                    }
                 }
             }
 
             /*
             #fprintf
 
-                same as printf, but to an arbitrary stream
+                Same as printf, but to an arbitrary stream
+
+                Returns the number of characters written.
             */
             {
-                FILE* fp = stderr;
-                fprintf( stderr, "fprintf = %d\n", 1 );
+                assert( fprintf( stdout, "fprintf = %d\n", 1 ) == 12 );
             }
 
-            //large strings to stdout
+            /*
+            large strings to stdout
+
+                stdout it line buffered
+
+                if you fill up the buffer without any newlines
+                it will just print
+
+                buffer size cannot be accessed programatically
+
+                TODO0 what is the bin buffer size?
+                in practice, 1024 works just fine
+                it may be much larger than BUFSIZ
+            */
             {
-                //stdout it line buffered
-
-                //if you fill up the buffer without any newlines
-                //it will just print
-
-                //buffer size cannot be accessed programatically
-
-                //TODO what is the bin buffer size?
-                //in practice, 1024 works just fine
-                //it may be much larger than BUFSIZ
 
                 const int bufsiz = 100000;
                 char buf[bufsiz];
@@ -4671,33 +5244,6 @@ int main( int argc, char** argv )
                 buf[bufsiz] = '\0';
                 buf[bufsiz/2] = '\n';
                 //printf("%s\n", buf); //large amount of 'z's verywhere!
-            }
-        }
-
-        /*
-        #stderr
-
-            the `stderr` stream is open and accessible via `FILE* stderr`,
-            so you can output ot it with any function which outputs to a stream such as
-            `fputs` or `fprintf`.
-
-            the `stdout` identifier is also made available, but seldom used since
-            most functions have a version which by default outputs to stdout.
-        */
-        {
-            {
-                //puts and printf to any fd, not just stdout
-
-                fputs( "stdout\n", stdout );
-                fputs( "stderr\n", stderr );
-                fprintf( stdout, "%d\n", 1 );
-                fprintf( stderr, "%d\n", 1 );
-                    //*always* put user messages on stderr
-                    //even if they are not errors:
-                    //stdout is just for *program to program* output
-                    //not program to human messages
-                //fputs( "stderr", stdin  );
-                    //TODO what happens?
             }
         }
 
@@ -4876,9 +5422,9 @@ int main( int argc, char** argv )
         /*
         #file streams
 
-            to get streams that deal with files, use fopen
+            To get streams that deal with files, use fopen.
 
-            to close those streams, use fclose
+            To close those streams, use fclose.
 
             #fopen
 
@@ -4991,7 +5537,8 @@ int main( int argc, char** argv )
                 {
                     //returns number of elements written
 
-                    //common nelems source
+                    //common nelems source:
+
                         //nelems=sizeof(buff)/sizeof(buff[0]);
                         //nelems=strlen(buff)+1
 
@@ -5032,42 +5579,81 @@ int main( int argc, char** argv )
 
         //#reposition read write
         {
-            //#ftell
+            /*
+            #ftell
+
+                Get current position of `FILE*`.
+            */
+            {
                 //long int curpos = ftell(pf)
                 //if ( curpos == -1L ){
                 //    report_cant_move_file();
                 //}
+            }
 
-            //#fseek
-                //http://www.cplusplus.com/reference/clibrary/cstdio/fseek/
-                //
-                //SET: beginning
-                //CUR: current
-                //END: end
-                //
+            /*
+            #fseek
+
+                Set current position in `FILE*` relative to:
+
+                - SEEK_SET: relative to beginning of file
+                - SEEK_CUR: relative to current position
+                - SEEK_END: relative to end of file
+
+                It seems that seeking after the eof is undefined behaviour in ANSI C:
+                <http://bytes.com/topic/c/answers/219508-fseek-past-eof>
+
+                This contrasts with POSIX lseek + write, in which the unwriten gap is 0.
+            */
+            {
                 //for binary, n bytes, for read, no necessarily
                 //
                 //if ( fseek ( pf, 0 , SEEK_SET ) != 0 ) {
                 //    report_cant_move_file();
                 //}
+            }
 
-            //#flush(fp)
-                //for output streams only.
-                //makes sure all the data is put on the stream.
-                //
-                // if (flush(fp) == EOF){
-                //        //error
-                // }
+            /*
+            #rewind
+
+                Same as:
+
+                    fseek(stream, 0L, SEEK_SET)
+            */
+
+            /*
+            #fgetpos
+
+                Get a position in stream that is usable with a later call to fsetpos.
+
+            #fsetpos
+
+                Set position to a point retreived via fgetpos.
+
+                TODO0 example and details
+            */
 
             //#freopen
                 //freopen("/dev/null", "r", stdin);
                 //this will discard stdin on linux
 
-            //TODO ? fgetpos, fsetpos, rewind
-            //
-
             //TRY: echo "123" | ./c_cheatsheet.out
                 //this will use stdin from a pipe! no user input
+        }
+
+        /*
+        #flush(fp)
+
+            For output streams only.
+
+            Makes sure all the data is put on the stream.
+
+            TODO0 example
+        */
+        {
+            // if (flush(fp) == EOF){
+            //        //error
+            // }
         }
 
         //#applications
@@ -5113,6 +5699,46 @@ int main( int argc, char** argv )
                 write_float_arr_file( path, arrf, 4, 2 );
             }
         }
+
+        /*
+        #file operation
+
+            A few file operations are available in ANSI C.
+
+            They are present in <stdio.h> mainly to support file io.
+
+            There seems to be no directory operations however.
+
+        #remove
+
+            Remove a file.
+
+                int remove(const char *filename);
+
+            ANSI C does not way what happen if it does not exist.
+
+            If the file is open, the behaviour is undefined.
+
+        #rename
+
+            Rename a file.
+
+                int rename(const char *old, const char *new);
+
+            If the new file exists, undefined behaviour.
+        */
+
+        /*
+        #perror
+
+            Print description of errno to stderr with given prefix appended, `NULL` for no prefix.
+
+            Basic way to print error messages after error on a posix function
+        */
+        {
+            errno = EDOM;
+            perror( "perror test EDOM" );
+        }
     }
 
     //#time.h
@@ -5122,8 +5748,9 @@ int main( int argc, char** argv )
 
             seconds since 1970
         */
-
-            printf( "time() = %ld\n", time(NULL) );
+        {
+            printf( "time() = %ld\n", time( NULL ) );
+        }
 
         //#CLOCKS_PER_SEC
 
@@ -5159,6 +5786,14 @@ int main( int argc, char** argv )
                 printf( "clicks = %llu\n", (intmax_t)t );
 
             printf( "seconds = %f\n", ((float)t) / CLOCKS_PER_SEC );
+        }
+
+        /*
+        #strftime
+
+            Convert time to a formatted string.
+        */
+        {
         }
     }
 
@@ -5377,42 +6012,44 @@ int main( int argc, char** argv )
 #endif
 
     /*
-    #process memory model
+    #process address space
 
         Lets have some fun reverse engeneering the process memory space modeul used on your OS!
 
         This is all undefined behaviour on ANSI C, but the test code is the same on all OS.
 
-        On Linux 3.8 machine you will probably see the following:
-
-        - the two stack variables are likely to be 4 bytes apart
-            since itegers are usually 4 bytes wide,
-            and your compiler is unlikelly to separate them
-            (although the behaviour not specified in ANSI C)
-
-            argc and argv are very close to env, and relatively close to the stack variables.
-
-        - heap and globals are relatively close to each other
-            but very far (much farther than the memory such a program
-            is ever likelly to use) from the stack variables.
-
         All of this reflects how the process is represented in main memory.
+
+        Check cheats on each OS to understand the results.
     */
     {
             int stack1;
             int stack2;
-            void* heap;
+            void *heap;
+            char *text = "abc";
 
-            printf( "processs memory model\n" );
-            printf( "  &stack1 = %p\n", (void*)&stack1 );
-            printf( "  &stack2 = %p\n", (void*)&stack2 );
-            printf( "  &argc = %p\n", (void*)&argc );
-            printf( "  &argv = %p\n", (void*)argv );
-            printf( "  &env = %p\n", getenv( "HOME" ) );
-            printf( "  &global = %p\n", (void*)&global );
+            printf( "PRIxPTR usage = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)(void*)1 );
+
+#if __STDC_VERSION__ >= 199901L
+
+            printf( "processs address space\n" );
+            printf( "  &env    = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)getenv( "HOME" ) );
+            printf( "  &argv   = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)argv );
+            printf( "  &argc   = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&argc );
+            printf( "  &stack1 = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&stack1 );
+            printf( "  &stack2 = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&stack2 );
             heap = malloc( 1 );
-            printf( "  &heap = %p\n", heap );
+            printf( "  &heap   = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)heap );
             free( heap );
+            printf( "  &BSS    = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&BSS );
+            printf( "  &DATA   = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&DATA );
+
+            //TODO0 why on linux this is not on the text setment,
+            //even if modification gives segfault?
+                printf( "  &text   = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&text );
+                //fflush( stdout );
+                //text[0] = '0';
+#endif
     }
 
     //main returns status:

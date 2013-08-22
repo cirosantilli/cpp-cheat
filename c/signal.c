@@ -64,10 +64,21 @@ functions defined (handlers):
 - SIG_IGN Ignore Signal: The signal is ignored.
 - SIG_ERR Special return value indicating failure.
 
-# TODO
+#raise
 
-- raise and abort
-- can any operation be done in a signal handler (print to stdout for example?)
+TODO
+
+#abort
+
+TODO
+
+#allows opeartions on signal handlers
+
+TODO can any operation be done in a signal handler (print to stdout for example?)
+
+#sig_atomic_t
+
+TODO
 
 # sources
 
