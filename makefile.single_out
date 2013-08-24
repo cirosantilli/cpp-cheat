@@ -42,9 +42,12 @@ $(AUX_DIR)%$(AUX_EXT): $(IN_DIR)%.c
 $(AUX_DIR)%$(AUX_EXT): $(IN_DIR)%.cpp
 	$(CC) $(DEFINES) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(OPTIMIZE_FLAGS) $(PREDEF) $(INCLUDE_DIRS) $(CFLAGS) -c "$<" -o "$@"
 
-assembler: mkdir $(IN_DIR)$(ASSEMBLER_BASENAME)
+asm: mkdir $(IN_DIR)$(ASSEMBLER_BASENAME)
 	$(eval OPTIMIZE_FLAGS := -O0)
 	$(CC) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) $(CFLAGS) -S "$(IN_DIR)$(ASSEMBLE_BASENAME)" -o "$(OUT_DIR)$(ASSEMBLE_BASENAME).s"
+
+clean:
+	rm -rf "$(AUX_DIR)" "$(OUT_DIR)"
 
 debug: clean set_debug_flags all
 	gdb $(OUT)
@@ -69,9 +72,6 @@ run: all
 mkdir:
 	mkdir -p "$(AUX_DIR)"
 	mkdir -p "$(OUT_DIR)"
-
-clean:
-	rm -rf "$(AUX_DIR)" "$(OUT_DIR)"
 
 ubuntu_install_deps:
 	#sudo aptitude install -y libgtk-3-dev

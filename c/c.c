@@ -893,6 +893,12 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
     int BSS;
     int DATA = 1;
 
+int inc_global()
+{
+    global++;
+    return global;
+}
+
 int main( int argc, char** argv )
 {
     /*
@@ -1125,8 +1131,8 @@ int main( int argc, char** argv )
 
         //#bases for integer literals
         {
-            //hexadecimal:
-
+            //hexadecimal
+            {
                 assert( 16 == 0x10    );
                 assert( 16 == 0x10    );
                 assert( 16 == 0x10l   );
@@ -1134,6 +1140,10 @@ int main( int argc, char** argv )
                 assert( 16 == 0x10u   );
                 assert( 16 == 0x10ul  );
                 assert( 16 == 0x10ull );
+
+                //case does not matter
+                assert( 0xaB == 0xAb  );
+            }
 
             //octal:
 
@@ -1143,12 +1153,17 @@ int main( int argc, char** argv )
         }
     }
 
-    //#floating point types
+    //#floating point types and literals
     {
         float f = 1.23f;
             //1 signal 23 number 8 exponent
         float f1 = 1.23e-10f;
         float f2 = 1.f;
+
+        //no octal float literal
+        {
+            //float f = 01.2p3;
+        }
 
         //ERROR: there must be a dot
 
@@ -1157,6 +1172,33 @@ int main( int argc, char** argv )
         { double d = 1.23; }
         { long double ld = 1.23l; }
         { long double ld = 1.23L; }
+
+#if __STDC_VERSION__ >= 199901L
+
+        /*
+        #float hex literal
+
+            C99.
+
+            Ex:
+
+                0xA.8p10
+
+            Equals:
+
+                1010.1000 * 2^3 = 10.5 x 2^10
+
+            The exponent is given *in decimal*.
+        */
+        {
+            assert( 0xA.0p0  ==   10.0 );
+            assert( 0xA.8p0  ==   10.5 );
+            assert( 0x1.8p1  ==    3.0 );
+            assert( 0x1.0p10 == 1024.0 );
+        }
+
+#endif
+
     }
 
 #if __STDC_VERSION__ >= 199901L
@@ -1327,222 +1369,6 @@ int main( int argc, char** argv )
 
             assert( sizeof( unsigned int ) == sizeof( int ) );
             assert( sizeof( unsigned long int ) == sizeof( long int ) );
-    }
-
-#if __STDC_VERSION__ >= 199901L
-
-    /*
-    #stdint.h
-
-        contains several types of ints, including fixed size
-        and optimal for speed types
-
-        c99
-
-        all macros with numbers are defined for N = 8, 16, 32, 64
-    */
-    {
-
-        //exactly 32 bits:
-
-            assert( sizeof( int32_t) == 4 );
-
-        //all have unsigned verions prefixed by 'u'
-
-            assert( sizeof( uint32_t) == 4 );
-
-        //at least 32 bits:
-
-            assert( sizeof( int_least32_t ) >= 4 );
-
-        //fastest operations with at least 32 bits:
-
-            assert( sizeof( int_least32_t ) >= 4 );
-
-        /*
-        #intptr_t
-
-            An integer type large enough to hold a pointer.
-
-            Could be larger than the minimum however.
-
-        #uintptr_t
-
-            Unsigned version.
-
-        TODO0 example of real life application?
-        */
-        {
-            assert( sizeof( void* ) == sizeof( intptr_t ) );
-            assert( sizeof( void* ) == sizeof( uintptr_t ) );
-        }
-
-        //uniquelly defined by machine address space
-
-        /*
-        #intmax_t #uintmax_t
-
-            int with max possible width
-
-            [there is no floating point version](http://stackoverflow.com/questions/17189423/how-to-get-the-largest-precision-floating-point-data-type-of-implemenation-and-i/17189562?noredirect=1#comment24893431_17189562)
-            for those macros
-        */
-        {
-            assert( sizeof( intmax_t ) >= sizeof( long long ) );
-            assert( sizeof( uintmax_t ) >= sizeof( unsigned long long ) );
-        }
-
-        //inttypes also includes limits for each of the defined types:
-        {
-            {
-                int32_t i = 0;
-                assert( INT32_MIN < i );
-                assert( INT32_MAX > i );
-            }
-
-            {
-                int_fast32_t i = 0;
-                assert( INT_FAST32_MIN < i );
-                assert( INT_FAST32_MAX > i );
-            }
-        }
-        //all have max/min ranges
-        //"_t" removed, "_max" or "_min" appended, all uppercased
-    }
-
-#endif
-
-    /*
-    #limits.h
-
-        Gives the maximum and minimum values that fit into base integer types
-        in the current architecure
-    */
-    {
-
-        printf( "INT_MAX = %d\n", INT_MAX );
-        printf( "INT_MIN = %d\n", INT_MIN );
-        printf( "LONG_MAX = %ld\n", LONG_MAX );
-        printf( "LLONG_MIN = %lld\n", LLONG_MIN );
-
-        /*
-        unsigned versions start with `U`
-
-        there is no min value for unsigned versions since it is necessarily 0
-        */
-
-        printf( "UINT_MAX = %u\n", UINT_MAX );
-    }
-
-    /*
-    #float.h
-
-        gives characteristics of floating point numbers and of base numerical operations
-        for the current architecture
-    */
-    {
-
-        /*
-        #FLT_ROUNDS
-
-            rounding method of sums
-
-            values:
-
-            - -1: indeterminable
-            - 0:  toward zero
-            - 1:  to nearest
-            - 2:  toward positive infinity
-            - 3:  toward negative infinity
-        */
-
-        printf( "FLT_ROUNDS = %d\n", FLT_ROUNDS );
-
-        /*
-        #FLT_EVAL_METHOD
-
-            precision to which floating point operations are evaluated
-
-            it seems that floating operations on, say, floats can be evaluated
-            as long doubles always.
-
-            TODO0 understand better
-        */
-        {
-            printf( "FLT_EVAL_METHOD = %d\n", FLT_EVAL_METHOD );
-        }
-
-        /*
-        #subnormal numbers
-
-            one can check if those are supported in the implementation
-
-            c11 feature TODO check. at least only in -std=c1x
-
-            values:
-
-            - -1: undeterminable
-            - 0: no
-            - 1: yes
-        */
-
-            //printf( "FLT_HAS_SUBNORM = %d\n", FLT_HAS_SUBNORM );
-            //printf( "DBL_HAS_SUBNORM = %d\n", DBL_HAS_SUBNORM );
-            //printf( "LDBL_HAS_SUBNORM = %d\n", LDBL_HAS_SUBNORM );
-
-        /*
-        #representation size
-
-            several other macros expand to the lengths of the representation
-
-            useful terms:
-
-                1.01_b * b ^ (10)_b
-
-            - radix:
-
-            TODO lazy
-        */
-
-            //wow, there are non radix 2 representation implementations?!
-
-            printf( "FLT_RADIX = %d\n", FLT_RADIX );
-    }
-
-    /*
-    #fenv.h
-
-        contains flags that indicate the status of floating point related registers
-
-        TODO get some interesting and basic samples working
-    */
-
-    /*
-    #unsigned
-
-        c has unsigned versions
-
-        these basically have more or less double the maximum size
-        of the signed version, and are always positive.
-
-        you should always use unsigned sizes for quantities which must be positive such as:
-
-        - array indexes
-        - memory sizes (size_t)
-
-        as this will give clues to the compiler
-        and humans about the positive quality of your number
-    */
-    {
-
-        assert( (char)-1 == (char)255 );
-        assert( (unsigned char)-1 == (unsigned char)255 );
-            //true in 2's complement
-
-        assert( (char)0 > (char)255 );
-            //true in 2's complement
-        assert( (unsigned char)0 < (unsigned char)255 );
-            //what we really want
     }
 
     /*
@@ -2372,7 +2198,7 @@ int main( int argc, char** argv )
             <http://stackoverflow.com/questions/1972003/how-to-use-anonymous-structs-unions-in-c>
         */
         {
-            //TODO
+            //TODO0
         }
 
         /*
@@ -2472,27 +2298,40 @@ int main( int argc, char** argv )
     /*
     #order of evaulation
 
-        It is undetermined behaviour in `f1() * f2()` if `f1` or `f2` happens first.
+        It is undetermined behaviour in `f1() * f2()` if `f1` or `f2` is evaluated first.
     */
     {
         /*
         In this ismple case, gcc is smart enough to notice this and emmit a warning.
 
-        The expression could yield both:
+        TODO0 confirm undefined behaviour, that is, is not ++i evaluated *before* the expression?
 
-            1 - 2 = -1
-
-        or:
-
-            2 - 1 = 1
-
-        TODO0 how why did this give me `0` on gcc? 2 - 2?
+        i++;
+        i++;
+        2 - 2 == 0;
         */
         {
             int i = 0;
             //printf( "++i - ++i = %d\n", ++i - ++i );
         }
 
+        /*
+        Undefined behaviour.
+
+        Ouptput depends on evaulation order, giving either:
+
+            1 - 2 = -1
+
+        if the first `inc_global()` is evaluated first or
+
+            2 - 1 = 1
+
+        if the second `inc_global()` is evaluated first.
+        */
+        {
+            global = 0;
+            printf( "inc_global() - inc_global() = %d\n", inc_global() - inc_global() );
+        }
     }
 
     //#operators
@@ -2506,28 +2345,6 @@ int main( int argc, char** argv )
             assert( ( 1.0 / 2.0 )    == 0.5 );
             assert( ( 1 / 2.0 )      == 0.5 );
             assert( ( 1 / (double)2) == 0.5 );
-
-            //#division by 0
-
-                //time to have some fun and make the program crash by uncommenting code!
-
-                //WARN: division by 0:
-
-                    //{int i = 1 / 0;}
-
-                //RUNTIME ERROR: floating point exception
-
-                    //{
-                    //    int z = 0;
-                    //    z = z / z;
-                    //}
-
-                    //{
-                    //    int z = 0;
-                    //    z = 1 / z;
-                    //}
-
-                //TODO is it possible to avoid fp exception nicely?
 
             assert( ( 3 % 3 ) == 0 );
             assert( ( 4 % 3 ) == 1 );
@@ -4708,7 +4525,7 @@ int main( int argc, char** argv )
 
         Also define a few possible values which libc may set `errno` to:
 
-        - EDOM
+        - EDOM. Domain error. Generated for example on `sqrt(-1.0)` of `math.h`.
         - EILSEQ
         - ERANGE
 
@@ -4719,8 +4536,8 @@ int main( int argc, char** argv )
         To print an error message to stderr, consider using `perror`.
     */
     {
-        errno = 0; //no error
-        errno = EDOM; //EDOM error
+        errno = 0;      //no error
+        errno = EDOM;   //EDOM error
     }
 
     /*
@@ -4987,7 +4804,7 @@ int main( int argc, char** argv )
 
                     //long double:
 
-                        printf( "f = %f\n", 1.0 );
+                        printf( "f = %Lf\n", (long double)1.0 );
 
                     //#control number of zeros after dot
                     {
@@ -5068,12 +4885,29 @@ int main( int argc, char** argv )
                     }
                 }
 
-                //hexadecimal output (unsigned):
+                //hexadecimal integer output (unsigned):
                 {
                     printf( "16  in hex = %x\n", 16 );
+
+                    //case control
+
+                        printf( "0xA in hex = %x\n", 0xA );
+                        printf( "0xA in hex upper case = %X\n", 0xA );
+
                     printf( "-1  in hex = %x\n", -1 );
                     printf( "16l in hex = %lx\n", 0x16l );
                 }
+
+#if __STDC_VERSION__ >= 199901L
+
+                //hexadecimal scientific float output. C99
+                {
+                    printf( "0x1.Ap11           = %a\n", 0x1.Ap11 );
+                    printf( "0x1.Ap11 uppercase = %A\n", 0x1.Ap11 );
+                    printf( "0x10.Ap11          = %a\n", 0x10.Ap11 );
+                }
+
+#endif
 
                 /*
                 pointers
@@ -5801,9 +5635,103 @@ int main( int argc, char** argv )
     #math.h
 
         Mathematical functions
+
+    #IEEE-754
+
+        See IEC 60599.
+
+    #IEC 60599
+
+        Standard on which floating point formats and operations should be available
+        on an implementation, and how they should work.
+
+        C implements IEC 60599 to large extent, specially after C99.
+
+        Many CUPs implement large parts of IEC 60599, which C implementations can use if available.
+
+        Good overview wiki article: <http://en.wikipedia.org/wiki/IEEE_floating_point>
+
+        if an implementation defines this, then it conforms to the  IEC 60559.
+
+        IEC 60559 has the same contents as the IEEE 754-2008,
+        Outside of the C standard it is commonly known by the IEEE name, or simply as IEEE floating point.
+
+        The previous IEEE version was from 1985.
+
+        Conforming to it is not obligatory if the macro "__STDC_IEC_559__" is not defined.
+
+        C99 introduced many features which allow greater conformance to IEC 60599.
+
+    #redundant mathematical functions
+
+        Many functions are redundant, but are furnished because of possible speedups and better precision.
+
+        For exapmle, `sqrt` and `pow` are redundant since in theoryin theory `sqrt(x) == pow(x,0.5)`.
+
+        However, many hardware platforms such as x86 implement a `sqrt` as a single instruction,
+        if you use `sqrt` it will be simpler for the compiler to use the x86 sqrt instruction
+        if it is available.
+
+        Using the hardware instruction may be faster.
+
+        It will also possibly be more precise since it is likelly that sqrt
+        would need several floating point operations to implement, each one meaning a loss of precision,
+        while the hardware can do them a single operation.
+
+        I guess however that good compilers will optimize `pow( x, 0.5 )` to `sqrt( x )`.
+
+        Anyways, it is better to play on the safe side, and always use the most specific operation possible.
+
+    #errors
+
+        The following errors exist:
+
+        #domain error
+
+            Value outside of function domain. Ex: `sqrt(-1.0)`.
+
+            Return value: implementation defined.
+            In other words, undefined behaviour to ANSI C, so never rely on it.
+
+            Detection: if `math_errhandling & MATH_ERRNO != 0`, `errno = ERANGE`
+            and a "divide-by-zero" floating point exception is raised.
+
+        #pole error
+
+            Function has a pole at a point. Ex: `log(0.0)`, `tgamma(-1.0)`.
+
+            Return value: HUGE_VAL.
+
+            Detection if `math_errhandling & MATH_ERRNO != 0`, `errno = ERANGE`
+                and a "divide-by-zero" floating point exception is raised.
+
+        #range errors
+
+            Occur if the result is too large or too small to fint into the return type.
+
+            There are two types of range errors overflow and underflow.
+
+            In both cases, if `math_errhandling & MATH_ERRNO != 0`,
+            `errno = ERANGE` and a "divide-by-zero" floating point exception is raised.
+
+            #overflow
+
+                For exapmle, around poles, functions can have arbitrarily large values,
+                so it is possible that for a given input close enough to the pole that the output is too large to reprent.
+
+                Return value: HUGE_VAL, HUGE_VALF, or HUGE_VALL, acording to function's return type.
+
+            #underflow
+
+                The output is too small to represent
+
+                Return value: an implementation-defined value whose magnitude is no greater than the smallest
+                normalized positive number in the specified type;
     */
     {
         const double err = 10e-6;
+
+        printf( "math_errhandling & MATH_ERRNO = %d\n", math_errhandling & MATH_ERRNO );
 
         //#abs
         {
@@ -5816,51 +5744,259 @@ int main( int argc, char** argv )
                 assert( fabsl(-1.1) == 1.1 );
         }
 
-        //max and min for floats (C99):
+        /*
+        Max and min for floats (C99):
 
+        Don't forget to use the float versions which starts with f when you want floating operations!
+        */
+        {
             assert( fminl( 0.1, 0.2 ) == 0.1 );
             assert( fmaxl( 0.1, 0.2 ) == 0.2 );
-
-        //don't forget to use the float versions which starts with f!
-
-        //#rounding
-        {
-            assert( fabs( floor(0.5)        - 0.0  )    < err );
-            assert( fabs( ceil(0.5)         - 1.0  )    < err );
-
-            //many more: round, rint, lrint, each with a subtle differences between them
         }
 
-        //#exp
-        {
-            //exp
-            assert( fabs( exp(1.0)          - 2.71 )    < 0.01 );
+        /*
+        #rounding
 
-            //#log #ln
-            assert( fabs( log( exp(1.0) )   - 1.0 )     < err );
+            //many more: rint, lrint
+        */
+        {
+            assert( fabs( floor(0.5) - 0.0  ) < err );
+            assert( fabs( ceil(0.5)  - 1.0  ) < err );
+
+            /*
+            #trunc
+
+                Never raises any errors because the new result always fits in the data type (magnitide decresases).
+            */
+            {
+                assert( fabs( trunc(  1.5 ) -  1.0  ) < err );
+                assert( fabs( trunc( -1.5 ) - -1.0  ) < err );
+            }
+
+            /*
+            #round
+
+                Away from 0 on mid case.
+            */
+            {
+                assert( fabs( round(  1.25 ) -  1.0 ) < err );
+                assert( fabs( round(  1.5  ) -  2.0 ) < err );
+                assert( fabs( round(  1.75 ) -  2.0 ) < err );
+                assert( fabs( round( -1.5  ) - -2.0 ) < err );
+            }
+
+            /*
+            #modf
+
+                Decompose into fraction and integer parts.
+            */
+            {
+                double d;
+                assert( fabs( modf( 3.25, &d ) - 0.25 ) < err );
+                assert( fabs( d                - 3.00 ) < err );
+            }
+        }
+
+        /*
+        #fma
+
+            Fused multiple add or floating point multiply and add.
+
+            Does addition and multiplication on one operation,
+            with a single rounding, reduncing rounding errors.
+
+            Has hardware implementations on certain platforms.
+        */
+        {
+            assert( fabs( fma( 2.0, 3.0, 4.0 ) - ( 2.0 * 3.0 + 4.0 ) ) < err );
+        }
+
+        //#exponential functions
+        {
+            //#exp
+            {
+                assert( fabs( exp( 1.0 ) - 2.71 ) < 0.01 );
+            }
+
+            /*
+            #ln
+
+                See log.
+
+            #log
+
+                Calculates the ln.
+            */
+            {
+                assert( fabs( log( exp(1.0) ) - 1.0 ) < err );
+            }
+
+            /*
+            #sqrt
+
+                Range is positive or zero. Negatives are a range error.
+
+                To get complex on negative values, use `csqrt`.
+            */
+            {
+                assert( fabs( sqrt( 4.0 ) - 2.0 ) < err );
+
+                //GCC 4.7 -O3 is smart enough to see that this is bad:
+                {
+                    float f = -4.0;
+                    //printf( "sqrt(-4.0) = %f\n", sqrt( f ) );
+                }
+
+                {
+                    float f;
+                    volatile float g;
+
+                    if ( true ) f = -4.0;
+                    errno = 0;
+                    g = sqrt( f );
+                    if ( math_errhandling & MATH_ERRNO )
+                        assert( errno == EDOM );
+                    printf( "sqrt(-4.0) = %f\n", f );
+                }
+            }
+
+#if __STDC_VERSION__ >= 199901L
+
+            /*
+            #hypot
+
+                Hypotenuse: sqrt( x^2 + y^2 )
+            */
+            {
+                assert( fabs( hypot( 3.0, 4.0 ) - 5.0 ) < err );
+            }
+#endif
+
+#if __STDC_VERSION__ >= 199901L
+            /*
+            #cbrt
+
+                CuBe RooT
+            */
+            {
+                assert( fabs( cbrt( 8.0  ) -  2.0 ) < err );
+                assert( fabs( cbrt( -8.0 ) - -2.0 ) < err );
+            }
+#endif
 
             //#pow
-            assert( fabs( pow(2.0, 3.0)     - 8.0  )    < err );
+            {
+                assert( fabs( pow( 2.0, 3.0 ) - 8.0  )    < err );
+            }
         }
 
         //#trig
         {
-                assert( fabs( cos(0.0)          - 1.0 )     < err );
+            assert( fabs( cos( 0.0 ) - 1.0 ) < err );
 
-            //this is a standard way to get PI.
-            //The only problem is the slight calculation overhead.
+            /*
+            #PI
+
+                There is no predefined macro for PI. TODO0 why not? so convenient...
+
+                This is a standard way to get PI.
+
+                The only problem is the slight calculation overhead.
+            */
             {
-                assert( fabs( acos(-1.0)        - 3.14 )    < 0.01 );
+                assert( fabs( acos(-1.0) - 3.14 )    < 0.01 );
             }
         }
 
         //#erf: TODO0 understand
 
-        //#gamma: tgamma, lgamma: TODO0 understand
+        /*
+        #factorial
 
-        //#random
+            There seems to be no integer factorial function,
+            but `gamma(n+1)` coincides with the factorials of `n` on the positive integers,
+            and may be faster to compute via analytic approximations that can be done to gamma
+            and/or via a hardware implementation, so just use gamma.
+
+        #gamma
+
+            Wiki link: <http://en.wikipedia.org/wiki/Gamma_function>
+
+            Extension of the factorials to the real numbers because:
+
+            - on the positive integergs:
+
+                gamma(n+1) == n!
+
+            - on the positive reals:
+
+                gamma(x+1) == x * gamma(x)
+
+            Has a holomorphic continuation to all imaginary plane, with poles on 0 and negative integers.
+
+            Implemented in C as `tgamma`.
+
+        #tgamma
+
+            True Gamma function. TODO0 Why True?
+
+            Computes the gamma function.
+
+            ANSI C says that it gives either domain or pole error on the negative integers.
+
+        #lgamma
+
+            lgamma = ln tgamma
+        */
         {
-            //seed the random number generator with the current time
+            assert( fabs( tgamma( 5.0 ) - 4*3*2  ) < err );
+            assert( fabs( tgamma( 3.5 ) - 2.5 * tgamma( 2.5 )  ) < err );
+
+            errno = 0;
+            volatile double d = tgamma( -1.0 );
+            if ( math_errhandling & MATH_ERRNO )
+            {
+                if ( errno == ERANGE )
+                    assert( d == HUGE_VAL );
+                else
+                    assert( errno == EDOM );
+            }
+
+            assert( fabs( lgamma( 3.5 ) - log( tgamma( 3.5 ) ) ) < err );
+        }
+
+        //floating point manipulation functions
+        {
+            /* #ldexp( x, y ) = x * 2 ^ y */
+            {
+                assert( fabs( ldexp( 1.5, 2.0) - 6.0  ) < err );
+            }
+
+            /*
+            #nextafter
+
+                Return the next representable value in a direction.
+
+                If both arguments equal, return them.
+
+            #nexttowards
+
+                TODO0 diff from nextafter
+            */
+            {
+                printf( "nexttowards( 0.0, 1.0 ) = %a\n", nexttoward( 0.0, 1.0 ) );
+                assert( nexttoward( 0.0, 0.0 ) == 0.0 );
+                printf( "nextafter  ( 0.0, 1.0 ) = %a\n", nextafter( 0.0, 1.0 ) );
+            }
+        }
+
+        /*
+        #random
+
+        #srand
+        */
+        {
+            //seed the random number generator with the current time in seconds
             srand ( time( NULL ) );
 
             //integer between 0 and RAND_MAX:
@@ -5869,7 +6005,386 @@ int main( int argc, char** argv )
             //float between 0 and 1:
             float f = rand()/(float)RAND_MAX;
         }
+
+        /*
+        #division by 0
+
+            Time to have some fun and do naughty things.
+
+            The outcome of a division by zero depends on wether it is an integer of floating operation.
+
+        #isfinite
+        #isinf
+        #isnan
+        #isnormal
+        #fpclassify
+
+            FP_INFINITE, FP_NAN, FP_NORMAL, FP_SUBNORMAL, FP_ZERO
+        */
+        {
+
+#ifdef __STDC_IEC_559__
+            puts( "__STDC_IEC_559__" );
+#endif
+
+            //gcc 4.7 is smart enough to warn on literal division by 0:
+            {
+                //int i = 1 / 0;
+            }
+
+            //gcc 4.7 is not smart enough to warn here:
+            {
+                volatile int i = 0;
+                assert( 0 / i == 0 );
+            }
+
+            /*
+            #floating point exception
+
+                In x86, the following generates a floating point exception,
+                which is handled by a floating point exception handler function.
+
+                In Linux the default handler is implemented by the OS and sends a signal to our application,
+                which if we don't catch will kill us.
+            */
+            if ( 0 )
+            {
+                volatile int i = 0;
+                printf( "int 1/0 = %d\n", 1 / i );
+            }
+
+            /*
+            #HUGE_VAL
+
+                Returned on overflow.
+
+                Can equal `INFINITY`.
+            */
+            {
+                printf( "HUGE_VAL = %f\n", HUGE_VAL );      //double
+                printf( "HUGE_VALF = %f\n", HUGE_VALF );    //float
+                printf( "HUGE_VALL = %Lf\n", HUGE_VALL );   //long double
+            }
+
+            /*
+            #INFINITY
+
+                Result of operations such as:
+
+                    1.0 / 0.0
+
+                Type: float.
+
+                There are two infinities: positive and negative.
+
+                It is possible that `INFINITY == HUGE_VALF`.
+            */
+            {
+                printf( "INFINITY = %f\n", INFINITY );
+                printf( "-INFINITY = %f\n", -INFINITY );
+
+                volatile float f = 0;
+                assert( 1 / f == INFINITY );
+                assert( isinf( INFINITY ) );
+                assert( ! isnan( INFINITY ) );
+
+                assert( INFINITY + INFINITY == INFINITY );
+                assert( INFINITY + 1.0      == INFINITY );
+                assert( INFINITY - 1.0      == INFINITY );
+                assert( isnan( INFINITY - INFINITY ) );
+
+                assert( INFINITY * INFINITY     == INFINITY );
+                assert( INFINITY * -INFINITY    == -INFINITY );
+                assert( INFINITY * 2.0          == INFINITY );
+                assert( INFINITY * -1.0         == -INFINITY );
+                assert( isnan( INFINITY * 0.0 ) );
+
+                assert( 1.0 / INFINITY == 0.0 );
+                assert( isnan( INFINITY / INFINITY ) );
+
+                //compairisons with INFINITY all work as expected
+                assert( INFINITY == INFINITY );
+                assert( INFINITY != - INFINITY );
+                assert( -INFINITY < - 1e100 );
+                assert( 1e100 < INFINITY );
+            }
+
+            /*
+            #NAN
+
+                Not a number.
+
+                Result of operations such as:
+
+                    0.0 / 0.0
+                    INFINITY - INFINITY
+                    INFINITY * 0.o
+                    INFINITY / INFINITY
+
+                And any operation involving NAN.
+
+                The sign of NAN has no meaning.
+            */
+            {
+                printf( "NAN = %f\n", NAN );
+                printf( "-NAN = %f\n", -NAN );
+
+                //TODO0 why do both fail
+                    //assert( 0 / f == -NAN );
+                    //assert( 0 / f == NAN );
+
+                volatile float f = 0;
+                assert( isnan( 0 / f ) );
+                assert( isnan( NAN ) );
+                assert( ! isinf( NAN ) );
+
+                assert( isnan( NAN ) );
+                assert( isnan( NAN + 1.0 ) );
+                assert( isnan( NAN + INFINITY ) );
+                assert( isnan( NAN + NAN ) );
+                assert( isnan( NAN - 1.0 ) );
+                assert( isnan( NAN * 2.0 ) );
+                assert( isnan( NAN / 1.0 ) );
+                assert( isnan( INFINITY - INFINITY ) );
+                assert( isnan( INFINITY * 0.0 ) );
+                assert( isnan( INFINITY / INFINITY ) );
+
+                /*
+                NAN is not ordered. any compairison to it yields false!
+
+                This is logical since 0 is neither smaller, larger or equal to NAN.
+                */
+                {
+                    assert( ! ( 0.0 < NAN ) );
+                    assert( ! ( 0.0 > NAN ) );
+                    assert( ! ( 0.0 == NAN ) );
+                }
+            }
+        }
     }
+
+#if __STDC_VERSION__ >= 199901L
+
+    /*
+    #stdint.h
+
+        contains several types of ints, including fixed size
+        and optimal for speed types
+
+        c99
+
+        all macros with numbers are defined for N = 8, 16, 32, 64
+    */
+    {
+
+        //exactly 32 bits:
+
+            assert( sizeof( int32_t) == 4 );
+
+        //all have unsigned verions prefixed by 'u'
+
+            assert( sizeof( uint32_t) == 4 );
+
+        //at least 32 bits:
+
+            assert( sizeof( int_least32_t ) >= 4 );
+
+        //fastest operations with at least 32 bits:
+
+            assert( sizeof( int_least32_t ) >= 4 );
+
+        /*
+        #intptr_t
+
+            An integer type large enough to hold a pointer.
+
+            Could be larger than the minimum however.
+
+        #uintptr_t
+
+            Unsigned version.
+
+        TODO0 example of real life application?
+        */
+        {
+            assert( sizeof( void* ) == sizeof( intptr_t ) );
+            assert( sizeof( void* ) == sizeof( uintptr_t ) );
+        }
+
+        //uniquelly defined by machine address space
+
+        /*
+        #intmax_t #uintmax_t
+
+            int with max possible width
+
+            [there is no floating point version](http://stackoverflow.com/questions/17189423/how-to-get-the-largest-precision-floating-point-data-type-of-implemenation-and-i/17189562?noredirect=1#comment24893431_17189562)
+            for those macros
+        */
+        {
+            assert( sizeof( intmax_t ) >= sizeof( long long ) );
+            assert( sizeof( uintmax_t ) >= sizeof( unsigned long long ) );
+        }
+
+        //inttypes also includes limits for each of the defined types:
+        {
+            {
+                int32_t i = 0;
+                assert( INT32_MIN < i );
+                assert( INT32_MAX > i );
+            }
+
+            {
+                int_fast32_t i = 0;
+                assert( INT_FAST32_MIN < i );
+                assert( INT_FAST32_MAX > i );
+            }
+        }
+        //all have max/min ranges
+        //"_t" removed, "_max" or "_min" appended, all uppercased
+    }
+
+#endif
+
+    /*
+    #limits.h
+
+        Gives the maximum and minimum values that fit into base integer types
+        in the current architecure
+    */
+    {
+
+        printf( "INT_MAX = %d\n", INT_MAX );
+        printf( "INT_MIN = %d\n", INT_MIN );
+        printf( "LONG_MAX = %ld\n", LONG_MAX );
+        printf( "LLONG_MIN = %lld\n", LLONG_MIN );
+
+        /*
+        unsigned versions start with `U`
+
+        there is no min value for unsigned versions since it is necessarily 0
+        */
+
+        printf( "UINT_MAX = %u\n", UINT_MAX );
+    }
+
+    /*
+    #float.h
+
+        gives characteristics of floating point numbers and of base numerical operations
+        for the current architecture
+    */
+    {
+
+        /*
+        #FLT_ROUNDS
+
+            rounding method of sums
+
+            values:
+
+            - -1: indeterminable
+            - 0:  toward zero
+            - 1:  to nearest
+            - 2:  toward positive infinity
+            - 3:  toward negative infinity
+        */
+        {
+            printf( "FLT_ROUNDS = %d\n", FLT_ROUNDS );
+        }
+
+        /*
+        #FLT_EVAL_METHOD
+
+            Precision to which floating point operations are evaluated
+
+            it seems that floating operations on, say, floats can be evaluated
+            as long doubles always.
+
+            TODO0 understand better
+        */
+        {
+            printf( "FLT_EVAL_METHOD = %d\n", FLT_EVAL_METHOD );
+        }
+
+#if __STDC_VERSION__ >= 201112L
+
+        /*
+        #subnormal numbers
+
+            One can check if those are supported in the implementation.
+
+            c11 feature TODO check. at least only in -std=c1x
+
+            Values:
+
+            - -1: undeterminable
+            - 0: no
+            - 1: yes
+        */
+        {
+            printf( "FLT_HAS_SUBNORM = %d\n",     FLT_HAS_SUBNORM );
+            printf( "DBL_HAS_SUBNORM = %d\n",     DBL_HAS_SUBNORM );
+            printf( "LDBL_HAS_SUBNORM = %d\n",    LDBL_HAS_SUBNORM );
+        }
+
+#endif
+
+        /*
+        #representation size
+
+            several other macros expand to the lengths of the representation
+
+            useful terms:
+
+                1.01_b * b ^ (10)_b
+
+            - radix:
+
+            TODO0 lazy
+        */
+            //wow, there are non radix 2 representation implementations?!
+
+            printf( "FLT_RADIX = %d\n", FLT_RADIX );
+    }
+
+    /*
+    #fenv.h
+
+        contains flags that indicate the status of floating point related registers
+
+        TODO get some interesting and basic samples working
+    */
+
+    /*
+    #unsigned
+
+        c has unsigned versions
+
+        these basically have more or less double the maximum size
+        of the signed version, and are always positive.
+
+        you should always use unsigned sizes for quantities which must be positive such as:
+
+        - array indexes
+        - memory sizes (size_t)
+
+        as this will give clues to the compiler
+        and humans about the positive quality of your number
+    */
+    {
+
+        assert( (char)-1 == (char)255 );
+        assert( (unsigned char)-1 == (unsigned char)255 );
+            //true in 2's complement
+
+        assert( (char)0 > (char)255 );
+            //true in 2's complement
+        assert( (unsigned char)0 < (unsigned char)255 );
+            //what we really want
+    }
+
+#if __STDC_VERSION__ >= 199901L
 
     /*
     #complex.h
@@ -5915,6 +6430,15 @@ int main( int argc, char** argv )
         //absolute value == norm == module
         assert( abs( cabs( 3.0 + 4.0 * I ) - 5.0 ) < err );
 
+        /*
+        #csqrt
+
+            Unlike sqrt, can return imaginary outputs and take imaginary inputs.
+        */
+        {
+            assert( cabs( csqrt( -1.0 ) - I ) < err );
+        }
+
         //cproj
         //TODO0 understand
 
@@ -5927,12 +6451,14 @@ int main( int argc, char** argv )
 
             complex integer types are not specified.
 
-            GCC adds them as an extension
+            GCC adds them as an extension.
         */
         {
             //int complex zi = 1 + 1*I;
         }
     }
+
+#endif
 
     /*
     #iso646.h
@@ -6023,33 +6549,34 @@ int main( int argc, char** argv )
         Check cheats on each OS to understand the results.
     */
     {
-            int stack1;
-            int stack2;
-            void *heap;
-            char *text = "abc";
+        int stack1;
+        int stack2;
+        void *heap;
+        char *text = "abc";
 
-            printf( "PRIxPTR usage = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)(void*)1 );
+        printf( "PRIxPTR usage = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)(void*)1 );
 
 #if __STDC_VERSION__ >= 199901L
 
-            printf( "processs address space\n" );
-            printf( "  &env    = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)getenv( "HOME" ) );
-            printf( "  &argv   = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)argv );
-            printf( "  &argc   = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&argc );
-            printf( "  &stack1 = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&stack1 );
-            printf( "  &stack2 = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&stack2 );
-            heap = malloc( 1 );
-            printf( "  &heap   = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)heap );
-            free( heap );
-            printf( "  &BSS    = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&BSS );
-            printf( "  &DATA   = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&DATA );
+        printf( "processs address space\n" );
+        printf( "  &env    = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)getenv( "HOME" ) );
+        printf( "  &argv   = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)argv );
+        printf( "  &argc   = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&argc );
+        printf( "  &stack1 = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&stack1 );
+        printf( "  &stack2 = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&stack2 );
+        heap = malloc( 1 );
+        printf( "  &heap   = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)heap );
+        free( heap );
+        printf( "  &BSS    = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&BSS );
+        printf( "  &DATA   = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&DATA );
 
-            //TODO0 why on linux this is not on the text setment,
-            //even if modification gives segfault?
-                printf( "  &text   = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&text );
-                //fflush( stdout );
-                //text[0] = '0';
+        //TODO0 why on linux this is not on the text setment,
+        //even if modification gives segfault?
+            printf( "  &text   = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&text );
+            //fflush( stdout );
+            //text[0] = '0';
 #endif
+
     }
 
     //main returns status:
