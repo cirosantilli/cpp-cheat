@@ -7,8 +7,8 @@
 #c/cpp
 CC			?= gcc
 CXX			?= g++
-CFLAGS		?= -std=c99   -Wall -pedantic-errors -march=native $(CFLAGS_EXTRA)
-CXXFLAGS	?= -std=c++0x -Wall -pedantic-errors -march=native $(CXXFLAGS_EXTRA)
+CFLAGS		?= -std=c11   -Wall -pedantic-errors -march=native $(CFLAGS_EXTRA)
+CXXFLAGS	?= -std=c++11 -Wall -pedantic-errors -march=native $(CXXFLAGS_EXTRA)
 LIBS		?= -lm #-lGL -lGLU -lglut
 DEFINES 	?= #-D_XOPEN_SOURCE 700
 
@@ -45,27 +45,28 @@ OUTS_NODIR	:= $(basename $(INS_NODIR))
 OUTS_NODIR	:= $(addsuffix $(OUT_EXT), $(OUTS_NODIR))
 OUTS		:= $(addprefix $(OUT_DIR), $(OUTS_NODIR))
 
-.PHONY: all clean debug set_debug_flags help mkdir profile set_profile_flags $(PHONY)
+.PHONY: all asm set_asm_flags clean debug set_debug_flags help mkdir objdump set_objdump_flags profile set_profile_flags $(PHONY)
 
 all: mkdir $(OUTS)
 
 $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.c
-	$(CC) $(CFLAGS) $(OPTIMIZE_FLAGS) -o "$@" "$<" $(LIBS)
+	$(CC) $(CFLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) -o "$@" "$<" $(LIBS)
 
 $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.cpp
-	$(CXX) $(CXXFLAGS) $(OPTIMIZE_FLAGS) -o "$@" "$<" $(LIBS)
+	$(CXX) $(CXXFLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) -o "$@" "$<" $(LIBS)
 
 $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.f
-	$(FF) $(OPTIMIZE_FLAGS) $(FFLAGS) -o "$@" "$<" $(FFLIBS)
+	$(FF) $(FFLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) -o "$@" "$<" $(FFLIBS)
 
-#make assembly to stdout
-asm: mkdir $(IN_DIR)$(ASSEMBLER_BASENAME)
-	$(eval OPTIMIZE_FLAGS := -O0)
+#make assembly intermingled with original c code to stdout
+#TODO0: how not to rewrite the make rules?
+#for bare asm: $(CC) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) $(CFLAGS) -fverbose-asm -S "$(ASSEMBLER_NOEXT)$$EXT"
+asm: mkdir set_asm_flags
 	for EXT in $(IN_EXTS); do \
 		if [ -f "$(ASSEMBLER_NOEXT)$$EXT" ]; then \
 			case "$$EXT" in \
 				.c)\
-					$(CC) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) $(CFLAGS) -S "$(ASSEMBLER_NOEXT)$$EXT" -o - \
+					$(CC) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) $(CFLAGS) -c -fverbose-asm -Wa,-adhln "$(ASSEMBLER_NOEXT)$$EXT" \
 					;;\
 				.cpp)\
 					;;\
@@ -75,6 +76,10 @@ asm: mkdir $(IN_DIR)$(ASSEMBLER_BASENAME)
 			break;\
 		fi;\
 	done
+
+set_asm_flags:
+	$(eval OPTIMIZE_FLAGS := -O3)
+	$(eval DEBUG_FLAGS := -ggdb3)
 
 clean:
 	rm -rf "$(OUT_DIR)"
@@ -89,6 +94,14 @@ set_debug_flags:
 
 mkdir:
 	mkdir -p "$(OUT_DIR)"
+
+#
+objdump: mkdir set_objdump_flags all
+	cd $(OUT_DIR) && objdump -S $(RUN_BNAME)
+
+set_objdump_flags:
+	$(eval OPTIMIZE_FLAGS := -O0)
+	$(eval DEBUG_FLAGS := -ggdb3)
 
 profile: clean set_profile_flags all run
 	cd $(OUT_DIR) && gprof -b $(RUN_BNAME) gmon.out | tee "$(RUN_BNAME).profile_out" | less

@@ -210,7 +210,7 @@ only when users want to test those features.
 #include <locale.h>
 #include <setjmp.h>    //setjmp, longjmp
 #include <signal.h>
-#include <stdarg.h>    //... variable num of args
+#include <stdarg.h>    //..., va_list, va_start, va_arg, va_end
 #include <stdbool.h>   //true, false. c99
 #include <stddef.h>    //offsetof
 #include <stdint.h>    //uint32_t, etc.
@@ -341,6 +341,20 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
 //#functions
 
     /*
+    declaration vs definition
+
+    Declaration can happen many times.
+
+    Definition no.
+    */
+
+        void decl_def();
+        void decl_def();
+
+        void decl_def(){;}
+        //void decl_def(){;}
+
+    /*
     ERROR no func overload in c:
 
         void overload(int n){}
@@ -430,21 +444,47 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
     #variadic functions
 
         these are functions with a variable number or arguments, just like `printf`.
+
+    #va_start
+
+            va_start( varname, last_argname )
+
+        Initialize va_list variable varname. Indicates that varargs come after numargs.
     */
 
         int variadic_add( int numargs, ... )
         {
-            va_list listPointer;
-            va_start( listPointer, numargs );
+            va_list args;
+            va_start( args, numargs );
             int sum = 0;
             for( int i = 0 ; i < numargs; i++ )
             {
-                int arg = va_arg( listPointer, int );
+                int arg = va_arg( args, int );
                 sum += arg;
             }
-            va_end( listPointer );
-                //you MUST do this
+
+            //you MUST do this
+            va_end( args );
+
             return sum;
+        }
+
+        /*
+        This function illustrates how to va args from one function to another.
+
+        #vprintf
+
+            This is the raison d'etre for the `vprintf` family, which takes a va_list argument.
+        */
+        int sprintf_wrapper( char *s, const char *fmt, ...)
+        {
+            int ret;
+            va_list args;
+
+            va_start( args, fmt );
+            ret = vsprintf( s, fmt, args );
+            va_end( args );
+            return ret;
         }
 
 #ifdef PROFILE
@@ -893,10 +933,63 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
     int BSS;
     int DATA = 1;
 
-int inc_global()
+int post_inc_global()
 {
     global++;
-    return global;
+    return global - 1;
+}
+
+int asm_precalc( int i )
+{
+    return i + 1;
+}
+
+int asm_precalc_inline( int i )
+{
+    return i + 1;
+}
+
+/*
+#exit
+
+    Exit program at any point, including outside of the main function.
+
+    Gets return value as an argument.
+*/
+void exit_func() {
+    exit(EXIT_FAILURE);
+    exit(EXIT_SUCCESS);
+}
+
+/*
+#atexit
+
+    Function gets called when process ends via `exit` or a `return` on the `main` function.
+*/
+void atexit_func() {
+    printf( "atexit\n" );
+}
+
+/*
+#abort
+
+    man abort
+
+    Sources:
+
+    - <http://stackoverflow.com/questions/397075/what-is-the-difference-between-exit-and-abort>
+    - <http://stackoverflow.com/questions/3676221/when-abort-is-preferred-over-exit>
+
+    Differences from exit:
+
+    - does not call `atexit` function.
+    - raises `SIGABRT`
+    - does not call C++ destructors
+*/
+
+void abort_func()
+{
+    abort();
 }
 
 int main( int argc, char** argv )
@@ -1160,11 +1253,6 @@ int main( int argc, char** argv )
         float f1 = 1.23e-10f;
         float f2 = 1.f;
 
-        //no octal float literal
-        {
-            //float f = 01.2p3;
-        }
-
         //ERROR: there must be a dot
 
             //float f = 1f;
@@ -1195,6 +1283,11 @@ int main( int argc, char** argv )
             assert( 0xA.8p0  ==   10.5 );
             assert( 0x1.8p1  ==    3.0 );
             assert( 0x1.0p10 == 1024.0 );
+        }
+
+        //no octal float literal
+        {
+            //float f = 01.2p3;
         }
 
 #endif
@@ -1381,7 +1474,7 @@ int main( int argc, char** argv )
         therefore, is something overflows,
         it just silently fails overflows, possibly causing a hard to find bug
 
-        there is no check because that would cost time on every basice operation.
+        there is no check because that would cost time on every basic operation.
     */
     {
 
@@ -2190,6 +2283,8 @@ int main( int argc, char** argv )
             }
         }
 
+#if __STDC_VERSION__ >= 201112L
+
         /*
         #anonymous substructure and union
 
@@ -2200,6 +2295,8 @@ int main( int argc, char** argv )
         {
             //TODO0
         }
+
+#endif
 
         /*
         #bitfields
@@ -2298,39 +2395,171 @@ int main( int argc, char** argv )
     /*
     #order of evaulation
 
-        It is undetermined behaviour in `f1() * f2()` if `f1` or `f2` is evaluated first.
+        The order of evaluation for expressions that are arguments of functions or operators is not specified.
+
+        For example, it is undetermined behaviour in `f1() * f2()` if `f1` or `f2` is evaluated first.
+
+        The same goes for `g( f1(), f2() )`.
+
+        Also note that there is a further separation between evaluation (getting the value to pass forward),
+        and side effects which this evaulation may have (increasing `i` on an `i++`).
+        See sequence point` for that.
+
+    #sequence point
+
+        <http://stackoverflow.com/questions/10782863/what-is-the-correct-answer-for-cout-c-c>
+        <http://stackoverflow.com/questions/3575350/sequence-points-in-c>
+        <http://stackoverflow.com/questions/4176328/undefined-behavior-and-sequence-points>
+
+        Some language features force side effects of an expression evaluation to happen before continuing while others don't.
+
+        A typical example of a side effect is the increment of `i` on `i++`,
+        being the main effect the returning of the value of `i` before the increment.
+
+        Sequence points are the operations which enforce order of evaulation.
+
+        A full list is given here: <http://en.wikipedia.org/wiki/Sequence_point>
+
+        Since operators such as `*` or `+` are not on the sequence point list,
+        it is undetermined behaviour in `f1() * f2()` if `f1` or `f2` is evaluated first.
+        The same goes for `-`, `/` and the evaulation of arguments of a function.
+
+        Other operators however do create sequence points, for example the comma operator.
+
+        In simple cases, gcc 4.7 is smart enough to notice undefiened behaviour and emmits a warning.
+        This warning has been ignored for test purposes by a test only `-Wno-sequence-point` flag.
     */
     {
         /*
-        In this ismple case, gcc is smart enough to notice this and emmit a warning.
+        Undefined behaviour.
 
-        TODO0 confirm undefined behaviour, that is, is not ++i evaluated *before* the expression?
+        `=`does not create sequence points, to it is not possible to know if the side effect of `++`
+        will happen before or after the assigment.
 
-        i++;
-        i++;
-        2 - 2 == 0;
+        Therefore, it is possible that this gives either:
+
+            post_increment_return = 0;
+            i = post_increment_return;
+            i++;
+
+        or
+
+            post_increment_return = 0;
+            i++;
+            i = post_increment_return;
         */
         {
             int i = 0;
-            //printf( "++i - ++i = %d\n", ++i - ++i );
+            i = i++;
+            printf( "i = i++ = %d\n", i );
+            assert( i == 0 || i == 1 );
+        }
+
+        /*
+        Defined behaviour because the return statement guarantees that all side effects have happened.
+
+        Contrast with `i = i++`, which has no return statement.
+        */
+        {
+            global = 0;
+            global = post_inc_global();
+            assert( global == 0 );
+        }
+
+        /*
+        `+` does not specify a sequence point between its two sides.
+
+        Therefore, the side effect of either `++` (incrementing i) may or may not happen before the other `++` is evaluated.
+
+        This allows for the following outputs:
+
+            0 + 0           (neither side effect happened before the other)
+            1 + 0 or 0 + 1  (one side effect happened before the other)
+        */
+        {
+            int i = 0;
+            int j = i++ + i++;
+            printf( "i++ + i++ = %d\n", j );
+            assert( j == 0 || j == 1 );
         }
 
         /*
         Undefined behaviour.
 
+        The return statements are full expressions,
+        so they guarantee that either one or the other function call happens first.
+
+        However, it is not possible to know which side of `-` is evaulated first.
+
         Ouptput depends on evaulation order, giving either:
 
-            1 - 2 = -1
+            0 - 1 = -1
 
-        if the first `inc_global()` is evaluated first or
+        if the first `post_inc_global()` is evaluated first or
 
-            2 - 1 = 1
+            1 - 0 = 1
 
-        if the second `inc_global()` is evaluated first.
+        if the second `post_inc_global()` is evaluated first.
         */
         {
             global = 0;
-            printf( "inc_global() - inc_global() = %d\n", inc_global() - inc_global() );
+            int j = post_inc_global() - post_inc_global();
+            printf( "post_inc_global() - post_inc_global() = %d\n", j );
+            assert( j == -1 || j == 1 );
+        }
+
+        /*
+        Defined behaviour because of the commutativity of addition and because the return statements guarantees
+        that all side effects are done with.
+
+        Constrast with `++global + ++global`, which is undefined because there are no return statements.
+
+        This may give either:
+
+            0 + 1 = 1
+
+        or
+
+            1 + 0 = 1
+
+        so both are the same by coincidence.
+        */
+        {
+            global = 0;
+            assert( post_inc_global() + post_inc_global() == 1 );
+        }
+
+        /*
+        comma operator introduces a sequence point
+        */
+        {
+            int i = 0;
+            assert( ( i++, i++ ) == 1 );
+        }
+
+        /*
+        boolean operators `||` and `&&` introduces a sequence point
+        */
+        {
+
+            /*
+            The following happens:
+
+            - the first i++ returns 0
+            - since this is false, the second side is evaulated
+            - since `||` adds a sequence point, the increment side effect must happen
+            - i now equals one, and `||` evals true
+            */
+            {
+                int i = 0;
+                assert( i++ || i );
+            }
+
+            /* same as for `||` */
+            {
+                int i = 1;
+                assert( ! ( i-- && i ) );
+            }
         }
     }
 
@@ -2370,6 +2599,30 @@ int main( int argc, char** argv )
             assert( ( 0 <=  1 ) == 1 );
             assert( ( 0 <=  0 ) == 1 );
             assert( ( 0 <= -1 ) == 0 );
+
+            assert( ( 0 || 0 ) == 0 );
+            assert( ( 0 || 1 ) == 1 );
+            assert( ( 1 || 0 ) == 1 );
+            assert( ( 1 || 1 ) == 1 );
+
+            assert( ( 0 && 0 ) == 0 );
+            assert( ( 0 && 1 ) == 0 );
+            assert( ( 1 && 0 ) == 0 );
+            assert( ( 1 && 1 ) == 1 );
+
+            /*
+            For `||` and `&&`, the second side is only evaluated if needed.
+
+            On this example:
+
+            - 1 is evaulated to true
+            - || does not need to go any further, so i++ is not evaluated
+            */
+            {
+                int i = 0;
+                if ( 1 || i++ );
+                assert( i == 0 );
+            }
         }
 
         //#bitwise
@@ -3978,6 +4231,28 @@ int main( int argc, char** argv )
             {
                 assert( variadic_add( 3, 1, 2, 3 )       == 6 );
                 assert( variadic_add( 5, 1, 2, 3, 4, 5 ) == 15 );
+
+                char s[32];
+                sprintf_wrapper( s, "%c", 'a' );
+                assert( s[0] == 'a' );
+
+                /*
+                The only problem with the wrapper is that compile time error checking is not done.
+
+                This could be achieved via the gcc `__attribute__((format,X,Y))` extension
+                */
+                {
+                    //error checking is not done for the wrapper
+                    //might segfault at runtime
+                    if ( 0 )
+                    {
+                        sprintf_wrapper( s, "%s" );
+                        printf( "sprintf_wrapper wrong = %s\n", s );
+                    }
+
+                    //type error checking is done for sprintf
+                    //sprintf( s, "wrong %s" );
+                }
             }
         }
 
@@ -5043,14 +5318,17 @@ int main( int argc, char** argv )
                         printf( "printf clock_t = %Lf\n", (long double)(clock_t)1 );
                     }
                 }
+
+                //return value: number of bytes written, negative if error.
+                //for string versions, excludes traling '\0'.
+
+                    assert( sprintf( s, "%c", 'a' ) == 1 );
             }
 
             /*
             #fprintf
 
                 Same as printf, but to an arbitrary stream
-
-                Returns the number of characters written.
             */
             {
                 assert( fprintf( stdout, "fprintf = %d\n", 1 ) == 12 );
@@ -5272,7 +5550,7 @@ int main( int argc, char** argv )
                 - w: read and write. destroy if exists, create if not.
                 - a: append. write to the end. creates if does not exist.
                 - +: can do both input and output. msut use flush or fseek
-                - x: don't destroy if exist (c11, not c++!, posix only)
+                - x: don't destroy if exist (c11, not c++!)
                 - b: binary. means nothing in POSIX systems,
                     on our dear DOS must be used for NL vs NLCR problems
                     there are two different modes there
@@ -5634,7 +5912,11 @@ int main( int argc, char** argv )
     /*
     #math.h
 
-        Mathematical functions
+        Mathematical functions.
+
+        C99 made many improvements to it. It seems that the C community is trying to replace FORTRAN by C
+        for numerical computations, which would be a blessing as it would mean that the system programming
+        croud (C) would be closer to the numerical programming one (FORTRAN).
 
     #IEEE-754
 
@@ -5892,6 +6174,8 @@ int main( int argc, char** argv )
 
         //#trig
         {
+            float f = sin( 0.2 );
+            assert( fabs( sin( 0.0 ) - 0.0 ) < err );
             assert( fabs( cos( 0.0 ) - 1.0 ) < err );
 
             /*
@@ -5901,7 +6185,9 @@ int main( int argc, char** argv )
 
                 This is a standard way to get PI.
 
-                The only problem is the slight calculation overhead.
+                The only problem is a possible slight calculation overhead.
+                But don't worry much about it. For example in gcc 4.7, even with `gcc -O0` trigonometric functions
+                are calculated at compile time and stored in the program text.
             */
             {
                 assert( fabs( acos(-1.0) - 3.14 )    < 0.01 );
@@ -6273,6 +6559,11 @@ int main( int argc, char** argv )
 
         gives characteristics of floating point numbers and of base numerical operations
         for the current architecture
+
+        All macros that start with FLT have versions starting with:
+
+        - DBL   for `double`
+        - LDBL  for `long double`
     */
     {
 
@@ -6288,6 +6579,8 @@ int main( int argc, char** argv )
             - 1:  to nearest
             - 2:  toward positive infinity
             - 3:  toward negative infinity
+
+            TODO0 can it be changed?
         */
         {
             printf( "FLT_ROUNDS = %d\n", FLT_ROUNDS );
@@ -6307,14 +6600,73 @@ int main( int argc, char** argv )
             printf( "FLT_EVAL_METHOD = %d\n", FLT_EVAL_METHOD );
         }
 
+        /*
+        #FLT_MIN
+
+            Smalles positive number closes to zero that can be represented in a normal float.
+
+            Any number with absolute value smaller than this is subnormal,
+            and support is optional.
+        */
+        {
+            printf( "FLT_MIN = %a\n", FLT_MIN );
+            printf( "DBL_MIN = %a\n", DBL_MIN );
+            printf( "LDBL_MIN = %La\n", LDBL_MIN );
+        }
+
+        /*
+        #FLT_RADIX
+
+            several other macros expand to the lengths of the representation
+
+            useful terms:
+
+                1.01_b * b ^ (10)_b
+
+            - radix:
+
+            TODO0 wow, there are non radix 2 representation implementations?!
+        */
+        {
+            printf( "FLT_RADIX = %d\n", FLT_RADIX );
+        }
+
 #if __STDC_VERSION__ >= 201112L
 
         /*
         #subnormal numbers
 
-            One can check if those are supported in the implementation.
+            C11
 
-            c11 feature TODO check. at least only in -std=c1x
+            Defined in IEC 60599.
+
+            Ex:
+
+                0.01
+
+            Is represented as:
+
+                1 * 10^-2
+
+            However the exponent has a fixed number of bits, so if the exponent is too small.
+
+            A solution to incrase that exponent is to allow number that start with 0.
+
+            So if for example -4 is the smallest possible exponent, 10^-5 could be represented as:
+
+                0.1 * 10^-4
+
+            Such a number that cannot be represented without trailling zeroes is a subnormal number.
+
+            The tradeoff is that subnormal numbers have limited precision.
+
+            C11 specifies that the implementation of such feature is options,
+            and oe can check if those are supported in the implementation via the `HAS_SUBNORM` macros.
+
+            As of 2013 hardware support is low but starting to appear.
+            Before this date, implementations are done on software, and are therefore slow.
+
+            The smallest floating normal number is `FLT_MIN`.
 
             Values:
 
@@ -6326,26 +6678,21 @@ int main( int argc, char** argv )
             printf( "FLT_HAS_SUBNORM = %d\n",     FLT_HAS_SUBNORM );
             printf( "DBL_HAS_SUBNORM = %d\n",     DBL_HAS_SUBNORM );
             printf( "LDBL_HAS_SUBNORM = %d\n",    LDBL_HAS_SUBNORM );
+
+            assert( isnormal( LDBL_MIN ) );
+
+            if ( LDBL_HAS_SUBNORM )
+            {
+                long double ldbl_min_2 = LDBL_MIN / 2.0;
+                printf( "LDBL_MIN / 2.0 = %La\n", ldbl_min_2 );
+                assert( ldbl_min_2 != 0 );
+                assert( ldbl_min_2 != LDBL_MIN );
+                assert( ! isnormal( ldbl_min_2 ) );
+            }
         }
 
 #endif
 
-        /*
-        #representation size
-
-            several other macros expand to the lengths of the representation
-
-            useful terms:
-
-                1.01_b * b ^ (10)_b
-
-            - radix:
-
-            TODO0 lazy
-        */
-            //wow, there are non radix 2 representation implementations?!
-
-            printf( "FLT_RADIX = %d\n", FLT_RADIX );
     }
 
     /*
@@ -6578,6 +6925,35 @@ int main( int argc, char** argv )
 #endif
 
     }
+
+    /*
+    #generated code
+
+        The following tests are only interesting to interpret
+        the generated assembly code to see how you compiler does things.
+    */
+    {
+        /*
+        Does the compiler precalculate values at compile time or not?
+
+        gcc 4.7, O0:
+
+        - asm_precalc:          no
+        - asm_precalc_inline:   no
+        - sin:                  yes TODO0 why, but not for my funcs?
+        */
+        {
+            int i;
+            float f;
+            i = asm_precalc( 0 );
+            i = asm_precalc_inline( 0 );
+            f = sin( 0.2 );
+        }
+    }
+
+    atexit( atexit_func );
+    if ( 0 ) exit_func();
+    if ( 0 ) abort_func();
 
     //main returns status:
 
