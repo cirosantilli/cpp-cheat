@@ -212,7 +212,7 @@ only when users want to test those features.
 #include <signal.h>
 #include <stdarg.h>    //..., va_list, va_start, va_arg, va_end
 #include <stdbool.h>   //true, false. c99
-#include <stddef.h>    //offsetof
+#include <stddef.h>    //offsetof, type_t
 #include <stdint.h>    //uint32_t, etc.
 #include <stdlib.h>    //malloc, EXIT_SUCCESS, EXIT_FAILURE:
 #include <stdio.h>     //printf, puts
@@ -1020,7 +1020,7 @@ void abort_func()
     abort();
 }
 
-int main( int argc, char** argv )
+int main( int argc, char **argv )
 {
     /*
     #scope of brace pairs inside a function #braces
@@ -1059,6 +1059,17 @@ int main( int argc, char** argv )
                 ip = &i;
             }
             //assert( *ip == 1 ); //BAD undetermined behaviour
+        }
+
+        /*
+        Undefined behaviour, because the rhs `i` is already the inner i
+        */
+        {
+            int i = 1;
+            {
+                int i = i;
+                //assert( i == 1 );
+            }
         }
     }
 
@@ -1120,7 +1131,6 @@ int main( int argc, char** argv )
             int _;
         }
     }
-
 
     //#variables
     {
@@ -2685,14 +2695,78 @@ int main( int argc, char** argv )
             assert( ( 5 >> 1 ) == 2 );
         }
 
-        //#assign
+        /*
+        #assign
+        */
         {
-            int i = 0;
-            assert( (i=1) == 1 );
-            //= returns right side
-            assert( i == 1 );
+            {
+                int i = 0;
+                i = 1;
+                assert( i == 1 );
+            }
 
             /*
+            = returns rvals
+            */
+            {
+                int i;
+                assert( ( i = 1 ) == 1 );
+
+                /*
+                This is why this works (and probably why it is made behave like this.
+                */
+                {
+                    int i, j, k;
+                    i = j = k = 1;
+                    //i = ( j = ( k = 1 ) )
+                    assert( i == j && j == k && k == 1 );
+                }
+            }
+
+            /*
+            #self assign initialization
+
+                Good old undefined behaviour through innocent statements.
+
+                <http://stackoverflow.com/questions/11186261/why-is-int-i-i-legal>
+            */
+            {
+                int self_assign_init = self_assign_init;
+                printf( "self_assign_init = %d\n", self_assign_init );
+            }
+
+            /*
+            #lvalue
+
+                Something that can be on the left side of an assign, such as a variable.
+
+                Every lvalue is a rvalue.
+
+            #rvalue
+
+                Something that can only be used on the right side of an assign.
+            */
+            {
+                /*
+                In C, assign does not return lvalues.
+
+                In C++ it does.
+                */
+                {
+                    int i = 0, j = 1, k = 2;
+                    //( i = j ) = k;
+                }
+
+                //function returns are not lvalues
+                {
+                    //int_func_int(1) = 1;
+                }
+            }
+        }
+
+        /*
+        #increment
+
             #pre increment vs post increment
 
                 <http://stackoverflow.com/questions/24886/is-there-a-performance-difference-between-i-and-i-in-c>
@@ -2716,56 +2790,76 @@ int main( int argc, char** argv )
                 what about +=, -=, etc. ?
 
                 same thing: `ax = ax + bx` == `sum ax,bx`
-            */
+        */
+        {
+            int i;
 
-                i=0;
-                assert( i++ == 0 );
-                assert( i == 1 );
+            i=0;
+            assert( i++ == 0 );
+            assert( i == 1 );
 
-                i=0;
-                assert( ++i == 1 );
-                assert( i == 1 );
+            i=0;
+            assert( ++i == 1 );
+            assert( i == 1 );
 
-                i=1;
-                assert( i-- == 1 );
-                assert( i == 0 );
+            i=1;
+            assert( i-- == 1 );
+            assert( i == 0 );
 
-                i=1;
-                assert( --i == 0 );
-                assert( i == 0 );
+            i=1;
+            assert( --i == 0 );
+            assert( i == 0 );
 
-                double f = 0.0;
-                assert( f++ == 0.0 );
-                assert( f == 1.0 );
-
-                i=0;
-                assert( ( i += 1 ) == 1 );
-                assert( i == 1 );
-
-                i=1;
-                assert( ( i -= 1 ) == 0 );
-                assert( i == 0 );
-
-                i=1;
-                assert( ( i *= 2 ) == 2 );
-                assert( i == 2 );
-
-                i=2;
-                assert( ( i /= 2 ) == 1 );
-                assert( i == 1 );
-
-                i=3;
-                assert( ( i %= 2 ) == 1 );
-                assert( i == 1 );
-
-                i=0xFF;
-                assert( ( i &= (char)0x00 ) == (char)0x00 );
-                assert( ( (char)i == (char)0x00 ) );
-
-                //same others bitwise, except ~=
+            double f = 0.0;
+            assert( f++ == 0.0 );
+            assert( f == 1.0 );
         }
 
-        //#question mark #?
+        /*
+        Composite operators
+
+            Do an operation and an assign at the same time.
+
+            Exist for many operators.
+
+            Why do they exist? Assemby support probably,
+            as many assembly operations overwrite one of the operands.
+        */
+        {
+            int i;
+
+            i=0;
+            assert( ( i += 1 ) == 1 );
+            assert( i == 1 );
+
+            i=1;
+            assert( ( i -= 1 ) == 0 );
+            assert( i == 0 );
+
+            i=1;
+            assert( ( i *= 2 ) == 2 );
+            assert( i == 2 );
+
+            i=2;
+            assert( ( i /= 2 ) == 1 );
+            assert( i == 1 );
+
+            i=3;
+            assert( ( i %= 2 ) == 1 );
+            assert( i == 1 );
+
+            i=0xFF;
+            assert( ( i &= (char)0x00 ) == (char)0x00 );
+            assert( ( (char)i == (char)0x00 ) );
+
+            //same others bitwise, except ~=
+        }
+
+        /*
+        #question mark #?
+
+            The ternary conditional operator.
+        */
         {
             assert( ( 1 < 2 ? 3 : 4 ) == 3 );
             assert( ( 1 > 2 ? 3 : 4 ) == 4 );

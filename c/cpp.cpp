@@ -305,6 +305,26 @@ void printCallStack()
     };
 
     /*
+    This class uses its default copy constructor and assign operator.
+    */
+    class DefaultCopyAssignCtor
+    {
+        public:
+            int i;
+            DefaultCopyAssignCtor() : i(0) {}
+            DefaultCopyAssignCtor( int i ) : i(i) {}
+    };
+
+    /*
+    This politically incorrect clas does not implement the equality == operator.
+    */
+    class NoEquality {
+        public:
+            NoEquality() : i(0) {}
+            int i;
+    };
+
+    /*
     Simple class for tests on constructor destructor order.
 
     This class has no members which are objects and no base classes.
@@ -316,7 +336,9 @@ void printCallStack()
             int i;
 
             //default constructor
-            NoBaseNoMember(){ callStack.push_back( "NoBaseNoMember::NoBaseNoMember()"); }
+            NoBaseNoMember() : i(0) {
+                callStack.push_back( "NoBaseNoMember::NoBaseNoMember()");
+            }
 
             //copy constructor
             NoBaseNoMember( const NoBaseNoMember& other ) : i(other.i) {
@@ -325,6 +347,13 @@ void printCallStack()
 
             //copy
             NoBaseNoMember( int i ) : i(i) { callStack.push_back( "NoBaseNoMember::NoBaseNoMember(int)"); }
+
+            //assign
+            NoBaseNoMember& operator= ( const NoBaseNoMember& rhs ) {
+                this->i = rhs.i;
+                callStack.push_back( "NoBaseNoMember::operator=");
+                return *this;
+            }
 
             //destructor
             ~NoBaseNoMember(){ callStack.push_back( "NoBaseNoMember::~NoBaseNoMember()"); }
@@ -965,7 +994,7 @@ void printCallStack()
         //SAME
         //template<typename T=int, int N=10>
         template<class BASE=Base, class T=int, int N=10>
-        class TemplateClass : public BASE //OK
+        class TemplateClass : public BASE //OK, can derive from template
         {
             public:
 
@@ -1017,7 +1046,7 @@ void printCallStack()
             //OK
 
         //template virtual
-        //{
+
             template<class T=int>
             class TemplateAbstract
             {
@@ -1030,7 +1059,6 @@ void printCallStack()
                 virtual int virtualMethod(){ return 1; }
                 virtual int pureVirtualMethod(){ return 1; }
             };
-        //}
 
         template<class BASE, class T, int N>
         void TemplateClass<BASE,T,N>::methodDefinedOutside()
@@ -1080,6 +1108,32 @@ void printCallStack()
                 //does not contain such a function
         //}
     //}
+
+    /*
+    Illustrates the copy and swap idiom and related concepts like move contruction.
+    */
+    class CopyAndSwap
+    {
+        public:
+
+            int *is;
+            CopyAndSwap( int i, int j) {
+                is = new int[2];
+                is[0] = i;
+                is[1] = j;
+            }
+
+            CopyAndSwap( const CopyAndSwap& other ) {
+            }
+
+            ~CopyAndSwap(){
+                delete[] is;
+            }
+
+            CopyAndSwap operator=( const CopyAndSwap& rhs ) {
+                return *this;
+            }
+    };
 
     //design patterns
     //{
@@ -1317,12 +1371,16 @@ void printCallStack()
     /*
     #operator overload
 
+            Like regular functions, C++ also allows operators to be overloaded
+
+            This is not only eye candy, but also allows developpers to forget if they are dealing
+            with base types or not, thus making code easier to modify: if we ever decide to move
+            from base types to classes we just have to implement the operator overload on classes.
+
             Great tutorial: <http://stackoverflow.com/questions/4421706/operator-overloading?rq=1>
 
             Good tutorial, specially on how to implement `=`, `+=` and `+` cases:
             <http://courses.cms.caltech.edu/cs11/material/cpp/donnie/cpp-ops.html>
-
-            Like regular functions, C++ also allows operators to be overloaded
 
             The following operators can all be overloaded:
 
@@ -1331,23 +1389,25 @@ void printCallStack()
                 ~    &=   ^=   |=   &&   ||   %=   []   ()   ,    ->*  ->   new
                 delete    new[]     delete[]
 
-            Certain operators can be both member functions and free functions.
-            This includes most operators such as `+`, `=`, `+=` and others.
-            See: <http://stackoverflow.com/a/4421729/895245> for a discussion on how to decide
-            between them.
+            #member or not
 
-            One question is that being non member improves the incapsulation, since then those
-            functions do not have access to private members, and thus do not reflect changes that are
-            otherwise invisible.
+                Certain operators can be both member functions and free functions.
+                This includes most operators such as `+`, `=`, `+=` and others.
+                See: <http://stackoverflow.com/a/4421729/895245> for a discussion on how to decide
+                between them.
 
-            Certain operators *cannot* be member functions, such as `<<`.
+                One question is that being non member improves the incapsulation, since then those
+                functions do not have access to private members, and thus do not reflect changes that are
+                otherwise invisible.
 
-            Other *must* be members. Those include:
+                Certain operators *cannot* be member functions, such as `<<`.
 
-            - `=`  (assignment)
-            - `[]` (array subscription),
-            - `->` (member access)
-            - `()` (function call)
+                Other *must* be members. Those include:
+
+                - `=`  (assignment)
+                - `[]` (array subscription),
+                - `->` (member access)
+                - `()` (function call)
     */
 
         /*
@@ -1389,7 +1449,7 @@ void printCallStack()
 
                     Return a *non* const reference because the following is possible for base types:
 
-                        (a = b) = c
+                        ( a = b) = c
 
                     which is the same as:
 
@@ -1494,7 +1554,82 @@ void printCallStack()
             {
                 os << c.i;
                 return os;
+
+            /*
+            const OperatorOverload operator* (const OperatorOverload& lhs, const OperatorOverload& mhs, const OperatorOverload& rhs){
+                return OperatorOverload( lhs.i * mhs.i * rhs.i );
             }
+            */
+            }
+
+        /*
+        #number of arguments
+
+            One major difference between regular functions and operators is that operators can only
+            have  fixed number of arguments, because they have a very peculiar syntax.
+
+            For example, how could a ternary multiplication possibly be called? ` a * b ???? c` ?
+
+            There are some operators which exist for multiple numbers of arguments with different meaning:
+
+            - `-` with one argument:    unary minus
+            - `-` with two arguments:   subtraction
+
+            - `*` with one argument:    dereference
+            - `*` with two arguments:   multiplication
+
+            For this reason, we must take into account that member operator overloads *already have one extra argument*,
+            which is the `this` pointer, which is always passed as a first hidden parameter of member functions.
+        */
+
+            /*
+            A failed attemtpt to add the middle handside to `operator*`.
+
+            ERROR: operator* must have one or two arguments.
+            */
+            /*
+            const OperatorOverload operator* (const OperatorOverload& lhs, const OperatorOverload& mhs, const OperatorOverload& rhs){
+                return OperatorOverload( lhs.i * mhs.i * rhs.i );
+            }
+            */
+
+        /*
+        #operator-
+
+        - `-` with one argument:    unary minus
+        - `-` with two arguments:   subtraction
+
+        */
+
+                const OperatorOverload operator- (const OperatorOverload& rhs){
+                    return OperatorOverload( -rhs.i );
+                }
+
+                const OperatorOverload operator- (const OperatorOverload& lhs, const OperatorOverload& rhs){
+                    return OperatorOverload( lhs.i - rhs.i );
+                }
+
+        /*
+        #operator*
+
+            operator* can be two things:
+
+            - multiplication `a * b` if it has  two arguments   ( or one    in a member method )
+            - dereference `*ptr` if it has      one argument    ( or none   in a member method )
+
+            It is only differenced by the number of arguments.
+        */
+
+            /*
+            This exists because it is the dereference operator.
+
+            This is implemented on classes which represent pointers, such as `shared_ptr`,
+            which is not the case for this class.
+            */
+
+                const OperatorOverload operator* (const OperatorOverload& rhs){
+                    return OperatorOverload( rhs.i );
+                }
 
         /*
         #operator overload and templates
@@ -1504,7 +1639,7 @@ void printCallStack()
             which does not go well with template specifications.
         */
 
-            template <class T> T operator-( const T& i, const T& j) { return i + j;}
+            template <class T> T operator/( const T& i, const T& j) { return i + j;}
 
 /*
 #namespaces
@@ -1932,6 +2067,32 @@ void printCallStack()
 int main(int argc, char** argv)
 {
     /*
+    #assign operator
+
+        Unlike in C, C++ assign operator returns lvalues!
+
+        TODO rationale. Related to return refs from functions?
+    */
+    {
+        int i = 0, j = 1, k = 2;
+
+          ( i = j ) = k;
+        /*^^^^^^^^^
+          |
+          returns a lvalue pointing to `i`
+
+          Therefore is the same as:
+
+          i = j;
+          i = k;
+        */
+
+        assert( i == 2 );
+        assert( j == 1 );
+        assert( k == 2 );
+    }
+
+    /*
     #bool
 
         in C++, unlike in C, bool is part of the language.
@@ -2058,37 +2219,59 @@ int main(int argc, char** argv)
         - <http://stackoverflow.com/questions/7058339/c-when-to-use-references-vs-pointers>
     */
     {
+        //basic usage as function parameters
         {
             int i = 0;
             byref(i);
             assert( i == 1 );
         }
 
+        /*
+        References have the same address of the variables.
+
+        Therefore no extra memory is used for references
+        whereas pointers use extra memory.
+
+        It seems that the compiler does all the magic at compile time
+        in the case of references!
+        */
         {
             int i = 0;
             int& ia = i;
             ia = 1;
             assert( i == 1 );
             assert( &i == &ia );
-                //therefore no extra memory is used for references
-                //whereas pointers use memory
             int& ia2 = ia;
             ia2 = 2;
             assert( i == 2 );
-
-            //int& ia = 0;
-                //ERROR
-                //must be a variable rhs
-
-            //int& ia;
-                //ERROR
-                //must be initialized imediatelly
-
-            //int& ia;
-                //ERROR
-                //must be initialized imediatelly
         }
 
+        //ERROR: must not initialize non-const ref with a rvalue
+        {
+            //std::string& s = getString();
+            //int& ia = 0;
+        }
+
+        /*
+        const references can be initialized to rvals!
+
+        This cannot be wront since they cannot be modified,
+        so will not modify the non existant variable.
+
+        TODO0 but why would someone ever write this?
+        Is it linked to the lifespan extension of return values?
+        */
+        {
+            const int& i = 1;
+            assert( i == 1 );
+        }
+
+        //ERROR: must be initialized imediatelly
+        {
+            //int& ia;
+        }
+
+        //references from pointers
         {
             int i = 0;
             int* ip = &i;
@@ -2097,8 +2280,9 @@ int main(int argc, char** argv)
             assert( i == 1 );
 
             //ERROR: & must get a variable/dereferenced pointer, not pointers themselves!
+            {
                 //int& ia = &i;
-                //int& ia = new int;
+            }
         }
 
         //#const ereferences
@@ -2514,6 +2698,15 @@ int main(int argc, char** argv)
                     */
                 }
 
+                //-
+                {
+                    //unary
+                    assert( -OperatorOverload(1) == OperatorOverload(-1) );
+
+                    //subtraction
+                    assert( OperatorOverload(2) - OperatorOverload(1) == OperatorOverload(1) );
+                }
+
                 //<<
                 {
                     i = OperatorOverload(123);
@@ -2543,8 +2736,6 @@ int main(int argc, char** argv)
 
             /*
             #operator overload and templates
-
-                TODO possible to call `operator-`?
             */
             {
                 OperatorOverload i, j;
@@ -2553,10 +2744,11 @@ int main(int argc, char** argv)
 
                 //Impossible
                 {
-                    //assert( (i -<OperatorOverload> j).i == 4 );
+                    //assert( (i /<OperatorOverload> j).i == 4 );
                 }
 
-                //assert( operator-<OperatorOverload>( i, j ) == OperatorOverload(3) );
+                //TODO why not working??
+                //assert( operator/<OperatorOverload>( i, j ) == OperatorOverload(3) );
             }
         }
 
@@ -2744,26 +2936,6 @@ int main(int argc, char** argv)
             Called whenever object is created to initialize the object.
         */
         {
-            {
-                callStack.clear();
-                NoBaseNoMember c; //default constructor was called!
-                vector<string> expectedCallStack = {
-                    "NoBaseNoMember::NoBaseNoMember()",
-                };
-                assert( callStack == expectedCallStack );
-            }
-
-            /*
-            This is how non default constructors should be called.
-
-            The call stack is not predictable becuase of copy ellision,
-            but will be a single constructor in most compilers.
-            */
-            {
-                NoBaseNoMember c = NoBaseNoMember(1);
-                assert( c.i == 1 );
-            }
-
             /*
             #default constructor
 
@@ -2777,12 +2949,24 @@ int main(int argc, char** argv)
                 the default is not created.
 
                 It is a good idea to always implement a default constructor,
-                since this is the only way arrays of fiexed numbers o fobjects can be created before C++03.
+                since this is the only way arrays of fiexed numbers of objects can be created before C++03
             */
             {
-                //the default constructor exists
+                //this class implements the default constructor
                 {
-                    Empty e = Empty();
+                    callStack.clear();
+                    NoBaseNoMember c; //default constructor was called!
+                    vector<string> expectedCallStack = {
+                        "NoBaseNoMember::NoBaseNoMember()",
+                    };
+                    assert( callStack == expectedCallStack );
+                }
+
+                //the default constructor exists even if not implemented
+                {
+                    //the following two do the exact same
+                    { Empty e = Empty(); }
+                    { Empty e; }
                 }
 
                 //this class does not have a default constructor
@@ -2803,7 +2987,7 @@ int main(int argc, char** argv)
             }
 
             /*
-            declaration syntax gotcha
+            default constructor function declaration syntax gotcha
             */
             {
                 /*
@@ -2813,6 +2997,9 @@ int main(int argc, char** argv)
 
                 This is the same as in C, where it is possible to declare a function from inside another function,
                 but not define it.
+
+                Therefore there would be not way for C++ to distinguish between the two,
+                and still be backwards compatible with C.
                 */
                 {
                     Class c();
@@ -3069,6 +3256,7 @@ int main(int argc, char** argv)
                 {
                     "NoBaseNoMember::NoBaseNoMember()",
                     "NoBaseNoMember::NoBaseNoMember()",
+                    "NoBaseNoMember::operator=",
                     "NoBaseNoMember::~NoBaseNoMember()",
                 };
                 assert( callStack == expectedCallStack );
@@ -3125,46 +3313,71 @@ int main(int argc, char** argv)
         /*
         #copy vs assign
 
-            every class gets a default assign operator (=) and copy constructor (`Classname(Classname other)`).
+            Every class has a default assign operator (=) and a default copy constructor (`Classname(Classname other)`).
 
-            the defaults might not be what you want, specially when you allocate memory inside the constructor!
+            The difference is that copy is a way to initialize a new object,
+            and assign is a way to modify an existing object.
 
-            <http://stackoverflow.com/questions/3279543/what-is-the-copy-and-swap-idiom>
+            The defaults might not be what you want, specially when you allocate memory inside the constructor!
+            See the rule of three.
 
-            <http://stackoverflow.com/questions/4172722/what-is-the-rule-of-three>
+            Default copy and assign is probably exist in order to allow parameter passing to functions.
+
+            - <http://stackoverflow.com/questions/3279543/what-is-the-copy-and-swap-idiom>
+            - <http://stackoverflow.com/questions/4172722/what-is-the-rule-of-three>
         */
         {
-            //#copy constructor
+            //every class has a default copy operator and assign constructor
             {
-                Class c;
-                c.i = 1;
-                cout << "Class c2(c)" << endl;
-                Class c1(c);
-                    //copy constructor
-                assert( c1.i == 1 );
-                cout << "Class c2 = c" << endl;
-                Class c2 = c;
-                    //SAME
-                    //*COPY CONSTRUCTOR CALLED, NOT ASSIGN CONSTRUCTOR*
-                    //because object is being created
-                cout << c2.i << endl;
-            }
+                DefaultCopyAssignCtor c0(0);
+                DefaultCopyAssignCtor c1(1);
 
-            /*
-            #assign operator for classes.
+                //assign operator
+                c0 = c1;
+                assert( c0.i == c1.i );
 
-                There is a default assign operator which calls assign (=) on all members.
-            */
-            {
-                Class c, c1;
-                c.i = 1;
-                c1.i = 2;
-                c1 = c;
-                assert( c1.i == 1 );
+                //copy constructor
+                DefaultCopyAssignCtor c2(c0);
+                assert( c2.i == c0.i );
 
                 //there are still two separate copies of the object
-                c1.i = 2;
-                assert( c.i == 1 );
+                c0.i = 0;
+                c1.i = 1;
+                assert( c0.i == 0 );
+            }
+
+            //#copy constructor
+            {
+                NoBaseNoMember c(1);
+
+                //explicity copy notation
+                {
+                    callStack.clear();
+                    NoBaseNoMember c1(c);
+                    vector<string> expectedCallStack =
+                    {
+                        "NoBaseNoMember::NoBaseNoMember(NoBaseNoMember)",
+                    };
+                    assert( callStack == expectedCallStack );
+                    assert( c1.i == 1 );
+                }
+
+                /*
+                Same as above.
+
+                *COPY CONSTRUCTOR CALLED, NOT ASSIGN CONSTRUCTOR*
+                because object is being created
+                */
+                {
+                    callStack.clear();
+                    NoBaseNoMember c1 = c;
+                    vector<string> expectedCallStack =
+                    {
+                        "NoBaseNoMember::NoBaseNoMember(NoBaseNoMember)",
+                    };
+                    assert( callStack == expectedCallStack );
+                    assert( c1.i == 1 );
+                }
             }
 
             /*
@@ -3194,21 +3407,55 @@ int main(int argc, char** argv)
                 You must define your own.
             */
             {
-                Class c0 = Class();
-                Class c1 = Class();
-                //assert( c0 == c1 );
+                NoEquality c0;
+                NoEquality c1;
+
+                //ERROR no match for operator ==
+                    //assert( c0 == c1 );
             }
+
+            /*
+            #rule of three
+
+                If you need to implement either of (to deal with dynamic allocation):
+
+                - destructor
+                - assignment =
+                - copy constructor
+
+                It is likely that you need to implement all the three.
+
+                In that case, you should use the copy and swap idiom.
+            */
 
             /*
             #copy and swap idom
 
-                TODO <http://stackoverflow.com/questions/3279543/what-is-the-copy-and-swap-idiom>
+                The best way to implement the rule of three:
+
+                - without code duplication
+                - with exception type safety
+
+                <http://stackoverflow.com/questions/3279543/what-is-the-copy-and-swap-idiom>
+
+                TODO
             */
+            /*
             {
+                CopyAndSwap c0( 1, 2 );
+                CopyAndSwap c1( 3, 4 );
+
+                //assign
+                c0 = c1;
+                //assert( c0);
+
+                //assign
+                CopyAndSwap c2(c0);
             }
+            */
 
             /*
-            #move semantics
+            #move constructor
 
                 TODO <http://stackoverflow.com/questions/3106110/what-is-move-semantics>
             */
@@ -3405,7 +3652,7 @@ int main(int argc, char** argv)
             }
         }
 
-        //#template
+        //#template class
         {
             {
                 TemplateClass<Base,int,10> c;
@@ -3423,12 +3670,9 @@ int main(int argc, char** argv)
 
             {
                 TemplateClass<> c;
-                cout << "c.method();" << endl;
                 c.method();
-                cout << "c.Base::method();" << endl;
                 c.Base::method();
             }
-
 
             //tci10 = TemplateClass<float,20>();
                 //BAD: wont work, unless you defined an assign operator for this case
@@ -4067,18 +4311,19 @@ int main(int argc, char** argv)
                     assert( v == v1 );
                 }
 
-                //single value
+                /*
+                fill constructor
+
+                make a vector with n copies of a single value.
+                */
                 {
                     {
-                        vector<int> v( 3, 2 );
-                        vector<int> v1 = { 2, 2, 2 };
-                        assert( v == v1 );
+                        assert( vector<int>( 3, 2 ) == vector<int>({ 2, 2, 2 }) );
                     }
 
+                    //value defaults to zero
                     {
-                        vector<int> v(3);
-                        vector<int> v1 = {0,0,0};
-                        assert( v == v1 );
+                        assert( vector<int>( 3 ) == vector<int>({ 0, 0, 0 }) );
                     }
                 }
 
@@ -4259,15 +4504,16 @@ int main(int argc, char** argv)
                     v[0] = 1;
                     assert( v[0] == 1 );
 
-                //BAD:
-                //just like array overflow
-                //will not change vector size,
-                //and is unlikelly to give an error
-
+                /*
+                BAD:
+                just like array overflow
+                will not change vector size,
+                and is unlikelly to give an error
+                */
+                {
                     //v1[2] = 2;
+                }
             }
-
-            //iterate: vector has random access iterators
         }
 
         /*
@@ -4878,7 +5124,7 @@ int main(int argc, char** argv)
                     auto sit = v.begin();
             }
 
-            //no born checking is not done
+            //no born checking is done
             {
                 vector<int> v = { 1, 2 };
 
@@ -4892,38 +5138,72 @@ int main(int argc, char** argv)
                 //( v.end().hasNext() );
                     //no such method
             }
+
+            /*
+            Base pointers and arrays can be used anywhere iterators can.
+
+            The STL functions have specializations for pointers.
+
+            <http://stackoverflow.com/questions/713309/c-stl-can-arrays-be-used-transparently-with-stl-functions>
+            */
+            {
+                int is[] = { 2, 0, 1 };
+                int j = 0;
+                for ( auto& i : is ){
+                    assert( i == is[j] );
+                    j++;
+                }
+            }
         }
 
         //#algorithm
         {
             {
-                assert( min( 0.1, 0.2 ) == 0.1 );
-                assert( max( 0.1, 0.2 ) == 0.2 );
+                assert( std::min( 0.1, 0.2 ) == 0.1 );
+                assert( std::max( 0.1, 0.2 ) == 0.2 );
             }
 
-            //change order
+            //#sort
             {
-                //#sort
-                {
-                    vector<int> v = {2,0,1};
-                    sort( v.begin(), v.end() );
-                    vector<int> v1 = {0,1,2};
-                    assert( v == v1 );
-                }
+                std::vector<int> v = { 2, 0, 1 };
+                std::sort( v.begin(), v.end() );
+                std::vector<int> v1 = { 0, 1, 2 };
+                assert( v == v1 );
+            }
 
-                //#reverse
-                {
-                    vector<int> v = {2,0,1};
-                    reverse( v.begin(), v.end() );
-                    vector<int> v1 = {1,0,2};
-                    assert( v == v1 );
-                }
+            //#reverse
+            {
+                std::vector<int> v = { 2, 0, 1 };
+                std::reverse( v.begin(), v.end() );
+                std::vector<int> v1 = { 1, 0, 2 };
+                assert( v == v1 );
+            }
 
-                //#randomize
-                {
-                    vector<int> v = {2,0,1};
-                    random_shuffle( v.begin(), v.end() );
-                }
+            //#randomize
+            {
+                std::vector<int> v = { 2, 0, 1 };
+                std::random_shuffle( v.begin(), v.end() );
+            }
+
+            //#copy
+            {
+                std::vector<int> v = { 2, 0, 1 };
+                std::vector<int> v2( 5, 3 );
+                std::copy( v.begin(), v.end(), v2.begin() + 1 );
+                assert( v2 == std::vector<int>({ 3, 2, 0, 1, 3}) );
+            }
+
+            /*
+            #accumulate
+
+                Sum over range.
+
+                Also has functional versions <http://www.cplusplus.com/reference/numeric/accumulate/>
+            */
+            {
+                std::vector<int> v = { 2, 0, 1 };
+                assert( std::accumulate( v.begin(), v.end(), 0)     == 3 );
+                assert( std::accumulate( v.begin(), v.end(), 10)    == 13 );
             }
 
             /*
@@ -4932,19 +5212,19 @@ int main(int argc, char** argv)
                 return iterator to found element
             */
             {
-                vector<int> v = {2,0,1};
+                std::vector<int> v = {2,0,1};
                 unsigned int pos;
 
-                pos = find( v.begin(), v.end(), 0 ) - v.begin();
+                pos = std::find( v.begin(), v.end(), 0 ) - v.begin();
                 assert( pos == 1 );
 
-                pos = find( v.begin(), v.end(), 1 ) - v.begin();
+                pos = std::find( v.begin(), v.end(), 1 ) - v.begin();
                 assert( pos == 2 );
 
-                pos = find( v.begin(), v.end(), 2 ) - v.begin();
+                pos = std::find( v.begin(), v.end(), 2 ) - v.begin();
                 assert( pos == 0 );
 
-                pos = find( v.begin(), v.end(), 3 ) - v.begin();
+                pos = std::find( v.begin(), v.end(), 3 ) - v.begin();
                 assert( pos >= v.size()  );
             }
 
@@ -4957,27 +5237,27 @@ int main(int argc, char** argv)
             */
             {
 
-                vector<int> v = {2,0,1};
-                sort( v.begin(), v.end() );
-                assert( binary_search( v.begin(), v.end(), 1 ) == true );
-                assert( binary_search( v.begin(), v.end(), 3 ) == false );
-                assert( binary_search( v.begin(), v.end() - 1, 2 ) == false );
+                std::vector<int> v = {2,0,1};
+                std::sort( v.begin(), v.end() );
+                assert( std::binary_search( v.begin(), v.end(), 1 ) == true );
+                assert( std::binary_search( v.begin(), v.end(), 3 ) == false );
+                assert( std::binary_search( v.begin(), v.end() - 1, 2 ) == false );
             }
 
             //#count
             {
-                vector<int> v = {2,1,2};
-                assert( count( v.begin(), v.end(), 0 ) == 0 );
-                assert( count( v.begin(), v.end(), 1 ) == 1 );
-                assert( count( v.begin(), v.end(), 2 ) == 2 );
+                std::vector<int> v = {2,1,2};
+                assert( std::count( v.begin(), v.end(), 0 ) == 0 );
+                assert( std::count( v.begin(), v.end(), 1 ) == 1 );
+                assert( std::count( v.begin(), v.end(), 2 ) == 2 );
             }
 
 
             //#max_element #min_element
             {
-                vector<int> v = {2,0,1};
-                assert( *max_element( v.begin(), v.end() ) == 2 );
-                assert( *min_element( v.begin(), v.end() ) == 0 );
+                std::vector<int> v = {2,0,1};
+                assert( *std::max_element( v.begin(), v.end() ) == 2 );
+                assert( *std::min_element( v.begin(), v.end() ) == 0 );
             }
 
             /*
