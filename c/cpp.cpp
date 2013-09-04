@@ -20,6 +20,9 @@ for the rest, look for a c cheat.
     - function overloading
     - namespaces
 
+    All of those features allow to drastically reduce code duplicationa and improve code structure,
+    at the cost of adding huge complexity to the language (probably at least doubles the complexity).
+
 #sources
 
     #free
@@ -199,7 +202,7 @@ for the rest, look for a c cheat.
 #include <numeric>          //partial sums, differences on vectors of numbers
 #include <set>              //set, multiset
 #include <string>           //string
-#include <sstream>          //stream to a string
+#include <sstream>          //stringstream
 #include <thread>
 #include <typeinfo>         //get type of vars
 #include <unordered_map>    //unordered_map, unordered_multimap
@@ -430,6 +433,17 @@ void printCallStack()
             }
     };
 
+    /*
+    #this
+
+        Magic value that points to the current object.
+
+        It is implemented by the compiler by passing `this` as the first argument
+        of every non-static function of the class.
+
+        This is noticeable when doing operator overload:
+    */
+
     class Base
     {
         public:
@@ -547,12 +561,18 @@ void printCallStack()
                 //ERROR
                 //statics can be changed in const functions by default
 
-            //BAD
-                //every class must have an assigment operator
-                //but then, assigment does something like this->ic = other->ic
-                //you could redefine the assigment, but still in your new definition
-                //ic cannot be changed
-                //<http://stackoverflow.com/questions/634662/non-static-const-member-cant-use-default-assignment-operator>
+            /*
+            BAD
+
+            every class must have an assigment operator
+
+            but then, assigment does something like this->ic = other->ic
+
+            you could redefine the assigment, but still in your new definition
+            ic cannot be changed
+
+            <http://stackoverflow.com/questions/634662/non-static-const-member-cant-use-default-assignment-operator>
+            */
 
             //#static
 
@@ -840,17 +860,6 @@ void printCallStack()
                     callStack.push_back("Class::Class(Base)");
                 }
 
-            //assign operator
-                //all classes come with a default
-                Class& operator=(const Class& rhs)
-                {
-                    callStack.push_back("Class::operator=(Class)");
-                    i = rhs.i;
-                    z = rhs.z;
-                    m = rhs.m;
-                    return *this; //so shat a = b = c may work
-                }
-
             /*
             also calls Base destructor after
             */
@@ -912,14 +921,8 @@ void printCallStack()
             virtual void privatePureVirtual(){ callStack.push_back("Class:privatePureVirtual()"); };
     };
 
-    //overload <<
-        ostream& operator<<(ostream& os, const Class& c)
-        {
-            os << c.i << " " << c.j;
-            return os;
-        }
-
     //nested
+
         class NestedDerived : Class::Nested{};
         //OK
         //you can see the nested class from derived classes
@@ -944,15 +947,20 @@ void printCallStack()
     //ClassDefault::ClassDefault(int i=0){}
         //ERROR
 
-    //templates class
-    //{
-        //- ultra reneral! <class T, int N>
-        //-default values via: <class T=char, int N=10>
-            //c = Class<>
-        //- implementation must be put in .h files and compiled by includers
-            //cannot be put inside a .so therfore
-            //consider int N, there are int many compilation possibilities!!
-        //- no equivalent to Javas "T extends Drawable"... sad.
+    /*
+    #templates class
+
+    - ultra general! <class T, int N>
+
+    - default values via: <class T=char, int N=10>
+        c = Class<>
+
+    - implementation must be put in .h files and compiled by includers
+        cannot be put inside a .so therfore
+        consider int N, there are int many compilation possibilities!!
+
+    - no equivalent to Javas "T extends Drawable"... sad.
+    */
 
         //SAME
         //template<typename T=int, int N=10>
@@ -1153,8 +1161,9 @@ void printCallStack()
 
         std::string getString() { return "abc"; }
         int getInt() { return 0; }
+        int getIntVar() { int i = 0; return i; }
 
-    //default args. C++ only. creates several functions!
+    //default args. C++ only. creates several name mungled functions on the assembly code.
 
         void defaultArgs (int i, int j=0)
         {
@@ -1293,12 +1302,209 @@ void printCallStack()
                 //for me, blows max template recursion depth of 1024
                 //this can be reset with `-ftemplate-depth`
 
-    //auto
+    /*
+    #auto
+    */
 
-        //int func_auto(int a){
-        //    ++a;
-        //    return (int)a;
-        //}
+        /*no you can't*/
+            /*
+            int func_auto(auto a){
+                ++a;
+                return (int)a;
+            }
+            */
+
+    /*
+    #operator overload
+
+            Great tutorial: <http://stackoverflow.com/questions/4421706/operator-overloading?rq=1>
+
+            Good tutorial, specially on how to implement `=`, `+=` and `+` cases:
+            <http://courses.cms.caltech.edu/cs11/material/cpp/donnie/cpp-ops.html>
+
+            Like regular functions, C++ also allows operators to be overloaded
+
+            The following operators can all be overloaded:
+
+                +    -    *    /    =    <    >    +=   -=   *=   /=   <<   >>
+                <<=  >>=  ==   !=   <=   >=   ++   --   %    &    ^    !    |
+                ~    &=   ^=   |=   &&   ||   %=   []   ()   ,    ->*  ->   new
+                delete    new[]     delete[]
+
+            Certain operators can be both member functions and free functions.
+            This includes most operators such as `+`, `=`, `+=` and others.
+            See: <http://stackoverflow.com/a/4421729/895245> for a discussion on how to decide
+            between them.
+
+            One question is that being non member improves the incapsulation, since then those
+            functions do not have access to private members, and thus do not reflect changes that are
+            otherwise invisible.
+
+            Certain operators *cannot* be member functions, such as `<<`.
+
+            Other *must* be members. Those include:
+
+            - `=`  (assignment)
+            - `[]` (array subscription),
+            - `->` (member access)
+            - `()` (function call)
+    */
+
+        /*
+        ERROR.
+
+        One of the arguments must be a Class or Enum.
+
+        Just imagine the havoc if this were possible! =)
+        */
+
+            //int operator+(int i, int j){ return i + j + 1; }
+
+        /*
+        class that shows the ideal methods of operator overloading.
+        */
+        class OperatorOverload {
+
+            public:
+
+                int i;
+
+                OperatorOverload() {
+                    this->i = 0;
+                }
+
+                OperatorOverload( int i ) {
+                    this->i = i;
+                }
+
+                /*
+                #operator=
+
+                    Special care must be taken with `=` when memory is dynamically alocated because
+                    of copy and swap idiom questions.
+
+                    This is not the case for this simple class.
+
+                #return non const reference
+
+                    Return a *non* const reference because the following is possible for base types:
+
+                        (a = b) = c
+
+                    which is the same as:
+
+                        a = b
+                        a = c
+
+                    so this obscure syntax should also work for classes.
+                */
+                OperatorOverload& operator=(const OperatorOverload& rhs){
+                    this->i = rhs.i;
+                    return *this;
+                }
+
+                /*
+                #operator+=
+
+                    Implement the compound assign, and the non compound in terms of the compound.
+
+                    Must return a non-const reference for the same reason as `=`.
+                */
+                OperatorOverload& operator+=(const OperatorOverload& rhs){
+                    this->i += rhs.i;
+                    return *this;
+                }
+
+                /*
+                #operator++
+
+                    Post and pre increment are both impemented via this operator.
+
+                    <http://stackoverflow.com/questions/6375697/overloading-pre-increment-operator>
+                */
+                const OperatorOverload& operator++(){
+                    this->i++;
+                    return *this;
+                }
+
+                /*
+                Ambiguous call.
+
+                    This cannot be distinguished from the member method,
+                    since the member method gets am implicit `this` first argument.
+
+                    Therefore any call to this operator would give an ambiguous message
+                    if this were defined.
+
+                    The effect is the same as the non member function, but the non member is preferred
+                    because it improves encapsulation.
+                */
+
+                    /*
+                        OperatorOverload operator+(OperatorOverload i, OperatorOverload j){
+                            OperatorOverload ret;
+                            ret.i = i.i + j.i + 1;
+                            return ret;
+                        }
+                    */
+        };
+
+        /*
+        #operator+
+
+            Implemented in terms of the compound assign.
+
+            Should be const because the following does nothing:
+
+                ( a + b ) = c
+
+            Should be an external method, since it is just a function of `+=`.
+        */
+
+            const OperatorOverload operator+ (const OperatorOverload& lhs, const OperatorOverload& rhs){
+                return OperatorOverload(lhs) += rhs;
+            }
+
+        /*
+        Comparison operators: only tow are needed: `==` and `<`.
+
+        The other are functions of those two.
+
+        It is recommended to implement them as non-member functions to increase incapsulation.
+        */
+
+            inline bool operator==(const OperatorOverload& lhs, const OperatorOverload& rhs){return lhs.i == rhs.i;}
+            inline bool operator!=(const OperatorOverload& lhs, const OperatorOverload& rhs){return !operator==(lhs,rhs);}
+            inline bool operator< (const OperatorOverload& lhs, const OperatorOverload& rhs){return lhs.i < rhs.i;}
+            inline bool operator> (const OperatorOverload& lhs, const OperatorOverload& rhs){return  operator< (rhs,lhs);}
+            inline bool operator<=(const OperatorOverload& lhs, const OperatorOverload& rhs){return !operator> (lhs,rhs);}
+            inline bool operator>=(const OperatorOverload& lhs, const OperatorOverload& rhs){return !operator< (lhs,rhs);}
+
+        /*
+        overload <<
+
+            `<<` **cannot** be a member method, because if it were then
+            its first argument would be an implicit `Class` for the `this`,
+            but the first argument of `<<` must be the `ostream`.
+
+            Therefor it must be a free method outside of a class.
+        */
+
+            ostream& operator<<(ostream& os, const OperatorOverload& c)
+            {
+                os << c.i;
+                return os;
+            }
+
+        /*
+        #operator overload and templates
+
+            Operator overload and templates do not play very well together
+            because operator overload leads to special function calling syntax,
+            which does not go well with template specifications.
+        */
+
+            template <class T> T operator-( const T& i, const T& j) { return i + j;}
 
 /*
 #namespaces
@@ -1822,44 +2028,6 @@ int main(int argc, char** argv)
                 c.constMethod();
             }
         }
-
-        /*
-        C++ adds a special rule: binding a const reference to a on stack
-        makes it live to the end of the reference's lifetime
-
-        TODO0 why must it be const? rationale
-        TODO0 why the special no base destructor rule mentioned in the gotw article? rationale
-
-        <http://herbsutter.com/2008/01/01/gotw-88-a-candidate-for-the-most-important-const/>
-        <http://stackoverflow.com/questions/2784262/does-a-const-reference-prolong-the-life-of-a-temporary>
-        */
-        {
-            //objects
-            {
-                //OK
-                {
-                    const std::string& s = getString();
-                    assert( s == "abc" );
-                }
-
-                //ERRROR invilid initialization of non const reference
-                {
-                    //std::string& s = getString();
-                    //assert( s == "abc" );
-                }
-            }
-
-            //same for ints
-            {
-                {
-                    //int& ia = getInt();
-                }
-
-                {
-                    const int& ia = getInt();
-                }
-            }
-        }
     }
 
     /*
@@ -1978,6 +2146,47 @@ int main(int argc, char** argv)
                 assert( b.iPublic == 0 );
                 ia = 1;
                 assert( b.iPublic == 1 );
+            }
+
+            /*
+            #return
+
+                C++ adds a special rule: binding a const reference to a on stack
+                makes it live to the end of the reference's lifetime
+
+                TODO0 why must it be const? rationale
+                TODO0 why the special no base destructor rule mentioned in the gotw article? rationale
+
+                <http://herbsutter.com/2008/01/01/gotw-88-a-candidate-for-the-most-important-const/>
+                <http://stackoverflow.com/questions/2784262/does-a-const-reference-prolong-the-life-of-a-temporary>
+            */
+            {
+                //objects
+                {
+                    //OK
+                    {
+                        const std::string& s = getString();
+                        assert( s == "abc" );
+                    }
+
+                    //ERRROR invilid initialization of non const reference
+                    {
+                        //std::string& s = getString();
+                        //assert( s == "abc" );
+                    }
+                }
+
+                //same for ints
+                {
+                    {
+                        //int& ia = getInt();
+                        //int& ia = getIntVar();
+                    }
+
+                    {
+                        const int& ia = getInt();
+                    }
+                }
             }
 
             //you can modify a private if you non const reference to it
@@ -2265,6 +2474,92 @@ int main(int argc, char** argv)
                 //ambiguous
         }
 
+        /*
+        #operator overload
+        */
+        {
+            //OperatorOverload overload `+`
+            {
+                OperatorOverload i;
+
+                //==
+                assert( OperatorOverload(3) == OperatorOverload(3) );
+
+                //<
+                assert( OperatorOverload(1) < OperatorOverload(2) );
+
+                //=
+                i = OperatorOverload(1);
+                assert( i == OperatorOverload(1) );
+
+                //+=
+                i = OperatorOverload(1);
+                i += OperatorOverload(2);
+                assert( i == OperatorOverload(3) );
+
+                //+
+                assert( OperatorOverload(1) + OperatorOverload(2) == OperatorOverload(3) );
+
+                //++
+                {
+                    i = OperatorOverload(1);
+                    assert( ++i == OperatorOverload(2) );
+                    assert( i == OperatorOverload(2) );
+
+                    /* TODO understand and get working */
+                    /*
+                    i = OperatorOverload(1);
+                    assert( i++ == OperatorOverload(1) );
+                    assert( i == OperatorOverload(2) );
+                    */
+                }
+
+                //<<
+                {
+                    i = OperatorOverload(123);
+                    std::stringstream os;
+                    os << i;
+                    assert( os.str() == "123" );
+                }
+            }
+
+            /*
+            Explicit call syntax.
+
+            Does the same as the implicit call syntax, but is uglier.
+
+            May be required when the function is also a template function.
+            */
+            {
+                OperatorOverload i, j;
+                i = OperatorOverload(1);
+                j = OperatorOverload(2);
+
+                assert( operator+( i, j ) == OperatorOverload(3) );
+
+                i.operator=( j );
+                assert( i == j );
+            }
+
+            /*
+            #operator overload and templates
+
+                TODO possible to call `operator-`?
+            */
+            {
+                OperatorOverload i, j;
+                i = OperatorOverload(1);
+                j = OperatorOverload(2);
+
+                //Impossible
+                {
+                    //assert( (i -<OperatorOverload> j).i == 4 );
+                }
+
+                //assert( operator-<OperatorOverload>( i, j ) == OperatorOverload(3) );
+            }
+        }
+
         //#template
         {
             assert( factorial<3>() == 6 );
@@ -2508,34 +2803,40 @@ int main(int argc, char** argv)
             }
 
             /*
-            common syntax gotcha
-
+            declaration syntax gotcha
             */
             {
                 /*
-                Declares *FUNCTION* called `c()` that returns `Class` inside function main.
+                BAD
 
-                Functions inside functions (known as local functions to gcc) exist only as extensions
-                in gcc for example.
+                Declares *FUNCTION* called `c` that returns `Class` inside function main.
 
-                Functions inside functions like this are a gcc extension.
+                This is the same as in C, where it is possible to declare a function from inside another function,
+                but not define it.
                 */
                 {
-                    //Class c();
-                    //c.i = 1;
+                    Class c();
+
+                    //ERROR: definition is not possible inside another function
+
+                        //Class c(){ return Class(); }
+
+                    //c.i;
                 }
 
                 //If you want to call a default constructor, use:
                 {
                     Class c;
+                    assert( c.i == 0 );
                 }
 
                 /*
-                If you want to call a non-default constructor, use the following,
-                which usually only calls a single constructor because of copy ellision.
+                For non-default constructors, things work as expected,
+                as this could not possibe be a function declaration.
                 */
                 {
-                    Class c = Class(1);
+                    Class c(1);
+                    assert( c.i == 1 );
                 }
             }
         }
@@ -3104,18 +3405,6 @@ int main(int argc, char** argv)
             }
         }
 
-        //#operator overload
-        {
-            {
-                Class c;
-                c.i = 1;
-                c.j = 2;
-                cout << "cout << c;" << endl;
-                cout << c << endl;
-                    //1 2
-            }
-        }
-
         //#template
         {
             {
@@ -3381,15 +3670,15 @@ int main(int argc, char** argv)
             //class B { public: B (A a) {} };
             //A a;
             //B b=a;
-    }
 
-    /*
-    #explicit
-    */
-    {
-        //TODO
+        /*
+        #explicit
+        */
+        {
+            //TODO
 
-        //<http://stackoverflow.com/questions/121162/what-does-the-explicit-keyword-in-c-mean>
+            //<http://stackoverflow.com/questions/121162/what-does-the-explicit-keyword-in-c-mean>
+        }
     }
 
     /*
@@ -3624,6 +3913,7 @@ int main(int argc, char** argv)
     {
         //#string
         {
+            //initialize from string literal
             {
                 string s = "abc";
             }
@@ -3637,6 +3927,7 @@ int main(int argc, char** argv)
                 assert( oss.str() == "abc" );
             }
 
+            //cat. Creates a new string.
             {
                 string s = "ab";
                 string s1 = "cd";
@@ -3644,11 +3935,13 @@ int main(int argc, char** argv)
                 assert( s2 == "abcd" );
             }
 
+            //length
             {
                 std::string s = "abc";
                 assert( s.length() == 3 );
             }
 
+            //
             {
                 string s = "abc";
                 s[0] = 'A';
@@ -3660,11 +3953,69 @@ int main(int argc, char** argv)
                     //compiles
             }
 
+            /*
+            #stringstream
+
+                Like cout, but output does not get put to stdout, but stored.
+
+                It can be retreived via `str()`.
+
+                Possible application: build up a huge string step by step.
+                May be more efficient than concatenations which always generates new objects.
+            */
             {
                 stringstream oss;
                 oss << "ab";
                 oss << "cd";
                 assert( oss.str() == "abcd" );
+
+                //str does not clear the stringstream object
+                assert( oss.str() == "abcd" );
+
+                //to clear it you could do
+                oss.str("");
+                assert( oss.str() == "" );
+            }
+
+            /*
+            #int to string
+
+                There are a few standard alternatives.
+
+                <http://stackoverflow.com/questions/5590381/easiest-way-to-convert-int-to-string-in-c>
+            */
+            {
+                /*
+                stringstream seems to be the best pre C++11 solution.
+
+                It also has the advantage of working for any class that implements `operator<<`.
+                */
+                {
+                    stringstream oss;
+                    oss << 123;
+                    assert( oss.str() == "123" );
+                }
+
+                /*
+                C sprintf
+
+                Works, but uses too many conversion operations.
+                */
+                {
+                    char cs[16];
+                    std::sprintf( cs, "%d", 123 );
+                    std::string s = (cs);
+                    assert( s == "123" );
+                }
+
+                /*
+                C++11 solves the question once and for all with a robust one-liner for base types.
+
+                It is not intended however for operation with classes.
+                */
+#if __cplusplus >= 201103L
+                assert( std::to_string(123) == "123" );
+#endif
             }
         }
 
@@ -3776,6 +4127,15 @@ int main(int argc, char** argv)
                 - shrink_to_fit   shrink allocated array to size
                 - data            get pointer to allocated array
                 */
+            }
+
+            //the vector stores copies of elements, not references
+            {
+                std::string s = "abc";
+                vector<std::string> v = { s };
+                v[0][0] = '0';
+                assert( v[0]    == "0bc" );
+                assert( s       == "abc" );
             }
 
             //modify
@@ -4372,6 +4732,7 @@ int main(int argc, char** argv)
                 int i;
                 int is[] = { 1, 2, 0 };
 
+#if __cplusplus >= 201103L
                 //forward
                 {
                     i = 0;
@@ -4382,6 +4743,7 @@ int main(int argc, char** argv)
                         i++;
                     }
                 }
+#endif
 
                 /*
                 backwards

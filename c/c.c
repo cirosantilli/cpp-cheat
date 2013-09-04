@@ -341,25 +341,47 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
 //#functions
 
     /*
-    declaration vs definition
+    #declaration vs definition
 
-    Declaration can happen many times.
+        Declaration can happen many times.
 
-    Definition no.
+        Definition no.
     */
 
         void decl_def();
         void decl_def();
 
         void decl_def(){;}
+        //ERROR redefine
         //void decl_def(){;}
 
+        /*
+        Declarations don't need argment names.
+
+        If those are used for documentation purposes, they don't need to match those of the definition.
+        This is highly confusing however.
+        */
+
+            void decl_def_args( int,   float,   char c );
+            void decl_def_args( int i, float f, char d ){}
+
+        //two decls on the same line, with same return type:
+        int decl_1(), decl_2();
+        int decl_1(){ return 1; }
+        int decl_2(){ return 2; }
+
     /*
-    ERROR no func overload in c:
+    #overload
+
+        No func overload in C.
+    */
 
         void overload(int n){}
-        void overload(float n){}
-    */
+
+        //ERRORS:
+
+            //void overload(float n){}
+            //void overload(int n, int o){}
 
     int int_func_int(int i){
         return i;
@@ -370,8 +392,14 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
 
     void func_string_abc(char s[]){ assert( strcmp( s, "abc" ) == 0 ); }
     void func_string_const_abc(char const s[]){ assert( strcmp( s, "abc" ) == 0 ); }
+    void func_string_modify(char s[]){ s[0] = '0'; }
+
     void func_array(int a[]){
         assert( a[0] == 1 );
+    }
+
+    void func_array_modify(int a[]){
+        a[0] = -1;
     }
 
     struct get_struct_struct
@@ -1299,7 +1327,7 @@ int main( int argc, char** argv )
     /*
     #compound literals
 
-        C99
+        C99.
 
         Before C99 there were no literals for arrays, structs or unions,
         while literals existed for ints, chars and even strings (which are arrays of chars...)
@@ -1335,13 +1363,15 @@ int main( int argc, char** argv )
 
             It is possible to take the address of compound literals.
 
+            Unlike string literals, array literals can be modified.
+
             This means that the compound literal is an unnamed stack variable,
             and takes stack space.
         */
         {
             int *ip;
             ip = &( int ){ 1 };
-            (*ip)++;
+            ip[0]++;
             assert( *ip == 2 );
         }
 
@@ -3017,9 +3047,23 @@ int main( int argc, char** argv )
             //is = is2; //ERROR incompatible pointer types
         }
 
+        /*WARN array too small*/
         {
-            /*WARN too small*/
             //int is[2] = { 1, 3, 2 };
+        }
+
+        /* ERROR no negative sized array! */
+        {
+            //int is[-1];
+        }
+
+        /*
+        ERROR no 0 size array
+
+        Possible as a gcc extension.
+        */
+        {
+            //int is[0];
         }
 
 #if __STDC_VERSION__ >= 199901L
@@ -3299,6 +3343,14 @@ int main( int argc, char** argv )
             assert( memcmp( is, is2, 3 * sizeof(int)) < 0 );
             is[1] = 2;
             assert( memcmp( is, is2, 3 * sizeof(int)) > 0 );
+
+#if __STDC_VERSION__ >= 199901L
+            //C99 compound literals compare
+            {
+                int is[] = { 2, 0, 1 };
+                assert( memcmp( is, &(int [3]){ 2, 0, 1 }, 3 * sizeof( int ) ) == 0 );
+            }
+#endif
         }
 
         /*
@@ -3322,11 +3374,14 @@ int main( int argc, char** argv )
             memcpy( is2, is, 3 * sizeof( int ) );
             assert( memcmp( is, is2, 3 * sizeof( int ) ) == 0 );
 
-            //C99 compound literals allow this
+#if __STDC_VERSION__ >= 199901L
+            //C99 compound literals copy
             {
                 memcpy( &is, &(int [5]){ 0, 1, 2 }, sizeof( is ) );
                 assert( memcmp( is, &(int [5]){ 0, 1, 2 }, 3 * sizeof( int ) ) == 0 );
             }
+#endif
+
         }
 
         /*
@@ -4104,24 +4159,43 @@ int main( int argc, char** argv )
 
                 It initializes the string on stack and then passes a pointer to it.
 
-                The caller must make sure that the function does not modify the array and return useful values on it,
-                since there is no way for the caller to retreive the new value of such string.
+                String literals should only be passed to `const char *` arguments,
+                since string literals cannot be modified, possibly leading to segfaults.
 
                 Ideally, all calling functions that can receive such strings should be const.
+
+                This is not however enforced by the compiler.
             */
             {
                 func_string_abc( "abc" );
                 func_string_const_abc( "abc" );
+
+                //func_string_modify( "abc" );
+            }
+
+            //two decls on the same line
+            {
+                assert( decl_1() == 1 );
+                assert( decl_2() == 2 );
             }
 
 #if __STDC_VERSION__ >= 199901L
 
             /*
-            pass struct and array literals to function
-            using C99 compound literals
+            Pass struct and array literals to function
+            using C99 compound literals.
+
+            Unlike string literals, array and struct literals can be modified on the function.
             */
             {
                 func_array( ( int[] ){ 1 } );
+
+                func_array_modify( ( int[] ){ 1 } );
+
+                int is[] = { 1 };
+                func_array_modify( is );
+                assert( is[0] == -1 );
+
                 func_struct_1( ( struct func_struct ){ .i = 1 } );
             }
 #endif
@@ -4180,6 +4254,23 @@ int main( int argc, char** argv )
                 s = get_struct();
                 assert( s.i == 0 );
                 assert( s.j == 1 );
+            }
+
+            /*
+            #declaration vs definition
+
+                Declaration can be done inside other functions.
+
+                Definitions not.
+
+                Functions definition inside functions (known as local functions to gcc)
+                exist only as extensions in certain compilers such as gcc if ANSI is not enforced.
+            */
+            {
+                void func();
+
+                //ERROR
+                //void func(){}
             }
 
             /*
@@ -4395,6 +4486,12 @@ int main( int argc, char** argv )
                     //assert( 1 + 1 == 2 )
                 //not:
                     //assert( 2 == 2 )
+                }
+
+                //no overloading
+                {
+//#define SUM( x ) x + 1
+                //assert( SUM( 1 ) == 2 );
                 }
 
 #if __STDC_VERSION__ >= 199901L
@@ -4888,26 +4985,21 @@ int main( int argc, char** argv )
         /*
         #EOF
 
-            TODO what is EOF on a system level
-            what happens when I hit ctrl+d on bash + getchar?
-            current guess: a pipe close
-
-            in linux, EOF does not exist
-
-            the only way to know if a file is over is to make a `sys_read` call
-            and check if you get less bytes than you ask for
-            (`sys_read` returns the number of bytes read)
-
-            alternativelly, for fds that are files, you can use `sys_stat` in linux,
-            but there is no portable stat func
-
-            what was said for linux is similar for windows
-            and similar for c thus
-
-            EOF is a c concept
+            EOF is a C concept
 
             EOF works because there are only 256 bytes you can get from an fd
             so EOF is just some int outside of the possible 0-255 range, tipically -1
+
+            In Linux for example, EOF does not exist.
+
+            The only way to know if a file is over is to make a `sys_read` call
+            and check if you get 0 bytes.
+
+            Since `sys_read` returns the number of bytes read, if we get less than we asked for
+            this means that the file is over.
+
+            In case more data could become available in the future, for example on a pipe,
+            `sys_read` does not return immediately, and the reader sleeps until that data becomes available.
         */
 
         /*
