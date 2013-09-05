@@ -477,11 +477,13 @@ void printCallStack()
     {
         public:
 
+            /*
+            Best to put typedefs on top of class
+            so def will go for entire class.
+            */
             typedef int NESTED_INT;
-                //best to put it on top of class
-                //so def will go for entire class
 
-            Base() : i(0), j(1) //list initialization
+            Base() : i(0), j(1)
             {
                 callStack.push_back("Base::Base()");
                 //this->i=0;
@@ -498,7 +500,10 @@ void printCallStack()
                     //compiles but infinite loop!
             }
             /*
-            list initialization has 4 main uses:
+            #initialization list
+
+                initialization lists have 4 main uses:
+
                 1) avoid calling member object constructor
                 2) initializing base classes with non default constructors
                 3) initializing const elements
@@ -510,15 +515,19 @@ void printCallStack()
                 callStack.push_back("Base::Base(int, int)");
             }
 
-            //virtual Base(float f){}
-                //ERROR constructor cannot be virtual
+            //ERROR constructor cannot be virtual:
 
+                //virtual Base(float f){}
+
+
+#if __cplusplus >= 201103L
+
+            //C++11 initialize array/std containers in list initializtion
             Base(float f) : i(0), fs4{f,f,f,f}, vi{0,1,2,3}
             {
                 callStack.push_back("Base::Base(float)");
             }
-                //C++11
-                //initialize array/std containers in list initializtion
+#endif
 
             virtual ~Base()
             {
@@ -540,10 +549,10 @@ void printCallStack()
                 int& getRefIPublic() { return this->iPublic; }
 
                 const int& getPrivateConstRef() const { return this->iPrivate; }
-                //value cannot be changed
+                    //value cannot be changed
 
                 int& getPrivateRef() { return this->iPrivate; }
-                //value can be changed
+                    //value can be changed
 
                 //int& getPrivateRef() const { return this->iPrivate; }
                     //ERROR
@@ -558,7 +567,7 @@ void printCallStack()
             void methodAmbiguous(){ callStack.push_back("Base::methodAmbiguous()"); }
 
             virtual void virtualMethod(){ callStack.push_back("Base::virtualMethod()"); }
-            //virtual: decides on runtime based on object type
+                //virtual: decides on runtime based on object type
                 //http://stackoverflow.com/questions/2391679/can-someone-explain-c-virtual-methods
 
             virtual Base* covariantReturn()
@@ -574,8 +583,9 @@ void printCallStack()
 
             int i, j;
 
-            //ERROR: cannot initialize here
-                //int i = 0;
+            //int initialized_outside_ctor = 0;
+                //ERROR
+                //cannot initialize here
 
             int iPublic;
             int iAmbiguous;
@@ -612,29 +622,34 @@ void printCallStack()
                     //static cannot be const
 
                 static int iStatic;
-                //ERROR
-                    //static int iStatic = 0;
-                        //cannot initialize here unless const
-                    //int iStatic;
-                        //concflicts with static int
+
+                //static int iStatic = 0;
+                    //ERROR
+                    //cannot initialize here unless const
+
+                //int iStatic;
+                    //concflicts with static int
 
                 const static int iConstStatic = 0;
-                //OK: const static integral type
+                    //OK: const static integral type
 
                 //const static float fConstStatic = 0.0;
                     //ERROR
                     //non integral type
 
                 const static Member member;
-                //OK default constructor? why
+                    //OK default constructor? why
 
                 const static Member member2;
+
                 //const static Member member2 = Member();
-                    //ERROR: non integral type
-                    //must be init outside
-                    //
-                    //why integral types are an exception (complicated):
-                        //http://stackoverflow.com/questions/13697265/static-const-double-cannot-have-an-in-class-initializer-why-is-it-so
+                    /*
+                    ERROR: non integral type
+                    must be init outside
+
+                    why integral types are an exception:
+                    <http://stackoverflow.com/questions/13697265/static-const-double-cannot-have-an-in-class-initializer-why-is-it-so>
+                    */
 
             class Nested
             {
@@ -660,10 +675,10 @@ void printCallStack()
                     }
 
                     Nested innerIn;
-                    //inner one
+                        //inner one
 
                     ::Nested innerOut;
-                    //outter one
+                        //outter one
             };
 
         protected:
@@ -1211,11 +1226,41 @@ void printCallStack()
         void byref (int& i){i++;}
         void bypointer (int *i){(*i)++;}
 
-    //return reference to temporary
+    //#return reference from function
+
+        int getInt() { return 0; }
+
+        int getIntVar() {
+            int i = 0;
+            return i;
+        }
+
+        /*
+        int& getIntRef() {
+            int i = 0;
+            return i;
+        }
+        */
+            //WARN
+            //reference to local var returned
+
+        /*
+        OK the returned i reference is not internal
+        */
+        int& getIntRef( int& i ) {
+            i++;
+            return i;
+        }
+
+        /*
+        The returned i reference cannot be modified.
+        */
+        const int& getIntConstRef( int& i ) {
+            i++;
+            return i;
+        }
 
         std::string getString() { return "abc"; }
-        int getInt() { return 0; }
-        int getIntVar() { int i = 0; return i; }
 
     //default args. C++ only. creates several name mungled functions on the assembly code.
 
@@ -1521,7 +1566,7 @@ void printCallStack()
             Should be an external method, since it is just a function of `+=`.
         */
 
-            const OperatorOverload operator+ (const OperatorOverload& lhs, const OperatorOverload& rhs){
+            OperatorOverload operator+ (const OperatorOverload& lhs, const OperatorOverload& rhs){
                 return OperatorOverload(lhs) += rhs;
             }
 
@@ -1554,12 +1599,6 @@ void printCallStack()
             {
                 os << c.i;
                 return os;
-
-            /*
-            const OperatorOverload operator* (const OperatorOverload& lhs, const OperatorOverload& mhs, const OperatorOverload& rhs){
-                return OperatorOverload( lhs.i * mhs.i * rhs.i );
-            }
-            */
             }
 
         /*
@@ -1594,22 +1633,6 @@ void printCallStack()
             */
 
         /*
-        #operator-
-
-        - `-` with one argument:    unary minus
-        - `-` with two arguments:   subtraction
-
-        */
-
-                const OperatorOverload operator- (const OperatorOverload& rhs){
-                    return OperatorOverload( -rhs.i );
-                }
-
-                const OperatorOverload operator- (const OperatorOverload& lhs, const OperatorOverload& rhs){
-                    return OperatorOverload( lhs.i - rhs.i );
-                }
-
-        /*
         #operator*
 
             operator* can be two things:
@@ -1627,8 +1650,36 @@ void printCallStack()
             which is not the case for this class.
             */
 
-                const OperatorOverload operator* (const OperatorOverload& rhs){
-                    return OperatorOverload( rhs.i );
+                /*
+                Dereference operator.
+
+                This should not be implemented for this class since it makes no (usual) sense,
+                it is just to illustrate that it is possible.
+                */
+                int operator* (const OperatorOverload& rhs){
+                    return rhs.i;
+                }
+
+                OperatorOverload operator* (const OperatorOverload& lhs, const OperatorOverload& rhs){
+                    return OperatorOverload( lhs.i * rhs.i );
+                }
+
+        /*
+        #operator-
+
+        - `-` with one argument:    unary minus
+        - `-` with two arguments:   subtraction
+
+        */
+
+                /* Can be defined in terms of * if you class implements it. */
+                const OperatorOverload operator- (const OperatorOverload& rhs){
+                    return OperatorOverload( -1 ) * rhs;
+                }
+
+                /* Defined in terms of unary minus and +. */
+                const OperatorOverload operator- (const OperatorOverload& lhs, const OperatorOverload& rhs){
+                    return lhs + (-rhs);
                 }
 
         /*
@@ -1636,20 +1687,20 @@ void printCallStack()
 
             Operator overload and templates do not play very well together
             because operator overload leads to special function calling syntax,
-            which does not go well with template specifications.
+            which does not go well with the template calling syntax.
         */
 
-            template <class T> T operator/( const T& i, const T& j) { return i + j;}
+            template <class T> T operator/( const T& i, const T& j ) { return i + j; }
 
 /*
 #namespaces
 */
 
-    //ERROR: same naming rules as vars
-        //namespace 2D{}
+    //namespace 2D{}
+        //ERROR: same naming rules as vars
 
-    //BAD: by convention, namespaces starts with lower case
-        namespace D2{}
+    namespace D2{}
+        //BAD: by convention, namespaces start with lower case
 
     int i;
 
@@ -2090,6 +2141,10 @@ int main(int argc, char** argv)
         assert( i == 2 );
         assert( j == 1 );
         assert( k == 2 );
+
+        //( i + j ) = k;
+            //ERROR
+            //as in C, most other operators do not return lvalues
     }
 
     /*
@@ -2241,37 +2296,42 @@ int main(int argc, char** argv)
             ia = 1;
             assert( i == 1 );
             assert( &i == &ia );
-            int& ia2 = ia;
-            ia2 = 2;
-            assert( i == 2 );
-        }
 
-        //ERROR: must not initialize non-const ref with a rvalue
-        {
-            //std::string& s = getString();
-            //int& ia = 0;
+            /*
+            For the same reason, it is possible to initialize a reference from another reference.
+            */
+            {
+                int& ia2 = ia;
+                ia2 = 2;
+                assert( i == 2 );
+            }
         }
 
         /*
-        const references can be initialized to rvals!
+        ERROR
 
-        This cannot be wront since they cannot be modified,
-        so will not modify the non existant variable.
+        Must not initialize non-const ref with a rvalue.
 
-        TODO0 but why would someone ever write this?
-        Is it linked to the lifespan extension of return values?
+        Can however do that for const references.
         */
         {
-            const int& i = 1;
-            assert( i == 1 );
+            //int& ia = 0;
+            //std::string& s = getString();
         }
 
-        //ERROR: must be initialized imediatelly
+        /*
+        ERROR: references must be initialized imediatelly
+        otherwise, how can they be initalized in the future?
+
+        For references in constructors, they must be initialized at the initialization list.
+        */
         {
             //int& ia;
         }
 
-        //references from pointers
+        /*
+        It is possible to get references from pointers.
+        */
         {
             int i = 0;
             int* ip = &i;
@@ -2285,35 +2345,89 @@ int main(int argc, char** argv)
             }
         }
 
-        //#const ereferences
+        /*
+        #const ereferences
+
+            References that do not allow one to modify the value of the variable.
+        */
         {
-            int i = 1;
-            const int& cia = i;
-            const int& cia2 = cia;
 
-            const int ci = 1;
-            const int& ciac = ci;
+            //it is possible to make a const reference from a non-const object
+            {
+                int i = 1;
+                const int& cia = i;
 
-            //cia = 2;
-                //ERROR
+                //cia = 2;
+                    //ERROR
+                    //const references cannot be modified
+            }
 
-            //ERROR
-            //invalid conversion
-                //int* ip = &cia;
+            //it is possible to make a const reference form a const object
+            {
+                const int ci = 1;
+                const int& cia = ci;
 
-            //int& ia = cia;
-                //ERROR: invalid conversion
+                //cia = 2;
+                    //ERROR
+                    //const references cannot be modified
+            }
 
-            //int& is[2] = {i,i};
-                //ERROR: no array of references forbidden
+            /*
+            The rules imposed by the compiler make sure that it is hard or impossible to cheat references by mistake.
+            */
+            {
+                int i = 1;
+                const int& cia = i;
 
-            //int& iac = ci;
-                //ERROR
-                //must be const int&
+                //int& ia = cia;
+                    //ERROR
+                    //invalid conversion
+
+                //int *ip = &cia;
+                    //ERROR
+                    //invalid conversion
+            }
+
+            /* It is not possible to make an array of references. */
+            {
+                int i = 1;
+                int j = 2;
+
+                //int& is[2] = {i,i};
+                    //ERROR
+                    //array of references forbidden
+            }
+
+            /*
+            const references can be initialized by rvalues!
+
+            This cannot be wrong since they cannot be modified,
+            so it is not possible to modify the non-existent variable.
+
+            In this case what happens is that a simple copy takes place.
+            */
+            {
+                //initialization from a literal
+                {
+                    const int& i = 1;
+                    assert( i == 1 );
+                }
+
+                /*
+                Initialization from a non-reference function return.
+
+                Functions that return references return lvalues,
+                so an example with such a function would not be meaningful.
+                */
+                {
+                    const int& i = getInt();
+                    assert( i == 0 );
+                }
+            }
         }
 
         /*
-        #return references from functions
+        #return reference from function
 
             Just like when returning pointers from functions,
             one must take care not to return dangling references.
@@ -2330,47 +2444,6 @@ int main(int argc, char** argv)
                 assert( b.iPublic == 0 );
                 ia = 1;
                 assert( b.iPublic == 1 );
-            }
-
-            /*
-            #return
-
-                C++ adds a special rule: binding a const reference to a on stack
-                makes it live to the end of the reference's lifetime
-
-                TODO0 why must it be const? rationale
-                TODO0 why the special no base destructor rule mentioned in the gotw article? rationale
-
-                <http://herbsutter.com/2008/01/01/gotw-88-a-candidate-for-the-most-important-const/>
-                <http://stackoverflow.com/questions/2784262/does-a-const-reference-prolong-the-life-of-a-temporary>
-            */
-            {
-                //objects
-                {
-                    //OK
-                    {
-                        const std::string& s = getString();
-                        assert( s == "abc" );
-                    }
-
-                    //ERRROR invilid initialization of non const reference
-                    {
-                        //std::string& s = getString();
-                        //assert( s == "abc" );
-                    }
-                }
-
-                //same for ints
-                {
-                    {
-                        //int& ia = getInt();
-                        //int& ia = getIntVar();
-                    }
-
-                    {
-                        const int& ia = getInt();
-                    }
-                }
             }
 
             //you can modify a private if you non const reference to it
@@ -2396,6 +2469,21 @@ int main(int argc, char** argv)
                 {
                     //int& ia = b.getPrivateConstRef();
                 }
+            }
+
+            /*
+            In C, all functions return rvalues,
+            although if a function returns a pointer and that pointer is dereferenced it becomes an lvalue,
+            so the following works:
+
+                (*ret_int_ptr()) = 1;
+
+            In C++, there is an exception: all functions that return references return lvalues directly.
+            */
+            {
+                int i = 0;
+                ( getIntRef( i ) ) = 2;
+                assert( i == 2 );
             }
         }
     }
@@ -2702,6 +2790,15 @@ int main(int argc, char** argv)
                 {
                     //unary
                     assert( -OperatorOverload(1) == OperatorOverload(-1) );
+
+                    //subtraction
+                    assert( OperatorOverload(2) - OperatorOverload(1) == OperatorOverload(1) );
+                }
+
+                //*
+                {
+                    //dereference
+                    assert( *(OperatorOverload(1)) == 1 );
 
                     //subtraction
                     assert( OperatorOverload(2) - OperatorOverload(1) == OperatorOverload(1) );
@@ -3030,6 +3127,8 @@ int main(int argc, char** argv)
 
         /*
         #initializer list
+
+            Do not confound with initialization lists.
         */
         {
             //works like in C structs
@@ -3045,7 +3144,7 @@ int main(int argc, char** argv)
             /*
             #initializer list constructor
 
-                c++11 allows for an explicit usage of the initializer list
+                C++11 allows for an explicit usage of the initializer list
 
                 This is useful in cases where you don't know beforehand how many arguments
                 a constructor should receive.
@@ -3321,7 +3420,7 @@ int main(int argc, char** argv)
             The defaults might not be what you want, specially when you allocate memory inside the constructor!
             See the rule of three.
 
-            Default copy and assign is probably exist in order to allow parameter passing to functions.
+            Default copy and assign is probably exist in order to allow class parameter passing to functions.
 
             - <http://stackoverflow.com/questions/3279543/what-is-the-copy-and-swap-idiom>
             - <http://stackoverflow.com/questions/4172722/what-is-the-rule-of-three>
@@ -3454,13 +3553,53 @@ int main(int argc, char** argv)
             }
             */
 
+
+#if __cplusplus >= 201103L
             /*
-            #move constructor
+            ##rvalue reference
+
+                <http://www.artima.com/cppsource/rvalue.html>
+
+                C++11
+
+                New type of reference.
+
+                Old references are referred to as lvalue references, since they must be initialized by lvaues.
+
+                Denoted by double ampersand `&&`.
+
+                There is one difference between them and lvalue references:
+                rvalue references can only be initialized by both rvalues,
+                unlike lvalue references which can only be initialized by lvalues
+                ( except if they are const ).
+
+                Main motivation: implement move semantics.
+            */
+            {
+                {
+                    int&& irr = 0;
+                    assert( irr == 0 );
+
+                    irr = 1;
+                    assert( irr == 1 );
+                }
+
+                //cannot be bound to an lvalue on stack
+                {
+                    int i = 0;
+                    //int&& irr = i;
+                        //ERROR
+                }
+            }
+
+            /*
+            #move semantics
 
                 TODO <http://stackoverflow.com/questions/3106110/what-is-move-semantics>
             */
             {
             }
+#endif
 
             /*
             #as-if rule
@@ -4861,7 +5000,7 @@ int main(int argc, char** argv)
 
                 If not found, returns `map::end()`
 
-                This is perferrable to `[]` since it does not insert non existing elements.
+                This is perferrable to `[]` since it does not insert non-existent elements.
             */
             {
                 std::map<int,std::string> m;
@@ -5153,6 +5292,24 @@ int main(int argc, char** argv)
                     assert( i == is[j] );
                     j++;
                 }
+            }
+
+            /*
+            #size_t for slt containers
+
+                See size_type.
+
+            #size_type
+
+                Random access containers such as vectors, strings, etc have a `size_type` member typedef
+                that represents a type large enough to hold its indexes.
+
+                For arrays, this type is exactly the C `size_t`.
+            */
+            {
+                std::vector<int> v = { 2, 0, 1 };
+                std::vector<int>::size_type i = 1;
+                v[i] = 1;
             }
         }
 

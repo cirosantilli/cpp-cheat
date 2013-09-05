@@ -383,9 +383,14 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
             //void overload(float n){}
             //void overload(int n, int o){}
 
+    int * int_ptr_func_int_ptr(int *ip){
+        (*ip)++;
+        return ip;
+    }
     int int_func_int(int i){
         return i;
     }
+
     void func_int(int i){}
     void func_float(float f){}
     void func_double(double d){}
@@ -402,16 +407,15 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
         a[0] = -1;
     }
 
-    struct get_struct_struct
+    struct struct_func_struct
     {
         int i;
         int j;
     };
 
-    struct get_struct_struct get_struct()
+    struct struct_func_struct struct_func()
     {
-        struct get_struct_struct s = { 0, 1 };
-        return s;
+        return (struct struct_func_struct){ 0, 1 };
     }
 
     struct func_struct { int i; };
@@ -514,6 +518,21 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
             va_end( args );
             return ret;
         }
+
+/* #return const from func */
+
+    const int const_int_func(){
+        return 0;
+    }
+
+    const int* const_int_ptr_func_int_ptr(int *ip){
+        (*ip)++;
+        return ip;
+    }
+
+    const struct struct_func_struct const_struct_func(){
+        return (struct struct_func_struct){ 0, 1 };
+    }
 
 #ifdef PROFILE
 
@@ -1669,7 +1688,7 @@ int main( int argc, char **argv )
 
         we changed the const with only a warning
 
-        this is why you can't int is[constint]; unless you have variable size arrays
+        this is why you can't int is[constint]; unless you have VLA
         */
         {
             //const int ic = 0
@@ -1678,19 +1697,23 @@ int main( int argc, char **argv )
             //assert( ic == 1 ):
         }
 
-        //const pointers
-        {
-            //3 types:
-                //const*
-                //*const
-                //const*const
+        /*
+        #const pointers
 
+        There are 3 types of const pointers:
+
+        - const*
+        - *const
+        - const*const
+        */
+        {
             const int* cip = &ic;
-            //SAME
-                //int const* icp = &ic;
+            //int const* icp = &ic;
+                //SAME
+
             cip = &ic2;
-            //ERROR: const prevents from changing value
-                //*cip = 2;
+            //*cip = 2;
+                //ERROR: const prevents from changing value
 
             const int ic3;
                 //BAD
@@ -1703,24 +1726,106 @@ int main( int argc, char **argv )
             //ipc = &ic2;
                 //ERROR: this time what the address the pointer points to is constant
                 //not its value!
+
             //*ipc = 2;
                 //BAD: we changed the value!
 
             const int* const cipp = &ic;
 
             const int cis2[2] = {1,2};
-            //ERROR
-                //cis2[0] = 1;
+            //cis2[0] = 1;
+                //ERROR
         }
 
+        /*
+        #const struct
+        */
         {
-            //scanf("%d",&i);
-                //works
-                //NOTE
-                //consts are *not* "compile time constants"
-                //they are only constant after they are declared
-                //this is another reason why you can't use them
-                //as arrays sizes without VLA
+            /*
+            entire struct
+
+            members of a const struct cannot be modified.
+            */
+            {
+                struct s { int i; };
+                const struct s s = { 1 };
+                //s.i = 2;
+                    //ERROR
+            }
+
+            //single memebers can be declared const
+            {
+                struct s {
+                    int i;
+                    const int j;
+                };
+                struct s s = { 0, 1 };
+                s.i = 2;
+                //s.j = 2;
+                    //ERROR
+            }
+
+            //entire structs cannot be declared const
+            {
+                //const struct s { int i; };
+                    //WARN
+                    //useless type qualifier
+            }
+        }
+
+        /*
+        #return const from func
+
+            <http://stackoverflow.com/questions/8716330/purpose-of-returning-by-const-value>
+            <http://stackoverflow.com/questions/8406898/benefits-of-using-const-with-scalar-type-e-g-const-double-or-const-int?lq=1>
+        */
+        {
+            /*
+            USELESS
+
+            There seem to be no noticeable effect of returning const for non pointer scalars.
+            */
+            {
+                //int_func();
+                //const_int_func();
+            }
+
+            /*
+            For pointer types this has a noticeable effect
+            */
+            {
+                //possible
+                {
+                    int i = 0;
+                    (*int_ptr_func_int_ptr( &i )) = 2;
+                    assert( i == 2 );
+                }
+
+                //ERROR
+                {
+                    int i = 0;
+                    //(*const_int_ptr_func_int_ptr( &i )) = 2;
+                    //assert( i == 2 );
+                }
+            }
+
+            /*
+            For structs this also has a noticeable effect.
+
+            In C++ however there can be noticeable effect
+            because the returned object may have a non-const function that changes it
+            so that the following is possible:
+
+                objFunc().nonConst();
+
+            but the following would not be:
+
+                constObjFunc().nonConst();
+            */
+            {
+                //struct_func
+                //const_struct_func
+            }
         }
     }
 
@@ -1891,13 +1996,15 @@ int main( int argc, char **argv )
                 //this is why you can use them for array sizes
 
             //typedef combo
+
                 typedef enum E F;
                 F f;
 
                 typedef enum G {g1,g2} G;
                 G g;
 
-            //by default, values start from 0 and increases
+            //by default, values start from 0 and increase
+
                 assert( E1 == 0);
                 assert( E2 == 1);
                 assert( E3 == 2);
@@ -1905,24 +2012,26 @@ int main( int argc, char **argv )
         }
 
         {
+            //you can choose the values
             enum E
             {
                 E1 = 1,
                 E2 = 2,
-                E3 = 2, //equal values are ok
-                E4,
+                E3,
+                E4 = 2, //equal values compile
             };
-                //you can choose the values
 
             assert( E1 == 1);
             assert( E2 == 2);
-            assert( E3 == 2);
+            assert( E4 == 2);
 
             //if you don't give a value
             //it gets a value different from all others
-                assert( E4 != E1);
-                assert( E4 != E2);
-                assert( E4 != E3);
+
+                assert( E3 != E1);
+                assert( E3 != E2);
+                assert( E3 != E4);
+                printf( "enum E3 = %d\n", E3 );
         }
     }
 
@@ -2744,7 +2853,8 @@ int main( int argc, char **argv )
 
             #rvalue
 
-                Something that can only be used on the right side of an assign.
+                Something that can only be used on the right side of an assign,
+                but not on the left side.
             */
             {
                 /*
@@ -2757,9 +2867,20 @@ int main( int argc, char **argv )
                     //( i = j ) = k;
                 }
 
-                //function returns are not lvalues
+                //function returns are rvalues
                 {
                     //int_func_int(1) = 1;
+                    //struct_func().i = 1;
+                }
+
+                /*
+                Dereferencing returned pointers from functions
+                turns them into lvaules.
+                */
+                {
+                    int i = 0;
+                    (*int_ptr_func_int_ptr( &i )) = 2;
+                    assert( i == 2 );
                 }
             }
         }
@@ -4243,7 +4364,8 @@ int main( int argc, char **argv )
             //return value is not an lval, so one cannot get its address
             {
                 int *ip;
-                //ip = &int_func_int( 1 ); //ERROR
+                //ip = &int_func_int( 1 );
+                    //ERROR
             }
 
             /*
@@ -4295,57 +4417,57 @@ int main( int argc, char **argv )
 #endif
 
             /*
-            Return a struct from a function.
+            #return struct from function.
 
-            Behaviour defined by the standards.
+                Behaviour defined by the standards.
 
-            assembly implementation is not specified by ANSI C, but common techiques used in cdecl like conventions:
+                assembly implementation is not specified by ANSI C, but common techiques used in cdecl like conventions:
 
-            - put struct into several registers
+                - put struct into several registers
 
-            - automatically add a hidden argument to functions that return structs,
-                allocated data on caller and pass a pointer to the struct,
-                and let the callee modify that pointer to return it.
+                - automatically add a hidden argument to functions that return structs,
+                    allocated data on caller and pass a pointer to the struct,
+                    and let the callee modify that pointer to return it.
 
-            Ex: definition
+                Ex: definition
 
-                struct get_struct_struct get_struct()
-                {
-                    struct get_struct_struct s = { 0, 1 };
-                    return s;
-                }
+                    struct struct_func_struct struct_func()
+                    {
+                        struct struct_func_struct s = { 0, 1 };
+                        return s;
+                    }
 
-            gets converted to:
+                gets converted to:
 
-                void get_struct( struct get_struct_struct* sp)
-                {
-                    struct get_struct_struct s = { 0, 1 };
-                    *sp = s;
-                }
+                    void struct_func( struct struct_func_struct* sp)
+                    {
+                        struct struct_func_struct s = { 0, 1 };
+                        *sp = s;
+                    }
 
-            And calls:
+                And calls:
 
-                s = get_struct();
+                    s = struct_func();
 
-            Get converted to:
+                Get converted to:
 
-                struct get_struct_struct temp;
-                get_struct(&temp);
-                s = temp;
+                    struct struct_func_struct temp;
+                    struct_func(&temp);
+                    s = temp;
 
-            or simply:
+                or simply:
 
-                get_struct(&s);
+                    struct_func(&s);
 
-            In C it is not possible to detect which convertion was made by the compiler.
+                In C it is not possible to detect which convertion was made by the compiler.
 
-            In C++ however, constructors and destructors allow to differenciated between the two above cases,
-            and RVO specifies that both are valid options that the compiler may take, and that the actual
-            results are unpredictable.
+                In C++ however, constructors and destructors allow to differenciate between the two above cases,
+                and RVO specifies that both are valid options that the compiler may take, and that the actual
+                results are unpredictable.
             */
             {
-                struct get_struct_struct s;
-                s = get_struct();
+                struct struct_func_struct s;
+                s = struct_func();
                 assert( s.i == 0 );
                 assert( s.j == 1 );
             }
@@ -4363,8 +4485,9 @@ int main( int argc, char **argv )
             {
                 void func();
 
-                //ERROR
                 //void func(){}
+                    //ERROR
+                    //no definition inside another function
             }
 
             /*
@@ -4431,12 +4554,13 @@ int main( int argc, char **argv )
                     //might segfault at runtime
                     if ( 0 )
                     {
-                        sprintf_wrapper( s, "%s" );
+                        sprintf_wrapper( s, "%s" /*missing arg*/ );
                         printf( "sprintf_wrapper wrong = %s\n", s );
                     }
 
-                    //type error checking is done for sprintf
                     //sprintf( s, "wrong %s" );
+                        //WARN
+                        //type error checking is done for sprintf
                 }
             }
         }
@@ -4448,7 +4572,7 @@ int main( int argc, char **argv )
 
             However, avoid using this as it may generate unreadable code.
 
-            One common use case is error handling in a large function,
+            One of the few generally accepted use cases is error handling inside a large function,
             where if a test fails, jump to the end of the function which deals with each type of error.
         */
         {
