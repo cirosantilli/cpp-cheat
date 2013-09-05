@@ -623,26 +623,36 @@ void printCallStack()
 
                 static int iStatic;
 
-                //static int iStatic = 0;
-                    //ERROR
-                    //cannot initialize here unless const
-
                 //int iStatic;
                     //concflicts with static int
 
                 const static int iConstStatic = 0;
-                    //OK: const static integral type
+                    //OK
+                    //because const static integral type
+
+            /*
+            #in-class initialization
+
+                Initialize members outside of the constructor code.
+            */
+
+                const int iConstInit = 0;
+
+                //static int iStatic = 0;
+                    //ERROR
+                    //cannot initialize here unless const
 
                 //const static float fConstStatic = 0.0;
                     //ERROR
-                    //non integral type
+                    //non-integral type
 
                 const static Member member;
-                    //OK default constructor? why
+                    //OK
+                    //why ok?
 
                 const static Member member2;
 
-                //const static Member member2 = Member();
+                //const static Member member2();
                     /*
                     ERROR: non integral type
                     must be init outside
@@ -752,8 +762,8 @@ void printCallStack()
         //static linkage, like in c static
         //meaning func only visible from current translational unit
 
-    const Member Base::member2 = Member(1);
     //must come outside
+    const Member Base::member2 = Member(1);
 
     //int Base::k;
         //ERROR
@@ -764,9 +774,8 @@ void printCallStack()
 
         public:
 
+            //can be called in derived classes init list
             BaseAbstract(){}
-            //can be called in derived classes init list
-            //can be called in derived classes init list
 
             virtual ~BaseAbstract(){}
 
@@ -775,14 +784,23 @@ void printCallStack()
             void methodAmbiguous(){ callStack.push_back("BaseAbstract::methodAmbiguous()"); }
 
             virtual void virtualMethod(){ callStack.push_back("BaseAbstract::virtualMethod()"); }
-            //virtual: decides on runtime based on object type
-                //http://stackoverflow.com/questions/2391679/can-someone-explain-c-virtual-methods
 
+            /*
+            #virtual
+
+                virtual: decides on runtime based on object type
+
+                http://stackoverflow.com/questions/2391679/can-someone-explain-c-virtual-methods
+
+            #pure virtual function
+
+                cannot instantiate this class
+
+                can only instantiate derived classes that implement this
+
+                if a class has a pure virtual func is called as an *abstract class* or *interface*
+            */
             virtual void pureVirtual() = 0;
-                //pure virtual function
-                //cannot instantiate this class
-                //can only instantiate derived classes that implement this
-                //if a class has a pure virtual func is called as an *abstract class* or *interface*
 
             //virtual void pureVirtualImplementedOtherBase() = 0;
                 //BAD
@@ -793,8 +811,8 @@ void printCallStack()
 
         private:
 
-            virtual void privatePureVirtual() = 0;
             //this can/must still be implemented on the base class, even if private!
+            virtual void privatePureVirtual() = 0;
 
             //how private pure virtual can be usefull
             void usefulPrivatePureVirtual()
@@ -860,16 +878,21 @@ void printCallStack()
                 callStack.push_back("Class::Class(int)");
             }
 
+            /*
+            calls specific base constructors  instead of default ones
+            another application os initialization lists
+
+            works even if the BaseAbstract class is abstract!
+            this is the only place you can do that: init list of derived classes
+            */
             Class(int i, int z) : Base(i,z), BaseProtected(i), BasePrivate(i), BaseAbstract(), i(i), z(z)
             {
                 callStack.push_back("Class::Class(int, int)");
             }
-            //calls specific base constructors  instead of default ones
-                //another application os initialization lists
-            //works even if the BaseAbstract class is abstract!
-                //this is the only place you can do that: init list of derived classes
+
             //Class() : BaseAbstract(), Base(i,z), BaseProtected(i), BasePrivate(i), i(i), z(z)
-                //warning BaseAbstract will be init after TODO ?
+                //WARN
+                //BaseAbstract will be init after TODO ?
 
             //try catch in case base constructor can throw exceptions
             Class(int i, int j, int z) try : Base(i,j), i(i), z(z)
@@ -883,16 +906,22 @@ void printCallStack()
 
             Class(Member m) : m(m)
             {
-                //BAD: m constructor would be called, but this is useless since we have already called it!
-                //to construct it before.
-                //This is an application of initialization constructors.
-                    //this->m = m;
+                //this->m = m;
+                    //BAD: m constructor would be called, but this is useless since we have already called it!
+                    //to construct it before.
+                    //This is an application of initialization constructors.
+
                 callStack.push_back("Class::Class(Member)");
             }
 
-            //copy constructor
-                //classes already have this by default
-                //useful to customize if class does dynamic allocation!
+            /*
+            copy constructor
+
+                classes already have this by default
+
+                useful to customize if class does dynamic allocation!
+            */
+
                 Class(const Class& c) : i(c.i), z(c.z), m(c.m)
                 {
                     callStack.push_back("Class::Class(Class)");
@@ -967,9 +996,9 @@ void printCallStack()
 
     //nested
 
-        class NestedDerived : Class::Nested{};
         //OK
         //you can see the nested class from derived classes
+        class NestedDerived : Class::Nested{};
 
     class Class2 : public Base
     {
@@ -978,9 +1007,9 @@ void printCallStack()
             Class2(){}
             void pureVirtual(){ callStack.push_back("Class2::pureVirtual()"); }
 
-            class Nested{};
             //OK
             //you can override the Nested class from the Base also
+            class Nested{};
     };
 
     class ClassCast
@@ -1125,6 +1154,12 @@ void printCallStack()
     //}
 
     /*
+    #friend methods and classes
+
+        <http://www.cplusplus.com/doc/tutorial/inheritance/>
+    */
+
+    /*
     Illustrates the copy and swap idiom and related concepts like move contruction.
     */
     class CopyAndSwap
@@ -1132,21 +1167,26 @@ void printCallStack()
         public:
 
             int *is;
-            CopyAndSwap( int i, int j) {
-                is = new int[2];
-                is[0] = i;
-                is[1] = j;
-            }
+            std::size_t n;
 
-            CopyAndSwap( const CopyAndSwap& other ) {
+            CopyAndSwap( std::size_t n, int val ) : n(n) {
+                is = new int[n];
+                for ( std::size_t i = 0; i < n; ++i ) {
+                    is[i] = val;
+                }
             }
 
             ~CopyAndSwap(){
                 delete[] is;
             }
 
-            CopyAndSwap operator=( const CopyAndSwap& rhs ) {
+            CopyAndSwap& operator=( const CopyAndSwap& rhs ) {
+                delete[] is;
+                is = new int[rhs.n];
                 return *this;
+            }
+
+            CopyAndSwap( const CopyAndSwap& other ) {
             }
     };
 
@@ -1714,6 +1754,8 @@ void printCallStack()
     namespace namea
     {
 
+        int in_namea_only = 0;
+
         class C
         {
             public:
@@ -1812,6 +1854,61 @@ void printCallStack()
     //template<class T> namespace t {}
         //ERROR
         //nope
+
+    //#ADL
+
+        namespace adl0 {
+
+            struct s {};
+
+            int adl( struct s s ){
+                return 0;
+            }
+
+            int i;
+
+            int adlNoType( int i ){
+                return 0;
+            }
+
+            int adlMultiArg( int i, struct s s, int j  ){
+                return 0;
+            }
+        }
+
+        namespace adl1 {
+
+            struct s {};
+
+            int adl( struct s s ){
+                return 1;
+            }
+
+            int i;
+
+            int adlNoType( int i ){
+                return 1;
+            }
+
+            int adl0FromAdl1( struct adl0::s s ) {
+                return 1;
+            }
+
+            int adl0And1FromAdl1( struct adl0::s s0, struct s s1 ) {
+                return 1;
+            }
+
+            float adl01( struct adl0::s s, struct s s1 ){
+                return 0.5;
+            }
+        }
+
+        namespace adl0 {
+            float adl01( struct s s, struct adl1::s s1 ){
+                return 0.5;
+            }
+        }
+
 
 //thread
 //{
@@ -3539,20 +3636,17 @@ int main(int argc, char** argv)
 
                 TODO
             */
-            /*
             {
-                CopyAndSwap c0( 1, 2 );
-                CopyAndSwap c1( 3, 4 );
+                CopyAndSwap c0( 2, 2 );
+                CopyAndSwap c1( 3, 3 );
 
                 //assign
-                c0 = c1;
-                //assert( c0);
+                //c0 = c1;
+                //assert( c0 );
 
                 //assign
-                CopyAndSwap c2(c0);
+                //CopyAndSwap c2(c0);
             }
-            */
-
 
 #if __cplusplus >= 201103L
             /*
@@ -4206,8 +4300,6 @@ int main(int argc, char** argv)
 
     /*
     #namespace
-
-    - *never* use `using namespace X` on a header file
     */
     {
         //variables
@@ -4226,24 +4318,35 @@ int main(int argc, char** argv)
             namea::nameaa::f();
         }
 
-        { int i; }
+        /*
+        #using
 
+            Be very careful with `using`, because there is no way to unuse afterwards.
+
+            In particuar, *never* use `using namespace X` on the toplevel a header file,
+            or you shall confuse includers to tears.
+        */
         {
             using namespace namea;
-            //brackets limit the using namespace
 
             //f();
                 //ERROR ambiguous
                 //::f
                 //namea::f
+
             ::f();
             namea::f();
             namea::nameaa::f();
 
-            //namespace main{}
-                //ERROR
-                //no namespace inside funcs
         }
+
+        //in_namea_only = 1;
+            //brackets limit the using namespace scope
+            //It is obligatory to specify unused namespaces.
+
+        //namespace main{}
+            //ERROR
+            //no namespace inside funcs
 
         //namespace chaining
         {
@@ -4265,9 +4368,9 @@ int main(int argc, char** argv)
         {
             using namespace newNamea;
             //f();
-            //ERROR ambiuous
-            //::f
-            //namea::f
+                //ERROR ambiuous
+                //::f
+                //namea::f
         }
 
         //subimport
@@ -4285,11 +4388,79 @@ int main(int argc, char** argv)
                 //only f was imported
         };
 
-        using namespace namea;
-            //BAD
-            //namespace for the rest of this function
-            //you can't unuse later
+        /*
+        #ADL
 
+            Argument dependant name lookup.
+
+            <http://en.wikipedia.org/wiki/Argument-dependent_name_lookup>
+
+            Allows for functions without namespace qualification:
+
+            - to be found
+            - to haves ambiguities resolved
+
+            based on the namespace in which the types of their arguments are defined.
+
+            Explains why operator `<<` does not need the `std::` qualifier,
+            even though *must* be implemented as a non-member function!!
+            ( see info on operator overload for why )
+
+            ADL for operators is a major use case, because specifying namespaces
+            for operators completely destroys their eyecandy appeal.
+        */
+        {
+            //ADL allows both to be found and differentiated!
+            {
+                {
+                    struct adl0::s s;
+                    assert( adl( s ) == 0 );
+                }
+
+                {
+                    struct adl1::s s;
+                    assert( adl( s ) == 1 );
+                }
+            }
+
+            //only works if the type is defined on the same namespace as the function
+            {
+                struct adl0::s s;
+                //assert( adl0FromAdl1( s ) == 1 );
+                    //ERROR
+                    //not declared on this scope
+            }
+
+            //works if at least one of the argument types is in the namespace
+            {
+                struct adl0::s s;
+                assert( adlMultiArg( 0, s, 1 ) == 0 );
+            }
+
+            //lookup works even if types from both namespaces are used
+            {
+                struct adl0::s s0;
+                struct adl1::s s1;
+                assert( adl0And1FromAdl1( s0, s1 ) == 1 );
+            }
+
+            //of course, calls can still be ambiguous
+            {
+                struct adl0::s s0;
+                struct adl1::s s1;
+                //assert( adl01( s0, s1 ) == 0.5 );
+                    //ERROR
+                    //ambiguous call
+            }
+
+            //only works for *types* defined in the namespaces, not values
+            {
+                //assert( adlNoType( adl0::i ) == 0 );
+                //assert( adlNoType( adl1::i ) == 0 );
+                    //ERROR
+                    //adlNoType not found on this scope
+            }
+        }
     }
 
     //#stdlib
