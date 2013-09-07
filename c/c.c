@@ -360,6 +360,8 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
 
         If those are used for documentation purposes, they don't need to match those of the definition.
         This is highly confusing however.
+
+        Definitions need parameter names.
         */
 
             void decl_def_args( int,   float,   char c );
@@ -369,6 +371,15 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
         int decl_1(), decl_2();
         int decl_1(){ return 1; }
         int decl_2(){ return 2; }
+
+        //int decl_3(){return 3;}, decl_4(){return 4;};
+            //ERROR
+            //cannot define on same line
+
+        //can declare a function that returns int and a int var with the same `int`.
+        //very confusing.
+        int decl_and_int_func(), decl_and_int;
+        int decl_and_int_func(){ return 0; }
 
     /*
     #overload
@@ -452,7 +463,11 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
         return n-m;
     }
 
-    int int_func_int_int( int (*function_ptr)(int, int), int m, int n )
+    int int_int_int_func( int m, int n ){
+        return m + n;
+    }
+
+    int int_func_func_int_int( int (*function_ptr)(int, int), int m, int n )
     {
         return (*function_ptr)(m, n);
     }
@@ -3026,6 +3041,13 @@ int main( int argc, char **argv )
                 i=2;
                 assert( (i=0, i++, i) == 1);
             }
+
+            //must be parenthesis protected when passesd as function argument
+            //to differentiate from argument separtor comma
+            {
+                int i = 0;
+                assert( int_func_int( (i++, i) ) == 1 );
+            }
         }
     }
 
@@ -4488,6 +4510,9 @@ int main( int argc, char **argv )
                 //void func(){}
                     //ERROR
                     //no definition inside another function
+
+                decl_and_int = 0;
+                assert( decl_and_int_func() == 0 );
             }
 
             /*
@@ -4500,8 +4525,8 @@ int main( int argc, char **argv )
             */
             {
                 assert( add_int != subInt );
-                assert( int_func_int_int( &add_int, 2, 1 ) == 3 );
-                assert( int_func_int_int( &subInt, 2, 1 ) == 1 );
+                assert( int_func_func_int_int( &add_int, 2, 1 ) == 3 );
+                assert( int_func_func_int_int( &subInt, 2, 1 ) == 1 );
             }
 
             /*
@@ -4699,11 +4724,17 @@ int main( int argc, char **argv )
             {
                 {
 #define SUM( x, y ) x + y
+
+                /*
+                generates:
+
+                    assert( 1 + 1 == 2 );
+
+                not:
+
+                    assert( 2 == 2 );
+                */
                 assert( SUM( 1, 1 ) == 2 );
-                //compiles as:
-                    //assert( 1 + 1 == 2 )
-                //not:
-                    //assert( 2 == 2 )
                 }
 
                 //no overloading
@@ -4711,6 +4742,49 @@ int main( int argc, char **argv )
 //#define SUM( x ) x + 1
                 //assert( SUM( 1 ) == 2 );
                 }
+
+                /*
+                #macro comma protection
+
+                    The macro engine has to do some kind of parsing to determine that
+                    the comma of the function (1) is not the comma of the macro (2).
+
+                    What it seems to do is simply check if the comma is between pairs of:
+
+                    - parenthesis
+                    - double quotes
+
+                    and if yes ignore it.
+
+                    This does not however cover C++ template parameters, and `assert` + template is a common break case
+                    <http://stackoverflow.com/questions/4496842/pass-method-with-template-arguments-to-a-macro>
+
+                    Pure C also has cases in which it is necessary to use parenthesis, for exapmle when the comma operator is used.
+
+                    A more complicated case in which protecting parenthesis break:
+                    <http://stackoverflow.com/questions/9187614/how-do-i-have-a-comma-inside-braces-inside-a-macro-argument-when-parentheses-cau>
+                */
+                {
+                    assert( SUM( int_int_int_func( 1, 1 ), 1 ) == 3 );
+                    //                              ^    ^
+                    //                              1    2
+
+                    int i = 1;
+                    assert( SUM( (i++, i), 1 ) == 3 );
+                    //               ^
+                    //               comma operator
+
+                    //assert( SUM( i++, i, 1 ) == 3 );
+                        //ERROR
+                        //must protect the comma operator
+
+#define CAT( x, y ) x y
+                    assert( strcmp( CAT( "1,", "2" ), "1,2" ) == 0 );
+                    //                     ^ ^
+                    //                     1 2
+                }
+
+                assert( SUM( int_int_int_func( 1, 1 ), 1 ) == 3 );
 
 #if __STDC_VERSION__ >= 199901L
 
@@ -4731,13 +4805,13 @@ int main( int argc, char **argv )
 
         ###
 
-            `##` concatenates two symbols in the preprocessor
+            `##` allows to concatenate two preprocessor functio arguments without spaces between them.
         */
         {
             //basic
             {
-#define CAT( x, y ) x ## y
-                int CAT( c_, d ) = 1;
+#define CAT_NO_SPACE( x, y ) x ## y
+                int CAT_NO_SPACE( c_, d ) = 1;
                 assert( c_d == 1);
             }
 
@@ -4809,6 +4883,35 @@ int main( int argc, char **argv )
         {
 //#error "the error message"
         }
+
+        /*
+        #null directive
+
+            A `#` followed by newline is ignored.
+        */
+        {
+#
+        }
+
+        /*
+        #pragma
+
+            C99 specifies that:
+
+                #pragma X Y Z ...
+
+            - if `X != STDC`, does something implementation defined, and therefore not portable.
+
+                Examples: `#pragma once`
+
+            - else, then the statement must take a form:
+
+                    #pragma STDC FP_CONTRACT on-off-switch
+                    #pragma STDC FENV_ACCESS on-off-switch
+                    #pragma STDC CX_LIMITED_RANGE on-off-switch
+
+                all of which are portable.
+        */
 
         /*
         #standard preprocessor defines

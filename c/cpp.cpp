@@ -59,6 +59,14 @@ for the rest, look for a c cheat.
 
             Fun and informative for those that know the language at intermediate level.
 
+        - <http://publib.boulder.ibm.com/infocenter/comphelp/v8v101/index.jsp>
+
+            IBM implementation of C++.
+
+            Contains a few extension, but lots of well explained docs with many examples.
+
+            Horrible navigation.
+
     #non free
 
         - <http://stackoverflow.com/questions/388242/the-definitive-c-book-guide-and-list>
@@ -115,7 +123,7 @@ for the rest, look for a c cheat.
 
 #libs
 
-    C++ has many major interesting libs.
+    C++ has many major interesting non standard libs.
 
     #linear algebra
 
@@ -159,35 +167,65 @@ for the rest, look for a c cheat.
 /*
 #headers
 
-    C++ stdlib headers that are not C stdlib headers don't have the .h extension.
+    C++ stdlib headers that are not C stdlib headers don't have the `.h` extension,
+    and therefore are not included with the `.h` extension.
 
-    With `g++` the C++ standard library is linked against automatically. 
-
-    When writting new libs, you can use either `.h` or `.hpp` as extensions.
-
-    The main c++ lib on linux is the GNU Standard C++ Library vX.
-
-    - std bin is located at: `/usr/lib/i386-linux-gnu/libstdc++.so.X`. Try `locate libstdc++`.
-    - std headers are located at: `/usr/include/c++/4.X/`. Try `locate /iostream`.
-
-        Note: c++ std headers have no `.h` extension, just like when included.
-
-    - the ubuntu package is called `libstdc++6.X`. `dpkg -l | grep libstd`
+    When writting new libs, you can use either `.h` or `.hpp` as extensions,
+    where `.hpp` indicates that the header is C++ specific, and not pure C.
 
     #c headers
 
-        However, it also provides a cNAME version to every NAME.h, ex: `math.h` vs `cmath`.
+        The standard C++ library provides a `cNAME` version to every `NAME.h` for every C header.
+        Ex: `math.h` vs `cmath`.
 
         The difference is the following:
 
         - cX puts things in std:: namespace. *always* use the CNAME version on new code,
             since this reduces the probability of a name conflicts, and is the standard c++ way of doing things.
 
-            Note however that macro expansion happens *before* namespaces are even compiled,
-            so you still refer to macros like EXIT_SUCCESS as EXIT_SUCCESS and not `std::EXIT_SUCCESS`.
+            Macro expansion happens *before* namespaces are even compiled,
+            so you still refer to macros like `EXIT_SUCCESS` and `assert` as in C,
+            and *not* as `std::EXIT_SUCCESS`.
 
-        - X.h puts *all* in the global namespace, it is exactly the same as the c headers.
+        -  `X.h` puts *all* in the global namespace, it is exactly the same as the c headers.
             *never* use it in new code.
+
+            Those headers exist only for backwards compatibility.
+
+        Avoid using C headers and functionality altogether if that functionality has an equivalent C++ version,
+        since the C++ version will play more nicely with new language features and libraries.
+
+#linux specifics
+
+    The main c++ lib on linux is the GNU Standard C++ Library.
+
+    Website: <http://gcc.gnu.org/libstdc++/>
+
+    Get source code: seems to be on the same tree as gcc?
+
+        git clone git://gcc.gnu.org/git/gcc.git
+
+    - the so is usually located at
+
+            /usr/lib/i386-linux-gnu/libstdc++.so.X
+
+        If it is not there then
+
+            locate libstdc++
+
+    - std headers are usually located at
+
+            /usr/include/c++/4.X/`.
+
+        If not, try:
+
+            locate /iostream
+
+    - the ubuntu package is called `libstdc++6.X`. `dpkg -l | grep libstd`
+
+    With `g++` the C++ standard library is linked against automatically.
+    This does not happen when compiling with `gcc`, and is one of the many reasons why you should use `g++`
+    whenever compiling C++ instead of `gcc`.
 */
 
 #include <algorithm>
@@ -1021,139 +1059,6 @@ void printCallStack()
         //ERROR
 
     /*
-    #templates class
-
-    - ultra general! <class T, int N>
-
-    - default values via: <class T=char, int N=10>
-        c = Class<>
-
-    - implementation must be put in .h files and compiled by includers
-        cannot be put inside a .so therfore
-        consider int N, there are int many compilation possibilities!!
-
-    - no equivalent to Javas "T extends Drawable"... sad.
-    */
-
-        //SAME
-        //template<typename T=int, int N=10>
-        template<class BASE=Base, class T=int, int N=10>
-        class TemplateClass : public BASE //OK, can derive from template
-        {
-            public:
-
-                T t;
-                T ts[N];
-
-                TemplateClass(){ callStack.push_back("TemplateClass::TemplateClass()"); }
-
-                //BAD: what is T = string?
-                    //TemplateClass() t(0.0){ callStack.push_back("TemplateClass::TemplateClass()"); }
-
-                TemplateClass(T t): t(t){ callStack.push_back("TemplateClass::TemplateClass(T)"); }
-
-                void method()
-                {
-                    callStack.push_back("TemplateClass::method()");
-                }
-
-                void methodDefinedOutside();
-
-                T method(T){ callStack.push_back("TemplateClass::method(T)"); }
-
-                template<class C=int>
-                void methodTemplate()
-                {
-                    callStack.push_back("TemplateClass::methodTemplate()");
-                }
-                    //OK
-
-                static const int sci = 0;
-
-                //BAD impossible to define?
-                    //static const TemplateClass<T,N>;
-
-                class Nested
-                {
-                    public:
-                        T t;
-                        //NOTE
-                        //works
-                };
-        };
-
-        class TemplateFixed : TemplateClass<Base,int,10> {};
-            //NOTE
-            //this is exactly the same the TemplateClass with fixed T and N
-
-        class TemplatedNestedOut : TemplateClass<Base,int,10>::Nested {};
-            //OK
-
-        //template virtual
-
-            template<class T=int>
-            class TemplateAbstract
-            {
-                virtual T virtualMethod(){ return 1; }
-                virtual T pureVirtualMethod() = 0;
-            };
-
-            class TemplateAbstractDerived : public TemplateAbstract<int>
-            {
-                virtual int virtualMethod(){ return 1; }
-                virtual int pureVirtualMethod(){ return 1; }
-            };
-
-        template<class BASE, class T, int N>
-        void TemplateClass<BASE,T,N>::methodDefinedOutside()
-        {
-            callStack.push_back("TemplateClass::methodDefinedOutside()");
-        }
-            //c++11
-            //even if independent on template args
-            //still cannot be pre compiled
-
-
-        //specialization
-        //{
-            template<>
-            void TemplateClass<Base,int,11>::methodDefinedOutside()
-            {
-                callStack.push_back("TemplateClass<Base,int,11>::methodDefinedOutside()");
-                //T t;
-                    //ERROR
-                    //T undeclared on specialiation
-            }
-                //c++11
-                //specialization of function for case 12 only
-
-            //template<> class TemplateClass<Base,int,11> {};
-                //ERROR
-                //case 11 was already defined on the spcecialization of methodDefinedOutside 11
-
-
-            template<> class TemplateClass<Base,int,12>
-            {
-                public:
-
-                    void newMethod()
-                    {
-                        callStack.push_back("TemplateClass<Base,int,12>::newMethod()");
-                    }
-            };
-                //NOTE
-                //specialization of entire class
-                //from now on, a completely new class is created in case 12
-
-            //template<>
-            //void TemplateClass<Base,int,12>::methodDefinedOutside(){}
-                //ERROR
-                //case 12 class, created in class template specialization
-                //does not contain such a function
-        //}
-    //}
-
-    /*
     #friend methods and classes
 
         <http://www.cplusplus.com/doc/tutorial/inheritance/>
@@ -1285,7 +1190,7 @@ void printCallStack()
             //reference to local var returned
 
         /*
-        OK the returned i reference is not internal
+        OK the returned i reference is not local
         */
         int& getIntRef( int& i ) {
             i++;
@@ -1374,84 +1279,17 @@ void printCallStack()
             //void defaultArgBoth(int i=0);
             //void defaultArgBoth(int i=0){}
 
-    //templates
-
-        template<class T=int>
-        void fTemplate(T t)
-        {
-            T t2 = t;
-            cout << "fTemplate(T) " << t << endl;
-        }
-
-        template<>
-        void fTemplate<float>(float t)
-        {
-            cout << "fTemplate(float) " << t << endl;
-            //T t = t;
-            //ERROR
-                //T not declared
-        }
-
-        //variadic template
-
-            //c++11
-
-            //base case
-            template <typename T>
-            T variadicSum(T t) { return(t); }
-
-            template <typename T, typename ...P>
-            T variadicSum(T t, P ...p)
-            {
-                if (sizeof...(p))
-                {
-                    t += variadicSum(p...);
-                }
-                return(t);
-            }
-
-            //loop
-            //template <typename T, typename ...P>
-            //T variadicSum2(T t, P ...p)
-            //{
-                //std::vector list = {p...};
-
-                //if (sizeof...(p))
-                //{
-                    //t += variadicSum(p...);
-                //}
-                //return(t);
-            //}
-
-        //template recursion example
-
-            template<int N>
-            int factorial()
-            {
-                return N*factorial<N-1>();
-            }
-
-            template<>
-            int factorial<0>()
-            {
-                return 1;
-            }
-                //NOTE
-                //without this, compilation error
-                //for me, blows max template recursion depth of 1024
-                //this can be reset with `-ftemplate-depth`
-
     /*
-    #auto
+    #auto arguments
     */
 
-        /*no you can't*/
-            /*
-            int func_auto(auto a){
-                ++a;
-                return (int)a;
-            }
-            */
+            /*ERROR: no you can't*/
+        /*
+        int func_auto(auto a){
+            ++a;
+            return (int)a;
+        }
+        */
 
     /*
     #operator overload
@@ -1730,7 +1568,8 @@ void printCallStack()
             which does not go well with the template calling syntax.
         */
 
-            template <class T> T operator/( const T& i, const T& j ) { return i + j; }
+            template <class T>
+            T operator/( const T& i, const T& j ) { return i + j; }
 
 /*
 #namespaces
@@ -1909,11 +1748,341 @@ void printCallStack()
             }
         }
 
+//#template
 
-//thread
-//{
-    //TODO
-    //- recursive mutex
+    /*
+    TODO what is this?? why does it compile? how to call this func?
+    */
+
+        template <class T>
+        int templateTODO(T /*no param name!*/ ){
+            //return i + 1;
+            return 1;
+        }
+
+    template<class T>
+    T templateAdd(T t0, T t1)
+    {
+        return t0 + t1;
+    }
+
+    //#template integer parameter
+    template<int N>
+    int templateAddInt(int t)
+    {
+        return t + N;
+    }
+
+    //#template recursion
+
+        template<int N>
+        int factorial()
+        {
+            return N*factorial<N-1>();
+        }
+
+        //without this template specialization, compilation error
+        //for me, blows max template recursion depth of 1024
+        //this can be reset with `-ftemplate-depth`
+        template<>
+        int factorial<0>()
+        {
+            return 1;
+        }
+
+        //loop
+        //template <typename T, typename ...P>
+        //T variadicSum2(T t, P ...p)
+        //{
+            //std::vector list = {p...};
+
+            //if (sizeof...(p))
+            //{
+                //t += variadicSum(p...);
+            //}
+            //return(t);
+        //}
+
+    /*
+    #template template parameters
+    */
+
+        template<typename T>
+        class TemplateTemplateParam
+        {
+            public:
+                TemplateTemplateParam(){}
+                TemplateTemplateParam( T t ) : t(t) {}
+                T t;
+        };
+
+        template<template<typename T> class U>
+        class TemplateTemplateInt
+        {
+            public:
+                U<int> t;
+        };
+
+        /*
+        template<class T>
+        class TemplateTemplateIntNotATemplate
+        {
+            public:
+                T<int> t;
+        };
+        */
+            /*
+            ERROR
+            T is not a template
+
+            Must use a template template parameter.
+            */
+
+        /*
+        A case in which using a template template would be a better choice.
+        */
+        template<class T, class V>
+        class TemplateTemplateWouldBeBetter
+        {
+            public:
+                T t;
+                V v;
+
+                bool equal(){ return t == v.t; }
+        };
+
+        /*
+        Illustrates a case in which template template is a good design choice.
+        */
+        template<typename T, template<typename U> class V>
+        class TemplateTemplate
+        {
+            public:
+
+                /* the template template enforces that T be used twice,
+                once for each memeber type, if that is what this class intends to happen */
+                T t;
+                V<T> v;
+
+                bool equal(){ return t == v.t; }
+        };
+
+    /*
+    #template default parameters
+    */
+
+        template<typename T=int, template <typename T> class TT = TemplateTemplateParam, int N=1 >
+        T templateDefault( T t, TT<T> tt ){
+            return t + tt.t + N;
+        }
+
+    //#template specialization
+
+        template<typename T, typename U>
+        double templateSpec(T t, U u)
+        {
+            return t + u;
+        }
+
+        template<>
+        double templateSpec<double,double>(double t, double u)
+        {
+            //T res;
+                //ERROR
+                //T cannot be used anymore in this specialization.
+
+            return t + u + 1.1;
+        }
+
+        /*
+            template<typename U>
+            double templateSpec<double,U>(double t, U u)
+            {
+                return t + u + 1.0;
+            }
+
+            template<typename T>
+            double templateSpec<T,double>(T t, double u)
+            {
+                return t + u + 0.1;
+            }
+        */
+            /*
+            ERROR
+            template specialization not allowed.
+            */
+
+    //#template argument deduction
+
+        template<typename U>
+        U templateArgDeduct(U u)
+        {
+            return u;
+        }
+
+        template<>
+        double templateArgDeduct(double u)
+        {
+            return u + 1.0;
+        }
+
+        template<typename T>
+        T templateArgDeductReturn()
+        {
+            return 0;
+        }
+
+        template<typename T>
+        T templateArgDeductLocal()
+        {
+            return 0;
+        }
+
+        template<typename T, typename U>
+        double templateArgDeductNotLast(T t)
+        {
+            U u = 0;
+            return t + u;
+        }
+
+    /*
+    #template class
+    */
+
+        template<class BASE=Base, class T=int, int N=10>
+        class TemplateClass : public BASE //OK, can derive from template
+        {
+            public:
+
+                T t;
+                T ts[N];
+
+                TemplateClass(){ callStack.push_back("TemplateClass::TemplateClass()"); }
+
+                //TemplateClass() t(0.0){ callStack.push_back("TemplateClass::TemplateClass()"); }
+                    //BAD: what is T = string?
+
+                TemplateClass(T t): t(t){ callStack.push_back("TemplateClass::TemplateClass(T)"); }
+
+                void method()
+                {
+                    callStack.push_back("TemplateClass::method()");
+                }
+
+                void methodDefinedOutside();
+
+                T method(T){ callStack.push_back("TemplateClass::method(T)"); }
+
+                template<class C=int>
+                void methodTemplate()
+                {
+                    callStack.push_back("TemplateClass::methodTemplate()");
+                }
+                    //OK
+
+                static const int sci = 0;
+
+                //static const TemplateClass<T,N>;
+                    //BAD impossible to define?
+
+                class Nested
+                {
+                    public:
+                        T t;
+                        //NOTE
+                        //works
+                };
+        };
+
+        //this is exactly the same the TemplateClass with fixed T and N
+        class TemplateFixed : TemplateClass<Base,int,10> {};
+
+        //OK
+        class TemplatedNestedOut : TemplateClass<Base,int,10>::Nested {};
+
+        //template virtual
+
+            template<class T=int>
+            class TemplateAbstract
+            {
+                virtual T virtualMethod(){ return 1; }
+                virtual T pureVirtualMethod() = 0;
+            };
+
+            class TemplateAbstractDerived : public TemplateAbstract<int>
+            {
+                virtual int virtualMethod(){ return 1; }
+                virtual int pureVirtualMethod(){ return 1; }
+            };
+
+        //c++11
+        //even if independent on template args
+        //still cannot be pre compiled
+        template<class BASE, class T, int N>
+        void TemplateClass<BASE,T,N>::methodDefinedOutside()
+        {
+            callStack.push_back("TemplateClass::methodDefinedOutside()");
+        }
+
+        //#template specialization
+
+            template<>
+            void TemplateClass<Base,int,11>::methodDefinedOutside()
+            {
+                callStack.push_back("TemplateClass<Base,int,11>::methodDefinedOutside()");
+                //T t;
+                    //ERROR
+                    //T undeclared on specialiation
+            }
+                //c++11
+                //specialization of function for case 12 only
+
+            //template<> class TemplateClass<Base,int,11> {};
+                //ERROR
+                //case 11 was already defined on the spcecialization of methodDefinedOutside 11
+
+
+            //specialization of entire class
+            //from now on, a completely new class is created in case 12
+            template<> class TemplateClass<Base,int,12>
+            {
+                public:
+
+                    void newMethod()
+                    {
+                        callStack.push_back("TemplateClass<Base,int,12>::newMethod()");
+                    }
+            };
+
+            //template<>
+            //void TemplateClass<Base,int,12>::methodDefinedOutside(){}
+                //ERROR
+                //case 12 class, created in class template specialization
+                //does not contain such a function
+
+#if __cplusplus >= 201103L
+
+    //#variadic template
+
+        //base case
+        template <typename T>
+        T variadicSum(T t) { return(t); }
+
+        template <typename T, typename ...P>
+        T variadicSum(T t, P ...p)
+        {
+            if (sizeof...(p))
+            {
+                t += variadicSum(p...);
+            }
+            return(t);
+        }
+
+#endif
+
+/*
+#thread
+*/
 
     int nNsecs = 10;
     int threadGlobal = 0;
@@ -1966,7 +2135,6 @@ void printCallStack()
         std::this_thread::yield();
             //done, pass to another thread
     }
-//}
 
 #ifdef PROFILE
 
@@ -2443,7 +2611,7 @@ int main(int argc, char** argv)
         }
 
         /*
-        #const ereferences
+        #const references
 
             References that do not allow one to modify the value of the variable.
         */
@@ -2502,6 +2670,30 @@ int main(int argc, char** argv)
             so it is not possible to modify the non-existent variable.
 
             In this case what happens is that a simple copy takes place.
+
+            One case in which this rule is very important is parameter passing to functions.
+
+            For exapmle, the following would be bad:
+
+                void f( int& i ) {
+                    i++;
+                }
+
+                ...
+
+                f(1);
+                    //does not compile
+
+            and is impossible, but:
+
+                void f( const int& i ) {
+                    //i++;
+                        //impossible
+                }
+
+                f(1);
+
+            is ok, since it is impossible to change i in the function if it is const
             */
             {
                 //initialization from a literal
@@ -2932,40 +3124,389 @@ int main(int argc, char** argv)
             #operator overload and templates
             */
             {
-                OperatorOverload i, j;
-                i = OperatorOverload(1);
-                j = OperatorOverload(2);
+                //works because of template ty
+                assert( OperatorOverload(1) / OperatorOverload(2) == OperatorOverload(3) );
 
-                //Impossible
-                {
-                    //assert( (i /<OperatorOverload> j).i == 4 );
-                }
+                //assert( OperatorOverload(1) /<OperatorOverload> OperatorOverload(2) == OperatorOverload(3) );
+                    //ERROR
+                    //Impossible syntax
 
-                //TODO why not working??
-                //assert( operator/<OperatorOverload>( i, j ) == OperatorOverload(3) );
+                //if we needed to specify the template parameter to the operator on this case,
+                //an explicit `operator/` call would be needed
+                assert( operator/<OperatorOverload>( OperatorOverload(1), OperatorOverload(2) ) == OperatorOverload(3) );
+            }
+        }
+    }
+
+    /*
+    #template
+
+        Greatly reduces code duplication
+
+        Can be used both in functions and classes.
+
+        For each template that is used, a new name mangled function is compiled.
+        This has the following downsides:
+
+        - code bloat.
+
+            Final exectutable gets larger.
+
+        - Implementation must be put in `.h` files and compiled by includers,
+            since only used templates generate code for the corresponding definitions.
+
+            Pre-compiling all possibilities on a `.so` is obviously not an option:
+            just consider int N, there are int many compilation possibilities!
+
+    #three types of arguments
+
+        There are 3 possible arguments for templates:
+
+        - types
+        - integers values
+        - other templates (see template teamplate)
+
+    #extends
+
+        No equivalent to Javas "T extends Drawable"... sad.
+
+    #typename
+
+        C++ keyword.
+
+        Has 2 uses: <http://en.wikipedia.org/wiki/Typename>
+
+        - same as `class` on template declaration
+        - disambiguating dependent qualified type names
+
+            Keyword is used inside the template function / class.
+
+    #disambiguating dependent qualified type names
+
+        Syntax:
+
+            template <class T>
+            string foo(vector<T> vec, ... other args)
+            {
+                typename vector<T>::iterator it = vec.begin();
+            }
+
+        source:
+
+            <http://eli.thegreenplace.net/2011/04/22/c-template-syntax-patterns/>
+
+        TODO0
+
+    #Disambiguating explicitly qualified template member usage
+
+        Syntax:
+
+            template<class U> void func(U arg)
+            {
+                int obj = arg.template member_func<int>();
+            }
+
+        Source: http://eli.thegreenplace.net/2011/04/22/c-template-syntax-patterns/
+
+        TODO0
+
+    #sources
+
+        - <http://www.codeproject.com/Articles/257589/An-Idiots-Guide-to-Cplusplus-Templates-Part-1>
+
+            Very complete and exemplified intro article.
+
+        - <http://eli.thegreenplace.net/2011/04/22/c-template-syntax-patterns/>
+
+            Short intro, covers some quirky points.
+    */
+    {
+
+        /*
+        basic usage
+        */
+        {
+            assert( templateAdd<int>( 1, 1 ) == 2 );
+            assert( templateAdd<float>( 1.0, 1.0 ) == 2 );
+        }
+
+        /*
+        #template specialization
+
+            Give an specific behaviour for certain types.
+        */
+        {
+            assert( (templateSpec<double,double>( 1.0, 1.0 )) == 3.1 );
+        }
+
+        /*
+        #template argument deduction
+
+            Deduce the template parameters based on the type of the arguments passed to the function,
+            when those arguments are typenames used in the template.
+
+            Only works for function templates, not for class templates.
+            Why not do it for class templates via constructor:
+            <http://stackoverflow.com/questions/984394/why-not-infer-template-parameter-from-constructor?rq=1>
+
+            Complex rules dictate how this happens: <http://accu.org/index.php/journals/409>
+
+            The advantages are:
+
+            - write less
+            - don't repeat yourself: if
+
+            However it does make the code harder to understand,
+            since readers have to deduce types in their heads to decide which functions will be called.
+
+            In the casse of operators, templates enourmously help with syntatic sugar as:
+
+                cout << "a";
+
+            would have to be written something like:
+
+                operator<<<ostream,string>(cout, "a");
+
+            if there was no template argument deduction, and that would be ugly.
+        */
+        {
+            /*
+            The compiler calls the int or double version depending on the function argument!
+
+            If no template parameters need to be passed, the template notation can be ommited completely.
+            */
+            {
+                assert( templateArgDeduct<int>   (1)   == 1 );
+                assert( templateArgDeduct        (1)   == 1 );
+                assert( templateArgDeduct<double>(1.0) == 2.0 );
+                assert( templateArgDeduct        (1.0) == 2.0 );
+            }
+
+            /*
+            Can only deduct parameters which are function arguments,
+            not those used only on return types or other places.
+            */
+            {
+                assert( (templateArgDeductReturn<int>()) == 0 );
+                assert( (templateArgDeductLocal<int>()) == 0 );
+
+                //assert( (templateArgDeductReturn<>()) == 0 );
+                //assert( (templateArgDeductLocal<>()) == 0 );
+                    //ERROR
+            }
+
+            /*
+            Can only deduct parmeters if the parameter is the last non deducted one.
+
+            Here `U` cannot be deducted because it is not a function parameter,
+            so `T` which could be deducted cannot because it is never the last undeduced one.
+            */
+            {
+                assert( (templateArgDeductNotLast<int,int>( 1 )) == 1 );
+
+                //assert( (templateArgDeductNotLast<int>( 1 )) == 1 );
+                    //ERROR
             }
         }
 
-        //#template
+        /*
+        #template integer parameter
+
+            Templates can receive integer parameters
+        */
+        {
+            assert( templateAddInt<1>( 1 ) == 2 );
+        }
+
+        /*
+        #template recursion
+
+            May lead to huge code bloat, but also great speads and non repetition.
+        */
         {
             assert( factorial<3>() == 6 );
                 //because of this call
                 //all factorials from
-                //1 to 2 will be compiled
+                //1 to 3 will be compiled
+
             assert( factorial<6>() == 720 );
+                //because of this call
+                //all factorials from
                 //4 to 6 will be compiled
+        }
 
-            //variadic template
+        /*
+        #template template parameters
+
+            Passing a template as a template argument.
+        */
+        {
+            /*
+            This does not compile: template template arguments are required.
+            */
             {
-                assert( variadicSum( 1 )       == 1 );
-                assert( variadicSum( 1, 2 )    == 3 );
-                assert( variadicSum( 1, 2, 3 ) == 6 );
+                //TemplateTemplateIntNotATemplate<int,TemplateTemplateParam>
+            }
 
-                assert( fabs( variadicSum( 0.1 )           - 0.1 ) < 1e-6 );
-                assert( fabs( variadicSum( 0.1, 0.2 )      - 0.3 ) < 1e-6 );
-                assert( fabs( variadicSum( 0.1, 0.2, 0.3 ) - 0.6 ) < 1e-6 );
+            //useless working example
+            {
+                TemplateTemplateInt<TemplateTemplateParam> t;
+                t.t.t = 1;
+            }
 
-                assert( variadicSum( 1, 1.0 ) == 2.0 );
+            /*
+            This is an example illustrates a case in which a template teamplate would be useful:
+
+            - to enforce that a single template argument will be used on many places
+            - to allow users to write a type only once
+            */
+            {
+                /* bad: types don't match */
+                TemplateTemplateWouldBeBetter<int,TemplateTemplateParam<double>> t;
+
+                /* bad: types match, but there is code duplication as `int` must be written twice */
+                TemplateTemplateWouldBeBetter<int,TemplateTemplateParam<int>> t2;
+            }
+
+            /*
+            This solves the above issues
+            */
+            {
+                TemplateTemplate<int,TemplateTemplateParam> t;
+                t.v.t = 0;
+                t.t = 0;
+
+                /**/
+                assert( t.equal() );
+            }
+        }
+
+    /*
+    #template multiple parameters
+
+        Templates can have multiple parameters of any kind of type.
+
+        Watch out for the macro comma protection gotcha!
+
+        The C++ preprocessor does not protect commas inside `<`, so the protecting parenthesis (1)
+        and (2) are necessary.
+    */
+    {
+        assert( (templateDefault<int,TemplateTemplateParam,1>( 1, TemplateTemplateParam<int>( 1 ) )) == 3 );
+        //      ^                                                                                  ^
+        //      1                                                                                  2
+
+        //assert( templateDefault<int,TemplateTemplateParam,1>( 1, TemplateTemplateParam<int>( 1 ) ) == 3 );
+        //                       ^                           ^
+        //                       1                           2
+            //ERROR
+            //assert macro gets too many arguments, because `<>` does not protect its inner commas.
+    }
+    /*
+    #template default parameters
+
+        Each of the 3 parameters types that can be passed to templates can have defaults.
+    */
+    {
+        assert( (templateDefault<int,TemplateTemplateParam,1>( 1, TemplateTemplateParam<int>( 1 ) )) == 3 );
+        assert( (templateDefault<int,TemplateTemplateParam  >( 1, TemplateTemplateParam<int>( 1 ) )) == 3 );
+        assert( (templateDefault<int                        >( 1, TemplateTemplateParam<int>( 1 ) )) == 3 );
+        assert( (templateDefault<                           >( 1, TemplateTemplateParam<int>( 1 ) )) == 3 );
+            //if there are no parameters left, the `<>` can be ommited:
+        assert( (templateDefault                             ( 1, TemplateTemplateParam<int>( 1 ) )) == 3 );
+    }
+
+#if __cplusplus >= 201103L
+        /*
+        #variadic template
+        */
+        {
+            assert( variadicSum( 1 )       == 1 );
+            assert( variadicSum( 1, 2 )    == 3 );
+            assert( variadicSum( 1, 2, 3 ) == 6 );
+
+            assert( fabs( variadicSum( 0.1 )           - 0.1 ) < 1e-6 );
+            assert( fabs( variadicSum( 0.1, 0.2 )      - 0.3 ) < 1e-6 );
+            assert( fabs( variadicSum( 0.1, 0.2, 0.3 ) - 0.6 ) < 1e-6 );
+
+            assert( variadicSum( 1, 1.0 ) == 2.0 );
+        }
+#endif
+
+        /*
+        #SFINAE
+
+            <http://en.wikipedia.org/wiki/Substitution_failure_is_not_an_error>
+
+            TODO0
+        */
+
+        /*
+        #template class
+
+            Only points which differ significantly from template functions shall be covered here.
+        */
+        {
+            {
+                TemplateClass<Base,int,10> c;
+                c.ts[9] = 9;
+            }
+
+            {
+                TemplateClass<> c; //default values int 10
+            }
+
+            {
+                TemplateClass<Base,string,10> c;
+                c.ts[9] = "asdf";
+            }
+
+            {
+                TemplateClass<> c;
+                c.method();
+                c.Base::method();
+            }
+
+            //tci10 = TemplateClass<float,20>();
+                //BAD: wont work, unless you defined an assign operator for this case
+                //which is very unlikelly
+
+            {
+                Class c;
+                c.methodTemplate<int>();
+            }
+
+            {
+                TemplateClass<>().methodTemplate<>();
+            }
+
+            {
+                {
+                    TemplateClass<Base,int,10> c;
+                    callStack.clear();
+                    c.methodDefinedOutside();
+                    assert( callStack.back() == "TemplateClass::methodDefinedOutside()" );
+                    //TemplateClass<Base,int,12>().method();
+                        //12 class does not contain method()
+                }
+
+                {
+                    TemplateClass<Base,int,11> c;
+                    callStack.clear();
+                    c.methodDefinedOutside();
+                    assert( callStack.back() == "TemplateClass<Base,int,11>::methodDefinedOutside()" );
+                    //TemplateClass<Base,int,12>().method();
+                        //12 class does not contain method()
+                }
+
+                {
+                    TemplateClass<Base,int,12> c;
+                    callStack.clear();
+                    c.newMethod();
+                    assert( callStack.back() == "TemplateClass<Base,int,12>::newMethod()" );
+                    //TemplateClass<Base,int,12>().method();
+                        //12 class does not contain method()
+                }
             }
         }
     }
@@ -3885,72 +4426,6 @@ int main(int argc, char** argv)
             }
         }
 
-        //#template class
-        {
-            {
-                TemplateClass<Base,int,10> c;
-                c.ts[9] = 9;
-            }
-
-            {
-                TemplateClass<> c; //default values int 10
-            }
-
-            {
-                TemplateClass<Base,string,10> c;
-                c.ts[9] = "asdf";
-            }
-
-            {
-                TemplateClass<> c;
-                c.method();
-                c.Base::method();
-            }
-
-            //tci10 = TemplateClass<float,20>();
-                //BAD: wont work, unless you defined an assign operator for this case
-                //which is very unlikelly
-
-            {
-                Class c;
-                c.methodTemplate<int>();
-            }
-
-            {
-                TemplateClass<>().methodTemplate<>();
-            }
-
-            {
-                {
-                    TemplateClass<Base,int,10> c;
-                    callStack.clear();
-                    c.methodDefinedOutside();
-                    assert( callStack.back() == "TemplateClass::methodDefinedOutside()" );
-                    //TemplateClass<Base,int,12>().method();
-                        //12 class does not contain method()
-                }
-
-                {
-                    TemplateClass<Base,int,11> c;
-                    callStack.clear();
-                    c.methodDefinedOutside();
-                    assert( callStack.back() == "TemplateClass<Base,int,11>::methodDefinedOutside()" );
-                    //TemplateClass<Base,int,12>().method();
-                        //12 class does not contain method()
-                }
-
-                {
-                    TemplateClass<Base,int,12> c;
-                    callStack.clear();
-                    c.newMethod();
-                    assert( callStack.back() == "TemplateClass<Base,int,12>::newMethod()" );
-                    //TemplateClass<Base,int,12>().method();
-                        //12 class does not contain method()
-                }
-            }
-
-        }
-
         //#method overridding
         {
             {
@@ -4827,6 +5302,21 @@ int main(int argc, char** argv)
         }
 
         /*
+        #deque
+
+            Double ended queue.
+
+            Random access.
+
+            Very similar interface to vector, except that:
+
+            - insertion to front is more efficient
+            - there is no guarantee of inner storage contiguity
+
+            <http://www.cplusplus.com/reference/deque/deque/>
+        */
+
+        /*
         #set
 
             - unique elements: inserting twice does nothing
@@ -5506,6 +5996,21 @@ int main(int argc, char** argv)
                 std::vector<int> v1 = { 1, 0, 2 };
                 assert( v == v1 );
             }
+
+            /*
+            #swap
+
+                Does things equivalent to:
+
+                    template <class T> void swap ( T& a, T& b )
+                    {
+                        T c(a); a=b; b=c;
+                    }
+
+                However STL can specialize it to do operations more efficiently.
+
+                Some STL classes implement swap as a method.
+            */
 
             //#randomize
             {
