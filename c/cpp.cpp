@@ -23,6 +23,9 @@ for the rest, look for a c cheat.
     All of those features allow to drastically reduce code duplicationa and improve code structure,
     at the cost of adding huge complexity to the language (probably at least doubles the complexity).
 
+    The problem is that individual features sometimes interact in ways which are not obvious to understand,
+    so the complexity growth is exponential per feature.
+
 #sources
 
     #free
@@ -65,7 +68,9 @@ for the rest, look for a c cheat.
 
             Contains a few extension, but lots of well explained docs with many examples.
 
-            Horrible navigation.
+            Contains clear examples and explanations on very specific subjects.
+
+            Horrible navigation and urls.
 
     #non free
 
@@ -744,6 +749,93 @@ void printCallStack()
 
     };
 
+    /*
+    #friend
+
+        Allow external functions and other classes to access private memebers of this class.
+
+        Friendship is not automatically reflexive nor transitive.
+
+        One case in which friendship may be unavoidable is for operator overload of operators which cannot
+        be class members and must be implemented as external functions such as `operator<<`.
+        This happens because of the nature of operators, which may force them to be implemented outside the class.
+
+        <http://www.cplusplus.com/doc/tutorial/inheritance/>
+
+    #friend and templates
+
+        Things get complicated when friends and template classes interact:
+
+        <http://publib.boulder.ibm.com/infocenter/lnxpcomp/v8v101/index.jsp?topic=%2Fcom.ibm.xlcpp8l.doc%2Flanguage%2Fref%2Ffriends_and_templates.htm>
+    */
+
+        class FriendOfFriend;
+
+        class Friend {
+
+            public:
+
+                friend class FriendOfFriend;
+
+                Friend( int i ) : i(i) {}
+                int getI(){ return this->i; }
+
+                //this declaration says that `friendGetIPrivate(Base)` is a friend of this class.
+                //It will be defined outside the class.
+                friend int friendGetI(Friend f);
+
+                /* The same as friendGetI, but also defined inside the class. */
+                friend int friendGetIInnerDefine(Friend f) {
+
+                    //return this->i;
+                        //ERROR
+                        //it is as if this were a friend external function, so there is no `this`.
+
+                    return f.i;
+                }
+
+                int getFriendI(FriendOfFriend f);
+
+            private:
+
+                int i;
+        };
+
+        /* cannot use the word friend here */
+        int friendGetI(Friend f){
+
+            //return this->i;
+                //ERROR
+                //this is a non-member function, so no `this`
+
+            return f.i;
+        }
+
+        class FriendOfFriend {
+
+            public:
+
+                FriendOfFriend( int i ) : i(i) {}
+                int getFriendI(Friend f){ return f.i; }
+
+            private:
+
+                int i;
+        };
+
+        //friend int friendGetI(Friend f){ return f.i; }
+            //ERROR
+            //friend used outside class
+
+        //int Friend::getFriendI(FriendOfFriend f) { return f.i; }
+            //ERROR
+            //not a friend because reflexivity is not automatic
+
+    /*
+    #const method
+
+        Methods that cannot change the data of their object.
+    */
     void Base::constMethod () const
     {
         //this->i = 2;
@@ -753,10 +845,11 @@ void printCallStack()
         //this->member.method();
             //ERROR
             //cant call non const method inside const method!
+            //as that method could change the object
 
         //this->member.i = 1;
             //ERROR
-            //cant assign member member in const method
+            //cant assign member of a member in const method
 
         /*
         #multable
@@ -768,11 +861,10 @@ void printCallStack()
             Application to multithreading:
             <http://stackoverflow.com/questions/105014/does-the-mutable-keyword-have-any-purpose-other-than-allowing-the-variable-to>
         */
-
         this->mutableI = 1;
 
+        //static changes can still be done
         this->iStatic = 1;
-            //does not prevent static changes
 
         callStack.push_back("Base::constMethod()");
     }
@@ -795,9 +887,10 @@ void printCallStack()
             //OK
             //ok to use static vars
     }
+
     //static void staticMethod()
         //ERROR
-        //static linkage, like in c static
+        //static linkage, like in C static
         //meaning func only visible from current translational unit
 
     //must come outside
@@ -1057,12 +1150,6 @@ void printCallStack()
 
     //ClassDefault::ClassDefault(int i=0){}
         //ERROR
-
-    /*
-    #friend methods and classes
-
-        <http://www.cplusplus.com/doc/tutorial/inheritance/>
-    */
 
     /*
     Illustrates the copy and swap idiom and related concepts like move contruction.
@@ -1470,7 +1557,10 @@ void printCallStack()
             its first argument would be an implicit `Class` for the `this`,
             but the first argument of `<<` must be the `ostream`.
 
-            Therefor it must be a free method outside of a class.
+            Therefore it must be a free method outside of a class.
+
+            It is likely that it will need to be a friend of the class in order
+            to see its internal fields. This may not be the case in this overly simplified example.
         */
 
             ostream& operator<<(ostream& os, const OperatorOverload& c)
@@ -1872,15 +1962,19 @@ void printCallStack()
     */
 
         template<typename T=int, template <typename T> class TT = TemplateTemplateParam, int N=1 >
-        T templateDefault( T t, TT<T> tt ){
+        T templateDefault( T t, TT<T> tt ) {
             return t + tt.t + N;
+        }
+
+        template<typename T, T t>
+        T TemplateReuseType() {
+            return t;
         }
 
     //#template specialization
 
         template<typename T, typename U>
-        double templateSpec(T t, U u)
-        {
+        double templateSpec(T t, U u) {
             return t + u;
         }
 
@@ -1945,6 +2039,12 @@ void printCallStack()
             return t + u;
         }
 
+        template<typename T>
+        T templateArgTemplateArg(TemplateTemplateParam<T> t)
+        {
+            return t.t;
+        }
+
     /*
     #template class
     */
@@ -1992,6 +2092,12 @@ void printCallStack()
                         //NOTE
                         //works
                 };
+
+                int getIPrivate(){ return iPrivate; }
+
+            private:
+
+                int iPrivate;
         };
 
         //this is exactly the same the TemplateClass with fixed T and N
@@ -2016,8 +2122,6 @@ void printCallStack()
             };
 
         //c++11
-        //even if independent on template args
-        //still cannot be pre compiled
         template<class BASE, class T, int N>
         void TemplateClass<BASE,T,N>::methodDefinedOutside()
         {
@@ -2511,6 +2615,49 @@ int main(int argc, char** argv)
         }
     }
 
+#if __cplusplus >= 201103L
+
+    /*
+    #constexpr
+
+        c++11 keyword
+
+        Compile time ensures that an expression is a compile time constant.
+
+    #constexpr function
+
+        TODO
+    */
+    {
+        constexpr int i = 0;
+        constexpr int i2 = i + 1;
+
+        //ERROR constexprs are read only
+
+            //i = 1;
+
+        //WARN unitialized constexpr
+
+            //constexpr int i3;
+
+        //unlike for const, this fails, because it is not calculable at compile time
+        {
+            std::srand( time( NULL ) );
+            //constexpr int i = std::rand();
+        }
+
+        /*
+        cannot have constexpr to complex types
+
+        TODO0 rationale
+        */
+        {
+            //constexpr std::string s = "abc";
+        }
+    }
+
+#endif
+
     /*
     #&
 
@@ -2776,49 +2923,6 @@ int main(int argc, char** argv)
             }
         }
     }
-
-#if __cplusplus >= 201103L
-
-    /*
-    #constexpr
-
-        c++11 keyword
-
-        Compile time ensures that an expression is a compile time constant.
-
-    #constexpr function
-
-        TODO
-    */
-    {
-        constexpr int i = 0;
-        constexpr int i2 = i + 1;
-
-        //ERROR constexprs are read only
-
-            //i = 1;
-
-        //WARN unitialized constexpr
-
-            //constexpr int i3;
-
-        //unlike for const, this fails, because it is not calculable at compile time
-        {
-            std::srand( time( NULL ) );
-            //constexpr int i = std::rand();
-        }
-
-        /*
-        cannot have constexpr to complex types
-
-        TODO0 rationale
-        */
-        {
-            //constexpr std::string s = "abc";
-        }
-    }
-
-#endif
 
 #if __cplusplus >= 201103L
 
@@ -3170,6 +3274,9 @@ int main(int argc, char** argv)
 
         No equivalent to Javas "T extends Drawable"... sad.
 
+        But wait, there seems to be something coming on C++14: template restrictions to the rescue?
+        <http://stackoverflow.com/questions/15669592/what-are-the-differences-between-concepts-and-template-constraints>
+
     #typename
 
         C++ keyword.
@@ -3274,6 +3381,8 @@ int main(int argc, char** argv)
             The compiler calls the int or double version depending on the function argument!
 
             If no template parameters need to be passed, the template notation can be ommited completely.
+
+            TODO check
             */
             {
                 assert( templateArgDeduct<int>   (1)   == 1 );
@@ -3306,6 +3415,15 @@ int main(int argc, char** argv)
 
                 //assert( (templateArgDeductNotLast<int>( 1 )) == 1 );
                     //ERROR
+            }
+
+            /*
+            argument deduction works!! even if the `int` is not a direct function argument,
+            but a template argument to a function argument `TemplateTemplateParam<int>`.
+            */
+            {
+                assert( templateArgTemplateArg     ( TemplateTemplateParam<int>(1) ) == 1 );
+                assert( templateArgTemplateArg<int>( TemplateTemplateParam<int>(1) ) == 1 );
             }
         }
 
@@ -3385,22 +3503,32 @@ int main(int argc, char** argv)
     #template multiple parameters
 
         Templates can have multiple parameters of any kind of type.
-
-        Watch out for the macro comma protection gotcha!
-
-        The C++ preprocessor does not protect commas inside `<`, so the protecting parenthesis (1)
-        and (2) are necessary.
     */
     {
-        assert( (templateDefault<int,TemplateTemplateParam,1>( 1, TemplateTemplateParam<int>( 1 ) )) == 3 );
-        //      ^                                                                                  ^
-        //      1                                                                                  2
+        /*
+        #comma protection gotcha
 
-        //assert( templateDefault<int,TemplateTemplateParam,1>( 1, TemplateTemplateParam<int>( 1 ) ) == 3 );
-        //                       ^                           ^
-        //                       1                           2
-            //ERROR
-            //assert macro gets too many arguments, because `<>` does not protect its inner commas.
+            Watch out for the macro comma protection gotcha!
+
+            The C++ preprocessor does not protect commas inside `<`, so the protecting parenthesis (1)
+            and (2) are necessary.
+        */
+        {
+            assert( (templateDefault<int,TemplateTemplateParam,1>( 1, TemplateTemplateParam<int>( 1 ) )) == 3 );
+            //      ^                                                                                  ^
+            //      1                                                                                  2
+
+            //assert( templateDefault<int,TemplateTemplateParam,1>( 1, TemplateTemplateParam<int>( 1 ) ) == 3 );
+            //                       ^                           ^
+            //                       1                           2
+                //ERROR
+                //assert macro gets too many arguments, because `<>` does not protect its inner commas.
+        }
+
+        //reuse a type
+        {
+            assert( (TemplateReuseType<int,1>()) == 1 );
+        }
     }
     /*
     #template default parameters
@@ -3453,18 +3581,16 @@ int main(int argc, char** argv)
             }
 
             {
-                TemplateClass<> c; //default values int 10
-            }
-
-            {
                 TemplateClass<Base,string,10> c;
                 c.ts[9] = "asdf";
             }
 
             {
-                TemplateClass<> c;
-                c.method();
-                c.Base::method();
+                TemplateClass<> c; //default values int 10
+
+                //TemplateClass c2;
+                    //ERROR
+                    //canot ommit `<>` for template classes
             }
 
             //tci10 = TemplateClass<float,20>();
@@ -4546,14 +4672,20 @@ int main(int argc, char** argv)
             }
         }
 
+        //#friend
+        {
+            Friend f(1);
+            FriendOfFriend ff(2);
+
+            assert( friendGetI(f)               == f.getI() );
+            assert( friendGetIInnerDefine(f)    == f.getI() );
+            assert( ff.getFriendI(f)            == f.getI() );
+        }
+
         //#nested classes
         {
-            {
-                cout <<"Base::Nested baseNested;" << endl;
-                Base::Nested baseNested;
-                cout << "Base::Nested2 baseNested2;" << endl;
-                Base::Nested2 baseNested2;
-            }
+            Base::Nested baseNested;
+            Base::Nested2 baseNested2;
         }
 
         //#nested typedefs
@@ -4603,6 +4735,14 @@ int main(int argc, char** argv)
         //assert( typeid(i).name() == "int" );
             //WARN
             //undefined because value not specified on the standard
+    }
+
+    /*
+    #type_traits
+
+        <http://www.cplusplus.com/reference/type_traits/>
+    */
+    {
     }
 
     /*
@@ -5051,29 +5191,239 @@ int main(int argc, char** argv)
         /*
         #file io
 
-        #printf
+            #printf
 
-            In c++ there is no more printf formatting strings
-            must use the c libs for that.
+                In c++ there is no more printf formatting strings
+                must use the C libs for that.
 
-        #endl
+                It is possible however to obtain some level of formatting control
 
-            System dependent newline.
+            #endl
+
+                System dependent newline.
+
+            #cout
+
+                stdout.
+
+                For tests, stringstream shall be used as the results can then be tested,
+                and the behaviour is identical to cout.
+
+                `<<` is very magic. You need to understand:
+
+                - operator overload
+                - function template argument deduction
+                - namespaces adl
+
+                before really understanding why it works.
+
+            #cerr
+
+                Cout for stderr
+
+            #cin
+
+                stdin.
         */
         {
-            cout << "cout" << endl;
-            cout << "cout2" << "cout3" << endl;
-            cout << 1 << endl;
-
-            cerr << "cerr";
-            cout << endl;
+            std::cout << "cout" << std::endl;
+            std::cerr << "cerr" << std::endl;
 
             //cin
 
                 //cout << "Enter an integer:" << endl
                 //cin >> i;
                 //cout << i
+
+            //this is how a very explicit usage of `<<` would look like
+            {
+                std::stringstream ss;
+
+                //std::operator<<<std::ostream,std::string>( ss, "explicit" );
+                    //TODO0 how to get his working?
+
+                std::operator<<( std::operator<<( ss, "explicit " ), "call" );
+
+                assert( ss.str() == "explicit call" );
+            }
+
+            /*
+            #manipulators
+
+                Allow to control the output format.
+            */
+            {
+                /*
+                #boolalpha
+
+                    Control the format of boolean printing.
+
+                    - on: print `true` or `false`
+                    - no: print `1`    or `0` (default)
+
+                    Mnemonic: if true use alpha chars. Else, use numeric chars.
+                */
+                {
+                    std::stringstream ss;
+
+                    ss << std::boolalpha << true;
+                    assert( ss.str() == "true" );
+                    ss.str("");
+
+                    ss << std::noboolalpha << true;
+                    assert( ss.str() == "1" );
+                    ss.str("");
+
+                    //default is noboolalpha
+                    ss << true;
+                    assert( ss.str() == "1" );
+                    ss.str("");
+                }
+
+                /*
+                Once an options is eaten by the ostream, it stays as the default option.
+                */
+                {
+                    std::stringstream ss;
+
+                    ss << std::boolalpha;
+
+                    ss << true;
+                    assert( ss.str() == "true" );
+                    ss.str("");
+                        //does not clear earlier passed options
+
+                    ss << true;
+                    assert( ss.str() == "true" );
+                    ss.str("");
+
+                    ss << std::noboolalpha;
+
+                    ss << true;
+                    assert( ss.str() == "1" );
+                    ss.str("");
+                }
+
+                /*
+                #width
+
+                    Minimum number of chars to output.
+
+                    If not enough, complete with fill.
+
+                #fill
+
+                    See width.
+
+                #left right internal
+                */
+                {
+                    std::stringstream ss;
+                    int i = 12;
+
+                    ss.width(4);
+                    ss.fill(' ');
+
+                    ss << std::left << i;
+                    assert( ss.str() == "12  " );
+                    ss.str("");
+
+                    ss << std::right << i;
+                    //assert( ss.str() == "  12" );
+                        //why fails?
+                    ss.str("");
+                }
+
+                /*
+                #dec hex oct
+
+                    Control how integers are printed
+                */
+                {
+                    std::stringstream ss;
+
+                    ss << std::hex << 10;
+                    assert( ss.str() == "a" );
+                    ss.str("");
+
+                    ss << std::oct << 10;
+                    assert( ss.str() == "12" );
+                    ss.str("");
+
+                    ss << std::dec << 10;
+                    assert( ss.str() == "10" );
+                    ss.str("");
+
+                    ss << 10;
+                    assert( ss.str() == "10" );
+                    ss.str("");
+                }
+
+                /*
+                #scientific fixed none
+
+                #precision
+
+                    Controls number of digits to print.
+                */
+                {
+                    std::stringstream ss;
+                    ss.precision( 3 );
+                    float f = 1.2345;
+
+                    //none is the default
+                    ss << f;
+                    assert( ss.str() == "1.23" );
+                    ss.str("");
+
+                    ss << std::fixed << f;
+                    assert( ss.str() == "1.235" );
+                    ss.str("");
+
+                    ss << std::scientific << f;
+                    assert( ss.str() == "1.235e+00" );
+                    ss.str("");
+
+                    /*
+                    None can only be set via `unsetf(ios_base::floatfield)`.
+                    */
+                    {
+                        ss.unsetf(ios_base::floatfield);
+                        ss << f;
+                        assert( ss.str() == "1.23" );
+                        ss.str("");
+                    }
+                }
+            }
         }
+
+#if __cplusplus >= 201103L
+        /*
+        #static_assert
+
+            Make assertions at compile time.
+
+            In this way you don't waste time compiling large programs,
+            or do potentially dangerous runtime operations to test your program.
+
+            Probably became possible on C++11 because of features such as `constexpr`,
+            which allow to better manage compile time constantness.
+
+            <http://stackoverflow.com/questions/1647895/what-does-static-assert-do-and-what-would-you-use-it-for>
+        */
+        {
+            static_assert( 0 < 1, "msg" );
+
+            //static_assert( 0 > 1, "msg" );
+                //ERROR
+                //static assertion failed
+
+            std::srand( time( NULL ) );
+            //static_assert( std::rand() >= 0 );
+                //ERROR
+                //needs to be a constexpr
+        }
+#endif
 
         /*
         #vector

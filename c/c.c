@@ -342,18 +342,20 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
 
     /*
     #declaration vs definition
-
-        Declaration can happen many times.
-
-        Definition no.
     */
 
-        void decl_def();
-        void decl_def();
+        /*
+            Declaration can happen many times.
 
-        void decl_def(){;}
-        //ERROR redefine
-        //void decl_def(){;}
+            Definition no.
+        */
+
+            void decl_def();
+            void decl_def();
+
+            void decl_def(){;}
+            //ERROR redefine
+            //void decl_def(){;}
 
         /*
         Declarations don't need argment names.
@@ -367,19 +369,39 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
             void decl_def_args( int,   float,   char c );
             void decl_def_args( int i, float f, char d ){}
 
-        //two decls on the same line, with same return type:
-        int decl_1(), decl_2();
-        int decl_1(){ return 1; }
-        int decl_2(){ return 2; }
+        /* One major application of forward declarations is to break loops */
 
-        //int decl_3(){return 3;}, decl_4(){return 4;};
-            //ERROR
-            //cannot define on same line
+            int factorial2Funcs1(int);
+
+            int factorial2Funcs0(int n){
+                if ( n != 1 ) {
+                    return n*factorial2Funcs1( n - 1 );
+                }
+                return 1;
+            }
+
+            int factorial2Funcs1(int n){
+                if ( n != 1 ) {
+                    return n*factorial2Funcs0( n - 1 );
+                }
+                return 1;
+            }
+
+        //two decls on the same line, with same return type:
+
+            int decl_1(), decl_2();
+            int decl_1(){ return 1; }
+            int decl_2(){ return 2; }
+
+            //int decl_3(){return 3;}, decl_4(){return 4;};
+                //ERROR
+                //cannot define on same line
 
         //can declare a function that returns int and a int var with the same `int`.
         //very confusing.
-        int decl_and_int_func(), decl_and_int;
-        int decl_and_int_func(){ return 0; }
+
+            int decl_and_int_func(), decl_and_int;
+            int decl_and_int_func(){ return 0; }
 
     /*
     #overload
@@ -1688,6 +1710,12 @@ int main( int argc, char **argv )
             //exact same thing!
         const int ic2 = i;
 
+        const int ic3;
+            //BAD
+            //compiles without warning, but is bad since ic3 cannot get a value
+            //unless you typecast its pointer with a warning. Consts should normally
+            //have a value at initialization time.
+
         /*
         ERROR: consts are... almost consts!
 
@@ -1717,25 +1745,20 @@ int main( int argc, char **argv )
 
         There are 3 types of const pointers:
 
-        - const*
-        - *const
-        - const*const
+        - `const *` : cannot change thing pointed to
+        - `* const` : cannot change what pointer points to
+        - `const * const` : both of the above
         */
-        {
-            const int* cip = &ic;
-            //int const* icp = &ic;
+        { 
+            const int   *cip = &ic;
+            //int const *icp = &ic;
                 //SAME
 
             cip = &ic2;
             //*cip = 2;
-                //ERROR: const prevents from changing value
+                //ERROR: const * prevents from changing value pointed to
 
-            const int ic3;
-                //BAD
-                //compiles without warning, but is bad since ic3 cannot get a value
-                //unless you typecast its pointer with a warning
-
-            //int * const ipc = &ic;
+            //int *const ipc = &ic;
                 //WARN
 
             //ipc = &ic2;
@@ -2314,9 +2337,7 @@ int main( int argc, char **argv )
             }
         }
 
-        /*
-        substructure init: it all works as expected
-        */
+        /* substructure init: it all works as expected */
         {
             struct S1 { int i; int j; };
             struct S0 { struct S1 s; };
@@ -2332,13 +2353,83 @@ int main( int argc, char **argv )
 
             //designated init
             {
-                struct S0 s = { .s = { .j = 2, .i = 1 } };
+                struct S0 s = {
+                    .s = {
+                        .j = 2,
+                        .i = 1
+                    }
+                };
                 assert( s.s.i == 1 );
                 assert( s.s.j == 2 );
             }
 
 #endif
 
+        }
+
+        /*
+        #incomplete type cycles
+
+            Incomplete types are types which only have a declaration but no definition.
+        */
+        {
+            /*
+            It is impossible to do the following, because that would create an infinite loop:
+
+            - each S contains one S. and one i.
+            - therefore the size of each S must be 2 ints:
+
+                    size of S + size of int =
+                            1 +           1 =
+                                          2
+
+            - but then the size of S must be 3 ints:
+
+                    size of S + size of int =
+                            2 +           1 =
+                                          3
+            */
+            {
+                //ERROR s has incomplete type
+                {
+                    /*
+                    struct S {
+                        struct S s;
+                        int i;
+                    };
+                    */
+                }
+
+                {
+                    /*
+                    struct S0 { struct S1 s1; };
+                        //ERROR
+                        //struct s1 undefined
+                    struct S1 { struct S0 s0; };
+                    */
+                }
+
+                {
+                    /*
+                    struct S1;
+                    struct S0 { struct S1 s1; };
+                        //ERROR
+                        //s1 has incomplete type
+                    struct S1 { struct S0 s0; };
+                    */
+                }
+            }
+
+            /*
+            can have incomplete type pointers
+
+            forward declaration of S1 makes it makes it alright.
+            */
+            {
+                struct S1;
+                struct S0 { struct S1 *s1; };
+                struct S1 { struct S0 *s0; };
+            }
         }
 
         /*
@@ -5762,7 +5853,6 @@ int main( int argc, char **argv )
                 it may be much larger than BUFSIZ
             */
             {
-
                 const int bufsiz = 100000;
                 char buf[bufsiz];
                 memset( buf, 'z', bufsiz );
@@ -6726,17 +6816,6 @@ int main( int argc, char **argv )
             puts( "__STDC_IEC_559__" );
 #endif
 
-            //gcc 4.7 is smart enough to warn on literal division by 0:
-            {
-                //int i = 1 / 0;
-            }
-
-            //gcc 4.7 is not smart enough to warn here:
-            {
-                volatile int i = 0;
-                assert( 0 / i == 0 );
-            }
-
             /*
             #floating point exception
 
@@ -6748,8 +6827,20 @@ int main( int argc, char **argv )
             */
             if ( 0 )
             {
-                volatile int i = 0;
-                printf( "int 1/0 = %d\n", 1 / i );
+                //gcc 4.7 is smart enough to warn on literal division by 0:
+                {
+                    //int i = 1 / 0;
+                }
+
+                //gcc 4.7 is not smart enough to warn here:
+                {
+                    volatile int i = 0;
+                    printf( "int 1/0 = %d\n", 1 / i );
+
+                    //on gcc 4.7 with `-O3` this may not generate an exception,
+                    //as the compiler replaces 0 / X by 0
+                    printf( "int 0/0 = %d\n", 0 / i );
+                }
             }
 
             /*

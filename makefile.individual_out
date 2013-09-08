@@ -32,7 +32,7 @@ DEBUG_DEFINE 		?=
 DEBUG_FLAGS  		?=
 PROFILE_DEFINE 		?= #-DDEBUG
 PROFILE_FLAGS  		?= #
-OPTIMIZE_FLAGS		?= -O3
+OPTIMIZE_FLAGS		?= #-O3
 
 #extra phony targets
 PHONY				?=
