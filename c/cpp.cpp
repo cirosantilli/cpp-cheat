@@ -4793,7 +4793,7 @@ int main(int argc, char** argv)
     */
     {
         /*
-            basic usage with proper error checking
+        basic usage with proper error checking
         */
         {
             int* ip;
@@ -4809,6 +4809,38 @@ int main(int argc, char** argv)
             delete[] ip;
         }
 
+        /*
+        #delete
+
+            Free memory allocatedby `new`.
+
+            Just like C `free`:
+
+            - deleting a `NULL` does nothing.
+            - deleting any other pointer twice can lead to memory corruption
+            - deleting a pointer which was not dynamically allocated can lead to memory curruption
+
+            Destructor of object pointed to is called.
+
+            A common technique is to set a pointer to `NULL` after it is deleted,
+            to avoid deleting a pointer twice:
+            <stackoverflow.com/questions/4190703/is-it-safe-to-delete-a-null-pointer>
+
+            An even better techinque may be to use smart pointers and containers.
+        */
+        {
+            delete (int*)NULL;
+            delete[] (int*)NULL;
+
+            //delete NULL;
+                //WARN
+                //cannot delete an integer type
+
+            //delete (void*)NULL;
+                //WARN
+                //cannot delete a void pointer
+        }
+
         //allocate single object / base type
         {
             int* ip = new int;
@@ -4816,6 +4848,7 @@ int main(int argc, char** argv)
             delete ip;
         }
 
+        //delete calls destructors of deleted objects
         {
             callStack.clear();
             NoBaseNoMember* cp = new NoBaseNoMember;
@@ -5912,7 +5945,7 @@ int main(int argc, char** argv)
 
             Also comes in an multiple value input version `multimap`.
 
-            Keys must implement
+            Does not require a hash function. Usually implemented as a self balancing tree such as a rb tree.
 
         #unordered_map
 

@@ -6,6 +6,7 @@ The goal of those implementations is only educational.
 Obviously, don't reimplement standard data structers, but use the existing STL ones instead.
 */
 
+#include <algorithm>
 #include <cassert>
 #include <iostream>
 #include <sstream>
@@ -15,8 +16,6 @@ Binary search tree node.
 
 Implements a map.
 */
-
-std::ostream& operator<<(std::ostream& os, const BST<KEY,VAL>& rhs);
 
 template<class KEY, class VAL>
 class BST
@@ -28,16 +27,85 @@ class BST
 
     public:
 
-        BST() {
-            this->left = NULL;
-            this->right = NULL;
+        BST() : key(0), val(0), left(NULL), right(NULL) {}
+
+        BST( const KEY& key, const VAL& val ) : key(key), val(val), left(NULL), right(NULL) {
         }
 
-        BST( const KEY& key, const VAL& val ) {
-            this->key = key;
-            this->val = val;
-            this->left = NULL;
-            this->right = NULL;
+        BST( const BST& other ) : key(other.key), val(other.val) {
+
+            if ( other.hasLeft() ) {
+                this->left = new BST<KEY,VAL>( *(other.left) );
+            } else {
+                this->left = NULL;
+            }
+
+            if ( other.hasRight() ) {
+                this->right = new BST<KEY,VAL>( *(other.right) );
+            } else {
+                this->right = NULL;
+            }
+        }
+
+        ~BST() {
+            delete this->left;
+            delete this->right;
+        }
+
+        friend void swap(BST<KEY,VAL>& first, BST<KEY,VAL>& second)
+        {
+            std::swap(first.key,   second.key);
+            std::swap(first.val,   second.val);
+            std::swap(first.left,  second.left);
+            std::swap(first.right, second.right);
+        }
+
+        BST<KEY,VAL>& operator=(BST<KEY,VAL> other)
+        {
+            swap(*this, other);
+            return *this;
+        }
+
+#if __cplusplus >= 201103L
+
+        // move constructor
+        BST<KEY,VAL>(BST<KEY,VAL>&& other) :
+        BST<KEY,VAL>() // initialize via default constructor, C++11 only
+        {
+            swap(*this, other);
+        }
+
+#endif
+
+        bool operator==(BST<KEY,VAL>& other) const {
+
+            if ( this->key != other.key )
+                return false;
+
+            if ( this->val != other.val )
+                return false;
+
+            if ( other.hasLeft() ) {
+                if ( ! ( *(this->left) == *(other.left) ) )
+                    return false;
+            } else {
+                if ( ! ( this->left == NULL ) )
+                    return false;
+            }
+
+            if ( other.hasRight() ) {
+                if ( ! ( *(this->right) == *(other.right) ) )
+                    return false;
+            } else {
+                if ( ! ( this->right == NULL ) )
+                    return false;
+            }
+
+            return true;
+        }
+
+        bool operator!=(const BST<KEY,VAL>& other) const {
+            return ! ( *this == other );
         }
 
         bool hasLeft() const {
@@ -111,8 +179,6 @@ class BST
             }
         }
 
-        /*
-        */
         bool del( const KEY& key ) {
             const BST<KEY,VAL>* cur = this;
             while ( true ) {
@@ -172,19 +238,30 @@ class BST
 
 int main(int argc, char** argv)
 {
-    BST<int,int> bst(0, 1);
+    BST<int,int> bstOrig(0, 1);
+    BST<int,int> bst;
     int val;
 
+    //add
     //create a simple BST which in which we can predict the map
-    bst.add(-1, 0);
-    bst.add( 2, 3);
-    bst.add( 1, 2);
-    bst.add( 3, 4);
 
-    //template argument deduction takes care of the template for `operator<<`
-    std::cout << bst;
+        bstOrig.add(-1, 0);
+        bstOrig.add( 2, 3);
+        bstOrig.add( 1, 2);
+        bstOrig.add( 3, 4);
+
+    //<<
+
+        std::cout << bstOrig << std::endl;
+
+    //==
+
+        bst = bstOrig;
+        assert( bst == bstOrig );
 
     //find
+
+        bst = bstOrig;
 
         assert( ! bst.find(-2, val) );
 
@@ -202,4 +279,11 @@ int main(int argc, char** argv)
 
         assert( bst.find( 3, val) );
         assert( val == 4 );
+
+    //del
+
+        //bst = bstOrig;
+        //bst.del(0);
+
+    return EXIT_SUCCESS;
 }

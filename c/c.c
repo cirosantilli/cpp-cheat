@@ -5146,9 +5146,6 @@ int main( int argc, char **argv )
 
             Typecast from `void*` is implicitly done without warning.
 
-        #free
-
-            Main way to free dynamic memory after you are done with it.
 
         #dynamic allocation vs VLA
 
@@ -5164,6 +5161,7 @@ int main( int argc, char **argv )
             So it is more flexible, at the cost of some runtime speed.
     */
     {
+        /* basic usage */
         {
             size_t bytes = sizeof( int ) * 2;
             int* is = malloc( bytes );
@@ -5176,6 +5174,37 @@ int main( int argc, char **argv )
                 is[0] = 1;
                 assert( is[0] == 1 );
                 free( is );
+            }
+        }
+
+        /*
+        #free
+
+            Main way to free dynamic memory after you are done with it.
+
+            Freeing a NULL pointer does nothing:
+            <http://stackoverflow.com/questions/1938735/does-freeptr-where-ptr-is-null-corrupt-memory>
+        */
+        {
+            free(NULL);
+
+            /*
+            WARN attempted to free a non heap object.
+
+            If this compiled, it could lead to segfault.
+            */
+            {
+                int i;
+                //free(&i);
+            }
+
+            /* freeing a pointer twice leads to a segfault */
+            {
+                int *ip = malloc( sizeof( int ) );
+                free(ip);
+                //free(ip);
+                    //RUNTIME ERROR
+                    //segmentation fault
             }
         }
 
@@ -5245,7 +5274,7 @@ int main( int argc, char **argv )
         }
 
         /*
-        #bad things
+        #allocate too much memory
 
             if you try to allocate too much memory,
             `malloc` may fail, or your os will eventually decide to kill your naughty program
