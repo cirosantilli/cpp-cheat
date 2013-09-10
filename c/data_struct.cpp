@@ -15,6 +15,10 @@ Obviously, don't reimplement standard data structers, but use the existing STL o
 Binary search tree node.
 
 Implements a map.
+
+TODO
+
+- add an initializer list constructor.
 */
 
 template<class KEY, class VAL>
@@ -77,7 +81,7 @@ class BST
 
 #endif
 
-        bool operator==(BST<KEY,VAL>& other) const {
+        bool operator==(const BST<KEY,VAL>& other) const {
 
             if ( this->key != other.key )
                 return false;
@@ -234,6 +238,12 @@ class BST
 
             return os;
         }
+
+    private:
+
+        void findNodeAndParent() {
+
+        }
 };
 
 int main(int argc, char** argv)
@@ -258,6 +268,9 @@ int main(int argc, char** argv)
 
         bst = bstOrig;
         assert( bst == bstOrig );
+
+        bst.add( 4, 5);
+        assert( bst != bstOrig );
 
     //find
 

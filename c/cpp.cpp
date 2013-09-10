@@ -46,6 +46,12 @@ for the rest, look for a c cheat.
 
             Many behaviour examples.
 
+        - <http://www.parashift.com/c++-faq/index.html>
+
+            C++ faq.
+
+            Deep and extensive tutorial.
+
         - <http://geosoft.no/development/cppstyle.html>
 
             coding guidelines, clearly exemplified
@@ -547,10 +553,15 @@ void printCallStack()
 
                 initialization lists have 4 main uses:
 
-                1) avoid calling member object constructor
+                1) avoid calling member object constructor and copy separately
                 2) initializing base classes with non default constructors
                 3) initializing const elements
                 4) initializing member references &
+
+            #delegating constructors
+
+                C++11 also makes it possible to call a different constructor of the current
+                class on the initialization list. This feature is called delegating constructors.
             */
 
             Base(int i, int j) : i(i), j(j)
@@ -835,6 +846,9 @@ void printCallStack()
     #const method
 
         Methods that cannot change the data of their object.
+
+        Inner workings: the hidden *this* pointer is downgraded to `const` when passing it to the function.
+        This is good to know as it may show up on GCC error messages.
     */
     void Base::constMethod () const
     {
@@ -1255,8 +1269,8 @@ void printCallStack()
 
         //http://stackoverflow.com/questions/114180/pointer-vs-reference
 
-        void byref (int& i){i++;}
-        void bypointer (int *i){(*i)++;}
+        void byref(int& i) { i++; }
+        void bypointer(int *i) { (*i)++; }
 
     //#return reference from function
 
@@ -1347,6 +1361,36 @@ void printCallStack()
 
         void overloadBase(Base b){}
         void overloadBase(BaseProtected b){}
+
+#if __cplusplus >= 201103L
+
+            /* pair of function overload based only on if argument is an rvalue or a lvalue */
+            std::string overloadRLvalue(int& i) {
+                return "lval";
+            }
+
+            std::string overloadRLvalue(int&& i) {
+                return "rval";
+            }
+
+                /*
+                ERROR
+                ambiguous with both of the above, because in C++:
+
+                    int i = lvalue;
+
+                leads to copy construction ( ambiguous with the `&` overload )
+
+                    int i = rvalue;
+
+                leads to move construction ( ambiguous with the `&&` overload )
+                */
+            /*
+            std::string overloadRLvalue(int i) {
+                return "val";
+            }
+            */
+#endif
 
     //default args
 
@@ -2686,7 +2730,7 @@ int main(int argc, char** argv)
         - <http://stackoverflow.com/questions/7058339/c-when-to-use-references-vs-pointers>
     */
     {
-        //basic usage as function parameters
+        //basic usage as function parameters that are return values
         {
             int i = 0;
             byref(i);
@@ -2725,10 +2769,13 @@ int main(int argc, char** argv)
         Must not initialize non-const ref with a rvalue.
 
         Can however do that for const references.
+
+        The same goes for function parameters.
         */
         {
             //int& ia = 0;
             //std::string& s = getString();
+            //byref(1);
         }
 
         /*
@@ -3661,6 +3708,12 @@ int main(int argc, char** argv)
             - bad_exception     thrown when an exception type doesn't match any catch
             - bad_typeid        thrown by typeid
             - ios_base::failure thrown by functions in the iostream library
+
+    #exception safety
+
+        Different levels of how much excpetion handlind a function does:
+
+        <http://en.wikipedia.org/wiki/Exception_safety>
     */
     {
         /*
@@ -4230,6 +4283,8 @@ int main(int argc, char** argv)
 
                 *COPY CONSTRUCTOR CALLED, NOT ASSIGN CONSTRUCTOR*
                 because object is being created
+
+                On C++11, move constructor will be called if rhs is a rvalue.
                 */
                 {
                     callStack.clear();
@@ -4299,9 +4354,9 @@ int main(int argc, char** argv)
                 - without code duplication
                 - with exception type safety
 
-                <http://stackoverflow.com/questions/3279543/what-is-the-copy-and-swap-idiom>
+                Great explanation: <http://stackoverflow.com/questions/3279543/what-is-the-copy-and-swap-idiom>
 
-                TODO
+                Why swap should be afriend: <http://stackoverflow.com/questions/5695548/public-friend-swap-member-function>
             */
             {
                 CopyAndSwap c0( 2, 2 );
@@ -4351,12 +4406,40 @@ int main(int argc, char** argv)
                     //int&& irr = i;
                         //ERROR
                 }
+
+                /* Can function overload based on rvalue or lvalue.
+
+                This is essential for move semantics. */
+                {
+                    int i;
+                    assert( overloadRLvalue( i ) == "lval" );
+                    assert( overloadRLvalue( 1 ) == "rval" );
+                }
             }
 
             /*
+            #move constructor
+
+                Constructor that takes rvalues instead of lvalues.
+
+                Used to implement move semantics.
+
             #move semantics
 
-                TODO <http://stackoverflow.com/questions/3106110/what-is-move-semantics>
+                Useful in situtations where a class manages dynamic data.
+
+                Basic idea: when copying from an rvalue, it is not necessary to make an expensive copy of it:
+                it suffices to acquire its data via swap, and leave it on a valid state (via a default constructor for example).
+
+                This is true because the rvalue passed to a copy constructor cannot be seen.
+
+                Value reference allows to overload the copy constructor based not on type,
+                but on the fact that a value is an rvalue or an lvalue!
+
+                No change must be done to the copy and swap idiom for move semantics to work for the assigment operator,
+                since in C++11 `int i = rvale` calls a move consttuctor on `i` while `int i = lvalue` calls a copy constructor.
+
+                <http://stackoverflow.com/questions/3106110/what-is-move-semantics>
             */
             {
             }
