@@ -1,5 +1,4 @@
-/*
-This contains no details on basic language features,
+/*This contains no details on basic language features,
 but sketches of how to implement data structures.
 
 The goal of those implementations is only educational.
@@ -8,21 +7,43 @@ Obviously, don't reimplement standard data structers, but use the existing STL o
 
 #include <algorithm>
 #include <cassert>
+#include <functional>
 #include <iostream>
+#include <list>
 #include <sstream>
+
+/**
+Interface for a Map.
+
+@tparam KEY the key type of the map
+@tparam VAL the value type value of the map.
+*/
+template<class KEY,class VAL>
+class Map {
+    virtual bool add( const KEY& key, const VAL& val ) = 0;
+    virtual bool del( const KEY& key ) = 0;
+    virtual bool find( const KEY& key, VAL& val ) = 0;
+};
 
 /*
 Binary search tree node.
 
 Implements a map.
 
-TODO
+@tparam KEY the key type of the map. Must be sortable via `<` family of operators.
+@tparam VAL the value type value of the map.
 
-- add an initializer list constructor.
+#rationale
+
+    Differentiaing tree objects may be a good thing since some methods such as `==` have different meanings
+    for entire subtrees or for single nodes.
+
+    A better possibility may be to make every operator operate nodewise, and give nodes an extra subtree function
+    version of those operators.
 */
 
 template<class KEY, class VAL>
-class BST
+class BST : Map<KEY,VAL>
 {
         KEY key;
         VAL val;
@@ -51,7 +72,7 @@ class BST
             }
         }
 
-        ~BST() {
+        virtual ~BST() {
             delete this->left;
             delete this->right;
         }
@@ -149,18 +170,78 @@ class BST
             }
         }
 
+            /*
+            add with findNodeAndParent helper
+
+            This is still less efficient than a direct add,
+            since a direct add does not keep track of parent and lr.
+            */
         /*
-        Find the value for a given key under the current node.
+        bool add( const KEY& key, const VAL& val ) {
 
-        @key: key to search for.
-        @val: output only.
+            BST<KEY,VAL> *parent, *node;
+            int lr;
 
-            If the key is found, will be modified to contain the output value for the key.
-
-            Otherwise, its value will not be changed.
-
-        @return: true iff the key was found
+            lr = findNodeAndParent(key, parent, node);
+            if ( node == NULL ) {
+                if( lr < 0 )
+                    parent->left = new BST<KEY,VAL>(key, val);
+                else
+                    parent->right = new BST<KEY,VAL>(key, val);
+                return true;
+            }
+            return false;
+        }
         */
+
+        void removeLeft() {
+            delete this->left;
+            this->left = NULL;
+        }
+
+        void removeRight() {
+            delete this->right;
+            this->right = NULL;
+        }
+
+        /**
+        Remove either the left or right node depending on rl.
+
+        @parm[in] rl If `-1`, remove left, if `1`, remove right, else do nothing.
+        */
+        void remove( int rl ) {
+            if ( rl == -1 ) {
+                delete this->left;
+                this->left = NULL;
+            } else if ( rl == -1 ) {
+                delete this->right;
+                this->right = NULL;
+            }
+        }
+
+        /**
+        @brief Find the value for a given key under the current node.
+
+        @param[in]  key key to search for.
+        @param[out] val output value found. If not found, `NULL`.
+        @return     true iff the key was found
+
+        #rationale
+
+        This could return either the values, or a pointer to the found node.
+
+        If this class is is only a map interface, then it should node return nodes,
+        since maps could be implemented in other ways, for example as a hashmap.
+
+        There are other functions such as `del` which can reuse this function if it returns
+        pointers.
+
+        A possible solution is then to have a helper that returns pointers,
+        and use that helper to implement both this function and `del`.
+        */
+
+            /* direct implementation */
+        /*
         bool find( const KEY& key, VAL& val ) const {
             const BST<KEY,VAL>* cur = this;
             while ( true ) {
@@ -182,30 +263,116 @@ class BST
                 }
             }
         }
+        */
 
-        bool del( const KEY& key ) {
-            const BST<KEY,VAL>* cur = this;
-            while ( true ) {
-                if ( key == cur->key ) {
-                    val = cur->val;
-                    return true;
-                } else if ( key < cur->key ) {
-                    if ( cur->hasLeft() ) {
-                        cur = cur->left;
-                    } else {
-                        return false;
-                    }
-                } else {
-                    if ( cur->hasRight() ) {
-                        cur = cur->right;
-                    } else {
-                        return false;
-                    }
-                }
+            /* Implementation with `findNodeAndParent` helper.
+
+            Better code reuse, but slower as a tradeoff. */
+        /*
+        bool find( const KEY& key, VAL& val ) const {
+            const BST<KEY,VAL> *parent, *node;
+            findNodeAndParent(key, parent, node);
+            if ( node != NULL ) {
+                val = node->val;
+                return true;
             }
+            return false;
+        }
+        */
+
+            /* Implementation with `findNode` helper.
+
+            Better code reuse */
+
+
+        /**
+        #todo
+
+        How to make this const correct? In particular, how to call findNode if it were const?
+        */
+        bool find( const KEY& key, VAL& val ) {
+            BST<KEY,VAL> *node;
+            findNode(key, node);
+            if ( node != NULL ) {
+                val = node->val;
+                return true;
+            }
+            return false;
         }
 
+        /**
+        Remove key value pair from map.
+
+        @param[in] key key to search
+        @return true iff the value was present
+        */
+
+        bool del( const KEY& key ) {
+
+            BST<KEY,VAL> *node, *parent, *nextNode, *nextNodeParent; // nextNode: first node that has a larger key than key
+            bool hasLeft, hasRight;
+            int nodeLr, nextNodeLr;
+
+            //this->findNode(key, node);
+            nodeLr = this->findNodeAndParent(key, parent, node);
+
+            if ( node == NULL )
+                return false;
+
+            hasLeft = node->hasLeft();
+            hasRight = node->hasRight();
+
+            if ( hasRight && hasLeft ) {
+
+                nextNode = node->right;
+                nextNodeParent = NULL;
+                while ( nextNode->hasLeft() ) {
+                    nextNodeParent = nextNode;
+                    nextNode = nextNode->left;
+                }
+
+                node->key = nextNode->key;
+                node->val = nextNode->val;
+                nextNodeParent->removeLeft();
+
+            } else if ( hasLeft ) { //only left
+
+                node->key   = node->left->key;
+                node->val   = node->left->val;
+                node->right = node->left->right;
+
+                nextNode  = node->left->left;
+                node->left->left  = NULL;
+                node->left->right = NULL;
+                delete node->left;
+                node->left = nextNode;
+
+            } else if ( hasRight ) { //only right
+
+                node->key   = node->right->key;
+                node->val   = node->right->val;
+                node->left  = node->right->left;
+
+                nextNode = node->right->right;
+                node->right->left  = NULL;
+                node->right->right = NULL;
+                delete node->right;
+                node->right = nextNode;
+
+            } else { // only child
+
+                parent->remove( nodeLr );
+
+            }
+
+            return true;
+        }
+
+        /**
+        DFS preorder print
+        */
         friend std::ostream& operator<<(std::ostream& os, const BST<KEY,VAL>& rhs) {
+
             bool hasLeft = rhs.hasLeft();
             bool hasRight = rhs.hasRight();
             std::string stringLeft;
@@ -220,7 +387,6 @@ class BST
             }
 
             os << ", ";
-
 
             if ( hasRight ) {
                 os << rhs.right->key;
@@ -241,62 +407,261 @@ class BST
 
     private:
 
-        void findNodeAndParent() {
+        /**
+        Find node and its parent in current node's subtree.
 
+        @param[in]  key key to find
+        @param[out] parent output only
+
+            At return points to either:
+
+            - if the node is found
+
+                - if it is not the current node, its parent
+                - else, NULL
+
+            - else, the last searched parent node
+
+        @param[out] node
+
+            At return contains:
+
+            - if the node is not found, `NULL`
+            - else, points to the node searched for
+
+        @return
+
+            - -1 if `node` was found and is the left  child
+            -  1 if `node` was found and is the right child
+            -  0 otherwise.
+
+                This could happen either if:
+
+                - the found node is the node given by key
+                - the node was not found.
+
+                so this cannot be used to decide if the node was found or not.
+
+        #rationale
+
+            This helper allows for maximal code reuse and minimum memory usage (no parent pointers)
+            at the cost of slower speeds.
+
+            If each node had a parent pointer, this helper function would not be necessary for certain methods
+            a simpler find would do.
+
+            There are methods for each even having a parent node would not suffice.
+            For example, in `add`, if the node cannot be found we do want a pointer to the last searched parent
+            so we can add the node there. Up to now this is the only method I could find for which this does not work,
+            and if it really the only such method, this function can be ommited and implemented directly inside `add`
+            as it gives no code reuse. In the case of add however, using this helper makes things slower,
+            because a direct add implementation does not need:
+
+            - `lr = +-1`
+            - `parent = node`
+
+            so maybe this helper can never be used for optimal speed.
+
+            Parent nodes can be avoided with this helper for ceratin operations such as `del` and `find`,
+            at the cost of making find operations slower,
+            since two extra assignments have to be done for each descent:
+
+            - `lr = +-1`
+            - `parent = node`
+
+            It is a classic speed / memory tradeoff. In this case it might be better so simply.
+        */
+        int findNodeAndParent(const KEY& key, BST<KEY,VAL>*& parent, BST<KEY,VAL>*& node) {
+            parent = NULL;
+            node   = this;
+            int lr = 0;
+            while ( true ) {
+                if ( key == node->key ) {
+                    return lr;
+                } else {
+                    parent = node;
+                    if ( key < node->key ) {
+                        lr = -1;
+                        node = node->left;
+                        if ( ! parent->hasLeft() )
+                            return 0;
+                    } else {
+                        lr = 1;
+                        node = node->right;
+                        if ( ! parent->hasRight() )
+                            return 0;
+                    }
+                }
+            }
         }
+
+        /**
+        @brief Find a node that has a given key and return a pointer to it.
+
+        @param[in]  key the key to search for.
+        @param[out] if the node if found, a pointer to it. Else, NULL.
+        @return true iff the node is found
+        */
+        bool findNode(const KEY& key, BST<KEY,VAL>*& node) {
+            node = this;
+            while ( true ) {
+                if ( key == node->key ) {
+                    return true;
+                } else {
+                    if ( key < node->key ) {
+                        node = node->left;
+                        if ( node == NULL ) {
+                            return false;
+                        }
+                    } else {
+                        node = node->right;
+                        if ( node == NULL ) {
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+};
+
+template<class KEY>
+size_t hash( KEY key, size_t container_size );
+
+template<>
+size_t hash<int>( int key, size_t container_size ){
+    return key % container_size;
+}
+
+/**
+Hash map.
+
+@tparam KEY the key type of the map
+@tparam VAL the value value of the map
+*/
+template<class KEY,class VAL>
+class Hash {
+
+    public:
+
+        Hash(){};
+
+        Hash( const KEY& key, const VAL& val) {
+            this->add( key, val );
+        };
+
+        bool add( const KEY& key, const VAL& val ) {
+            size_t h = hash<KEY>( key, map.size() );
+            if ( std::find_if(
+                map[h].begin(),
+                map[h].end(),
+                [&key](std::pair<KEY,VAL> pair){ return std::get<0>(pair) == key; }
+            ) != map.end() ) {
+                return false;
+            }
+            map[h].push_back( std::pair<KEY,VAL>( key, val ) );
+            return true;
+        }
+
+        bool del( const KEY& key ) {
+            return true;
+        }
+
+        bool find( const KEY& key, VAL& val ){
+            return true;
+        }
+
+        friend std::ostream& operator<<(std::ostream& os, const BST<KEY,VAL>& rhs) {
+            for ( int i = 0; i < rhs.map.size(); i++ ) {
+                auto list = rhs.map[i];
+                if ( list.size() > 0 ) {
+                    os << i << ": ";
+                    for ( auto pair : list ) {
+                        os << std::get<0>(pair) << ":" << std::get<1>(pair) << ", ";
+                    }
+                    os << std::endl;
+                }
+            }
+            return os;
+        }
+
+    private:
+
+        std::vector<KEY,std::list<std::pair<KEY,VAL>>> map;
 };
 
 int main(int argc, char** argv)
 {
-    BST<int,int> bstOrig(0, 1);
-    BST<int,int> bst;
+    Hash<int,int> mapOrig(0, 1), map, mapExpect;
     int val;
 
-    //add
-    //create a simple BST which in which we can predict the map
+    for ( int i = 0; i < 1; i++ )
+    {
 
-        bstOrig.add(-1, 0);
-        bstOrig.add( 2, 3);
-        bstOrig.add( 1, 2);
-        bstOrig.add( 3, 4);
+        //add
+        //create a simple map which in which we can predict the map
 
-    //<<
+            mapOrig.add(-1, 0);
+            mapOrig.add( 2, 3);
+            mapOrig.add( 1, 2);
+            mapOrig.add( 3, 4);
+            mapOrig.add( 4, 5);
 
-        std::cout << bstOrig << std::endl;
+        //<<
 
-    //==
+            //std::cout << mapOrig << std::endl;
 
-        bst = bstOrig;
-        assert( bst == bstOrig );
+        /*
 
-        bst.add( 4, 5);
-        assert( bst != bstOrig );
+            //==
 
-    //find
+                map = mapOrig;
+                assert( map == mapOrig );
 
-        bst = bstOrig;
+                map.add( 5, 6);
+                assert( map != mapOrig );
 
-        assert( ! bst.find(-2, val) );
+            //find
 
-        assert( bst.find(-1, val) );
-        assert( val == 0 );
+                map = mapOrig;
 
-        assert( bst.find( 0, val) );
-        assert( val == 1 );
+                assert( ! map.find(-2, val) );
 
-        assert( bst.find( 1, val) );
-        assert( val == 2 );
+                assert( map.find(-1, val) );
+                assert( val == 0 );
 
-        assert( bst.find( 2, val) );
-        assert( val == 3 );
+                assert( map.find( 0, val) );
+                assert( val == 1 );
 
-        assert( bst.find( 3, val) );
-        assert( val == 4 );
+                assert( map.find( 1, val) );
+                assert( val == 2 );
 
-    //del
+                assert( map.find( 2, val) );
+                assert( val == 3 );
 
-        //bst = bstOrig;
-        //bst.del(0);
+                assert( map.find( 3, val) );
+                assert( val == 4 );
+
+                assert( map.find( 4, val) );
+                assert( val == 5 );
+
+            //del
+
+                //two children
+                map.del(0);
+                assert( ! map.find( 0, val ) );
+
+                //leaf
+                map = mapOrig;
+                map.del(1);
+                assert( ! map.find( 1, val ) );
+
+                //one child
+                map = mapOrig;
+                map.del(3);
+                assert( ! map.find( 3, val ) );
+
+        */
+    }
 
     return EXIT_SUCCESS;
 }

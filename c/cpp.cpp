@@ -20,11 +20,30 @@ for the rest, look for a c cheat.
     - function overloading
     - namespaces
 
-    All of those features allow to drastically reduce code duplicationa and improve code structure,
-    at the cost of adding huge complexity to the language (probably at least doubles the complexity).
+    All of those features allow to:
 
-    The problem is that individual features sometimes interact in ways which are not obvious to understand,
-    so the complexity growth is exponential per feature.
+    - drastically reduce code duplicationa
+    - improve code structure
+
+    at the cost of:
+
+    - adding huge complexity to the language (probably at least doubles the complexity).
+
+        The problem is that individual features sometimes interact in ways which are not obvious to understand,
+        so the complexity growth is exponential per feature.
+
+    - making it harder to track what assembly code is generated thus:
+
+        - making it harder to write very efficient code
+
+        - generating executables that are very large
+
+            For exmple, at one point I had a 7k line C file whose assembly was 8k lines,
+            but a 7k C++ file generated 55k assembly code lines!!
+
+    All things considered, C++ offers huge productivity boosts over C *once you learn it*...
+    It should be used on any new project, except if code efficiency is absolutelly crucial, and even in those cases
+    it might be worth it to have a C++ project that use C only features for the 20% critical sections.
 
 #sources
 
@@ -242,9 +261,10 @@ for the rest, look for a c cheat.
 #include <algorithm>
 #include <chrono>           //time operations
 #include <exception>        //bad_alloc, bad_cast, bad_exception, bad_typeid, ios_base::failure
-#include <functional>       //helper arithmetic/logic functions for algorithms
+#include <functional>       //bind2nd
 #include <iostream>         //cout, endl
 #include <iterator>
+#include <list>             //list, forward_list
 #include <map>              //map, multimap
 #include <memory>           //shared_ptr
 #include <mutex>
@@ -394,7 +414,6 @@ void printCallStack()
                 callStack.push_back( "NoBaseNoMember::NoBaseNoMember(NoBaseNoMember)");
             }
 
-            //copy
             NoBaseNoMember( int i ) : i(i) { callStack.push_back( "NoBaseNoMember::NoBaseNoMember(int)"); }
 
             //assign
@@ -596,7 +615,8 @@ void printCallStack()
                 i = iConstStatic;
             }
 
-            void constMethod () const;
+            void constMethod() const;
+            void constMethod( int *& ) const;
 
             //return references
 
@@ -847,10 +867,19 @@ void printCallStack()
 
         Methods that cannot change the data of their object.
 
-        Inner workings: the hidden *this* pointer is downgraded to `const` when passing it to the function.
-        This is good to know as it may show up on GCC error messages.
+        Inner workings: the hidden *this* pointer is downgraded to `const X*` when passing it to the function:
+
+            void method() const
+
+        becomes:
+
+            void method(const Class* this) const
+
+        instead of:
+
+            void method(Class* this) const
     */
-    void Base::constMethod () const
+    void Base::constMethod() const
     {
         //this->i = 2;
             //ERROR
@@ -881,11 +910,28 @@ void printCallStack()
         this->iStatic = 1;
 
         callStack.push_back("Base::constMethod()");
+
+        {
+            //Base* this2 = this;
+                //ERROR
+                //conversion from const Base* to Base*.
+
+            const Base* this2const = this;
+        }
     }
 
     //void Base::constMethod () {}
         //ERROR
         //must not ommit the const here either
+
+    /**
+    Cannot return a non const pointer from a const method, since this is const,
+    so all members are also const.
+    */
+    void Base::constMethod( int *& ip ) const {
+        //ip = &this->iPrivate;
+            //ERROR invalid conversion
+    }
 
     int Base::iStatic = 0;
 
@@ -930,21 +976,6 @@ void printCallStack()
 
             virtual void virtualMethod(){ callStack.push_back("BaseAbstract::virtualMethod()"); }
 
-            /*
-            #virtual
-
-                virtual: decides on runtime based on object type
-
-                http://stackoverflow.com/questions/2391679/can-someone-explain-c-virtual-methods
-
-            #pure virtual function
-
-                cannot instantiate this class
-
-                can only instantiate derived classes that implement this
-
-                if a class has a pure virtual func is called as an *abstract class* or *interface*
-            */
             virtual void pureVirtual() = 0;
 
             //virtual void pureVirtualImplementedOtherBase() = 0;
@@ -1117,11 +1148,10 @@ void printCallStack()
                 }
                     //OK
                     //because Class is derived from Base
-                    //callde "covariant return type"
+                    //called "covariant return type"
 
                     //virtual Class invalidCovariantReturn(){ return Class(); }
                         //ERROR invalid covariant
-
 
                 virtual void covariantArg(Class* c)
                 {
@@ -1133,6 +1163,7 @@ void printCallStack()
             Member m;
             Nested nested;
             //Base nested class visible from here
+
 
         private:
 
@@ -1271,6 +1302,10 @@ void printCallStack()
 
         void byref(int& i) { i++; }
         void bypointer(int *i) { (*i)++; }
+
+        void bypointerConst(const int*& ip, const int*& jp) {
+            ip = jp;
+        }
 
     //#return reference from function
 
@@ -2047,7 +2082,7 @@ void printCallStack()
         */
             /*
             ERROR
-            template specialization not allowed.
+            template specialization of a single template parameter not allowed
             */
 
     //#template argument deduction
@@ -2528,6 +2563,16 @@ void printCallStack()
 
 #endif
 
+//find_if
+
+    bool isOdd( int i ){
+        return i % 2 == 1;
+    }
+
+int bind2ndTarget( int i, int j ){
+    return i + j;
+}
+
 int main(int argc, char** argv)
 {
     /*
@@ -2623,7 +2668,26 @@ int main(int argc, char** argv)
 
         //consts must be initialized at declaration because they cannot be modified after.
         {
-            //const int ic2;
+            //const int i;
+                //ERROR i not initialized
+
+            //int * const ipc;
+                //ERROR uninitialized
+
+            //OK because we can change which object it points to
+            {
+                int i = 0;
+                int j = 0;
+                int const * icp;
+                icp = &i;
+                icp = &j;
+                //*icp = 1;
+                    //ERROR
+            }
+
+            //c is initialized by the constructor
+            //so it is OK to do this unlike for base types
+            const Class c;
         }
 
         //const for classes
@@ -2804,6 +2868,16 @@ int main(int argc, char** argv)
             }
         }
 
+        /* It is not possible to make an array of references. */
+        {
+            int i = 1;
+            int j = 2;
+
+            //int& is[2] = {i,i};
+                //ERROR
+                //array of references forbidden
+        }
+
         /*
         #const references
 
@@ -2845,16 +2919,6 @@ int main(int argc, char** argv)
                 //int *ip = &cia;
                     //ERROR
                     //invalid conversion
-            }
-
-            /* It is not possible to make an array of references. */
-            {
-                int i = 1;
-                int j = 2;
-
-                //int& is[2] = {i,i};
-                    //ERROR
-                    //array of references forbidden
             }
 
             /*
@@ -2906,6 +2970,186 @@ int main(int argc, char** argv)
                     const int& i = getInt();
                     assert( i == 0 );
                 }
+            }
+        }
+
+        /*
+        #reference to pointer
+
+            like for other variable, references can be made to pointer variables.
+        */
+        {
+            {
+                int i = 0;
+                int j = 1;
+                int *ip = &i;
+                int *jp = &j;
+                int*& ipa = ip;
+                int*& jpa = jp;
+
+                jpa = ip;
+                    //now `jp` is the same as `ip`!
+
+                *jp = 2;
+                assert( i == 2 );
+                    //therefore modifying what `jp` points to modifies `i`!
+
+                //int&* ipaBad = ip;
+                    //ERROR
+                    //makes no sense: cannot have a pointer to `int&`
+
+                //int&* ipaBad = &i;
+                    //ERROR
+                    //`&i` is an rvalue. Cannot initialize a non const reference to it.
+            }
+
+            /*
+            #reference to pointer and const
+
+                Just like for pointers to pointers in C, the rules prevent `const` variables
+                from being modified.
+            */
+            {
+                /*
+                Obviously, cannot remove const qualifiers, or it would be easy to modify constants.
+                */
+                {
+                    const int c = 0;
+                    const int *ip = &c;
+                    //int *&ipa = ip;
+                    //int *ipa = ip;
+                    //*ipa = 1;
+                }
+
+                /*
+                `const int*& = int*` initialization fails for the same reason that `const int* = (int*)` fails in C:
+                this would allow for constant modification.
+                */
+                {
+                    //If (1) were possible below, then it would be possible to change the value of the constant c.
+                    {
+                        /*
+                            int *ip = NULL;
+                            const int*& ipa = ip;   // (1) THIS is not possible
+                            const int c = 0;
+                            ipa = &c;               // OK because ipa is const. `ip` points to `c`
+                            *ip = 1;                // OK because ip  is not const
+                        */
+                    }
+
+                    /*
+                    This is different without the reference, because in this case
+                    it would not be possible to change the const variable.
+
+                    Just like in C, the issues only show up in pointer dimensions > 1,
+                    and the reference behaves like a pointer.
+                    */
+                    {
+                        int *ip = NULL;
+                        const int* ipa = ip;   // (1) THIS is ok without the reference, a new pointer is created
+                        const int c = 0;
+                        ipa = &c;              // OK because ipa is const. ip still points to NULL
+                        //*ip = 1;             // does not change the constant, ip still points to NULL
+                    }
+                }
+            }
+
+            /*
+            What to do if:
+
+            - a function modifies what pointers point to but not the object pointed to.
+
+                It therefore takes
+
+            - we want to pass pointers to that function, modify what they point to,
+                and then outside of the function modify the object being pointed to?
+
+            Is this a valid use case for `const_cast`?
+            */
+            {
+                //the motivation: functions
+                {
+                    int i = 0;
+                    int j = 1;
+                    int *ip = &i;
+                    int *jp = &j;
+
+                    //const int *ip = &i;
+                    //const int *jp = &j;
+                        //if those were const, the function call would work,
+                        //but not the `*ip = 2`;
+
+                    //bypointerConst(ip, jp);
+                        //cannot initialize `const int*&` with `int*&`.
+
+                    *ip = 2;
+                    //assert( j == 2 );
+                }
+
+                //same problem simplified without functions
+                {
+                    int i = 0;
+                    int *ip = &i;
+
+                    //int*& ipa = ip;
+                        //possible
+
+                    //const int*& ipa = ip;
+                        //TODO why is this not possible
+                }
+
+                //but this is possible?
+                {
+                    int i = 0;
+                    const int& ia = i;
+                }
+            }
+        }
+
+        /*
+        Single line initialization syntax.
+
+        Like the pointer symbol `*`, the reference symbol `&` needs to be duplicated for each new reference variable.
+        */
+        {
+            //ok: both ia and ja are references
+            {
+                int i = 1;
+                int j = 2;
+                int &ia = i, &ja = j;
+
+                ia = -1;
+                ja = -2;
+
+                assert( i == -1 );
+                assert( j == -2 );
+            }
+
+            //ko: ja is a new int, not a reference
+            {
+                int i = 1;
+                int j = 2;
+                int& ia = i, ja = j;
+
+                ia = -1;
+                ja = -2;
+
+                assert( i == -1 );
+                assert( j ==  2 );
+            }
+
+            //with references to pointers it looks like this
+            {
+                int i = 0;
+                int j = 1;
+                int *ip = &i;
+                int *jp = &j;
+
+                int *& ipa = ip, *& jpa = jp;
+
+                jpa = ip;
+                *jp = 2;
+                assert( i == 2 );
             }
         }
 
@@ -3287,6 +3531,44 @@ int main(int argc, char** argv)
                 assert( operator/<OperatorOverload>( OperatorOverload(1), OperatorOverload(2) ) == OperatorOverload(3) );
             }
         }
+
+
+#if __cplusplus >= 201103L
+
+        /*
+        #lambda
+
+            C++11
+
+            Function without name.
+
+            Specialy useful in conjunction with function that take functions as arguments such as `std::find_if`,
+            when we only want to use the function passed once.
+
+            Good explanation: <http://stackoverflow.com/a/7627218/895245>
+        */
+        {
+            {
+                int i = 0;
+                int j = 0;
+                auto f = [&i,&j](int k) mutable -> int { i = 1; j = 1; return k + 1; };
+                assert( f(0) == 1 );
+                assert( i == 1 );
+                assert( j == 1 );
+            }
+
+            //typical application with find_if
+            {
+                std::vector<int> v = { 2, 0, 1 };
+                assert( std::find_if(
+                    v.begin(),
+                    v.end(),
+                    []( int i ) { return i % 2 == 1; } ) == --v.end() );
+            }
+        }
+
+#endif
+
     }
 
     /*
@@ -3945,6 +4227,9 @@ int main(int argc, char** argv)
         /*
         #initializer list
 
+            Allow to initialize objects with variable number of arguments,
+            for exaple a `std::vector`.
+
             Do not confound with initialization lists.
         */
         {
@@ -4392,19 +4677,34 @@ int main(int argc, char** argv)
                 Main motivation: implement move semantics.
             */
             {
+
+                /*
+                cannot be bound to an lvalue on stack
+
+                This is the *key* property of rvalue references, since it allows function overload
+                to differentiate lvalues from rvalues, and thus implement move contructors.
+                */
+                {
+                    int i = 0;
+
+                    int&& irr = 1;
+
+                    //int&& irrBad = i;
+                        //ERROR
+                        //i is not rvalue, it is a lvalue!
+                }
+
+                //On all other aspects besides initialization, rvalue references
+                //are identical to lvalue references.
                 {
                     int&& irr = 0;
                     assert( irr == 0 );
 
                     irr = 1;
                     assert( irr == 1 );
-                }
 
-                //cannot be bound to an lvalue on stack
-                {
-                    int i = 0;
-                    //int&& irr = i;
-                        //ERROR
+                    //once assigned, rvalue references are iden
+                    std::cout << "&iff = " << &irr << std::endl;
                 }
 
                 /* Can function overload based on rvalue or lvalue.
@@ -4678,6 +4978,26 @@ int main(int argc, char** argv)
         }
 
         /*
+        #virtual
+
+            Virtual: decides on runtime based on object type.
+
+            <http://stackoverflow.com/questions/2391679/can-someone-explain-c-virtual-methods>
+
+        #pure virtual function
+
+            Cannot instantiate this class
+
+            Can only instantiate derived classes that implement this.
+
+            If a class has a pure virtual method is called as an *abstract class* or *interface*.
+
+            In Java there is a language difference between those two terms,
+            and it might be a good idea to differentiate them when speaking about C++:
+
+            - interface: no data
+            - abstract: data
+
         #polymorphism
 
             - loop an array of several dereived classes
@@ -4701,6 +5021,19 @@ int main(int argc, char** argv)
 
             Also virtual functions cannot be inlined.
 
+        #Static interfaces
+
+            It is possible to assert that interfaces are implemented without dynamic vtable overhead via CRTP:
+
+            - <http://stackoverflow.com/questions/2587541/does-c-have-a-static-polymorphism-implementation-of-interface-that-does-not-us>
+
+            - <http://en.wikipedia.org/wiki/Template_metaprogramming#Static_polymorphism>
+
+        #CRTP
+
+            Curiously recurring template pattern.
+
+            <http://en.wikipedia.org/wiki/Curiously_recurring_template_pattern#Static_polymorphism>
         */
         {
             //BaseAbstract b;
@@ -4838,21 +5171,117 @@ int main(int argc, char** argv)
         - <http://stackoverflow.com/questions/332030/when-should-static-cast-dynamic-cast-and-reinterpret-cast-be-used>
     */
     {
-        //TODO
-
-        //implicit via constructor/assigment
-            //class A {};
-            //class B { public: B (A a) {} };
-            //A a;
-            //B b=a;
-
         /*
-        #explicit
+        Implicit typecast.
+
+        Works if types are convertible, either by the compiler or by a constructor that takes one single argument.
         */
         {
-            //TODO
+            //convertible basetypes
+            //same as in C
+            {
+                int i = 0.25;
+                assert( i == 0 );
+            }
 
-            //<http://stackoverflow.com/questions/121162/what-does-the-explicit-keyword-in-c-mean>
+            //via constructor that takes a single argument
+            //works becaues the constructor NoBaseNoMember(int) exists
+            {
+                NoBaseNoMember c = 1;
+                assert( c.i == 1 );
+            }
+        }
+
+        /*
+        #explicit typecast
+        */
+        {
+            /*
+            #c style typecast
+
+                TODO what does it do in relation to the others? why should it not be used?
+            */
+
+            /*
+            #dynamic_cast
+
+                - done at runtime
+                - only for pointers or references
+                - can only be done from / to base derived
+
+                    - always works for derived to base
+
+                    - baes to derived:
+
+                        - compiles only for polymorphic classes
+
+                        - a runtime check is done to see if the cast is correct or an exception is thrown
+            */
+            {
+            }
+
+            /*
+            #static_cast
+
+                - done at compile time
+                - only for pointers or references
+                - can only be done from / to base derived.
+
+                    Always compiles, but if the conversion is wrong, bad errors may happen at runtime.
+            */
+
+            /*
+            #reinterpret_cast
+
+                Converts anything to anything by copying bytes.
+
+                Behaviour is not portable in general.
+            */
+
+            /*
+            #const_cast
+
+                Change (add/remove) constantness and volatility of objects (property called cv-qualification).
+
+                TODO when should it be used?
+
+                <http://stackoverflow.com/questions/357600/is-const-cast-safe/357640#357640>
+            */
+            {
+                //remove const
+                {
+                    const int i = 0;
+                    int const * ip = &i;
+
+                    *const_cast<int*>(ip) = 1;
+                    //assert( i == 1 );
+                        //TODO why fail?
+
+                }
+
+                //ERROR: Returns rvalues. Therefore cannot initialize non-const references.
+                {
+                    int i = 0;
+                    int *ip;
+                    //const int*& ipa = const_cast<const int*>(ip);
+                        //ipa is a non const reference.
+                        //int *const& would be a const reference.
+                }
+
+                //ERROR: only has effect for a single statement
+                {
+                    //const_cast<int*>(ip);
+                    //*ip = 1;
+                }
+
+                //ERROR: only works for pointers
+                {
+                    const int i = 0;
+                    //const_cast<int>(i) = 1;
+                }
+            }
+
+            //TODO
         }
     }
 
@@ -5644,7 +6073,20 @@ int main(int argc, char** argv)
                     assert( v == std::vector<int>( { 0, 1 } ) );
                 }
 
-                //#push_back
+                /*
+                #push_back
+
+                    Push to the end of the vector.
+
+                    Amortized time O(1), but may ocassionaly make the vector grow,
+                    which may required a full data copy to a new location if the
+                    current backing array cannot grow.
+
+                #push_front
+
+                    Does not exist for vector, as it would always be too costly (requires to move
+                    each element forward.) Use deque if you need that.
+                */
                 {
                     vector<int> v;
                     vector<int> v1;
@@ -6013,6 +6455,8 @@ int main(int argc, char** argv)
         /*
         #hashmap
 
+            There seems to be no explicit hashmap container, only a generic map interface,
+
             See map.
 
             Nonstandard `hash_map` already provided with gcc and msvc++.
@@ -6165,6 +6609,42 @@ int main(int argc, char** argv)
 
                 ret = m.erase( 1 );
                 assert( ret == 0 );
+            }
+        }
+
+        /*
+        #list
+
+            Doubly linked list.
+
+            Advantages over vector: fast inservion and removal from middle.
+
+            Unless you really need those operations fast, don't use this data structure.
+
+            No random access.
+
+        #forward_list
+
+            Like list, but singly linked, and therefore not backwards interable.
+        */
+        {
+            //initializer list constructor
+            {
+                std::list<int> l = { 0, 1 };
+            }
+
+            //emplace
+            {
+                std::list<int> l = { 0, 1 };
+                l.emplace( ++l.begin(), 2 );
+                assert( l == std::list<int>( { 0, 2, 1} ) );
+            }
+
+            //remove: remove all elements with a given value from list
+            {
+                std::list<int> l = { 0, 1, 0, 2 };
+                l.remove( 0 );
+                assert( l == std::list<int>( { 1, 2 } ) );
             }
         }
 
@@ -6508,7 +6988,7 @@ int main(int argc, char** argv)
             /*
             #find
 
-                return iterator to found element
+                Return iterator to first found element.
             */
             {
                 std::vector<int> v = {2,0,1};
@@ -6523,8 +7003,20 @@ int main(int argc, char** argv)
                 pos = std::find( v.begin(), v.end(), 2 ) - v.begin();
                 assert( pos == 0 );
 
-                pos = std::find( v.begin(), v.end(), 3 ) - v.begin();
-                assert( pos >= v.size()  );
+                pos = std::find( v.begin(), v.end(), 3 ) - v.begin(); //end() returned
+                assert( pos == v.size()  );
+            }
+
+            /*
+            #find_if
+
+                Like find, but usint an arbitrary condition on each element instead of equality.
+
+                Consider usage with C++11 lambdas and functional.
+            */
+            {
+                std::vector<int> v = { 2, 0, 1 };
+                assert( std::find_if( v.begin(), v.end(), isOdd ) == --v.end() );
             }
 
             /*
@@ -6655,6 +7147,41 @@ int main(int argc, char** argv)
                     //v == 5 10 15 20 99
             }
         }
+
+
+#if __cplusplus >= 201103L
+
+        /*
+        #functional
+
+            Do magic with functions.
+
+            Useful with stdlib functions that take functions as arguments.
+        */
+        {
+            /*
+            #bind2nd
+
+                Tranform a function that takes two arguments into a function that takes only the first.
+
+                Useful with STL functions that must take functions that take a single argument,
+                but you want to pass an extra parameter to that function.
+
+                TODO0 get working
+            */
+            {
+                /*
+                std::vector<int> v = { 2, 0, 1 };
+                assert( std::find_if(
+                    v.begin(),
+                    v.end(),
+                    std::bind2nd( []( int i, int param ){ return i == param + 1; }, 1 )
+                ) == v.begin() );
+                */
+            }
+        }
+
+#endif
 
         //#memory
         {

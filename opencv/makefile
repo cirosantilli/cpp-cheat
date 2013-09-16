@@ -33,4 +33,4 @@ clean:
 install-deps-ubuntu:
 	sudo apt-get install -y g++
 	sudo apt-get install -y libopencv-dev
-	#sudo apt-get install -y opencv-doc
+	sudo apt-get install -y opencv-doc

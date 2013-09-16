@@ -50,7 +50,7 @@ OUTS		:= $(addprefix $(OUT_DIR), $(OUTS_NODIR))
 all: mkdir $(OUTS)
 
 $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.c
-	$(CC) $(CFLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) -o "$@" "$<" $(LIBS)
+	$(CC) $(CFLAGS)    $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) -o "$@" "$<" $(LIBS)
 
 $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.cpp
 	$(CXX) $(CXXFLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) -o "$@" "$<" $(LIBS)
@@ -66,9 +66,10 @@ asm: mkdir set_asm_flags
 		if [ -f "$(ASSEMBLER_NOEXT)$$EXT" ]; then \
 			case "$$EXT" in \
 				.c)\
-					$(CC) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) $(CFLAGS) -c -fverbose-asm -Wa,-adhln "$(ASSEMBLER_NOEXT)$$EXT" \
+					$(CC) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) $(CFLAGS) -c -fverbose-asm -Wa,-adhln "$(ASSEMBLER_NOEXT)$$EXT" $(LIBS)\
 					;;\
 				.cpp)\
+					$(CXX) $(CXXFLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) -c -fverbose-asm -Wa,-adhln "$(ASSEMBLER_NOEXT)$$EXT" $(LIBS)\
 					;;\
 				.f)\
 					;;\

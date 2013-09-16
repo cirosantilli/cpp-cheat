@@ -556,20 +556,43 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
             return ret;
         }
 
-/* #return const from func */
+    /* #return const from func */
 
-    const int const_int_func(){
-        return 0;
-    }
+        const int const_int_func(){
+            return 0;
+        }
 
-    const int* const_int_ptr_func_int_ptr(int *ip){
-        (*ip)++;
-        return ip;
-    }
+        const int* const_int_ptr_func_int_ptr(int *ip){
+            (*ip)++;
+            return ip;
+        }
 
-    const struct struct_func_struct const_struct_func(){
-        return (struct struct_func_struct){ 0, 1 };
-    }
+        const struct struct_func_struct const_struct_func(){
+            return (struct struct_func_struct){ 0, 1 };
+        }
+
+    //restrict
+
+        void restrict_double_add( int * restrict i, int * restrict j, int * restrict add )
+        {
+            *i += *add;
+            *j += *add;
+        }
+
+        void double_add( int *i, int *j, int *add )
+        {
+            *i += *add;
+            *j += *add;
+        }
+
+        /**
+        It makes no sense to mark a single pointer as restricted.
+        */
+        void restrict_double_add_one_restrict( int * restrict i, int *j, int *add )
+        {
+            *i += *add;
+            *j += *add;
+        }
 
 #ifdef PROFILE
 
@@ -1745,34 +1768,133 @@ int main( int argc, char **argv )
 
         There are 3 types of const pointers:
 
-        - `const *` : cannot change thing pointed to
-        - `* const` : cannot change what pointer points to
-        - `const * const` : both of the above
+        - `const X *` or `X const *`    : cannot change the data of the thing pointer points to
+        - `X * const`                   : cannot change which thing the pointer points to
+        - `const X * const` or `X const * const` : both of the above
         */
-        { 
-            const int   *cip = &ic;
-            //int const *icp = &ic;
-                //SAME
+        {
+            //const int *
+            //int const *
+            {
+                int i = 0;
+                int j = 0;
 
-            cip = &ic2;
-            //*cip = 2;
-                //ERROR: const * prevents from changing value pointed to
+                const int *cip = &i;
+                int const *icp = &i;
 
-            //int *const ipc = &ic;
-                //WARN
+                cip = &j;
+                icp = &j;
+                    //can change which opbject it points to
 
-            //ipc = &ic2;
-                //ERROR: this time what the address the pointer points to is constant
-                //not its value!
+                //*cip = 2;
+                //*icp = 2;
+                    //ERROR: const * prevents from changing the data of the object pointed to
+            }
 
-            //*ipc = 2;
-                //BAD: we changed the value!
+            //int * const
+            {
+                int i = 0;
+                int j = 0;
+                int *const ipc = &i;
 
-            const int* const cipp = &ic;
+                *ipc = 1;
+                assert( i == 1 );
 
-            const int cis2[2] = {1,2};
+                //ipc = &j;
+                    //ERROR
+                    //cannot change what is being pointed to
+
+                /*
+                single line declaration of multiple const pointers
+
+                    Just like `*` must be repeated once per variable, `*const` must also be repeated.
+                */
+                {
+                    int i = 0;
+                    int *const ipc2, *const ipc3, *ipcBad;
+                    //               ^^^^^^
+                    //               must repeat the `iconst` for each variable declared!
+
+                    i = 0;
+                    ipcBad = &i;
+                    *ipcBad = 1;
+                }
+
+                {
+                    const int ic = 0;
+                    //int *const ipc = &ic;
+                        //WARN
+                        //initialization discards const
+                        //it would be possible to change the value of the const
+                    //*ipc = 1;
+                        //BAD: we changed the value!
+                }
+            }
+
+            const int* const cipc = &ic;
+
+            const int cis2[2] = { 1, 2 };
             //cis2[0] = 1;
                 //ERROR
+
+            /*
+            #const pointers to pointers
+
+                There are 7 possibilities at level 2 already!
+
+                To not mix up:
+
+                - const always applies to the pointer at its left.
+                - if there is no such pointer, it applies to the data
+            */
+            {
+                int const ** icpp;
+                int * const * ipcp;
+                int ** const ippc;
+
+                int const * const * icpcp;
+                int const ** const icppc;
+                int * const * const ipcpc;
+
+                int const * const * const icpcpc;
+            }
+
+                /*
+                #add const is not possible
+
+                    `const int * = int *` is possible, but it is not possible to do `const int ** = int **`.
+
+                    This is a bit counter-intuitive at first since:
+
+                    - we feel like we are adding a `const` qualifier increases restrictoins.
+
+                        However, when it may lead to const modification, it is not acceptable.
+
+                    - the phenomenon only appears at level 2 pointers to pointers, not with simple pointers
+
+                    Similar considerations apply to the `volatile` qualifier.
+
+                    <http://stackoverflow.com/questions/1468148/initialization-between-types-const-int-const-and-int-is-not-allowed-why>
+                */
+                {
+                    //if `const int ** = int **` were possible then we could change constants
+                    {
+                        /*
+                        int* p = 0;
+                        int const** pp = &p;    // (1) THIS cannot be done: `const int ** = int **`
+                        int const c = 123;
+                        *pp = &c;               // OK, &c is int const*, and *p is int const* lvalue. p points to c now!
+                        *p = 666;               // OK: p is not const. We changed c!
+                        */
+                    }
+
+                    //the problem only arises in multidimensional cases.
+                    //here it is impossible to change a const
+                    {
+                        int i = 0;
+                        int const * p = &i;
+                    }
+                }
         }
 
         /*
@@ -1970,21 +2092,6 @@ int main( int argc, char **argv )
 
             some warnings about inline and its usage
     */
-
-#if __STDC_VERSION__ >= 199901L
-
-    /*
-    #restrict keyword
-
-        C99
-
-        No behaviour change, but allows for further compiler optimization,
-        so it should be used whenever possible.
-
-        <http://en.wikipedia.org/wiki/Restrict>
-    */
-
-#endif
 
     /*
     #typedef
@@ -2973,7 +3080,11 @@ int main( int argc, char **argv )
                     //( i = j ) = k;
                 }
 
-                //function returns are rvalues
+                /*
+                Function returns are rvalues.
+
+                In C++, this has an exception: functions that return references return lvalues
+                */
                 {
                     //int_func_int(1) = 1;
                     //struct_func().i = 1;
@@ -4679,6 +4790,81 @@ int main( int argc, char **argv )
                         //type error checking is done for sprintf
                 }
             }
+
+#if __STDC_VERSION__ >= 199901L
+
+            /*
+            #restrict keyword
+
+                C99
+
+                Says to the compiler that every pointers passed to a function that is marked restrictd
+                does not refer to the same element.
+
+                Can only qualify pointers. The most common use case is to qualify pointers passed to functions.
+
+                Programmers must ensure that temselves. if they don't, undefined behaviour.
+
+                No behaviour change, but allows for further compiler optimization,
+                so it should be used whenever possible. See generated assembly to spot the difference.
+
+                Great example showing how restrict could help optimize things: <http://en.wikipedia.org/wiki/Restrict>
+            */
+            {
+                {
+                    int i = 0;
+                    int j = 0;
+                    int add = 1;
+                    double_add( &i, &j, &add );
+                    assert( i == 1 );
+                    assert( j == 1 );
+                }
+
+                {
+                    int i = 0;
+                    int j = 0;
+                    int add = 1;
+                    restrict_double_add( &i, &j, &add );
+                    assert( i == 1 );
+                    assert( j == 1 );
+                }
+
+                /*
+                BAD: undefined behaviour, because the same pointer is passed twice
+
+                The compiler should be able to spot that one... but gcc 4.7 did not.
+                */
+                {
+                    int i = 1;
+                    int j = 1;
+                    restrict_double_add( &i, &j, &i );
+                    if ( i != 2 )
+                        printf( "restrict i = %d\n", i );
+                    if ( j != 3 )
+                        printf( "restrict j = %d\n", j );
+                }
+
+                //OK not restrict
+                {
+                    int i = 1;
+                    int j = 1;
+                    double_add( &i, &j, &i );
+                    assert( i == 2 );
+                    assert( j == 3 );
+                }
+
+                //outside functions
+                //TODO what does it mean then? On the current
+                {
+                    int i;
+                    int * restrict ip;
+                }
+
+                //int restrict ip;
+                    //ERROR: can only qualify pointers
+            }
+
+#endif
         }
 
         /*
@@ -5416,10 +5602,10 @@ int main( int argc, char **argv )
         /*
         #BUFSIZ
 
-            TODO understand
+        TODO
         */
         {
-            printf( "BUFSIZ = %ju\n", (uintmax_t) BUFSIZ );
+            printf( "BUFSIZ = %ju\n", (uintmax_t)BUFSIZ );
             assert( BUFSIZ >= 256 );
         }
 
