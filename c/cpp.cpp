@@ -1,6 +1,10 @@
 /*
-this will focus in differences between cpp and c.
+This will focus in differences between cpp and c.
 for the rest, look for a c cheat.
+
+Read this comment, then jump to main and read stuff there.
+
+Backtrack to definitions outside of main as needed.
 
 #C++ vs C
 
@@ -71,10 +75,6 @@ for the rest, look for a c cheat.
 
             Deep and extensive tutorial.
 
-        - <http://geosoft.no/development/cppstyle.html>
-
-            coding guidelines, clearly exemplified
-
         - <http://herbsutter.com/gotw/>
 
             Herb Sutter Guru of the week.
@@ -131,29 +131,40 @@ for the rest, look for a c cheat.
 
         Previously known as C++0x, but took too long to come out.
 
-        Unlike C++03, *lots* of new features.
+        Unlike C++03, *lots* of new features: standard passes from 800 to 1300 lines.
 
-        In gcc: add `-std=c++0x` flag. Still marked experimental,
-        but good support for the basic features.
+        In gcc used to be enabled via `-std=c++0x` flag, now `-std=c++11`.
+        Still marked experimental, but good support for the basic features.
 
     #C++14
 
         The future as of 2013. The language seems to be accelerating speed of changes
         since this is expected only 3 years after the last standard. Cool.
 
-#POD
+#coding styles
 
-        <http://stackoverflow.com/questions/146452/what-are-pod-types-in-c>
+    - <http://google-styleguide.googlecode.com/svn/trunk/cppguide.xml>
 
-#ipc
+        Google C++ coding standards.
 
-    socket model
+        Interesting points:
 
-    TODO0
+        - a Boost subset is accepted
+        - a C++11 subset is accepted
 
-#libs
+    - <http://geosoft.no/development/cppstyle.html>
+
+        coding guidelines, clearly exemplified
+
+#libraries
 
     C++ has many major interesting non standard libs.
+
+    #unit testing
+
+        Google unit test framework:
+
+        <http://code.google.com/p/googletest/>
 
     #linear algebra
 
@@ -179,6 +190,12 @@ for the rest, look for a c cheat.
 
         rigid body physical engine
 
+#ipc
+
+    socket model
+
+    TODO0
+
 #funny
 
 - <http://stackoverflow.com/questions/1642028/what-is-the-name-of-this-operator>
@@ -192,6 +209,15 @@ for the rest, look for a c cheat.
 - <https://groups.google.com/forum/#!msg/comp.lang.c++.moderated/VRhp2vEaheU/IN1YDXhz8TMJ>
 
     Obscure language features.
+
+#POD
+
+    plain old data:
+
+    - structs
+    - class without constructors or destructors.
+
+    <http://stackoverflow.com/questions/146452/what-are-pod-types-in-c>
 */
 
 /*
@@ -228,6 +254,8 @@ for the rest, look for a c cheat.
 #linux specifics
 
     The main c++ lib on linux is the GNU Standard C++ Library.
+
+    Shared object name: `libstdc++.so`.
 
     Website: <http://gcc.gnu.org/libstdc++/>
 
@@ -354,6 +382,15 @@ void printCallStack()
     class Empty {};
 
     /*
+    This class has a compiler supplied default constructor.
+    */
+    class ImplicitDefaultCtor
+    {
+        public:
+            int i;
+    };
+
+    /*
     This class has no default constructor since another constructor was defined.
     */
     class NoDefaultCtor
@@ -392,6 +429,27 @@ void printCallStack()
             NoEquality() : i(0) {}
             int i;
     };
+
+
+#if __cplusplus >= 201103L
+
+    class CtorFromCtor {
+
+        public:
+
+            std::vector<int> v;
+
+            CtorFromCtor(int i) : v(1,i) {}
+
+            /**
+            This constructor calls another constructor before running its own.
+            */
+            CtorFromCtor(int i, int j) : CtorFromCtor(i) {
+                v.push_back(j);
+            }
+    };
+
+#endif
 
     /*
     Simple class for tests on constructor destructor order.
@@ -459,6 +517,19 @@ void printCallStack()
             }
     };
 
+    class ExplicitCtor {
+        public:
+            int i;
+            explicit ExplicitCtor( int i ) : i(i) {}
+
+            explicit ExplicitCtor( int i, int j ) : i(i + j) {}
+                //TODO this makes no sense right, since it is not a ctor that takes a single arg?
+                //why does it compile without warning
+
+            //explicit void method(){}
+                //ERROR: only for constructors
+    };
+
     class NoBaseNoMember0
     {
         public:
@@ -475,15 +546,60 @@ void printCallStack()
             void method(){ callStack.push_back("NoBaseNoMember1::method()"); }
     };
 
-    class InitializerList
+    /**
+    This class has an implicit default constructor.
+    */
+    class UniformInitializationImplicitCtor
     {
         public:
             int i;
-            float f;
+            int j;
+    };
+
+    /**
+    This class has an explicit default constructor,
+    and no constructor that takes 2 ints.
+    */
+    class UniformInitializationExplicitCtor
+    {
+        public:
+            int i;
+            int j;
+            UniformInitializationExplicitCtor() : i(0), j(0) {}
+    };
+
+    /**
+    This class has a constructor that takes 2 ints.
+    */
+    class UniformInitializationCtor2 {
+        public:
+            int i;
+            int j;
+            UniformInitializationCtor2( int i, int j ) : i(i), j(j+1) {}
+            bool operator==(const UniformInitializationCtor2& other) { return this->i == other.i && this->j == other.j; }
+    };
+
+    int UniformInitializationCtor2Func(UniformInitializationCtor2 o){
+        return o.i + o.j;
+    }
+
+    class UniformInitializationList
+    {
+        public:
+            int i;
+            int j;
+            UniformInitializationList( int i, int j ) : i(i), j(j+1) {}
+            UniformInitializationList( std::initializer_list<int> list ){
+                i = *(list.begin());
+                j = *(list.begin() + 1);
+            }
     };
 
 #if __cplusplus >= 201103L
 
+    /**
+    This class has an `Initializer_list` constructor.
+    */
     class InitializerListCtor
     {
         public:
@@ -705,9 +821,7 @@ void printCallStack()
                     //because const static integral type
 
             /*
-            #in-class initialization
-
-                Initialize members outside of the constructor code.
+            #member initialization outside of constructor
             */
 
                 const int iConstInit = 0;
@@ -725,8 +839,9 @@ void printCallStack()
                     //why ok?
 
                 const static Member member2;
+                    //default constructor works
 
-                //const static Member member2();
+                //const static NoBaseNoMember(1);
                     /*
                     ERROR: non integral type
                     must be init outside
@@ -2563,6 +2678,8 @@ void printCallStack()
 
 #endif
 
+//stuff used for tests in main
+
 //find_if
 
     bool isOdd( int i ){
@@ -2572,6 +2689,14 @@ void printCallStack()
 int bind2ndTarget( int i, int j ){
     return i + j;
 }
+
+class ClassWithTypedef
+{
+    public:
+        typedef int typedefPublic;
+    private:
+        typedef int typedefPrivate;
+};
 
 int main(int argc, char** argv)
 {
@@ -2761,6 +2886,54 @@ int main(int argc, char** argv)
         */
         {
             //constexpr std::string s = "abc";
+        }
+    }
+
+#endif
+
+#if __cplusplus >= 201103L
+
+    /*
+    #nullptr
+
+        Better alternative to `0` and `NULL` ugliness:
+
+        <http://stackoverflow.com/questions/1282295/what-exactly-is-nullptr>
+
+    #nullptr_t
+
+        Type of nullptr.
+    */
+    {
+        //no address can be nullptr
+        {
+            std::nullptr_t p = nullptr;
+            int i;
+            //assert( &i != p );
+                //gcc 4.7 warning: &i will never be null. Smart.
+        }
+
+        //it is possible to convert NULL and 0 to nullptr_t
+        {
+            std::nullptr_t p;
+            p = NULL;
+            p = 0;
+        }
+
+        /*
+        It is not possible to convert nullptr_t to NULL and 0
+
+        This allows to overload a function for both pointer and integer.
+
+        In that case, passing it a `0` would always select the integer version.
+        */
+        {
+            //int i = nullptr;
+        }
+
+        //unlike in NULL, the size of nullptr_t is fixed
+        {
+            assert( sizeof(nullptr_t) == sizeof(void*) );
         }
     }
 
@@ -3340,6 +3513,23 @@ int main(int argc, char** argv)
         }
     }
 
+    //#typedef
+    {
+        //it is possible to call constructors with typedefs
+        {
+            typedef Base BaseTypedef;
+            BaseTypedef b = BaseTypedef(1);
+            //              ^^^^^^^^^^^
+        }
+
+        //typdefs inside classes follow public / private scoping
+        {
+            ClassWithTypedef::typedefPublic i;
+            //ClassWithTypedef::typedefPrivate j;
+                //ERROR: not accessible from this context
+        }
+    }
+
     //#for
     {
 
@@ -3828,6 +4018,18 @@ int main(int argc, char** argv)
             }
         }
 
+        //double less signs: can only be used in C++11.
+        //or compiler could get confused with `>>` operator
+        {
+            { std::vector<std::vector<int> > vv; }
+            //                            ^
+            //                            THIS space was required before C++11
+
+#if __cplusplus >= 201103L
+            { std::vector<std::vector<int>> vv; }
+#endif
+        }
+
     /*
     #template multiple parameters
 
@@ -3859,6 +4061,7 @@ int main(int argc, char** argv)
             assert( (TemplateReuseType<int,1>()) == 1 );
         }
     }
+
     /*
     #template default parameters
 
@@ -4137,18 +4340,18 @@ int main(int argc, char** argv)
 
                 Constructor that takes no arguments.
 
-                This constructor is special in the sense that it is implicitly called in certain cases.
-
-                If no constructor is declared, a default constructor is created.
-
-                If any case constructor is declared, even with non default args,
-                the default is not created.
-
                 It is a good idea to always implement a default constructor,
                 since this is the only way arrays of fiexed numbers of objects can be created before C++03
+
+            #implicily defined default constructor
+
+                If no other constructor is declared, a default constructor is created.
+
+                If any case constructor is declared, even one taking multiple default args,
+                then the default contructor not created by the compiler.
             */
             {
-                //this class implements the default constructor
+                //to call the default constructor, use this syntax
                 {
                     callStack.clear();
                     NoBaseNoMember c; //default constructor was called!
@@ -4158,32 +4361,48 @@ int main(int argc, char** argv)
                     assert( callStack == expectedCallStack );
                 }
 
-                //the default constructor exists even if not implemented
+                //this class has a compiler created default constructor.
                 {
-                    //the following two do the exact same
-                    { Empty e = Empty(); }
-                    { Empty e; }
+                    ImplicitDefaultCtor o;
                 }
 
                 //this class does not have a default constructor
                 {
                     //NoDefaultCtor o = NoDefaultCtor();
-                    //NoDefaultCtor os[2]; //ERROR cannot be done because this class has not default constructors.
+                        //ERROR
+
+                    //NoDefaultCtor os[2];
+                        //ERROR cannot be done because this class has not default constructors.
                 }
             }
 
             /*
-            The default constructor does not necessarily initialize built-in types:
+            The implicitly defined default constructor does not necessarily initialize member built-in types:
 
                 <http://stackoverflow.com/questions/2417065/does-the-default-constructor-initialize-built-in-types>
+
+            Class member default constructors are called, possibly
             */
             {
-                NoBaseNoMember o;
-                //assert( o.i == 0 ) //undefined behaviour
+                ImplicitDefaultCtor o;
+                if ( o.i != 0 )
+                    std::cout << "o.i = " << o.i << std::endl;
+                    //BAD: undefined behaviour
+
+                //*however*, the following does value initialization,
+                //not the default constructor, and built-in members are indeed 0 initialized!
+                {
+                    ImplicitDefaultCtor o = ImplicitDefaultCtor();
+                    assert( o.i == 0 );
+                }
             }
 
             /*
-            default constructor function declaration syntax gotcha
+            #most vexing parse
+
+                Default constructor vs function declaration syntax gotcha!
+
+                <http://stackoverflow.com/questions/180172/default-constructor-with-empty-brackets>
             */
             {
                 /*
@@ -4225,57 +4444,252 @@ int main(int argc, char** argv)
         }
 
         /*
-        #initializer list
+        Value initialization and zero initialization are both a bit subtle, so it is best not to rely on them.
 
-            Allow to initialize objects with variable number of arguments,
-            for exaple a `std::vector`.
+        #value initialization
 
-            Do not confound with initialization lists.
+        #zero initialization
+
+            <http://stackoverflow.com/questions/1613341/what-do-the-following-phrases-mean-in-c-zero-default-and-value-initializat>
         */
         {
-            //works like in C structs
+            //syntax with new
             {
-                InitializerList o = { 1, 1.1f };
-                assert( o.i == 1 );
-                assert( o.f == 1.1f );
-                //assert( o.f == 1.1 ); //TODO0 why does this fail even if `assert( 1.0 == 1.0f )`?
+                //base types
+                {
+                    int* is = new int[2]();
+                    assert( is[0] == 0 );
+                    assert( is[1] == 0 );
+                    delete[] is;
+                }
+
+                //works for structs
+                {
+                    struct T { int a; };
+                    T *t = new T[1]();
+                    assert( t[0].a == 0 );
+                    delete[] t;
+                }
+
+                /*
+                Works for objects.
+
+                Note how the default constructor was called since `z == 1`.
+                */
+                {
+                    {
+                        Class *cs = new Class[1]();
+                        assert( cs[0].i == 0 );
+                        assert( cs[0].z == 1 );
+                        delete[] cs;
+                    }
+                }
+
+                //but only works with default constructors
+                {
+                    //Class *cs = new [1](1);
+                }
+            }
+        }
+
+        /*
+        #initialize built-in types
+
+            <http://stackoverflow.com/questions/5113365/do-built-in-types-have-default-constructors>
+
+            C++ adds new ways to initialize base types.
+
+            Those are not however constructors.
+
+            They probably just mimic constructor syntax to help blurr the distinction
+            between built-in types and classes.
+        */
+        {
+            //parenthesis initialization
+            {
+                int i(1);
+                assert( i == 1 );
+            }
+
+            {
+                //int i();
+                    //fails like the most vexing parse
+            }
+
+            {
+                int i = int();
+                assert( i == 0 );
             }
 
 #if __cplusplus >= 201103L
 
             /*
-            #initializer list constructor
+            #brace initialization of scalars
 
-                C++11 allows for an explicit usage of the initializer list
+                See uniform initialization.
 
-                This is useful in cases where you don't know beforehand how many arguments
-                a constructor should receive.
+                <http://stackoverflow.com/questions/14232184/initializing-scalars-with-braces>
 
-                For example, the STL Vector class gets an initializer list constructor on C++11,
-                which allows one to initialize it to any constant.
+            #uniform initialization
 
-                TODO0 could this not be achieved via cstdarg?
+                In c++11 every type can be initialized consistently with `{}`.
+
+                TODO what is the advantage of using it?
+
+                Disadvantages:
+
+                - ambiguous with initializer list construction!
+                - implementing the initializer list constructor breaks client code?!
+                    because it has priority over other constructors.
             */
             {
-                //STL vector usage example
+                //built-int types
                 {
-                    std::vector<int> v = { 0, 1 };
-                    //std::vector<int> v = std::vector<int>( { 0, 1 } ); //SAME
-                    assert( v[0] == 0 );
-                    assert( v[1] == 1 );
-                    assert( v == std::vector<int>( { 0, 1 } ) );
-                    //assert( v == { 0, 1 } );  //ERROR
+                    int i{1};
+                    assert( i == 1 );
+
+                    //int iNarrow{1.5};
+                        //ERROR: narrowing conversion from double to int not allowed inside `{}`
+                        //this is the main difference between `{}` and `()` and `=`.
+
+                    float f{1};
+                        //widening is ok
                 }
 
-                //how to use it in a class
+                //objects
                 {
-                    InitializerListCtor o = { 0, 1 };
-                    assert( o.v == std::vector<int>( { 0, 1 } ) );
+                    //the 2 argument constructor is called
+                    {
+                        {
+                            UniformInitializationCtor2 o{ 1, 1 };
+                            assert( o.i == 1 );
+                            assert( o.j == 2 );
+                        }
+
+                        //conversion gets done for passing args to functions
+                        {
+                            UniformInitializationCtor2 o = { 1, 1 };
+                            assert( o.i == 1 );
+                            assert( o.j == 2 );
+
+                            assert( UniformInitializationCtor2Func( {1, 1} ) == 3 );
+
+                            assert( ( o == UniformInitializationCtor2{1,1} ) );
+                            assert( ( o.operator==({1,1}) ) );
+                            //assert( ( o == {1,1} ) );
+                                //TODO why does this fail to compile?
+                        }
+                    }
+
+                    //If there is an initializer list ctor, the init list wins.
+                    //
+                    //This is one inconvenient of using uniform initialization.
+                    {
+                        UniformInitializationList o{ 1, 1 };
+                        assert( o.i == 1 );
+                        assert( o.j == 1 );
+                    }
+                }
+
+                //TODO0 why are they different?
+                {
+                    {
+                        UniformInitializationImplicitCtor o{ 1, 2 };
+                        assert( o.i == 1 );
+                        assert( o.j == 2 );
+                    }
+
+                    //ERROR
+                    {
+                        //UniformInitializationExplicitCtor o = { 1, 2 };
+                    }
                 }
             }
+        }
 
 #endif
+
+#if __cplusplus >= 201103L
+
+    //#call one constructor from constructor
+    {
+        CtorFromCtor c(0,1);
+        assert( ( c.v == std::vector<int>{0, 1} ) );
+    }
+
+#endif
+
+#if __cplusplus >= 201103L
+
+        /*
+        #brace enclosed initializer list
+
+            See inializer list
+
+        #initializer list contructor
+
+            Useful in cases where you don't know beforehand how many arguments
+            a constructor should receive.
+
+            For example, the STL Vector class gets an initializer list constructor on C++11,
+            which allows one to initialize it to any constant.
+
+            TODO0 could this not be achieved via cstdarg?
+        */
+        {
+            //STL vector usage example
+            {
+                std::vector<int> v{ 0, 1 };
+                //std::vector<int> v = std::vector<int>( { 0, 1 } );
+                    //SAME
+                assert( v[0] == 0 );
+                assert( v[1] == 1 );
+                assert( v == std::vector<int>( { 0, 1 } ) );
+                assert( ( v == std::vector<int>{ 0, 1 } ) );
+
+                //assignment also works via implicit conversion
+                v = { 1, 0 };
+                assert( ( v == std::vector<int>{ 1, 0 } ) );
+
+                //assert( ( v == { 0, 1 } ) );
+                    //ERROR
+                    //todo why no implicit conversion is made?
+            }
+
+            //how to use it in a class
+            {
+                InitializerListCtor o = { 0, 1 };
+                assert( o.v == std::vector<int>( { 0, 1 } ) );
+            }
+
+            /*
+            auto rule: brace initializer can be bound to auto
+
+            this means that for loop work
+
+            http://en.cppreference.com/w/cpp/utility/initializer_list
+            */
+            {
+                {
+                    auto l = {0, 1, 2};
+                    //initializer_list<int> l = {0, 1, 2};
+                    //initializer_list<int> l{0, 1, 2};
+                        //same
+                    assert( l.size() == 3 );
+                    assert( *l.begin() == 0 );
+                }
+
+                // the rule for auto makes this ranged for work.
+                // TODO0 why here? I see an `int`, not an `auto`
+                int i = 0;
+                for (int x : {0, 1, 2}) {
+                    assert( x == i);
+                    i++;
+                }
+            }
         }
+
+#endif
 
         /*
         #destructor
@@ -4718,6 +5132,25 @@ int main(int argc, char** argv)
             }
 
             /*
+            #xvalue
+
+            #glvalue
+
+            #prvalue
+
+                In addition to the C99 rvalues and lvalues, the C++11 standard mentions new concepts:
+
+                - xvalue
+                - glvalue
+                - prvalue
+
+                <http://stackoverflow.com/questions/3601602/what-are-rvalues-lvalues-xvalues-glvalues-and-prvalues>
+
+                This is probably a consequence of move semantincs.
+
+            */
+
+            /*
             #move constructor
 
                 Constructor that takes rvalues instead of lvalues.
@@ -5134,6 +5567,19 @@ int main(int argc, char** argv)
         }
     }
 
+    /*
+    #RTTI
+
+        Run time type information.
+
+        Any function that gets class information explicitly at runtime:
+
+        - `typeid`
+        - `dynamic_cast`
+
+        Google style 3.26 discourages this, since if you really need it your design is probably flawed.
+    */
+
     //#typeid
     {
         //get type of variables
@@ -5184,11 +5630,21 @@ int main(int argc, char** argv)
                 assert( i == 0 );
             }
 
-            //via constructor that takes a single argument
+            //via constructor that takes a single argument and is not explicit
             //works becaues the constructor NoBaseNoMember(int) exists
             {
                 NoBaseNoMember c = 1;
                 assert( c.i == 1 );
+            }
+
+            /*
+            #explicit
+
+                Keyword specifies that a given constructor can only be used explicitly.
+            */
+            {
+                //ExplicitCtor c = 1;
+                    //ERROR
             }
         }
 
@@ -5418,44 +5874,10 @@ int main(int argc, char** argv)
         /*
         #calloc
 
-            There is an analogue to calloc in the language called *value-initialization*.
+            An analogue effect to calloc can be attained with *value-initialization*.
 
             <http://stackoverflow.com/questions/808464/c-new-call-that-behaves-like-calloc>
         */
-        {
-            //base types
-            {
-                int* is = new int[2]();
-                assert( is[0] == 0 );
-                assert( is[1] == 0 );
-                delete[] is;
-            }
-
-            //works for structs
-            {
-                struct T { int a; };
-                T *t = new T[1]();
-                assert( t[0].a == 0 );
-                delete[] t;
-            }
-
-            /*
-            Works for objects.
-
-            Note how the default constructor was called since `z == 1`.
-            */
-            {
-                Class *cs = new Class[1]();
-                assert( cs[0].i == 0 );
-                assert( cs[0].z == 1 );
-                delete[] cs;
-            }
-
-            //but only works with default constructors
-            {
-                //Class *cs = new [1](1);
-            }
-        }
     }
 
     /*
@@ -5976,6 +6398,13 @@ int main(int argc, char** argv)
             Dynamic array that grows / shrinks as necessary.
 
             $O(1)$ random access.
+
+            $O(n)$ element removal from interior
+
+            $O(1)$ element append to end (amortized, $O(n)$ worst case)
+
+            All methods that work for several SLT containers
+            shall only be cheated here once.
         */
         {
             //create
@@ -5997,11 +6426,12 @@ int main(int argc, char** argv)
                 make a vector with n copies of a single value.
                 */
                 {
+                    //copies of given object
                     {
                         assert( vector<int>( 3, 2 ) == vector<int>({ 2, 2, 2 }) );
                     }
 
-                    //value defaults to zero
+                    //default constructed objects. int = 0.
                     {
                         assert( vector<int>( 3 ) == vector<int>({ 0, 0, 0 }) );
                     }
@@ -6029,7 +6459,11 @@ int main(int argc, char** argv)
                     assert( v != v1 );
                 }
 
-                //size
+                /*
+                #size
+
+                    number of elements in vector
+                */
                 {
                     vector<int> v;
                     assert( v.size() == 0 );
@@ -6038,17 +6472,72 @@ int main(int argc, char** argv)
                 }
 
                 /*
+                #capacity
+
+                    Get currently allocated size.
+
+                    Different from size, which is the number of elements in the vector!
+
+                    At least as large as size.
+                */
+                {
+                    std::cout << "capacity:" << std::endl;
+                    vector<int> v = {};
+                    std::cout << "  " << v.capacity() << std::endl;
+                    v.push_back(0);
+                    std::cout << "  " << v.capacity() << std::endl;
+                    v.push_back(1);
+                    std::cout << "  " << v.capacity() << std::endl;
+                    v.push_back(2);
+                    std::cout << "  " << v.capacity() << std::endl;
+                    v.reserve( v.capacity() + 1 );
+                    std::cout << "  " << v.capacity() << std::endl;
+                    std::cout << std::endl;
+                }
+
+                /*#resize
+
+                    if larger than current size,    append given element at end
+                    if smaller than current size,   remove elements from end
+                */
+                {
+                    //reduce size
+                    {
+                        vector<int> v{0, 1};
+                        v.resize( 1 );
+                        assert( ( v == vector<int>{0} ) );
+                    }
+
+                    //increase size
+                    {
+
+                        //using default constructor objects
+                        {
+                            vector<int> v{1};
+                            v.resize( 3 );
+                            assert( ( v == vector<int>{1, 0, 0} ) );
+                        }
+
+                        //using copies of given object
+                        {
+                            vector<int> v{1};
+                            v.resize( 3, 2 );
+                            assert( ( v == vector<int>{1, 2, 2} ) );
+                        }
+                    }
+                }
+
+                /*
                 size related:
 
                 - size            no of elements pushed back
                 - empty           same as size() == 0
-                - resize          change size. fill with 0
                 - max_size        maximum size (estimtion of what could fit your computer ram)
 
                 allocation related:
 
-                - capacity        get how much is allocated
-                - reserve         change how much is allocated
+                - reserve         change how much memory is allocated but not actual size.
+                                  If smaller or less than current capacity, do nothing.
                 - shrink_to_fit   shrink allocated array to size
                 - data            get pointer to allocated array
                 */
@@ -6151,20 +6640,45 @@ int main(int argc, char** argv)
                     assert( v == v1 );
                 }
 
-                //#erase
+                /*
+                #erase
+
+                    Remove given elements from container given iterators to those elements.
+
+                    This operation is inneficient for vectors,
+                    since it may mean reallocation and therefore up to $O(n)$ operations.
+
+                    Returns a pointer to the new location of the element next to the last removed element.
+                */
                 {
-                    vector<int> v;
-                    vector<int> v1;
+                    //single element
+                    {
+                        std::vector<int> v{ 0, 1, 2 };
+                        auto it = v.erase( v.begin() + 1 );
+                        assert( ( v == vector<int>{0, 2} ) );
+                        assert( *it == 2 );
+                    }
 
-                    v = { 0, 1, 2, 3 };
-                    v.erase( v.begin() + 1, v.end() - 1 );
-                    v1 = { 0, 3 };
-                    assert( v == v1 );
+                    //range
+                    {
+                        std::vector<int> v{ 0, 1, 2, 3 };
+                        auto it = v.erase( v.begin() + 1, v.end() - 1 );
+                        assert( ( v == vector<int>{0, 3} ) );
+                        assert( *it == 3 );
+                    }
+                }
 
-                    v = { 0, 1, 2 };
-                    v.erase( v.begin() + 1 );
-                    v1 = { 0, 2 };
-                    assert( v == v1 );
+                /*
+                #remove
+
+                    Helper to remove all elements that compare equal to a value from container.
+
+                    Does not actually remove the elements: only places them at the end and returns the new size.
+                */
+                {
+                    std::vector<int> v{ 0, 1, 0, 2 };
+                    std::remove( v.begin(), v.end(), 0 );
+                    //assert( ( v == vector<int>{1, 2, 0, 0} ) );
                 }
 
                 //#clear
@@ -6174,8 +6688,9 @@ int main(int argc, char** argv)
                     assert( v.size() == 0 );
                 }
 
-                //ERROR no default operator `<<`
-                    //cout v;
+
+                //cout v;
+                    //ERROR no default operator `<<`
             }
 
             //random access is O(1) since array backed
@@ -6299,7 +6814,7 @@ int main(int argc, char** argv)
             }
 
             /*
-            erase
+            #erase
 
                 Remove element from set.
 
@@ -6646,6 +7161,15 @@ int main(int argc, char** argv)
                 l.remove( 0 );
                 assert( l == std::list<int>( { 1, 2 } ) );
             }
+
+            //splice: transfer elements from one list to another
+            {
+                std::list<int> l = { 0, 1 };
+                std::list<int> l2 = { 2, 3 };
+                l.splice( ++l.begin(), l2 );
+                assert( l == std::list<int>( { 0, 2, 3, 1 } ) );
+                assert( l2 == std::list<int>() );
+            }
         }
 
         /*
@@ -6956,6 +7480,8 @@ int main(int argc, char** argv)
                 However STL can specialize it to do operations more efficiently.
 
                 Some STL classes implement swap as a method.
+
+                Particularly important because of the copy and swap idiom.
             */
 
             //#randomize
@@ -6970,6 +7496,17 @@ int main(int argc, char** argv)
                 std::vector<int> v2( 5, 3 );
                 std::copy( v.begin(), v.end(), v2.begin() + 1 );
                 assert( v2 == std::vector<int>({ 3, 2, 0, 1, 3}) );
+            }
+
+            /*
+            #equal
+
+                Compares two ranges of containers.
+            */
+            {
+                std::vector<int> v =  { 0, 1, 2    };
+                std::vector<int> v2 = {    1, 2, 3 };
+                assert( std::equal( v.begin() + 1, v.end(), v2.begin() ) );
             }
 
             /*
@@ -7052,6 +7589,39 @@ int main(int argc, char** argv)
             }
 
             /*
+            #advance
+
+                Advance iterator by given number.
+
+                If random access, simply adds + N.
+
+                Else, calls `++` N times.
+            */
+            {
+                std::vector<int> v = {0,1,2};
+                auto it = v.begin();
+                std::advance(it, 2);
+                assert( *it == 2 );
+            }
+
+#if __cplusplus >= 201103L
+
+            /*
+            #next
+
+                Same as advance, but returns a new iterator instead of modifying the old one.
+            */
+            {
+                std::vector<int> v = {0,1,2};
+                auto it = v.begin();
+                auto itNext = std::next(it, 2);
+                assert( *it == 0 );
+                assert( *itNext == 2 );
+            }
+
+#endif
+
+            /*
             #heap
 
                 <http://en.wikipedia.org/wiki/Heap_%28data_structure%29>
@@ -7069,7 +7639,7 @@ int main(int argc, char** argv)
 
                 Why random access structure works: <https://github.com/cirosantilli/comp-sci/blob/1.0/src/heap.md#array-implementation>
 
-                Type not guaranteed: it seems that most implementations use binary heaps.
+                Exact heap type is not guaranteed. As of 2013, it seems that most implementations use binary heaps.
 
                 For specific heaps such as Fibonacci, consider [Boost](http://www.boost.org/doc/libs/1_49_0/doc/html/heap.html).
 
@@ -7182,6 +7752,30 @@ int main(int argc, char** argv)
         }
 
 #endif
+
+        /*
+        #hash
+
+            <http://www.cplusplus.com/reference/functional/hash/>
+
+            The STL furnishes overloaded hash functions for STL containers.
+
+            Those functions are implemented as callable classes that implement `()`.
+
+            For base types, those hashes are found under the `functional`.
+
+            For vectors, only `std::vector<bool>` has a template.
+
+            For other types, they are found in the same header that defines those types:
+            ex: hash for vectors is under `<vector>`.
+
+            Returns a `size_t` result.
+        */
+        {
+            std::cout << "hash" << std::endl;
+            std::cout << "  1 = "        << std::hash<int>()(1) << std::endl;
+            std::cout << "  string abc = "    << std::hash<std::string>()("abc") << std::endl;
+        }
 
         //#memory
         {

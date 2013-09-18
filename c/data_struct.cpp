@@ -7,6 +7,7 @@ Obviously, don't reimplement standard data structers, but use the existing STL o
 
 #include <algorithm>
 #include <cassert>
+#include <cmath>        //ceil
 #include <functional>
 #include <iostream>
 #include <list>
@@ -541,76 +542,248 @@ Hash map.
 template<class KEY,class VAL>
 class Hash {
 
+        typedef std::vector<std::list<std::pair<KEY,VAL>>> map_t;
+
     public:
 
-        Hash(){};
-
-        Hash( const KEY& key, const VAL& val) {
-            this->add( key, val );
+        Hash(
+            size_t keyCountInitial = Hash::keyCountInitialDefault,
+            float loadFactor = 0.7
+            ) :
+            keyCount(keyCountInitial),
+            loadFactor(loadFactor),
+            map( map_t(keyCount) )
+        {
         };
 
+        /**
+        Initialize hash map with single key value pair
+        */
+        Hash(
+            const KEY& key,
+            const VAL& val,
+            size_t keyCountInitial = Hash::keyCountInitialDefault,
+            float loadFactor = 0.7
+            ) : Hash(keyCountInitial, loadFactor)
+        {
+            this->add( key, val );
+        }
+
+        Hash(std::initializer_list<std::pair<KEY,VAL> > pairs) : Hash() {
+            for ( auto& pair : pairs )
+                this->add( pair );
+        }
+
         bool add( const KEY& key, const VAL& val ) {
-            size_t h = hash<KEY>( key, map.size() );
+
+            size_t h, newKeyCount, newSize, newHash;
+            map_t oldMap;
+
+            h = hash<KEY>( key, map.size() );
+
+            //if already present, return false
+            for ( auto& pair : map[h] )
+                if ( std::get<0>(pair) == key )
+                    return false;
+
+            newKeyCount = this->keyCount + 1;
+
+            //increase size if necessary and rehash everything
+            if ( newKeyCount >= this->map.size() * this->loadFactor ) {
+                oldMap = this->map; //TODO possible to avoid this costly copy?
+                newSize = this->map.size() * this->increaseFactor;
+                this->map = map_t( newSize );
+                for ( auto& list : oldMap ) {
+                    for ( auto& pair : list ) {
+                        this->add(pair);
+                    }
+                }
+                h = hash( key, newSize );
+            }
+
+            /*
             if ( std::find_if(
                 map[h].begin(),
                 map[h].end(),
                 [&key](std::pair<KEY,VAL> pair){ return std::get<0>(pair) == key; }
-            ) != map.end() ) {
+            ) != map[h].end() ) {
                 return false;
             }
-            map[h].push_back( std::pair<KEY,VAL>( key, val ) );
+            */
+
+            this->map[h].push_back( std::pair<KEY,VAL>( key, val ) );
+
+            this->keyCount = newKeyCount;
+
             return true;
+        }
+
+        bool add( const std::pair<KEY,VAL>& pair ) {
+            return add( std::get<0>(pair), std::get<1>(pair) );
         }
 
         bool del( const KEY& key ) {
-            return true;
+
+            auto& list = map[ hash<KEY>( key, map.size() ) ];
+
+            /*
+            for (auto& pair : list ) {
+                if ( std::get<0>(pair) == key )
+                    break;
+            }
+            */
+
+            auto it = std::find_if(
+                list.begin(),
+                list.end(),
+                [&key]( const std::pair<KEY,VAL>& pair ){ return std::get<0>(pair) == key; } );
+
+            if ( it != list.end() ) {
+                list.erase( it );
+                return true;
+            }
+            return false;
         }
 
-        bool find( const KEY& key, VAL& val ){
-            return true;
-        }
+        bool find( const KEY& key, VAL& val ) const {
 
-        friend std::ostream& operator<<(std::ostream& os, const BST<KEY,VAL>& rhs) {
-            for ( int i = 0; i < rhs.map.size(); i++ ) {
-                auto list = rhs.map[i];
-                if ( list.size() > 0 ) {
-                    os << i << ": ";
-                    for ( auto pair : list ) {
-                        os << std::get<0>(pair) << ":" << std::get<1>(pair) << ", ";
-                    }
-                    os << std::endl;
+            size_t h;
+
+            h = hash<KEY>( key, map.size() );
+
+            for ( auto& pair : map[h] ) {
+                if ( std::get<0>(pair) == key ) {
+                    val = std::get<1>(pair);
+                    return true;
                 }
             }
-            return os;
+            return false;
+        }
+
+        /**
+        Get a string representation from a map.
+        */
+        std::string str() const {
+            std::stringstream ss;
+            for ( size_t i = 0; i < this->map.size(); i++ ) {
+                auto& list = this->map[i];
+                if ( list.size() > (size_t)0 ) {
+                    ss << i << ": ";
+                    for ( auto& pair : list ) {
+                        ss << std::get<0>(pair) << ":" << std::get<1>(pair) << ", ";
+                    }
+                    ss << std::endl;
+                }
+            }
+            return ss.str();
+        }
+
+        friend std::ostream& operator<<(std::ostream& os, const Hash<KEY,VAL>& rhs) {
+            return os << rhs.str();
+        }
+
+        bool operator==(const Hash<KEY,VAL>& other) const {
+            return this->map == other.map;
+        }
+
+        bool operator!=(const Hash<KEY,VAL>& other) const {
+            return ! ( this->map == other.map );
         }
 
     private:
 
-        std::vector<KEY,std::list<std::pair<KEY,VAL>>> map;
+        const static size_t keyCountInitialDefault = 1;
+        const static int increaseFactor = 2;             /* by how much the map size will be multiplied if it needs to grow */
+        size_t keyCount;
+        float loadFactor;
+        map_t map;
+};
+
+/**
+Represents a graph via adjency lists.
+*/
+class GraphList {
+
+    public:
+
+        GraphList(){
+        }
+
+    private:
+
+        std::vector<int> lists;
+};
+
+class GraphMatrix {
+
+    public:
+
+    private:
+
 };
 
 int main(int argc, char** argv)
 {
-    Hash<int,int> mapOrig(0, 1), map, mapExpect;
+    typedef Hash<int,int> map_t;
+    //map_t mapOrig(0, 1);
+    map_t mapOrig{
+        std::pair<int,int>(0,1),
+        std::pair<int,int>(1,2),
+        std::pair<int,int>(2,3),
+        std::pair<int,int>(3,4),
+        std::pair<int,int>(4,5),
+        std::pair<int,int>(-1,0),
+    };
+    map_t map;
+    map_t mapExpect;
     int val;
 
     for ( int i = 0; i < 1; i++ )
     {
 
         //add
-        //create a simple map which in which we can predict the map
 
-            mapOrig.add(-1, 0);
-            mapOrig.add( 2, 3);
-            mapOrig.add( 1, 2);
-            mapOrig.add( 3, 4);
-            mapOrig.add( 4, 5);
+            //bst test
+
+            //create a bst with all possible deletion cases:
+            //
+            //- two children
+            //- one child
+            //- 0   children
+
+                //mapOrig.add( 2, 3);
+                //mapOrig.add( 1, 2);
+                //mapOrig.add( 3, 4);
+                //mapOrig.add( 4, 5);
+                //mapOrig.add(-1, 0);
 
         //<<
 
-            //std::cout << mapOrig << std::endl;
+            std::cout << mapOrig << std::endl;
 
-        /*
+        //find
+
+            map = mapOrig;
+
+            assert( ! map.find(-2, val) );
+
+            assert( map.find(-1, val) );
+            assert( val == 0 );
+
+            assert( map.find( 0, val) );
+            assert( val == 1 );
+
+            assert( map.find( 1, val) );
+            assert( val == 2 );
+
+            assert( map.find( 2, val) );
+            assert( val == 3 );
+
+            assert( map.find( 3, val) );
+            assert( val == 4 );
+
+            assert( map.find( 4, val) );
+            assert( val == 5 );
 
             //==
 
@@ -620,29 +793,6 @@ int main(int argc, char** argv)
                 map.add( 5, 6);
                 assert( map != mapOrig );
 
-            //find
-
-                map = mapOrig;
-
-                assert( ! map.find(-2, val) );
-
-                assert( map.find(-1, val) );
-                assert( val == 0 );
-
-                assert( map.find( 0, val) );
-                assert( val == 1 );
-
-                assert( map.find( 1, val) );
-                assert( val == 2 );
-
-                assert( map.find( 2, val) );
-                assert( val == 3 );
-
-                assert( map.find( 3, val) );
-                assert( val == 4 );
-
-                assert( map.find( 4, val) );
-                assert( val == 5 );
 
             //del
 
@@ -660,7 +810,27 @@ int main(int argc, char** argv)
                 map.del(3);
                 assert( ! map.find( 3, val ) );
 
-        */
+        //hash map tests
+
+            //add at powers of 2 the 0 hash so they clutter at hash 0
+            map = map_t( 0, 1 );
+            map.add( 1, 2 );
+            map.add( 2, 3 );
+            map.add( 4, 5 );
+            map.add( 8, 9 );
+            map.add( 16, 17 );
+
+            //find
+            assert( map.find( 8, val) );
+            assert( val == 9 );
+
+            //del
+            map.del(0);
+            assert( ! map.find( 0, val ) );
+    }
+
+    {
+        GraphList g;
     }
 
     return EXIT_SUCCESS;

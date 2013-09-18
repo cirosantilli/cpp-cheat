@@ -147,19 +147,9 @@ only when users want to test those features.
 
         name for the gnu implementation of the c standard library
 
-#multithreading ipc concurrency
-
-    - c11 supports it, c99 not
-
-        glibc 2.x still does not have it.
-
-    - c++11 supports it, c++03 not
-
-    - openMP is is a library supported on C, C++, fortran, windows, linux macos
-
 #doxigen
 
-    documentation generation from commnets
+    Documentation generation from comments. De-facto stadnard for C++.
 
     <http://www.stack.nl/~dimitri/doxygen/docblocks.html>
 
@@ -170,6 +160,49 @@ only when users want to test those features.
     #petcs
 
         <http://www.mcs.anl.gov/petsc/documentation/index.html>
+
+#compilers
+
+    Most of those compilers work for multiple related languages such as C, C++, etc.
+
+    #gcc
+
+        Most popular Linux compiler.
+
+        Open source.
+
+        Does C, C++, etc.
+
+        Used to compile the Linux kernel (relies on its extensions).
+
+    #clang
+
+        Based on llvm.
+
+        Open source.
+
+        As of 2013:
+
+        - better error messages than gcc, specially for C++.
+        - smaller stdlib and C++11 support than gcc
+
+        Best support for objective C, and therefore loved by Apple.
+
+    #icc
+
+        Intel C compiler.
+
+        Closed source.
+
+#multithreading ipc concurrency
+
+    - c11 supports it, c99 not
+
+        glibc 2.x still does not have it.
+
+    - c++11 supports it, c++03 not
+
+    - openMP is is a library supported on C, C++, fortran, windows, linux macos
 
 #funny
 
@@ -3331,6 +3364,7 @@ int main( int argc, char **argv )
             {
                 int i = 0;
                 //assert( &i != NULL );
+                    //gcc 4.7 warning: &i will never be null. Smart.
             }
 
             //how it prints like:
@@ -3342,15 +3376,23 @@ int main( int argc, char **argv )
                 assert( !NULL );
 
             /*
-                relationship to 0: `(int*)0`, `(char*)0` or any other pointer type followed by zero
+            #null macro vs 0
+
+                Relationship to 0: `(int*)0`, `(char*)0` or any other pointer type followed by zero
                 is always converted internally to the null pointer
 
-                this is a valid way of representing the null pointer,
+                This is a valid way of representing the null pointer,
                 but it is better style to always use the `NULL` macro
+
+                The exact definition of `NULL` is implementation dependant.
+                A very common implementation is as `(void*)0`.
+
+                C++11 introduces nullptr, which is a much cleaner solution.
             */
             {
                 assert( NULL == (int*)0 );
                 assert( NULL == (char*)0 );
+                printf( "sizeof(NULL) = %zu\n", sizeof(NULL) );
             }
 
             //ERROR: comparison of distinct pointer types requires a cast:
@@ -6484,6 +6526,16 @@ int main( int argc, char **argv )
             // if (flush(fp) == EOF){
             //        //error
             // }
+
+            /* debugging application: your program segfaults
+
+            To find where, you put printf everywhere.
+
+            However nothing shows on screen.
+
+            Solution: flush immediatelly after the printf and add a newline at the end of the printed string.
+            This should ensure that your string gets printed.
+            */
         }
 
         //#applications
