@@ -160,6 +160,10 @@ Backtrack to definitions outside of main as needed.
 
     C++ has many major interesting non standard libs.
 
+    #utilities
+
+        Boost. <http://www.boost.org/>
+
     #unit testing
 
         Google unit test framework:
@@ -293,6 +297,7 @@ Backtrack to definitions outside of main as needed.
 #include <iostream>         //cout, endl
 #include <iterator>
 #include <list>             //list, forward_list
+#include <limits>           //
 #include <map>              //map, multimap
 #include <memory>           //shared_ptr
 #include <mutex>
@@ -323,7 +328,7 @@ static vector<string> callStack;
 void printCallStack()
 {
     cout << "callStack:" << endl;
-    for( vector<string>::iterator it = callStack.begin(); it != callStack.end(); ++it )
+    for (vector<string>::iterator it = callStack.begin(); it != callStack.end(); ++it)
         cout << *it << endl;
     cout << "END callStack" << endl;
 }
@@ -346,19 +351,19 @@ void printCallStack()
     //exception specifications
 
             //All exceptions are catchable (default):
-            void exception_func_all() { throw 0; }
+            void exception_func_all() {throw 0;}
 
             //only int exceptions are catchable
-            void exception_func_int_only( bool throw_int ) throw (int)
+            void exception_func_int_only(bool throw_int) throw (int)
             {
-                if ( throw_int )
+                if (throw_int)
                     throw 1;
                 else
                     throw 'c';
             }
 
             //only int and exception or derived excpetions are catchable:
-            void exception_func_int_exception_only( int which ) throw ( int, exception )
+            void exception_func_int_exception_only(int which) throw (int, exception)
             {
                 switch (which)
                 {
@@ -369,13 +374,24 @@ void printCallStack()
             }
 
             //no exceptions are catchable
-            void exception_func_none() throw() { throw 1; }
+            void exception_func_none() throw() {throw 1;}
 
             void exception_func_none_wrapper()
             {
                 exception_func_none();
             }
 
+    /**
+    The destructor of this class throws an exception!!!
+    */
+    class ExceptionDestructor {
+        public:
+            ~ExceptionDestructor() { throw std::exception(); }
+    };
+
+    void ExceptionDestructorCaller() {
+        ExceptionDestructor e;
+    }
 
 //#class
 //{
@@ -396,7 +412,7 @@ void printCallStack()
     class NoDefaultCtor
     {
         public:
-            NoDefaultCtor( int i ){}
+            NoDefaultCtor(int i){}
     };
 
     /*
@@ -407,7 +423,7 @@ void printCallStack()
         public:
             int i;
             ExplicitDefaultCtor(){}
-            ExplicitDefaultCtor( int i ) : i(i){}
+            ExplicitDefaultCtor(int i) : i(i){}
     };
 
     /*
@@ -418,7 +434,7 @@ void printCallStack()
         public:
             int i;
             DefaultCopyAssignCtor() : i(0) {}
-            DefaultCopyAssignCtor( int i ) : i(i) {}
+            DefaultCopyAssignCtor(int i) : i(i) {}
     };
 
     /*
@@ -464,27 +480,27 @@ void printCallStack()
 
             //default constructor
             NoBaseNoMember() : i(0) {
-                callStack.push_back( "NoBaseNoMember::NoBaseNoMember()");
+                callStack.push_back("NoBaseNoMember::NoBaseNoMember()");
             }
 
             //copy constructor
-            NoBaseNoMember( const NoBaseNoMember& other ) : i(other.i) {
-                callStack.push_back( "NoBaseNoMember::NoBaseNoMember(NoBaseNoMember)");
+            NoBaseNoMember(const NoBaseNoMember& other) : i(other.i) {
+                callStack.push_back("NoBaseNoMember::NoBaseNoMember(NoBaseNoMember)");
             }
 
-            NoBaseNoMember( int i ) : i(i) { callStack.push_back( "NoBaseNoMember::NoBaseNoMember(int)"); }
+            NoBaseNoMember(int i) : i(i) {callStack.push_back("NoBaseNoMember::NoBaseNoMember(int)");}
 
             //assign
-            NoBaseNoMember& operator= ( const NoBaseNoMember& rhs ) {
+            NoBaseNoMember& operator= (const NoBaseNoMember& rhs) {
                 this->i = rhs.i;
-                callStack.push_back( "NoBaseNoMember::operator=");
+                callStack.push_back("NoBaseNoMember::operator=");
                 return *this;
             }
 
             //destructor
-            ~NoBaseNoMember(){ callStack.push_back( "NoBaseNoMember::~NoBaseNoMember()"); }
+            ~NoBaseNoMember(){callStack.push_back("NoBaseNoMember::~NoBaseNoMember()");}
 
-            void method(){ callStack.push_back("NoBaseNoMember::method()"); }
+            void method(){callStack.push_back("NoBaseNoMember::method()");}
 
             static NoBaseNoMember create()
             {
@@ -507,12 +523,12 @@ void printCallStack()
                 //2 int destructors
             }
 
-            static void temporaryReference( NoBaseNoMember& temp )
+            static void temporaryReference(NoBaseNoMember& temp)
             {
                 temp.i = 0;
             }
 
-            static void temporaryReferenceConst( const NoBaseNoMember& temp )
+            static void temporaryReferenceConst(const NoBaseNoMember& temp)
             {
             }
     };
@@ -520,9 +536,9 @@ void printCallStack()
     class ExplicitCtor {
         public:
             int i;
-            explicit ExplicitCtor( int i ) : i(i) {}
+            explicit ExplicitCtor(int i) : i(i) {}
 
-            explicit ExplicitCtor( int i, int j ) : i(i + j) {}
+            explicit ExplicitCtor(int i, int j) : i(i + j) {}
                 //TODO this makes no sense right, since it is not a ctor that takes a single arg?
                 //why does it compile without warning
 
@@ -533,17 +549,17 @@ void printCallStack()
     class NoBaseNoMember0
     {
         public:
-            NoBaseNoMember0(){ callStack.push_back( "NoBaseNoMember0::NoBaseNoMember0()"); }
-            ~NoBaseNoMember0(){ callStack.push_back( "NoBaseNoMember0::~NoBaseNoMember0()"); }
-            void method(){ callStack.push_back("NoBaseNoMember0::method()"); }
+            NoBaseNoMember0(){callStack.push_back("NoBaseNoMember0::NoBaseNoMember0()");}
+            ~NoBaseNoMember0(){callStack.push_back("NoBaseNoMember0::~NoBaseNoMember0()");}
+            void method(){callStack.push_back("NoBaseNoMember0::method()");}
     };
 
     class NoBaseNoMember1
     {
         public:
-            NoBaseNoMember1(){ callStack.push_back( "NoBaseNoMember1::NoBaseNoMember1()"); }
-            ~NoBaseNoMember1(){ callStack.push_back( "NoBaseNoMember1::~NoBaseNoMember1()"); }
-            void method(){ callStack.push_back("NoBaseNoMember1::method()"); }
+            NoBaseNoMember1(){callStack.push_back("NoBaseNoMember1::NoBaseNoMember1()");}
+            ~NoBaseNoMember1(){callStack.push_back("NoBaseNoMember1::~NoBaseNoMember1()");}
+            void method(){callStack.push_back("NoBaseNoMember1::method()");}
     };
 
     /**
@@ -575,8 +591,8 @@ void printCallStack()
         public:
             int i;
             int j;
-            UniformInitializationCtor2( int i, int j ) : i(i), j(j+1) {}
-            bool operator==(const UniformInitializationCtor2& other) { return this->i == other.i && this->j == other.j; }
+            UniformInitializationCtor2(int i, int j) : i(i), j(j+1) {}
+            bool operator==(const UniformInitializationCtor2& other) {return this->i == other.i && this->j == other.j;}
     };
 
     int UniformInitializationCtor2Func(UniformInitializationCtor2 o){
@@ -588,8 +604,8 @@ void printCallStack()
         public:
             int i;
             int j;
-            UniformInitializationList( int i, int j ) : i(i), j(j+1) {}
-            UniformInitializationList( std::initializer_list<int> list ){
+            UniformInitializationList(int i, int j) : i(i), j(j+1) {}
+            UniformInitializationList(std::initializer_list<int> list){
                 i = *(list.begin());
                 j = *(list.begin() + 1);
             }
@@ -607,8 +623,15 @@ void printCallStack()
             std::vector<int> v;
 
             InitializerListCtor(std::initializer_list<int> list) {
-                for ( auto& i : list )
-                    v.push_back( i );
+                for (auto& i : list)
+                    v.push_back(i);
+            }
+
+            InitializerListCtor(int before, std::initializer_list<int> list, int after) {
+                v.push_back(before + 1);
+                for (auto& i : list)
+                    v.push_back(i);
+                v.push_back(after - 1);
             }
     };
 
@@ -619,19 +642,19 @@ void printCallStack()
         public:
             NoBaseNoMember0 member0;
             NoBaseNoMember1 member1;
-            MemberConstructorTest(){ callStack.push_back( "MemberConstructorTest::MemberConstructorTest()"); }
-            ~MemberConstructorTest(){ callStack.push_back( "MemberConstructorTest::~MemberConstructorTest()"); }
-            void method(){ callStack.push_back("MemberConstructorTest::method()"); }
+            MemberConstructorTest(){callStack.push_back("MemberConstructorTest::MemberConstructorTest()");}
+            ~MemberConstructorTest(){callStack.push_back("MemberConstructorTest::~MemberConstructorTest()");}
+            void method(){callStack.push_back("MemberConstructorTest::method()");}
     };
 
     class Member
     {
         public:
-            Member(){ callStack.push_back("Member::Member()"); }
-            Member(int i){ callStack.push_back("Member::Member(int)"); }
-            ~Member(){ callStack.push_back("Member::~Member()"); }
+            Member(){callStack.push_back("Member::Member()");}
+            Member(int i){callStack.push_back("Member::Member(int)");}
+            ~Member(){callStack.push_back("Member::~Member()");}
 
-            void method() { callStack.push_back("Member::method()"); }
+            void method() {callStack.push_back("Member::method()");}
 
             int i;
     };
@@ -732,31 +755,31 @@ void printCallStack()
             }
 
             void constMethod() const;
-            void constMethod( int *& ) const;
+            void constMethod(int *&) const;
 
             //return references
 
-                int& getRefIPublic() { return this->iPublic; }
+                int& getRefIPublic() {return this->iPublic;}
 
-                const int& getPrivateConstRef() const { return this->iPrivate; }
+                const int& getPrivateConstRef() const {return this->iPrivate;}
                     //value cannot be changed
 
-                int& getPrivateRef() { return this->iPrivate; }
+                int& getPrivateRef() {return this->iPrivate;}
                     //value can be changed
 
-                //int& getPrivateRef() const { return this->iPrivate; }
+                //int& getPrivateRef() const {return this->iPrivate;}
                     //ERROR
                     //const method cannot return noncosnt reference!
 
-                //int* getPrivateAddress() const { return &this->iPrivate; }
+                //int* getPrivateAddress() const {return &this->iPrivate;}
                     //ERROR
                     //const method cannot return noncosnt pointer!
 
-                const int* getPrivateAddressConst() const { return &this->iPrivate; }
+                const int* getPrivateAddressConst() const {return &this->iPrivate;}
 
-            void methodAmbiguous(){ callStack.push_back("Base::methodAmbiguous()"); }
+            void methodAmbiguous(){callStack.push_back("Base::methodAmbiguous()");}
 
-            virtual void virtualMethod(){ callStack.push_back("Base::virtualMethod()"); }
+            virtual void virtualMethod(){callStack.push_back("Base::virtualMethod()");}
                 //virtual: decides on runtime based on object type
                 //http://stackoverflow.com/questions/2391679/can-someone-explain-c-virtual-methods
 
@@ -883,12 +906,12 @@ void printCallStack()
         protected:
 
             int iProtected;
-            void fProtected(){ callStack.push_back("Base::fProtected()"); }
+            void fProtected(){callStack.push_back("Base::fProtected()");}
 
         private:
 
             int iPrivate;
-            void fPrivate(){ callStack.push_back("Base::fPrivate()"); }
+            void fPrivate(){callStack.push_back("Base::fPrivate()");}
             const static int privateStaticInt = 1;
 
             typedef int PRIVATE_NESTED_INT;
@@ -923,8 +946,8 @@ void printCallStack()
 
                 friend class FriendOfFriend;
 
-                Friend( int i ) : i(i) {}
-                int getI(){ return this->i; }
+                Friend(int i) : i(i) {}
+                int getI(){return this->i;}
 
                 //this declaration says that `friendGetIPrivate(Base)` is a friend of this class.
                 //It will be defined outside the class.
@@ -961,19 +984,19 @@ void printCallStack()
 
             public:
 
-                FriendOfFriend( int i ) : i(i) {}
-                int getFriendI(Friend f){ return f.i; }
+                FriendOfFriend(int i) : i(i) {}
+                int getFriendI(Friend f){return f.i;}
 
             private:
 
                 int i;
         };
 
-        //friend int friendGetI(Friend f){ return f.i; }
+        //friend int friendGetI(Friend f){return f.i;}
             //ERROR
             //friend used outside class
 
-        //int Friend::getFriendI(FriendOfFriend f) { return f.i; }
+        //int Friend::getFriendI(FriendOfFriend f) {return f.i;}
             //ERROR
             //not a friend because reflexivity is not automatic
 
@@ -1043,7 +1066,7 @@ void printCallStack()
     Cannot return a non const pointer from a const method, since this is const,
     so all members are also const.
     */
-    void Base::constMethod( int *& ip ) const {
+    void Base::constMethod(int *& ip) const {
         //ip = &this->iPrivate;
             //ERROR invalid conversion
     }
@@ -1085,11 +1108,11 @@ void printCallStack()
 
             virtual ~BaseAbstract(){}
 
-            void method(){ callStack.push_back("BaseAbstract::method()"); }
+            void method(){callStack.push_back("BaseAbstract::method()");}
 
-            void methodAmbiguous(){ callStack.push_back("BaseAbstract::methodAmbiguous()"); }
+            void methodAmbiguous(){callStack.push_back("BaseAbstract::methodAmbiguous()");}
 
-            virtual void virtualMethod(){ callStack.push_back("BaseAbstract::virtualMethod()"); }
+            virtual void virtualMethod(){callStack.push_back("BaseAbstract::virtualMethod()");}
 
             virtual void pureVirtual() = 0;
 
@@ -1128,17 +1151,17 @@ void printCallStack()
     {
         public:
 
-            BaseProtected(){ callStack.push_back("BaseProtected::BaseProtected()"); }
-            BaseProtected(int i){ callStack.push_back("BaseProtected::BaseProtected(int)"); }
-            ~BaseProtected(){ callStack.push_back("BaseProtected::~BaseProtected()"); }
+            BaseProtected(){callStack.push_back("BaseProtected::BaseProtected()");}
+            BaseProtected(int i){callStack.push_back("BaseProtected::BaseProtected(int)");}
+            ~BaseProtected(){callStack.push_back("BaseProtected::~BaseProtected()");}
     };
 
     class BasePrivate
     {
         public:
-            BasePrivate(){ callStack.push_back("BasePrivate::BasePrivate()"); }
-            BasePrivate(int i){ callStack.push_back("BasePrivate::BasePrivate(int)"); }
-            ~BasePrivate(){ callStack.push_back("BasePrivate::~BasePrivate()"); }
+            BasePrivate(){callStack.push_back("BasePrivate::BasePrivate()");}
+            BasePrivate(int i){callStack.push_back("BasePrivate::BasePrivate(int)");}
+            ~BasePrivate(){callStack.push_back("BasePrivate::~BasePrivate()");}
     };
 
     class Derived : private BasePrivate
@@ -1227,9 +1250,9 @@ void printCallStack()
             /*
             also calls Base destructor after
             */
-            ~Class(){ callStack.push_back("Class::~Class()"); }
+            ~Class(){callStack.push_back("Class::~Class()");}
 
-            void method(){ callStack.push_back("Class::method()"); }
+            void method(){callStack.push_back("Class::method()");}
             //called method overwriding
 
             template<class C=int>
@@ -1239,19 +1262,19 @@ void printCallStack()
             }
                 //OK
 
-            void virtualMethod(){ callStack.push_back("Class::virtualMethod()"); }
+            void virtualMethod(){callStack.push_back("Class::virtualMethod()");}
                 //different than overwriding non virtual methods. see polymorphism.
 
-            //virtual void virtualMethod(){ callStack.push_back("Class::virtualMethod()"); }
+            //virtual void virtualMethod(){callStack.push_back("Class::virtualMethod()");}
                 //OK
                 //only difference:
                 //if you have a pointer to this class, you can only use virtual if this
                 //is declared virtual
 
-            void pureVirtual(){ callStack.push_back("Class::pureVirtual()"); }
+            void pureVirtual(){callStack.push_back("Class::pureVirtual()");}
             //definition obligatory if you want to create objects of this class
 
-            //int pureVirtual(){ return 1; }
+            //int pureVirtual(){return 1;}
                 //ERROR
                 //unlike function overloading, polyomorphism is decided at runtime
                 //and therefore return type must be the same as in declaration
@@ -1265,7 +1288,7 @@ void printCallStack()
                     //because Class is derived from Base
                     //called "covariant return type"
 
-                    //virtual Class invalidCovariantReturn(){ return Class(); }
+                    //virtual Class invalidCovariantReturn(){return Class();}
                         //ERROR invalid covariant
 
                 virtual void covariantArg(Class* c)
@@ -1282,7 +1305,7 @@ void printCallStack()
 
         private:
 
-            virtual void privatePureVirtual(){ callStack.push_back("Class:privatePureVirtual()"); };
+            virtual void privatePureVirtual(){callStack.push_back("Class:privatePureVirtual()");};
     };
 
     //nested
@@ -1296,7 +1319,7 @@ void printCallStack()
         public:
 
             Class2(){}
-            void pureVirtual(){ callStack.push_back("Class2::pureVirtual()"); }
+            void pureVirtual(){callStack.push_back("Class2::pureVirtual()");}
 
             //OK
             //you can override the Nested class from the Base also
@@ -1321,9 +1344,9 @@ void printCallStack()
             int *is;
             std::size_t n;
 
-            CopyAndSwap( std::size_t n, int val ) : n(n) {
+            CopyAndSwap(std::size_t n, int val) : n(n) {
                 is = new int[n];
-                for ( std::size_t i = 0; i < n; ++i ) {
+                for (std::size_t i = 0; i < n; ++i) {
                     is[i] = val;
                 }
             }
@@ -1332,13 +1355,13 @@ void printCallStack()
                 delete[] is;
             }
 
-            CopyAndSwap& operator=( const CopyAndSwap& rhs ) {
+            CopyAndSwap& operator=(const CopyAndSwap& rhs) {
                 delete[] is;
                 is = new int[rhs.n];
                 return *this;
             }
 
-            CopyAndSwap( const CopyAndSwap& other ) {
+            CopyAndSwap(const CopyAndSwap& other) {
             }
     };
 
@@ -1406,7 +1429,7 @@ void printCallStack()
     //ERROR arbitrary computations cannot be done however, only those that initialize a global
 
         //global = 1;
-        //if(1){}
+        //if (1){}
         //callStack.push_back("global");
 
 //#function
@@ -1415,8 +1438,8 @@ void printCallStack()
 
         //http://stackoverflow.com/questions/114180/pointer-vs-reference
 
-        void byref(int& i) { i++; }
-        void bypointer(int *i) { (*i)++; }
+        void byref(int& i) {i++;}
+        void bypointer(int *i) {(*i)++;}
 
         void bypointerConst(const int*& ip, const int*& jp) {
             ip = jp;
@@ -1424,7 +1447,7 @@ void printCallStack()
 
     //#return reference from function
 
-        int getInt() { return 0; }
+        int getInt() {return 0;}
 
         int getIntVar() {
             int i = 0;
@@ -1443,7 +1466,7 @@ void printCallStack()
         /*
         OK the returned i reference is not local
         */
-        int& getIntRef( int& i ) {
+        int& getIntRef(int& i) {
             i++;
             return i;
         }
@@ -1451,12 +1474,12 @@ void printCallStack()
         /*
         The returned i reference cannot be modified.
         */
-        const int& getIntConstRef( int& i ) {
+        const int& getIntConstRef(int& i) {
             i++;
             return i;
         }
 
-        std::string getString() { return "abc"; }
+        std::string getString() {return "abc";}
 
     //default args. C++ only. creates several name mungled functions on the assembly code.
 
@@ -1472,10 +1495,10 @@ void printCallStack()
 
     //function overloading
 
-        void overload(int i){ callStack.push_back("overload(int)"); }
-        void overload(int i, int j){ callStack.push_back("overload(int,int)"); }
-        void overload(float i){ callStack.push_back("overload(float)"); }
-        void overload(float i, float j, float k=0.f){ callStack.push_back("overload(float,float,float=)"); }
+        void overload(int i){callStack.push_back("overload(int)");}
+        void overload(int i, int j){callStack.push_back("overload(int,int)");}
+        void overload(float i){callStack.push_back("overload(float)");}
+        void overload(float i, float j, float k=0.f){callStack.push_back("overload(float,float,float=)");}
 
         //OK even if return type is different
         //all is decided at compile time
@@ -1484,16 +1507,16 @@ void printCallStack()
 
         //ERROR: conflict with int
 
-            //void overload(const int i){ }
+            //void overload(const int i){}
 
         //ERROR: cannot differentiate by output since output is used to decide if other parts of code make sense
 
-            //int overload(){ return 0; }
-            //float overload(){ return 0.f; }
+            //int overload(){return 0;}
+            //float overload(){return 0.f;}
 
         //ERROR: conflict with int int
 
-            //void overload(int i, int j=0){ cout << "int int="; }
+            //void overload(int i, int j=0){cout << "int int=";}
 
         //BAD
         //compiles, but is useless to give a default,
@@ -1502,7 +1525,7 @@ void printCallStack()
         //because compiler cannot decide between
         //here the default arg can be usefull for a call of type float float
 
-            //void overload(float i, float j=1){ cout << "float float="; }
+            //void overload(float i, float j=1){cout << "float float=";}
 
         //TODO why does this compile, that is, how not to make an ambiguous call with overload(int)
 
@@ -1529,11 +1552,11 @@ void printCallStack()
 
                     int i = lvalue;
 
-                leads to copy construction ( ambiguous with the `&` overload )
+                leads to copy construction (ambiguous with the `&` overload)
 
                     int i = rvalue;
 
-                leads to move construction ( ambiguous with the `&&` overload )
+                leads to move construction (ambiguous with the `&&` overload)
                 */
             /*
             std::string overloadRLvalue(int i) {
@@ -1544,21 +1567,24 @@ void printCallStack()
 
     //default args
 
-        void defaultArgProto( int i=0 );
-        void defaultArgProto( int i ){}
+        void defaultArgProto(int i=0);
+        void defaultArgProto(int i){}
 
         //BAD
         //usually not what you want
         //since includers will not see the default version
 
-            void defaultArgDef( int i );
-            void defaultArgDef( int i=0 ){}
+            void defaultArgDef(int i);
+            void defaultArgDef(int i=0){}
 
         //ERROR
         //default cannot go in declaration and definition
 
             //void defaultArgBoth(int i=0);
             //void defaultArgBoth(int i=0){}
+
+    int def_no_argname(int){return 1;}
+    int def_no_argname(int, int){return 2;}
 
     /*
     #auto arguments
@@ -1622,7 +1648,7 @@ void printCallStack()
         Just imagine the havoc if this were possible! =)
         */
 
-            //int operator+(int i, int j){ return i + j + 1; }
+            //int operator+(int i, int j){return i + j + 1;}
 
         /*
         class that shows the ideal methods of operator overloading.
@@ -1637,7 +1663,7 @@ void printCallStack()
                     this->i = 0;
                 }
 
-                OperatorOverload( int i ) {
+                OperatorOverload(int i) {
                     this->i = i;
                 }
 
@@ -1653,7 +1679,7 @@ void printCallStack()
 
                     Return a *non* const reference because the following is possible for base types:
 
-                        ( a = b) = c
+                        (a = b) = c
 
                     which is the same as:
 
@@ -1720,7 +1746,7 @@ void printCallStack()
 
             Should be const because the following does nothing:
 
-                ( a + b ) = c
+                (a + b) = c
 
             Should be an external method, since it is just a function of `+=`.
         */
@@ -1790,7 +1816,7 @@ void printCallStack()
             */
             /*
             const OperatorOverload operator* (const OperatorOverload& lhs, const OperatorOverload& mhs, const OperatorOverload& rhs){
-                return OperatorOverload( lhs.i * mhs.i * rhs.i );
+                return OperatorOverload(lhs.i * mhs.i * rhs.i);
             }
             */
 
@@ -1799,8 +1825,8 @@ void printCallStack()
 
             operator* can be two things:
 
-            - multiplication `a * b` if it has  two arguments   ( or one    in a member method )
-            - dereference `*ptr` if it has      one argument    ( or none   in a member method )
+            - multiplication `a * b` if it has  two arguments   (or one    in a member method)
+            - dereference `*ptr` if it has      one argument    (or none   in a member method)
 
             It is only differenced by the number of arguments.
         */
@@ -1823,7 +1849,7 @@ void printCallStack()
                 }
 
                 OperatorOverload operator* (const OperatorOverload& lhs, const OperatorOverload& rhs){
-                    return OperatorOverload( lhs.i * rhs.i );
+                    return OperatorOverload(lhs.i * rhs.i);
                 }
 
         /*
@@ -1836,7 +1862,7 @@ void printCallStack()
 
                 /* Can be defined in terms of * if you class implements it. */
                 const OperatorOverload operator- (const OperatorOverload& rhs){
-                    return OperatorOverload( -1 ) * rhs;
+                    return OperatorOverload(-1) * rhs;
                 }
 
                 /* Defined in terms of unary minus and +. */
@@ -1853,7 +1879,7 @@ void printCallStack()
         */
 
             template <class T>
-            T operator/( const T& i, const T& j ) { return i + j; }
+            T operator/(const T& i, const T& j) {return i + j;}
 
 /*
 #namespaces
@@ -1984,17 +2010,17 @@ void printCallStack()
 
             struct s {};
 
-            int adl( struct s s ){
+            int adl(struct s s){
                 return 0;
             }
 
             int i;
 
-            int adlNoType( int i ){
+            int adlNoType(int i){
                 return 0;
             }
 
-            int adlMultiArg( int i, struct s s, int j  ){
+            int adlMultiArg(int i, struct s s, int j  ){
                 return 0;
             }
         }
@@ -2003,31 +2029,31 @@ void printCallStack()
 
             struct s {};
 
-            int adl( struct s s ){
+            int adl(struct s s){
                 return 1;
             }
 
             int i;
 
-            int adlNoType( int i ){
+            int adlNoType(int i){
                 return 1;
             }
 
-            int adl0FromAdl1( struct adl0::s s ) {
+            int adl0FromAdl1(struct adl0::s s) {
                 return 1;
             }
 
-            int adl0And1FromAdl1( struct adl0::s s0, struct s s1 ) {
+            int adl0And1FromAdl1(struct adl0::s s0, struct s s1) {
                 return 1;
             }
 
-            float adl01( struct adl0::s s, struct s s1 ){
+            float adl01(struct adl0::s s, struct s s1){
                 return 0.5;
             }
         }
 
         namespace adl0 {
-            float adl01( struct s s, struct adl1::s s1 ){
+            float adl01(struct s s, struct adl1::s s1){
                 return 0.5;
             }
         }
@@ -2039,7 +2065,7 @@ void printCallStack()
     */
 
         template <class T>
-        int templateTODO(T /*no param name!*/ ){
+        int templateTODO(T /*no param name!*/){
             //return i + 1;
             return 1;
         }
@@ -2096,7 +2122,7 @@ void printCallStack()
         {
             public:
                 TemplateTemplateParam(){}
-                TemplateTemplateParam( T t ) : t(t) {}
+                TemplateTemplateParam(T t) : t(t) {}
                 T t;
         };
 
@@ -2132,7 +2158,7 @@ void printCallStack()
                 T t;
                 V v;
 
-                bool equal(){ return t == v.t; }
+                bool equal(){return t == v.t;}
         };
 
         /*
@@ -2148,7 +2174,7 @@ void printCallStack()
                 T t;
                 V<T> v;
 
-                bool equal(){ return t == v.t; }
+                bool equal(){return t == v.t;}
         };
 
     /*
@@ -2156,7 +2182,7 @@ void printCallStack()
     */
 
         template<typename T=int, template <typename T> class TT = TemplateTemplateParam, int N=1 >
-        T templateDefault( T t, TT<T> tt ) {
+        T templateDefault(T t, TT<T> tt) {
             return t + tt.t + N;
         }
 
@@ -2251,12 +2277,12 @@ void printCallStack()
                 T t;
                 T ts[N];
 
-                TemplateClass(){ callStack.push_back("TemplateClass::TemplateClass()"); }
+                TemplateClass(){callStack.push_back("TemplateClass::TemplateClass()");}
 
-                //TemplateClass() t(0.0){ callStack.push_back("TemplateClass::TemplateClass()"); }
+                //TemplateClass() t(0.0){callStack.push_back("TemplateClass::TemplateClass()");}
                     //BAD: what is T = string?
 
-                TemplateClass(T t): t(t){ callStack.push_back("TemplateClass::TemplateClass(T)"); }
+                TemplateClass(T t): t(t){callStack.push_back("TemplateClass::TemplateClass(T)");}
 
                 void method()
                 {
@@ -2265,7 +2291,7 @@ void printCallStack()
 
                 void methodDefinedOutside();
 
-                T method(T){ callStack.push_back("TemplateClass::method(T)"); }
+                T method(T){callStack.push_back("TemplateClass::method(T)");}
 
                 template<class C=int>
                 void methodTemplate()
@@ -2287,7 +2313,7 @@ void printCallStack()
                         //works
                 };
 
-                int getIPrivate(){ return iPrivate; }
+                int getIPrivate(){return iPrivate;}
 
             private:
 
@@ -2305,14 +2331,14 @@ void printCallStack()
             template<class T=int>
             class TemplateAbstract
             {
-                virtual T virtualMethod(){ return 1; }
+                virtual T virtualMethod(){return 1;}
                 virtual T pureVirtualMethod() = 0;
             };
 
             class TemplateAbstractDerived : public TemplateAbstract<int>
             {
-                virtual int virtualMethod(){ return 1; }
-                virtual int pureVirtualMethod(){ return 1; }
+                virtual int virtualMethod(){return 1;}
+                virtual int pureVirtualMethod(){return 1;}
             };
 
         //c++11
@@ -2364,7 +2390,7 @@ void printCallStack()
 
         //base case
         template <typename T>
-        T variadicSum(T t) { return(t); }
+        T variadicSum(T t) {return(t);}
 
         template <typename T, typename ...P>
         T variadicSum(T t, P ...p)
@@ -2396,10 +2422,10 @@ void printCallStack()
     void threadFunc(int threadCountToSqrt)
     {
         std::thread::id id = std::this_thread::get_id();
-        for( int i=0; i<threadCountToSqrt; i++ )
-        for( int j=0; j<threadCountToSqrt; j++ )
+        for (int i=0; i<threadCountToSqrt; i++)
+        for (int j=0; j<threadCountToSqrt; j++)
         {
-            if( lastThreadId != id )
+            if (lastThreadId != id)
             {
                 ++threadChange;
                 //threadIds.insert(id);
@@ -2413,7 +2439,7 @@ void printCallStack()
 
             //if happens
                 threadGlobal = 1;
-                if(threadGlobal == 0)
+                if (threadGlobal == 0)
                     ++threadGlobalEq0;
                 threadGlobal = 0;
 
@@ -2423,13 +2449,13 @@ void printCallStack()
                 //threadGlobalMutex.try_lock();
                     //if not available, return!
                     threadGlobalMutexed = 1;
-                    if(threadGlobalMutexed == 0)
+                    if (threadGlobalMutexed == 0)
                         ++threadGlobalMutexedEq0;
                     threadGlobalMutexed = 0;
                 threadGlobalMutex.unlock();
 
         }
-        std::this_thread::sleep_for(std::chrono::nanoseconds(nNsecs));
+        std::this_thread::sleep_for (std::chrono::nanoseconds(nNsecs));
         std::this_thread::yield();
             //done, pass to another thread
     }
@@ -2443,13 +2469,13 @@ void printCallStack()
     void loopOnlyProf(int n)
     {
         int i;
-        for( i=0; i<n; i++ );
+        for (i=0; i<n; i++);
     }
 
     void whileOnlyProf(int n)
     {
         int i = 0;
-        while( i < n )
+        while (i < n)
         {
             ++i;
         }
@@ -2458,7 +2484,7 @@ void printCallStack()
     void intAssignProf(int n)
     {
         int i,j;
-        for( i=0; i<n; i++ )
+        for (i=0; i<n; i++)
             j=1;
     }
 
@@ -2467,7 +2493,7 @@ void printCallStack()
     void funcCallProf(int n)
     {
         int i;
-        for( i=0; i<n; i++ )
+        for (i=0; i<n; i++)
             doNothing();
     }
 
@@ -2476,35 +2502,35 @@ void printCallStack()
     void inlineFuncCallProf(int n)
     {
         int i;
-        for( i=0; i<n; i++ )
+        for (i=0; i<n; i++)
             inlineDoNothing();
     }
 
     void intSumProf(int n)
     {
         int i, j = 0;
-        for( i=0; i<n; i++ )
+        for (i=0; i<n; i++)
             j = j + 0;
     }
 
     void intSubProf(int n)
     {
         int i, j = 0;
-        for( i=n; i>0; i-- );
+        for (i=n; i>0; i--);
             j = j - 0;
     }
 
     void intMultProf(int n)
     {
         int i, j = 1;
-        for( i=0; i<n; i++ )
+        for (i=0; i<n; i++)
             j = j * 1;
     }
 
     void intDivProf(int n)
     {
         int i, j = 1;
-        for( i=0; i<n; i++ )
+        for (i=0; i<n; i++)
             j = j / 1;
     }
 
@@ -2512,7 +2538,7 @@ void printCallStack()
     {
         float f;
         int i;
-        for( i=0; i<n; i++ )
+        for (i=0; i<n; i++)
             f = f + 0.0;
     }
 
@@ -2520,7 +2546,7 @@ void printCallStack()
     {
         float f;
         int i;
-        for( i=0; i<n; i++ )
+        for (i=0; i<n; i++)
             f = f - 0.0;
     }
 
@@ -2528,7 +2554,7 @@ void printCallStack()
     {
         int i;
         float j;
-        for( i=0; i<n; i++ )
+        for (i=0; i<n; i++)
             j = j * 1.0;
     }
 
@@ -2536,14 +2562,14 @@ void printCallStack()
     {
         int i;
         float j;
-        for( i=0; i<n; i++ )
+        for (i=0; i<n; i++)
             j = j / 1.0;
     }
 
     void putsProf(int n)
     {
         int i;
-        for( i = 0; i < n; ++i )
+        for (i = 0; i < n; ++i)
             puts("");
     }
 
@@ -2551,7 +2577,7 @@ void printCallStack()
     {
         int is[1];
         int i;
-        for( i = 0; i < n; ++i )
+        for (i = 0; i < n; ++i)
         {
             int is[1];
         }
@@ -2561,7 +2587,7 @@ void printCallStack()
     {
         int is[1];
         int i;
-        for( i = 0; i < n; ++i )
+        for (i = 0; i < n; ++i)
         {
             int is[0x800];
         }
@@ -2571,7 +2597,7 @@ void printCallStack()
     {
         int is[1];
         int i;
-        for( i = 0; i < n; ++i )
+        for (i = 0; i < n; ++i)
         {
             int is[0xF0000];
         }
@@ -2581,9 +2607,9 @@ void printCallStack()
     {
         char* cp;
         int i;
-        for( i = 0; i < n; ++i )
+        for (i = 0; i < n; ++i)
         {
-            cp = (char*) malloc( sizeof( char ) * 1 );
+            cp = (char*) malloc(sizeof(char) * 1);
             free(cp);
         }
     }
@@ -2592,9 +2618,9 @@ void printCallStack()
     {
         char* cp;
         int i;
-        for( i = 0; i < n; ++i )
+        for (i = 0; i < n; ++i)
         {
-            cp = (char*) malloc( sizeof( char ) * 0x800 );
+            cp = (char*) malloc(sizeof(char) * 0x800);
             free(cp);
         }
     }
@@ -2603,9 +2629,9 @@ void printCallStack()
     {
         char* cp;
         int i;
-        for( i = 0; i < n; ++i )
+        for (i = 0; i < n; ++i)
         {
-            cp = (char*) malloc( sizeof( char ) * 0xF0000 );
+            cp = (char*) malloc(sizeof(char) * 0xF0000);
             free(cp);
         }
     }
@@ -2614,7 +2640,7 @@ void printCallStack()
     {
         char* cp;
         int i;
-        for( i = 0; i < n; ++i )
+        for (i = 0; i < n; ++i)
         {
             cp = new char[1];
             delete[] cp;
@@ -2625,7 +2651,7 @@ void printCallStack()
     {
         char* cp;
         int i;
-        for( i = 0; i < n; ++i )
+        for (i = 0; i < n; ++i)
         {
             cp = new char[0x800];
             delete[] cp;
@@ -2636,7 +2662,7 @@ void printCallStack()
     {
         char* cp;
         int i;
-        for( i = 0; i < n; ++i )
+        for (i = 0; i < n; ++i)
         {
             cp = new char[0xF0000];
             delete[] cp;
@@ -2660,7 +2686,7 @@ void printCallStack()
     {
         ClassProf c;
         int i;
-        for( i = 0; i < n; ++i )
+        for (i = 0; i < n; ++i)
         {
             c.method();
         }
@@ -2670,7 +2696,7 @@ void printCallStack()
     {
         ClassProf c;
         int i;
-        for( i = 0; i < n; ++i )
+        for (i = 0; i < n; ++i)
         {
             c.virtualMethod();
         }
@@ -2682,11 +2708,11 @@ void printCallStack()
 
 //find_if
 
-    bool isOdd( int i ){
+    bool isOdd(int i){
         return i % 2 == 1;
     }
 
-int bind2ndTarget( int i, int j ){
+int bind2ndTarget(int i, int j){
     return i + j;
 }
 
@@ -2698,7 +2724,27 @@ class ClassWithTypedef
         typedef int typedefPrivate;
 };
 
-int main(int argc, char** argv)
+//constexpr
+
+    int not_constexpr_func(){
+        return 1;
+    }
+
+    int constexpr constexpr_func(){
+        return 1;
+    }
+
+        /**
+        ERROR: the compiler ensures that the function is constexpr,
+        so this does not compile.
+        */
+    /*
+    int constexpr constexpr_func_bad(){
+        return std::time();
+    }
+    */
+
+int main(int argc, char **argv)
 {
     /*
     #assign operator
@@ -2710,7 +2756,7 @@ int main(int argc, char** argv)
     {
         int i = 0, j = 1, k = 2;
 
-          ( i = j ) = k;
+          (i = j) = k;
         /*^^^^^^^^^
           |
           returns a lvalue pointing to `i`
@@ -2721,11 +2767,11 @@ int main(int argc, char** argv)
           i = k;
         */
 
-        assert( i == 2 );
-        assert( j == 1 );
-        assert( k == 2 );
+        assert(i == 2);
+        assert(j == 1);
+        assert(k == 2);
 
-        //( i + j ) = k;
+        //(i + j) = k;
             //ERROR
             //as in C, most other operators do not return lvalues
     }
@@ -2741,11 +2787,11 @@ int main(int argc, char** argv)
         b = true;
         b = 1;
 
-        if(true)
+        if (true)
         {
             assert(true);
         }
-        if(false)
+        if (false)
         {
             assert(false);
         }
@@ -2753,13 +2799,13 @@ int main(int argc, char** argv)
         {
             stringstream oss;
             oss << true;
-            assert( oss.str() == "1" );
+            assert(oss.str() == "1");
         }
 
         {
             stringstream oss;
             oss << false;
-            assert( oss.str() == "0" );
+            assert(oss.str() == "0");
         }
 
     }
@@ -2768,12 +2814,73 @@ int main(int argc, char** argv)
     {
         unsigned int ui = -1;
         int i = 1;
-        //if(ui<i)
+        //if (ui<i)
             //WARN
             //in c, no WARN
     }
 
-    //#const
+    /*
+    #constant expressions at compile time
+
+        <http://en.cppreference.com/w/cpp/language/constant_expression>
+
+        Constant expressions at compile time can be used in contexts where non constants cannont:
+
+        - array lengths at array declaration
+        - numeric template parameters
+
+        The compiler is able to determine which expressions are constant recursively.
+
+        Note that variables with the keyword `const` may or may not be constant expressions.
+        depending on how they are initialized.
+
+        Those defined with the keyword constexpr however are ensured by the compiler to be
+        compile time constants.
+    */
+
+    /*
+    #array size from variables
+
+        In C++, any constant expression at compile time can be used as an array size.
+
+        This includes in particular intetegers declared as `const` and initialized by a constant expression,
+        and in C++11 all `constexpr` variables.
+    */
+    {
+        std::srand(time(NULL));
+
+        {
+            int i = 1;
+            i = std::rand();
+            //int is[i];
+                //ERROR
+                //the size would not be fixed
+        }
+
+        {
+            const int ci = 1;
+                //compile time constant since the literal 1 is a constant expression
+            //ci = 2;
+                //cannot do that, so the size is fixed!
+            int is[ci];
+        }
+
+        //ERROR: the compiler is able to see that ci is not a compile time constant
+        {
+            const int ci = std::rand();
+            //int is[ci];
+        }
+    }
+
+    /*
+    #const keyword
+
+        There are differences between the `const` keyword in C and C++!
+
+        Also, in C++ const can be used to qualify methods.
+
+        <http://stackoverflow.com/questions/8908071/const-correctness-in-c-vs-c>
+    */
     {
         /*
         In C++, consts cannot be changed not even through pointers.
@@ -2787,8 +2894,7 @@ int main(int argc, char** argv)
 
         //unlike for constexpr, const does not need to have value define at compile time
         {
-            std::srand( time( NULL ) );
-            const int i = std::rand();
+            const int i = std::time(NULL);
         }
 
         //consts must be initialized at declaration because they cannot be modified after.
@@ -2853,30 +2959,79 @@ int main(int argc, char** argv)
     /*
     #constexpr
 
-        c++11 keyword
+        C++11 keyword.
 
-        Compile time ensures that an expression is a compile time constant.
+        `const` variables can either be compile time constants or not.
 
-    #constexpr function
+        The compiler is able to decide that at compile time, but it may be hard for human
+        readers to predict if a given variable is a constexpr of not.
 
-        TODO
+        Using the constexpr keyword however makes the compiler ensure that the variables are constant expressions,
+        so that the compile time constantness is more explicit.
+
+        Two uses:
+
+        - variables
+
+            Means that the value of an expression is known at compile time.
+
+        - functions
+
+            The value returned by constexpr functions is known to be a compile time constant.
+
+            The compiler enforces this by inspecting the function.
     */
     {
-        constexpr int i = 0;
-        constexpr int i2 = i + 1;
+        //OK built-in operations that take constexprs return a constexpr
+        {
+            constexpr int i = 1 + 1;
+        }
 
-        //ERROR constexprs are read only
+        //OK because i is a constexpr
+        {
+            constexpr int i = 0;
+            constexpr int i2 = i;
+        }
 
+        //OK, the compiler sees that a const initialized by a constexpr is also a constexpr.
+        {
+            const int i = 0;
+            constexpr int i2 = i;
+        }
+
+        //ERROR for non built-in operators, only constexpr functions can be used
+        {
+            //constexpr int i = not_constexpr_func();
+        }
+
+        {
+            constexpr int i = constexpr_func();
+        }
+
+        //ERROR the compiler sees that this is not a constexpr
+        //Avoid relying on this execept for legacy code: always initialize a constexpr from constexprs!
+        {
+            const int i = std::time(NULL);
+            //constexpr int i2 = i + 1;
+        }
+
+        //ERROR i is not a constexpr
+        {
+            int i = 0;
+            //i = std::time(NULL);
+                //we could change i at any time!
+            //constexpr int i2 = i + 1;
+        }
+
+        //ERROR constexprs cannot be modified after initialization
+        {
+            constexpr int i = 0;
             //i = 1;
+        }
 
         //WARN unitialized constexpr
-
-            //constexpr int i3;
-
-        //unlike for const, this fails, because it is not calculable at compile time
         {
-            std::srand( time( NULL ) );
-            //constexpr int i = std::rand();
+            //constexpr int i;
         }
 
         /*
@@ -2909,7 +3064,7 @@ int main(int argc, char** argv)
         {
             std::nullptr_t p = nullptr;
             int i;
-            //assert( &i != p );
+            //assert(&i != p);
                 //gcc 4.7 warning: &i will never be null. Smart.
         }
 
@@ -2933,7 +3088,7 @@ int main(int argc, char** argv)
 
         //unlike in NULL, the size of nullptr_t is fixed
         {
-            assert( sizeof(nullptr_t) == sizeof(void*) );
+            assert(sizeof(nullptr_t) == sizeof(void*));
         }
     }
 
@@ -2971,7 +3126,7 @@ int main(int argc, char** argv)
         {
             int i = 0;
             byref(i);
-            assert( i == 1 );
+            assert(i == 1);
         }
 
         /*
@@ -2987,8 +3142,8 @@ int main(int argc, char** argv)
             int i = 0;
             int& ia = i;
             ia = 1;
-            assert( i == 1 );
-            assert( &i == &ia );
+            assert(i == 1);
+            assert(&i == &ia);
 
             /*
             For the same reason, it is possible to initialize a reference from another reference.
@@ -2996,7 +3151,7 @@ int main(int argc, char** argv)
             {
                 int& ia2 = ia;
                 ia2 = 2;
-                assert( i == 2 );
+                assert(i == 2);
             }
         }
 
@@ -3033,7 +3188,7 @@ int main(int argc, char** argv)
             int* ip = &i;
             int& ia = *ip;
             ia = 1;
-            assert( i == 1 );
+            assert(i == 1);
 
             //ERROR: & must get a variable/dereferenced pointer, not pointers themselves!
             {
@@ -3106,7 +3261,7 @@ int main(int argc, char** argv)
 
             For exapmle, the following would be bad:
 
-                void f( int& i ) {
+                void f(int& i) {
                     i++;
                 }
 
@@ -3117,7 +3272,7 @@ int main(int argc, char** argv)
 
             and is impossible, but:
 
-                void f( const int& i ) {
+                void f(const int& i) {
                     //i++;
                         //impossible
                 }
@@ -3130,7 +3285,7 @@ int main(int argc, char** argv)
                 //initialization from a literal
                 {
                     const int& i = 1;
-                    assert( i == 1 );
+                    assert(i == 1);
                 }
 
                 /*
@@ -3141,7 +3296,7 @@ int main(int argc, char** argv)
                 */
                 {
                     const int& i = getInt();
-                    assert( i == 0 );
+                    assert(i == 0);
                 }
             }
         }
@@ -3164,7 +3319,7 @@ int main(int argc, char** argv)
                     //now `jp` is the same as `ip`!
 
                 *jp = 2;
-                assert( i == 2 );
+                assert(i == 2);
                     //therefore modifying what `jp` points to modifies `i`!
 
                 //int&* ipaBad = ip;
@@ -3256,7 +3411,7 @@ int main(int argc, char** argv)
                         //cannot initialize `const int*&` with `int*&`.
 
                     *ip = 2;
-                    //assert( j == 2 );
+                    //assert(j == 2);
                 }
 
                 //same problem simplified without functions
@@ -3294,8 +3449,8 @@ int main(int argc, char** argv)
                 ia = -1;
                 ja = -2;
 
-                assert( i == -1 );
-                assert( j == -2 );
+                assert(i == -1);
+                assert(j == -2);
             }
 
             //ko: ja is a new int, not a reference
@@ -3307,8 +3462,8 @@ int main(int argc, char** argv)
                 ia = -1;
                 ja = -2;
 
-                assert( i == -1 );
-                assert( j ==  2 );
+                assert(i == -1);
+                assert(j ==  2);
             }
 
             //with references to pointers it looks like this
@@ -3322,7 +3477,7 @@ int main(int argc, char** argv)
 
                 jpa = ip;
                 *jp = 2;
-                assert( i == 2 );
+                assert(i == 2);
             }
         }
 
@@ -3341,9 +3496,9 @@ int main(int argc, char** argv)
                 Base b;
                 int& ia = b.getRefIPublic();
                 ia = 0;
-                assert( b.iPublic == 0 );
+                assert(b.iPublic == 0);
                 ia = 1;
-                assert( b.iPublic == 1 );
+                assert(b.iPublic == 1);
             }
 
             //you can modify a private if you non const reference to it
@@ -3351,9 +3506,9 @@ int main(int argc, char** argv)
                     Base b;
                     int& ia = b.getPrivateRef();
                     ia = 0;
-                    assert( b.getPrivateRef() == 0 );
+                    assert(b.getPrivateRef() == 0);
                     ia = 1;
-                    assert( b.getPrivateRef() == 1 );
+                    assert(b.getPrivateRef() == 1);
             }
 
             //if the reference is const it does not work anymore
@@ -3382,8 +3537,8 @@ int main(int argc, char** argv)
             */
             {
                 int i = 0;
-                ( getIntRef( i ) ) = 2;
-                assert( i == 2 );
+                (getIntRef(i) ) = 2;
+                assert(i == 2);
             }
         }
     }
@@ -3415,7 +3570,7 @@ int main(int argc, char** argv)
             int i = 1;
             auto& ai = i;
             ai = 2;
-            assert( i == 2 );
+            assert(i == 2);
         }
 
         //ERROR must initialize immediately.
@@ -3430,7 +3585,7 @@ int main(int argc, char** argv)
             int& ir = i;
             auto ir2 = ir;
             ir2 = 1;
-            assert( i == 0 );
+            assert(i == 0);
         }
     }
 
@@ -3450,8 +3605,8 @@ int main(int argc, char** argv)
     {
         int i = 1;
         float f = 2.0;
-        decltype( i + f ) f2 = 1.5;
-        assert( f2 == 1.5 );
+        decltype(i + f) f2 = 1.5;
+        assert(f2 == 1.5);
 
         //implies reference while auto does not
         {
@@ -3459,7 +3614,7 @@ int main(int argc, char** argv)
             int& ir = i;
             decltype(ir) ir2 = ir;
             ir2 = 1;
-            assert( i == 1 );
+            assert(i == 1);
         }
 
         //can be used basically anywhere
@@ -3492,7 +3647,7 @@ int main(int argc, char** argv)
 
         {
             //cin >> i;
-            //int is4[i] = { 1, 2 };
+            //int is4[i] = {1, 2};
                 //ERROR
                 //may not be initialized
         }
@@ -3502,14 +3657,14 @@ int main(int argc, char** argv)
     {
         //unlike c, already does typedef
         {
-            enum TEXTURE { GRASS, WALL, SKY };
+            enum TEXTURE {GRASS, WALL, SKY};
             TEXTURE t = GRASS;
         }
 
         //ERROR: only const expressions allowed
         {
             //int i = 0;
-            //enum E2 { E2=i };
+            //enum E2 {E2=i};
         }
     }
 
@@ -3534,10 +3689,10 @@ int main(int argc, char** argv)
     {
 
         //you can define i inside the for scope only
-        int is[] = { 0, 1, 2 };
-        for(int i=0; i<3; i++)
+        int is[] = {0, 1, 2};
+        for (int i=0; i<3; i++)
         {
-            assert( i == is[i] );
+            assert(i == is[i]);
             //int i;
                 //ERROR
                 //already declared in this scope
@@ -3557,12 +3712,12 @@ int main(int argc, char** argv)
     */
     {
         {
-            int is[] = { 1, 2 };
+            int is[] = {1, 2};
             for (int &i : is) {
                 i *= 2;
             }
-            assert( is[0] == 2 );
-            assert( is[1] == 4 );
+            assert(is[0] == 2);
+            assert(is[1] == 4);
         }
 
         /*
@@ -3586,8 +3741,8 @@ int main(int argc, char** argv)
     {
         //#overload
         {
-            overload( 1 );
-            assert( callStack.back() == "overload(int)" );
+            overload(1);
+            assert(callStack.back() == "overload(int)");
             callStack.clear();
 
             //base type conversions
@@ -3602,7 +3757,7 @@ int main(int argc, char** argv)
                 //overload(1.0);
             }
 
-            assert( callStack.back() == "overload(float)" );
+            assert(callStack.back() == "overload(float)");
             callStack.clear();
 
             /*
@@ -3621,6 +3776,16 @@ int main(int argc, char** argv)
         }
 
         /*
+        In C++, unlike in C, definitions can ommit argument names if they don't use those arguments!
+
+        This probably exists for method overridding.
+        */
+        {
+            assert(def_no_argname(0)     == 1);
+            assert(def_no_argname(0, 0)  == 2);
+        }
+
+        /*
         #operator overload
         */
         {
@@ -3629,53 +3794,53 @@ int main(int argc, char** argv)
                 OperatorOverload i;
 
                 //==
-                assert( OperatorOverload(3) == OperatorOverload(3) );
+                assert(OperatorOverload(3) == OperatorOverload(3));
 
                 //<
-                assert( OperatorOverload(1) < OperatorOverload(2) );
+                assert(OperatorOverload(1) < OperatorOverload(2));
 
                 //=
                 i = OperatorOverload(1);
-                assert( i == OperatorOverload(1) );
+                assert(i == OperatorOverload(1));
 
                 //+=
                 i = OperatorOverload(1);
                 i += OperatorOverload(2);
-                assert( i == OperatorOverload(3) );
+                assert(i == OperatorOverload(3));
 
                 //+
-                assert( OperatorOverload(1) + OperatorOverload(2) == OperatorOverload(3) );
+                assert(OperatorOverload(1) + OperatorOverload(2) == OperatorOverload(3));
 
                 //++
                 {
                     i = OperatorOverload(1);
-                    assert( ++i == OperatorOverload(2) );
-                    assert( i == OperatorOverload(2) );
+                    assert(++i == OperatorOverload(2));
+                    assert(i == OperatorOverload(2));
 
                     /* TODO understand and get working */
                     /*
                     i = OperatorOverload(1);
-                    assert( i++ == OperatorOverload(1) );
-                    assert( i == OperatorOverload(2) );
+                    assert(i++ == OperatorOverload(1));
+                    assert(i == OperatorOverload(2));
                     */
                 }
 
                 //-
                 {
                     //unary
-                    assert( -OperatorOverload(1) == OperatorOverload(-1) );
+                    assert(-OperatorOverload(1) == OperatorOverload(-1));
 
                     //subtraction
-                    assert( OperatorOverload(2) - OperatorOverload(1) == OperatorOverload(1) );
+                    assert(OperatorOverload(2) - OperatorOverload(1) == OperatorOverload(1));
                 }
 
                 //*
                 {
                     //dereference
-                    assert( *(OperatorOverload(1)) == 1 );
+                    assert(*(OperatorOverload(1)) == 1);
 
                     //subtraction
-                    assert( OperatorOverload(2) - OperatorOverload(1) == OperatorOverload(1) );
+                    assert(OperatorOverload(2) - OperatorOverload(1) == OperatorOverload(1));
                 }
 
                 //<<
@@ -3683,7 +3848,7 @@ int main(int argc, char** argv)
                     i = OperatorOverload(123);
                     std::stringstream os;
                     os << i;
-                    assert( os.str() == "123" );
+                    assert(os.str() == "123");
                 }
             }
 
@@ -3699,10 +3864,10 @@ int main(int argc, char** argv)
                 i = OperatorOverload(1);
                 j = OperatorOverload(2);
 
-                assert( operator+( i, j ) == OperatorOverload(3) );
+                assert(operator+(i, j) == OperatorOverload(3));
 
-                i.operator=( j );
-                assert( i == j );
+                i.operator=(j);
+                assert(i == j);
             }
 
             /*
@@ -3710,15 +3875,15 @@ int main(int argc, char** argv)
             */
             {
                 //works because of template ty
-                assert( OperatorOverload(1) / OperatorOverload(2) == OperatorOverload(3) );
+                assert(OperatorOverload(1) / OperatorOverload(2) == OperatorOverload(3));
 
-                //assert( OperatorOverload(1) /<OperatorOverload> OperatorOverload(2) == OperatorOverload(3) );
+                //assert(OperatorOverload(1) /<OperatorOverload> OperatorOverload(2) == OperatorOverload(3));
                     //ERROR
                     //Impossible syntax
 
                 //if we needed to specify the template parameter to the operator on this case,
                 //an explicit `operator/` call would be needed
-                assert( operator/<OperatorOverload>( OperatorOverload(1), OperatorOverload(2) ) == OperatorOverload(3) );
+                assert(operator/<OperatorOverload>(OperatorOverload(1), OperatorOverload(2)) == OperatorOverload(3));
             }
         }
 
@@ -3741,19 +3906,19 @@ int main(int argc, char** argv)
             {
                 int i = 0;
                 int j = 0;
-                auto f = [&i,&j](int k) mutable -> int { i = 1; j = 1; return k + 1; };
-                assert( f(0) == 1 );
-                assert( i == 1 );
-                assert( j == 1 );
+                auto f = [&i,&j](int k) mutable -> int {i = 1; j = 1; return k + 1;};
+                assert(f(0) == 1);
+                assert(i == 1);
+                assert(j == 1);
             }
 
             //typical application with find_if
             {
-                std::vector<int> v = { 2, 0, 1 };
-                assert( std::find_if(
+                std::vector<int> v = {2, 0, 1};
+                assert(std::find_if (
                     v.begin(),
                     v.end(),
-                    []( int i ) { return i % 2 == 1; } ) == --v.end() );
+                    [](int i) {return i % 2 == 1;}) == --v.end());
             }
         }
 
@@ -3852,8 +4017,8 @@ int main(int argc, char** argv)
         basic usage
         */
         {
-            assert( templateAdd<int>( 1, 1 ) == 2 );
-            assert( templateAdd<float>( 1.0, 1.0 ) == 2 );
+            assert(templateAdd<int>(1, 1) == 2);
+            assert(templateAdd<float>(1.0, 1.0) == 2);
         }
 
         /*
@@ -3862,7 +4027,7 @@ int main(int argc, char** argv)
             Give an specific behaviour for certain types.
         */
         {
-            assert( (templateSpec<double,double>( 1.0, 1.0 )) == 3.1 );
+            assert((templateSpec<double,double>(1.0, 1.0)) == 3.1);
         }
 
         /*
@@ -3904,10 +4069,10 @@ int main(int argc, char** argv)
             TODO check
             */
             {
-                assert( templateArgDeduct<int>   (1)   == 1 );
-                assert( templateArgDeduct        (1)   == 1 );
-                assert( templateArgDeduct<double>(1.0) == 2.0 );
-                assert( templateArgDeduct        (1.0) == 2.0 );
+                assert(templateArgDeduct<int>   (1)   == 1);
+                assert(templateArgDeduct        (1)   == 1);
+                assert(templateArgDeduct<double>(1.0) == 2.0);
+                assert(templateArgDeduct        (1.0) == 2.0);
             }
 
             /*
@@ -3915,11 +4080,11 @@ int main(int argc, char** argv)
             not those used only on return types or other places.
             */
             {
-                assert( (templateArgDeductReturn<int>()) == 0 );
-                assert( (templateArgDeductLocal<int>()) == 0 );
+                assert((templateArgDeductReturn<int>()) == 0);
+                assert((templateArgDeductLocal<int>()) == 0);
 
-                //assert( (templateArgDeductReturn<>()) == 0 );
-                //assert( (templateArgDeductLocal<>()) == 0 );
+                //assert((templateArgDeductReturn<>()) == 0);
+                //assert((templateArgDeductLocal<>()) == 0);
                     //ERROR
             }
 
@@ -3930,9 +4095,9 @@ int main(int argc, char** argv)
             so `T` which could be deducted cannot because it is never the last undeduced one.
             */
             {
-                assert( (templateArgDeductNotLast<int,int>( 1 )) == 1 );
+                assert((templateArgDeductNotLast<int,int>(1)) == 1);
 
-                //assert( (templateArgDeductNotLast<int>( 1 )) == 1 );
+                //assert((templateArgDeductNotLast<int>(1)) == 1);
                     //ERROR
             }
 
@@ -3941,8 +4106,8 @@ int main(int argc, char** argv)
             but a template argument to a function argument `TemplateTemplateParam<int>`.
             */
             {
-                assert( templateArgTemplateArg     ( TemplateTemplateParam<int>(1) ) == 1 );
-                assert( templateArgTemplateArg<int>( TemplateTemplateParam<int>(1) ) == 1 );
+                assert(templateArgTemplateArg     (TemplateTemplateParam<int>(1)) == 1);
+                assert(templateArgTemplateArg<int>(TemplateTemplateParam<int>(1)) == 1);
             }
         }
 
@@ -3952,7 +4117,7 @@ int main(int argc, char** argv)
             Templates can receive integer parameters
         */
         {
-            assert( templateAddInt<1>( 1 ) == 2 );
+            assert(templateAddInt<1>(1) == 2);
         }
 
         /*
@@ -3961,12 +4126,12 @@ int main(int argc, char** argv)
             May lead to huge code bloat, but also great speads and non repetition.
         */
         {
-            assert( factorial<3>() == 6 );
+            assert(factorial<3>() == 6);
                 //because of this call
                 //all factorials from
                 //1 to 3 will be compiled
 
-            assert( factorial<6>() == 720 );
+            assert(factorial<6>() == 720);
                 //because of this call
                 //all factorials from
                 //4 to 6 will be compiled
@@ -4014,19 +4179,19 @@ int main(int argc, char** argv)
                 t.t = 0;
 
                 /**/
-                assert( t.equal() );
+                assert(t.equal());
             }
         }
 
         //double less signs: can only be used in C++11.
         //or compiler could get confused with `>>` operator
         {
-            { std::vector<std::vector<int> > vv; }
+            {std::vector<std::vector<int> > vv;}
             //                            ^
             //                            THIS space was required before C++11
 
 #if __cplusplus >= 201103L
-            { std::vector<std::vector<int>> vv; }
+            {std::vector<std::vector<int>> vv;}
 #endif
         }
 
@@ -4045,11 +4210,11 @@ int main(int argc, char** argv)
             and (2) are necessary.
         */
         {
-            assert( (templateDefault<int,TemplateTemplateParam,1>( 1, TemplateTemplateParam<int>( 1 ) )) == 3 );
+            assert((templateDefault<int,TemplateTemplateParam,1>(1, TemplateTemplateParam<int>(1) )) == 3);
             //      ^                                                                                  ^
             //      1                                                                                  2
 
-            //assert( templateDefault<int,TemplateTemplateParam,1>( 1, TemplateTemplateParam<int>( 1 ) ) == 3 );
+            //assert(templateDefault<int,TemplateTemplateParam,1>(1, TemplateTemplateParam<int>(1) ) == 3);
             //                       ^                           ^
             //                       1                           2
                 //ERROR
@@ -4058,7 +4223,7 @@ int main(int argc, char** argv)
 
         //reuse a type
         {
-            assert( (TemplateReuseType<int,1>()) == 1 );
+            assert((TemplateReuseType<int,1>()) == 1);
         }
     }
 
@@ -4068,12 +4233,12 @@ int main(int argc, char** argv)
         Each of the 3 parameters types that can be passed to templates can have defaults.
     */
     {
-        assert( (templateDefault<int,TemplateTemplateParam,1>( 1, TemplateTemplateParam<int>( 1 ) )) == 3 );
-        assert( (templateDefault<int,TemplateTemplateParam  >( 1, TemplateTemplateParam<int>( 1 ) )) == 3 );
-        assert( (templateDefault<int                        >( 1, TemplateTemplateParam<int>( 1 ) )) == 3 );
-        assert( (templateDefault<                           >( 1, TemplateTemplateParam<int>( 1 ) )) == 3 );
+        assert((templateDefault<int,TemplateTemplateParam,1>(1, TemplateTemplateParam<int>(1) )) == 3);
+        assert((templateDefault<int,TemplateTemplateParam  >(1, TemplateTemplateParam<int>(1) )) == 3);
+        assert((templateDefault<int                        >(1, TemplateTemplateParam<int>(1) )) == 3);
+        assert((templateDefault<                           >(1, TemplateTemplateParam<int>(1) )) == 3);
             //if there are no parameters left, the `<>` can be ommited:
-        assert( (templateDefault                             ( 1, TemplateTemplateParam<int>( 1 ) )) == 3 );
+        assert((templateDefault                             (1, TemplateTemplateParam<int>(1) )) == 3);
     }
 
 #if __cplusplus >= 201103L
@@ -4081,15 +4246,15 @@ int main(int argc, char** argv)
         #variadic template
         */
         {
-            assert( variadicSum( 1 )       == 1 );
-            assert( variadicSum( 1, 2 )    == 3 );
-            assert( variadicSum( 1, 2, 3 ) == 6 );
+            assert(variadicSum(1)       == 1);
+            assert(variadicSum(1, 2)    == 3);
+            assert(variadicSum(1, 2, 3) == 6);
 
-            assert( fabs( variadicSum( 0.1 )           - 0.1 ) < 1e-6 );
-            assert( fabs( variadicSum( 0.1, 0.2 )      - 0.3 ) < 1e-6 );
-            assert( fabs( variadicSum( 0.1, 0.2, 0.3 ) - 0.6 ) < 1e-6 );
+            assert(fabs(variadicSum(0.1)           - 0.1) < 1e-6);
+            assert(fabs(variadicSum(0.1, 0.2)      - 0.3) < 1e-6);
+            assert(fabs(variadicSum(0.1, 0.2, 0.3) - 0.6) < 1e-6);
 
-            assert( variadicSum( 1, 1.0 ) == 2.0 );
+            assert(variadicSum(1, 1.0) == 2.0);
         }
 #endif
 
@@ -4143,7 +4308,7 @@ int main(int argc, char** argv)
                     TemplateClass<Base,int,10> c;
                     callStack.clear();
                     c.methodDefinedOutside();
-                    assert( callStack.back() == "TemplateClass::methodDefinedOutside()" );
+                    assert(callStack.back() == "TemplateClass::methodDefinedOutside()");
                     //TemplateClass<Base,int,12>().method();
                         //12 class does not contain method()
                 }
@@ -4152,7 +4317,7 @@ int main(int argc, char** argv)
                     TemplateClass<Base,int,11> c;
                     callStack.clear();
                     c.methodDefinedOutside();
-                    assert( callStack.back() == "TemplateClass<Base,int,11>::methodDefinedOutside()" );
+                    assert(callStack.back() == "TemplateClass<Base,int,11>::methodDefinedOutside()");
                     //TemplateClass<Base,int,12>().method();
                         //12 class does not contain method()
                 }
@@ -4161,7 +4326,7 @@ int main(int argc, char** argv)
                     TemplateClass<Base,int,12> c;
                     callStack.clear();
                     c.newMethod();
-                    assert( callStack.back() == "TemplateClass<Base,int,12>::newMethod()" );
+                    assert(callStack.back() == "TemplateClass<Base,int,12>::newMethod()");
                     //TemplateClass<Base,int,12>().method();
                         //12 class does not contain method()
                 }
@@ -4207,35 +4372,33 @@ int main(int argc, char** argv)
         This is their main reason for existing!
         */
         {
-            try
-            {
+            try {
                 exception_func_int();
-            }
-            catch ( int i ) {
-                assert( i == 1 );
+            } catch (int i) {
+                assert(i == 1);
             }
         }
 
         /*
         Catch blocks work like function overloads and catch by type.
         */
-        try
-        {
+        try {
             throw 'c';
         }
-        catch (int i)   { assert(false); }
-        catch (char c)  {  }
+        catch (int i)   {assert(false);}
+        catch (char c)  {}
 
         /*
         `...` is the default case
         */
-        try
-        {
+        try {
             throw 1.0;
+        } catch (int i) {
+            assert(false);
+        } catch (char c) {
+            assert(false);
+        } catch (...) {
         }
-        catch (int i)   { assert(false); }
-        catch (char c)  { assert(false); }
-        catch (...)     { }
 
         /*
         Derived classes.
@@ -4247,12 +4410,12 @@ int main(int argc, char** argv)
             {
                 throw myexception();
             }
-            catch ( std::exception& ex )    { }
+            catch (std::exception& ex)    {}
             /*
             This compiles, but generates a warning, since the first catch will always catch instead of this one.
             */
-            //catch ( myexception& ex )       { assert(false); }
-            catch (...)                     { assert(false); }
+            //catch (myexception& ex)       {assert(false);}
+            catch (...)                     {assert(false);}
 
             /*
             this is a more common exception ordering, first derived then base.
@@ -4262,9 +4425,9 @@ int main(int argc, char** argv)
                 {
                     throw myexception();
                 }
-                catch ( myexception& ex )       { }
-                catch ( std::exception& ex )    { assert(false); }
-                catch (...)                     { assert(false); }
+                catch (myexception& ex)       {}
+                catch (std::exception& ex)    {assert(false);}
+                catch (...)                     {assert(false);}
             }
         }
 
@@ -4287,43 +4450,69 @@ int main(int argc, char** argv)
         }
 
         /*
-        Exception specifications
+        #exception specifications
 
             Functions can specify which exceptions are catchable with the following syntax:
         */
         {
             try
             {
-                exception_func_int_only( true );
+                exception_func_int_only(true);
             }
-            catch ( int i )  { }
-            catch (...)      { assert(false); }
+            catch (int i)  {}
+            catch (...)      {assert(false);}
 
             try
             {
-                //exception_func_int_only( false );
+                //exception_func_int_only(false);
             }
-            catch (...) { /* not even ... this can catch non int exceptions thrown by this function */ }
+            catch (...) {/* not even ... this can catch non int exceptions thrown by this function */}
 
             try
             {
-                exception_func_int_exception_only( 1 );
+                exception_func_int_exception_only(1);
             }
-            catch ( int i )             { }
-            catch ( myexception& ex )   { }
-            catch (...)                 { assert(false); }
+            catch (int i)             {}
+            catch (myexception& ex)   {}
+            catch (...)                 {assert(false);}
 
             try
             {
                 //exception_func_none();
             }
-            catch (...) { /* no exception thrown by this function is catchable */ }
+            catch (...) {/* no exception thrown by this function is catchable */}
 
             try
             {
                 //exception_func_none_wrapper();
             }
-            catch (...) { /* the same goes if we wrap the function */ }
+            catch (...) {/* the same goes if we wrap the function */}
+        }
+
+        /*
+        #exception from destructor
+
+            Never throw an exception from a destructor.
+
+            Destructors are meant to clean up after exceptions, so if you throw exceptions from them,
+            things get messy.
+
+            C++ specifies that if this happens during stack unwinding, the program can terminate!
+
+            What to do to avoid that: <http://stackoverflow.com/questions/130117/throwing-exceptions-out-of-a-destructor>
+        */
+        {
+            //TODO, so, how do I make my program crash wide open? =)
+
+            try {
+                ExceptionDestructor e;
+            } catch (...) {
+            }
+
+            try {
+                ExceptionDestructorCaller();
+            } catch (...) {
+            }
         }
     }
 
@@ -4358,7 +4547,7 @@ int main(int argc, char** argv)
                     vector<string> expectedCallStack = {
                         "NoBaseNoMember::NoBaseNoMember()",
                     };
-                    assert( callStack == expectedCallStack );
+                    assert(callStack == expectedCallStack);
                 }
 
                 //this class has a compiler created default constructor.
@@ -4385,7 +4574,7 @@ int main(int argc, char** argv)
             */
             {
                 ImplicitDefaultCtor o;
-                if ( o.i != 0 )
+                if (o.i != 0)
                     std::cout << "o.i = " << o.i << std::endl;
                     //BAD: undefined behaviour
 
@@ -4393,7 +4582,7 @@ int main(int argc, char** argv)
                 //not the default constructor, and built-in members are indeed 0 initialized!
                 {
                     ImplicitDefaultCtor o = ImplicitDefaultCtor();
-                    assert( o.i == 0 );
+                    assert(o.i == 0);
                 }
             }
 
@@ -4421,7 +4610,7 @@ int main(int argc, char** argv)
 
                     //ERROR: definition is not possible inside another function
 
-                        //Class c(){ return Class(); }
+                        //Class c(){return Class();}
 
                     //c.i;
                 }
@@ -4429,7 +4618,7 @@ int main(int argc, char** argv)
                 //If you want to call a default constructor, use:
                 {
                     Class c;
-                    assert( c.i == 0 );
+                    assert(c.i == 0);
                 }
 
                 /*
@@ -4438,7 +4627,7 @@ int main(int argc, char** argv)
                 */
                 {
                     Class c(1);
-                    assert( c.i == 1 );
+                    assert(c.i == 1);
                 }
             }
         }
@@ -4458,16 +4647,16 @@ int main(int argc, char** argv)
                 //base types
                 {
                     int* is = new int[2]();
-                    assert( is[0] == 0 );
-                    assert( is[1] == 0 );
+                    assert(is[0] == 0);
+                    assert(is[1] == 0);
                     delete[] is;
                 }
 
                 //works for structs
                 {
-                    struct T { int a; };
+                    struct T {int a;};
                     T *t = new T[1]();
-                    assert( t[0].a == 0 );
+                    assert(t[0].a == 0);
                     delete[] t;
                 }
 
@@ -4479,8 +4668,8 @@ int main(int argc, char** argv)
                 {
                     {
                         Class *cs = new Class[1]();
-                        assert( cs[0].i == 0 );
-                        assert( cs[0].z == 1 );
+                        assert(cs[0].i == 0);
+                        assert(cs[0].z == 1);
                         delete[] cs;
                     }
                 }
@@ -4508,7 +4697,7 @@ int main(int argc, char** argv)
             //parenthesis initialization
             {
                 int i(1);
-                assert( i == 1 );
+                assert(i == 1);
             }
 
             {
@@ -4518,7 +4707,7 @@ int main(int argc, char** argv)
 
             {
                 int i = int();
-                assert( i == 0 );
+                assert(i == 0);
             }
 
 #if __cplusplus >= 201103L
@@ -4536,6 +4725,10 @@ int main(int argc, char** argv)
 
                 TODO what is the advantage of using it?
 
+                Advantages:
+
+                - non verbose initialization of multiple structures
+
                 Disadvantages:
 
                 - ambiguous with initializer list construction!
@@ -4546,14 +4739,18 @@ int main(int argc, char** argv)
                 //built-int types
                 {
                     int i{1};
-                    assert( i == 1 );
+                    assert(i == 1);
 
                     //int iNarrow{1.5};
                         //ERROR: narrowing conversion from double to int not allowed inside `{}`
                         //this is the main difference between `{}` and `()` and `=`.
 
+                    // Widening types is ok
                     float f{1};
-                        //widening is ok
+
+                    // Works for arrays.
+                    int is[]{0, 1, 2};
+                    assert(is[1] == 1);
                 }
 
                 //objects
@@ -4561,47 +4758,75 @@ int main(int argc, char** argv)
                     //the 2 argument constructor is called
                     {
                         {
-                            UniformInitializationCtor2 o{ 1, 1 };
-                            assert( o.i == 1 );
-                            assert( o.j == 2 );
+                            UniformInitializationCtor2 o{1, 1};
+                            assert(o.i == 1);
+                            assert(o.j == 2);
                         }
 
                         //conversion gets done for passing args to functions
                         {
-                            UniformInitializationCtor2 o = { 1, 1 };
-                            assert( o.i == 1 );
-                            assert( o.j == 2 );
+                            UniformInitializationCtor2 o = {1, 1};
+                            assert(o.i == 1);
+                            assert(o.j == 2);
 
-                            assert( UniformInitializationCtor2Func( {1, 1} ) == 3 );
+                            assert(UniformInitializationCtor2Func({1, 1}) == 3);
 
-                            assert( ( o == UniformInitializationCtor2{1,1} ) );
-                            assert( ( o.operator==({1,1}) ) );
-                            //assert( ( o == {1,1} ) );
-                                //TODO why does this fail to compile?
+                            assert((o == UniformInitializationCtor2{1,1}) );
+                            assert((o.operator==({1,1})) );
+                            //assert((o == {1,1}) );
+                                //ERROR TODO why does this fail to compile?
                         }
                     }
 
                     //If there is an initializer list ctor, the init list wins.
                     //
                     //This is one inconvenient of using uniform initialization.
+                    //
+                    //If ever an initializer list is created, it may breaks client code
+                    //that uses the other constructor.
                     {
-                        UniformInitializationList o{ 1, 1 };
-                        assert( o.i == 1 );
-                        assert( o.j == 1 );
-                    }
-                }
-
-                //TODO0 why are they different?
-                {
-                    {
-                        UniformInitializationImplicitCtor o{ 1, 2 };
-                        assert( o.i == 1 );
-                        assert( o.j == 2 );
+                        UniformInitializationList o{1, 1};
+                        assert(o.i == 1);
+                        assert(o.j == 1);
                     }
 
-                    //ERROR
+                    //application: initialize complex objects
                     {
-                        //UniformInitializationExplicitCtor o = { 1, 2 };
+                        //with uniform init
+                        {
+                            std::vector<std::pair<int,std::string> > v{
+                                {0, "zero"},
+                                {1, "one"},
+                                {2, "two"},
+                            };
+
+                            assert(v[0].second == "zero");
+                        }
+
+                        //without uniform init. Slightly less readable don't you think??
+                        {
+                            std::vector<std::pair<int,std::string> > v{
+                                std::pair<int,std::string>(0, "zero"),
+                                std::pair<int,std::string>(1, "one"),
+                                std::pair<int,std::string>(2, "two"),
+                            };
+                        }
+                    }
+
+                    //TODO0 why are they different?
+                    {
+                        //does this work because it is treated like a struct since it does not have
+                        //constructors?
+                        {
+                            UniformInitializationImplicitCtor o{1, 2};
+                            assert(o.i == 1);
+                            assert(o.j == 2);
+                        }
+
+                        //ERROR
+                        {
+                            //UniformInitializationExplicitCtor o = {1, 2};
+                        }
                     }
                 }
             }
@@ -4614,7 +4839,7 @@ int main(int argc, char** argv)
     //#call one constructor from constructor
     {
         CtorFromCtor c(0,1);
-        assert( ( c.v == std::vector<int>{0, 1} ) );
+        assert((c.v == std::vector<int>{0, 1}) );
     }
 
 #endif
@@ -4639,27 +4864,41 @@ int main(int argc, char** argv)
         {
             //STL vector usage example
             {
-                std::vector<int> v{ 0, 1 };
-                //std::vector<int> v = std::vector<int>( { 0, 1 } );
+                std::vector<int> v{0, 1};
+                //std::vector<int> v = std::vector<int>({0, 1});
                     //SAME
-                assert( v[0] == 0 );
-                assert( v[1] == 1 );
-                assert( v == std::vector<int>( { 0, 1 } ) );
-                assert( ( v == std::vector<int>{ 0, 1 } ) );
+                assert(v[0] == 0);
+                assert(v[1] == 1);
+                assert(v == std::vector<int>({0, 1}) );
+                assert((v == std::vector<int>{0, 1}) );
 
                 //assignment also works via implicit conversion
-                v = { 1, 0 };
-                assert( ( v == std::vector<int>{ 1, 0 } ) );
+                v = {1, 0};
+                assert((v == std::vector<int>{1, 0}) );
 
-                //assert( ( v == { 0, 1 } ) );
+                //assert((v == {0, 1}) );
                     //ERROR
                     //todo why no implicit conversion is made?
             }
 
             //how to use it in a class
             {
-                InitializerListCtor o = { 0, 1 };
-                assert( o.v == std::vector<int>( { 0, 1 } ) );
+                {
+                    InitializerListCtor o{0, 1};
+                    assert((o.v == std::vector<int>{0, 1}));
+                }
+
+                //initializer list constructor is called
+                {
+                    InitializerListCtor o{0, 0, 0, 0};
+                    assert((o.v == std::vector<int>{0, 0, 0, 0}));
+                }
+
+                //3 param constructor is called
+                {
+                    InitializerListCtor o(0, {0, 0,}, 0);
+                    assert((o.v == std::vector<int>{1, 0, 0, -1}));
+                }
             }
 
             /*
@@ -4675,15 +4914,15 @@ int main(int argc, char** argv)
                     //initializer_list<int> l = {0, 1, 2};
                     //initializer_list<int> l{0, 1, 2};
                         //same
-                    assert( l.size() == 3 );
-                    assert( *l.begin() == 0 );
+                    assert(l.size() == 3);
+                    assert(*l.begin() == 0);
                 }
 
                 // the rule for auto makes this ranged for work.
                 // TODO0 why here? I see an `int`, not an `auto`
                 int i = 0;
                 for (int x : {0, 1, 2}) {
-                    assert( x == i);
+                    assert(x == i);
                     i++;
                 }
             }
@@ -4721,10 +4960,10 @@ int main(int argc, char** argv)
                 "NoBaseNoMember::NoBaseNoMember()",
                 "NoBaseNoMember::~NoBaseNoMember()"
             };
-            assert( callStack == expectedCallStack );
+            assert(callStack == expectedCallStack);
         }
 
-        //array of objects
+        //#array of objects
         {
             //default constructor is called when array is created.
             {
@@ -4734,16 +4973,15 @@ int main(int argc, char** argv)
                     "NoBaseNoMember::NoBaseNoMember()",
                     "NoBaseNoMember::NoBaseNoMember()",
                 };
-                assert( callStack == expectedCallStack );
+                assert(callStack == expectedCallStack);
             }
 
             /*
-            to initialize the objects with a non default constructor
-            one flexible possibility is to use simply use assignment.
+            To initialize the objects with a non default constructor
+            one possibility is to use simply use assignment for each item.
 
             The downside of this method is that constructors are called twice
-            for each array element. To overcome this if you know the size of the array
-            beforehand you can use initialized arrays.
+            for each array element.
             */
             {
                 callStack.clear();
@@ -4752,7 +4990,7 @@ int main(int argc, char** argv)
                 os[0] = NoBaseNoMember(0);
                 os[1] = NoBaseNoMember(1);
 
-                vector<string> expectedCallStack = {
+                vector<string> expectedCallStack{
                     "NoBaseNoMember::NoBaseNoMember()",
                     "NoBaseNoMember::NoBaseNoMember()",
                     "NoBaseNoMember::NoBaseNoMember(int)",
@@ -4760,7 +4998,7 @@ int main(int argc, char** argv)
                     "NoBaseNoMember::NoBaseNoMember(int)",
                     "NoBaseNoMember::~NoBaseNoMember()",
                 };
-                //assert( callStack == expectedCallStack );
+                //assert(callStack == expectedCallStack);
             }
 
             /*
@@ -4769,13 +5007,29 @@ int main(int argc, char** argv)
             {
                 callStack.clear();
 
-                NoBaseNoMember os[] = { NoBaseNoMember(0), NoBaseNoMember(1) };
+                NoBaseNoMember os[] = {NoBaseNoMember(0), NoBaseNoMember(1)};
 
                 vector<string> expectedCallStack = {
                     "NoBaseNoMember::NoBaseNoMember(int)",
                     "NoBaseNoMember::NoBaseNoMember(int)",
                 };
-                assert( callStack == expectedCallStack );
+                assert(callStack == expectedCallStack);
+            }
+
+            /*
+            If constructors take a single argument, conversions are made explicitly,
+            and we can write even less useless code.
+            */
+            {
+                NoBaseNoMember os[] = {0, 1};
+            }
+
+            /*
+            In C++11, it is also possible to initialize objects that take more than two arguments
+            via uniform initialization.
+            */
+            {
+                Class cs[] = {{0, 1}, {2, 3}};
             }
 
             /*
@@ -4784,10 +5038,10 @@ int main(int argc, char** argv)
                 Like many C functions, memset does not work with objects, because objects
                 may contain extra data such as a VTABLE.
             */
-            if ( 0 )
+            if (0)
             {
                 Class *var = new Class;
-                std::memset( var, 0, sizeof(Class) );
+                std::memset(var, 0, sizeof(Class));
             }
         }
 
@@ -4812,7 +5066,7 @@ int main(int argc, char** argv)
                 "NoBaseNoMember1::~NoBaseNoMember1()",
                 "NoBaseNoMember0::~NoBaseNoMember0()",
             };
-            assert( callStack == expectedCallStack );
+            assert(callStack == expectedCallStack);
         }
 
         //#static fields
@@ -4821,11 +5075,11 @@ int main(int argc, char** argv)
                 Class c, c1;
                 int i;
                 c.iStatic = 0;
-                assert( Class::iStatic == 0 );
+                assert(Class::iStatic == 0);
                 c1.iStatic = 1;
-                assert( Class::iStatic == 1 );
+                assert(Class::iStatic == 1);
                 Class::iStatic = 2;
-                assert( Class::iStatic == 2 );
+                assert(Class::iStatic == 2);
             }
 
             {
@@ -4874,7 +5128,7 @@ int main(int argc, char** argv)
                     "NoBaseNoMember::operator=",
                     "NoBaseNoMember::~NoBaseNoMember()",
                 };
-                assert( callStack == expectedCallStack );
+                assert(callStack == expectedCallStack);
             }
 
             /*
@@ -4892,7 +5146,7 @@ int main(int argc, char** argv)
                     "NoBaseNoMember::method()",
                     "NoBaseNoMember::~NoBaseNoMember()",
                 };
-                assert( callStack == expectedCallStack );
+                assert(callStack == expectedCallStack);
             }
 
             /*
@@ -4919,9 +5173,9 @@ int main(int argc, char** argv)
             */
             {
                 NoBaseNoMember b;
-                NoBaseNoMember::temporaryReference( b );
-                //NoBaseNoMember::temporaryReference( NoBaseNoMember() );
-                NoBaseNoMember::temporaryReferenceConst( NoBaseNoMember() );
+                NoBaseNoMember::temporaryReference(b);
+                //NoBaseNoMember::temporaryReference(NoBaseNoMember());
+                NoBaseNoMember::temporaryReferenceConst(NoBaseNoMember());
             }
         }
 
@@ -4949,16 +5203,16 @@ int main(int argc, char** argv)
 
                 //assign operator
                 c0 = c1;
-                assert( c0.i == c1.i );
+                assert(c0.i == c1.i);
 
                 //copy constructor
                 DefaultCopyAssignCtor c2(c0);
-                assert( c2.i == c0.i );
+                assert(c2.i == c0.i);
 
                 //there are still two separate copies of the object
                 c0.i = 0;
                 c1.i = 1;
-                assert( c0.i == 0 );
+                assert(c0.i == 0);
             }
 
             //#copy constructor
@@ -4973,8 +5227,8 @@ int main(int argc, char** argv)
                     {
                         "NoBaseNoMember::NoBaseNoMember(NoBaseNoMember)",
                     };
-                    assert( callStack == expectedCallStack );
-                    assert( c1.i == 1 );
+                    assert(callStack == expectedCallStack);
+                    assert(c1.i == 1);
                 }
 
                 /*
@@ -4992,8 +5246,8 @@ int main(int argc, char** argv)
                     {
                         "NoBaseNoMember::NoBaseNoMember(NoBaseNoMember)",
                     };
-                    assert( callStack == expectedCallStack );
-                    assert( c1.i == 1 );
+                    assert(callStack == expectedCallStack);
+                    assert(c1.i == 1);
                 }
             }
 
@@ -5013,7 +5267,7 @@ int main(int argc, char** argv)
                 Class c;
                 c.Base::i = 1;
                 Base b(c);
-                assert( b.i == 1 );
+                assert(b.i == 1);
             }
 
             /*
@@ -5028,7 +5282,7 @@ int main(int argc, char** argv)
                 NoEquality c1;
 
                 //ERROR no match for operator ==
-                    //assert( c0 == c1 );
+                    //assert(c0 == c1);
             }
 
             /*
@@ -5058,12 +5312,12 @@ int main(int argc, char** argv)
                 Why swap should be afriend: <http://stackoverflow.com/questions/5695548/public-friend-swap-member-function>
             */
             {
-                CopyAndSwap c0( 2, 2 );
-                CopyAndSwap c1( 3, 3 );
+                CopyAndSwap c0(2, 2);
+                CopyAndSwap c1(3, 3);
 
                 //assign
                 //c0 = c1;
-                //assert( c0 );
+                //assert(c0);
 
                 //assign
                 //CopyAndSwap c2(c0);
@@ -5086,7 +5340,7 @@ int main(int argc, char** argv)
                 There is one difference between them and lvalue references:
                 rvalue references can only be initialized by both rvalues,
                 unlike lvalue references which can only be initialized by lvalues
-                ( except if they are const ).
+                (except if they are const).
 
                 Main motivation: implement move semantics.
             */
@@ -5112,10 +5366,10 @@ int main(int argc, char** argv)
                 //are identical to lvalue references.
                 {
                     int&& irr = 0;
-                    assert( irr == 0 );
+                    assert(irr == 0);
 
                     irr = 1;
-                    assert( irr == 1 );
+                    assert(irr == 1);
 
                     //once assigned, rvalue references are iden
                     std::cout << "&iff = " << &irr << std::endl;
@@ -5126,8 +5380,8 @@ int main(int argc, char** argv)
                 This is essential for move semantics. */
                 {
                     int i;
-                    assert( overloadRLvalue( i ) == "lval" );
-                    assert( overloadRLvalue( 1 ) == "rval" );
+                    assert(overloadRLvalue(i) == "lval");
+                    assert(overloadRLvalue(1) == "rval");
                 }
             }
 
@@ -5233,14 +5487,14 @@ int main(int argc, char** argv)
                             "NoBaseNoMember::~NoBaseNoMember()",
                         };
 
-                        assert( callStack == expectedCallStack );
+                        assert(callStack == expectedCallStack);
                 */
                 {
                     {
                         callStack.clear();
                         NoBaseNoMember c = NoBaseNoMember();
                         std::cout << "temporary copy elision" << std::endl;
-                        for ( auto s : callStack ) std::cout << "  " << s << std::endl;
+                        for (auto s : callStack) std::cout << "  " << s << std::endl;
                     }
 
                     {
@@ -5248,7 +5502,7 @@ int main(int argc, char** argv)
                         NoBaseNoMember c;
                         c = NoBaseNoMember();
                         std::cout << "no temporary copy elision" << std::endl;
-                        for ( auto s : callStack ) std::cout << "  " << s << std::endl;
+                        for (auto s : callStack) std::cout << "  " << s << std::endl;
                     }
                 }
 
@@ -5269,7 +5523,7 @@ int main(int argc, char** argv)
 
                     gets converted to:
 
-                        static create( NoBaseNoMember* hiddenTemp)
+                        static create(NoBaseNoMember* hiddenTemp)
                         {
                             //1 constructor, 1 copy, 1 destructor if no temporary copy elision
                             //1 constructor                       if    temporary copy elision
@@ -5309,7 +5563,7 @@ int main(int argc, char** argv)
 
                     c = NoBaseNoMember::create();
                     std::cout << "RVO" << std::endl;
-                    for ( auto s : callStack ) std::cout << "  " << s << std::endl;
+                    for (auto s : callStack) std::cout << "  " << s << std::endl;
                 }
 
                 /*
@@ -5336,7 +5590,7 @@ int main(int argc, char** argv)
                         callStack.clear();
                         c = NoBaseNoMember::createNrvo();
                         std::cout << "NRVO" << std::endl;
-                        for ( auto s : callStack ) std::cout << "  " << s << std::endl;
+                        for (auto s : callStack) std::cout << "  " << s << std::endl;
                     }
 
                     /*
@@ -5356,7 +5610,7 @@ int main(int argc, char** argv)
                         callStack.clear();
                         c = NoBaseNoMember::createNrvoHard();
                         std::cout << "NRVO hard" << std::endl;
-                        for ( auto s : callStack ) std::cout << "  " << s << std::endl;
+                        for (auto s : callStack) std::cout << "  " << s << std::endl;
                     }
                 }
 
@@ -5368,46 +5622,44 @@ int main(int argc, char** argv)
             }
         }
 
-        //#method overridding
+        //#overridding
         {
-            {
-                Class c;
-                Class* cp = &c;
+            Class c;
+            Class* cp = &c;
 
-                c.i = 0;
-                c.Class::i = 0;
-                cp->Class::i = 0;
-                c.Base::i = 1;
-                c.BaseAbstract::i = 2;
+            c.i = 0;
+            c.Class::i = 0;
+            cp->Class::i = 0;
+            c.Base::i = 1;
+            c.BaseAbstract::i = 2;
 
-                assert( c.i          == 0 );
-                assert( c.Class::i   == 0 );
-                assert( cp->Class::i == 0 );
+            assert(c.i          == 0);
+            assert(c.Class::i   == 0);
+            assert(cp->Class::i == 0);
 
-                assert( c.Base::i   == 1 );
-                assert( cp->Base::i == 1 );
+            assert(c.Base::i   == 1);
+            assert(cp->Base::i == 1);
 
-                assert( c.BaseAbstract::i   == 2 );
-                assert( cp->BaseAbstract::i == 2 );
+            assert(c.BaseAbstract::i   == 2);
+            assert(cp->BaseAbstract::i == 2);
 
-                //c.iAmbiguous = 0;
-                    //ERROR ambiguous
-                c.Base::iAmbiguous = 0;
-                c.BaseAbstract::iAmbiguous = 0;
+            //c.iAmbiguous = 0;
+                //ERROR ambiguous
+            c.Base::iAmbiguous = 0;
+            c.BaseAbstract::iAmbiguous = 0;
 
-                callStack.clear();
-                c.method();
-                assert( callStack.back() == "Class::method()" );
-                //c.methodAmbiguous();
-                    //ERROR ambiguous
-                callStack.clear();
-                c.Base::methodAmbiguous();
-                assert( callStack.back() == "Base::methodAmbiguous()" );
+            callStack.clear();
+            c.method();
+            assert(callStack.back() == "Class::method()");
+            //c.methodAmbiguous();
+                //ERROR ambiguous
+            callStack.clear();
+            c.Base::methodAmbiguous();
+            assert(callStack.back() == "Base::methodAmbiguous()");
 
-                callStack.clear();
-                c.BaseAbstract::methodAmbiguous();
-                assert( callStack.back() == "BaseAbstract::methodAmbiguous()" );
-            }
+            callStack.clear();
+            c.BaseAbstract::methodAmbiguous();
+            assert(callStack.back() == "BaseAbstract::methodAmbiguous()");
         }
 
         /*
@@ -5481,12 +5733,12 @@ int main(int argc, char** argv)
 
                 callStack.clear();
                 bap->method();
-                assert( callStack.back() == "BaseAbstract::method()" );
+                assert(callStack.back() == "BaseAbstract::method()");
                     //base method because non-virtual
 
                 callStack.clear();
                 bap->virtualMethod();
-                assert( callStack.back() == "Class::virtualMethod()" );
+                assert(callStack.back() == "Class::virtualMethod()");
                     //class method because virtual
 
                 delete bap;
@@ -5499,11 +5751,11 @@ int main(int argc, char** argv)
 
                 callStack.clear();
                 ba.method();
-                assert( callStack.back() == "BaseAbstract::method()" );
+                assert(callStack.back() == "BaseAbstract::method()");
 
                 callStack.clear();
                 ba.virtualMethod();
-                assert( callStack.back() == "Class::virtualMethod()" );
+                assert(callStack.back() == "Class::virtualMethod()");
             }
 
             {
@@ -5513,7 +5765,7 @@ int main(int argc, char** argv)
 
                 callStack.clear();
                 bp->virtualMethod();
-                assert( callStack.back() == "Class::virtualMethod()" );
+                assert(callStack.back() == "Class::virtualMethod()");
 
                 //classPtr = basePtr->covariantReturn();
                     //ERROR
@@ -5526,9 +5778,9 @@ int main(int argc, char** argv)
             Friend f(1);
             FriendOfFriend ff(2);
 
-            assert( friendGetI(f)               == f.getI() );
-            assert( friendGetIInnerDefine(f)    == f.getI() );
-            assert( ff.getFriendI(f)            == f.getI() );
+            assert(friendGetI(f)               == f.getI());
+            assert(friendGetIInnerDefine(f)    == f.getI());
+            assert(ff.getFriendI(f)            == f.getI());
         }
 
         //#nested classes
@@ -5544,27 +5796,24 @@ int main(int argc, char** argv)
                 //ERROR
                 //is private
         }
+    }
 
-        //#design patterns
-        {
-            //VisibleInnerIterable
-            {
-                VisibleInnerIterable c;
-                VisibleInnerIterable::Iterable ita = c.getIterable();
-                VisibleInnerIterable::Iterable::iterator it = ita.begin();
+    /*
+    #struct
 
-                int i;
-                int is[] = {0,1,2};
-                for(
-                    it = ita.begin(), i=0;
-                    it != ita.end();
-                    ++it, ++i
-                )
-                {
-                    assert( *it == is[i] );
-                }
-            }
-        }
+        Structs in C++ are very similar to classes: support access modifiers,
+        inheritance, constructors, etc.
+
+        The major difference between them is that the default access modifier for structs
+        is public, while for classes it is private.
+
+        The Google C++ style guide recommends using struct only if there is no constructors,
+        and classes otherwise.
+
+        <http://stackoverflow.com/questions/2750270/c-c-struct-vs-class>
+    */
+    {
+        //TODO add some examples
     }
 
     /*
@@ -5587,14 +5836,14 @@ int main(int argc, char** argv)
         int i, i1;
         Class c;
 
-        assert( typeid(i) == typeid(int) );
-        assert( typeid(i) == typeid(i1)  );
-        assert( typeid(i) != typeid(c)   );
+        assert(typeid(i) == typeid(int));
+        assert(typeid(i) == typeid(i1)  );
+        assert(typeid(i) != typeid(c)   );
 
-        std::string s( typeid(i).name() );
+        std::string s(typeid(i).name());
             //returns string
 
-        //assert( typeid(i).name() == "int" );
+        //assert(typeid(i).name() == "int");
             //WARN
             //undefined because value not specified on the standard
     }
@@ -5627,14 +5876,14 @@ int main(int argc, char** argv)
             //same as in C
             {
                 int i = 0.25;
-                assert( i == 0 );
+                assert(i == 0);
             }
 
             //via constructor that takes a single argument and is not explicit
             //works becaues the constructor NoBaseNoMember(int) exists
             {
                 NoBaseNoMember c = 1;
-                assert( c.i == 1 );
+                assert(c.i == 1);
             }
 
             /*
@@ -5710,7 +5959,7 @@ int main(int argc, char** argv)
                     int const * ip = &i;
 
                     *const_cast<int*>(ip) = 1;
-                    //assert( i == 1 );
+                    //assert(i == 1);
                         //TODO why fail?
 
                 }
@@ -5769,9 +6018,9 @@ int main(int argc, char** argv)
             {
                 ip = new int[5];
             }
-            catch( std::bad_alloc& ba )
+            catch(std::bad_alloc& ba)
             {
-                assert( false );
+                assert(false);
             }
             ip[0] = 1;
             delete[] ip;
@@ -5822,29 +6071,29 @@ int main(int argc, char** argv)
             NoBaseNoMember* cp = new NoBaseNoMember;
             //NoBaseNoMember* cp = new NoBaseNoMember();
                 //SAME
-            assert( callStack.back() == "NoBaseNoMember::NoBaseNoMember()" );
+            assert(callStack.back() == "NoBaseNoMember::NoBaseNoMember()");
 
             cp->method();
 
             callStack.clear();
             delete cp;
-            assert( callStack.back() == "NoBaseNoMember::~NoBaseNoMember()" );
+            assert(callStack.back() == "NoBaseNoMember::~NoBaseNoMember()");
                 //calls destructor
         }
 
         {
             callStack.clear();
             NoBaseNoMember* cp = new NoBaseNoMember[2];
-            assert( callStack.back() == "NoBaseNoMember::NoBaseNoMember()" ); callStack.pop_back();
-            assert( callStack.back() == "NoBaseNoMember::NoBaseNoMember()" ); callStack.pop_back();
+            assert(callStack.back() == "NoBaseNoMember::NoBaseNoMember()"); callStack.pop_back();
+            assert(callStack.back() == "NoBaseNoMember::NoBaseNoMember()"); callStack.pop_back();
 
             cp[0].method();
             cp[1].method();
 
             callStack.clear();
             delete[] cp;
-            assert( callStack.back() == "NoBaseNoMember::~NoBaseNoMember()" ); callStack.pop_back();
-            assert( callStack.back() == "NoBaseNoMember::~NoBaseNoMember()" ); callStack.pop_back();
+            assert(callStack.back() == "NoBaseNoMember::~NoBaseNoMember()"); callStack.pop_back();
+            assert(callStack.back() == "NoBaseNoMember::~NoBaseNoMember()"); callStack.pop_back();
         }
 
         {
@@ -5891,9 +6140,9 @@ int main(int argc, char** argv)
             ::i = 0;        //global i
             namea::i = 0;   //namea  i
             i++;
-            assert( i        == 1 );
-            assert( ::i      == 0 );
-            assert( namea::i == 0 );
+            assert(i        == 1);
+            assert(::i      == 0);
+            assert(namea::i == 0);
 
             f();
             namea::f();
@@ -5986,7 +6235,7 @@ int main(int argc, char** argv)
 
             Explains why operator `<<` does not need the `std::` qualifier,
             even though *must* be implemented as a non-member function!!
-            ( see info on operator overload for why )
+            (see info on operator overload for why)
 
             ADL for operators is a major use case, because specifying namespaces
             for operators completely destroys their eyecandy appeal.
@@ -5996,19 +6245,19 @@ int main(int argc, char** argv)
             {
                 {
                     struct adl0::s s;
-                    assert( adl( s ) == 0 );
+                    assert(adl(s) == 0);
                 }
 
                 {
                     struct adl1::s s;
-                    assert( adl( s ) == 1 );
+                    assert(adl(s) == 1);
                 }
             }
 
             //only works if the type is defined on the same namespace as the function
             {
                 struct adl0::s s;
-                //assert( adl0FromAdl1( s ) == 1 );
+                //assert(adl0FromAdl1(s) == 1);
                     //ERROR
                     //not declared on this scope
             }
@@ -6016,29 +6265,29 @@ int main(int argc, char** argv)
             //works if at least one of the argument types is in the namespace
             {
                 struct adl0::s s;
-                assert( adlMultiArg( 0, s, 1 ) == 0 );
+                assert(adlMultiArg(0, s, 1) == 0);
             }
 
             //lookup works even if types from both namespaces are used
             {
                 struct adl0::s s0;
                 struct adl1::s s1;
-                assert( adl0And1FromAdl1( s0, s1 ) == 1 );
+                assert(adl0And1FromAdl1(s0, s1) == 1);
             }
 
             //of course, calls can still be ambiguous
             {
                 struct adl0::s s0;
                 struct adl1::s s1;
-                //assert( adl01( s0, s1 ) == 0.5 );
+                //assert(adl01(s0, s1) == 0.5);
                     //ERROR
                     //ambiguous call
             }
 
             //only works for *types* defined in the namespaces, not values
             {
-                //assert( adlNoType( adl0::i ) == 0 );
-                //assert( adlNoType( adl1::i ) == 0 );
+                //assert(adlNoType(adl0::i) == 0);
+                //assert(adlNoType(adl1::i) == 0);
                     //ERROR
                     //adlNoType not found on this scope
             }
@@ -6060,7 +6309,7 @@ int main(int argc, char** argv)
 
                 stringstream oss;
                 oss << s;
-                assert( oss.str() == "abc" );
+                assert(oss.str() == "abc");
             }
 
             //cat. Creates a new string.
@@ -6068,25 +6317,35 @@ int main(int argc, char** argv)
                 string s = "ab";
                 string s1 = "cd";
                 string s2 = s + s1;
-                assert( s2 == "abcd" );
+                assert(s2 == "abcd");
             }
 
             //length
             {
                 std::string s = "abc";
-                assert( s.length() == 3 );
+                assert(s.length() == 3);
             }
 
             //
             {
                 string s = "abc";
                 s[0] = 'A';
-                assert( s == "Abc" );
+                assert(s == "Abc");
 
                 //s[3] = 'd';
                     //NOTE
                     //no born check!
                     //compiles
+            }
+
+            /*
+            #c_str
+
+                Convert std::string to c null terminated char* string.
+            */
+            {
+                std::string s = "abc";
+                assert((std::strcmp(s.c_str(), "abc")) == 0);
             }
 
             /*
@@ -6103,14 +6362,14 @@ int main(int argc, char** argv)
                 stringstream oss;
                 oss << "ab";
                 oss << "cd";
-                assert( oss.str() == "abcd" );
+                assert(oss.str() == "abcd");
 
                 //str does not clear the stringstream object
-                assert( oss.str() == "abcd" );
+                assert(oss.str() == "abcd");
 
                 //to clear it you could do
                 oss.str("");
-                assert( oss.str() == "" );
+                assert(oss.str() == "");
             }
 
             /*
@@ -6129,7 +6388,7 @@ int main(int argc, char** argv)
                 {
                     stringstream oss;
                     oss << 123;
-                    assert( oss.str() == "123" );
+                    assert(oss.str() == "123");
                 }
 
                 /*
@@ -6139,9 +6398,9 @@ int main(int argc, char** argv)
                 */
                 {
                     char cs[16];
-                    std::sprintf( cs, "%d", 123 );
+                    std::sprintf(cs, "%d", 123);
                     std::string s = (cs);
-                    assert( s == "123" );
+                    assert(s == "123");
                 }
 
                 /*
@@ -6150,7 +6409,7 @@ int main(int argc, char** argv)
                 It is not intended however for operation with classes.
                 */
 #if __cplusplus >= 201103L
-                assert( std::to_string(123) == "123" );
+                assert(std::to_string(123) == "123");
 #endif
             }
         }
@@ -6206,12 +6465,12 @@ int main(int argc, char** argv)
             {
                 std::stringstream ss;
 
-                //std::operator<<<std::ostream,std::string>( ss, "explicit" );
+                //std::operator<<<std::ostream,std::string>(ss, "explicit");
                     //TODO0 how to get his working?
 
-                std::operator<<( std::operator<<( ss, "explicit " ), "call" );
+                std::operator<<(std::operator<<(ss, "explicit "), "call");
 
-                assert( ss.str() == "explicit call" );
+                assert(ss.str() == "explicit call");
             }
 
             /*
@@ -6234,16 +6493,16 @@ int main(int argc, char** argv)
                     std::stringstream ss;
 
                     ss << std::boolalpha << true;
-                    assert( ss.str() == "true" );
+                    assert(ss.str() == "true");
                     ss.str("");
 
                     ss << std::noboolalpha << true;
-                    assert( ss.str() == "1" );
+                    assert(ss.str() == "1");
                     ss.str("");
 
                     //default is noboolalpha
                     ss << true;
-                    assert( ss.str() == "1" );
+                    assert(ss.str() == "1");
                     ss.str("");
                 }
 
@@ -6256,18 +6515,18 @@ int main(int argc, char** argv)
                     ss << std::boolalpha;
 
                     ss << true;
-                    assert( ss.str() == "true" );
+                    assert(ss.str() == "true");
                     ss.str("");
                         //does not clear earlier passed options
 
                     ss << true;
-                    assert( ss.str() == "true" );
+                    assert(ss.str() == "true");
                     ss.str("");
 
                     ss << std::noboolalpha;
 
                     ss << true;
-                    assert( ss.str() == "1" );
+                    assert(ss.str() == "1");
                     ss.str("");
                 }
 
@@ -6292,11 +6551,11 @@ int main(int argc, char** argv)
                     ss.fill(' ');
 
                     ss << std::left << i;
-                    assert( ss.str() == "12  " );
+                    assert(ss.str() == "12  ");
                     ss.str("");
 
                     ss << std::right << i;
-                    //assert( ss.str() == "  12" );
+                    //assert(ss.str() == "  12");
                         //why fails?
                     ss.str("");
                 }
@@ -6310,19 +6569,19 @@ int main(int argc, char** argv)
                     std::stringstream ss;
 
                     ss << std::hex << 10;
-                    assert( ss.str() == "a" );
+                    assert(ss.str() == "a");
                     ss.str("");
 
                     ss << std::oct << 10;
-                    assert( ss.str() == "12" );
+                    assert(ss.str() == "12");
                     ss.str("");
 
                     ss << std::dec << 10;
-                    assert( ss.str() == "10" );
+                    assert(ss.str() == "10");
                     ss.str("");
 
                     ss << 10;
-                    assert( ss.str() == "10" );
+                    assert(ss.str() == "10");
                     ss.str("");
                 }
 
@@ -6335,20 +6594,20 @@ int main(int argc, char** argv)
                 */
                 {
                     std::stringstream ss;
-                    ss.precision( 3 );
+                    ss.precision(3);
                     float f = 1.2345;
 
                     //none is the default
                     ss << f;
-                    assert( ss.str() == "1.23" );
+                    assert(ss.str() == "1.23");
                     ss.str("");
 
                     ss << std::fixed << f;
-                    assert( ss.str() == "1.235" );
+                    assert(ss.str() == "1.235");
                     ss.str("");
 
                     ss << std::scientific << f;
-                    assert( ss.str() == "1.235e+00" );
+                    assert(ss.str() == "1.235e+00");
                     ss.str("");
 
                     /*
@@ -6357,7 +6616,7 @@ int main(int argc, char** argv)
                     {
                         ss.unsetf(ios_base::floatfield);
                         ss << f;
-                        assert( ss.str() == "1.23" );
+                        assert(ss.str() == "1.23");
                         ss.str("");
                     }
                 }
@@ -6379,23 +6638,64 @@ int main(int argc, char** argv)
             <http://stackoverflow.com/questions/1647895/what-does-static-assert-do-and-what-would-you-use-it-for>
         */
         {
-            static_assert( 0 < 1, "msg" );
+            static_assert(0 < 1, "msg");
 
-            //static_assert( 0 > 1, "msg" );
+            //static_assert(0 > 1, "msg");
                 //ERROR
                 //static assertion failed
 
-            std::srand( time( NULL ) );
-            //static_assert( std::rand() >= 0 );
+            std::srand(time(NULL) );
+            //static_assert(std::rand() >= 0);
                 //ERROR
                 //needs to be a constexpr
         }
 #endif
 
         /*
+        #limits
+
+            C++ version of climits.
+
+            Contains information on the built-in types, inclding largest and smallest of each type.
+
+            TODO compare to climits which uses macros. Advantage of templates is the scoping?
+        */
+        {
+            std::cout << "numeric_limits<int>::" << std::endl;
+            std::cout << "  max() = " << numeric_limits<int>::max() << std::endl;
+            std::cout << "  min() = " << numeric_limits<int>::min() << std::endl;
+            std::cout << "  digits = " << numeric_limits<int>::digits << std::endl;
+            std::cout << "  is_signed = " << numeric_limits<int>::is_signed << std::endl;
+            std::cout << "  is_integer = " << numeric_limits<int>::is_integer << std::endl;
+            std::cout << std::endl;
+        }
+
+        /*
+        #containers
+
+            The STL furnishes several containers.
+
+            It is a very important part of an algorithm to choose the right container for the task.
+
+            As of C++11, most containers are abstract, that is, only specify which operations it supports.
+
+            For example, a `UnorderedMap` could be implemented both as a hash map or a RB tree concrete data structures,
+            but is always supports the same operations: insert, remove, and so on.
+
+            The major data structures which you must know about in order of decreasing usefulness are:
+
+            - vector
+            - set
+            - map
+            - list
+            - deque
+            - heap and priority queue
+        */
+
+        /*
         #vector
 
-            Dynamic array that grows / shrinks as necessary.
+            Array backed conatiner that grows / shrinks as necessary.
 
             $O(1)$ random access.
 
@@ -6417,7 +6717,7 @@ int main(int argc, char** argv)
                     //initializer lists
                     vector<int> v1 = {};
 
-                    assert( v == v1 );
+                    assert(v == v1);
                 }
 
                 /*
@@ -6428,47 +6728,49 @@ int main(int argc, char** argv)
                 {
                     //copies of given object
                     {
-                        assert( vector<int>( 3, 2 ) == vector<int>({ 2, 2, 2 }) );
+                        assert(vector<int>(3, 2) == vector<int>({2, 2, 2}));
                     }
 
                     //default constructed objects. int = 0.
                     {
-                        assert( vector<int>( 3 ) == vector<int>({ 0, 0, 0 }) );
+                        assert(vector<int>(3) == vector<int>({0, 0, 0}));
                     }
                 }
 
                 //range copy
                 {
-                    vector<int> v = { 0, 1, 2 };
-                    vector<int> v1( v.begin(), v.end() );
-                    assert( v == v1 );
+                    vector<int> v = {0, 1, 2};
+                    vector<int> v1(v.begin(), v.end());
+                    assert(v == v1);
                 }
 
                 //from existing array
                 {
-                    int myints[] = { 0, 1, 2 };
-                    vector<int> v( myints, myints + sizeof( myints ) / sizeof( int ) );
-                    vector<int> v1 = { 0, 1, 2 };
-                    assert( v == v1 );
+                    int myints[] = {0, 1, 2};
+                    vector<int> v(myints, myints + sizeof(myints) / sizeof(int) );
+                    vector<int> v1 = {0, 1, 2};
+                    assert(v == v1);
                 }
 
                 //vectors have order
                 {
-                    vector<int> v =  { 0, 1, 2};
-                    vector<int> v1 = { 2, 1, 0};
-                    assert( v != v1 );
+                    vector<int> v =  {0, 1, 2};
+                    vector<int> v1 = {2, 1, 0};
+                    assert(v != v1);
                 }
 
                 /*
                 #size
 
-                    number of elements in vector
+                    Number of elements in vector.
+
+                    This has type std::vector<X>::size_type
                 */
                 {
                     vector<int> v;
-                    assert( v.size() == 0 );
-                    v.push_back( 0 );
-                    assert( v.size() == 1 );
+                    assert(v.size() == 0);
+                    v.push_back(0);
+                    assert(v.size() == 1);
                 }
 
                 /*
@@ -6490,12 +6792,13 @@ int main(int argc, char** argv)
                     std::cout << "  " << v.capacity() << std::endl;
                     v.push_back(2);
                     std::cout << "  " << v.capacity() << std::endl;
-                    v.reserve( v.capacity() + 1 );
+                    v.reserve(v.capacity() + 1);
                     std::cout << "  " << v.capacity() << std::endl;
                     std::cout << std::endl;
                 }
 
-                /*#resize
+                /*
+                #resize
 
                     if larger than current size,    append given element at end
                     if smaller than current size,   remove elements from end
@@ -6504,8 +6807,8 @@ int main(int argc, char** argv)
                     //reduce size
                     {
                         vector<int> v{0, 1};
-                        v.resize( 1 );
-                        assert( ( v == vector<int>{0} ) );
+                        v.resize(1);
+                        assert((v == vector<int>{0}) );
                     }
 
                     //increase size
@@ -6514,15 +6817,15 @@ int main(int argc, char** argv)
                         //using default constructor objects
                         {
                             vector<int> v{1};
-                            v.resize( 3 );
-                            assert( ( v == vector<int>{1, 0, 0} ) );
+                            v.resize(3);
+                            assert((v == vector<int>{1, 0, 0}) );
                         }
 
                         //using copies of given object
                         {
                             vector<int> v{1};
-                            v.resize( 3, 2 );
-                            assert( ( v == vector<int>{1, 2, 2} ) );
+                            v.resize(3, 2);
+                            assert((v == vector<int>{1, 2, 2}) );
                         }
                     }
                 }
@@ -6546,10 +6849,10 @@ int main(int argc, char** argv)
             //the vector stores copies of elements, not references
             {
                 std::string s = "abc";
-                vector<std::string> v = { s };
+                vector<std::string> v = {s};
                 v[0][0] = '0';
-                assert( v[0]    == "0bc" );
-                assert( s       == "abc" );
+                assert(v[0]    == "0bc");
+                assert(s       == "abc");
             }
 
             //modify
@@ -6557,9 +6860,9 @@ int main(int argc, char** argv)
                 //can modify with initializers
                 {
                     vector<int> v;
-                    v = { 0 };
-                    v = { 0, 1 };
-                    assert( v == std::vector<int>( { 0, 1 } ) );
+                    v = {0};
+                    v = {0, 1};
+                    assert(v == std::vector<int>({0, 1}) );
                 }
 
                 /*
@@ -6580,13 +6883,13 @@ int main(int argc, char** argv)
                     vector<int> v;
                     vector<int> v1;
 
-                    v.push_back( 0 );
-                    v1 = { 0 };
-                    assert( v == v1 );
+                    v.push_back(0);
+                    v1 = {0};
+                    assert(v == v1);
 
                     v.push_back(1);
-                    v1 = { 0, 1 };
-                    assert( v == v1 );
+                    v1 = {0, 1};
+                    assert(v == v1);
 
                     /*
                     push_back makes copies with assign `=`
@@ -6597,12 +6900,12 @@ int main(int argc, char** argv)
                         vector<string> v;
                         string s = "abc";
 
-                        v.push_back( s );
+                        v.push_back(s);
                         v[0][0] = '0';
-                        assert( v[0] == "0bc" );
+                        assert(v[0] == "0bc");
 
                         //s was not changed
-                        assert( s == "abc" );
+                        assert(s == "abc");
                     }
                 }
 
@@ -6614,16 +6917,16 @@ int main(int argc, char** argv)
                     No return val. Rationale: <http://stackoverflow.com/questions/12600330/pop-back-return-value>
                 */
                 {
-                    vector<int> v = { 0, 1 };
+                    vector<int> v = {0, 1};
                     vector<int> v1;
 
                     v.pop_back();
-                    v1 = { 0 };
-                    assert( v == v1 );
+                    v1 = {0};
+                    assert(v == v1);
 
                     v.pop_back();
                     v1 = {};
-                    assert( v == v1 );
+                    assert(v == v1);
                 }
 
                 //#insert
@@ -6631,13 +6934,13 @@ int main(int argc, char** argv)
                     vector<int> v = {0,1};
                     vector<int> v1;
 
-                    v.insert( v.begin(), -1 );
-                    v1 = { -1, 0, 1 };
-                    assert( v == v1 );
+                    v.insert(v.begin(), -1);
+                    v1 = {-1, 0, 1};
+                    assert(v == v1);
 
-                    v.insert( v.end(), 2 );
-                    v1 = { -1, 0, 1, 2 };
-                    assert( v == v1 );
+                    v.insert(v.end(), 2);
+                    v1 = {-1, 0, 1, 2};
+                    assert(v == v1);
                 }
 
                 /*
@@ -6653,18 +6956,18 @@ int main(int argc, char** argv)
                 {
                     //single element
                     {
-                        std::vector<int> v{ 0, 1, 2 };
-                        auto it = v.erase( v.begin() + 1 );
-                        assert( ( v == vector<int>{0, 2} ) );
-                        assert( *it == 2 );
+                        std::vector<int> v{0, 1, 2};
+                        auto it = v.erase(v.begin() + 1);
+                        assert((v == vector<int>{0, 2}) );
+                        assert(*it == 2);
                     }
 
                     //range
                     {
-                        std::vector<int> v{ 0, 1, 2, 3 };
-                        auto it = v.erase( v.begin() + 1, v.end() - 1 );
-                        assert( ( v == vector<int>{0, 3} ) );
-                        assert( *it == 3 );
+                        std::vector<int> v{0, 1, 2, 3};
+                        auto it = v.erase(v.begin() + 1, v.end() - 1);
+                        assert((v == vector<int>{0, 3}) );
+                        assert(*it == 3);
                     }
                 }
 
@@ -6673,19 +6976,67 @@ int main(int argc, char** argv)
 
                     Helper to remove all elements that compare equal to a value from container.
 
-                    Does not actually remove the elements: only places them at the end and returns the new size.
+                    Does not actually remove the elements: only ensure that the beginning of the range
+                    does not contain the item to be removed.
+
+                    Ex:
+
+                        0, 1, 0, 2, 0, 1
+
+                    Value to remove: `0`
+
+                    Range to remove from:
+
+                        0, 1, 0, 2, 0, 1
+                        ----------
+
+                    After the remove:
+
+                        1, 2, X, Y, 0, 1
+                        ----------
+
+                    where `X` and `Y` are trash, and not necessarily 0!
+
+                    To actually remove the items, an `erase` is needed after remove
+                    because `remove` is not a class method and thus cannot remove items from a container.
+
+                    This is called the erase and remove idiom.
+
+                    After a remove the container becomes:
+
+                        1, 2, 0, 1
+
+                #erase and remove idiom
+
+                    See remove.
                 */
                 {
-                    std::vector<int> v{ 0, 1, 0, 2 };
-                    std::remove( v.begin(), v.end(), 0 );
-                    //assert( ( v == vector<int>{1, 2, 0, 0} ) );
+                    //verbose version
+                    {
+                        std::vector<int> v{0, 1, 0, 2, 0, 1};
+                        auto removeEndRangeIt = std::next(v.end(), -2);
+                        auto firstTrashIt = std::remove(v.begin(), removeEndRangeIt, 0);
+                        std::cout << "remove:" << std::endl;
+                        for (auto& i : v) std::cout << "  " << i << std::endl;
+                        std::cout << std::endl;
+                        v.erase(firstTrashIt, removeEndRangeIt);
+                        assert((v == vector<int>{1, 2, 0, 1}) );
+                    }
+
+                    //compact version
+                    {
+                        std::vector<int> v{0, 1, 0, 2, 0, 1};
+                        auto removeEndRangeIt = std::next(v.end(), -2);
+                        v.erase(std::remove(v.begin(), removeEndRangeIt, 0), removeEndRangeIt);
+                        assert((v == vector<int>{1, 2, 0, 1}) );
+                    }
                 }
 
                 //#clear
                 {
-                    vector<int> v= { 0, 1, 2 };
+                    vector<int> v{0, 1, 2};
                     v.clear();
-                    assert( v.size() == 0 );
+                    assert(v.size() == 0);
                 }
 
 
@@ -6696,21 +7047,21 @@ int main(int argc, char** argv)
             //random access is O(1) since array backed
             {
 
-                vector<int> v = { 0, 1, 2 };
+                vector<int> v{0, 1, 2};
 
                 //first element
 
-                    assert( v.front() == 0 );
-                    assert( v.front() == v[0] );
+                    assert(v.front() == 0);
+                    assert(v.front() == v[0]);
 
                 //last element
 
-                    assert( v.back() == 2 );
+                    assert(v.back() == 2);
 
                 //nth element:
 
                     v[0] = 1;
-                    assert( v[0] == 1 );
+                    assert(v[0] == 1);
 
                 /*
                 BAD:
@@ -6733,10 +7084,13 @@ int main(int argc, char** argv)
 
             Very similar interface to vector, except that:
 
-            - insertion to front is more efficient
+            - insertion to front is O(1)
             - there is no guarantee of inner storage contiguity
 
-            <http://www.cplusplus.com/reference/deque/deque/>
+            Discussion on when to use deque or vector:
+            <http://stackoverflow.com/questions/5345152/why-would-i-prefer-using-vector-to-deque>
+
+            It is controversial if one should use deque or vector as the main generic container.
         */
 
         /*
@@ -6755,15 +7109,15 @@ int main(int argc, char** argv)
             //C++11 initializer list
             {
                 {
-                    set<int> s = { 1, 2, 0, 1 };
-                    set<int> s1 = { 0, 1, 2 };
-                    assert( s == s1 );
+                    set<int> s{1, 2, 0, 1};
+                    set<int> s2{0, 1, 2};
+                    assert(s == s2);
                 }
 
                 {
-                    std::set<std::string> s = { "a", "c", "b", "a" };
-                    std::set<std::string> s1 = { "a","b", "c" };
-                    assert( s == s1 );
+                    std::set<std::string> s = {"a", "c", "b", "a"};
+                    std::set<std::string> s1 = {"a","b", "c"};
+                    assert(s == s1);
                 }
             }
 
@@ -6771,10 +7125,10 @@ int main(int argc, char** argv)
             {
                 int i = 0;
                 set<int*> s;
-                s.insert( &i );
+                s.insert(&i);
                 set<int*>::iterator it = s.find(&i);
                 *(*it) = 1;
-                assert( i == 1 );
+                assert(i == 1);
             }
 
             /*
@@ -6792,25 +7146,25 @@ int main(int argc, char** argv)
                 set<int> s;
 
                 ret = s.insert(1);
-                assert( ret.first == s.find(1) );
-                assert( ret.second == true );
+                assert(ret.first == s.find(1));
+                assert(ret.second == true);
 
                 ret = s.insert(2);
-                assert( ret.first == s.find(2) );
-                assert( ret.second == true );
+                assert(ret.first == s.find(2));
+                assert(ret.second == true);
 
                 ret = s.insert(0);
-                assert( ret.first == s.find(0) );
-                assert( ret.second == true );
+                assert(ret.first == s.find(0));
+                assert(ret.second == true);
 
                 //item already present:
                 //nothing is done and returns false on the pair
                 ret = s.insert(1);
-                assert( ret.first == s.find(1) );
-                assert( ret.second == false );
+                assert(ret.first == s.find(1));
+                assert(ret.second == false);
 
-                set<int> s1 = { 0, 1, 2 };
-                assert( s == s1 );
+                set<int> s1 = {0, 1, 2};
+                assert(s == s1);
             }
 
             /*
@@ -6821,13 +7175,13 @@ int main(int argc, char** argv)
                 Returns number of elements removed.
             */
             {
-                set<int> s = { 0, 1, 2 };
+                set<int> s = {0, 1, 2};
 
-                assert( s.erase(1) == 1 );
-                set<int> s2 = { 0, 2 };
-                assert( s == s2 );
+                assert(s.erase(1) == 1);
+                set<int> s2 = {0, 2};
+                assert(s == s2);
 
-                assert( s.erase(1) == 0 );
+                assert(s.erase(1) == 0);
             }
 
             //ERROR no random access since it uses bidirection iterator
@@ -6838,9 +7192,9 @@ int main(int argc, char** argv)
             //size
             {
                 set<int> s;
-                assert( s.size() == 0 );
-                s.insert( 0 );
-                assert( s.size() == 1 );
+                assert(s.size() == 0);
+                s.insert(0);
+                assert(s.size() == 1);
             }
 
             /*
@@ -6862,14 +7216,14 @@ int main(int argc, char** argv)
                 log n time complexity since always sorted
             */
             {
-                set<int> s = { 0, 1, 2 };
+                set<int> s = {0, 1, 2};
                 set<int>::iterator it;
 
-                it = s.find( 1 );
-                assert( *it == 1 );
+                it = s.find(1);
+                assert(*it == 1);
 
-                it = s.find( 3 );
-                assert( it == s.end() );
+                it = s.find(3);
+                assert(it == s.end());
             }
 
             /*
@@ -6882,12 +7236,14 @@ int main(int argc, char** argv)
                 Equivalent to doing a find.
             */
             {
-                set<int> s = { 1, 2, 0, 1 };
-                assert( s.count(1) == 1 );
-                assert( s.count(3) == 0 );
+                set<int> s = {1, 2, 0, 1};
+                assert(s.count(1) == 1);
+                assert(s.count(3) == 0);
             }
         }
 
+
+#if __cplusplus >= 201103L
         /*
         #tuple
 
@@ -6900,70 +7256,120 @@ int main(int argc, char** argv)
         {
             //create
             {
-                std::tuple<int,char,std::string> t0( 0, 'a', "a" );
-                std::tuple<int,char,std::string> t1 = std::make_tuple( 0, 'a', "a" );
-                std::tuple<int,char> t2 = std::pair<int,char>( 0, 'a' );
+                std::tuple<int,char,std::string> t0(0, 'a', "a");
+                std::tuple<int,char,std::string> t1(std::make_tuple(0, 'a', "a"));
+                std::tuple<int,char> t2( std::pair<int,char>(0, 'a'));
+
+                //uniform initialization
+                {
+                    std::tuple<int,char,std::string> t{0, 'a', "a"};
+                }
+
+                //aha, fails because the copy constructor is explicit!
+                //TODO Rationale?? <http://stackoverflow.com/questions/14961809/returning-a-tuple-from-a-function-using-uniform-initialization-syntax>
+                {
+                    //std::tuple<int,int> t = {0, 1};
+
+                    //std::tuple<int,int > t[]{ {0, 1} };
+                }
             }
 
-            //get: read write access. Copies are made from input elements
-            {
-                std::string s = "abc";
-                std::tuple<int,std::string> t0( 0, s );
+            /*
+            #get
 
-                assert( std::get<0>(t0) == 0 );
-                assert( std::get<1>(t0) == "abc" );
+                Get single element from tuple.
+
+                Returns references, so it is possible to modify the tuples with them.
+
+                Copies are made from input elements
+            */
+            {
+                std::tuple<int,std::string> t0(0, "abc");
+
+                assert(std::get<0>(t0) == 0);
+                assert(std::get<1>(t0) == "abc");
 
                 std::get<0>(t0) = 1;
-                assert( std::get<0>(t0) == 1 );
+                assert(std::get<0>(t0) == 1);
 
                 std::get<1>(t0)[0] = '0';
-                assert( std::get<1>(t0) == "0bc" );
-                //s did not change
-                assert( s == "abc" );
+                assert(std::get<1>(t0) == "0bc");
             }
 
-            //relational
-            {
-                std::tuple<int,char> t0( 0, 'a' );
-                std::tuple<int,char> t1( 0, 'a' );
-                std::tuple<int,char> t2( 1, 'b' );
+            /*
+            #tie
 
-                assert( t0 == t1 );
-                assert( t0 != t2 );
-                assert( t0 < t2 );
+                Unpack a tuple.
+
+            #ignore
+
+                Magic that exists only to ignore one of tie outputs.
+            */
+            {
+                int i;
+                std::string s;
+                std::tuple<int,float,std::string> t(1, 1.5, "abc");
+                std::tie(i, std::ignore, s) = t;
+                assert(i == 1);
+                assert(s == "abc");
+
+                // Clearly copies are made.
+                i = 2;
+                assert(std::get<0>(t) == 1);
+            }
+
+            /*
+            Relational operators operations are implemented
+
+            <http://www.cplusplus.com/reference/tuple/tuple/operators/>
+
+            `<` family is lexicographical.
+            */
+            {
+                std::tuple<int,char> t0(0, 'a');
+                std::tuple<int,char> t1(0, 'a');
+                std::tuple<int,char> t2(1, 'b');
+                std::tuple<int,char> t3(-1, 'b');
+                std::tuple<int,char> t4(0, 'b');
+
+                assert(t0 == t1);
+                assert(t0 != t2);
+                assert(t0 < t2);
+                assert(t0 > t3); //-1 counts
+                assert(t0 < t4); //0 ties, 'a' < 'b'
             }
 
             //swap contents of two tuples of same type
             {
-                std::tuple<int,char> t0( 0, 'a' );
-                std::tuple<int,char> t1( 1, 'b' );
+                std::tuple<int,char> t0(0, 'a');
+                std::tuple<int,char> t1(1, 'b');
 
                 std::tuple<int,char> old_t0 = t0;
                 std::tuple<int,char> old_t1 = t1;
 
-                t0.swap( t1 );
+                t0.swap(t1);
 
-                assert( t0 == old_t1 );
-                assert( t1 == old_t0 );
+                assert(t0 == old_t1);
+                assert(t1 == old_t0);
             }
         }
+#endif
 
         /*
         #pair
 
-            Two elements. Particular case of tuple.
-            Methods which exist for tuple will not be discussed.
+            Particular case of tuple for two elements
 
-            Specially important because of unordered_map.
+            Methods which also exist for tuple will not be discussed.
 
-            Also consider the more general tuple.
+            Specially important because of `map`.
         */
         {
-            //access: can also be done via `.first` and `.second` in addition to `get`.
+            //access: can also be done via `.first` and `.second` in addition to tuple `get`.
             {
-                std::pair<int,char> p( 0, 'a' );
-                assert( std::get<0>(p) == p.first );
-                assert( std::get<1>(p) == p.second );
+                std::pair<int,char> p(0, 'a');
+                assert(std::get<0>(p) == p.first);
+                assert(std::get<1>(p) == p.second);
             }
         }
 
@@ -6995,6 +7401,17 @@ int main(int argc, char** argv)
         */
         {
             /*
+            The initializer list constructor makes things very easy.
+            */
+            {
+                std::map<int,std::string> m{
+                    {0, "zero"},
+                    {1, "one"},
+                    {2, "two"},
+                };
+            }
+
+            /*
             emplace
 
                 put a value pair into the map without creating the pair explicitly
@@ -7003,9 +7420,9 @@ int main(int argc, char** argv)
             */
             {
                 //std::map<int,std::string> m;
-                //m.emplace( 0, "zero" );
-                //m.emplace( 1, "one" );
-                //m.emplace( 2, "two" );
+                //m.emplace(0, "zero");
+                //m.emplace(1, "one");
+                //m.emplace(2, "two");
             }
 
             /*
@@ -7019,38 +7436,40 @@ int main(int argc, char** argv)
                 std::map<int,std::string> m;
                 std::pair<map<int,std::string>::iterator,bool> ret;
 
-                ret = m.insert( std::pair<int,std::string>( 0, "zero" ) );
-                assert( ret.first == m.find(0) );
-                assert( ret.second == true );
+                ret = m.insert(std::pair<int,std::string>(0, "zero") );
+                assert(ret.first == m.find(0));
+                assert(ret.second == true);
 
-                ret = m.insert( std::pair<int,std::string>( 1, "one" ) );
-                assert( ret.first == m.find(1) );
-                assert( ret.second == true );
+                ret = m.insert(std::pair<int,std::string>(1, "one") );
+                assert(ret.first == m.find(1));
+                assert(ret.second == true);
 
                 //key already present
-                ret = m.insert( std::pair<int,std::string>( 1, "one2" ) );
-                assert( m[1] == "one" );
-                assert( ret.first == m.find(1) );
-                assert( ret.second == false );
+                ret = m.insert(std::pair<int,std::string>(1, "one2") );
+                assert(m[1] == "one");
+                assert(ret.first == m.find(1));
+                assert(ret.second == false);
             }
 
             /*
             iterate
 
-                maps are iterated in key order
+                Map is ordered.
 
-                iteration returns key value pairs
+                It is iterated in key `<` order.
+
+                Iteration returns key value pairs.
             */
             {
                 std::map<int,std::string> m;
-                m.insert( std::pair<int,std::string>( 1, "one" ) );
-                m.insert( std::pair<int,std::string>( 0, "zero" ) );
+                m.insert(std::pair<int,std::string>(1, "one") );
+                m.insert(std::pair<int,std::string>(0, "zero") );
 
                 int i = 0;
-                int is[] = { 0, 1 };
-                for ( auto& im : m )
+                int is[] = {0, 1};
+                for (auto& im : m)
                 {
-                    assert( im.first == is[i] );
+                    assert(im.first == is[i]);
                     //cout << im->second << endl;
                     ++i;
                 }
@@ -7066,16 +7485,17 @@ int main(int argc, char** argv)
                 This can be avoided by using `find` instead of `[]`.
             */
             {
-                std::map<int,std::string> m;
-                m.insert( std::pair<int,std::string>( 0, "zero" ) );
-                m.insert( std::pair<int,std::string>( 1, "one" ) );
+                std::map<int,string> m{
+                    {0, "zero"},
+                    {1, "one"},
+                };
 
-                assert( m[0] == "zero" );
-                assert( m[1] == "one" );
+                assert(m[0] == "zero");
+                assert(m[1] == "one");
 
                 //inserts `(3,"")` because `""` is the value for the default string constructor
-                assert( m[2] == "" );
-                assert( m.size() == 3 );
+                assert(m[2] == "");
+                assert(m.size() == 3);
             }
 
             /*
@@ -7089,15 +7509,16 @@ int main(int argc, char** argv)
                 This is perferrable to `[]` since it does not insert non-existent elements.
             */
             {
-                std::map<int,std::string> m;
-                m.insert( std::pair<int,std::string>( 0, "zero" ) );
-                m.insert( std::pair<int,std::string>( 1, "one" ) );
+                std::map<int,string> m{
+                    {0, "zero"},
+                    {1, "one"},
+                };
 
-                assert( m.find(0)->second == "zero" );
-                assert( m.find(1)->second == "one" );
+                assert(m.find(0)->second == "zero");
+                assert(m.find(1)->second == "one");
 
-                assert( m.find(2) == m.end() );
-                assert( m.size() == 2 );
+                assert(m.find(2) == m.end());
+                assert(m.size() == 2);
             }
 
             /*
@@ -7110,20 +7531,21 @@ int main(int argc, char** argv)
             {
                 int ret;
 
-                std::map<int,std::string> m;
-                m.insert( std::pair<int,std::string>( 0, "zero" ) );
-                m.insert( std::pair<int,std::string>( 1, "one" ) );
+                std::map<int,string> m{
+                    {0, "zero"},
+                    {1, "one"},
+                };
 
                 std::map<int,std::string> m2;
-                m2.insert( std::pair<int,std::string>( 0, "zero" ) );
+                m2.insert(std::pair<int,std::string>(0, "zero") );
 
-                ret = m.erase( 1 );
-                assert( ret = 1 );
+                ret = m.erase(1);
+                assert(ret = 1);
 
-                assert( m == m2 );
+                assert(m == m2);
 
-                ret = m.erase( 1 );
-                assert( ret == 0 );
+                ret = m.erase(1);
+                assert(ret == 0);
             }
         }
 
@@ -7145,30 +7567,30 @@ int main(int argc, char** argv)
         {
             //initializer list constructor
             {
-                std::list<int> l = { 0, 1 };
+                std::list<int> l = {0, 1};
             }
 
             //emplace
             {
-                std::list<int> l = { 0, 1 };
-                l.emplace( ++l.begin(), 2 );
-                assert( l == std::list<int>( { 0, 2, 1} ) );
+                std::list<int> l = {0, 1};
+                l.emplace(++l.begin(), 2);
+                assert(l == std::list<int>({0, 2, 1}) );
             }
 
             //remove: remove all elements with a given value from list
             {
-                std::list<int> l = { 0, 1, 0, 2 };
-                l.remove( 0 );
-                assert( l == std::list<int>( { 1, 2 } ) );
+                std::list<int> l = {0, 1, 0, 2};
+                l.remove(0);
+                assert(l == std::list<int>({1, 2}) );
             }
 
             //splice: transfer elements from one list to another
             {
-                std::list<int> l = { 0, 1 };
-                std::list<int> l2 = { 2, 3 };
-                l.splice( ++l.begin(), l2 );
-                assert( l == std::list<int>( { 0, 2, 3, 1 } ) );
-                assert( l2 == std::list<int>() );
+                std::list<int> l = {0, 1};
+                std::list<int> l2 = {2, 3};
+                l.splice(++l.begin(), l2);
+                assert(l == std::list<int>({0, 2, 3, 1}) );
+                assert(l2 == std::list<int>());
             }
         }
 
@@ -7211,6 +7633,10 @@ int main(int argc, char** argv)
                 typdefed as one of the classes to indicate the operationt can do:
 
                     typedef random_it vector<int>::iterator;
+
+        #numerical range interators
+
+            There seems to be nothing built-in like python's `xrange()`, but Boost offers `counting_iterator`.
         */
         {
 
@@ -7244,17 +7670,17 @@ int main(int argc, char** argv)
                 - operator*()
             */
             {
-                vector<int> v = { 1, 2, 0 };
+                vector<int> v = {1, 2, 0};
                 int i;
-                int is[] = { 1, 2, 0 };
+                int is[] = {1, 2, 0};
 
 #if __cplusplus >= 201103L
                 //forward
                 {
                     i = 0;
-                    for ( auto& iv : v )
+                    for (auto& iv : v)
                     {
-                        assert( iv == is[i] );
+                        assert(iv == is[i]);
                         //cout << *it << endl;
                         i++;
                     }
@@ -7269,16 +7695,16 @@ int main(int argc, char** argv)
                     Best workaround with auto.
                 */
                 {
-                    vector<int> v = { 1, 2, 0 };
+                    vector<int> v = {1, 2, 0};
                     int i;
-                    int is[] = { 1, 2, 0 };
+                    int is[] = {1, 2, 0};
 
                     //forward
                     {
                         i = 2;
-                        for ( auto it = v.rbegin(); it != v.rend(); it++ )
+                        for (auto it = v.rbegin(); it != v.rend(); it++)
                         {
-                            assert( *it == is[i] );
+                            assert(*it == is[i]);
                             //cout << *it << endl;
                             i--;
                         }
@@ -7304,9 +7730,9 @@ int main(int argc, char** argv)
                 */
                 {
                     vector<int>::iterator it;
-                    vector<int> v = { 1, 2, 0 };
+                    vector<int> v = {1, 2, 0};
                     int i;
-                    int is[] = { 1, 2, 0 };
+                    int is[] = {1, 2, 0};
 
                     i = 0;
                     for (
@@ -7315,7 +7741,7 @@ int main(int argc, char** argv)
                         ++it
                     )
                     {
-                        assert( *it == is[i] );
+                        assert(*it == is[i]);
                         //cout << *it << endl;
                         ++i;
                     }
@@ -7340,9 +7766,9 @@ int main(int argc, char** argv)
                 */
                 {
                     vector<int>::reverse_iterator it;
-                    vector<int> v = { 1, 2, 0 };
+                    vector<int> v = {1, 2, 0};
                     int i;
-                    int is[] = { 1, 2, 0 };
+                    int is[] = {1, 2, 0};
 
                     i = 2;
                     for (
@@ -7351,7 +7777,7 @@ int main(int argc, char** argv)
                         ++it
                     )
                     {
-                        assert( *it == is[i] );
+                        assert(*it == is[i]);
                         //cout << *it << endl;
                         --i;
                     }
@@ -7379,8 +7805,8 @@ int main(int argc, char** argv)
                 TODO isnt auto and range based for a better solution in c++11?
             */
             {
-                vector<int> v = { 1, 2 };
-                set<int> s = { 1, 2 };
+                vector<int> v = {1, 2};
+                set<int> s = {1, 2};
                 vector<int>::iterator itVec = v.begin();
                 set<int>::iterator itSeti = s.begin();
 
@@ -7396,16 +7822,16 @@ int main(int argc, char** argv)
 
             //no born checking is done
             {
-                vector<int> v = { 1, 2 };
+                vector<int> v = {1, 2};
 
-                *( v.end() - 1 );
+                *(v.end() - 1);
                     //last element
 
-                *( v.end() );
+                *(v.end());
                     //after last element
                     //no born check
 
-                //( v.end().hasNext() );
+                //(v.end().hasNext());
                     //no such method
             }
 
@@ -7417,10 +7843,10 @@ int main(int argc, char** argv)
             <http://stackoverflow.com/questions/713309/c-stl-can-arrays-be-used-transparently-with-stl-functions>
             */
             {
-                int is[] = { 2, 0, 1 };
+                int is[] = {2, 0, 1};
                 int j = 0;
-                for ( auto& i : is ){
-                    assert( i == is[j] );
+                for (auto& i : is){
+                    assert(i == is[j]);
                     j++;
                 }
             }
@@ -7436,9 +7862,14 @@ int main(int argc, char** argv)
                 that represents a type large enough to hold its indexes.
 
                 For arrays, this type is exactly the C `size_t`.
+
+                For a vector, it will also probably be `size_t`, since vectors are array backed,
+                but using `size_type` gives more generality.
+
+                This type is returned by methods such as `size()`.
             */
             {
-                std::vector<int> v = { 2, 0, 1 };
+                std::vector<int> v = {2, 0, 1};
                 std::vector<int>::size_type i = 1;
                 v[i] = 1;
             }
@@ -7447,24 +7878,23 @@ int main(int argc, char** argv)
         //#algorithm
         {
             {
-                assert( std::min( 0.1, 0.2 ) == 0.1 );
-                assert( std::max( 0.1, 0.2 ) == 0.2 );
+                assert(std::min(0.1, 0.2) == 0.1);
+                assert(std::max(0.1, 0.2) == 0.2);
             }
 
             //#sort
             {
-                std::vector<int> v = { 2, 0, 1 };
-                std::sort( v.begin(), v.end() );
-                std::vector<int> v1 = { 0, 1, 2 };
-                assert( v == v1 );
+                std::vector<int> v = {2, 0, 1};
+                std::sort(v.begin(), v.end());
+                std::vector<int> v1 = {0, 1, 2};
+                assert((v == std::vector<int>{0, 1, 2}) );
             }
 
             //#reverse
             {
-                std::vector<int> v = { 2, 0, 1 };
-                std::reverse( v.begin(), v.end() );
-                std::vector<int> v1 = { 1, 0, 2 };
-                assert( v == v1 );
+                std::vector<int> v = {2, 0, 1};
+                std::reverse(v.begin(), v.end());
+                assert((v == std::vector<int>{1, 0, 2}) );
             }
 
             /*
@@ -7472,7 +7902,7 @@ int main(int argc, char** argv)
 
                 Does things equivalent to:
 
-                    template <class T> void swap ( T& a, T& b )
+                    template <class T> void swap (T& a, T& b)
                     {
                         T c(a); a=b; b=c;
                     }
@@ -7486,16 +7916,16 @@ int main(int argc, char** argv)
 
             //#randomize
             {
-                std::vector<int> v = { 2, 0, 1 };
-                std::random_shuffle( v.begin(), v.end() );
+                std::vector<int> v = {2, 0, 1};
+                std::random_shuffle(v.begin(), v.end());
             }
 
             //#copy
             {
-                std::vector<int> v = { 2, 0, 1 };
-                std::vector<int> v2( 5, 3 );
-                std::copy( v.begin(), v.end(), v2.begin() + 1 );
-                assert( v2 == std::vector<int>({ 3, 2, 0, 1, 3}) );
+                std::vector<int> v = {2, 0, 1};
+                std::vector<int> v2(5, 3);
+                std::copy(v.begin(), v.end(), v2.begin() + 1);
+                assert(v2 == std::vector<int>({3, 2, 0, 1, 3}));
             }
 
             /*
@@ -7504,9 +7934,9 @@ int main(int argc, char** argv)
                 Compares two ranges of containers.
             */
             {
-                std::vector<int> v =  { 0, 1, 2    };
-                std::vector<int> v2 = {    1, 2, 3 };
-                assert( std::equal( v.begin() + 1, v.end(), v2.begin() ) );
+                std::vector<int> v =  {0, 1, 2    };
+                std::vector<int> v2 = {   1, 2, 3};
+                assert(std::equal(v.begin() + 1, v.end(), v2.begin()) );
             }
 
             /*
@@ -7517,9 +7947,9 @@ int main(int argc, char** argv)
                 Also has functional versions <http://www.cplusplus.com/reference/numeric/accumulate/>
             */
             {
-                std::vector<int> v = { 2, 0, 1 };
-                assert( std::accumulate( v.begin(), v.end(), 0)     == 3 );
-                assert( std::accumulate( v.begin(), v.end(), 10)    == 13 );
+                std::vector<int> v = {2, 0, 1};
+                assert(std::accumulate(v.begin(), v.end(), 0)     == 3);
+                assert(std::accumulate(v.begin(), v.end(), 10)    == 13);
             }
 
             /*
@@ -7531,17 +7961,17 @@ int main(int argc, char** argv)
                 std::vector<int> v = {2,0,1};
                 unsigned int pos;
 
-                pos = std::find( v.begin(), v.end(), 0 ) - v.begin();
-                assert( pos == 1 );
+                pos = std::find(v.begin(), v.end(), 0) - v.begin();
+                assert(pos == 1);
 
-                pos = std::find( v.begin(), v.end(), 1 ) - v.begin();
-                assert( pos == 2 );
+                pos = std::find(v.begin(), v.end(), 1) - v.begin();
+                assert(pos == 2);
 
-                pos = std::find( v.begin(), v.end(), 2 ) - v.begin();
-                assert( pos == 0 );
+                pos = std::find(v.begin(), v.end(), 2) - v.begin();
+                assert(pos == 0);
 
-                pos = std::find( v.begin(), v.end(), 3 ) - v.begin(); //end() returned
-                assert( pos == v.size()  );
+                pos = std::find(v.begin(), v.end(), 3) - v.begin(); //end() returned
+                assert(pos == v.size()  );
             }
 
             /*
@@ -7552,8 +7982,8 @@ int main(int argc, char** argv)
                 Consider usage with C++11 lambdas and functional.
             */
             {
-                std::vector<int> v = { 2, 0, 1 };
-                assert( std::find_if( v.begin(), v.end(), isOdd ) == --v.end() );
+                std::vector<int> v = {2, 0, 1};
+                assert(std::find_if (v.begin(), v.end(), isOdd) == --v.end());
             }
 
             /*
@@ -7566,26 +7996,26 @@ int main(int argc, char** argv)
             {
 
                 std::vector<int> v = {2,0,1};
-                std::sort( v.begin(), v.end() );
-                assert( std::binary_search( v.begin(), v.end(), 1 ) == true );
-                assert( std::binary_search( v.begin(), v.end(), 3 ) == false );
-                assert( std::binary_search( v.begin(), v.end() - 1, 2 ) == false );
+                std::sort(v.begin(), v.end());
+                assert(std::binary_search(v.begin(), v.end(), 1) == true);
+                assert(std::binary_search(v.begin(), v.end(), 3) == false);
+                assert(std::binary_search(v.begin(), v.end() - 1, 2) == false);
             }
 
             //#count
             {
                 std::vector<int> v = {2,1,2};
-                assert( std::count( v.begin(), v.end(), 0 ) == 0 );
-                assert( std::count( v.begin(), v.end(), 1 ) == 1 );
-                assert( std::count( v.begin(), v.end(), 2 ) == 2 );
+                assert(std::count(v.begin(), v.end(), 0) == 0);
+                assert(std::count(v.begin(), v.end(), 1) == 1);
+                assert(std::count(v.begin(), v.end(), 2) == 2);
             }
 
 
             //#max_element #min_element
             {
                 std::vector<int> v = {2,0,1};
-                assert( *std::max_element( v.begin(), v.end() ) == 2 );
-                assert( *std::min_element( v.begin(), v.end() ) == 0 );
+                assert(*std::max_element(v.begin(), v.end()) == 2);
+                assert(*std::min_element(v.begin(), v.end()) == 0);
             }
 
             /*
@@ -7596,12 +8026,17 @@ int main(int argc, char** argv)
                 If random access, simply adds + N.
 
                 Else, calls `++` N times.
+
+                Advantage over `+`: only random access containers support `+`,
+                but this works for any container, allowing one to write more general code.
+
+                Beware however that this operation will be slow for non random access containers.
             */
             {
                 std::vector<int> v = {0,1,2};
                 auto it = v.begin();
                 std::advance(it, 2);
-                assert( *it == 2 );
+                assert(*it == 2);
             }
 
 #if __cplusplus >= 201103L
@@ -7615,11 +8050,24 @@ int main(int argc, char** argv)
                 std::vector<int> v = {0,1,2};
                 auto it = v.begin();
                 auto itNext = std::next(it, 2);
-                assert( *it == 0 );
-                assert( *itNext == 2 );
+                assert(*it == 0);
+                assert(*itNext == 2);
             }
 
 #endif
+
+            /*
+            #priority queue
+
+                Offers `O(1)` access to the smalles element.
+
+                Other operatoins vary between `O(n)` and `O(1).
+
+                Most common implementaions are via:
+
+                - binary heap
+                - fibonacci heap
+            */
 
             /*
             #heap
@@ -7630,24 +8078,26 @@ int main(int argc, char** argv)
 
                 - getting largest element is O(1)
                 - removing the largest element is O(lg) for all implementation
-                - other operations (insertion) may be O(1) or O(lg) depending on the implementation
+                - other operations (insertion) may be O(1) or O(lg) depending on the implementation.
 
                 this makes for a good priority queue.
-
-                There is no heap data structure in C++: only heap operations over random access data structures.
-                This is why this is under algoritms.
-
-                Why random access structure works: <https://github.com/cirosantilli/comp-sci/blob/1.0/src/heap.md#array-implementation>
-
                 Exact heap type is not guaranteed. As of 2013, it seems that most implementations use binary heaps.
 
                 For specific heaps such as Fibonacci, consider [Boost](http://www.boost.org/doc/libs/1_49_0/doc/html/heap.html).
 
                 <http://stackoverflow.com/questions/14118367/stl-for-fibonacci-heap>
+
+                There is no heap data structure in C++:
+                only heap operations over random access data structures.
+                This is why this is under algoritms and is not a data structure of its own.
+
+                There is however a `priority_queue` STL container.
+
+                Why random access structure is needed: <https://github.com/cirosantilli/comp-sci/blob/1.0/src/heap.md#array-implementation>
             */
             {
-                int myints[] = { 10, 20, 30, 5, 15 };
-                std::vector<int> v( myints, myints + 5 );
+                int myints[] = {10, 20, 30, 5, 15};
+                std::vector<int> v(myints, myints + 5);
 
                 /*
                 #make_heap
@@ -7658,8 +8108,8 @@ int main(int argc, char** argv)
 
                     Worst case time: $O(n)$.
                 */
-                    std::make_heap( v.begin(), v.end() );
-                    assert( v.front() == 30 );
+                    std::make_heap(v.begin(), v.end());
+                    assert(v.front() == 30);
 
                 /*
                 #pop_heap
@@ -7671,13 +8121,13 @@ int main(int argc, char** argv)
 
                     Assumes that the input range is already a heap (made with `make_heap` for example).
                 */
-                    std::pop_heap( v.begin(), v.end() );
+                    std::pop_heap(v.begin(), v.end());
 
                     //the element still exists on the data structure
-                    assert( v.back() == 30 );
+                    assert(v.back() == 30);
 
                     //the second largest element hat become the largets
-                    assert( v.front() == 20 );
+                    assert(v.front() == 20);
 
                     //remove the element from the data structure definitively
                     v.pop_back();
@@ -7689,17 +8139,17 @@ int main(int argc, char** argv)
 
                     Assumes that:
 
-                    - the range 0 - ( end - 1 ) was already a heap
+                    - the range 0 - (end - 1) was already a heap
                     - the new element to be inserted into that heap is at end.
                 */
 
                     //add the new element to the data structure
-                    v.push_back( 99 );
+                    v.push_back(99);
 
                     //reorganize the data so that the last element will be placed in the heap
-                    std::push_heap( v.begin(), v.end() );
+                    std::push_heap(v.begin(), v.end());
 
-                    assert( v.front() == 99 );
+                    assert(v.front() == 99);
 
                 /*
                 #sort_heap
@@ -7712,8 +8162,8 @@ int main(int argc, char** argv)
                     This is exactly what the heapsort alrotithm does: make_heap and then sort_heap.
                 */
 
-                    std::sort_heap( v.begin(), v.end() );
-                    //assert( v )
+                    std::sort_heap(v.begin(), v.end());
+                    //assert(v)
                     //v == 5 10 15 20 99
             }
         }
@@ -7741,12 +8191,12 @@ int main(int argc, char** argv)
             */
             {
                 /*
-                std::vector<int> v = { 2, 0, 1 };
-                assert( std::find_if(
+                std::vector<int> v = {2, 0, 1};
+                assert(std::find_if (
                     v.begin(),
                     v.end(),
-                    std::bind2nd( []( int i, int param ){ return i == param + 1; }, 1 )
-                ) == v.begin() );
+                    std::bind2nd([](int i, int param){return i == param + 1;}, 1)
+                ) == v.begin());
                 */
             }
         }
@@ -7797,7 +8247,7 @@ int main(int argc, char** argv)
                     spi1->method();
                     spi1 = shared_ptr<NoBaseNoMember>(new NoBaseNoMember);
                     spi2 = shared_ptr<NoBaseNoMember>(spi1);
-                    assert( callStack.back() == "NoBaseNoMember::~NoBaseNoMember()" );
+                    assert(callStack.back() == "NoBaseNoMember::~NoBaseNoMember()");
                 }
             }
 
@@ -7815,21 +8265,21 @@ int main(int argc, char** argv)
         */
         {
 
-            std::thread t1( threadFunc, 1000 );
-            std::thread t2( threadFunc, 1000 );
+            std::thread t1(threadFunc, 1000);
+            std::thread t2(threadFunc, 1000);
                 //starts them
 
             t1.join();
             t2.join();
                 //both must end
 
-            assert( threadChange > 0 );
-            //assert( threadIds.size() == 2 );
-            //assert( threadGlobalEq0 > 0 );
-            assert( threadGlobalMutexedEq0 == 0 );
+            assert(threadChange > 0);
+            //assert(threadIds.size() == 2);
+            //assert(threadGlobalEq0 > 0);
+            assert(threadGlobalMutexedEq0 == 0);
 
             std::thread::id mainId = std::this_thread::get_id();
-            std::this_thread::sleep_for( std::chrono::nanoseconds( nNsecs ) );
+            std::this_thread::sleep_for (std::chrono::nanoseconds(nNsecs) );
             std::this_thread::yield();
         }
     }
@@ -7854,7 +8304,7 @@ int main(int argc, char** argv)
         */
         {
 #ifdef __cplusplus
-        printf( "__cplusplus = %li\n", __cplusplus );
+        printf("__cplusplus = %li\n", __cplusplus);
 #endif
         }
     }
@@ -7904,7 +8354,38 @@ int main(int argc, char** argv)
             //system time is not counted anyways
 #endif
 
+    //#design patterns
+    {
+        //VisibleInnerIterable
+        {
+            VisibleInnerIterable c;
+            VisibleInnerIterable::Iterable ita = c.getIterable();
+            VisibleInnerIterable::Iterable::iterator it = ita.begin();
+
+            int i;
+            int is[] = {0,1,2};
+            for (
+                it = ita.begin(), i=0;
+                it != ita.end();
+                ++it, ++i
+            )
+            {
+                assert(*it == is[i]);
+            }
+        }
+    }
+
+    /*
+    #idioms
+
+        Basically very small design patterns.
+    */
+
+
     return EXIT_SUCCESS;
+
+    //C++ requires that compilers add an implicit `return 0;
+    //at the end of the main();
 
     //global/static destructors happen at exit time
 }

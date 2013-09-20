@@ -2,12 +2,14 @@
 but sketches of how to implement data structures.
 
 The goal of those implementations is only educational.
-Obviously, don't reimplement standard data structers, but use the existing STL ones instead.
+It is a great exercise to try and implement the fundamental data structures yourself,
+as you will probably meet new needs and difficulties which will lead you to learn more C++.
+Obviously, don't reimplement existing STL data structers but use the existing ones instead.
 */
 
 #include <algorithm>
 #include <cassert>
-#include <cmath>        //ceil
+#include <limits>
 #include <functional>
 #include <iostream>
 #include <list>
@@ -418,7 +420,7 @@ class BST : Map<KEY,VAL>
 
             - if the node is found
 
-                - if it is not the current node, its parent
+                - if it is not the current node, its pasrent
                 - else, NULL
 
             - else, the last searched parent node
@@ -700,26 +702,130 @@ class Hash {
 };
 
 /**
-Represents a graph via adjency lists.
+Graph
+
+Implementation notes:
+
+- undirected: store edges only once on the edge with smaller index.
+*/
+
+/**
+Represents a directed graph via adjency lists.
 */
 class GraphList {
-
     public:
+        typedef std::vector<int>::size_type EdgeNumberType ;
+        class Edge {
+            public:
+                Edge(){}
+                Edge( EdgeNumberType to, int weight ) : to(to), weight(weight) {}
 
-        GraphList(){
+                // To which vertex this edge goes to.
+                EdgeNumberType to;
+                int weight;
+        };
+        typedef std::pair<EdgeNumberType,std::vector<Edge> > NodeEdgesPair;
+
+        GraphList() {}
+        GraphList(std::initializer_list<NodeEdgesPair> pairs) {
+            for (auto& pair : pairs)
+                this->add( pair );
+        }
+
+        /**
+        Adds a node / edges pair to the graph.
+
+        If the node number is larger than the current number of nodes, the current number of
+        nodes is increased to fit that new list of edges.
+
+        No error check is done to see if one of the edges points to a destination node that is not in the graph,
+        If you add such an edge, you must also explicitly add the node afterwards, even if it has no edges coming
+        out of it for example via:
+
+            graph.add({1234, {}});
+        */
+        void add(NodeEdgesPair pair) {
+            EdgeNumberType node_number = pair.first;
+            if (nodes.size() < node_number + 1) {
+                nodes.resize(node_number + 1);
+            }
+            nodes[node_number] = pair.second;
+        }
+
+        std::string str() const {
+            std::stringstream ss;
+            for (EdgeNumberType i = 0; i < nodes.size(); ++i) {
+                ss << i << ": ";
+                for (auto& edge : nodes[i]) {
+                    ss << edge.to << "," << edge.weight << " ";
+                }
+                ss << std::endl;
+            }
+            return ss.str();
+        }
+
+        /**
+        Calculates the shortest path from one node to another.
+
+        Recommended for dense graphs (unordered list implementation).
+
+        @param[out] path contains the shortest from from to to
+
+        @return true iff a path was found. The path may not exist in case of a non connex input.
+            This algorithm can detect that case.
+        */
+        bool dijikstra(const EdgeNumberType& from,
+                    const EdgeNumberType& to,
+                    std::vector<EdgeNumberType>& path) {
+            std::list<EdgeNumberType> not_visited(nodes.size(), false);
+            std::vector<int> distances(nodes.size(), std::numeric_limits<int>::max());
+            std::vector<EdgeNumberType> previous(nodes.size());
+            EdgeNumberType cur(from);
+            distances[cur] = 0;
+            for (EdgeNumberType i = 0; i < nodes.size(); ++i)
+                not_visited.push_back(i);
+            while (true) {
+                // Find non visited min and make it current.
+                auto it = std::min_element(not_visited.begin(), not_visited.end());
+                previous[*it] = cur;
+                cur = *it;
+                not_visited.erase(it);
+                if (cur == to)
+                    break;
+                if (not_visited.empty())
+                    return false;
+                // Update weights of nodes neighbour to cur.
+                for (auto& edge : nodes[cur]) {
+                    //if (!not_visited[edge.to]) {  //could maintain a visited array
+                                                    //this would prevent useless new_distance calculations
+                                                    //however this is not worth it as it would use more memory
+                                                    //and require that that array be kept up to date
+                        int new_distance = distances[cur] + edge.weight;
+                        if (new_distance < distances[edge.to]) {
+                            distances[edge.to] = new_distance;
+                        }
+                    //}
+                }
+            }
+            // Rebuild the path.
+            path = std::vector<EdgeNumberType>();
+            cur = to;
+            path.push_back(cur);
+            while (cur != from) {
+                cur = previous[cur];
+                path.push_back(cur);
+            }
+            std::reverse(path.begin(), path.end()); //TODO with a push_front container this would not be necessary.
+                                                    //so what to do? force the users to give push_front containers?
+            return true;
         }
 
     private:
+        std::vector<std::vector<Edge> > nodes;
 
-        std::vector<int> lists;
-};
-
-class GraphMatrix {
-
-    public:
-
-    private:
-
+        friend std::ostream& operator<<(std::ostream& os, const GraphList& rhs) {
+            return os << rhs.str();
+        }
 };
 
 int main(int argc, char** argv)
@@ -727,12 +833,12 @@ int main(int argc, char** argv)
     typedef Hash<int,int> map_t;
     //map_t mapOrig(0, 1);
     map_t mapOrig{
-        std::pair<int,int>(0,1),
-        std::pair<int,int>(1,2),
-        std::pair<int,int>(2,3),
-        std::pair<int,int>(3,4),
-        std::pair<int,int>(4,5),
-        std::pair<int,int>(-1,0),
+        { 0, 1},
+        { 1, 2},
+        { 2, 3},
+        { 3, 4},
+        { 4, 5},
+        {-1, 0},
     };
     map_t map;
     map_t mapExpect;
@@ -790,7 +896,7 @@ int main(int argc, char** argv)
                 map = mapOrig;
                 assert( map == mapOrig );
 
-                map.add( 5, 6);
+                map.add(5, 6);
                 assert( map != mapOrig );
 
 
@@ -814,10 +920,10 @@ int main(int argc, char** argv)
 
             //add at powers of 2 the 0 hash so they clutter at hash 0
             map = map_t( 0, 1 );
-            map.add( 1, 2 );
-            map.add( 2, 3 );
-            map.add( 4, 5 );
-            map.add( 8, 9 );
+            map.add( 1,  2 );
+            map.add( 2,  3 );
+            map.add( 4,  5 );
+            map.add( 8,  9 );
             map.add( 16, 17 );
 
             //find
@@ -829,9 +935,49 @@ int main(int argc, char** argv)
             assert( ! map.find( 0, val ) );
     }
 
+    /*
+    // Graphs.
     {
-        GraphList g;
+        // Dijikstra tests.
+        {
+            // Input graphs and origin dest pair and expected output shortest paths.
+            std::tuple<GraphList,
+                       std::pair<GraphList::EdgeNumberType,GraphList::EdgeNumberType>,
+                       std::vector<GraphList::EdgeNumberType> >in_outs[]{
+                {
+                    {
+                        {0, {{0, 1}}},
+                        {1, {}},
+                    },
+                    {0, 1},
+                    {0, 1}
+                },
+                {
+                    {
+                        {0, {{0, 1}}},
+                        {1, {{1, 2}}},
+                        {2, {{2, 3}}},
+                        {3, {}},
+                    },
+                    {0, 3},
+                    {0, 1, 2, 3}
+                },
+            };
+            for (auto& in_out : in_outs) {
+                auto& graph = std::get<0>(in_out);
+                auto& origin_destination = std::get<1>(in_out);
+                auto& expected_path = std::get<2>(in_out);
+                std::vector<GraphList::EdgeNumberType> path;
+                std::cout << graph << std::endl;
+                std::cout << "dijikstra path:" << std::endl;
+                graph.dijikstra(origin_destination.first, origin_destination.second, path);
+                for (auto& node_number : path)
+                    std::cout << node_number << std::endl;
+                std::cout << std::endl;
+                assert(path == expected_path);
+            }
+        }
     }
-
+    */
     return EXIT_SUCCESS;
 }

@@ -396,11 +396,13 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
         If those are used for documentation purposes, they don't need to match those of the definition.
         This is highly confusing however.
 
-        Definitions need parameter names.
+        Definitions need parameter names. This rule changes in C++.
         */
 
             void decl_def_args( int,   float,   char c );
             void decl_def_args( int i, float f, char d ){}
+
+            //void def_no_argname( int ){}
 
         /* One major application of forward declarations is to break loops */
 
@@ -3006,12 +3008,14 @@ int main( int argc, char **argv )
             assert( ( 1 && 1 ) == 1 );
 
             /*
-            For `||` and `&&`, the second side is only evaluated if needed.
+            #short circuit evaluation
 
-            On this example:
+                For operators `||`, `&&` and `?`, the second side is only evaluated if needed.
 
-            - 1 is evaulated to true
-            - || does not need to go any further, so i++ is not evaluated
+                On this example:
+
+                - 1 is evaulated to true
+                - || does not need to go any further, so i++ is not evaluated
             */
             {
                 int i = 0;
@@ -3658,9 +3662,35 @@ int main( int argc, char **argv )
         }
 
         /*
-        store array length in variables
+        #store array length in variables
+
+            Before C99, it was not possible to store array length in variables,
+            not even if they are const.
+
+            The two workarounds were:
+
+            - enum
+            - macros
+
+            C99 introduces VLA which allows that.
+
+            In C++, this changes, even if there is no VLA as of C++11.
         */
         {
+            {
+                //int n = 2;
+                //int isVla[n] = { 1, 2 };
+                    //ERROR
+                    //cannot be initialized
+            }
+
+            {
+                //const int n = 2;
+                //int isVla[n] = { 1, 2 };
+                    //ERROR
+                    //cannot be initialized
+            }
+
             //enum
             {
                 enum M {M=3};
@@ -3668,12 +3698,15 @@ int main( int argc, char **argv )
                 is[2] = 1;
             }
 
-            //define
+            /*
+            macro
+
+                Shares the disadvantage of every macro of having no scope.
+
+                Use enum instead.
+            */
             {
 #define DEFINESIZE 3
-                //BAD
-                //*no scope*, so you can't use N anymore.
-                //use enum instead
                 int is[DEFINESIZE];
                 is[2] = 1;
             }
@@ -3696,20 +3729,6 @@ int main( int argc, char **argv )
                     //scanf( "%d", &n );
                         //OK
                     int isVla[n];
-                }
-
-                {
-                    //int n = 2;
-                    //int isVla[n] = { 1, 2 };
-                        //ERROR
-                        //cannot be initialized
-                }
-
-                {
-                    //const int n = 2;
-                    //int isVla[n] = { 1, 2 };
-                        //ERROR
-                        //cannot be initialized
                 }
             }
         }
@@ -4387,17 +4406,56 @@ int main( int argc, char **argv )
     {
         //#if
         {
-            if ( -1 )
-            {
-                assert( 1 );
-            }
-            if ( 0 )
-            {
+            // Only 0 counts as false.
+            if ( 0 ) {
                 assert( 0 );
             }
-            if ( 1 )
-            {
+
+            if (1){
                 assert( 1 );
+            }
+
+            if (-1) {
+            } else {
+                assert(0);
+            }
+
+            if (-1) {
+            } else if (0) {
+                assert(0);
+            } else {
+                assert(0);
+            }
+
+            //can ommit braces for single statements
+            {
+                {
+                    if (0) assert(0);
+                    if (0)
+                        assert(0);
+                    if (0) { assert(0); }
+                }
+
+                {
+                    if (0)
+                        assert(0);
+                    else
+                        assert(1);
+                }
+
+                //possible but very ugly to use only one pair of braces
+                {
+                    if (0) {
+                        assert(0);
+                    } else
+                        assert(1);
+
+                    if (0)
+                        assert(0);
+                    else {
+                        assert(1);
+                    }
+                }
             }
 
             //scope
