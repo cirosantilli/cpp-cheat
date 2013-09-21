@@ -5609,7 +5609,7 @@ int main( int argc, char **argv )
 
     #NDEBUG
 
-        If defined *when assert.h* is included, asserts do nothing.
+        If defined *before assert.h* is included, asserts do nothing.
     */
     {
         //assert( 1 + 1 == 2 );

@@ -1,10 +1,13 @@
-/*This contains no details on basic language features,
-but sketches of how to implement data structures.
+/**
+Sketches of how to implement famous data structures and algorithms.
 
 The goal of those implementations is only educational.
+
 It is a great exercise to try and implement the fundamental data structures yourself,
 as you will probably meet new needs and difficulties which will lead you to learn more C++.
-Obviously, don't reimplement existing STL data structers but use the existing ones instead.
+
+Obviously, don't reimplement classical algorithms from scratch for serious use,
+as more performant implementations certainly exist already.
 */
 
 #include <algorithm>
@@ -702,14 +705,6 @@ class Hash {
 };
 
 /**
-Graph
-
-Implementation notes:
-
-- undirected: store edges only once on the edge with smaller index.
-*/
-
-/**
 Represents a directed graph via adjency lists.
 */
 class GraphList {
@@ -765,60 +760,101 @@ class GraphList {
         }
 
         /**
-        Calculates the shortest path from one node to another.
+        Calculates the single source shortest path from one node to another.
 
         Recommended for dense graphs (unordered list implementation).
 
-        @param[out] path contains the shortest from from to to
+        The weights of the graph must all be positive. No check is done to determine that.
 
-        @return true iff a path was found. The path may not exist in case of a non connex input.
-            This algorithm can detect that case.
+        @param[in] from, to Node numbers of source and destination respectively.
+
+            If `from == to`, a 0 length path is assumed to exist even if there is no edge from `from` to itself.
+
+            If either `from` or `to` not in the graph, the behaviour is undefined (possibly an infinite loop).
+
+        @param[out] path
+
+            - if a path exists, this it shall be modified to contain one of the shortest paths from from to to.
+
+                In case that there are mutiple solutions, only one of them shall be found and it is not predictable which.
+
+                The output shall be of type: `{from, X, Y, Z, ..., to}`.
+
+                This is still valid if `to == from`, in which case the output will be of type: `{from, from}`
+
+            - else: this parameter shall be modified to be equal to an empty container.
         */
-        bool dijikstra(const EdgeNumberType& from,
+        void dijikstra(const EdgeNumberType& from,
                     const EdgeNumberType& to,
                     std::vector<EdgeNumberType>& path) {
-            std::list<EdgeNumberType> not_visited(nodes.size(), false);
+            std::list<EdgeNumberType> not_visited;  // This is better as a list than an array, so that it is possible to loop over the non-visited nodes only to find the next min one.
             std::vector<int> distances(nodes.size(), std::numeric_limits<int>::max());
             std::vector<EdgeNumberType> previous(nodes.size());
             EdgeNumberType cur(from);
-            distances[cur] = 0;
-            for (EdgeNumberType i = 0; i < nodes.size(); ++i)
-                not_visited.push_back(i);
-            while (true) {
-                // Find non visited min and make it current.
-                auto it = std::min_element(not_visited.begin(), not_visited.end());
-                previous[*it] = cur;
-                cur = *it;
-                not_visited.erase(it);
-                if (cur == to)
-                    break;
-                if (not_visited.empty())
-                    return false;
+            distances[from] = 0;
+            for (EdgeNumberType i = 0; i < nodes.size(); i++) {
+                if (i != from)
+                    not_visited.push_back(i);
+            }
+            path = std::vector<EdgeNumberType>();
+            while (cur != to) {
+                //DEBUG prints!
+                /*
+                std::cout << "cur = " << cur << std::endl;
+                std::cout << "distances = ";
+                for (auto& d : distances) std::cout << d << " " ;
+                std::cout << std::endl;
+                std::cout << "not_visited = ";
+                for (auto& d : not_visited) std::cout << d << " " ;
+                std::cout << std::endl;
+                std::cout.flush();
+                */
                 // Update weights of nodes neighbour to cur.
                 for (auto& edge : nodes[cur]) {
-                    //if (!not_visited[edge.to]) {  //could maintain a visited array
-                                                    //this would prevent useless new_distance calculations
-                                                    //however this is not worth it as it would use more memory
-                                                    //and require that that array be kept up to date
                         int new_distance = distances[cur] + edge.weight;
                         if (new_distance < distances[edge.to]) {
                             distances[edge.to] = new_distance;
+                            previous[edge.to] = cur;
                         }
-                    //}
                 }
+                // Find non visited min and make it current.
+                int min_distance = std::numeric_limits<int>::max();
+                auto min_not_visited_it = not_visited.begin();
+                for (auto it = not_visited.begin(); it != not_visited.end(); ++it) {
+                    if (distances[*it] < min_distance) {
+                        min_distance = distances[*it];
+                        min_not_visited_it = it;
+                    }
+                }
+                // Next has infinite distance: graph not connected.
+                if (distances[*min_not_visited_it] == std::numeric_limits<int>::max())
+                    return;
+                cur = *min_not_visited_it;
+                not_visited.erase(min_not_visited_it);
             }
             // Rebuild the path.
-            path = std::vector<EdgeNumberType>();
             cur = to;
-            path.push_back(cur);
+            path.push_back(to);
+            cur = previous[cur];
             while (cur != from) {
-                cur = previous[cur];
                 path.push_back(cur);
+                cur = previous[cur];
             }
+            path.push_back(from);
             std::reverse(path.begin(), path.end()); //TODO with a push_front container this would not be necessary.
                                                     //so what to do? force the users to give push_front containers?
-            return true;
         }
+
+        /**
+        Calculates the single source shortest path from one node to another.
+
+        Recommended for sparse graphs (Fibonacci heap implementation).
+
+        Has not been implemented because there is no Fibonacci heap in the STL, only in Boost.
+        */
+        void dijikstraSparse(const EdgeNumberType& from,
+                    const EdgeNumberType& to,
+                    std::vector<EdgeNumberType>& path) {}
 
     private:
         std::vector<std::vector<Edge> > nodes;
@@ -827,6 +863,24 @@ class GraphList {
             return os << rhs.str();
         }
 };
+
+/**
+Solves the 0-1 knapsack optimization problem.
+
+@param[in] weights      Weight of each item.
+@param[in] values       Value of each item.
+@param[in] max_weight   Maximum weight to be carried.
+@param[out] output      Modified to contain one of the sets of indexes that reach the minimum.
+@tparam WEIGHT data type of the weights
+@tparam VALUE  data type of the values
+*/
+template<typename WEIGHT = int, typename VALUE = int>
+void Knapsack01(std::vector<WEIGHT> weights,
+                std::vector<VALUE> values,
+                WEIGHT max_weight,
+                std::vector<typename std::vector<WEIGHT>::size_type>& output) {
+
+}
 
 int main(int argc, char** argv)
 {
@@ -935,32 +989,84 @@ int main(int argc, char** argv)
             assert( ! map.find( 0, val ) );
     }
 
-    /*
     // Graphs.
     {
         // Dijikstra tests.
         {
             // Input graphs and origin dest pair and expected output shortest paths.
-            std::tuple<GraphList,
-                       std::pair<GraphList::EdgeNumberType,GraphList::EdgeNumberType>,
-                       std::vector<GraphList::EdgeNumberType> >in_outs[]{
-                {
+
+            typedef std::tuple<GraphList,
+                               std::pair<GraphList::EdgeNumberType,GraphList::EdgeNumberType>,
+                               std::vector<GraphList::EdgeNumberType> > InOut;
+
+            InOut in_outs[]{
+                // InOut needed because tuple constructors are explicit
+                // Edge case: path to self with edge to self.
+                InOut{
                     {
-                        {0, {{0, 1}}},
+                        {0, {{0, 0}}},
+                    },
+                    {0, 0},
+                    {0, 0}
+                },
+                // Edge case: path to self with no edge to self.
+                InOut{
+                    {
+                        {0, {}},
+                    },
+                    {0, 0},
+                    {0, 0}
+                },
+                InOut{
+                    {
+                        {0, {{1, 1}}},
                         {1, {}},
                     },
                     {0, 1},
                     {0, 1}
                 },
-                {
+                InOut{
                     {
-                        {0, {{0, 1}}},
-                        {1, {{1, 2}}},
-                        {2, {{2, 3}}},
-                        {3, {}},
+                        {0, {{1, 1}}},
+                        {1, {{2, 1}}},
+                        {2, {}},
                     },
-                    {0, 3},
-                    {0, 1, 2, 3}
+                    {0, 2},
+                    {0, 1, 2}
+                },
+                InOut{
+                    {
+                        {0, {{2, 1}}},
+                        {1, {}},
+                        {2, {{1, 1}}},
+                    },
+                    {0, 1},
+                    {0, 2, 1}
+                },
+                // No path.
+                InOut{
+                    {
+                        {0, {}},
+                        {1, {}},
+                    },
+                    {0, 1},
+                    {}
+                },
+                // Exampe close to that drawn at: <http://optlab-server.sce.carleton.ca/POAnimations2007/DijkstrasAlgo.html>
+                // Some edges have been made unidirectional, and the ambiguity resolved.
+                InOut{
+                    {
+                        {0, {{1, 2}, {2, 5}, {3, 4}, }},
+                        {1, {{2, 2}, {4, 7}, {6, 12} }},
+                        {2, {{4, 5}, {5, 3}, {3, 1}, }},
+                        {3, {{2, 1}, {5, 4},         }},
+                        {4, {{5, 1}, {7, 5},         }},
+                        {5, {{4, 1}, {7, 7},         }},
+                        {6, {{7, 3},                 }},
+                        {7, {                        }},
+                    },
+                    {0, 7},
+                    {0, 1, 2, 5, 4, 7}
                 },
             };
             for (auto& in_out : in_outs) {
@@ -968,16 +1074,53 @@ int main(int argc, char** argv)
                 auto& origin_destination = std::get<1>(in_out);
                 auto& expected_path = std::get<2>(in_out);
                 std::vector<GraphList::EdgeNumberType> path;
-                std::cout << graph << std::endl;
-                std::cout << "dijikstra path:" << std::endl;
+                //std::cout << graph << std::endl;
                 graph.dijikstra(origin_destination.first, origin_destination.second, path);
+                /*
+                std::cout << "dijikstra path: ";
                 for (auto& node_number : path)
-                    std::cout << node_number << std::endl;
+                    std::cout << node_number << " ";
                 std::cout << std::endl;
+                std::cout << std::endl;
+                */
                 assert(path == expected_path);
             }
         }
     }
-    */
+
+    // Knapsack.
+    {
+        typedef std::tuple<std::vector<int>,
+                           std::vector<int>,
+                           int,
+                           std::vector<std::vector<int>::size_type> > InOut;
+
+        InOut in_outs[]{
+            InOut{
+                {1},
+                {1},
+                1,
+                {1}
+            },
+        };
+        for (auto& in_out : in_outs) {
+            auto& weights = std::get<0>(in_out);
+            auto& values  = std::get<1>(in_out);
+            auto& max_weight  = std::get<2>(in_out);
+            auto& expected_output = std::get<3>(in_out);
+            std::vector<GraphList::EdgeNumberType> output;
+            //std::cout << graph << std::endl;
+            Knapsack01(weights, values, max_weight, output);
+            /*
+            std::cout << "dijikstra path: ";
+            for (auto& node_number : output)
+                std::cout << node_number << " ";
+            std::cout << std::endl;
+            std::cout << std::endl;
+            */
+            assert(output == expected_output);
+        }
+    }
+
     return EXIT_SUCCESS;
 }

@@ -308,7 +308,7 @@ Backtrack to definitions outside of main as needed.
 #include <thread>
 #include <typeinfo>         //get type of vars
 #include <unordered_map>    //unordered_map, unordered_multimap
-#include <utility>          //pair
+#include <utility>          //pair, tuple, forward, type_info, size_t
 #include <vector>
 
 //c headers:
@@ -709,7 +709,7 @@ void printCallStack()
             /*
             #initialization list
 
-                initialization lists have 4 main uses:
+                Initialization lists have 4 main uses:
 
                 1) avoid calling member object constructor and copy separately
                 2) initializing base classes with non default constructors
@@ -1412,6 +1412,27 @@ void printCallStack()
     //}
 //}
 
+//struct
+
+    template<class T>
+    struct BaseStruct {
+        T i;
+        BaseStruct(T i) : i(i) {}
+
+        protected:
+            int iProtected;
+
+        private:
+            int iPrivate;
+    };
+
+    struct DerivedStruct : BaseStruct<int> {
+        DerivedStruct(int i) : BaseStruct(i) {
+            iProtected = i;
+        }
+    };
+
+
 //#global scope
 
     int global = 0;
@@ -1483,10 +1504,8 @@ void printCallStack()
 
     //default args. C++ only. creates several name mungled functions on the assembly code.
 
-        void defaultArgs (int i, int j=0)
-        {
-            cout << i;
-            cout << j;
+        int DefaultArgs(int i, int j=0) {
+            return i + j;
         }
 
     //ERROR: no compound literals in c++
@@ -2100,19 +2119,6 @@ void printCallStack()
             return 1;
         }
 
-        //loop
-        //template <typename T, typename ...P>
-        //T variadicSum2(T t, P ...p)
-        //{
-            //std::vector list = {p...};
-
-            //if (sizeof...(p))
-            //{
-                //t += variadicSum(p...);
-            //}
-            //return(t);
-        //}
-
     /*
     #template template parameters
     */
@@ -2384,24 +2390,126 @@ void printCallStack()
                 //case 12 class, created in class template specialization
                 //does not contain such a function
 
-#if __cplusplus >= 201103L
+        //typename keyword qualifier
 
+            struct HasIMember {
+                static int i;
+            };
+
+            struct HasIType {
+                typedef int i;
+            };
+
+            struct HasIFunction {
+                int i() { return 1; }
+            };
+
+            struct HasITemplate {
+                template<int N> int i() { return N; }
+            };
+
+            /*
+            This function could do two things:
+
+            - multiplication of two values: `HAS_I::i` and `i`
+            - declartion of a `i` pointer of type `HAS_I::i`
+
+            The only way the compiler can differentiate between both, is knowing beforehand if `HAS_I::i`
+            is a type or a value.
+
+            But with templates, how can the compiler possibly know what `HAS_I::i` is going to be??
+            It could be both:
+
+            - a class that has a member `t` such as `HasIMember`.
+
+            - or another class that defines a type such as `HasIType`.
+
+            We must therefore help the compiler decide via the typename keyword!
+            */
+            template<typename HAS_I>
+            void NoTypenameFunc() {
+                // Multiplication, or pointer declaration??
+                // `HAS_I::i` is both qualified (`::`) and dependant on `HAS_I`.
+                HAS_I::i * i;
+            }
+
+            template<typename HAS_I>
+            void TypenameFunc() {
+                typename HAS_I::i * i;
+            }
+
+            template<typename HAS_I>
+            void NoTypenameInTemplateFunc() {
+                // Even if here it clearly cannot be a value, only a type,
+                // we must still help the compiler parse it with `typename`.
+                //
+                //std::vector<HAS_I::i> v;
+                    //Error: this could never work, since it does not have the typename specifier
+                    //and therefore always means a value for the compiler.
+            }
+
+            template<typename HAS_I>
+            void TypenameInTemplateFunc() {
+                std::vector<typename HAS_I::i> v;
+            }
+
+        //template keyword qualifier
+
+            class TemplateQualifier {
+                public:
+                    template<int N>
+                    class Nested {
+                        public:
+                            int method() { return N; }
+                    };
+
+                    template<int N>
+                    static int TemplateMethod() { return N; }
+            };
+
+            template<typename T>
+            void TemplateQualifierTest(TemplateQualifier tq, T t, T* tp) {
+
+                assert(tq.TemplateMethod<1>() == 1);
+                assert(tq.template TemplateMethod<1>() == 1);
+
+                // Template keyword is only needed for arguments with dependent type.
+                assert(tq.TemplateMethod<1>() == 1);
+                assert(tq.template TemplateMethod<1>() == 1);
+
+                //assert( t.TemplateMethod<1>() );
+                assert(t.template TemplateMethod<1>() == 1);
+
+                //assert( tp TemplateMethod<1>() == 1 )
+                assert(tp->template TemplateMethod<1>() == 1);
+
+                //assert( T::TemplateMethod<1>() == 1 );
+                assert(T::template TemplateMethod<1>() == 1);
+
+                //typename T::Nested<1> n;
+                typename T::template Nested<1> n;
+                assert(n.method() == 1);
+            }
+
+#if __cplusplus >= 201103L
     //#variadic template
 
         //base case
         template <typename T>
-        T variadicSum(T t) {return(t);}
+        T variadicSum(T t) { return(t); }
 
-        template <typename T, typename ...P>
-        T variadicSum(T t, P ...p)
-        {
-            if (sizeof...(p))
-            {
+        template <typename T, typename... P>
+        T variadicSum(T t, P... p) {
+            if (sizeof...(p)) {
                 t += variadicSum(p...);
             }
             return(t);
         }
 
+        template <typename... Args>
+        std::size_t VariadicSizeof() {
+            return sizeof...(Args);
+        }
 #endif
 
 /*
@@ -2726,13 +2834,32 @@ class ClassWithTypedef
 
 //constexpr
 
-    int not_constexpr_func(){
+    int not_constexpr_func() {
         return 1;
     }
 
-    int constexpr constexpr_func(){
-        return 1;
+    constexpr int constexpr_func(int i) {
+        return i;
     }
+
+        /*
+        C++11 specifies that the body of a constexrp function must contain a single return statement.
+
+        Otherwise, it would be too much work for the compiler to do.
+
+        <http://stackoverflow.com/questions/3226211/why-is-it-ill-formed-to-have-multi-line-constexpr-functions>
+        */
+    /*
+    constexpr int constexpr_func_multi_statement(int i) {
+        int j;
+        return i;
+    }
+    */
+
+    constexpr int ConstexprFactorial(int n) {
+        return (n == 1) ? 1 : n * ConstexprFactorial(n - 1);
+    }
+
 
         /**
         ERROR: the compiler ensures that the function is constexpr,
@@ -3004,8 +3131,16 @@ int main(int argc, char **argv)
             //constexpr int i = not_constexpr_func();
         }
 
+        //constexpr functions only work if all their arguments are constexprs
         {
-            constexpr int i = constexpr_func();
+            { constexpr int i = constexpr_func(1); }
+            //{ constexpr int i = constexpr_func(std::time(NULL)); }
+        }
+
+        //recursive functions can be constexpr, as long as they fit into one line.
+        {
+            constexpr int i = ConstexprFactorial(3);
+            assert(i == 6);
         }
 
         //ERROR the compiler sees that this is not a constexpr
@@ -3773,6 +3908,20 @@ int main(int argc, char **argv)
             //overloadValAddr(i);
                 //ERROR
                 //ambiguous
+
+            //#default arguments
+            {
+                assert( DefaultArgs(1)   == 1 );
+                assert( DefaultArgs(1,1) == 2 );
+            }
+
+            /*
+            #default arguments for references
+
+                There seems to be no standard way of doing that without using extra memory / verbosity.
+
+                <http://stackoverflow.com/questions/2816293/passing-optional-parameter-by-reference-in-c>
+            */
         }
 
         /*
@@ -3961,17 +4110,6 @@ int main(int argc, char **argv)
         But wait, there seems to be something coming on C++14: template restrictions to the rescue?
         <http://stackoverflow.com/questions/15669592/what-are-the-differences-between-concepts-and-template-constraints>
 
-    #typename
-
-        C++ keyword.
-
-        Has 2 uses: <http://en.wikipedia.org/wiki/Typename>
-
-        - same as `class` on template declaration
-        - disambiguating dependent qualified type names
-
-            Keyword is used inside the template function / class.
-
     #disambiguating dependent qualified type names
 
         Syntax:
@@ -4109,15 +4247,82 @@ int main(int argc, char **argv)
                 assert(templateArgTemplateArg     (TemplateTemplateParam<int>(1)) == 1);
                 assert(templateArgTemplateArg<int>(TemplateTemplateParam<int>(1)) == 1);
             }
+
+            /*
+            #typename keyword qualifier
+
+                Besides the basic usage of typename for defining templates,
+                it must also be used under certain conditions to allow the compiler to parse the program
+                when templates are used.
+
+                Simple intro to typename: <http://pages.cs.wisc.edu/~driscoll/typename.html>
+
+                Explains well the denominations in the standard: <http://stackoverflow.com/questions/610245/where-and-why-do-i-have-to-put-the-template-and-typename-keywords>
+
+                Can only be used inside of template classes or functions.
+
+                Typename rule: qualified dependent names are always parsed
+                as values and not types umless they have the typename keyword.
+
+                If they are put on a place which only accepts types and not values,
+                this must generate a compile time error!
+            */
+            {
+                //NoTypenameFunc<HasIMember>();
+                    //WARNING: statement `HasIMember::i` has no effect
+
+                //NoTypenameFunc<HasIType>();
+                    //ERROR: dependant name is parsed as non type
+
+                //TypenameFunc<HasIMember>();
+                    //ERROR: no type named i in HasIMember
+
+                TypenameFunc<HasIType>();
+
+                //NoTypenameInTemplateFunc<HasIType>();
+                    //ERROR
+
+                //NoTypenameInTemplateFunc<HasIMember>();
+                    //ERROR
+
+                TypenameInTemplateFunc<HasIType>();
+                    //ERROR
+
+                //TypenameInTemplateFunc<HasIMember>();
+                    //ERROR
+            }
+
+            /*
+            #template keyword qualifier
+
+                Just like the typename qualifier helps the compiler solve another type of parsing ambiguity,
+                in this case if `<` is a minus or a template instantiation.
+
+                Only used inside of templates that use templates!
+
+                Very good example of the template qualifier:
+                <http://stackoverflow.com/questions/610245/where-and-why-do-i-have-to-put-the-template-and-typename-keywords>
+            */
+            {
+                TemplateQualifier tq;
+                TemplateQualifierTest<TemplateQualifier>(tq, tq, &tq );
+            }
         }
 
         /*
         #template integer parameter
 
             Templates can receive integer parameters
+
+            Those parameters must be constexpr.
         */
         {
             assert(templateAddInt<1>(1) == 2);
+        }
+
+        //not a constexpr
+        {
+            //std::cout << templateAddInt<std::time(NULL) >(1) << std::endl;
         }
 
         /*
@@ -4255,6 +4460,17 @@ int main(int argc, char **argv)
             assert(fabs(variadicSum(0.1, 0.2, 0.3) - 0.6) < 1e-6);
 
             assert(variadicSum(1, 1.0) == 2.0);
+
+            /*
+            #sizeof...
+
+                Return number of template arguments passed to tempalte.
+            */
+            {
+                assert(   VariadicSizeof<>()        == 0   );
+                assert(   VariadicSizeof<int>()     == 1   );
+                assert( ( VariadicSizeof<int,int>() == 2 ) );
+            }
         }
 #endif
 
@@ -4384,9 +4600,10 @@ int main(int argc, char **argv)
         */
         try {
             throw 'c';
+        } catch (int i) {
+            assert(false);
+        } catch (char c) {
         }
-        catch (int i)   {assert(false);}
-        catch (char c)  {}
 
         /*
         `...` is the default case
@@ -4406,11 +4623,10 @@ int main(int argc, char **argv)
         Just like for function overloading, base classes catch for derived classes.
         */
         {
-            try
-            {
+            try {
                 throw myexception();
+            } catch (std::exception& ex) {
             }
-            catch (std::exception& ex)    {}
             /*
             This compiles, but generates a warning, since the first catch will always catch instead of this one.
             */
@@ -4421,13 +4637,14 @@ int main(int argc, char **argv)
             this is a more common exception ordering, first derived then base.
             */
             {
-                try
-                {
+                try {
                     throw myexception();
+                } catch (myexception& ex) {
+                } catch (std::exception& ex) {
+                    assert(false);
+                } catch (...) {
+                    assert(false);
                 }
-                catch (myexception& ex)       {}
-                catch (std::exception& ex)    {assert(false);}
-                catch (...)                     {assert(false);}
             }
         }
 
@@ -4455,38 +4672,38 @@ int main(int argc, char **argv)
             Functions can specify which exceptions are catchable with the following syntax:
         */
         {
-            try
-            {
+            try {
                 exception_func_int_only(true);
+            } catch (int i) {
+            } catch (...) {
+                assert(false);
             }
-            catch (int i)  {}
-            catch (...)      {assert(false);}
 
-            try
-            {
+            try {
                 //exception_func_int_only(false);
+            } catch (...) {
+                /* not even ... this can catch non int exceptions thrown by this function */
             }
-            catch (...) {/* not even ... this can catch non int exceptions thrown by this function */}
 
-            try
-            {
+            try {
                 exception_func_int_exception_only(1);
+            } catch (int i) {
+            } catch (myexception& ex) {
+            } catch (...) {
+                assert(false);
             }
-            catch (int i)             {}
-            catch (myexception& ex)   {}
-            catch (...)                 {assert(false);}
 
-            try
-            {
+            try {
                 //exception_func_none();
+            } catch (...) {
+                /* no exception thrown by this function is catchable */
             }
-            catch (...) {/* no exception thrown by this function is catchable */}
 
-            try
-            {
+            try {
                 //exception_func_none_wrapper();
+            } catch (...) {
+                /* the same goes if we wrap the function */
             }
-            catch (...) {/* the same goes if we wrap the function */}
         }
 
         /*
@@ -4502,7 +4719,7 @@ int main(int argc, char **argv)
             What to do to avoid that: <http://stackoverflow.com/questions/130117/throwing-exceptions-out-of-a-destructor>
         */
         {
-            //TODO, so, how do I make my program crash wide open? =)
+            //TODO so, how do I make my program crash wide open? =)
 
             try {
                 ExceptionDestructor e;
@@ -4514,10 +4731,45 @@ int main(int argc, char **argv)
             } catch (...) {
             }
         }
+
+#if __cplusplus >= 201103L
+        /*
+        #noexcept
+
+            Improved version of `throw` for functions.
+
+            `throw` for functions becomes deprecated in C++11.
+
+            TODO
+        */
+        {
+        }
+#endif
     }
 
     //#class
     {
+
+
+#if __cplusplus >= 201103L
+        /*
+        define class inside function
+        */
+        {
+            // As of C++11, classes can be defined inside functions!
+            // This matches the behaviour for structs in C.
+            {
+                class C {};
+            }
+
+            // Template classes however cannot be defined in functions.
+            // Just think what should the compiler do in this case?
+            {
+                //template<class T> class C {};
+            }
+        }
+#endif
+
         /*
         #constructor
 
@@ -5802,10 +6054,13 @@ int main(int argc, char **argv)
     #struct
 
         Structs in C++ are very similar to classes: support access modifiers,
-        inheritance, constructors, etc.
+        inheritance, constructors, templates, etc.
 
         The major difference between them is that the default access modifier for structs
         is public, while for classes it is private.
+
+        This is why structs are used on many simple short language examples:
+        no public line is needed.
 
         The Google C++ style guide recommends using struct only if there is no constructors,
         and classes otherwise.
@@ -5813,7 +6068,8 @@ int main(int argc, char **argv)
         <http://stackoverflow.com/questions/2750270/c-c-struct-vs-class>
     */
     {
-        //TODO add some examples
+        struct DerivedStruct s(1);
+        assert(s.i == 1);
     }
 
     /*
@@ -6222,7 +6478,7 @@ int main(int argc, char **argv)
         /*
         #ADL
 
-            Argument dependant name lookup.
+            Argument dependent name lookup.
 
             <http://en.wikipedia.org/wiki/Argument-dependent_name_lookup>
 
@@ -6668,6 +6924,182 @@ int main(int argc, char **argv)
             std::cout << "  is_signed = " << numeric_limits<int>::is_signed << std::endl;
             std::cout << "  is_integer = " << numeric_limits<int>::is_integer << std::endl;
             std::cout << std::endl;
+        }
+
+        /*
+        #utility
+
+            Lots of miscelaneous utilities.
+
+            <http://en.cppreference.com/w/cpp/utility>
+        */
+        {
+
+#if __cplusplus >= 201103L
+            /*
+            #tuple
+
+                Hold a ordered collection of elements.
+
+                Each element can be of a different type.
+
+                The length is always fixed.
+            */
+            {
+                //create
+                {
+                    //constructor
+                    {
+                        std::tuple<int,char,std::string> t0(0, 'a', "a");
+                    }
+
+                    /*
+                    #make_tuple
+
+                        forwards arguments to tuple constructor.
+
+                        The advantage over the constructor is that since it is a function
+                        template argument deduction can be done, so we don't need to type in
+                        template arguments.
+
+                        Remember that template argument deduction cannot be done for constructors.
+                    */
+                    {
+                        std::tuple<int,char,std::string> t;
+
+                        //without make_tuple
+                        t = std::make_tuple(0, 'a', "a");
+                        t = std::tuple<int,char,std::string>(0, 'a', "a");
+
+                        //with make_tuple
+                    }
+
+                    //tuple from pair
+                    {
+                        std::tuple<int,char> t2( std::pair<int,char>(0, 'a'));
+                    }
+
+                    //uniform initialization
+                    {
+                        std::tuple<int,char,std::string> t{0, 'a', "a"};
+                    }
+
+                    //aha, fails because the constructors are is `explicit`!
+                    //TODO Rationale?? <http://stackoverflow.com/questions/14961809/returning-a-tuple-from-a-function-using-uniform-initialization-syntax>
+                    {
+                        //std::tuple<int,int> t = {0, 1};
+                        //std::tuple<int,int > t[]{ {0, 1} };
+                    }
+                }
+
+                /*
+                #get
+
+                    Get single element from tuple.
+
+                    Returns references, so it is possible to modify the tuples with them.
+
+                    Copies are made from input elements
+                */
+                {
+                    std::tuple<int,std::string> t0(0, "abc");
+
+                    assert(std::get<0>(t0) == 0);
+                    assert(std::get<1>(t0) == "abc");
+
+                    std::get<0>(t0) = 1;
+                    assert(std::get<0>(t0) == 1);
+
+                    std::get<1>(t0)[0] = '0';
+                    assert(std::get<1>(t0) == "0bc");
+                }
+
+                /*
+                #tie
+
+                    Unpack a tuple.
+
+                    Unpack by reference seems not to be possible: <http://stackoverflow.com/questions/16571883/unpacking-a-std-tuple-into-pointers>
+
+                #ignore
+
+                    Magic that exists only to ignore one of tie outputs.
+                */
+                {
+                    int i;
+                    std::string s;
+                    std::tuple<int,float,std::string> t(1, 1.5, "abc");
+                    std::tie(i, std::ignore, s) = t;
+                    assert(i == 1);
+                    assert(s == "abc");
+
+                    // Clearly copies are made.
+                    i = 2;
+                    assert(std::get<0>(t) == 1);
+                }
+
+                /*
+                Relational operators operations are implemented
+
+                <http://www.cplusplus.com/reference/tuple/tuple/operators/>
+
+                `<` family is lexicographical.
+                */
+                {
+                    std::tuple<int,char> t0(0, 'a');
+                    std::tuple<int,char> t1(0, 'a');
+                    std::tuple<int,char> t2(1, 'b');
+                    std::tuple<int,char> t3(-1, 'b');
+                    std::tuple<int,char> t4(0, 'b');
+
+                    assert(t0 == t1);
+                    assert(t0 != t2);
+                    assert(t0 < t2);
+                    assert(t0 > t3); //-1 counts
+                    assert(t0 < t4); //0 ties, 'a' < 'b'
+                }
+
+                //swap contents of two tuples of same type
+                {
+                    std::tuple<int,char> t0(0, 'a');
+                    std::tuple<int,char> t1(1, 'b');
+
+                    std::tuple<int,char> old_t0 = t0;
+                    std::tuple<int,char> old_t1 = t1;
+
+                    t0.swap(t1);
+
+                    assert(t0 == old_t1);
+                    assert(t1 == old_t0);
+                }
+            }
+#endif
+
+            /*
+            #pair
+
+                Particular case of tuple for two elements
+
+                Methods which also exist for tuple will not be discussed.
+
+                Specially important because of `map`.
+            */
+            {
+                //access: can also be done via `.first` and `.second` in addition to tuple `get`.
+                {
+                    std::pair<int,char> p(0, 'a');
+                    assert(std::get<0>(p) == p.first);
+                    assert(std::get<1>(p) == p.second);
+                }
+            }
+
+            /*
+            #forward
+
+                TODO
+            */
+            {
+            }
         }
 
         /*
@@ -7239,137 +7671,6 @@ int main(int argc, char **argv)
                 set<int> s = {1, 2, 0, 1};
                 assert(s.count(1) == 1);
                 assert(s.count(3) == 0);
-            }
-        }
-
-
-#if __cplusplus >= 201103L
-        /*
-        #tuple
-
-            Hold a ordered collection of elements.
-
-            Each element can be of a different type.
-
-            The length is always fixed.
-        */
-        {
-            //create
-            {
-                std::tuple<int,char,std::string> t0(0, 'a', "a");
-                std::tuple<int,char,std::string> t1(std::make_tuple(0, 'a', "a"));
-                std::tuple<int,char> t2( std::pair<int,char>(0, 'a'));
-
-                //uniform initialization
-                {
-                    std::tuple<int,char,std::string> t{0, 'a', "a"};
-                }
-
-                //aha, fails because the copy constructor is explicit!
-                //TODO Rationale?? <http://stackoverflow.com/questions/14961809/returning-a-tuple-from-a-function-using-uniform-initialization-syntax>
-                {
-                    //std::tuple<int,int> t = {0, 1};
-
-                    //std::tuple<int,int > t[]{ {0, 1} };
-                }
-            }
-
-            /*
-            #get
-
-                Get single element from tuple.
-
-                Returns references, so it is possible to modify the tuples with them.
-
-                Copies are made from input elements
-            */
-            {
-                std::tuple<int,std::string> t0(0, "abc");
-
-                assert(std::get<0>(t0) == 0);
-                assert(std::get<1>(t0) == "abc");
-
-                std::get<0>(t0) = 1;
-                assert(std::get<0>(t0) == 1);
-
-                std::get<1>(t0)[0] = '0';
-                assert(std::get<1>(t0) == "0bc");
-            }
-
-            /*
-            #tie
-
-                Unpack a tuple.
-
-            #ignore
-
-                Magic that exists only to ignore one of tie outputs.
-            */
-            {
-                int i;
-                std::string s;
-                std::tuple<int,float,std::string> t(1, 1.5, "abc");
-                std::tie(i, std::ignore, s) = t;
-                assert(i == 1);
-                assert(s == "abc");
-
-                // Clearly copies are made.
-                i = 2;
-                assert(std::get<0>(t) == 1);
-            }
-
-            /*
-            Relational operators operations are implemented
-
-            <http://www.cplusplus.com/reference/tuple/tuple/operators/>
-
-            `<` family is lexicographical.
-            */
-            {
-                std::tuple<int,char> t0(0, 'a');
-                std::tuple<int,char> t1(0, 'a');
-                std::tuple<int,char> t2(1, 'b');
-                std::tuple<int,char> t3(-1, 'b');
-                std::tuple<int,char> t4(0, 'b');
-
-                assert(t0 == t1);
-                assert(t0 != t2);
-                assert(t0 < t2);
-                assert(t0 > t3); //-1 counts
-                assert(t0 < t4); //0 ties, 'a' < 'b'
-            }
-
-            //swap contents of two tuples of same type
-            {
-                std::tuple<int,char> t0(0, 'a');
-                std::tuple<int,char> t1(1, 'b');
-
-                std::tuple<int,char> old_t0 = t0;
-                std::tuple<int,char> old_t1 = t1;
-
-                t0.swap(t1);
-
-                assert(t0 == old_t1);
-                assert(t1 == old_t0);
-            }
-        }
-#endif
-
-        /*
-        #pair
-
-            Particular case of tuple for two elements
-
-            Methods which also exist for tuple will not be discussed.
-
-            Specially important because of `map`.
-        */
-        {
-            //access: can also be done via `.first` and `.second` in addition to tuple `get`.
-            {
-                std::pair<int,char> p(0, 'a');
-                assert(std::get<0>(p) == p.first);
-                assert(std::get<1>(p) == p.second);
             }
         }
 
@@ -8067,10 +8368,20 @@ int main(int argc, char **argv)
 
                 - binary heap
                 - fibonacci heap
+
+                Boost offers explicit heap types: fibonacci, binary and others.
+
+                But no guarantees are made.
+
+                As of C++11, does not support the increase key operation.
+
+                A binary heap without increase key can be implemented via the heap function family under algorithm.
             */
 
             /*
             #heap
+
+                Binary heap implementation.
 
                 <http://en.wikipedia.org/wiki/Heap_%28data_structure%29>
 
@@ -8087,7 +8398,7 @@ int main(int argc, char **argv)
 
                 <http://stackoverflow.com/questions/14118367/stl-for-fibonacci-heap>
 
-                There is no heap data structure in C++:
+                There is no concrete heap data structure in C++:
                 only heap operations over random access data structures.
                 This is why this is under algoritms and is not a data structure of its own.
 
