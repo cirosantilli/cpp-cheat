@@ -8691,7 +8691,46 @@ int main(int argc, char **argv)
 
         Basically very small design patterns.
     */
+    {
+        /*
+        #dynamic multi dimensional array
 
+            Sources: <http://www.cplusplus.com/forum/articles/7459/>
+
+            In addition to C malloc like techniques, C++ also offers the simpler possibility of using vectors
+            which will automatically  manage the memory allocation / dellocation for us.
+
+            The tradeoff is that this method will be potentially slower since it:
+
+            - requires constructor calls at non uniform initialization.
+            - may require function calls for the `[]` operator overload.
+
+                It is however likely that the compiler will inline those.
+        */
+        {
+            // Given width and height.
+            {
+                int width = 2, height = 3;
+                vector<vector<int>> array_2d(height, vector<int>(width));
+                array_2d[0][0] = 1;
+                array_2d[2][1] = 5;
+                assert(array_2d[0][0] == 1);
+                assert(array_2d[0][1] == 0);
+                assert(array_2d[2][1] == 5);
+            }
+
+            // Uniform initialized.
+            {
+                vector<vector<int>> array_2d{
+                    {0, 1},
+                    {2, 3},
+                    {4, 5},
+                };
+                assert(array_2d[0][0] == 0);
+                assert(array_2d[2][1] == 5);
+            }
+        }
+    }
 
     return EXIT_SUCCESS;
 

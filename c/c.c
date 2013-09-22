@@ -5560,6 +5560,24 @@ int main( int argc, char **argv )
         }
 
         /*
+        malloc multi dimensional arrays
+
+            For a 2D N x M array, there are two solutions:
+
+            - N mallocs of size M
+            - one malloc of size N x M
+
+            <http://stackoverflow.com/questions/1970698/c-malloc-for-two-dimensional-array>
+
+            In C++, using vectors of vectors is an easier solution.
+        */
+        {
+            // One malloc.
+            {
+            }
+        }
+
+        /*
         #allocate too much memory
 
             if you try to allocate too much memory,

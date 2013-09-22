@@ -12,6 +12,7 @@ as more performant implementations certainly exist already.
 
 #include <algorithm>
 #include <cassert>
+#include <cmath>
 #include <limits>
 #include <functional>
 #include <iostream>
@@ -865,21 +866,153 @@ class GraphList {
 };
 
 /**
-Solves the 0-1 knapsack optimization problem.
+Solves the 0-1 knapsack problem via dynamic programming.
+
+All inputs must be contain only positive integer types.
+
+The input is expected to be normalized beforehand, that is,
+all values, weights and the maximum weight must have already been divided
+by the GCD of all of those values, or this algorithm will be very memory inneficient.
 
 @param[in] weights      Weight of each item.
 @param[in] values       Value of each item.
 @param[in] max_weight   Maximum weight to be carried.
-@param[out] output      Modified to contain one of the sets of indexes that reach the minimum.
+@param[out] output      Modified to contain one of the sets of element indexes that reaches the minimum.
+
+    If this container is ordered, no sorting shall be done on it, and the item order is unspecified.
+
+    If more than one optimal solution exists, it is not specified which one shall be returned.
+
+@param[out] output_value The maximum value attained by the solution.
+
 @tparam WEIGHT data type of the weights
 @tparam VALUE  data type of the values
 */
 template<typename WEIGHT = int, typename VALUE = int>
-void Knapsack01(std::vector<WEIGHT> weights,
+void Knapsack01Dynamic(std::vector<WEIGHT> weights,
                 std::vector<VALUE> values,
                 WEIGHT max_weight,
-                std::vector<typename std::vector<WEIGHT>::size_type>& output) {
+                std::vector<typename std::vector<WEIGHT>::size_type>& output,
+                VALUE& output_value) {
+    typename std::vector<WEIGHT>::size_type number_items = weights.size();
+    std::vector<std::vector<VALUE>> sub_problems(number_items + 1,
+                                                 std::vector<VALUE>(max_weight + 1));
+    std::vector<std::vector<bool>> accepted_items(number_items + 1,
+                                             std::vector<bool>(max_weight + 1));
+    for (typename std::vector<WEIGHT>::size_type i = 1; i <= number_items; ++i ) {
+        for (WEIGHT w = 1; w <= max_weight; ++w ) {
+            if (weights[i] <= w) {
+                VALUE new_optimum_if_accept = values[i] + sub_problems[i - 1][w - weights[i]];
+                if (new_optimum_if_accept > sub_problems[i - 1][w]) {
+                    accepted_items[i][w] = true;
+                    sub_problems[i][w] = new_optimum_if_accept;
+                    continue;
+                }
+            }
+            sub_problems[i][w] = sub_problems[i - 1][w];
+        }
+    }
+    output_value = sub_problems[number_items][max_weight];
+    // Generate the solution.
+    for (typename std::vector<WEIGHT>::size_type i = number_items; i > 0; --i) {
+        if (accepted_items[i][max_weight]) {
+            output.push_back(i);
+            max_weight -= weights[i];
+        }
+    }
+}
 
+void VectorSum(std::vector<int> v0, std::vector<int> v1, std::vector<int>& output) {
+    output.resize(v0.size());
+    for (std::vector<int>::size_type i = 0; i < v0.size(); ++i)
+        output[i] = v0[i] + v1[i];
+}
+
+/**
+Solves the change making problem via dynamic programming.
+
+Given a value `total`, choose the minimum ammount of coins
+with one of the values inside `coin_values` that sums up to exactly `total`.
+
+@param[in] coin_values  The value of each type of coin. Must be already ordered.
+                        All values must be positive.
+@param[in] total        The total value that must be reached with the coins.
+                        Must be positive.
+@param[out] output      The solution, that is, how many of each type of coin is needed to attain the total.
+
+    If the total is not attainable, this container shall be empty.
+*/
+void MakeChange(std::vector<int> coin_values, int total, std::vector<int>& output) {
+    std::vector<bool> possible(total + 1, false);
+    std::vector<int> coin_counts(total + 1, std::numeric_limits<int>::max());
+    std::vector<std::vector<int> > solutions(total + 1, std::vector<int>(coin_values.size(), 0));
+    possible[0] = true;
+    coin_counts[0] = 0;
+    for (std::vector<int>::size_type i = 0; i < coin_values.size(); ++i) {
+        int coin_value = coin_values[i];
+        possible[coin_value] = true;
+        solutions[coin_value][i] = 1;
+        coin_counts[coin_value] = 1;
+    }
+    for (int subtotal = 1; subtotal <= total; ++subtotal) {
+        /*
+        std::cout << "subtotal = " << subtotal << std::endl;
+        std::cout << "possible    = ";
+        for (auto i : possible) std::cout << i << " ";
+        std::cout << std::endl;
+        std::cout << "coin_counts = ";
+        for (auto& i : coin_counts) std::cout << i << " ";
+        std::cout << std::endl;
+        std::cout << std::endl;
+        */
+        int min_coin_count = coin_counts[subtotal];
+        int best_first, best_second;
+        bool cur_possible = false;
+        for (int first = 0; first <= subtotal / 2; ++first) {
+            int second = subtotal - first;
+            if (possible[first] && possible[second]) {
+                /*
+                std::cout << "first = " << first << std::endl;
+                std::cout << "second = " << second << std::endl;
+                std::cout << "coin_counts[first] = " << coin_counts[first] << std::endl;
+                std::cout << "coin_counts[second] = " << coin_counts[second] << std::endl;
+                std::cout << "min_coin_count = " << min_coin_count << std::endl;
+                std::cout << std::endl;
+                */
+                int new_coin_count = coin_counts[first] + coin_counts[second];
+                if (new_coin_count < min_coin_count) {
+                    best_first = first;
+                    best_second = second;
+                    min_coin_count = new_coin_count;
+                    cur_possible = true;
+                }
+            }
+        }
+        if (cur_possible) {
+            possible[subtotal] = true;
+            coin_counts[subtotal] = coin_counts[best_first]
+                + coin_counts[best_second];
+            VectorSum(solutions[best_first], solutions[best_second], solutions[subtotal]);
+        }
+    }
+    /*
+    std::cout << "possible    = ";
+    for (auto i : possible) std::cout << i << " ";
+    std::cout << std::endl;
+    std::cout << "coin_counts = ";
+    for (auto& i : coin_counts) std::cout << i << " ";
+    std::cout << std::endl;
+    std::cout << std::endl;
+
+    for (auto& solution : solutions) {
+        for (auto& i : solution) {
+            std::cout << i << " ";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
+    */
+    output = solutions[total];
 }
 
 int main(int argc, char** argv)
@@ -1097,10 +1230,16 @@ int main(int argc, char** argv)
 
         InOut in_outs[]{
             InOut{
-                {1},
-                {1},
-                1,
-                {1}
+                {1, 2,  3 },
+                {6, 10, 12},
+                5,
+                {1, 2}
+            },
+            InOut{
+                {1, 2, 3, 4 , 5 },
+                {3, 8, 7, 10, 14},
+                10,
+                {1, 2, 4}
             },
         };
         for (auto& in_out : in_outs) {
@@ -1109,15 +1248,88 @@ int main(int argc, char** argv)
             auto& max_weight  = std::get<2>(in_out);
             auto& expected_output = std::get<3>(in_out);
             std::vector<GraphList::EdgeNumberType> output;
-            //std::cout << graph << std::endl;
-            Knapsack01(weights, values, max_weight, output);
+            int output_value;
+
             /*
-            std::cout << "dijikstra path: ";
-            for (auto& node_number : output)
-                std::cout << node_number << " ";
+            std::cout << "max_weight = " << max_weight << std::endl;
+
+            std::cout << "weights = ";
+            for (auto& i : weights) std::cout << i << " ";
             std::cout << std::endl;
+
+            std::cout << "values = ";
+            for (auto& i : values) std::cout << i << " ";
             std::cout << std::endl;
             */
+
+            Knapsack01Dynamic(weights, values, max_weight, output, output_value);
+            std::sort(output.begin(), output.end());
+            std::sort(expected_output.begin(), expected_output.end());
+
+            /*
+            std::cout << "output_value = " << output_value << std::endl;
+
+            std::cout << "output = ";
+            for (auto& i : output) std::cout << i << " ";
+            std::cout << std::endl;
+
+            std::cout << "expected_output = ";
+            for (auto& i : expected_output) std::cout << i << " ";
+            std::cout << std::endl;
+
+            std::cout << std::endl;
+            */
+
+            assert(output == expected_output);
+        }
+    }
+
+    // Make change.
+    {
+        typedef std::tuple<std::vector<int>,
+                           int,
+                           std::vector<int> > InOut;
+
+        InOut in_outs[]{
+            InOut{
+                {1, 3, 4},
+                6,
+                {0, 2, 0}
+            },
+            InOut{
+                {1, 3, 4, 7, 11, 24},
+                1731,
+                {0, 1, 0, 0, 0, 72}
+            },
+        };
+        for (auto& in_out : in_outs) {
+            auto& coin_values = std::get<0>(in_out);
+            auto& total  = std::get<1>(in_out);
+            auto& expected_output = std::get<2>(in_out);
+            std::vector<int> output;
+
+            /*
+            std::cout << "total = " << total << std::endl;
+
+            std::cout << "coin_values = ";
+            for (auto& i : coin_values) std::cout << i << " ";
+            std::cout << std::endl;
+            */
+
+            MakeChange(coin_values, total, output);
+
+            /*
+            std::cout << "output = ";
+            for (auto& i : output) std::cout << i << " ";
+            std::cout << std::endl;
+
+            std::cout << "expected_output = ";
+            for (auto& i : expected_output) std::cout << i << " ";
+            std::cout << std::endl;
+
+            std::cout << std::endl;
+            */
+
             assert(output == expected_output);
         }
     }
