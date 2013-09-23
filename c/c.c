@@ -3128,8 +3128,7 @@ int main( int argc, char **argv )
                 }
 
                 /*
-                Dereferencing returned pointers from functions
-                turns them into lvaules.
+                A dereferenced pointer becomes an lvalue.
                 */
                 {
                     int i = 0;

@@ -3689,9 +3689,9 @@ int main(int argc, char **argv)
 
         Variable type is infered based on return value of initialization.
 
-        Major application: create an iterator without speficying container type.
+        Reduces code duplication, since it allows us to not write explicitly types everywhere.
 
-        More succint than auto when possible to use, but less general.
+        Major application: create an iterator without speficying container type.
     */
     {
         //basic usage
@@ -3835,40 +3835,6 @@ int main(int argc, char **argv)
     }
 
 #if __cplusplus >= 201103L
-
-    /*
-    #range based for for arrays
-
-        Stop writing for loops!
-
-        Also has a version for iterators.
-
-        It seems that the array length is deduced at compile time!
-    */
-    {
-        {
-            int is[] = {1, 2};
-            for (int &i : is) {
-                i *= 2;
-            }
-            assert(is[0] == 2);
-            assert(is[1] == 4);
-        }
-
-        /*
-        does not work for dynamic memory since
-        there would be no way to know the array size at compile time
-        */
-        {
-            //int *is = new int[2];
-            //is[0] = 1;
-            //is[0] = 2;
-            //for (int &i : is) {
-            //    i *= 2;
-            //}
-            //delete[] is;
-        }
-    }
 
 #endif
 
@@ -7505,6 +7471,41 @@ int main(int argc, char **argv)
                     //v1[2] = 2;
                 }
             }
+
+            /*
+            #bool vector
+
+                *bool vectors are evil!*
+
+                The standard requires `vector` to have an specialization for bool which packs bits efficiently.
+
+                While efficient, in order to work this specialization breaks common vector interfaces
+                that require taking addresses only in the case of this specialization, since it does not
+                make sense to takes addresses anymore.
+
+                Alternatives to `vector<bool>`: <http://stackoverflow.com/questions/670308/alternative-to-vectorbool>
+
+                A good alternative seem to be deque<bool>, which behaves as intended.
+            */
+            {
+                // Works fine and dandy as expected.
+                {
+                    std::vector<int> v{1, 0};
+                    int& i(v[0]);
+                }
+
+                // Does not compile!!!
+                {
+                    std::vector<bool> v{true, false};
+                    //bool& b(v[0]);
+                }
+
+                // It was not a problem with bool, the problem really is `vector<bool>`.
+                {
+                    bool b[]{true, false};
+                    bool& b2(b[0]);
+                }
+            }
         }
 
         /*
@@ -7940,13 +7941,12 @@ int main(int argc, char **argv)
             There seems to be nothing built-in like python's `xrange()`, but Boost offers `counting_iterator`.
         */
         {
-
             /*
             #foreach
 
                 See range based for.
 
-            #range based for for iterators
+            #range based for loop
 
                 C++11
 
@@ -7971,19 +7971,84 @@ int main(int argc, char **argv)
                 - operator*()
             */
             {
-                vector<int> v = {1, 2, 0};
-                int i;
-                int is[] = {1, 2, 0};
 
 #if __cplusplus >= 201103L
                 //forward
                 {
-                    i = 0;
-                    for (auto& iv : v)
+                    // If `int&` is used, no useless copies are made.
+                    //
+                    // Vector can be modified directly.
                     {
-                        assert(iv == is[i]);
-                        //cout << *it << endl;
-                        i++;
+                        std::vector<int> v{1, 2, 0};
+                        int is[]{1, 2, 0};
+                        int i = 0;
+                        for (int& iv : v) {
+                            assert(iv == is[i]);
+                            //cout << iv << endl;
+                            iv++;
+                            i++;
+                        }
+                        assert((v == std::vector<int>{2, 3, 1}));
+                    }
+
+                    // Without `&`, makes copies of each element.
+                    //
+                    // Usually not what we want.
+                    {
+                        std::vector<int> v{1, 2, 0};
+                        int is[]{1, 2, 0};
+                        int i = 0;
+                        for (int iv : v) {
+                            assert(iv == is[i]);
+                            //cout << iv << endl;
+                            iv++;
+                            i++;
+                        }
+                        assert((v == std::vector<int>{1, 2, 0}));
+                    }
+
+                    // Even easier to write with auto.
+                    //
+                    // This is the recommended way to do it.
+                    {
+                        std::vector<int> v{1, 2, 0};
+                        int is[]{1, 2, 0};
+                        int i = 0;
+                        for (auto& iv : v) {
+                            assert(iv == is[i]);
+                            //cout << *it << endl;
+                            i++;
+                        }
+                    }
+                }
+
+                /*
+                #range based for loop for arrays
+
+                    Also works for bare arrays for which the size is known at compile time!
+                */
+                {
+                    {
+                        int is[]{1, 2};
+                        for (int& i : is) {
+                            i *= 2;
+                        }
+                        assert(is[0] == 2);
+                        assert(is[1] == 4);
+                    }
+
+                    /*
+                    does not work for dynamic memory since
+                    there would be no way to know the array size at compile time
+                    */
+                    {
+                        //int *is = new int[2];
+                        //is[0] = 1;
+                        //is[0] = 2;
+                        //for (int &i : is) {
+                        //    i *= 2;
+                        //}
+                        //delete[] is;
                     }
                 }
 #endif
@@ -8013,7 +8078,7 @@ int main(int argc, char **argv)
                 }
             }
             /*
-            basic usage before C++11
+            before C++11: begin(), end() and ++.
             */
             {
                 /*
@@ -8030,18 +8095,13 @@ int main(int argc, char **argv)
                         Returns an iterator to the first element *after* the last.
                 */
                 {
-                    vector<int>::iterator it;
-                    vector<int> v = {1, 2, 0};
-                    int i;
-                    int is[] = {1, 2, 0};
+                    std::vector<int> v{1, 2, 0};
+                    int i = 0;
+                    int is[]{1, 2, 0};
 
-                    i = 0;
-                    for (
-                        it = v.begin();
-                        it != v.end();
-                        ++it
-                    )
-                    {
+                    for (vector<int>::iterator it = v.begin();
+                         it != v.end();
+                         ++it) {
                         assert(*it == is[i]);
                         //cout << *it << endl;
                         ++i;
@@ -8066,18 +8126,14 @@ int main(int argc, char **argv)
                         Returns a reversed iterator to the element before the first.
                 */
                 {
-                    vector<int>::reverse_iterator it;
-                    vector<int> v = {1, 2, 0};
+                    std::vector<int> v{1, 2, 0};
                     int i;
-                    int is[] = {1, 2, 0};
+                    int is[]{1, 2, 0};
 
                     i = 2;
-                    for (
-                        it = v.rbegin();
-                        it != v.rend();
-                        ++it
-                    )
-                    {
+                    for (auto it = v.rbegin();
+                            it != v.rend();
+                            ++it) {
                         assert(*it == is[i]);
                         //cout << *it << endl;
                         --i;
@@ -8106,24 +8162,24 @@ int main(int argc, char **argv)
                 TODO isnt auto and range based for a better solution in c++11?
             */
             {
-                vector<int> v = {1, 2};
-                set<int> s = {1, 2};
-                vector<int>::iterator itVec = v.begin();
-                set<int>::iterator itSeti = s.begin();
+                std::vector<int> v{1, 2};
+                std::set<int> s{1, 2};
+                std::vector<int>::iterator itVec(v.begin());
+                std::set<int>::iterator itSeti(s.begin());
 
                 //DOES NOT EXIST:
                     //iterator<int> itVec = v.begin();
                     //iterator<int> itSeti = s.begin();
 
-                //best workaround with auto:
+                //best ``workaround'' is using auto:
 
-                    auto vit = v.begin();
-                    auto sit = v.begin();
+                    auto vit(v.begin());
+                    auto sit(v.begin());
             }
 
             //no born checking is done
             {
-                vector<int> v = {1, 2};
+                std::vector<int> v{1, 2};
 
                 *(v.end() - 1);
                     //last element
@@ -8144,9 +8200,9 @@ int main(int argc, char **argv)
             <http://stackoverflow.com/questions/713309/c-stl-can-arrays-be-used-transparently-with-stl-functions>
             */
             {
-                int is[] = {2, 0, 1};
+                int is[]{2, 0, 1};
                 int j = 0;
-                for (auto& i : is){
+                for (auto& i : is) {
                     assert(i == is[j]);
                     j++;
                 }
@@ -8170,8 +8226,8 @@ int main(int argc, char **argv)
                 This type is returned by methods such as `size()`.
             */
             {
-                std::vector<int> v = {2, 0, 1};
-                std::vector<int>::size_type i = 1;
+                std::vector<int> v{2, 0, 1};
+                std::vector<int>::size_type i(1);
                 v[i] = 1;
             }
         }
@@ -8185,7 +8241,7 @@ int main(int argc, char **argv)
 
             //#sort
             {
-                std::vector<int> v = {2, 0, 1};
+                std::vector<int> v{2, 0, 1};
                 std::sort(v.begin(), v.end());
                 std::vector<int> v1 = {0, 1, 2};
                 assert((v == std::vector<int>{0, 1, 2}) );
@@ -8193,7 +8249,7 @@ int main(int argc, char **argv)
 
             //#reverse
             {
-                std::vector<int> v = {2, 0, 1};
+                std::vector<int> v{2, 0, 1};
                 std::reverse(v.begin(), v.end());
                 assert((v == std::vector<int>{1, 0, 2}) );
             }
@@ -8217,13 +8273,13 @@ int main(int argc, char **argv)
 
             //#randomize
             {
-                std::vector<int> v = {2, 0, 1};
+                std::vector<int> v{2, 0, 1};
                 std::random_shuffle(v.begin(), v.end());
             }
 
             //#copy
             {
-                std::vector<int> v = {2, 0, 1};
+                std::vector<int> v{2, 0, 1};
                 std::vector<int> v2(5, 3);
                 std::copy(v.begin(), v.end(), v2.begin() + 1);
                 assert(v2 == std::vector<int>({3, 2, 0, 1, 3}));
@@ -8235,8 +8291,8 @@ int main(int argc, char **argv)
                 Compares two ranges of containers.
             */
             {
-                std::vector<int> v =  {0, 1, 2    };
-                std::vector<int> v2 = {   1, 2, 3};
+                std::vector<int> v {0, 1, 2   };
+                std::vector<int> v2{   1, 2, 3};
                 assert(std::equal(v.begin() + 1, v.end(), v2.begin()) );
             }
 
@@ -8248,7 +8304,7 @@ int main(int argc, char **argv)
                 Also has functional versions <http://www.cplusplus.com/reference/numeric/accumulate/>
             */
             {
-                std::vector<int> v = {2, 0, 1};
+                std::vector<int> v{2, 0, 1};
                 assert(std::accumulate(v.begin(), v.end(), 0)     == 3);
                 assert(std::accumulate(v.begin(), v.end(), 10)    == 13);
             }
@@ -8259,7 +8315,7 @@ int main(int argc, char **argv)
                 Return iterator to first found element.
             */
             {
-                std::vector<int> v = {2,0,1};
+                std::vector<int> v{2,0,1};
                 unsigned int pos;
 
                 pos = std::find(v.begin(), v.end(), 0) - v.begin();
@@ -8272,7 +8328,7 @@ int main(int argc, char **argv)
                 assert(pos == 0);
 
                 pos = std::find(v.begin(), v.end(), 3) - v.begin(); //end() returned
-                assert(pos == v.size()  );
+                assert(pos == v.size());
             }
 
             /*
@@ -8283,7 +8339,7 @@ int main(int argc, char **argv)
                 Consider usage with C++11 lambdas and functional.
             */
             {
-                std::vector<int> v = {2, 0, 1};
+                std::vector<int> v{2, 0, 1};
                 assert(std::find_if (v.begin(), v.end(), isOdd) == --v.end());
             }
 
@@ -8296,7 +8352,7 @@ int main(int argc, char **argv)
             */
             {
 
-                std::vector<int> v = {2,0,1};
+                std::vector<int> v{2,0,1};
                 std::sort(v.begin(), v.end());
                 assert(std::binary_search(v.begin(), v.end(), 1) == true);
                 assert(std::binary_search(v.begin(), v.end(), 3) == false);
@@ -8305,7 +8361,7 @@ int main(int argc, char **argv)
 
             //#count
             {
-                std::vector<int> v = {2,1,2};
+                std::vector<int> v{2,1,2};
                 assert(std::count(v.begin(), v.end(), 0) == 0);
                 assert(std::count(v.begin(), v.end(), 1) == 1);
                 assert(std::count(v.begin(), v.end(), 2) == 2);
@@ -8314,7 +8370,7 @@ int main(int argc, char **argv)
 
             //#max_element #min_element
             {
-                std::vector<int> v = {2,0,1};
+                std::vector<int> v{2,0,1};
                 assert(*std::max_element(v.begin(), v.end()) == 2);
                 assert(*std::min_element(v.begin(), v.end()) == 0);
             }
@@ -8334,7 +8390,7 @@ int main(int argc, char **argv)
                 Beware however that this operation will be slow for non random access containers.
             */
             {
-                std::vector<int> v = {0,1,2};
+                std::vector<int> v{0, 1, 2};
                 auto it = v.begin();
                 std::advance(it, 2);
                 assert(*it == 2);
@@ -8348,8 +8404,8 @@ int main(int argc, char **argv)
                 Same as advance, but returns a new iterator instead of modifying the old one.
             */
             {
-                std::vector<int> v = {0,1,2};
-                auto it = v.begin();
+                std::vector<int> v{0, 1, 2};
+                auto it(v.begin());
                 auto itNext = std::next(it, 2);
                 assert(*it == 0);
                 assert(*itNext == 2);
@@ -8407,7 +8463,7 @@ int main(int argc, char **argv)
                 Why random access structure is needed: <https://github.com/cirosantilli/comp-sci/blob/1.0/src/heap.md#array-implementation>
             */
             {
-                int myints[] = {10, 20, 30, 5, 15};
+                int myints[]{10, 20, 30, 5, 15};
                 std::vector<int> v(myints, myints + 5);
 
                 /*
@@ -8590,7 +8646,7 @@ int main(int argc, char **argv)
             assert(threadGlobalMutexedEq0 == 0);
 
             std::thread::id mainId = std::this_thread::get_id();
-            std::this_thread::sleep_for (std::chrono::nanoseconds(nNsecs) );
+            std::this_thread::sleep_for(std::chrono::nanoseconds(nNsecs));
             std::this_thread::yield();
         }
     }
@@ -8674,7 +8730,7 @@ int main(int argc, char **argv)
             VisibleInnerIterable::Iterable::iterator it = ita.begin();
 
             int i;
-            int is[] = {0,1,2};
+            int is[]{0,1,2};
             for (
                 it = ita.begin(), i=0;
                 it != ita.end();
