@@ -10,6 +10,8 @@ Obviously, don't reimplement classical algorithms from scratch for serious use,
 as more performant implementations certainly exist already.
 */
 
+// #define DEBUG_OUTPUT
+
 #include <algorithm>
 #include <cassert>
 #include <cmath>
@@ -787,7 +789,7 @@ class GraphList {
         */
         void dijikstra(const EdgeNumberType& from,
                     const EdgeNumberType& to,
-                    std::vector<EdgeNumberType>& path) {
+                    std::vector<EdgeNumberType>& path) const {
             std::list<EdgeNumberType> not_visited;  // This is better as a list than an array, so that it is possible to loop over the non-visited nodes only to find the next min one.
             std::vector<int> distances(nodes.size(), std::numeric_limits<int>::max());
             std::vector<EdgeNumberType> previous(nodes.size());
@@ -889,8 +891,8 @@ by the GCD of all of those values, or this algorithm will be very memory innefic
 @tparam VALUE  data type of the values
 */
 template<typename WEIGHT = int, typename VALUE = int>
-void Knapsack01Dynamic(std::vector<WEIGHT> weights,
-                std::vector<VALUE> values,
+void Knapsack01Dynamic(const std::vector<WEIGHT>& weights,
+                const std::vector<VALUE>& values,
                 WEIGHT max_weight,
                 std::vector<typename std::vector<WEIGHT>::size_type>& output,
                 VALUE& output_value) {
@@ -922,7 +924,7 @@ void Knapsack01Dynamic(std::vector<WEIGHT> weights,
     }
 }
 
-void VectorSum(std::vector<int> v0, std::vector<int> v1, std::vector<int>& output) {
+void VectorSum(const std::vector<int>& v0, const std::vector<int>& v1, std::vector<int>& output) {
     output.resize(v0.size());
     for (std::vector<int>::size_type i = 0; i < v0.size(); ++i)
         output[i] = v0[i] + v1[i];
@@ -942,7 +944,7 @@ with one of the values inside `coin_values` that sums up to exactly `total`.
 
     If the total is not attainable, this container shall be empty.
 */
-void MakeChange(std::vector<int> coin_values, int total, std::vector<int>& output) {
+void MakeChange(const std::vector<int>& coin_values, int total, std::vector<int>& output) {
     std::vector<bool> possible(total + 1, false);
     std::vector<int> coin_counts(total + 1, std::numeric_limits<int>::max());
     std::vector<std::vector<int> > solutions(total + 1, std::vector<int>(coin_values.size(), 0));
@@ -1013,6 +1015,81 @@ void MakeChange(std::vector<int> coin_values, int total, std::vector<int>& outpu
     std::cout << std::endl;
     */
     output = solutions[total];
+}
+
+/**
+Sorts the input vector via merge sort.
+
+@parm[in,out]  input      The input vector to be sorted. It shall be modified to contain the output.
+@tparm         COMPARABLE A type that supports operators `<` and `==`.
+*/
+template<typename COMPARABLE = int>
+void MergeSort(std::vector<COMPARABLE>& input) {
+    typename std::vector<COMPARABLE>::size_type input_size, current_size, left0, right0, left1, right1, output_position, size_pow2;
+    typename std::vector<COMPARABLE>::iterator output_begin;
+    auto input_begin = input.begin();
+    input_size = input.size();
+    std::vector<COMPARABLE> output(input_size);
+    if (input_size < 2)
+        return;
+    size_pow2 = std::pow(2, std::ceil(std::log2(input_size)));
+    current_size = 1;
+    output_begin = output.begin();
+    while (current_size <= size_pow2 / 2) {
+#ifdef DEBUG_OUTPUT
+        std::cout << "current_size = " << current_size << std::endl << std::endl;
+#endif
+        output_position = 0;
+        while (output_position < input_size) {
+            left0  = output_position;
+            right0 = left0  + current_size;
+            left1  = right0;
+            right1 = right0 + current_size;
+            // Make corrections in case the input size is not a power of 2.
+            if (right0 > input_size) {
+                right0 = input_size;
+                // If left1 == right1, no data access is ever made on the right side.
+                // This is what we want since the right side is completely out of range in this case.
+                left1 = right1;
+            } else if (right1 > input_size) {
+                right1 = input_size;
+            }
+            while (true) {
+#ifdef DEBUG_OUTPUT
+                std::cout << "output_position = " << output_position << std::endl;
+                std::cout << "left0  = " << left0  << std::endl;
+                std::cout << "right0 = " << right0 << std::endl;
+                std::cout << "left1  = " << left1  << std::endl;
+                std::cout << "right1 = " << right1 << std::endl;
+#endif
+                if (left0 == right0) {
+                    std::copy(input_begin + left1, input_begin + right1, output_begin + output_position);
+                    output_position += right1 - left1;
+                    break;
+                } else if (left1 == right1) {
+                    std::copy(input_begin + left0, input_begin + right0, output_begin + output_position);
+                    output_position += right0 - left0;
+                    break;
+                }
+                if (input[left0] < input[left1]) {
+                    output[output_position] = input[left0];
+                    left0++;
+                } else {
+                    output[output_position] = input[left1];
+                    left1++;
+                }
+                output_position++;
+#ifdef DEBUG_OUTPUT
+                std::cout << "output = ";
+                for (auto& i : output) std::cout << i << " ";
+                std::cout << std::endl;
+                std::cout << std::endl;
+#endif
+            }
+        }
+        input = output;
+        current_size *= 2;
+    }
 }
 
 int main(int argc, char** argv)
@@ -1250,7 +1327,7 @@ int main(int argc, char** argv)
             std::vector<GraphList::EdgeNumberType> output;
             int output_value;
 
-            /*
+#ifdef DEBUG_OUTPUT
             std::cout << "max_weight = " << max_weight << std::endl;
 
             std::cout << "weights = ";
@@ -1260,13 +1337,13 @@ int main(int argc, char** argv)
             std::cout << "values = ";
             for (auto& i : values) std::cout << i << " ";
             std::cout << std::endl;
-            */
+#endif
 
             Knapsack01Dynamic(weights, values, max_weight, output, output_value);
             std::sort(output.begin(), output.end());
             std::sort(expected_output.begin(), expected_output.end());
 
-            /*
+#ifdef DEBUG_OUTPUT
             std::cout << "output_value = " << output_value << std::endl;
 
             std::cout << "output = ";
@@ -1278,7 +1355,7 @@ int main(int argc, char** argv)
             std::cout << std::endl;
 
             std::cout << std::endl;
-            */
+#endif
 
             assert(output == expected_output);
         }
@@ -1308,17 +1385,17 @@ int main(int argc, char** argv)
             auto& expected_output = std::get<2>(in_out);
             std::vector<int> output;
 
-            /*
+#ifdef DEBUG_OUTPUT
             std::cout << "total = " << total << std::endl;
 
             std::cout << "coin_values = ";
             for (auto& i : coin_values) std::cout << i << " ";
             std::cout << std::endl;
-            */
+#endif
 
             MakeChange(coin_values, total, output);
 
-            /*
+#ifdef DEBUG_OUTPUT
             std::cout << "output = ";
             for (auto& i : output) std::cout << i << " ";
             std::cout << std::endl;
@@ -1328,9 +1405,64 @@ int main(int argc, char** argv)
             std::cout << std::endl;
 
             std::cout << std::endl;
-            */
+#endif
 
             assert(output == expected_output);
+        }
+    }
+
+    // MergeSort.
+    {
+        typedef std::tuple<std::vector<int>,
+                           std::vector<int> > InOut;
+
+        InOut in_outs[]{
+            InOut{
+                {1, 3, 2, 0},
+                {0, 1, 2, 3}
+            },
+            InOut{
+                {4, 5, 6, 2, 1, 3, 0, 7},
+                {0, 1, 2, 3, 4, 5, 6, 7}
+            },
+            // Size not power of 2.
+            // 2^n + 1 is specially edgy.
+            InOut{
+                {1, 2, 0},
+                {0, 1, 2}
+            },
+            InOut{
+                {1, 4, 0, 2, 3},
+                {0, 1, 2, 3, 4}
+            },
+        };
+        for (auto& in_out : in_outs) {
+            auto& input = std::get<0>(in_out);
+            auto& expected_output = std::get<1>(in_out);
+#ifdef DEBUG_OUTPUT
+            std::cout << "input = ";
+            for (auto& i : input) std::cout << i << " ";
+            std::cout << std::endl;
+            std::cout << std::endl;
+#endif
+
+            MergeSort(input);
+
+#ifdef DEBUG_OUTPUT
+            std::cout << std::endl;
+
+            std::cout << "output = ";
+            for (auto& i : input) std::cout << i << " ";
+            std::cout << std::endl;
+
+            std::cout << "expected_output = ";
+            for (auto& i : expected_output) std::cout << i << " ";
+            std::cout << std::endl;
+
+            std::cout << std::endl;
+#endif
+
+            assert(input == expected_output);
         }
     }
 

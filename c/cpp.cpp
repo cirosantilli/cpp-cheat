@@ -3267,23 +3267,32 @@ int main(int argc, char **argv)
         /*
         References have the same address of the variables.
 
-        Therefore no extra memory is used for references
-        whereas pointers use extra memory.
+        Therefore:
 
-        It seems that the compiler does all the magic at compile time
-        in the case of references!
+        - if declared inside the same function as the value, no extra memory / dereferencing
+            needs to be used for references, the compiler can figure everything out at compile time.
+
+        - if declared as function arguments, references may be implemented as implicit pointers passing,
+            sharing therefore the disadvantages of pointers.
+
+            Therefore, if you want to be sure of efficiency, pass built-in types by value and not by reference.
         */
         {
-            int i = 0;
-            int& ia = i;
-            ia = 1;
-            assert(i == 1);
-            assert(&i == &ia);
+            // They have the same address.
+            {
+                int i = 0;
+                int& ia = i;
+                ia = 1;
+                assert(i == 1);
+                assert(&i == &ia);
+            }
 
             /*
             For the same reason, it is possible to initialize a reference from another reference.
             */
             {
+                int i = 0;
+                int& ia = i;
                 int& ia2 = ia;
                 ia2 = 2;
                 assert(i == 2);

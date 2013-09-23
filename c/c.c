@@ -6956,6 +6956,8 @@ int main( int argc, char **argv )
             */
             {
                 assert( fabs( log( exp(1.0) ) - 1.0 ) < err );
+                assert( fabs( log2( 8.0 ) - 3.0 ) < err );
+                assert( fabs( log10( 100.0 ) - 2.0 ) < err );
             }
 
             /*
@@ -7013,7 +7015,7 @@ int main( int argc, char **argv )
 
             //#pow
             {
-                assert( fabs( pow( 2.0, 3.0 ) - 8.0  )    < err );
+                assert( fabs( pow( 2.0, 3.0 ) - 8.0  ) < err );
             }
         }
 
