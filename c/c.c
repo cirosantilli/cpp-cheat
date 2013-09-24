@@ -515,7 +515,7 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
         return n+m;
     }
 
-    int subInt(int n, int m)
+    int sub_int(int n, int m)
     {
         return n-m;
     }
@@ -4825,9 +4825,64 @@ int main( int argc, char **argv )
                 struct to achieve a similar effect to that found on object oriented programming.
             */
             {
-                assert( add_int != subInt );
-                assert( int_func_func_int_int( &add_int, 2, 1 ) == 3 );
-                assert( int_func_func_int_int( &subInt, 2, 1 ) == 1 );
+                /*
+                Basic usage.
+
+                Declare a function pointer named `f` that points to functions that take 2 ints
+                and return one int.
+                */
+                {
+                    int (*f)(int n, int m);
+                    f = add_int;
+                    assert((*f)(1, 2) == 3);
+                    f = sub_int;
+                    assert((*f)(1, 2) == -1);
+                }
+
+                assert( add_int != sub_int );
+
+                // Function pointers can also be passed to functions of course.
+                {
+                    assert( int_func_func_int_int( add_int, 2, 1 ) == 3 );
+                    assert( int_func_func_int_int( sub_int, 2, 1 ) == 1 );
+                }
+
+                // Array of function pointers.
+                //
+                // The array indication goes after the name of the array!
+                {
+                    int (*fs[2])(int n, int m) = {add_int, sub_int};
+                    assert((*fs[0])(1, 2) == 3);
+                    assert((*fs[1])(1, 2) == -1);
+                }
+
+                /*
+                There are multiple ways to initialize and use function pointers because of implicit conversions.
+
+                <http://stackoverflow.com/questions/6893285/why-do-all-these-crazy-function-pointer-definitions-all-work-what-is-really-goi>
+                */
+                {
+                    // Alternative initialization methods.
+                    int (*fs[])(int n, int m) = {
+                        &add_int,
+                        add_int,
+                        *add_int,
+                        **********************add_int,
+                    };
+
+                    // Alternative call methods.
+                    for (int i = 0; i < 4; i++) {
+                        assert((      fs[i])(1, 2) == 3);
+                        assert((     *fs[i])(1, 2) == 3);
+                        assert((******fs[i])(1, 2) == 3);
+                        //assert((&fs[i])(1, 2) == 3);
+                    }
+
+                    // ERROR no alternative for the declaration.
+                    {
+                        //int (f)(int n, int m) = add_int;
+                    }
+                }
             }
 
             /*

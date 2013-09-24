@@ -230,6 +230,10 @@ Backtrack to definitions outside of main as needed.
     C++ stdlib headers that are not C stdlib headers don't have the `.h` extension,
     and therefore are not included with the `.h` extension.
 
+    Pre-standardized versions of C++ by Stroustrup used the `.h` extension, for example `iostream.h`,
+    but this has been deprecated: <http://stackoverflow.com/questions/214230/iostream-vs-iostream-h-vs-iostream-h>
+    It may still exits on certain systems, but never rely on it.
+
     When writting new libs, you can use either `.h` or `.hpp` as extensions,
     where `.hpp` indicates that the header is C++ specific, and not pure C.
 
@@ -301,7 +305,7 @@ Backtrack to definitions outside of main as needed.
 #include <map>              //map, multimap
 #include <memory>           //shared_ptr
 #include <mutex>
-#include <numeric>          //partial sums, differences on vectors of numbers
+#include <numeric>          //partial sums, differences on std::vectors of numbers
 #include <set>              //set, multiset
 #include <string>           //string
 #include <sstream>          //stringstream
@@ -321,7 +325,7 @@ Backtrack to definitions outside of main as needed.
 
 using namespace std;
 
-static vector<string> callStack;
+static std::vector<string> callStack;
     //keeps a list of functions that called it
     //for testing purposes
 
@@ -1393,7 +1397,7 @@ void printCallStack()
 
                     VisibleInnerIterable();
 
-                    typedef vector<int> Iterable;
+                    typedef std::vector<int> Iterable;
 
                     const Iterable& getIterable();
 
@@ -3703,13 +3707,13 @@ int main(int argc, char **argv)
         Major application: create an iterator without speficying container type.
     */
     {
-        //basic usage
+        // Basic usage.
         {
             //the compiler infers the type of i from the initialization.
             auto i = 1;
         }
 
-        //reference
+        // Reference.
         {
             int i = 1;
             auto& ai = i;
@@ -3717,19 +3721,24 @@ int main(int argc, char **argv)
             assert(i == 2);
         }
 
-        //ERROR must initialize immediately.
+        // ERROR must initialize immediately. How could the compiler deduce type otherwise?
         {
             //auto i;
             //i = 1;
         }
 
-        //does not imply reference while decltype does
+        // If initialized from reference, discards the reference, while decltype keeps it.
         {
             int i = 0;
             int& ir = i;
             auto ir2 = ir;
             ir2 = 1;
             assert(i == 0);
+        }
+
+        // Array. Seems not.
+        {
+            //auto is[]{1, 0};
         }
     }
 
@@ -4092,7 +4101,7 @@ int main(int argc, char **argv)
             template <class T>
             string foo(vector<T> vec, ... other args)
             {
-                typename vector<T>::iterator it = vec.begin();
+                typename std::vector<T>::iterator it = vec.begin();
             }
 
         source:
@@ -4624,6 +4633,12 @@ int main(int argc, char **argv)
         }
 
         /*
+        #what
+        */
+        {
+        }
+
+        /*
         #uncaught exceptions.
 
             Uncaught exceptions explose at top level and terminate the program.
@@ -4771,7 +4786,7 @@ int main(int argc, char **argv)
                 {
                     callStack.clear();
                     NoBaseNoMember c; //default constructor was called!
-                    vector<string> expectedCallStack = {
+                    std::vector<string> expectedCallStack = {
                         "NoBaseNoMember::NoBaseNoMember()",
                     };
                     assert(callStack == expectedCallStack);
@@ -5083,13 +5098,13 @@ int main(int argc, char **argv)
             Useful in cases where you don't know beforehand how many arguments
             a constructor should receive.
 
-            For example, the STL Vector class gets an initializer list constructor on C++11,
+            For example, the STL std::vector class gets an initializer list constructor on C++11,
             which allows one to initialize it to any constant.
 
             TODO0 could this not be achieved via cstdarg?
         */
         {
-            //STL vector usage example
+            //STL std::vector usage example
             {
                 std::vector<int> v{0, 1};
                 //std::vector<int> v = std::vector<int>({0, 1});
@@ -5183,7 +5198,7 @@ int main(int argc, char **argv)
                 NoBaseNoMember b;
             } //destructor is called now!
 
-            vector<string> expectedCallStack = {
+            std::vector<string> expectedCallStack = {
                 "NoBaseNoMember::NoBaseNoMember()",
                 "NoBaseNoMember::~NoBaseNoMember()"
             };
@@ -5196,7 +5211,7 @@ int main(int argc, char **argv)
             {
                 callStack.clear();
                 NoBaseNoMember os[2]; //default constructor called
-                vector<string> expectedCallStack = {
+                std::vector<string> expectedCallStack = {
                     "NoBaseNoMember::NoBaseNoMember()",
                     "NoBaseNoMember::NoBaseNoMember()",
                 };
@@ -5217,7 +5232,7 @@ int main(int argc, char **argv)
                 os[0] = NoBaseNoMember(0);
                 os[1] = NoBaseNoMember(1);
 
-                vector<string> expectedCallStack{
+                std::vector<string> expectedCallStack{
                     "NoBaseNoMember::NoBaseNoMember()",
                     "NoBaseNoMember::NoBaseNoMember()",
                     "NoBaseNoMember::NoBaseNoMember(int)",
@@ -5236,7 +5251,7 @@ int main(int argc, char **argv)
 
                 NoBaseNoMember os[] = {NoBaseNoMember(0), NoBaseNoMember(1)};
 
-                vector<string> expectedCallStack = {
+                std::vector<string> expectedCallStack = {
                     "NoBaseNoMember::NoBaseNoMember(int)",
                     "NoBaseNoMember::NoBaseNoMember(int)",
                 };
@@ -5284,7 +5299,7 @@ int main(int argc, char **argv)
                 MemberConstructorTest o;
             }
 
-            vector<string> expectedCallStack =
+            std::vector<string> expectedCallStack =
             {
                 "NoBaseNoMember0::NoBaseNoMember0()",
                 "NoBaseNoMember1::NoBaseNoMember1()",
@@ -5348,7 +5363,7 @@ int main(int argc, char **argv)
                 NoBaseNoMember c;       //1 constructor
                 c = NoBaseNoMember();   //1 constructor of the temporary, 1 assign, 1 destructor of the temporary
 
-                vector<string> expectedCallStack =
+                std::vector<string> expectedCallStack =
                 {
                     "NoBaseNoMember::NoBaseNoMember()",
                     "NoBaseNoMember::NoBaseNoMember()",
@@ -5367,7 +5382,7 @@ int main(int argc, char **argv)
             {
                 callStack.clear();
                 NoBaseNoMember().method();
-                vector<string> expectedCallStack =
+                std::vector<string> expectedCallStack =
                 {
                     "NoBaseNoMember::NoBaseNoMember()",
                     "NoBaseNoMember::method()",
@@ -5450,7 +5465,7 @@ int main(int argc, char **argv)
                 {
                     callStack.clear();
                     NoBaseNoMember c1(c);
-                    vector<string> expectedCallStack =
+                    std::vector<string> expectedCallStack =
                     {
                         "NoBaseNoMember::NoBaseNoMember(NoBaseNoMember)",
                     };
@@ -5469,7 +5484,7 @@ int main(int argc, char **argv)
                 {
                     callStack.clear();
                     NoBaseNoMember c1 = c;
-                    vector<string> expectedCallStack =
+                    std::vector<string> expectedCallStack =
                     {
                         "NoBaseNoMember::NoBaseNoMember(NoBaseNoMember)",
                     };
@@ -5687,7 +5702,7 @@ int main(int argc, char **argv)
                 Exceptions to the as-if rules, which specifies cases in which compilers
                 may reduce the number of copy operations made, which is detectable in C++'
                 because of possible side effects constructors and destructors (such as printing to stdout
-                or modifying a global vector).
+                or modifying a global std::vector).
             */
             {
                 /*
@@ -5705,11 +5720,11 @@ int main(int argc, char **argv)
 
                     Therefore both results are possible and the result is unpredictable:
 
-                        vector<string> expectedCallStack = {
+                        std::vector<string> expectedCallStack = {
                             "NoBaseNoMember::NoBaseNoMember()",
                         };
 
-                        vector<string> expectedCallStack = {
+                        std::vector<string> expectedCallStack = {
                             "NoBaseNoMember::NoBaseNoMember()",
                             "NoBaseNoMember::~NoBaseNoMember()",
                         };
@@ -7091,7 +7106,7 @@ int main(int argc, char **argv)
 
             The major data structures which you must know about in order of decreasing usefulness are:
 
-            - vector
+            - std::vector
             - set
             - map
             - list
@@ -7118,63 +7133,63 @@ int main(int argc, char **argv)
             {
                 //empty
                 {
-                    vector<int> v;
+                    std::vector<int> v;
 
                     //NEW way in C++11
                     //initializer lists
-                    vector<int> v1 = {};
+                    std::vector<int> v1 = {};
 
                     assert(v == v1);
                 }
 
                 /*
-                fill constructor
+                Fill constructor.
 
-                make a vector with n copies of a single value.
+                Make a `std::vector` with n copies of a single value.
                 */
                 {
                     //copies of given object
                     {
-                        assert(vector<int>(3, 2) == vector<int>({2, 2, 2}));
+                        assert(vector<int>(3, 2) == std::vector<int>({2, 2, 2}));
                     }
 
                     //default constructed objects. int = 0.
                     {
-                        assert(vector<int>(3) == vector<int>({0, 0, 0}));
+                        assert(vector<int>(3) == std::vector<int>({0, 0, 0}));
                     }
                 }
 
-                //range copy
+                // Range copy.
                 {
-                    vector<int> v = {0, 1, 2};
-                    vector<int> v1(v.begin(), v.end());
+                    std::vector<int> v = {0, 1, 2};
+                    std::vector<int> v1(v.begin(), v.end());
                     assert(v == v1);
                 }
 
-                //from existing array
+                // From existing array.
                 {
                     int myints[] = {0, 1, 2};
-                    vector<int> v(myints, myints + sizeof(myints) / sizeof(int) );
-                    vector<int> v1 = {0, 1, 2};
+                    std::vector<int> v(myints, myints + sizeof(myints) / sizeof(int) );
+                    std::vector<int> v1 = {0, 1, 2};
                     assert(v == v1);
                 }
 
-                //vectors have order
+                // Vectors have order.
                 {
-                    vector<int> v =  {0, 1, 2};
-                    vector<int> v1 = {2, 1, 0};
+                    std::vector<int> v =  {0, 1, 2};
+                    std::vector<int> v1 = {2, 1, 0};
                     assert(v != v1);
                 }
 
                 /*
                 #size
 
-                    Number of elements in vector.
+                    Number of elements in std::vector.
 
                     This has type std::vector<X>::size_type
                 */
                 {
-                    vector<int> v;
+                    std::vector<int> v;
                     assert(v.size() == 0);
                     v.push_back(0);
                     assert(v.size() == 1);
@@ -7185,13 +7200,13 @@ int main(int argc, char **argv)
 
                     Get currently allocated size.
 
-                    Different from size, which is the number of elements in the vector!
+                    Different from size, which is the number of elements in the std::vector!
 
                     At least as large as size.
                 */
                 {
                     std::cout << "capacity:" << std::endl;
-                    vector<int> v = {};
+                    std::vector<int> v = {};
                     std::cout << "  " << v.capacity() << std::endl;
                     v.push_back(0);
                     std::cout << "  " << v.capacity() << std::endl;
@@ -7213,9 +7228,9 @@ int main(int argc, char **argv)
                 {
                     //reduce size
                     {
-                        vector<int> v{0, 1};
+                        std::vector<int> v{0, 1};
                         v.resize(1);
-                        assert((v == vector<int>{0}) );
+                        assert((v == std::vector<int>{0}) );
                     }
 
                     //increase size
@@ -7223,16 +7238,16 @@ int main(int argc, char **argv)
 
                         //using default constructor objects
                         {
-                            vector<int> v{1};
+                            std::vector<int> v{1};
                             v.resize(3);
-                            assert((v == vector<int>{1, 0, 0}) );
+                            assert((v == std::vector<int>{1, 0, 0}) );
                         }
 
                         //using copies of given object
                         {
-                            vector<int> v{1};
+                            std::vector<int> v{1};
                             v.resize(3, 2);
-                            assert((v == vector<int>{1, 2, 2}) );
+                            assert((v == std::vector<int>{1, 2, 2}) );
                         }
                     }
                 }
@@ -7253,20 +7268,19 @@ int main(int argc, char **argv)
                 */
             }
 
-            //the vector stores copies of elements, not references
+            // `std::vector` stores copies of elements, not references.
             {
                 std::string s = "abc";
-                vector<std::string> v = {s};
+                std::vector<std::string> v = {s};
                 v[0][0] = '0';
                 assert(v[0]    == "0bc");
                 assert(s       == "abc");
             }
 
-            //modify
+            // Modify.
             {
-                //can modify with initializers
                 {
-                    vector<int> v;
+                    std::vector<int> v;
                     v = {0};
                     v = {0, 1};
                     assert(v == std::vector<int>({0, 1}) );
@@ -7275,20 +7289,20 @@ int main(int argc, char **argv)
                 /*
                 #push_back
 
-                    Push to the end of the vector.
+                    Push to the end of the std::vector.
 
-                    Amortized time O(1), but may ocassionaly make the vector grow,
+                    Amortized time O(1), but may ocassionaly make the std::vector grow,
                     which may required a full data copy to a new location if the
                     current backing array cannot grow.
 
                 #push_front
 
-                    Does not exist for vector, as it would always be too costly (requires to move
+                    Does not exist for std::vector, as it would always be too costly (requires to move
                     each element forward.) Use deque if you need that.
                 */
                 {
-                    vector<int> v;
-                    vector<int> v1;
+                    std::vector<int> v;
+                    std::vector<int> v1;
 
                     v.push_back(0);
                     v1 = {0};
@@ -7304,7 +7318,7 @@ int main(int argc, char **argv)
                     If you want references, use pointers, or even better, auto_ptr.
                     */
                     {
-                        vector<string> v;
+                        std::vector<string> v;
                         string s = "abc";
 
                         v.push_back(s);
@@ -7319,27 +7333,24 @@ int main(int argc, char **argv)
                 /*
                 #pop_back
 
-                    Remove last element from vector.
+                    Remove last element from std::vector.
 
                     No return val. Rationale: <http://stackoverflow.com/questions/12600330/pop-back-return-value>
                 */
                 {
-                    vector<int> v = {0, 1};
-                    vector<int> v1;
+                    std::vector<int> v{0, 1};
 
                     v.pop_back();
-                    v1 = {0};
-                    assert(v == v1);
+                    assert(v == std::vector<int>{0});
 
                     v.pop_back();
-                    v1 = {};
-                    assert(v == v1);
+                    assert(v == std::vector<int>{});
                 }
 
                 //#insert
                 {
-                    vector<int> v = {0,1};
-                    vector<int> v1;
+                    std::vector<int> v = {0,1};
+                    std::vector<int> v1;
 
                     v.insert(v.begin(), -1);
                     v1 = {-1, 0, 1};
@@ -7355,7 +7366,7 @@ int main(int argc, char **argv)
 
                     Remove given elements from container given iterators to those elements.
 
-                    This operation is inneficient for vectors,
+                    This operation is inneficient for std::vectors,
                     since it may mean reallocation and therefore up to $O(n)$ operations.
 
                     Returns a pointer to the new location of the element next to the last removed element.
@@ -7365,7 +7376,7 @@ int main(int argc, char **argv)
                     {
                         std::vector<int> v{0, 1, 2};
                         auto it = v.erase(v.begin() + 1);
-                        assert((v == vector<int>{0, 2}) );
+                        assert((v == std::vector<int>{0, 2}) );
                         assert(*it == 2);
                     }
 
@@ -7373,7 +7384,7 @@ int main(int argc, char **argv)
                     {
                         std::vector<int> v{0, 1, 2, 3};
                         auto it = v.erase(v.begin() + 1, v.end() - 1);
-                        assert((v == vector<int>{0, 3}) );
+                        assert((v == std::vector<int>{0, 3}) );
                         assert(*it == 3);
                     }
                 }
@@ -7427,7 +7438,7 @@ int main(int argc, char **argv)
                         for (auto& i : v) std::cout << "  " << i << std::endl;
                         std::cout << std::endl;
                         v.erase(firstTrashIt, removeEndRangeIt);
-                        assert((v == vector<int>{1, 2, 0, 1}) );
+                        assert((v == std::vector<int>{1, 2, 0, 1}) );
                     }
 
                     //compact version
@@ -7435,13 +7446,13 @@ int main(int argc, char **argv)
                         std::vector<int> v{0, 1, 0, 2, 0, 1};
                         auto removeEndRangeIt = std::next(v.end(), -2);
                         v.erase(std::remove(v.begin(), removeEndRangeIt, 0), removeEndRangeIt);
-                        assert((v == vector<int>{1, 2, 0, 1}) );
+                        assert((v == std::vector<int>{1, 2, 0, 1}) );
                     }
                 }
 
                 //#clear
                 {
-                    vector<int> v{0, 1, 2};
+                    std::vector<int> v{0, 1, 2};
                     v.clear();
                     assert(v.size() == 0);
                 }
@@ -7451,10 +7462,10 @@ int main(int argc, char **argv)
                     //ERROR no default operator `<<`
             }
 
-            //random access is O(1) since array backed
+            // Random access is O(1) since array backed
             {
 
-                vector<int> v{0, 1, 2};
+                std::vector<int> v{0, 1, 2};
 
                 //first element
 
@@ -7473,22 +7484,38 @@ int main(int argc, char **argv)
                 /*
                 BAD:
                 just like array overflow
-                will not change vector size,
+                will not change std::vector size,
                 and is unlikelly to give an error
                 */
                 {
                     //v1[2] = 2;
                 }
+
+                // #back  Get reference to last  element in vector.
+                // #front Get reference to first element in vector.
+                // #at    Like `[]`, but does bound checking and throws `out_of_range` in case of overflow.
+                {
+                    std::vector<int> v{0, 1, 2};
+                    assert(v.front() == 0);
+                    assert(v.at(1)   == 1);
+                    assert(v.back()  == 2);
+                    try {
+                        assert(v.at(3) == 0);
+                    } catch (std::out_of_range& e) {
+                    } catch (...) {
+                        assert(false);
+                    }
+                }
             }
 
             /*
-            #bool vector
+            #bool std::vector
 
-                *bool vectors are evil!*
+                *bool std::vectors are evil!*
 
                 The standard requires `vector` to have an specialization for bool which packs bits efficiently.
 
-                While efficient, in order to work this specialization breaks common vector interfaces
+                While efficient, in order to work this specialization breaks common std::vector interfaces
                 that require taking addresses only in the case of this specialization, since it does not
                 make sense to takes addresses anymore.
 
@@ -7524,15 +7551,15 @@ int main(int argc, char **argv)
 
             Random access.
 
-            Very similar interface to vector, except that:
+            Very similar interface to std::vector, except that:
 
             - insertion to front is O(1)
             - there is no guarantee of inner storage contiguity
 
-            Discussion on when to use deque or vector:
+            Discussion on when to use deque or std::vector:
             <http://stackoverflow.com/questions/5345152/why-would-i-prefer-using-vector-to-deque>
 
-            It is controversial if one should use deque or vector as the main generic container.
+            It is controversial if one should use deque or std::vector as the main generic container.
         */
 
         /*
@@ -7576,7 +7603,7 @@ int main(int argc, char **argv)
             /*
             insert
 
-                Like for vector, insert makes copies.
+                Like for std::vector, insert makes copies.
 
                 Return is a pair conatining:
 
@@ -7865,7 +7892,7 @@ int main(int argc, char **argv)
 
             Doubly linked list.
 
-            Advantages over vector: fast inservion and removal from middle.
+            Advantages over std::vector: fast inservion and removal from middle.
 
             Unless you really need those operations fast, don't use this data structure.
 
@@ -7943,7 +7970,7 @@ int main(int argc, char **argv)
                 solution not to tie yourself to a given container, consider naming the
                 typdefed as one of the classes to indicate the operationt can do:
 
-                    typedef random_it vector<int>::iterator;
+                    typedef random_it std::vector<int>::iterator;
 
         #numerical range interators
 
@@ -7986,7 +8013,7 @@ int main(int argc, char **argv)
                 {
                     // If `int&` is used, no useless copies are made.
                     //
-                    // Vector can be modified directly.
+                    // std::vector can be modified directly.
                     {
                         std::vector<int> v{1, 2, 0};
                         int is[]{1, 2, 0};
@@ -8070,7 +8097,7 @@ int main(int argc, char **argv)
                     Best workaround with auto.
                 */
                 {
-                    vector<int> v = {1, 2, 0};
+                    std::vector<int> v = {1, 2, 0};
                     int i;
                     int is[] = {1, 2, 0};
 
@@ -8162,7 +8189,7 @@ int main(int argc, char **argv)
 
                 The best solution seems to use typedefs:
 
-                    typedef it_t vector<int>::iterator;
+                    typedef it_t std::vector<int>::iterator;
 
                 And then if ever your container changes all you have to do is modify one single typedef:
 
@@ -8224,12 +8251,12 @@ int main(int argc, char **argv)
 
             #size_type
 
-                Random access containers such as vectors, strings, etc have a `size_type` member typedef
+                Random access containers such as std::vectors, strings, etc have a `size_type` member typedef
                 that represents a type large enough to hold its indexes.
 
                 For arrays, this type is exactly the C `size_t`.
 
-                For a vector, it will also probably be `size_t`, since vectors are array backed,
+                For a std::vector, it will also probably be `size_t`, since std::vectors are array backed,
                 but using `size_type` gives more generality.
 
                 This type is returned by methods such as `size()`.
@@ -8590,10 +8617,10 @@ int main(int argc, char **argv)
 
             For base types, those hashes are found under the `functional`.
 
-            For vectors, only `std::vector<bool>` has a template.
+            For std::vectors, only `std::vector<bool>` has a template.
 
             For other types, they are found in the same header that defines those types:
-            ex: hash for vectors is under `<vector>`.
+            ex: hash for std::vectors is under `<vector>`.
 
             Returns a `size_t` result.
         */
@@ -8762,7 +8789,7 @@ int main(int argc, char **argv)
 
             Sources: <http://www.cplusplus.com/forum/articles/7459/>
 
-            In addition to C malloc like techniques, C++ also offers the simpler possibility of using vectors
+            In addition to C malloc like techniques, C++ also offers the simpler possibility of using std::vectors
             which will automatically  manage the memory allocation / dellocation for us.
 
             The tradeoff is that this method will be potentially slower since it:
@@ -8776,7 +8803,7 @@ int main(int argc, char **argv)
             // Given width and height.
             {
                 int width = 2, height = 3;
-                vector<vector<int>> array_2d(height, vector<int>(width));
+                std::vector<vector<int>> array_2d(height, std::vector<int>(width));
                 array_2d[0][0] = 1;
                 array_2d[2][1] = 5;
                 assert(array_2d[0][0] == 1);
@@ -8786,7 +8813,7 @@ int main(int argc, char **argv)
 
             // Uniform initialized.
             {
-                vector<vector<int>> array_2d{
+                std::vector<vector<int>> array_2d{
                     {0, 1},
                     {2, 3},
                     {4, 5},
