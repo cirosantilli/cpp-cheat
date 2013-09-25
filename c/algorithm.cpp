@@ -868,6 +868,84 @@ class GraphList {
 };
 
 /**
+Solves the [maximum subarray problem](http://en.wikipedia.org/wiki/Maximum_subarray_problem)
+in $O(n)$ worst case time, $O(1)$ memory.
+
+@param[in]  input        Container with the array.
+
+@param[out] output_range Container with two elements: the index of the beginning and the end of the optimal interval.
+    The end is one past the last element, which allows a pair of equal numbers (0, 0) to mean an empty interval.
+    This shall be the case if all the input numbers are negative.
+
+    If multiple solutions are possible, the algorithm will always
+    choose the same solution in the following order of decreasing priority:
+
+    1) starts first
+    2) is shortest
+
+@param[out] output_value Value attained by the optimal subarray.
+    If all the input numbers are negative, the empty interval will be selected,
+    and this output shall be `0`.
+
+@tparam T The type of the values on the array.
+
+#algorithm idea
+
+The naive approach of trying every pair would take $O(n^2)$.
+
+This is a simple example of how dynamic programming can reduce algorithmic complexity.
+
+Central idea: let K[i] mean: the value of the best sequence that ends at a_i, Including a_i.
+
+Then there are two possibilities:
+
+- if $K[i-1] > 0$, we should continue the sequence that gives that positive sum.
+
+    Therefore, K[i] = K[i-1] + a_i.
+
+- if K[i-1] < 0, we should give up existing sequences and start a new one,
+    since continuing the best existing sequence would only bring us down.
+
+    Therefore $K[i] = a_i$
+
+The algorithm uses the keep frontier only strategy of dynamic programming to reduce memory usage to its minimum,
+since only the last value of K is kept in memory inside a single variable instead of the entire
+array K.
+*/
+template<typename T>
+void Kadane(const std::vector<T>& input,
+        std::vector<typename std::vector<T>::size_type>& output_range,
+        T& output_value) {
+    typename std::vector<T>::size_type begin, begin_temp, end;
+    T max_so_far, max_ending_here;
+    begin = 0;
+    begin_temp = 0;
+    end = 0;
+    max_so_far = input[0];
+    max_ending_here = input[0]; // Holds the frontier value of K[i-1].
+    for(size_t i = 1; i < input.size(); i++) {
+        if(max_ending_here <= 0) {
+            max_ending_here = input[i];
+            begin_temp = i;
+        } else {
+            max_ending_here += input[i];
+        }
+        if(max_ending_here > max_so_far) {
+            max_so_far  = max_ending_here;
+            begin = begin_temp;
+            end = i;
+        }
+    }
+    if (end != 0)
+        end++;
+    output_range = std::vector<typename std::vector<T>::size_type>{begin, end};
+    if (max_so_far < 0)
+        max_so_far = 0;
+    output_value = max_so_far;
+}
+
+
+/**
 Solves the 0-1 knapsack problem via dynamic programming.
 
 All inputs must be contain only positive integer types.
@@ -889,32 +967,37 @@ by the GCD of all of those values, or this algorithm will be very memory innefic
 
 @tparam WEIGHT data type of the weights
 @tparam VALUE  data type of the values
+
+# Implementation notes
+
+TODO is it possible to not keep the 2D accepted_items, thus reducing memory to n instead of n^2?
 */
 template<typename WEIGHT = int, typename VALUE = int>
 void Knapsack01Dynamic(const std::vector<WEIGHT>& weights,
-                const std::vector<VALUE>& values,
-                WEIGHT max_weight,
-                std::vector<typename std::vector<WEIGHT>::size_type>& output,
-                VALUE& output_value) {
+        const std::vector<VALUE>& values,
+        WEIGHT max_weight,
+        std::vector<typename std::vector<WEIGHT>::size_type>& output,
+        VALUE& output_value) {
     typename std::vector<WEIGHT>::size_type number_items = weights.size();
-    std::vector<std::vector<VALUE>> sub_problems(number_items + 1,
-                                                 std::vector<VALUE>(max_weight + 1));
+    std::vector<VALUE> cur_line(std::vector<VALUE>(max_weight + 1));
+    std::vector<VALUE> last_line(std::vector<VALUE>(max_weight + 1));
     std::vector<std::vector<bool>> accepted_items(number_items + 1,
-                                             std::vector<bool>(max_weight + 1));
+            std::vector<bool>(max_weight + 1));
     for (typename std::vector<WEIGHT>::size_type i = 1; i <= number_items; ++i ) {
         for (WEIGHT w = 1; w <= max_weight; ++w ) {
             if (weights[i] <= w) {
-                VALUE new_optimum_if_accept = values[i] + sub_problems[i - 1][w - weights[i]];
-                if (new_optimum_if_accept > sub_problems[i - 1][w]) {
+                VALUE new_optimum_if_accept = values[i] + last_line[w - weights[i]];
+                if (new_optimum_if_accept > last_line[w]) {
                     accepted_items[i][w] = true;
-                    sub_problems[i][w] = new_optimum_if_accept;
+                    cur_line[w] = new_optimum_if_accept;
                     continue;
                 }
             }
-            sub_problems[i][w] = sub_problems[i - 1][w];
+            cur_line[w] = last_line[w];
         }
+        last_line = cur_line;
     }
-    output_value = sub_problems[number_items][max_weight];
+    output_value = cur_line[max_weight];
     // Generate the solution.
     for (typename std::vector<WEIGHT>::size_type i = number_items; i > 0; --i) {
         if (accepted_items[i][max_weight]) {
@@ -924,7 +1007,8 @@ void Knapsack01Dynamic(const std::vector<WEIGHT>& weights,
     }
 }
 
-void VectorSum(const std::vector<int>& v0, const std::vector<int>& v1, std::vector<int>& output) {
+void VectorSum(const std::vector<int>& v0, const std::vector<int>& v1,
+        std::vector<int>& output) {
     output.resize(v0.size());
     for (std::vector<int>::size_type i = 0; i < v0.size(); ++i)
         output[i] = v0[i] + v1[i];
@@ -1345,13 +1429,83 @@ int main(int argc, char **argv)
         }
     }
 
+    // Kadane.
+    {
+        typedef int InputType ;
+        typedef std::tuple<std::vector<InputType>,
+                          std::vector<std::vector<InputType>::size_type>,
+                          InputType > InOut;
+        InOut in_outs[]{
+            // All positive: easy, take all.
+            InOut{
+                {1, 3, 2},
+                {0, 3},
+                6
+            },
+            InOut{
+                {0, -1, 4, -2, 1, 2, -5, 3},
+                {2, 6},
+                5
+            },
+            // All negative. Edge case. Take no elements and return an empty range [0, 0[.
+            InOut{
+                {-1, -3, -2},
+                {0, 0},
+                0
+            },
+            // Multiple solutions. Take the one that starts first and is shortest.
+            InOut{
+                {0, 0, 0},
+                {0, 0},
+                0
+            },
+            // Coming first has priority over being the shortest.
+            InOut{
+                {1, 2, -100, 3},
+                {0, 2},
+                3
+            },
+            // The shortest possible solution is taken in case of multiple solutions.
+            InOut{
+                {1, 2, 0, -2, 2},
+                {0, 2},
+                3
+            },
+        };
+        std::vector<std::vector<InputType>::size_type> output_range;
+        InputType output_value;
+        for (auto& in_out : in_outs) {
+            auto& input                 = std::get<0>(in_out);
+            auto& expected_output_range = std::get<1>(in_out);
+            auto& expected_output_value = std::get<2>(in_out);
+#ifdef DEBUG_OUTPUT
+            std::cout << "input = ";
+            for (auto& i : input) std::cout << i << " ";
+            std::cout << std::endl;
+            std::cout << std::endl;
+#endif
+            Kadane(input, output_range, output_value);
+#ifdef DEBUG_OUTPUT
+            std::cout << "output begin = " << output_range[0] << std::endl;
+            std::cout << "output end   = " << output_range[1] << std::endl;
+            std::cout << "output value = " << output_value    << std::endl;
+            std::cout << std::endl;
+            std::cout << "expected output begin = " << expected_output_range[0] << std::endl;
+            std::cout << "expected output end   = " << expected_output_range[1] << std::endl;
+            std::cout << "expected output value = " << expected_output_value << std::endl;
+            std::cout << std::endl;
+#endif
+            assert(output_range == expected_output_range);
+            assert(output_value == expected_output_value);
+        }
+    }
+
     // Knapsack.
     {
         typedef std::tuple<std::vector<int>,
                            std::vector<int>,
                            int,
                            std::vector<std::vector<int>::size_type> > InOut;
-
         InOut in_outs[]{
             InOut{
                 {1, 2,  3 },
