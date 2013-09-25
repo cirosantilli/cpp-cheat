@@ -2185,10 +2185,10 @@ int main( int argc, char **argv )
 
             //by default, values start from 0 and increase
 
-                assert( E1 == 0);
-                assert( E2 == 1);
-                assert( E3 == 2);
-                assert( E4 == 3);
+                assert(E1 == 0);
+                assert(E2 == 1);
+                assert(E3 == 2);
+                assert(E4 == 3);
         }
 
         {
@@ -2201,17 +2201,17 @@ int main( int argc, char **argv )
                 E4 = 2, //equal values compile
             };
 
-            assert( E1 == 1);
-            assert( E2 == 2);
-            assert( E4 == 2);
+            assert(E1 == 1);
+            assert(E2 == 2);
+            assert(E4 == 2);
 
             //if you don't give a value
             //it gets a value different from all others
 
-                assert( E3 != E1);
-                assert( E3 != E2);
-                assert( E3 != E4);
-                printf( "enum E3 = %d\n", E3 );
+                assert(E3 != E1);
+                assert(E3 != E2);
+                assert(E3 != E4);
+                printf("enum E3 = %d\n", E3);
         }
     }
 
@@ -3202,27 +3202,27 @@ int main( int argc, char **argv )
         {
             int i;
 
-            i=0;
+            i = 0;
             assert( ( i += 1 ) == 1 );
             assert( i == 1 );
 
-            i=1;
+            i = 1;
             assert( ( i -= 1 ) == 0 );
             assert( i == 0 );
 
-            i=1;
+            i = 1;
             assert( ( i *= 2 ) == 2 );
             assert( i == 2 );
 
-            i=2;
+            i = 2;
             assert( ( i /= 2 ) == 1 );
             assert( i == 1 );
 
-            i=3;
+            i = 3;
             assert( ( i %= 2 ) == 1 );
             assert( i == 1 );
 
-            i=0xFF;
+            i = 0xFF;
             assert( ( i &= (char)0x00 ) == (char)0x00 );
             assert( ( (char)i == (char)0x00 ) );
 
@@ -3692,8 +3692,8 @@ int main( int argc, char **argv )
 
             //enum
             {
-                enum M {M=3};
-                int is[M];
+                enum CONSTEXPR {N = 3};
+                int is[N];
                 is[2] = 1;
             }
 
@@ -4541,16 +4541,19 @@ int main( int argc, char **argv )
         /*
         #for vs while
 
-            in theory, whatever you can to with for you can do with while
+            In theory, whatever you can to with for you can do with while.
 
-            however x86 has a loop instruction that increments and
-            contional jumps in a single step
+            However x86 has a loop instruction that increments and
+            contional jumps in a single step.
 
-            therefore, using a simple for is a better hinto to your
-            compiler to use this more efficient looping instruction
+            Therefore, using a simple for is a better hinto to your
+            compiler to use this more efficient looping instruction.
 
-            moral: if you when know how many loops you will do, use `for`,
-            otherwise use `while`
+            Moral: if you when know how many loops you will do, use `for`,
+            otherwise use `while`.
+
+            Using for also serves as self documentation telling readers that you know
+            beforehand how many times the loop will execute.
         */
 
         //#for
@@ -4560,7 +4563,7 @@ int main( int argc, char **argv )
 
                 int i;
                 int is[] = { 0, 1, 2 };
-                for( i = 0; i < 3; ++i )
+                for ( i = 0; i < 3; ++i )
                 {
                     assert( i == is[i] );
                     int i;
@@ -4573,7 +4576,7 @@ int main( int argc, char **argv )
             {
                 int i;
                 int is[] = { 0, 1, 2 };
-                for( i = 0; i < 3; ++i )
+                for ( i = 0; i < 3; ++i )
                     assert( i == is[i] );
                     //int i;
                         //ERROR
@@ -4581,11 +4584,11 @@ int main( int argc, char **argv )
                         //note different if bracketes used
             }
 
-            //putting int i=0 inside for
+#if __STDC_VERSION__ >= 199901L
+            // Putting `int i = 0` inside for is only possible in C99.
             {
-                //C99
-                int is[] = {0,1,2};
-                for( int i = 0; i < 3; ++i )
+                int is[] = {0, 1, 2};
+                for ( int i = 0; i < 3; ++i )
                 {
                     assert( i == is[i] );
                     //int i;
@@ -4593,23 +4596,24 @@ int main( int argc, char **argv )
                         //redeclaration
                 }
             }
+#endif
 
-            //one of the few uses of the comma operator
+            // Multiple loop variables: one of the few uses of the comma operator
             {
-                int is[] = {0,1,2};
-                int js[] = {0,1,2};
-                for( int i=0, j=0; i*j<5; i++, j++ )
+                int is[] = {0, 1, 2};
+                int js[] = {0, 1, 2};
+                for ( int i = 0, j = 0; i * j < 5; i++, j++ )
                 {
                     assert( i == is[i] );
                     assert( i == js[i] );
                 }
             }
 
-            //nested loops
+            // Nested loops
             {
                 int n = 0;
-                int is[] = {0,0,1,1};
-                int js[] = {0,1,0,1};
+                int is[] = {0, 0, 1, 1};
+                int js[] = {0, 1, 0, 1};
                 for ( int i = 0; i < 2; i++ )
                 {
                     for ( int j = 0; j < 2; j++ )
@@ -4620,12 +4624,108 @@ int main( int argc, char **argv )
                     }
                 }
             }
+
+            // Different loop step.
+            {
+                int n = 5;
+                int step = 2;
+                int is[] = {0, 1, 2, 3, 4};
+                int js[] = {0, 2, 4};
+                int js2[] = {1, 3};
+                int j = 0;
+                for ( int i = 0; i < n; i += step )
+                {
+                    assert( js[j] == is[i] );
+                    if ( i < n - step + 1 )
+                        assert( js2[j] == is[i + 1] );
+                    j++;
+                }
+            }
+
+            // Backward loops.
+            {
+                int n = 3;
+                int is[] = { 0, 1, 2 };
+                int js[] = { 2, 1, 0 };
+                int j = 0;
+                for ( int i = n - 1; i >= 0; --i )
+                {
+                    assert( is[i] == js[j] );
+                    j++;
+                }
+
+                /*
+                #backward loops with unsined loop variables
+
+                    Here things get messy: <http://stackoverflow.com/questions/665745/whats-the-best-way-to-do-a-reverse-for-loop-with-an-unsigned-index>
+
+                    It becomes clear why the google c++ style recommends not to use unsigned,
+                    but how can that be avoided for example for `size_t`?
+                */
+                {
+                    // Infinite loop, since `i >= 0` always holds!
+                    /*
+                    {
+                        int n = 3;
+                        int is[] = { 0, 1, 2 };
+                        int js[] = { 2, 1, 0 };
+                        int j = 0;
+                        for ( unsigned int i = n - 1; i >= 0; --i )
+                        {
+                            assert( is[i] == js[j] );
+                            j++;
+                        }
+                    }
+                    */
+
+                    // Two variables solution.
+                    // Downside: one more variable, one extra operation per loop.
+                    // Upside: very clear.
+                    {
+                        unsigned int n = 3;
+                        int is[] = { 0, 1, 2 };
+                        for ( unsigned int i_fake = n; i_fake > 0; --i_fake )
+                        {
+                            unsigned int i = i_fake - 1;
+                            assert( is[i] == i );
+                        }
+                    }
+
+                    // Module madness solution.
+                    //
+                    // Downside: mind twisting.
+                    // Upside: efficient: no extra var or operation.
+                    {
+                        unsigned int n = 3;
+                        int is[] = { 0, 1, 2 };
+                        for ( unsigned int i = n - 1; i < n; --i )
+                        {
+                            assert( i == is[i] );
+                        }
+                    }
+
+                    // Post increment solution.
+                    //
+                    // Mnemonic: the goes to operator `-->`
+                    //
+                    // Downside: only works for step of 1.
+                    // Upside: efficient: no extra var or operation.
+                    {
+                        unsigned int n = 3;
+                        int is[] = { 0, 1, 2 };
+                        for ( unsigned int i = n - 1; i-- > 0; )
+                        {
+                            assert( i == is[i] );
+                        }
+                    }
+                }
+            }
         }
 
         //#while
         {
             {
-                int i=0;
+                int i = 0;
                 int is[] = { 0, 1, 2 };
                 while ( i < 3 )
                 {
@@ -7609,29 +7709,31 @@ int main( int argc, char **argv )
     /*
     #unsigned
 
-        c has unsigned versions
+        C has unsigned versions of all built-in data types.
 
-        these basically have more or less double the maximum size
+        These basically have more or less double the maximum size
         of the signed version, and are always positive.
 
-        you should always use unsigned sizes for quantities which must be positive such as:
+        You should always use unsigned sizes for quantities which must be positive such as:
 
         - array indexes
         - memory sizes (size_t)
 
-        as this will give clues to the compiler
+        As this will give clues to the compiler
         and humans about the positive quality of your number
     */
     {
+        // True in 2's complement. Modulo arithmetic holds.
+        {
+            assert( (char)-1 == (char)255 );
+            assert( (unsigned char)-1 == (unsigned char)255 );
+            assert( (unsigned char)-2 == (unsigned char)254 );
+        }
 
-        assert( (char)-1 == (char)255 );
-        assert( (unsigned char)-1 == (unsigned char)255 );
-            //true in 2's complement
-
-        assert( (char)0 > (char)255 );
-            //true in 2's complement
-        assert( (unsigned char)0 < (unsigned char)255 );
-            //what we really want
+        {
+            assert( (char)0 > (char)255 );
+            assert( (unsigned char)0 < (unsigned char)255 );
+        }
     }
 
 #if __STDC_VERSION__ >= 199901L

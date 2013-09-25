@@ -1096,6 +1096,10 @@ void MergeSort(std::vector<COMPARABLE>& input) {
 Sorts the input vector via quick sort.
 
 Same interface as MergeSort.
+
+# Implementation notes
+
+Quicksort is much easier to implement than mergesort.
 */
 template<typename COMPARABLE = int>
 void QuickSort(std::vector<COMPARABLE>& input) {
@@ -1244,7 +1248,7 @@ int main(int argc, char **argv)
 
     // Graphs.
     {
-        // Dijikstra tests.
+        // Dijikstra.
         {
             // Input graphs and origin dest pair and expected output shortest paths.
 
@@ -1369,7 +1373,6 @@ int main(int argc, char **argv)
             auto& expected_output = std::get<3>(in_out);
             std::vector<GraphList::EdgeNumberType> output;
             int output_value;
-
 #ifdef DEBUG_OUTPUT
             std::cout << "max_weight = " << max_weight << std::endl;
 
@@ -1381,11 +1384,9 @@ int main(int argc, char **argv)
             for (auto& i : values) std::cout << i << " ";
             std::cout << std::endl;
 #endif
-
             Knapsack01Dynamic(weights, values, max_weight, output, output_value);
             std::sort(output.begin(), output.end());
             std::sort(expected_output.begin(), expected_output.end());
-
 #ifdef DEBUG_OUTPUT
             std::cout << "output_value = " << output_value << std::endl;
 
@@ -1399,7 +1400,6 @@ int main(int argc, char **argv)
 
             std::cout << std::endl;
 #endif
-
             assert(output == expected_output);
         }
     }
@@ -1427,7 +1427,6 @@ int main(int argc, char **argv)
             auto& total  = std::get<1>(in_out);
             auto& expected_output = std::get<2>(in_out);
             std::vector<int> output;
-
 #ifdef DEBUG_OUTPUT
             std::cout << "total = " << total << std::endl;
 
@@ -1435,9 +1434,7 @@ int main(int argc, char **argv)
             for (auto& i : coin_values) std::cout << i << " ";
             std::cout << std::endl;
 #endif
-
             MakeChange(coin_values, total, output);
-
 #ifdef DEBUG_OUTPUT
             std::cout << "output = ";
             for (auto& i : output) std::cout << i << " ";
@@ -1449,7 +1446,6 @@ int main(int argc, char **argv)
 
             std::cout << std::endl;
 #endif
-
             assert(output == expected_output);
         }
     }
