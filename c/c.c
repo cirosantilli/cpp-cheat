@@ -2155,6 +2155,7 @@ int main( int argc, char **argv )
 
     //#enum
     {
+        // Basics.
         {
             enum E
             {
@@ -2175,14 +2176,6 @@ int main( int argc, char **argv )
                 //can't change value of enums
                 //this is why you can use them for array sizes
 
-            //typedef combo
-
-                typedef enum E F;
-                F f;
-
-                typedef enum G {g1,g2} G;
-                G g;
-
             //by default, values start from 0 and increase
 
                 assert(E1 == 0);
@@ -2191,8 +2184,18 @@ int main( int argc, char **argv )
                 assert(E4 == 3);
         }
 
+        //Typedef combo. No need to type enum everywhere.
         {
-            //you can choose the values
+            enum E { E1, E2, };
+            typedef enum E E;
+            E e;
+
+            typedef enum F {g1,g2} F;
+            F f;
+        }
+
+        //you can choose the values explicitly
+        {
             enum E
             {
                 E1 = 1,
@@ -2212,6 +2215,37 @@ int main( int argc, char **argv )
                 assert(E3 != E2);
                 assert(E3 != E4);
                 printf("enum E3 = %d\n", E3);
+        }
+
+        // ERROR: only const expressions allowed
+        //
+        // This is why enum values are a good choice for array sizes.
+        {
+            const int i = 0;
+            //enum Constexpr { N = i };
+            //int is[N];
+        }
+
+        // It seems that it is not possible to control the size of an enum
+        // without extensions.
+        //
+        // Compilers could make them smaller than int if there are less than INT_MAX
+        // values in the enum, but gcc 4.8 -O0 does not do that.
+        //
+        // <http://stackoverflow.com/questions/4879286/specifying-size-of-enum-type-in-c>
+        {
+            {
+                enum E { E1, E2, };
+                printf( "sizeof(enum E) = %zu\n", sizeof(enum E) );
+            }
+
+            // The largest value that can be portably stored is INT_MAX.
+            //
+            // <http://stackoverflow.com/questions/366017/what-is-the-size-of-an-enum-in-c>
+            {
+                enum E { E1 = INT_MAX };
+                //enum E_BAD { E1 = INT_MAX + 1};
+            }
         }
     }
 
@@ -3673,7 +3707,8 @@ int main( int argc, char **argv )
 
             C99 introduces VLA which allows that.
 
-            In C++, this changes, even if there is no VLA as of C++11.
+            In C++ it is possible to store array sizes inside const variables,
+            and this is even more explicit with C++11 `constexpr` keyword.
         */
         {
             {
@@ -3690,9 +3725,9 @@ int main( int argc, char **argv )
                     //cannot be initialized
             }
 
-            //enum
+            //enum. Seems to be the best solution.
             {
-                enum Constexpr {N = 3};
+                enum Constexpr { N = 3 };
                 int is[N];
                 is[2] = 1;
             }
@@ -4486,11 +4521,15 @@ int main( int argc, char **argv )
         /*
         #switch
 
-            only exists for readability (TODO0 check: no preformance gain?)
+            Why does this exists (could be done with if):
+
+            - readability
+            - not repeating the deciding variable / expression many times
+            - TODO is there no compilation preformance gain via special assembly instructions?).
 
         #case
 
-            see switch
+            See switch.
         */
         {
             int i, j;
@@ -4530,6 +4569,16 @@ int main( int argc, char **argv )
                         assert( i == 2 || i == 3 );
 
                     break;
+
+                    //Google C++ style recommends the following style.
+                    case 4: {
+                        assert( i == 4 );
+                        break;
+                    }
+                    case 5: {
+                        assert( i == 5 );
+                        break;
+                    }
 
                     default:
                         assert( i != 0 && i != 1 );
@@ -4951,7 +5000,7 @@ int main( int argc, char **argv )
                 //
                 // The array indication goes after the name of the array!
                 {
-                    int (*fs[2])(int n, int m) = {add_int, sub_int};
+                    int (*fs[])(int n, int m) = {add_int, sub_int};
                     assert((*fs[0])(1, 2) == 3);
                     assert((*fs[1])(1, 2) == -1);
                 }

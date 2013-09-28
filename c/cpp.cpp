@@ -2191,10 +2191,13 @@ void printCallStack()
     #template default parameters
     */
 
-        template<typename T=int, template <typename T> class TT = TemplateTemplateParam, int N=1 >
+        template<typename T=int, template <typename U> class TT = TemplateTemplateParam, int N=1 >
         T templateDefault(T t, TT<T> tt) {
             return t + tt.t + N;
         }
+
+        // TODO is this possible? g++ 4.8 compiles, clang++ 3.2 says that the first T overshadows the T in `template <typename T>`
+        //template<typename T, template <typename T> class TT = TemplateTemplateParam > return t + tt.t + N; }
 
         template<typename T, T t>
         T TemplateReuseType() {
@@ -3740,6 +3743,12 @@ int main(int argc, char **argv)
         {
             //auto is[]{1, 0};
         }
+
+        {
+            typedef int Type;
+            std::vector<std::vector<Type>> is{{0}, {1, 2}};
+            for (auto& i : is[1]) std::cout << i << std::endl;
+        }
     }
 
 #endif
@@ -3812,12 +3821,6 @@ int main(int argc, char **argv)
         {
             enum TEXTURE {GRASS, WALL, SKY};
             TEXTURE t = GRASS;
-        }
-
-        //ERROR: only const expressions allowed
-        {
-            //int i = 0;
-            //enum E2 {E2=i};
         }
     }
 

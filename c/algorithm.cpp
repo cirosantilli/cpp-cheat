@@ -10,7 +10,7 @@ Obviously, don't reimplement classical algorithms from scratch for serious use,
 as more performant implementations certainly exist already.
 */
 
-#define DEBUG_OUTPUT
+//#define DEBUG_OUTPUT
 
 #include <algorithm>
 #include <cassert>
@@ -1026,6 +1026,95 @@ void LongestIncreasingSubsequence(const std::vector<T>& input,
 }
 
 /**
+Calculates the [longest common subsequence](https://en.wikipedia.org/wiki/Longest_common_subsequence_problem)
+between two strings.
+
+The substrings do not need to be contiguous.
+
+@param[in]  input0, input1  The input strings.
+@param[out] output          The longest substring.
+
+    In case that there are multiple possible outputs
+
+@tparam T The data type of the values of each string.
+*/
+template<typename T>
+void LongestCommonSubsequence(
+        const std::vector<T>& input0,
+        const std::vector<T>& input1,
+        std::vector<typename std::vector<T>::size_type>& output) {
+    typedef typename std::vector<T>::size_type SizeType;
+    typedef char PreviousDirectionType;
+    const PreviousDirectionType kUp   = 0;
+    const PreviousDirectionType kLeft = 1;
+    const PreviousDirectionType kDiag = 2;
+    SizeType input0_size = input0.size();
+    SizeType input1_size = input1.size();
+    std::vector<std::vector<PreviousDirectionType>> previous(
+            input0_size + 1, std::vector<PreviousDirectionType>(input1_size + 1));
+    std::vector<SizeType> length_cur(input1_size + 1, 0);
+    std::vector<SizeType> length_prev(input1_size + 1, 0);
+    SizeType i, j;
+    for (i = 1; i <= input0_size; ++i) {
+        for (j = 1; j <= input1_size; ++j) {
+            if (input0[i - 1] == input1[j - 1]) {
+                previous[i][j] = kDiag;
+                length_cur[j]  = length_prev[j - 1] + 1;
+            } else {
+                if (length_cur[j - 1] < length_prev[j]) {
+                    previous[i][j] = kUp;
+                    length_cur[j]  = length_prev[j];
+                } else {
+                    previous[i][j] = kLeft;
+                    length_cur[j]  = length_cur[j - 1];
+                }
+            }
+        }
+#ifdef DEBUG_OUTPUT
+        std::cout << "i = " << i << std::endl;
+        std::cout << "length_cur  = ";
+        for (auto& i : length_cur) std::cout << i << " ";
+        std::cout << std::endl;
+        std::cout << "length_prev = ";
+        for (auto& i : length_prev) std::cout << i << " ";
+        std::cout << std::endl;
+        std::cout << "previous[i] = ";
+        for (auto it = previous[i].begin(); it != previous[i].end(); ++it) std::cout << (int)*it << " ";
+        // TODO why does auto fail to compile on g++ 4.8??
+        //for (auto& i : previous[i]) std::cout << i << " ";
+        // TODO why segfault?
+        //for (PreviousDirectionType& i : previous[i]) std::cout << i << " ";
+        std::cout << std::endl;
+        std::cout << std::endl;
+#endif
+        length_prev = length_cur;
+    }
+    output = std::vector<SizeType>(length_cur[input1_size]);
+    i = input0_size;
+    j = input1_size;
+    auto it = output.rbegin();
+    while (it != output.rend()) {
+        switch (previous[i][j]) {
+            case kLeft: {
+                --j;
+                break;
+            }
+            case kUp: {
+                --i;
+                break;
+            }
+            case kDiag: {
+                *it = input0[i - 1];
+                ++it;
+                --i;
+                --j;
+                break;
+            }
+        }
+    }
+}
+
+/**
 Solves the 0-1 knapsack problem via dynamic programming.
 
 Time   complexity: $O(max_weight * weights.size())$
@@ -1647,6 +1736,60 @@ int main(int argc, char **argv)
             std::cout << std::endl;
 #endif
             LongestIncreasingSubsequence(input, output);
+#ifdef DEBUG_OUTPUT
+            std::cout << "output.size() = " << output.size() << std::endl;
+            std::cout << "output = ";
+            for (auto& i : output) std::cout << i << " ";
+            std::cout << std::endl;
+            std::cout << "expected_output.size() = " << expected_output.size() << std::endl;
+            std::cout << "expected_output        = ";
+            for (auto& i : expected_output) std::cout << i << " ";
+            std::cout << std::endl;
+            std::cout << std::endl;
+#endif
+            assert(output == expected_output);
+        }
+    }
+
+    // Longest increasing subsequence.
+    {
+        typedef int InputType;
+        typedef std::tuple<std::vector<InputType>,
+                           std::vector<InputType>,
+                           std::vector<std::vector<InputType>::size_type> > InOut;
+        InOut in_outs[]{
+            InOut{
+                {0},
+                {0},
+                {0},
+            },
+            InOut{
+                {0},
+                {1},
+                {},
+            },
+            InOut{
+                {2, 0, 1},
+                {0, 2, 1, 0, 3},
+                {0, 1},
+            },
+        };
+        std::vector<std::vector<InputType>::size_type> output;
+        for (auto& in_out : in_outs) {
+            auto& input0           = std::get<0>(in_out);
+            auto& input1           = std::get<1>(in_out);
+            auto& expected_output  = std::get<2>(in_out);
+#ifdef DEBUG_OUTPUT
+            std::cout << "input0 = ";
+            for (auto& i : input0) std::cout << i << " ";
+            std::cout << std::endl;
+            std::cout << std::endl;
+            std::cout << "input1 = ";
+            for (auto& i : input1) std::cout << i << " ";
+            std::cout << std::endl;
+            std::cout << std::endl;
+#endif
+            LongestCommonSubsequence(input0, input1, output);
 #ifdef DEBUG_OUTPUT
             std::cout << "output.size() = " << output.size() << std::endl;
             std::cout << "output = ";
