@@ -38,7 +38,7 @@ int main(int argc, char* argv[]) {
   FILE *fp;
   enum CONSTEXPR { BUF_SIZE = 4 }; // Maximum accepted line length is BUF_SIZE including the newline.
   char buffer[BUF_SIZE], buffer_leftover[BUF_SIZE];
-  size_t last_newline_position, leftover_bytes, file_size, seek_end_offset, nbytes_read;
+  size_t print_up_to, leftover_bytes, file_size, seek_end_offset, nbytes_read;
 
   fp = fopen(argv[1], "r");
   fseek(fp, 0, SEEK_END);
@@ -57,7 +57,7 @@ int main(int argc, char* argv[]) {
     }
     fseek(fp, -seek_end_offset, SEEK_END);
     fread(buffer, sizeof(char), nbytes_read, fp);
-    last_newline_position = nbytes_read - 1;
+    print_up_to = nbytes_read - 1;
     // Unsigned type loop. Use wrap around idiom.
 #ifdef DEBUG_OUTPUT
     printf("seek_end_offset         = %zu\n", seek_end_offset);
@@ -69,26 +69,26 @@ int main(int argc, char* argv[]) {
 #ifdef DEBUG_OUTPUT
       printf("i                     = %zu\n", i);
       printf("buffer[i]             = %c\n" , buffer[i]);
-      printf("last_newline_position = %zu\n", last_newline_position);
+      printf("print_up_to = %zu\n", print_up_to);
       printf("leftover_bytes        = %zu\n", leftover_bytes);
       printf("\n");
 #endif
       if (buffer[i] == '\n') {
         if (i < nbytes_read - 1) {
-          fwrite(&buffer[i + 1], sizeof(char), last_newline_position - i, stdout);
+          fwrite(&buffer[i + 1], sizeof(char), print_up_to - i, stdout);
         }
-        last_newline_position = i;
+        print_up_to = i;
         if (leftover_bytes > 0) {
           fwrite(buffer_leftover, sizeof(char), leftover_bytes, stdout);
           leftover_bytes = 0;
         }
       }
     }
-    if (last_newline_position == BUF_SIZE) {
+    if (print_up_to == BUF_SIZE) {
       fprintf(stderr, "line too long\n");
       exit(EXIT_FAILURE);
     }
-    leftover_bytes = last_newline_position + 1;
+    leftover_bytes = print_up_to + 1;
     memcpy(buffer_leftover, buffer, leftover_bytes);
   }
   fwrite(buffer_leftover, sizeof(char), leftover_bytes, stdout);

@@ -7142,6 +7142,14 @@ int main(int argc, char **argv)
                     assert(v == v1);
                 }
 
+                {
+                    typedef std::vector<int>::size_type IndexType;
+                    std::vector<IndexType> v;
+                    v = std::vector<IndexType>(5);
+                    v = std::vector<unsigned int>(4, 0);
+
+                }
+
                 /*
                 Fill constructor.
 
@@ -8384,15 +8392,57 @@ int main(int argc, char **argv)
 
                 Container must be already sorted.
 
-                log complexity
+                Log complexity.
+
+                Only states if the element is present or not, but does not get its position.
+
+                If you want to get the position of those items, use `equal_range`, `lower_bound` or `upper_bound`.
             */
             {
 
-                std::vector<int> v{2,0,1};
-                std::sort(v.begin(), v.end());
-                assert(std::binary_search(v.begin(), v.end(), 1) == true);
-                assert(std::binary_search(v.begin(), v.end(), 3) == false);
+                std::vector<int> v{0, 1, 2};
+                assert(std::binary_search(v.begin(), v.end(),     1) == true);
+                assert(std::binary_search(v.begin(), v.end(),     3) == false);
                 assert(std::binary_search(v.begin(), v.end() - 1, 2) == false);
+            }
+
+            /*
+            #lower_bound
+
+                Finds first element in container which is not less than val.
+            */
+            {
+                std::vector<int> v{0, 2, 3};
+                auto it = std::lower_bound(v.begin(), v.end(), 1);
+                assert(it - v.begin() == 1);
+            }
+
+            /*
+            #upper_bound
+
+                Finds first element in container is greater than val.
+            */
+            {
+                std::vector<int> v{0, 1, 2};
+                auto it = std::upper_bound(v.begin(), v.end(), 1);
+                assert(it - v.begin() == 2);
+            }
+
+            /*
+            #equal_range
+
+                Finds first and last location of a value iniside a ranged container.
+
+                Return values are the same as lower_bound and upper_bound.
+
+                log complexity.
+            */
+            {
+                std::vector<int> v{0, 1, 1, 2};
+                std::vector<int>::iterator begin, end;
+                std::tie(begin, end) = std::equal_range(v.begin(), v.end(), 1);
+                assert(begin - v.begin() == 1);
+                assert(end   - v.begin() == 3);
             }
 
             //#count

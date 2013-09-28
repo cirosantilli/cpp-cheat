@@ -3692,7 +3692,7 @@ int main( int argc, char **argv )
 
             //enum
             {
-                enum CONSTEXPR {N = 3};
+                enum Constexpr {N = 3};
                 int is[N];
                 is[2] = 1;
             }

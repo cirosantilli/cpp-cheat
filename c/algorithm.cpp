@@ -10,7 +10,7 @@ Obviously, don't reimplement classical algorithms from scratch for serious use,
 as more performant implementations certainly exist already.
 */
 
-//#define DEBUG_OUTPUT
+#define DEBUG_OUTPUT
 
 #include <algorithm>
 #include <cassert>
@@ -869,7 +869,10 @@ class GraphList {
 
 /**
 Solves the [maximum subarray problem](http://en.wikipedia.org/wiki/Maximum_subarray_problem)
-in $O(n)$ worst case time, $O(1)$ memory.
+
+Time complexity:    $O(n)$
+
+Memory complexity:  $O(1)$ (excluding the input).
 
 @param[in]  input        Container with the array.
 
@@ -891,7 +894,8 @@ in $O(n)$ worst case time, $O(1)$ memory.
 
 #algorithm idea
 
-The naive approach of trying every pair would take $O(n^2)$.
+The naive brute force approach of trying every pair would take $O(n^3)$:
+$O(n^2)$ pairs * $O(n)$ length sum calculations.
 
 This is a simple example of how dynamic programming can reduce algorithmic complexity.
 
@@ -908,9 +912,8 @@ Then there are two possibilities:
 
     Therefore $K[i] = a_i$
 
-The algorithm uses the keep frontier only strategy of dynamic programming to reduce memory usage to its minimum,
-since only the last value of K is kept in memory inside a single variable instead of the entire
-array K.
+The algorithm uses the ``keep frontier only'' strategy of dynamic programming to reduce memory usage to its minimum,
+since only the last value of K is kept in memory inside a single variable instead of the entire array K.
 */
 template<typename T>
 void Kadane(const std::vector<T>& input,
@@ -944,9 +947,89 @@ void Kadane(const std::vector<T>& input,
     output_value = max_so_far;
 }
 
+/**
+Computes the longest increasing subsequence of the given input.
+
+The found sequence does not need to be contiguous. For exapmle, if the input is:
+
+    1 0 2
+
+Then the longest increasing subsequence is:
+
+    1 2
+
+Time complexity:    $O(n * log(n))$, $n = input.size()$
+
+Memory complexity:  $O(n))$, $n = input.size()$ extra memory excluding the input.
+
+@param[in]  input  The input array in which the longest increasing subsequence must be found.
+@param[out] output The indexes of the longest increasing subsequence found.
+
+    In case that there are multiple possible outputs, the algorithm will choose the one that ends in the smallest
+    possible value.
+
+    If there are still multiple solutions, the algorithm will choose that which ends in with the smallest index.
+
+@tparam     T      The data type of the values
+
+# Implementation notes
+
+Based on the pseudo code found at <http://en.wikipedia.org/wiki/Longest_increasing_subsequence#Efficient_algorithms>
+on 28/09/2013. The actual implementation is original.
+
+This can be classified as a dynamic programming algorithm, since it relies on the solutions of subproblems
+to solve the larger problem, and stores the sub solutions for later use.
+*/
+template<typename T>
+void LongestIncreasingSubsequence(const std::vector<T>& input,
+        std::vector<typename std::vector<T>::size_type>& output) {
+    typedef typename std::vector<T>::size_type IndexType;
+    std::vector<IndexType> M(input.size(), 0);  // M[j] = index of the smallest possible last element of the longest subsequence of length j - 1.
+    std::vector<IndexType> P(input.size(), 0);  // P[i] = index of the predecessor of element `i`. If the element is the first then this value has no meaning and must never be used.
+    IndexType i;
+    T L, j;
+    L = 1;                                      // Length of the longest sequence so far.
+    for (i = 1; i < input.size(); ++i) {
+        auto it = std::lower_bound(M.begin(), M.begin() + L, i,
+                [&input](const IndexType& a, const IndexType& b){ return input[a] < input[b]; } );
+        j = it - M.begin();
+        if (j == 0) { // This is the new best sequence of length one.
+            M[0] = i;
+            // We will never use its predecessor, so no need to touch P.
+            // The length did not increase, so no need to touch L.
+        } else {
+            P[i] = M[j - 1];
+            if ( j == L || input[i] < input[M[j]] ) {
+                M[j] = i;
+                L = std::max(L, j + 1);
+            }
+        }
+#ifdef DEBUG_OUTPUT
+        std::cout << "i = " << i << std::endl;
+        std::cout << "j = " << j << std::endl;
+        std::cout << "P = ";
+        for (auto& i : P) std::cout << i << " ";
+        std::cout << std::endl;
+        std::cout << "M = ";
+        for (auto& i : M) std::cout << i << " ";
+        std::cout << std::endl;
+        std::cout << "L = " << L << std::endl;
+        std::cout << std::endl;
+#endif
+    }
+    output = std::vector<IndexType>(L);
+    i = M[L - 1];
+    for (auto it = output.rbegin(); it != output.rend(); ++it) {
+        *it = i;
+        i = P[i];
+    }
+}
 
 /**
 Solves the 0-1 knapsack problem via dynamic programming.
+
+Time   complexity: $O(max_weight * weights.size())$
+Memory complexity: $O(max_weight * weights.size())$
 
 All inputs must be contain only positive integer types.
 
@@ -1017,6 +1100,8 @@ void VectorSum(const std::vector<int>& v0, const std::vector<int>& v1,
 /**
 Solves the change making problem via dynamic programming.
 
+Worst case time complexity: $O(output.size() ^ 3)$. TODO check. It is \sum i^2. Does that make i^3?
+
 Given a value `total`, choose the minimum ammount of coins
 with one of the values inside `coin_values` that sums up to exactly `total`.
 
@@ -1041,7 +1126,8 @@ void MakeChange(const std::vector<int>& coin_values, int total, std::vector<int>
         coin_counts[coin_value] = 1;
     }
     for (int subtotal = 1; subtotal <= total; ++subtotal) {
-        /*
+#ifdef DEBUG_OUTPUT
+/*
         std::cout << "subtotal = " << subtotal << std::endl;
         std::cout << "possible    = ";
         for (auto i : possible) std::cout << i << " ";
@@ -1050,21 +1136,24 @@ void MakeChange(const std::vector<int>& coin_values, int total, std::vector<int>
         for (auto& i : coin_counts) std::cout << i << " ";
         std::cout << std::endl;
         std::cout << std::endl;
-        */
+*/
+#endif
         int min_coin_count = coin_counts[subtotal];
         int best_first, best_second;
         bool cur_possible = false;
         for (int first = 0; first <= subtotal / 2; ++first) {
             int second = subtotal - first;
             if (possible[first] && possible[second]) {
-                /*
+#ifdef DEBUG_OUTPUT
+/*
                 std::cout << "first = " << first << std::endl;
                 std::cout << "second = " << second << std::endl;
                 std::cout << "coin_counts[first] = " << coin_counts[first] << std::endl;
                 std::cout << "coin_counts[second] = " << coin_counts[second] << std::endl;
                 std::cout << "min_coin_count = " << min_coin_count << std::endl;
                 std::cout << std::endl;
-                */
+*/
+#endif
                 int new_coin_count = coin_counts[first] + coin_counts[second];
                 if (new_coin_count < min_coin_count) {
                     best_first = first;
@@ -1081,7 +1170,7 @@ void MakeChange(const std::vector<int>& coin_values, int total, std::vector<int>
             VectorSum(solutions[best_first], solutions[best_second], solutions[subtotal]);
         }
     }
-    /*
+#ifdef DEBUG_OUTPUT
     std::cout << "possible    = ";
     for (auto i : possible) std::cout << i << " ";
     std::cout << std::endl;
@@ -1089,7 +1178,6 @@ void MakeChange(const std::vector<int>& coin_values, int total, std::vector<int>
     for (auto& i : coin_counts) std::cout << i << " ";
     std::cout << std::endl;
     std::cout << std::endl;
-
     for (auto& solution : solutions) {
         for (auto& i : solution) {
             std::cout << i << " ";
@@ -1097,12 +1185,16 @@ void MakeChange(const std::vector<int>& coin_values, int total, std::vector<int>
         std::cout << std::endl;
     }
     std::cout << std::endl;
-    */
+#endif
     output = solutions[total];
 }
 
 /**
 Sorts the input vector via merge sort.
+
+Time complexity:     $O(input.size() log input.size())$
+
+Extra memory excluting input:   $O(input.size())$
 
 @parm[in,out]  input      The input vector to be sorted. It shall be modified to contain the output.
 @tparm         COMPARABLE A type that supports operators `<` and `==`.
@@ -1181,6 +1273,12 @@ Sorts the input vector via quick sort.
 
 Same interface as MergeSort.
 
+Worst case time complexity:     $O(input.size() ^ 2)$.
+
+Average case time complexity:   $O(input.size() * log input.size())$.
+
+Extra memory excluding input:   $O(1)$
+
 # Implementation notes
 
 Quicksort is much easier to implement than mergesort.
@@ -1225,109 +1323,112 @@ void QuickSort(std::vector<COMPARABLE>& input) {
 
 int main(int argc, char **argv)
 {
-    typedef Hash<int,int> map_t;
-    //map_t mapOrig(0, 1);
-    map_t mapOrig{
-        { 0, 1},
-        { 1, 2},
-        { 2, 3},
-        { 3, 4},
-        { 4, 5},
-        {-1, 0},
-    };
-    map_t map;
-    map_t mapExpect;
-    int val;
-
-    for ( int i = 0; i < 1; i++ )
+    // Maps.
     {
+        typedef Hash<int,int> map_t;
+        //map_t mapOrig(0, 1);
+        map_t mapOrig{
+            { 0, 1},
+            { 1, 2},
+            { 2, 3},
+            { 3, 4},
+            { 4, 5},
+            {-1, 0},
+        };
+        map_t map;
+        map_t mapExpect;
+        int val;
 
-        //add
+        for ( int i = 0; i < 1; i++ )
+        {
 
-            //bst test
+            //add
 
-            //create a bst with all possible deletion cases:
-            //
-            //- two children
-            //- one child
-            //- 0   children
+                //bst test
 
-                //mapOrig.add( 2, 3);
-                //mapOrig.add( 1, 2);
-                //mapOrig.add( 3, 4);
-                //mapOrig.add( 4, 5);
-                //mapOrig.add(-1, 0);
+                //create a bst with all possible deletion cases:
+                //
+                //- two children
+                //- one child
+                //- 0   children
 
-        //<<
+                    //mapOrig.add( 2, 3);
+                    //mapOrig.add( 1, 2);
+                    //mapOrig.add( 3, 4);
+                    //mapOrig.add( 4, 5);
+                    //mapOrig.add(-1, 0);
 
-            std::cout << mapOrig << std::endl;
+            //<<
 
-        //find
-
-            map = mapOrig;
-
-            assert( ! map.find(-2, val) );
-
-            assert( map.find(-1, val) );
-            assert( val == 0 );
-
-            assert( map.find( 0, val) );
-            assert( val == 1 );
-
-            assert( map.find( 1, val) );
-            assert( val == 2 );
-
-            assert( map.find( 2, val) );
-            assert( val == 3 );
-
-            assert( map.find( 3, val) );
-            assert( val == 4 );
-
-            assert( map.find( 4, val) );
-            assert( val == 5 );
-
-            //==
-
-                map = mapOrig;
-                assert( map == mapOrig );
-
-                map.add(5, 6);
-                assert( map != mapOrig );
-
-
-            //del
-
-                //two children
-                map.del(0);
-                assert( ! map.find( 0, val ) );
-
-                //leaf
-                map = mapOrig;
-                map.del(1);
-                assert( ! map.find( 1, val ) );
-
-                //one child
-                map = mapOrig;
-                map.del(3);
-                assert( ! map.find( 3, val ) );
-
-        //hash map tests
-
-            //add at powers of 2 the 0 hash so they clutter at hash 0
-            map = map_t( 0, 1 );
-            map.add( 1,  2 );
-            map.add( 2,  3 );
-            map.add( 4,  5 );
-            map.add( 8,  9 );
-            map.add( 16, 17 );
+                std::cout << mapOrig << std::endl;
 
             //find
-            assert( map.find( 8, val) );
-            assert( val == 9 );
 
-            //del
-            map.del(0);
-            assert( ! map.find( 0, val ) );
+                map = mapOrig;
+
+                assert( ! map.find(-2, val) );
+
+                assert( map.find(-1, val) );
+                assert( val == 0 );
+
+                assert( map.find( 0, val) );
+                assert( val == 1 );
+
+                assert( map.find( 1, val) );
+                assert( val == 2 );
+
+                assert( map.find( 2, val) );
+                assert( val == 3 );
+
+                assert( map.find( 3, val) );
+                assert( val == 4 );
+
+                assert( map.find( 4, val) );
+                assert( val == 5 );
+
+                //==
+
+                    map = mapOrig;
+                    assert(map == mapOrig);
+
+                    map.add(5, 6);
+                    assert(map != mapOrig);
+
+
+                //del
+
+                    //two children
+                    map.del(0);
+                    assert(!map.find(0, val));
+
+                    //leaf
+                    map = mapOrig;
+                    map.del(1);
+                    assert(!map.find(1, val));
+
+                    //one child
+                    map = mapOrig;
+                    map.del(3);
+                    assert(!map.find(3, val));
+
+            //hash map tests
+
+                //add at powers of 2 the 0 hash so they clutter at hash 0
+                map = map_t(0, 1);
+                map.add( 1,  2);
+                map.add( 2,  3);
+                map.add( 4,  5);
+                map.add( 8,  9);
+                map.add(16, 17);
+
+                //find
+                assert(map.find( 8, val));
+                assert(val == 9);
+
+                //del
+                map.del(0);
+                assert(! map.find(0, val));
+        }
     }
 
     // Graphs.
@@ -1397,14 +1498,14 @@ int main(int argc, char **argv)
                 // Some edges have been made unidirectional, and the ambiguity resolved.
                 InOut{
                     {
-                        {0, {{1, 2}, {2, 5}, {3, 4}, }},
-                        {1, {{2, 2}, {4, 7}, {6, 12} }},
-                        {2, {{4, 5}, {5, 3}, {3, 1}, }},
-                        {3, {{2, 1}, {5, 4},         }},
-                        {4, {{5, 1}, {7, 5},         }},
-                        {5, {{4, 1}, {7, 7},         }},
-                        {6, {{7, 3},                 }},
-                        {7, {                        }},
+                        {0, {{1, 2}, {2, 5}, {3, 4},  }},
+                        {1, {{2, 2}, {4, 7}, {6, 12}, }},
+                        {2, {{4, 5}, {5, 3}, {3, 1},  }},
+                        {3, {{2, 1}, {5, 4},          }},
+                        {4, {{5, 1}, {7, 5},          }},
+                        {5, {{4, 1}, {7, 7},          }},
+                        {6, {{7, 3},                  }},
+                        {7, {                         }},
                     },
                     {0, 7},
                     {0, 1, 2, 5, 4, 7}
@@ -1497,6 +1598,67 @@ int main(int argc, char **argv)
 #endif
             assert(output_range == expected_output_range);
             assert(output_value == expected_output_value);
+        }
+    }
+
+    // Longest increasing subsequence.
+    {
+        typedef int InputType;
+        typedef std::tuple<std::vector<InputType>,
+                           std::vector<std::vector<InputType>::size_type> > InOut;
+        InOut in_outs[]{
+            InOut{
+                {0},
+                {0},
+            },
+            InOut{
+                {0, 1},
+                {0, 1},
+            },
+            InOut{
+                {1, 0},
+                {   1},
+            },
+            InOut{
+                {2, 0, 1},
+                {   1, 2},
+            },
+            InOut{
+                {0, 2, 1},
+                {0,    2},
+            },
+            InOut{
+                {1, -1, 2, 0, 1, 5, 5, 2, 3},
+                {    1,    3, 4,       7, 8},
+            },
+            InOut{
+                {3, 2, 6, 4, 5, 1},
+                {   1,    3, 4   },
+            },
+        };
+        std::vector<std::vector<InputType>::size_type> output;
+        for (auto& in_out : in_outs) {
+            auto& input           = std::get<0>(in_out);
+            auto& expected_output = std::get<1>(in_out);
+#ifdef DEBUG_OUTPUT
+            std::cout << "input = ";
+            for (auto& i : input) std::cout << i << " ";
+            std::cout << std::endl;
+            std::cout << std::endl;
+#endif
+            LongestIncreasingSubsequence(input, output);
+#ifdef DEBUG_OUTPUT
+            std::cout << "output.size() = " << output.size() << std::endl;
+            std::cout << "output = ";
+            for (auto& i : output) std::cout << i << " ";
+            std::cout << std::endl;
+            std::cout << "expected_output.size() = " << expected_output.size() << std::endl;
+            std::cout << "expected_output        = ";
+            for (auto& i : expected_output) std::cout << i << " ";
+            std::cout << std::endl;
+            std::cout << std::endl;
+#endif
+            assert(output == expected_output);
         }
     }
 
