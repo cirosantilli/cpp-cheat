@@ -176,23 +176,23 @@ Backtrack to definitions outside of main as needed.
 
             http://eigen.tuxfamily.org/index.php?title=Main_Page
 
-            linear algebra, eqdiffs
+            Linear algebra, eqdiffs.
 
         #blitz++
 
             http://blitz.sourceforge.net/
 
-            linear algebra
+            Linear algebra.
 
         #armadillo
 
             http://arma.sourceforge.net/
 
-            linear algebra
+            Linear algebra.
 
     #tokamak
 
-        rigid body physical engine
+        Rigid body physical engine.
 
 #ipc
 
@@ -299,21 +299,25 @@ Backtrack to definitions outside of main as needed.
 #include <exception>        //bad_alloc, bad_cast, bad_exception, bad_typeid, ios_base::failure
 #include <functional>       //bind2nd
 #include <iostream>         //cout, endl
-#include <iterator>
+#include <iterator>         //iterator, iterator_traits, input_iterator_tag, advance, next
 #include <list>             //list, forward_list
 #include <limits>           //
 #include <map>              //map, multimap
 #include <memory>           //shared_ptr
 #include <mutex>
+#include <new>              //new
 #include <numeric>          //partial sums, differences on std::vectors of numbers
 #include <set>              //set, multiset
 #include <string>           //string
 #include <sstream>          //stringstream
 #include <thread>
-#include <typeinfo>         //get type of vars
+#include <typeinfo>         //typeid, bad_typeid, bad_typecast
+#include <typeindex>        //type_index
+#include <tuple>            //tuple
 #include <unordered_map>    //unordered_map, unordered_multimap
-#include <utility>          //pair, tuple, forward, type_info, size_t
+#include <utility>          //pair, forward, type_info, size_t
 #include <vector>
+#include <valarray>
 
 //c headers:
 
@@ -3192,6 +3196,8 @@ int main(int argc, char **argv)
 
     /*
     #nullptr
+
+        C++11 keyword.
 
         Better alternative to `0` and `NULL` ugliness:
 
@@ -6076,25 +6082,65 @@ int main(int argc, char **argv)
         - `dynamic_cast`
 
         Google style 3.26 discourages this, since if you really need it your design is probably flawed.
+
+        Also using typeid on variables means that extra meta data must be kept about those variables.
     */
 
-    //#typeid
+    /*
+    #typeid
+
+        Get type of variables
+
+        Can be done for both types and variables of the type.
+
+        Returns objects of `type_info`
+
+    #type_info
+
+        Type returned by `typeid`.
+    */
     {
-        //get type of variables
+        // typeid returns `type_info`.
+        //
+        // However copy and assign for type_info are private,
+        // so the following fails.
+        {
+            //std::type_info t = typeid(int);
+            //std::type_info t(typeid(int));
+        }
 
-        int i, i1;
-        Class c;
+        // type_info implements `==` and `!=`.
+        //
+        // typeid's of different types are always different.
+        {
+            int i, i1;
+            int& ia = i;
+            Class c;
 
-        assert(typeid(i) == typeid(int));
-        assert(typeid(i) == typeid(i1)  );
-        assert(typeid(i) != typeid(c)   );
+            assert(typeid(i)  == typeid(int));
+            assert(typeid(ia) == typeid(int&));
+            assert(typeid(i)  == typeid(i1) );
+            assert(typeid(i)  != typeid(c)  );
+        }
 
-        std::string s(typeid(i).name());
-            //returns string
+        // name: returns a string representation of the type.
+        //
+        // The exact string is implementation defined.
+        {
+            std::cout << "typeid(int).name() = " << typeid(int).name() << std::endl;
+        }
 
-        //assert(typeid(i).name() == "int");
-            //WARN
-            //undefined because value not specified on the standard
+        // before: <http://stackoverflow.com/questions/8682582/what-is-type-infobefore-useful-for>
+        // hash_code: return a size_t hash of the type
+    }
+
+    /*
+    #type_index
+
+        Wrapper around type_info that allows copy and assign.
+    */
+    {
+        std::type_index t = typeid(int);
     }
 
     /*
@@ -7958,9 +8004,9 @@ int main(int argc, char **argv)
             - iterators may allow you not to keep the whole sequence in
                memory, but calculate it on the fly
 
-            #iterator classes
+            #iterator categories
 
-                Iterators are categorized into classes depending on the operations they can do:
+                Iterators are categorized depending on the operations they can do:
 
                     <http://www.cplusplus.com/reference/iterator/>
 
@@ -7982,6 +8028,8 @@ int main(int argc, char **argv)
                 typdefed as one of the classes to indicate the operationt can do:
 
                     typedef random_it std::vector<int>::iterator;
+
+                It is possible to retreive the class of an interator via `std::iterator_traits<ITER>::interator_category`.
 
         #numerical range interators
 
@@ -8276,6 +8324,105 @@ int main(int argc, char **argv)
                 std::vector<int> v{2, 0, 1};
                 std::vector<int>::size_type i(1);
                 v[i] = 1;
+            }
+
+            /*
+            #iterator_traits
+
+                Contain information about iterators.
+
+                This allows to create template functions that take generic iterators independent of the
+                exact container type as is the case for many function sunder `<algorithm>`.
+            */
+            {
+                //value_type
+                //pointer
+                //reference
+                {
+                    typedef std::iterator_traits<std::vector<int>::iterator>::value_type    ValueType;
+                    typedef std::iterator_traits<std::vector<int>::iterator>::pointer       Pointer;
+                    typedef std::iterator_traits<std::vector<int>::iterator>::reference     Reference;
+                    assert(typeid(ValueType) == typeid(int));
+                    assert(typeid(Pointer)   == typeid(int*));
+                    assert(typeid(Reference) == typeid(int&));
+                }
+
+                /*
+                #difference_type
+                */
+                {
+                    typedef typename std::iterator_traits<std::vector<int>::iterator>::difference_type DifferenceType;
+                    std::vector<int> v{0, 1};
+                    assert(typeid(v.end() - v.begin()) == typeid(DifferenceType));
+                }
+
+                /*
+                #iterator_category
+
+                    iterator_category is a struct *type*, not a value.
+
+                    Therefore, in order to compare it one must use `typeid`.
+                */
+                {
+                    assert(typeid(std::iterator_traits<std::vector<int>::iterator>::iterator_category)
+                            == typeid(std::random_access_iterator_tag));
+                }
+            }
+        }
+
+        /*
+        #valarray
+
+            Array of values.
+
+            Container that overload many mathematical operations in a similar way to what Fortran does.
+
+            Very obscure, it seem for several reasons:
+
+            - other techniques achieve what it achieves
+            - low compiler support
+
+            <http://stackoverflow.com/questions/1602451/c-valarray-vs-vector>
+        */
+        {
+            std::valarray<int> v;
+            std::valarray<int> v0{0, 1, 2};
+            std::valarray<int> v1{3, 4, 5};
+
+            assert(v0.sum() == 3);
+
+            assert(v0.min() == 0);
+
+            assert(v0.max() == 2);
+
+            /*
+            v = v0;
+            v.cshift(1);
+            assert((v == std::valarray<int>{1, 2, 0}).min());
+            */
+
+            // == is elementwise equality.
+            //
+            // For equality of all elements, do `.min() == true`
+            {
+                std::valarray<int> v0{0, 1, 2};
+                std::valarray<int> v1{0, 2, 2};
+                assert(((v0 == v1) == std::valarray<bool>{true, false, true}).min());
+
+            }
+
+            // +, -, *, /, etc are elementwise
+            //
+            // They are also overloaded for contained data type.
+            {
+                assert((v0 + v1 == std::valarray<int>{3, 5, 7}).min());
+                assert((v0 +  1 == std::valarray<int>{1, 2, 3}).min());
+            }
+
+            // Basic cmath functions are overloaded for valarray elementwise.
+            {
+                assert((abs(std::valarray<int>{-1, 0, 1})    == std::valarray<int>{1, 0, 1}).min());
+                assert((pow(std::valarray<int>{-2, 0, 2}, 2) == std::valarray<int>{4, 0, 4}).min());
             }
         }
 

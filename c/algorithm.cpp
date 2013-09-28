@@ -915,33 +915,37 @@ Then there are two possibilities:
 The algorithm uses the ``keep frontier only'' strategy of dynamic programming to reduce memory usage to its minimum,
 since only the last value of K is kept in memory inside a single variable instead of the entire array K.
 */
-template<typename T>
-void Kadane(const std::vector<T>& input,
-        std::vector<typename std::vector<T>::size_type>& output_range,
-        T& output_value) {
-    typename std::vector<T>::size_type begin, begin_temp, end;
-    T max_so_far, max_ending_here;
-    begin = 0;
-    begin_temp = 0;
-    end = 0;
-    max_so_far = input[0];
-    max_ending_here = input[0]; // Holds the frontier value of K[i-1].
-    for(size_t i = 1; i < input.size(); i++) {
+template<typename ITER>
+void Kadane(
+        const ITER& input_begin,
+        const ITER& input_end,
+        std::pair<ITER, ITER>& output_range,
+        typename std::iterator_traits<ITER>::value_type& output_value) {
+    typedef typename std::iterator_traits<std::vector<int>::iterator>::value_type ValueType;
+    ITER begin, begin_temp, end;
+    ValueType max_so_far, max_ending_here;
+    begin = input_begin;
+    begin_temp = input_begin;
+    end = input_end;
+    max_so_far = *input_begin;
+    max_ending_here = *input_begin; // Holds the frontier value of K[i-1].
+    for(auto it = input_begin; it != input_end; ++it) {
         if(max_ending_here <= 0) {
-            max_ending_here = input[i];
-            begin_temp = i;
+            max_ending_here = *it;
+            begin_temp = it;
+
         } else {
-            max_ending_here += input[i];
+            max_ending_here += *it;
         }
         if(max_ending_here > max_so_far) {
             max_so_far  = max_ending_here;
             begin = begin_temp;
-            end = i;
+            end = it;
         }
     }
-    if (end != 0)
+    if (end != input_begin)
         end++;
-    output_range = std::vector<typename std::vector<T>::size_type>{begin, end};
+    output_range = std::pair<ITER,ITER>{begin, end};
     if (max_so_far < 0)
         max_so_far = 0;
     output_value = max_so_far;
@@ -1036,7 +1040,7 @@ The substrings do not need to be contiguous.
 
     In case that there are multiple possible outputs
 
-@tparam T The data type of the values of each string.
+@tparam T The data type of the values of each string. Must implement `==`.
 */
 template<typename T>
 void LongestCommonSubsequence(
@@ -1623,7 +1627,7 @@ int main(int argc, char **argv)
     {
         typedef int InputType ;
         typedef std::tuple<std::vector<InputType>,
-                          std::vector<std::vector<InputType>::size_type>,
+                          std::pair<std::vector<InputType>::size_type, std::vector<InputType>::size_type>,
                           InputType > InOut;
         InOut in_outs[]{
             // All positive: easy, take all.
@@ -1662,7 +1666,7 @@ int main(int argc, char **argv)
                 3
             },
         };
-        std::vector<std::vector<InputType>::size_type> output_range;
+        std::pair<std::vector<InputType>::iterator, std::vector<InputType>::iterator> output_range;
         InputType output_value;
         for (auto& in_out : in_outs) {
             auto& input                 = std::get<0>(in_out);
@@ -1674,7 +1678,7 @@ int main(int argc, char **argv)
             std::cout << std::endl;
             std::cout << std::endl;
 #endif
-            Kadane(input, output_range, output_value);
+            Kadane(input.begin(), input.end(), output_range, output_value);
 #ifdef DEBUG_OUTPUT
             std::cout << "output begin = " << output_range[0] << std::endl;
             std::cout << "output end   = " << output_range[1] << std::endl;
@@ -1685,7 +1689,8 @@ int main(int argc, char **argv)
             std::cout << "expected output value = " << expected_output_value << std::endl;
             std::cout << std::endl;
 #endif
-            assert(output_range == expected_output_range);
+            assert(output_range.first  - input.begin() == expected_output_range.first);
+            assert(output_range.second - input.begin() == expected_output_range.second);
             assert(output_value == expected_output_value);
         }
     }
