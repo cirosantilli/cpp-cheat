@@ -102,7 +102,7 @@ Features which are identical to C will not be described.
 
 #standards
 
-    like C, C++ is standardized by ISO under the id: ISO/IEC 14882.
+    Like C, C++ is standardized by ISO under the id: ISO/IEC 14882.
 
     The latest standard costs 30 dollars as of 2013, but free drafts are also available.
 
@@ -213,7 +213,7 @@ Features which are identical to C will not be described.
 
 #POD
 
-    plain old data:
+    Plain old data:
 
     - structs
     - class without constructors or destructors.

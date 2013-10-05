@@ -1,40 +1,38 @@
 /*
-Main ANSI C cheat, no extensions
+ANSI C cheat.
 
-Features that require user input or that make programs wait
-shall be put inside `if ( 0 ){ ... }` clauses to be turned on
-only when users want to test those features.
+Small comments on comparing ANSI C with extensions are acceptable.
 
 #sources
 
     - <http://c-faq.com/index.html>
 
-        good straight to the point faq, covers specially confusing points
+        Good straight to the point faq, covers specially confusing points
 
     - <http://www.open-std.org/jtc1/sc22/wg14/www/standards>
 
-        official directory containing the latest free draft versions of the ansi c specs
+        Official directory containing the latest free draft versions of the ANSI c specs
 
-        the latest is: <http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1570.pdf>
+        The latest is: <http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1570.pdf>
 
-        the closest to the ansi standard that you can get for free (it is a paid standard...)
+        The closest to the ANSI standard that you can get for free (it is a paid standard...)
 
-        this should be quite close to the actual speficications
+        This should be quite close to the actual speficications
 
-        quite readable, and fun to find obscure features which you had never heard of before!
+        Quite readable, and fun to find obscure features which you had never heard of before!
 
 #motivation
 
-    c is amazingly important as it is used to implement:
+    C is amazingly important as it is used to implement:
 
     - linux kernel
     - windows kernel
     - python and ruby reference implementation
     - opengl
 
-    and the list goes on and on...
+    And the list goes on and on...
 
-    the reason for this is that c:
+    The reason for this is that c:
 
     - is quite low level, so you can do low level things other languages can't
     - is low level, so it can be very fast (if you program it correctly)
@@ -45,7 +43,7 @@ only when users want to test those features.
 
         Language and standard library (libc) are standardized by an organization named ANSI
 
-        ansi is american, and it represents the USA for ISO and IEC
+        ANSI is american, and it represents the USA for ISO and IEC
 
         You must pay to have the latest standards, but C99 seems to be available for free [here](http://www.open-std.org/jtc1/sc22/wg14/www/standards.html)
         (unlike C90, which has larger library support).
@@ -55,7 +53,7 @@ only when users want to test those features.
         A list of links to the standards can be found at: <http://stackoverflow.com/questions/81656/where-do-i-find-the-current-c-or-c-standard-documents>
         Interestinly, as of 2013, C90 costs 141 dollars, but C11 only 30.
 
-        however you can get for free:
+        However you can get for free:
 
         - drafts of the latest standard which are quite close to the actual specifications.
 
@@ -66,7 +64,7 @@ only when users want to test those features.
 
         - compiler documentations
 
-        ansi only specifies language and the library interfaces:
+        ANSI only specifies language and the library interfaces:
         what functions, variables etc. are contained in each file,
         but it does not specify how that should be implemented.
 
@@ -122,9 +120,9 @@ only when users want to test those features.
 
             - threads spported
 
-    #ansi extensions
+    #ANSI extensions
 
-        Beside ansi language and libraries, you should also know about the existense of other
+        Beside ANSI language and libraries, you should also know about the existense of other
         standards which extend it:
 
         - posix c library. Offers many functions for posix compliant systems (linux, mac, not windows)
@@ -134,21 +132,13 @@ only when users want to test those features.
             Every compiler has certain language extensions which may be fundamenta for certain project.
 
             For example: gnu c is used on the linux kernel One major reason is support for inline assembly,
-            which lacks in ansi c.
+            which lacks in ANSI c.
 
-        if possible you should avoid relying on those since they are less portable.
-
-        they shall not be documented here.
+        If possible you should avoid relying on those since they are less portable.
 
     #glibc
 
-        name for the gnu implementation of the c standard library
-
-#doxigen
-
-    Documentation generation from comments. De-facto stadnard for C++.
-
-    <http://www.stack.nl/~dimitri/doxygen/docblocks.html>
+        Name for the gnu implementation of the c standard library
 
 #libs
 
@@ -157,6 +147,16 @@ only when users want to test those features.
     #petcs
 
         <http://www.mcs.anl.gov/petsc/documentation/index.html>
+
+    #multithreading ipc concurrency.
+
+        - c11 supports it, c99 not
+
+            glibc 2.x still does not have it.
+
+        - c++11 supports it, c++03 not
+
+        - openMP is is a library supported on C, C++, fortran, windows, linux macos
 
 #compilers
 
@@ -191,15 +191,11 @@ only when users want to test those features.
 
         Closed source.
 
-#multithreading ipc concurrency
+#doxigen
 
-    - c11 supports it, c99 not
+    Documentation generation from comments. De-facto stadnard for C++.
 
-        glibc 2.x still does not have it.
-
-    - c++11 supports it, c++03 not
-
-    - openMP is is a library supported on C, C++, fortran, windows, linux macos
+    <http://www.stack.nl/~dimitri/doxygen/docblocks.html>
 
 #funny
 
@@ -207,23 +203,23 @@ only when users want to test those features.
 
     <http://www.ioccc.org/years.html>. Amazing.
 
-    ioccc entry explained in detail: <http://stackoverflow.com/questions/15393441/obfuscated-c-code-contest-2006-please-explain-sykes2-c>
+    IOCCC entry explained in detail: <http://stackoverflow.com/questions/15393441/obfuscated-c-code-contest-2006-please-explain-sykes2-c>
 */
 
 /*
 #preprocessor
 
-    does simple stuff *before* compilation
+    Loes simple stuff *before* compilation.
 
-    by simple understand non-turing complete.
+    Ly simple understand non-turing complete.
 
     #include
 
-        look in standard dirs directly:
+        Look in standard dirs directly:
 
             #include <file.h>
 
-        looks in current dir first:
+        Looks in current dir first:
 
             #include "file.h"
 */
@@ -322,12 +318,12 @@ int debugVar;
 
     //{}
         //ERROR
-        //cannot create scopes here like that
-        //they'd be useless
+        //Cannot create scopes here like that
+        //They'd be useless anyways.
 
 //pointer array
 
-    int* get_arr( int i )
+    int* get_arr(int i)
     {
         //int is[] = {i};
         //return is;
@@ -335,35 +331,35 @@ int debugVar;
             //return adress of local var
             //data is destroyed on return!
 
-        int* ip = (int*) malloc( sizeof( int ) * 1 );
+        int* ip = (int*) malloc(sizeof(int) * 1);
         return ip;
     }
 
     //cheatsheet on pointers and arrays
-    void print_array( int **mat, int m, int n )
+    void print_array(int **mat, int m, int n)
     {
         int i, j;
-        for ( i = 0; i < m; i++ )
+        for (i = 0; i < m; i++)
         {
-            for ( j = 0; j < n; j++ )
+            for (j = 0; j < n; j++)
             {
-                printf( "%d ", mat[i][j] );
+                printf("%d ", mat[i][j]);
             }
-            printf( "\n" );
+            printf("\n");
         }
     }
 
 /*
-int goto_func( int i ) {
+int goto_func(int i) {
     goto goto_func_after;
     return 1;
 }
 */
 
-int setjmp_func( bool jmp, jmp_buf env_buf )
+int setjmp_func(bool jmp, jmp_buf env_buf)
 {
-    if ( jmp )
-        longjmp( env_buf, 1 );
+    if (jmp)
+        longjmp(env_buf, 1);
     else
         return 1;
 }
@@ -396,30 +392,30 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
         Definitions need parameter names. This rule changes in C++.
         */
 
-            void decl_def_args( int,   float,   char c );
-            void decl_def_args( int i, float f, char d ){}
+            void decl_def_args(int,   float,   char c);
+            void decl_def_args(int i, float f, char d){}
 
-            //void def_no_argname( int ){}
+            //void def_no_argname(int){}
 
         /* One major application of forward declarations is to break loops */
 
             int factorial2Funcs1(int);
 
             int factorial2Funcs0(int n){
-                if ( n != 1 ) {
-                    return n*factorial2Funcs1( n - 1 );
+                if (n != 1) {
+                    return n*factorial2Funcs1(n - 1);
                 }
                 return 1;
             }
 
             int factorial2Funcs1(int n){
-                if ( n != 1 ) {
-                    return n*factorial2Funcs0( n - 1 );
+                if (n != 1) {
+                    return n*factorial2Funcs0(n - 1);
                 }
                 return 1;
             }
 
-        //two decls on the same line, with same return type:
+        //Two decls on the same line, with same return type:
 
             int decl_1(), decl_2();
             int decl_1(){ return 1; }
@@ -429,8 +425,8 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
                 //ERROR
                 //cannot define on same line
 
-        //can declare a function that returns int and a int var with the same `int`.
-        //very confusing.
+        //Can declare a function that returns int and a int var with the same `int`.
+        //Very confusing!
 
             int decl_and_int_func(), decl_and_int;
             int decl_and_int_func(){ return 0; }
@@ -460,12 +456,12 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
     void func_float(float f){}
     void func_double(double d){}
 
-    void func_string_abc(char s[]){ assert( strcmp( s, "abc" ) == 0 ); }
-    void func_string_const_abc(char const s[]){ assert( strcmp( s, "abc" ) == 0 ); }
+    void func_string_abc(char s[]){ assert(strcmp(s, "abc") == 0); }
+    void func_string_const_abc(char const s[]){ assert(strcmp(s, "abc") == 0); }
     void func_string_modify(char s[]){ s[0] = '0'; }
 
     void func_array(int a[]){
-        assert( a[0] == 1 );
+        assert(a[0] == 1);
     }
 
     void func_array_modify(int a[]){
@@ -485,15 +481,15 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
 
     struct func_struct { int i; };
 
-    void func_struct_1( struct func_struct s )
+    void func_struct_1(struct func_struct s)
     {
-        assert( s.i == 1 );
+        assert(s.i == 1);
     }
 
     void func_int_ptr (int *i){}
     void func_int_arr (int i[]){}
 
-    void with_static_var( int *i_out, int *si_out )
+    void with_static_var(int *i_out, int *si_out)
     {
         int i = 0;
 
@@ -507,7 +503,7 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
         *si_out = si;
     }
 
-    int add_int( int n, int m )
+    int add_int(int n, int m)
     {
         return n+m;
     }
@@ -517,11 +513,11 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
         return n-m;
     }
 
-    int int_int_int_func( int m, int n ){
+    int int_int_int_func(int m, int n) {
         return m + n;
     }
 
-    int int_func_func_int_int( int (*function_ptr)(int, int), int m, int n )
+    int int_func_func_int_int(int (*function_ptr)(int, int), int m, int n)
     {
         return (*function_ptr)(m, n);
     }
@@ -534,7 +530,7 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
 
         struct FuncReturn { int i; };
 
-        struct FuncReturn structReturn( struct FuncReturn sIn )
+        struct FuncReturn structReturn(struct FuncReturn sIn)
         {
             struct FuncReturn s_out;
             s_out.i = sIn.i + 1;
@@ -548,24 +544,24 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
 
     #va_start
 
-            va_start( varname, last_argname )
+            va_start(varname, last_argname)
 
         Initialize va_list variable varname. Indicates that varargs come after numargs.
     */
 
-        int variadic_add( int numargs, ... )
+        int variadic_add(int numargs, ...)
         {
             va_list args;
-            va_start( args, numargs );
+            va_start(args, numargs);
             int sum = 0;
-            for( int i = 0 ; i < numargs; i++ )
+            for(int i = 0 ; i < numargs; i++)
             {
-                int arg = va_arg( args, int );
+                int arg = va_arg(args, int);
                 sum += arg;
             }
 
             //you MUST do this
-            va_end( args );
+            va_end(args);
 
             return sum;
         }
@@ -577,14 +573,14 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
 
             This is the raison d'etre for the `vprintf` family, which takes a va_list argument.
         */
-        int sprintf_wrapper( char *s, const char *fmt, ...)
+        int sprintf_wrapper(char *s, const char *fmt, ...)
         {
             int ret;
             va_list args;
 
-            va_start( args, fmt );
-            ret = vsprintf( s, fmt, args );
-            va_end( args );
+            va_start(args, fmt);
+            ret = vsprintf(s, fmt, args);
+            va_end(args);
             return ret;
         }
 
@@ -605,13 +601,13 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
 
     //restrict
 
-        void restrict_double_add( int * restrict i, int * restrict j, int * restrict add )
+        void restrict_double_add(int * restrict i, int * restrict j, int * restrict add)
         {
             *i += *add;
             *j += *add;
         }
 
-        void double_add( int *i, int *j, int *add )
+        void double_add(int *i, int *j, int *add)
         {
             *i += *add;
             *j += *add;
@@ -620,7 +616,7 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
         /**
         It makes no sense to mark a single pointer as restricted.
         */
-        void restrict_double_add_one_restrict( int * restrict i, int *j, int *add )
+        void restrict_double_add_one_restrict(int * restrict i, int *j, int *add)
         {
             *i += *add;
             *j += *add;
@@ -635,13 +631,13 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
     void loop_only_prof(int n)
     {
         int i;
-        for( i=0; i<n; i++ );
+        for(i=0; i<n; i++);
     }
 
     void while_only_prof(int n)
     {
         int i = 0;
-        while( i < n )
+        while(i < n)
         {
             ++i;
         }
@@ -650,7 +646,7 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
     void int_assign_prof(int n)
     {
         int i,j;
-        for( i=0; i<n; i++ )
+        for(i=0; i<n; i++)
             j=1;
     }
 
@@ -659,7 +655,7 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
     void func_all_prof(int n)
     {
         int i;
-        for( i=0; i<n; i++ )
+        for(i=0; i<n; i++)
             do_nothing();
     }
 
@@ -668,35 +664,35 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
     void inline_func_call_prof(int n)
     {
         int i;
-        for( i=0; i<n; i++ )
+        for(i=0; i<n; i++)
             inline_do_nothing();
     }
 
     void int_sum_prof(int n)
     {
         int i, j = 0;
-        for( i=0; i<n; i++ )
+        for(i=0; i<n; i++)
             j = j + 0;
     }
 
     void int_sub_prof(int n)
     {
         int i, j = 0;
-        for( i=n; i>0; i-- );
+        for(i=n; i>0; i--);
             j = j - 0;
     }
 
     void int_mult_prof(int n)
     {
         int i, j = 1;
-        for( i=0; i<n; i++ )
+        for(i=0; i<n; i++)
             j = j * 1;
     }
 
     void int_div_prof(int n)
     {
         int i, j = 1;
-        for( i=0; i<n; i++ )
+        for(i=0; i<n; i++)
             j = j / 1;
     }
 
@@ -704,7 +700,7 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
     {
         float f;
         int i;
-        for( i=0; i<n; i++ )
+        for(i=0; i<n; i++)
             f = f + 0.0;
     }
 
@@ -712,7 +708,7 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
     {
         float f;
         int i;
-        for( i=0; i<n; i++ )
+        for(i=0; i<n; i++)
             f = f - 0.0;
     }
 
@@ -720,7 +716,7 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
     {
         int i;
         float j;
-        for( i=0; i<n; i++ )
+        for(i=0; i<n; i++)
             j = j * 1.0;
     }
 
@@ -728,14 +724,14 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
     {
         int i;
         float j;
-        for( i=0; i<n; i++ )
+        for(i=0; i<n; i++)
             j = j / 1.0;
     }
 
     void putsProf(int n)
     {
         int i;
-        for( i = 0; i < n; ++i )
+        for(i = 0; i < n; ++i)
             puts("a");
     }
 
@@ -743,7 +739,7 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
     {
         int is[1];
         int i;
-        for( i = 0; i < n; ++i )
+        for(i = 0; i < n; ++i)
         {
             int is[1];
         }
@@ -753,7 +749,7 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
     {
         int is[1];
         int i;
-        for( i = 0; i < n; ++i )
+        for(i = 0; i < n; ++i)
         {
             int is[0x800];
         }
@@ -763,7 +759,7 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
     {
         int is[1];
         int i;
-        for( i = 0; i < n; ++i )
+        for(i = 0; i < n; ++i)
         {
             int is[0xF0000];
         }
@@ -773,9 +769,9 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
     {
         char* cp;
         int i;
-        for( i = 0; i < n; ++i )
+        for(i = 0; i < n; ++i)
         {
-            cp = (char*) malloc( sizeof( char ) * 1 );
+            cp = (char*) malloc(sizeof(char) * 1);
             free(cp);
         }
     }
@@ -784,9 +780,9 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
     {
         char* cp;
         int i;
-        for( i = 0; i < n; ++i )
+        for(i = 0; i < n; ++i)
         {
-            cp = (char*) malloc( sizeof( char ) * 0x800 );
+            cp = (char*) malloc(sizeof(char) * 0x800);
             free(cp);
         }
     }
@@ -795,9 +791,9 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
     {
         char* cp;
         int i;
-        for( i = 0; i < n; ++i )
+        for(i = 0; i < n; ++i)
         {
-            cp = (char*) malloc( sizeof( char ) * 0xF0000 );
+            cp = (char*) malloc(sizeof(char) * 0xF0000);
             free(cp);
         }
     }
@@ -812,7 +808,7 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
     //{
         float rand_range(float a, float b)
         { //float in a range
-            return ( ( b - a ) * ( (float)rand() / RAND_MAX) ) + a;
+            return ((b - a) * ((float)rand() / RAND_MAX)) + a;
         }
     //}
 
@@ -872,16 +868,16 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
             report_cant_open_file(path);
             return -1L;
         }
-        if ( fseek (fp, 0 , SEEK_END) != 0 ){
+        if (fseek (fp, 0 , SEEK_END) != 0){
             report_cant_move_file(path);
             return -1L;
         }
         long l = ftell (fp);
-        if ( l == -1L ){
+        if (l == -1L){
             report_cant_move_file(path);
             return -1L;
         }
-        if ( fclose(fp) == EOF ){
+        if (fclose(fp) == EOF){
             report_cant_close_file(path);
             return -1L;
         }
@@ -893,21 +889,21 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
     {
 
         long oldpos = ftell (fp);
-        if ( oldpos == -1L ){
+        if (oldpos == -1L){
             return -1L;
         }
 
-        if ( fseek (fp, 0 , SEEK_END) != 0 ){
+        if (fseek (fp, 0 , SEEK_END) != 0){
             return -1L;
         }
 
         long l = ftell (fp);
-        if ( l == -1L ){
+        if (l == -1L){
             return -1L;
         }
 
         //retore old position
-        if ( fseek (fp, oldpos , SEEK_SET) != 0 ){
+        if (fseek (fp, oldpos , SEEK_SET) != 0){
             return -1L;
         }
 
@@ -931,7 +927,7 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
         char * buffer;
         size_t bytes;
 
-        fp = fopen ( path , "rb" );
+        fp = fopen (path , "rb");
         if (fp==NULL) {
             report_cant_open_file(path);
             return NULL;
@@ -953,14 +949,14 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
         }
 
         // copy the file into the buffer:
-        if ( fread (buffer,1,l,fp) != l ) {
+        if (fread (buffer,1,l,fp) != l) {
             report_cant_read_file(path);
             return NULL;
         }
 
         /* the whole file is now loaded in the memory buffer. */
 
-        if ( EOF == fclose (fp) ){
+        if (EOF == fclose (fp)){
             report_cant_close_file(path);
             return NULL;
         }
@@ -980,7 +976,7 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
         char * buffer;
         size_t bytes;
 
-        fp = fopen ( path , "wb" );
+        fp = fopen (path , "wb");
         if (fp==NULL) {
             report_cant_open_file(path);
             return -1;
@@ -989,12 +985,12 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
         l = strlen(s);
 
         // copy the file into the buffer:
-        if ( fwrite (s,1,l,fp) != l ) {
+        if (fwrite (s,1,l,fp) != l) {
             report_cant_write_file(path);
             return -1;
         }
 
-        if ( EOF == fclose (fp) ){
+        if (EOF == fclose (fp)){
             report_cant_close_file(path);
             return -1;
         }
@@ -1020,14 +1016,14 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
             return -1;
         }
 
-        for(i=0; i<len; i++ ){
-            if ( fprintf(fp,"%d ", arr[i]) < 0 ){
+        for(i=0; i<len; i++){
+            if (fprintf(fp,"%d ", arr[i]) < 0){
                 report_cant_write_file(path);
                 return -1;
             }
         }
 
-        if ( EOF == fclose (fp) ){
+        if (EOF == fclose (fp)){
             report_cant_close_file(path);
             return -1;
         }
@@ -1048,15 +1044,15 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
             return -1;
         }
 
-        for(i=0; i<len; i++ ){
-            /*if ( fprintf(fp,format, arr[i]) < 0 ){*/
-            if ( fprintf(fp,"%.*e", precision, arr[i]) < 0 ){
+        for(i=0; i<len; i++){
+            /*if (fprintf(fp,format, arr[i]) < 0){*/
+            if (fprintf(fp,"%.*e", precision, arr[i]) < 0){
                 report_cant_write_file(path);
                 return -1;
             }
         }
 
-        if ( EOF == fclose (fp) ){
+        if (EOF == fclose (fp)){
             report_cant_close_file(path);
             return -1;
         }
@@ -1065,7 +1061,7 @@ int setjmp_func( bool jmp, jmp_buf env_buf )
     }
 
         //+1 for the null char
-#define PRIxPTR_WIDTH ( (int)(sizeof(void*)*2) )
+#define PRIxPTR_WIDTH ((int)(sizeof(void*)*2))
 
 //process address space
 
@@ -1078,12 +1074,12 @@ int post_inc_global()
     return global - 1;
 }
 
-int asm_precalc( int i )
+int asm_precalc(int i)
 {
     return i + 1;
 }
 
-int asm_precalc_inline( int i )
+int asm_precalc_inline(int i)
 {
     return i + 1;
 }
@@ -1106,7 +1102,7 @@ void exit_func() {
     Function gets called when process ends via `exit` or a `return` on the `main` function.
 */
 void atexit_func() {
-    printf( "atexit\n" );
+    printf("atexit\n");
 }
 
 /*
@@ -1131,7 +1127,7 @@ void abort_func()
     abort();
 }
 
-int main( int argc, char **argv )
+int main(int argc, char **argv)
 {
     /*
     #scope of brace pairs inside a function #braces
@@ -1149,13 +1145,13 @@ int main( int argc, char **argv )
             {
                 int i = 1;
                 /* impossible to access the outer `i` from now on in this scope! */
-                //assert( i_outter == 0 );
+                //assert(i_outter == 0);
             }
-            assert( i == 0 );
+            assert(i == 0);
         }
 
         /*
-        If a variable is declared in a scope ( between a pair of braces ),
+        If a variable is declared in a scope (between a pair of braces),
         there is no guarantee that it outlives that scope.
 
         Nothing however prevents the compiler from leaving it around and occupying space,
@@ -1169,7 +1165,7 @@ int main( int argc, char **argv )
                 int i = 1;
                 ip = &i;
             }
-            //assert( *ip == 1 ); //BAD undetermined behaviour
+            //assert(*ip == 1); //BAD undetermined behaviour
         }
 
         /*
@@ -1179,7 +1175,7 @@ int main( int argc, char **argv )
             int i = 1;
             {
                 int i = i;
-                //assert( i == 1 );
+                //assert(i == 1);
             }
         }
     }
@@ -1236,7 +1232,7 @@ int main( int argc, char **argv )
         /*
         Standard seems to say nothing of this edge case, since `_` is not followed by any letter TODO0 confirm
 
-        Still, it would be very cryptic to use such an identifier ( it is used in Python / Django! )
+        Still, it would be very cryptic to use such an identifier (it is used in Python / Django!)
         */
         {
             int _;
@@ -1297,7 +1293,7 @@ int main( int argc, char **argv )
         {
             //char has fixed size 1 byte:
 
-                assert( sizeof( char ) == 1 );
+                assert(sizeof(char) == 1);
 
             //char literals are specified by single quotes
 
@@ -1306,7 +1302,7 @@ int main( int argc, char **argv )
             //char literals can be cast to integers by replacing them with
             //their corresponding ascii integer value for example, 'a' == 97:
 
-                assert( 'a' == 97 );
+                assert('a' == 97);
 
             /*
             char literals can contain any byte even those which have
@@ -1345,9 +1341,9 @@ int main( int argc, char **argv )
 
         //short, long and long long are the same as the int versions:
 
-            assert( sizeof( short ) == sizeof( short int ) );
-            assert( sizeof( long ) == sizeof( long int ) );
-            assert( sizeof( long long ) == sizeof( long long int ) );
+            assert(sizeof(short) == sizeof(short int));
+            assert(sizeof(long) == sizeof(long int));
+            assert(sizeof(long long) == sizeof(long long int));
 
         //unsigned:
 
@@ -1375,21 +1371,21 @@ int main( int argc, char **argv )
         {
             //hexadecimal
             {
-                assert( 16 == 0x10    );
-                assert( 16 == 0x10    );
-                assert( 16 == 0x10l   );
-                assert( 16 == 0x10ll  );
-                assert( 16 == 0x10u   );
-                assert( 16 == 0x10ul  );
-                assert( 16 == 0x10ull );
+                assert(16 == 0x10   );
+                assert(16 == 0x10   );
+                assert(16 == 0x10l  );
+                assert(16 == 0x10ll );
+                assert(16 == 0x10u  );
+                assert(16 == 0x10ul );
+                assert(16 == 0x10ull);
 
                 //case does not matter
-                assert( 0xaB == 0xAb  );
+                assert(0xaB == 0xAb );
             }
 
             //octal:
 
-                assert( 16 == 020 );
+                assert(16 == 020);
 
             //binary: no ANSI way
         }
@@ -1428,10 +1424,10 @@ int main( int argc, char **argv )
             The exponent is given *in decimal*.
         */
         {
-            assert( 0xA.0p0  ==   10.0 );
-            assert( 0xA.8p0  ==   10.5 );
-            assert( 0x1.8p1  ==    3.0 );
-            assert( 0x1.0p10 == 1024.0 );
+            assert(0xA.0p0  ==   10.0);
+            assert(0xA.8p0  ==   10.5);
+            assert(0x1.8p1  ==    3.0);
+            assert(0x1.0p10 == 1024.0);
         }
 
         //no octal float literal
@@ -1463,17 +1459,17 @@ int main( int argc, char **argv )
         {
             int i;
 
-            i = ( int ){ 1 };
-            assert( i == 1 );
+            i = (int){ 1 };
+            assert(i == 1);
 
-            i = ( int ){ 1 } + ( int ){ 1 };
-            assert( i == 2 );
+            i = (int){ 1 } + (int){ 1 };
+            assert(i == 2);
 
             //any expression is fine
             {
                 i = 0;
-                i = ( int ){ i + 1 };
-                assert( i == 1 );
+                i = (int){ i + 1 };
+                assert(i == 1);
             }
         }
 
@@ -1491,9 +1487,9 @@ int main( int argc, char **argv )
         */
         {
             int *ip;
-            ip = &( int ){ 1 };
+            ip = &(int){ 1 };
             ip[0]++;
-            assert( *ip == 2 );
+            assert(*ip == 2);
         }
 
         //#compound literals for arrays
@@ -1501,26 +1497,26 @@ int main( int argc, char **argv )
             int *is;
 
             is = (int[2]){ 0, 1 };
-            assert( is[0] == 0 );
-            assert( is[1] == 1 );
+            assert(is[0] == 0);
+            assert(is[1] == 1);
 
             //reassign is to a new array
             //old memory becomes innacessible
             is = (int[2]){ 2, 3 };
-            assert( is[0] == 2 );
-            assert( is[1] == 3 );
+            assert(is[0] == 2);
+            assert(is[1] == 3);
 
             //the effect is the same as `int is[] = { 1 }`
             //that is: fill with zeroes.
             is = (int[2]){ 1 };
-            assert( is[0] == 1 );
-            assert( is[1] == 0 );
+            assert(is[0] == 1);
+            assert(is[1] == 0);
         }
 
         //Major application: pass initialized arrays and structs to functions.
         {
-            func_array( ( int[] ){ 1 } );
-            func_struct_1( ( struct func_struct ){ .i = 1 } );
+            func_array((int[]){ 1 });
+            func_struct_1((struct func_struct){ .i = 1 });
         }
 
         //struct: see compound literal for struct
@@ -1564,17 +1560,17 @@ int main( int argc, char **argv )
 
     #size of base types
 
-        base types like int of float don't have fixed ansi sizes: only a minimum value is specified.
+        base types like int of float don't have fixed ANSI sizes: only a minimum value is specified.
         so machines are free to take optimal values in terms of speed/storage
 
         `char` is an exception as it has a fized size of one byte.
 
         for most modifier os similar types (ex: short int, int, long, long long)
-        the ansi also guarantees size inequalities (equality is possible)
+        the ANSI also guarantees size inequalities (equality is possible)
 
     #fixed size types
 
-        besides the base times with nonfixed sizes, c99 ansi libc also furnishes
+        besides the base times with nonfixed sizes, c99 ANSI libc also furnishes
         fixed sized types. See
 
         you should only use those when having a fixed size is crucial,
@@ -1585,34 +1581,34 @@ int main( int argc, char **argv )
 
         size_t size = sizeof(int);
 
-        puts( "sizeof (bytes):" );
-        printf( "char        = %zu\n",  sizeof( char )          );
-        printf( "int         = %zu\n",  sizeof( int )           );
-        printf( "long int    = %zu\n",  sizeof( long int )      );
-        printf( "long long   = %zu\n",  sizeof( long long )     );
-        printf( "float       = %zu\n",  sizeof( float )         );
-        printf( "double      = %zu\n",  sizeof( double )        );
-        printf( "long double = %zu\n",  sizeof( long double )   );
-        printf( "wchar_t     = %zu\n",  sizeof( wchar_t )       );
-        printf( "size_t      = %zu\n",  sizeof( size_t )        );
+        puts("sizeof (bytes):");
+        printf("char        = %zu\n",  sizeof(char)         );
+        printf("int         = %zu\n",  sizeof(int)          );
+        printf("long int    = %zu\n",  sizeof(long int)     );
+        printf("long long   = %zu\n",  sizeof(long long)    );
+        printf("float       = %zu\n",  sizeof(float)        );
+        printf("double      = %zu\n",  sizeof(double)       );
+        printf("long double = %zu\n",  sizeof(long double)  );
+        printf("wchar_t     = %zu\n",  sizeof(wchar_t)      );
+        printf("size_t      = %zu\n",  sizeof(size_t)       );
 
         //char has fixed size:
 
-            assert( sizeof( char )      == 1                        );
+            assert(sizeof(char)      == 1                       );
 
         //size equality is always possible:
 
-            assert( sizeof( short int   ) <= sizeof( int            ) );
-            assert( sizeof( int         ) <= sizeof( long int       ) );
-            assert( sizeof( long int    ) <= sizeof( long long int  ) );
+            assert(sizeof(short int  ) <= sizeof(int           ));
+            assert(sizeof(int        ) <= sizeof(long int      ));
+            assert(sizeof(long int   ) <= sizeof(long long int ));
 
-            assert( sizeof( float       ) <= sizeof( double         ) );
-            assert( sizeof( double      ) <= sizeof( long double    ) );
+            assert(sizeof(float      ) <= sizeof(double        ));
+            assert(sizeof(double     ) <= sizeof(long double   ));
 
         //unsigned does not change sizeof:
 
-            assert( sizeof( unsigned int ) == sizeof( int ) );
-            assert( sizeof( unsigned long int ) == sizeof( long int ) );
+            assert(sizeof(unsigned int) == sizeof(int));
+            assert(sizeof(unsigned long int) == sizeof(long int));
     }
 
     /*
@@ -1641,7 +1637,7 @@ int main( int argc, char **argv )
         //c++;
             //WARN
 
-        assert( 1.00000000000000000000000000000000000000000000001 == 1.0 );
+        assert(1.00000000000000000000000000000000000000000000001 == 1.0);
             //OK
             //lost of precision is not checked
     }
@@ -1668,12 +1664,12 @@ int main( int argc, char **argv )
 
             //doubles are rounded down on typecast to int:
 
-                assert( (int)0.1 == 0 );
+                assert((int)0.1 == 0);
 
             //however doubles that are too large to in the int are silently TODO what happens exactly
 
-                printf( "typecast 1e10 = %d\n", (int)1e2 );
-                printf( "typecast 1e100 = %d\n", (int)1e100 );
+                printf("typecast 1e10 = %d\n", (int)1e2);
+                printf("typecast 1e100 = %d\n", (int)1e100);
 
             //so don't rely on typecasting for rounding!
 
@@ -1682,17 +1678,17 @@ int main( int argc, char **argv )
                 {
                     int i;
                     i = 0.1;
-                    assert( i == 0 );
+                    assert(i == 0);
                 }
 
             //once again, the double is rounded down
 
             //long to int: there may be loss of precision if the long is too large to fit into the int
 
-                //assert( (int) 0xFFFFFFFFFFL != 0xFFFFFFFFFF );
+                //assert((int) 0xFFFFFFFFFFL != 0xFFFFFFFFFF);
 
             //it is not possible to be sure about the exact values since the size of ints and longs
-            //is not fixed by ansi, but they can happen!
+            //is not fixed by ANSI, but they can happen!
 
         //#typecasts without data modification
 
@@ -1701,11 +1697,11 @@ int main( int argc, char **argv )
 
             //int to long:
 
-                assert( (long) 1 == 1L );
+                assert((long) 1 == 1L);
 
             //float to double:
 
-                assert( (double) 1.0f == 1.0 );
+                assert((double) 1.0f == 1.0);
 
             //array to pointer of same type:
 
@@ -1792,7 +1788,7 @@ int main( int argc, char **argv )
             //const int ic = 0
             //int* ip = &ic;
             //*ip = 1;
-            //assert( ic == 1 ):
+            //assert(ic == 1):
         }
 
         /*
@@ -1830,7 +1826,7 @@ int main( int argc, char **argv )
                 int *const ipc = &i;
 
                 *ipc = 1;
-                assert( i == 1 );
+                assert(i == 1);
 
                 //ipc = &j;
                     //ERROR
@@ -1989,15 +1985,15 @@ int main( int argc, char **argv )
                 //possible
                 {
                     int i = 0;
-                    (*int_ptr_func_int_ptr( &i )) = 2;
-                    assert( i == 2 );
+                    (*int_ptr_func_int_ptr(&i)) = 2;
+                    assert(i == 2);
                 }
 
                 //ERROR
                 {
                     int i = 0;
-                    //(*const_int_ptr_func_int_ptr( &i )) = 2;
-                    //assert( i == 2 );
+                    //(*const_int_ptr_func_int_ptr(&i)) = 2;
+                    //assert(i == 2);
                 }
             }
 
@@ -2058,7 +2054,7 @@ int main( int argc, char **argv )
             And on some function which must wait for another thread to finish a task:
 
                 other_task_finished = 0;
-                while( other_task_finished == 0 ){
+                while(other_task_finished == 0){
                     yield();
                 }
                 //continue
@@ -2143,7 +2139,7 @@ int main( int argc, char **argv )
         {
             typedef int NEWINT;
             NEWINT i = 1;
-            assert( sizeof(NEWINT) == sizeof(int) );
+            assert(sizeof(NEWINT) == sizeof(int));
         }
 
         //NEWINT i = 1;
@@ -2233,7 +2229,7 @@ int main( int argc, char **argv )
         {
             {
                 enum E { E1, E2, };
-                printf( "sizeof(enum E) = %zu\n", sizeof(enum E) );
+                printf("sizeof(enum E) = %zu\n", sizeof(enum E));
             }
 
             // The largest value that can be portably stored is INT_MAX.
@@ -2271,20 +2267,20 @@ int main( int argc, char **argv )
         //initialize by order
         {
             struct S s = { 1, 1.0 };
-            assert( s.i == 1 );
-            assert( s.f == 1.0 );
+            assert(s.i == 1);
+            assert(s.f == 1.0);
 
             s.i = 2;
             s.f = 2;
-            assert( s.i == 2 );
-            assert( s.f == 2.0 );
+            assert(s.i == 2);
+            assert(s.f == 2.0);
         }
 
         //define and initialize at the same time
         {
             struct S { int i; int j; } s0 = { 0, 1 }, s1 = { 2, 3 };
-            assert( s0.i == 0 );
-            assert( s1.i == 2 );
+            assert(s0.i == 0);
+            assert(s1.i == 2);
 
             struct S s2 = { 4, 5 };
         }
@@ -2308,8 +2304,8 @@ int main( int argc, char **argv )
                     .f = 1.0,
                     .i = 1
                 };
-                assert( s.i == 1 );
-                assert( s.f == 1.0 );
+                assert(s.i == 1);
+                assert(s.f == 1.0);
             }
 
             //can be mixed with array designated initializers
@@ -2324,13 +2320,13 @@ int main( int argc, char **argv )
                     [1].i = 5
                 };
 
-                assert( ss[0].a[0] == 0 );
-                assert( ss[0].a[1] == 1 );
-                assert( ss[0].i == 2 );
+                assert(ss[0].a[0] == 0);
+                assert(ss[0].a[1] == 1);
+                assert(ss[0].i == 2);
 
-                assert( ss[1].a[0] == 3 );
-                assert( ss[1].a[1] == 4 );
-                assert( ss[1].i == 5 );
+                assert(ss[1].a[0] == 3);
+                assert(ss[1].a[1] == 4);
+                assert(ss[1].i == 5);
             }
         }
 
@@ -2358,16 +2354,16 @@ int main( int argc, char **argv )
 
                 {
                     struct S s;
-                    s = ( struct S ){ 1, 2 };
-                    assert( s.i == 1 );
-                    assert( s.j == 2 );
+                    s = (struct S){ 1, 2 };
+                    assert(s.i == 1);
+                    assert(s.j == 2);
                 }
 
                 {
                     struct S s;
-                    s = ( struct S ){ .j = 2, .i = 1 };
-                    assert( s.i == 1 );
-                    assert( s.j == 2 );
+                    s = (struct S){ .j = 2, .i = 1 };
+                    assert(s.i == 1);
+                    assert(s.j == 2);
                 }
             }
         }
@@ -2384,7 +2380,7 @@ int main( int argc, char **argv )
                 sp->i = 1;
                 //(*sp).i = 1;
 
-            assert( s.i == 1 );
+            assert(s.i == 1);
         }
 
         //array of structs initialization
@@ -2402,10 +2398,10 @@ int main( int argc, char **argv )
                     { 2, 3 },
                 };
 
-                assert( ss[0].i == 0 );
-                assert( ss[0].j == 1 );
-                assert( ss[1].i == 2 );
-                assert( ss[1].j == 3 );
+                assert(ss[0].i == 0);
+                assert(ss[0].j == 1);
+                assert(ss[1].i == 2);
+                assert(ss[1].j == 3);
             }
 
 #if __STDC_VERSION__ >= 199901L
@@ -2417,10 +2413,10 @@ int main( int argc, char **argv )
                     { .j = 3, .i = 2 },
                 };
 
-                assert( ss[0].i == 0 );
-                assert( ss[0].j == 1 );
-                assert( ss[1].i == 2 );
-                assert( ss[1].j == 3 );
+                assert(ss[0].i == 0);
+                assert(ss[0].j == 1);
+                assert(ss[1].i == 2);
+                assert(ss[1].j == 3);
             }
         }
 
@@ -2443,10 +2439,10 @@ int main( int argc, char **argv )
                 };
 
                 struct S s = { { 0, 1 }, { 2, 3 } };
-                assert( s.is0[0] == 0 );
-                assert( s.is0[1] == 1 );
-                assert( s.is1[0] == 2 );
-                assert( s.is1[1] == 3 );
+                assert(s.is0[0] == 0);
+                assert(s.is0[1] == 1);
+                assert(s.is1[0] == 2);
+                assert(s.is1[1] == 3);
 
                 //non designated init
                 {
@@ -2454,14 +2450,14 @@ int main( int argc, char **argv )
                         { { 0, 1 }, { 2, 3 } },
                         { { 4, 5 }, { 6, 7 } }
                     };
-                    assert( ss[0].is0[0] == 0 );
-                    assert( ss[0].is0[1] == 1 );
-                    assert( ss[0].is1[0] == 2 );
-                    assert( ss[0].is1[1] == 3 );
-                    assert( ss[1].is0[0] == 4 );
-                    assert( ss[1].is0[1] == 5 );
-                    assert( ss[1].is1[0] == 6 );
-                    assert( ss[1].is1[1] == 7 );
+                    assert(ss[0].is0[0] == 0);
+                    assert(ss[0].is0[1] == 1);
+                    assert(ss[0].is1[0] == 2);
+                    assert(ss[0].is1[1] == 3);
+                    assert(ss[1].is0[0] == 4);
+                    assert(ss[1].is0[1] == 5);
+                    assert(ss[1].is1[0] == 6);
+                    assert(ss[1].is1[1] == 7);
                 }
 
 #if __STDC_VERSION__ >= 199901L
@@ -2472,14 +2468,14 @@ int main( int argc, char **argv )
                         { .is0 = { 0, 1 }, .is1 = { 2, 3 } },
                         { .is0 = { 4, 5 }, .is1 = { 6, 7 } },
                     };
-                    assert( ss[0].is0[0] == 0 );
-                    assert( ss[0].is0[1] == 1 );
-                    assert( ss[0].is1[0] == 2 );
-                    assert( ss[0].is1[1] == 3 );
-                    assert( ss[1].is0[0] == 4 );
-                    assert( ss[1].is0[1] == 5 );
-                    assert( ss[1].is1[0] == 6 );
-                    assert( ss[1].is1[1] == 7 );
+                    assert(ss[0].is0[0] == 0);
+                    assert(ss[0].is0[1] == 1);
+                    assert(ss[0].is1[0] == 2);
+                    assert(ss[0].is1[1] == 3);
+                    assert(ss[1].is0[0] == 4);
+                    assert(ss[1].is0[1] == 5);
+                    assert(ss[1].is1[0] == 6);
+                    assert(ss[1].is1[1] == 7);
                 }
 
 #endif
@@ -2496,14 +2492,14 @@ int main( int argc, char **argv )
 
                 {
                     struct S s = { .cs = "ab", .i = 1 };
-                    assert( strcmp( s.cs, "ab" ) == 0 );
-                    assert( s.i == 1 );
+                    assert(strcmp(s.cs, "ab") == 0);
+                    assert(s.i == 1);
                 }
 
                 {
                     struct S s = { "ab", 1 };
-                    assert( strcmp( s.cs, "ab" ) == 0 );
-                    assert( s.i == 1 );
+                    assert(strcmp(s.cs, "ab") == 0);
+                    assert(s.i == 1);
                 }
 
                 //struct S s = { "ab" };
@@ -2518,8 +2514,8 @@ int main( int argc, char **argv )
             //non-designated init
             {
                 struct S0 s = { { 1, 2 } };
-                assert( s.s.i == 1 );
-                assert( s.s.j == 2 );
+                assert(s.s.i == 1);
+                assert(s.s.j == 2);
             }
 
 #if __STDC_VERSION__ >= 199901L
@@ -2532,8 +2528,8 @@ int main( int argc, char **argv )
                         .i = 1
                     }
                 };
-                assert( s.s.i == 1 );
-                assert( s.s.j == 2 );
+                assert(s.s.i == 1);
+                assert(s.s.j == 2);
             }
 
 #endif
@@ -2614,8 +2610,8 @@ int main( int argc, char **argv )
             struct S s  = { 1, 1.0 };
             struct S s2 = { 2, 2.0 };
             s = s2;
-            assert( s.i == 2 );
-            assert( s.f == 2.0 );
+            assert(s.i == 2);
+            assert(s.f == 2.0);
         }
 
         //equality `==` does not exist. There have been failed proposals.
@@ -2623,7 +2619,7 @@ int main( int argc, char **argv )
             struct S { int i; };
             struct S s  = { 1 };
             struct S s2 = { 1 };
-            //assert( s == s2 );
+            //assert(s == s2);
         }
 
         /*
@@ -2661,9 +2657,9 @@ int main( int argc, char **argv )
             };
 
             //likelly to be 8 on a 2013 32 bit machine:
-            printf( "struct sizeof = %d\n", sizeof( struct S ) );
+            printf("struct sizeof = %d\n", sizeof(struct S));
 
-            assert( sizeof(char) + sizeof(float) <= sizeof(struct S) );
+            assert(sizeof(char) + sizeof(float) <= sizeof(struct S));
         }
 
         /*
@@ -2678,23 +2674,23 @@ int main( int argc, char **argv )
             {
                 struct { int i; int j; } s;
                 s.i = 0;
-                assert( s.i == 0 );
+                assert(s.i == 0);
             }
 
             //initialize
             {
                 struct { int i; int j; } s = { 0, 1 };
-                assert( s.i == 0 );
-                assert( s.j == 1 );
+                assert(s.i == 0);
+                assert(s.j == 1);
             }
 
             //initialize array good style
             {
                 struct { int i; int j; } s[] = { { 0, 1 }, { 2, 3 } };
-                assert( s[0].i == 0 );
-                assert( s[0].j == 1 );
-                assert( s[1].i == 2 );
-                assert( s[1].j == 3 );
+                assert(s[0].i == 0);
+                assert(s[0].j == 1);
+                assert(s[1].i == 2);
+                assert(s[1].j == 3);
             }
 
             /*
@@ -2704,10 +2700,10 @@ int main( int argc, char **argv )
             */
             {
                 //struct { int i; int j; } s[] = { 0, 1, 2, 3 };
-                //assert( s[0].i == 0 );
-                //assert( s[0].j == 1 );
-                //assert( s[1].i == 2 );
-                //assert( s[1].j == 3 );
+                //assert(s[0].i == 0);
+                //assert(s[0].j == 1);
+                //assert(s[1].i == 2);
+                //assert(s[1].j == 3);
             }
         }
 
@@ -2753,10 +2749,10 @@ int main( int argc, char **argv )
                 unsigned b5 : 1;
             } s ;
 
-            assert( sizeof( struct S ) == 16 );
+            assert(sizeof(struct S) == 16);
 
             s.b1 = 1;
-            assert( s.b1 == 1 );
+            assert(s.b1 == 1);
 
             //s.b1 = 2;
                 //WARN
@@ -2765,11 +2761,11 @@ int main( int argc, char **argv )
 
             int i = 2;
             s.b1 = i;
-            assert( s.b1 == 0 );
+            assert(s.b1 == 0);
 
             i = 3;
             s.b1 = i;
-            assert( s.b1 == 1 );
+            assert(s.b1 == 1);
                 //only takes lsb
         }
 
@@ -2780,7 +2776,7 @@ int main( int argc, char **argv )
 
             appliction: get the struct that corresponds to a given pointer to a field.
             this is used in the kernel via `container_of`, and can be used to implement
-            linked lists in ansi c: <http://stackoverflow.com/questions/10269685/kernels-container-of-any-way-to-make-it-iso-conforming>
+            linked lists in ANSI c: <http://stackoverflow.com/questions/10269685/kernels-container-of-any-way-to-make-it-iso-conforming>
         */
         {
             struct foo
@@ -2791,10 +2787,10 @@ int main( int argc, char **argv )
                 char d;
             };
 
-            printf( "offsetof( struct foo, a ) = %zu\n", offsetof( struct foo, a ) );
-            printf( "offsetof( struct foo, b ) = %zu\n", offsetof( struct foo, b ) );
-            printf( "offsetof( struct foo, c ) = %zu\n", offsetof( struct foo, c ) );
-            printf( "offsetof( struct foo, d ) = %zu\n", offsetof( struct foo, d ) );
+            printf("offsetof(struct foo, a) = %zu\n", offsetof(struct foo, a));
+            printf("offsetof(struct foo, b) = %zu\n", offsetof(struct foo, b));
+            printf("offsetof(struct foo, c) = %zu\n", offsetof(struct foo, c));
+            printf("offsetof(struct foo, d) = %zu\n", offsetof(struct foo, d));
         }
     }
 
@@ -2816,7 +2812,7 @@ int main( int argc, char **argv )
             } u;
             u.i = 0;
             u.j = 1;
-            assert( u.i == 1 );
+            assert(u.i == 1);
         }
     }
 
@@ -2827,7 +2823,7 @@ int main( int argc, char **argv )
 
         For example, it is undetermined behaviour in `f1() * f2()` if `f1` or `f2` is evaluated first.
 
-        The same goes for `g( f1(), f2() )`.
+        The same goes for `g(f1(), f2())`.
 
         Also note that there is a further separation between evaluation (getting the value to pass forward),
         and side effects which this evaulation may have (increasing `i` on an `i++`).
@@ -2879,8 +2875,8 @@ int main( int argc, char **argv )
         {
             int i = 0;
             i = i++;
-            printf( "i = i++ = %d\n", i );
-            assert( i == 0 || i == 1 );
+            printf("i = i++ = %d\n", i);
+            assert(i == 0 || i == 1);
         }
 
         /*
@@ -2891,7 +2887,7 @@ int main( int argc, char **argv )
         {
             global = 0;
             global = post_inc_global();
-            assert( global == 0 );
+            assert(global == 0);
         }
 
         /*
@@ -2907,8 +2903,8 @@ int main( int argc, char **argv )
         {
             int i = 0;
             int j = i++ + i++;
-            printf( "i++ + i++ = %d\n", j );
-            assert( j == 0 || j == 1 );
+            printf("i++ + i++ = %d\n", j);
+            assert(j == 0 || j == 1);
         }
 
         /*
@@ -2932,8 +2928,8 @@ int main( int argc, char **argv )
         {
             global = 0;
             int j = post_inc_global() - post_inc_global();
-            printf( "post_inc_global() - post_inc_global() = %d\n", j );
-            assert( j == -1 || j == 1 );
+            printf("post_inc_global() - post_inc_global() = %d\n", j);
+            assert(j == -1 || j == 1);
         }
 
         /*
@@ -2954,7 +2950,7 @@ int main( int argc, char **argv )
         */
         {
             global = 0;
-            assert( post_inc_global() + post_inc_global() == 1 );
+            assert(post_inc_global() + post_inc_global() == 1);
         }
 
         /*
@@ -2962,7 +2958,7 @@ int main( int argc, char **argv )
         */
         {
             int i = 0;
-            assert( ( i++, i++ ) == 1 );
+            assert((i++, i++) == 1);
         }
 
         /*
@@ -2980,13 +2976,13 @@ int main( int argc, char **argv )
             */
             {
                 int i = 0;
-                assert( i++ || i );
+                assert(i++ || i);
             }
 
             /* same as for `||` */
             {
                 int i = 1;
-                assert( ! ( i-- && i ) );
+                assert(! (i-- && i));
             }
         }
     }
@@ -2995,48 +2991,48 @@ int main( int argc, char **argv )
     {
         //#arithmetic
         {
-            assert( ( 1 + 2 )        == 3   );
-            assert( ( 2 * 3 )        == 6   );
-            assert( ( 4 / 2 )        == 2   );
-            assert( ( 1 / 2 )        == 0   );
-            assert( ( 1.0 / 2.0 )    == 0.5 );
-            assert( ( 1 / 2.0 )      == 0.5 );
-            assert( ( 1 / (double)2) == 0.5 );
+            assert((1 + 2)         == 3  );
+            assert((2 * 3)         == 6  );
+            assert((4 / 2)         == 2  );
+            assert((1 / 2)         == 0  );
+            assert((1.0 / 2.0)     == 0.5);
+            assert((1 / 2.0)       == 0.5);
+            assert((1 / (double)2) == 0.5);
 
-            assert( ( 3 % 3 ) == 0 );
-            assert( ( 4 % 3 ) == 1 );
-            assert( ( 5 % 3 ) == 2 );
-            assert( ( 6 % 3 ) == 0 );
+            assert((3 % 3) == 0);
+            assert((4 % 3) == 1);
+            assert((5 % 3) == 2);
+            assert((6 % 3) == 0);
         }
 
         //#boolean
         {
-            assert( ( 1 == 1 ) == 1 );
-            assert( ( 0 == 1 ) == 0 );
+            assert((1 == 1) == 1);
+            assert((0 == 1) == 0);
 
-            assert( ( 0 >  1 ) == 0 );
-            assert( ( 0 >  0 ) == 0 );
-            assert( ( 0 > -1 ) == 1 );
-            assert( ( 0 <  1 ) == 1 );
-            assert( ( 0 <  0 ) == 0 );
-            assert( ( 0 < -1 ) == 0 );
+            assert((0 >  1) == 0);
+            assert((0 >  0) == 0);
+            assert((0 > -1) == 1);
+            assert((0 <  1) == 1);
+            assert((0 <  0) == 0);
+            assert((0 < -1) == 0);
 
-            assert( ( 0 >=  1 ) == 0 );
-            assert( ( 0 >=  0 ) == 1 );
-            assert( ( 0 >= -1 ) == 1 );
-            assert( ( 0 <=  1 ) == 1 );
-            assert( ( 0 <=  0 ) == 1 );
-            assert( ( 0 <= -1 ) == 0 );
+            assert((0 >=  1) == 0);
+            assert((0 >=  0) == 1);
+            assert((0 >= -1) == 1);
+            assert((0 <=  1) == 1);
+            assert((0 <=  0) == 1);
+            assert((0 <= -1) == 0);
 
-            assert( ( 0 || 0 ) == 0 );
-            assert( ( 0 || 1 ) == 1 );
-            assert( ( 1 || 0 ) == 1 );
-            assert( ( 1 || 1 ) == 1 );
+            assert((0 || 0) == 0);
+            assert((0 || 1) == 1);
+            assert((1 || 0) == 1);
+            assert((1 || 1) == 1);
 
-            assert( ( 0 && 0 ) == 0 );
-            assert( ( 0 && 1 ) == 0 );
-            assert( ( 1 && 0 ) == 0 );
-            assert( ( 1 && 1 ) == 1 );
+            assert((0 && 0) == 0);
+            assert((0 && 1) == 0);
+            assert((1 && 0) == 0);
+            assert((1 && 1) == 1);
 
             /*
             #short circuit evaluation
@@ -3050,39 +3046,39 @@ int main( int argc, char **argv )
             */
             {
                 int i = 0;
-                if ( 1 || i++ );
-                assert( i == 0 );
+                if (1 || i++);
+                assert(i == 0);
             }
         }
 
         //#bitwise
         {
             //#NOT
-            assert( (~(char)0x00) == (char)0xFF );
-            assert( (~(char)0xFF) == (char)0x00 );
+            assert((~(char)0x00) == (char)0xFF);
+            assert((~(char)0xFF) == (char)0x00);
 
             //#OR
-            assert( ((char)0x00 & (char)0x00 ) == (char)0x00 );
-            assert( ((char)0xFF & (char)0x00 ) == (char)0x00 );
-            assert( ((char)0xFF & (char)0xFF ) == (char)0xFF );
+            assert(((char)0x00 & (char)0x00) == (char)0x00);
+            assert(((char)0xFF & (char)0x00) == (char)0x00);
+            assert(((char)0xFF & (char)0xFF) == (char)0xFF);
 
             //#XOR
-            assert( ((char)0x00 ^ (char)0x00 ) == (char)0x00 );
-            assert( ((char)0xFF ^ (char)0x00 ) == (char)0xFF );
-            assert( ((char)0xFF ^ (char)0xFF ) == (char)0x00 );
+            assert(((char)0x00 ^ (char)0x00) == (char)0x00);
+            assert(((char)0xFF ^ (char)0x00) == (char)0xFF);
+            assert(((char)0xFF ^ (char)0xFF) == (char)0x00);
 
             //#shift
-            assert( ( 1 << 0 ) == 1 );
-            assert( ( 1 << 1 ) == 2 );
-            assert( ( 1 << 2 ) == 4 );
-            assert( ( 1 << 3 ) == 8 );
+            assert((1 << 0) == 1);
+            assert((1 << 1) == 2);
+            assert((1 << 2) == 4);
+            assert((1 << 3) == 8);
 
-            assert( ( 8 >> 0 ) == 8 );
-            assert( ( 8 >> 1 ) == 4 );
-            assert( ( 8 >> 2 ) == 2 );
-            assert( ( 8 >> 3 ) == 1 );
-            assert( ( 8 >> 4 ) == 0 );
-            assert( ( 5 >> 1 ) == 2 );
+            assert((8 >> 0) == 8);
+            assert((8 >> 1) == 4);
+            assert((8 >> 2) == 2);
+            assert((8 >> 3) == 1);
+            assert((8 >> 4) == 0);
+            assert((5 >> 1) == 2);
         }
 
         /*
@@ -3092,7 +3088,7 @@ int main( int argc, char **argv )
             {
                 int i = 0;
                 i = 1;
-                assert( i == 1 );
+                assert(i == 1);
             }
 
             /*
@@ -3100,7 +3096,7 @@ int main( int argc, char **argv )
             */
             {
                 int i;
-                assert( ( i = 1 ) == 1 );
+                assert((i = 1) == 1);
 
                 /*
                 This is why this works (and probably why it is made behave like this.
@@ -3108,8 +3104,8 @@ int main( int argc, char **argv )
                 {
                     int i, j, k;
                     i = j = k = 1;
-                    //i = ( j = ( k = 1 ) )
-                    assert( i == j && j == k && k == 1 );
+                    //i = (j = (k = 1))
+                    assert(i == j && j == k && k == 1);
                 }
             }
 
@@ -3122,7 +3118,7 @@ int main( int argc, char **argv )
             */
             {
                 int self_assign_init = self_assign_init;
-                printf( "self_assign_init = %d\n", self_assign_init );
+                printf("self_assign_init = %d\n", self_assign_init);
             }
 
             /*
@@ -3145,7 +3141,7 @@ int main( int argc, char **argv )
                 */
                 {
                     int i = 0, j = 1, k = 2;
-                    //( i = j ) = k;
+                    //(i = j) = k;
                 }
 
                 /*
@@ -3163,8 +3159,8 @@ int main( int argc, char **argv )
                 */
                 {
                     int i = 0;
-                    (*int_ptr_func_int_ptr( &i )) = 2;
-                    assert( i == 2 );
+                    (*int_ptr_func_int_ptr(&i)) = 2;
+                    assert(i == 2);
                 }
             }
         }
@@ -3200,24 +3196,24 @@ int main( int argc, char **argv )
             int i;
 
             i=0;
-            assert( i++ == 0 );
-            assert( i == 1 );
+            assert(i++ == 0);
+            assert(i == 1);
 
             i=0;
-            assert( ++i == 1 );
-            assert( i == 1 );
+            assert(++i == 1);
+            assert(i == 1);
 
             i=1;
-            assert( i-- == 1 );
-            assert( i == 0 );
+            assert(i-- == 1);
+            assert(i == 0);
 
             i=1;
-            assert( --i == 0 );
-            assert( i == 0 );
+            assert(--i == 0);
+            assert(i == 0);
 
             double f = 0.0;
-            assert( f++ == 0.0 );
-            assert( f == 1.0 );
+            assert(f++ == 0.0);
+            assert(f == 1.0);
         }
 
         /*
@@ -3234,28 +3230,28 @@ int main( int argc, char **argv )
             int i;
 
             i = 0;
-            assert( ( i += 1 ) == 1 );
-            assert( i == 1 );
+            assert((i += 1) == 1);
+            assert(i == 1);
 
             i = 1;
-            assert( ( i -= 1 ) == 0 );
-            assert( i == 0 );
+            assert((i -= 1) == 0);
+            assert(i == 0);
 
             i = 1;
-            assert( ( i *= 2 ) == 2 );
-            assert( i == 2 );
+            assert((i *= 2) == 2);
+            assert(i == 2);
 
             i = 2;
-            assert( ( i /= 2 ) == 1 );
-            assert( i == 1 );
+            assert((i /= 2) == 1);
+            assert(i == 1);
 
             i = 3;
-            assert( ( i %= 2 ) == 1 );
-            assert( i == 1 );
+            assert((i %= 2) == 1);
+            assert(i == 1);
 
             i = 0xFF;
-            assert( ( i &= (char)0x00 ) == (char)0x00 );
-            assert( ( (char)i == (char)0x00 ) );
+            assert((i &= (char)0x00) == (char)0x00);
+            assert(((char)i == (char)0x00));
 
             //same others bitwise, except ~=
         }
@@ -3266,8 +3262,8 @@ int main( int argc, char **argv )
             The ternary conditional operator.
         */
         {
-            assert( ( 1 < 2 ? 3 : 4 ) == 3 );
-            assert( ( 1 > 2 ? 3 : 4 ) == 4 );
+            assert((1 < 2 ? 3 : 4) == 3);
+            assert((1 > 2 ? 3 : 4) == 4);
         }
 
         /*
@@ -3285,8 +3281,8 @@ int main( int argc, char **argv )
 
             BAD: operations on left has no effect
             */
-            assert( ( i = 0, 1        ) == 1 );
-            assert( ( i = 0, i = 1, 2 ) == 2 );
+            assert((i = 0, 1       ) == 1);
+            assert((i = 0, i = 1, 2) == 2);
 
             /*
             assign has precedence over comma
@@ -3296,7 +3292,7 @@ int main( int argc, char **argv )
                 i = 2;
                 (i = 0), 1;
                 i = 0, 1;
-                assert( i == 0);
+                assert(i == 0);
             }
 
             //int j=0, 1;
@@ -3306,16 +3302,16 @@ int main( int argc, char **argv )
             //operation on left comes first
             {
                 i=2;
-                assert( (i=0, i) == 0);
+                assert((i=0, i) == 0);
                 i=2;
-                assert( (i=0, i++, i) == 1);
+                assert((i=0, i++, i) == 1);
             }
 
             //must be parenthesis protected when passesd as function argument
             //to differentiate from argument separtor comma
             {
                 int i = 0;
-                assert( int_func_int( (i++, i) ) == 1 );
+                assert(int_func_int((i++, i)) == 1);
             }
         }
     }
@@ -3336,20 +3332,20 @@ int main( int argc, char **argv )
             //must declare like that: multiple stars
         pi = &i;
         *pi = 1;
-        assert( i == 1 );
-        assert( *pi == 1 );
+        assert(i == 1);
+        assert(*pi == 1);
         i = 2;
-        assert( i == 2 );
-        assert( *pi == 2 );
+        assert(i == 2);
+        assert(*pi == 2);
 
-        printf( "(void*)pi = %p\n", (void*)pi );
-        printf( "(void*)(pi+1) = %p\n",(void*)(pi+1) );
+        printf("(void*)pi = %p\n", (void*)pi);
+        printf("(void*)(pi+1) = %p\n",(void*)(pi+1));
 
         //OK: implicit conversion * -> int:
 
             pi2 = pi + 1;
-            printf( "(void*)(pi2-pi) = %p\n", (void*)(pi2-pi) );
-            assert( pi2 - pi == 1 );
+            printf("(void*)(pi2-pi) = %p\n", (void*)(pi2-pi));
+            assert(pi2 - pi == 1);
 
         //ERROR: incompatible pointer type
 
@@ -3397,17 +3393,17 @@ int main( int argc, char **argv )
             */
             {
                 int i = 0;
-                //assert( &i != NULL );
+                //assert(&i != NULL);
                     //gcc 4.7 warning: &i will never be null. Smart.
             }
 
             //how it prints like:
 
-                printf( "NULL = %p\n", NULL );
+                printf("NULL = %p\n", NULL);
 
             //`if(NULL)` and `if(!NULL)` in error checking code always work as expected
 
-                assert( !NULL );
+                assert(!NULL);
 
             /*
             #null macro vs 0
@@ -3424,14 +3420,14 @@ int main( int argc, char **argv )
                 C++11 introduces nullptr, which is a much cleaner solution.
             */
             {
-                assert( NULL == (int*)0 );
-                assert( NULL == (char*)0 );
-                printf( "sizeof(NULL) = %zu\n", sizeof(NULL) );
+                assert(NULL == (int*)0);
+                assert(NULL == (char*)0);
+                printf("sizeof(NULL) = %zu\n", sizeof(NULL));
             }
 
             //ERROR: comparison of distinct pointer types requires a cast:
             {
-                //assert( (int*)0 == (char*)0 );
+                //assert((int*)0 == (char*)0);
             }
 
             /*
@@ -3472,11 +3468,11 @@ int main( int argc, char **argv )
 
                 //ERROR: invalid application of sizeof to void type
 
-                    //printf( "sizeof ( void ) = %d\n", sizeof( void ) );
+                    //printf("sizeof (void) = %d\n", sizeof(void));
 
                 //it is however possible to get the size of a `void*` TODO0 it is the same size of all other pointers
 
-                    printf( "sizeof ( void* ) = %d\n", sizeof( void* ) );
+                    printf("sizeof (void*) = %d\n", sizeof(void*));
 
                 //ERROR: invalid application of sizeof to void type
 
@@ -3533,16 +3529,16 @@ int main( int argc, char **argv )
             is[0] = 0;
             is[1] = 1;
             is[2] = 2;
-            assert( is[0] == 0 );
-            assert( is[1] == 1 );
-            assert( is[2] == 2 );
+            assert(is[0] == 0);
+            assert(is[1] == 1);
+            assert(is[2] == 2);
         }
 
         {
             int is[] = { 0, 1, 2 };
-            assert( is[0] == 0 );
-            assert( is[1] == 1 );
-            assert( is[2] == 2 );
+            assert(is[0] == 0);
+            assert(is[1] == 1);
+            assert(is[2] == 2);
                 //allocates exact size
             //is = {3,4,5};
                 //ERROR
@@ -3550,10 +3546,10 @@ int main( int argc, char **argv )
 
         {
             int is[4] = { 1, 2 };
-            assert( is[0] == 1 );
-            assert( is[1] == 2 );
-            assert( is[2] == 0 );
-            assert( is[3] == 0 );
+            assert(is[0] == 1);
+            assert(is[1] == 2);
+            assert(is[2] == 0);
+            assert(is[3] == 0);
         }
 
         {
@@ -3595,8 +3591,8 @@ int main( int argc, char **argv )
                     [1] = 1,
                     [0] = 0,
                 };
-                assert( is[0] == 0 );
-                assert( is[1] == 1 );
+                assert(is[0] == 0);
+                assert(is[1] == 1);
             }
 
             //missing elements are zeroed
@@ -3604,8 +3600,8 @@ int main( int argc, char **argv )
                 int is[2] = {
                     [1] = 1,
                 };
-                assert( is[0] == 0 );
-                assert( is[1] == 1 );
+                assert(is[0] == 0);
+                assert(is[1] == 1);
             }
 
             /*
@@ -3620,7 +3616,7 @@ int main( int argc, char **argv )
                     [0] = 0,
                     [0] = 1,
                 };
-                assert( is[0] == 1 );
+                assert(is[0] == 1);
             }
 
             //arrays of structs can refer multiple times to the same struct
@@ -3634,10 +3630,10 @@ int main( int argc, char **argv )
                     [1].j = 3,
                 };
 
-                assert( ss[0].i == 0 );
-                assert( ss[0].j == 1 );
-                assert( ss[1].i == 2 );
-                assert( ss[1].j == 3 );
+                assert(ss[0].i == 0);
+                assert(ss[0].j == 1);
+                assert(ss[1].i == 2);
+                assert(ss[1].j == 3);
             }
 
             /*
@@ -3655,10 +3651,10 @@ int main( int argc, char **argv )
                         [2] = 1,
                         2,              //[3], because it comes after [2]
                     };
-                    assert( is[0] == -1 );
-                    assert( is[1] == 0 );
-                    assert( is[2] == 1 );
-                    assert( is[3] == 2 );
+                    assert(is[0] == -1);
+                    assert(is[1] == 0);
+                    assert(is[2] == 1);
+                    assert(is[3] == 2);
                 }
 
                 //possible to overwrite values
@@ -3669,8 +3665,8 @@ int main( int argc, char **argv )
                         [0] = 2,    //[0] second assign, overwrites first
                         3,          //[1] because comes after [0], second assign, overwrites first
                     };
-                    assert( is[0] == 2 );
-                    assert( is[1] == 3 );
+                    assert(is[0] == 2);
+                    assert(is[1] == 3);
                 }
             }
         }
@@ -3679,7 +3675,7 @@ int main( int argc, char **argv )
         /*
         Obscure and confusing access syntax that you should never use except to surprise your friends.
 
-        All that the standard says is that: a[b] = *( a + b ). If a is the int and b the pointer or the contrary
+        All that the standard says is that: a[b] = *(a + b). If a is the int and b the pointer or the contrary
         does not matter: all that matters is that one is an int and the other a pointer.
 
         This seems to have been left like this since it is easier to compile.
@@ -3688,7 +3684,7 @@ int main( int argc, char **argv )
         */
         {
             int is[] = { 1, 3, 2 };
-            assert( is[1] == 1[is] );
+            assert(is[1] == 1[is]);
         }
 
         /*
@@ -3757,7 +3753,7 @@ int main( int argc, char **argv )
             {
                 {
                     int n = 2;
-                    //scanf( "%d", &n );
+                    //scanf("%d", &n);
                         //OK
                     int isVla[n];
                 }
@@ -3791,7 +3787,7 @@ int main( int argc, char **argv )
         {
             int is[] = {0,1,2};
             int i;
-            for(i=0; i<3; i++ )
+            for(i=0; i<3; i++)
             {
                 printf("%d ",is[i]);
             }
@@ -3834,22 +3830,22 @@ int main( int argc, char **argv )
 
             Unspecified behaviour.
             */
-            if ( 0 )
+            if (0)
             {
-                srand( time( NULL ) );
+                srand(time(NULL));
                 i = rand() % 2;
-                printf( "overflow = %d\n", is[2 + i] );
+                printf("overflow = %d\n", is[2 + i]);
             }
 
             //this will amost certainly lead to a segmentation fault
-            if ( 0 )
+            if (0)
             {
-                for ( size_t i = 0; i < SIZE_MAX; i++ )
+                for (size_t i = 0; i < SIZE_MAX; i++)
                 {
                     is[i] = 0;
                     //j = is[i];
                 }
-                assert( is[0] == 0 );
+                assert(is[0] == 0);
             }
         }
 
@@ -3866,20 +3862,20 @@ int main( int argc, char **argv )
             int is[]  = { 0, 1, 2 };
             int is2[] = { 0, 1, 2 };
 
-            assert( is != is2 );
+            assert(is != is2);
                 //compares addresses, not data!
 
-            assert( memcmp( is, is2, 3 * sizeof(int)) == 0 );
+            assert(memcmp(is, is2, 3 * sizeof(int)) == 0);
             is[1] = 0;
-            assert( memcmp( is, is2, 3 * sizeof(int)) < 0 );
+            assert(memcmp(is, is2, 3 * sizeof(int)) < 0);
             is[1] = 2;
-            assert( memcmp( is, is2, 3 * sizeof(int)) > 0 );
+            assert(memcmp(is, is2, 3 * sizeof(int)) > 0);
 
 #if __STDC_VERSION__ >= 199901L
             //C99 compound literals compare
             {
                 int is[] = { 2, 0, 1 };
-                assert( memcmp( is, &(int [3]){ 2, 0, 1 }, 3 * sizeof( int ) ) == 0 );
+                assert(memcmp(is, &(int [3]){ 2, 0, 1 }, 3 * sizeof(int)) == 0);
             }
 #endif
         }
@@ -3891,7 +3887,7 @@ int main( int argc, char **argv )
 
             Potentially faster than a for loop like:
 
-                for(i=0; i<3; i++ ){
+                for(i=0; i<3; i++){
                     is2[i] = is[i];
                 }
 
@@ -3902,14 +3898,14 @@ int main( int argc, char **argv )
             int is[] = { 0, 1, 2 };
             int is2[3];
 
-            memcpy( is2, is, 3 * sizeof( int ) );
-            assert( memcmp( is, is2, 3 * sizeof( int ) ) == 0 );
+            memcpy(is2, is, 3 * sizeof(int));
+            assert(memcmp(is, is2, 3 * sizeof(int)) == 0);
 
 #if __STDC_VERSION__ >= 199901L
             //C99 compound literals copy
             {
-                memcpy( &is, &(int [5]){ 0, 1, 2 }, sizeof( is ) );
-                assert( memcmp( is, &(int [5]){ 0, 1, 2 }, 3 * sizeof( int ) ) == 0 );
+                memcpy(&is, &(int [5]){ 0, 1, 2 }, sizeof(is));
+                assert(memcmp(is, &(int [5]){ 0, 1, 2 }, 3 * sizeof(int)) == 0);
             }
 #endif
 
@@ -3924,8 +3920,8 @@ int main( int argc, char **argv )
         */
         {
             char cs[] = "abcdef";
-            memset( cs + 2, '0', 3 );
-            assert( strcmp( cs, "ab000f" ) == 0 );
+            memset(cs + 2, '0', 3);
+            assert(strcmp(cs, "ab000f") == 0);
         }
 
         /*
@@ -3998,7 +3994,7 @@ int main( int argc, char **argv )
                             { 4, 5, 6 }
                         };
                         int i;
-                        for( i = 0; i < mc; i++ )
+                        for(i = 0; i < mc; i++)
                         {
                             mat[i] = mat1[i]; //first points to the int at address 0 of the matrix mat1
                         }
@@ -4044,15 +4040,15 @@ int main( int argc, char **argv )
             //matrix pattern
             {
                 int i, j;
-                for( i = 0; i < 2; i++ )
+                for(i = 0; i < 2; i++)
                 {
-                    printf( "\n" );
-                    for( j = 0; j < 3; j++ )
+                    printf("\n");
+                    for(j = 0; j < 3; j++)
                     {
-                        printf( "%d ", m1[i][j] );
+                        printf("%d ", m1[i][j]);
                     }
                 }
-                printf( "\n\n" );
+                printf("\n\n");
             }
         }
 
@@ -4085,13 +4081,13 @@ int main( int argc, char **argv )
                 //but much harder to write
                 //and you may forget the terminating '\0'
 
-                assert( cs[0] == 'a'  );
-                assert( cs[1] == 'b'  );
-                assert( cs[2] == 'c'  );
-                assert( cs[3] == '\0' );
+                assert(cs[0] == 'a' );
+                assert(cs[1] == 'b' );
+                assert(cs[2] == 'c' );
+                assert(cs[3] == '\0');
 
                 cs[0] = 'A';
-                assert( strcmp(cs, "Abc") == 0 );
+                assert(strcmp(cs, "Abc") == 0);
 
                 //ERROR: you cannot assign a tring to memory like this,
                 //except at initialization
@@ -4121,7 +4117,7 @@ int main( int argc, char **argv )
                 //to create a pointer to text segment, initialize it as follows:
 
                     char* cs = "abc";
-                    assert( cs[0] == 'a' );
+                    assert(cs[0] == 'a');
 
                 //segmentation fault: text segment cannot be modified
                 {
@@ -4156,14 +4152,14 @@ int main( int argc, char **argv )
                 //no spaces are implied
                 {
                     char cs[] = "ab" "cd";
-                    assert( strcmp( cs, "abcd" ) == 0 );
+                    assert(strcmp(cs, "abcd") == 0);
 
                     //this cannot be done with variables,
                     //but can be useful if you have a string that is defined in a macro:
                     {
 #define STRING_AB "ab"
                         char cs[] = STRING_AB "cd";
-                        assert( strcmp( cs, "abcd" ) == 0 );
+                        assert(strcmp(cs, "abcd") == 0);
                     }
 
                     //another application is to break a long string literal over severl lines
@@ -4171,7 +4167,7 @@ int main( int argc, char **argv )
                     {
                         char cs[] = "ab"
                                     "cd";
-                        assert( strcmp( cs, "abcd" ) == 0 );
+                        assert(strcmp(cs, "abcd") == 0);
                     }
                 }
             }
@@ -4196,8 +4192,8 @@ int main( int argc, char **argv )
                 {
                     char cs[] = "123";
                     char cs2[4];
-                    sprintf( cs2, "%s", cs );
-                    assert( strcmp( cs, cs2 ) == 0 );
+                    sprintf(cs2, "%s", cs);
+                    assert(strcmp(cs, cs2) == 0);
                 }
 
 #if __STDC_VERSION__ >= 199901L
@@ -4216,8 +4212,8 @@ int main( int argc, char **argv )
                 {
                     char cs[] = "123";
                     char cs2[3];
-                    snprintf( cs2, 3, "%s", cs );
-                    assert( strcmp( cs2, "12" ) == 0 );
+                    snprintf(cs2, 3, "%s", cs);
+                    assert(strcmp(cs2, "12") == 0);
                 }
 
 #endif
@@ -4225,11 +4221,11 @@ int main( int argc, char **argv )
                 /*
                 #strlen
 
-                    Get string length (up to first '\0' ).
+                    Get string length (up to first '\0').
                 */
                 {
                     char cs[] = "abc";
-                    assert( strlen( cs ) == 3 );
+                    assert(strlen(cs) == 3);
                 }
 
                 /*
@@ -4242,11 +4238,11 @@ int main( int argc, char **argv )
                     char cs2[4];
                     char cs3[1];
 
-                    strcpy( cs2, cs );
+                    strcpy(cs2, cs);
                         //more efficient than for loop
-                    strcpy( cs2, "abc" );
+                    strcpy(cs2, "abc");
                         //OK
-                    //strcpy( cs3, "abc" );
+                    //strcpy(cs3, "abc");
                         //BAD
                         //no born checking as always
                 }
@@ -4266,14 +4262,14 @@ int main( int argc, char **argv )
                     char cs[] = "abc";
                     char cs2[] = "abc";
 
-                    assert( strcmp( cs, cs2 ) == 0 );
-                    assert( strcmp( cs, "abc" ) == 0 );
+                    assert(strcmp(cs, cs2) == 0);
+                    assert(strcmp(cs, "abc") == 0);
                         //equality
                     cs[1] = 'a';
-                    assert( strcmp( cs, cs2 ) < 0 );
+                    assert(strcmp(cs, cs2) < 0);
                         //smaller
                     cs[1] = 'd';
-                    assert( strcmp( cs, cs2 ) > 0 );
+                    assert(strcmp(cs, cs2) > 0);
                         //larget
                 }
 
@@ -4285,11 +4281,11 @@ int main( int argc, char **argv )
                 {
 
                     char s1[5];
-                    strcpy( s1, "ab" );
+                    strcpy(s1, "ab");
                     char s2[] = "cd";
-                    strcat( s1, s2 );
-                    assert( strcmp( s1, "abcd" ) == 0 );
-                    assert( strcmp( s2, "cd"   ) == 0 );
+                    strcat(s1, s2);
+                    assert(strcmp(s1, "abcd") == 0);
+                    assert(strcmp(s2, "cd"  ) == 0);
                 }
 
                 /*
@@ -4304,8 +4300,8 @@ int main( int argc, char **argv )
                 {
                     {
                         char cs[] = "abcb";
-                        assert( strchr( cs, 'b' ) == cs + 1 );
-                        assert( strchr( cs, 'd' ) == NULL );
+                        assert(strchr(cs, 'b') == cs + 1);
+                        assert(strchr(cs, 'd') == NULL);
                     }
 
                     /*
@@ -4320,11 +4316,11 @@ int main( int argc, char **argv )
                         int is[] = { 1, 3 };
 
                         int i = 0;
-                        cp = strchr( cs, c );
-                        while( cp != NULL )
+                        cp = strchr(cs, c);
+                        while(cp != NULL)
                         {
-                            assert( cp - cs == is[i] );
-                            cp = strchr( cp + 1, c );
+                            assert(cp - cs == is[i]);
+                            cp = strchr(cp + 1, c);
                             ++i;
                         }
                     }
@@ -4338,15 +4334,15 @@ int main( int argc, char **argv )
                 {
                     //#isspace
                     {
-                        assert(   isspace( ' '  ) );
-                        assert(   isspace( '\n' ) );
-                        assert( ! isspace( 'a'  ) );
+                        assert( isspace(' ' ));
+                        assert( isspace('\n'));
+                        assert(! isspace('a' ));
                     }
 
                     //#isdigit
                     {
-                        assert(   isdigit('0') );
-                        assert( ! isdigit('a') );
+                        assert( isdigit('0'));
+                        assert(! isdigit('a'));
                     }
                 }
 
@@ -4355,12 +4351,12 @@ int main( int argc, char **argv )
 
                     returns a readonly pointer to the description of the error with the given number:
 
-                        char *strerror( int errnum );
+                        char *strerror(int errnum);
 
                     Also consider perror if you want to print those error messages to stderr.
                 */
                 {
-                    printf( "strerror(EDOM) = \"%s\"\n", strerror(EDOM) );
+                    printf("strerror(EDOM) = \"%s\"\n", strerror(EDOM));
                 }
             }
 
@@ -4387,17 +4383,17 @@ int main( int argc, char **argv )
 
                 //you *need* setlocale to print correctly:
 
-                    setlocale( LC_CTYPE, "" );
+                    setlocale(LC_CTYPE, "");
 
                 wchar_t  wcs[] = L"汉语";
 
-                printf( "%ls\n", wcs );
+                printf("%ls\n", wcs);
 
                 wcs[0] = L'英';
-                printf( "%ls\n", wcs );
+                printf("%ls\n", wcs);
 
                 wcs[0] = L'a';
-                printf( "%ls\n", wcs );
+                printf("%ls\n", wcs);
 
                 //ERROR: non wide init
 
@@ -4417,8 +4413,8 @@ int main( int argc, char **argv )
                 How many characters in s1 are there before the first character present in s2.
             */
             {
-                assert( strcspn( "ab01", "10" ) == 2 );
-                assert( strcspn( "a0b1", "10" ) == 1 );
+                assert(strcspn("ab01", "10") == 2);
+                assert(strcspn("a0b1", "10") == 1);
             }
 
             /*
@@ -4428,7 +4424,7 @@ int main( int argc, char **argv )
             */
             {
                 char *s1 = "ab01";
-                assert( strpbrk( s1, "10" ) - s1 == 2 );
+                assert(strpbrk(s1, "10") - s1 == 2);
             }
         }
     }
@@ -4438,12 +4434,12 @@ int main( int argc, char **argv )
         //#if
         {
             // Only 0 counts as false.
-            if ( 0 ) {
-                assert( 0 );
+            if (0) {
+                assert(0);
             }
 
             if (1){
-                assert( 1 );
+                assert(1);
             }
 
             if (-1) {
@@ -4492,10 +4488,10 @@ int main( int argc, char **argv )
             //scope
             {
                 int i = 0;
-                if ( 1 )
+                if (1)
                 {
                     int i = 1;
-                    assert( i == 1 );
+                    assert(i == 1);
                 }
             }
         }
@@ -4511,8 +4507,8 @@ int main( int argc, char **argv )
 
             bool b = true;
             bool b2 = false;
-            assert( true  == 1 );
-            assert( false == 0 );
+            assert(true  == 1);
+            assert(false == 0);
         }
 
         /*
@@ -4530,13 +4526,13 @@ int main( int argc, char **argv )
         */
         {
             int i, j;
-            for( i = -1; i < 6; i++ )
+            for(i = -1; i < 6; i++)
             {
-                switch ( i )
+                switch (i)
                 {
                     case 0:
 
-                        assert( i == 0 );
+                        assert(i == 0);
 
                         int j;
                             //OK
@@ -4550,7 +4546,7 @@ int main( int argc, char **argv )
 
                     case 1:
 
-                        assert( i == 1 );
+                        assert(i == 1);
 
                         //int j;
                             //ERROR
@@ -4563,22 +4559,22 @@ int main( int argc, char **argv )
 
                         //same action for multiple cases
 
-                        assert( i == 2 || i == 3 );
+                        assert(i == 2 || i == 3);
 
                     break;
 
                     //Google C++ style recommends the following style.
                     case 4: {
-                        assert( i == 4 );
+                        assert(i == 4);
                         break;
                     }
                     case 5: {
-                        assert( i == 5 );
+                        assert(i == 5);
                         break;
                     }
 
                     default:
-                        assert( i != 0 && i != 1 );
+                        assert(i != 0 && i != 1);
                     break;
                 }
             }
@@ -4609,21 +4605,21 @@ int main( int argc, char **argv )
 
                 int i;
                 int is[] = { 0, 1, 2 };
-                for ( i = 0; i < 3; ++i )
+                for (i = 0; i < 3; ++i)
                 {
-                    assert( i == is[i] );
+                    assert(i == is[i]);
                     int i;
                         //OK new scope
                 }
-                assert( i == 3 );
+                assert(i == 3);
             }
 
             //single line
             {
                 int i;
                 int is[] = { 0, 1, 2 };
-                for ( i = 0; i < 3; ++i )
-                    assert( i == is[i] );
+                for (i = 0; i < 3; ++i)
+                    assert(i == is[i]);
                     //int i;
                         //ERROR
                         //redeclaration
@@ -4634,9 +4630,9 @@ int main( int argc, char **argv )
             // Putting `int i = 0` inside for is only possible in C99.
             {
                 int is[] = {0, 1, 2};
-                for ( int i = 0; i < 3; ++i )
+                for (int i = 0; i < 3; ++i)
                 {
-                    assert( i == is[i] );
+                    assert(i == is[i]);
                     //int i;
                         //ERROR
                         //redeclaration
@@ -4648,10 +4644,10 @@ int main( int argc, char **argv )
             {
                 int is[] = {0, 1, 2};
                 int js[] = {0, 1, 2};
-                for ( int i = 0, j = 0; i * j < 5; i++, j++ )
+                for (int i = 0, j = 0; i * j < 5; i++, j++)
                 {
-                    assert( i == is[i] );
-                    assert( i == js[i] );
+                    assert(i == is[i]);
+                    assert(i == js[i]);
                 }
             }
 
@@ -4660,12 +4656,12 @@ int main( int argc, char **argv )
                 int n = 0;
                 int is[] = {0, 0, 1, 1};
                 int js[] = {0, 1, 0, 1};
-                for ( int i = 0; i < 2; i++ )
+                for (int i = 0; i < 2; i++)
                 {
-                    for ( int j = 0; j < 2; j++ )
+                    for (int j = 0; j < 2; j++)
                     {
-                        assert( i == is[n] );
-                        assert( j == js[n] );
+                        assert(i == is[n]);
+                        assert(j == js[n]);
                         n++;
                     }
                 }
@@ -4679,11 +4675,11 @@ int main( int argc, char **argv )
                 int js[] = {0, 2, 4};
                 int js2[] = {1, 3};
                 int j = 0;
-                for ( int i = 0; i < n; i += step )
+                for (int i = 0; i < n; i += step)
                 {
-                    assert( js[j] == is[i] );
-                    if ( i < n - step + 1 )
-                        assert( js2[j] == is[i + 1] );
+                    assert(js[j] == is[i]);
+                    if (i < n - step + 1)
+                        assert(js2[j] == is[i + 1]);
                     j++;
                 }
             }
@@ -4694,9 +4690,9 @@ int main( int argc, char **argv )
                 int is[] = { 0, 1, 2 };
                 int js[] = { 2, 1, 0 };
                 int j = 0;
-                for ( int i = n - 1; i >= 0; --i )
+                for (int i = n - 1; i >= 0; --i)
                 {
-                    assert( is[i] == js[j] );
+                    assert(is[i] == js[j]);
                     j++;
                 }
 
@@ -4716,9 +4712,9 @@ int main( int argc, char **argv )
                         int is[] = { 0, 1, 2 };
                         int js[] = { 2, 1, 0 };
                         int j = 0;
-                        for ( unsigned int i = n - 1; i >= 0; --i )
+                        for (unsigned int i = n - 1; i >= 0; --i)
                         {
-                            assert( is[i] == js[j] );
+                            assert(is[i] == js[j]);
                             j++;
                         }
                     }
@@ -4730,10 +4726,10 @@ int main( int argc, char **argv )
                     {
                         unsigned int n = 3;
                         int is[] = { 0, 1, 2 };
-                        for ( unsigned int i_fake = n; i_fake > 0; --i_fake )
+                        for (unsigned int i_fake = n; i_fake > 0; --i_fake)
                         {
                             unsigned int i = i_fake - 1;
-                            assert( is[i] == i );
+                            assert(is[i] == i);
                         }
                     }
 
@@ -4744,9 +4740,9 @@ int main( int argc, char **argv )
                     {
                         unsigned int n = 3;
                         int is[] = { 0, 1, 2 };
-                        for ( unsigned int i = n - 1; i < n; --i )
+                        for (unsigned int i = n - 1; i < n; --i)
                         {
-                            assert( i == is[i] );
+                            assert(i == is[i]);
                         }
                     }
 
@@ -4759,9 +4755,9 @@ int main( int argc, char **argv )
                     {
                         unsigned int n = 3;
                         int is[] = { 0, 1, 2 };
-                        for ( unsigned int i = n - 1; i-- > 0; )
+                        for (unsigned int i = n - 1; i-- > 0;)
                         {
-                            assert( i == is[i] );
+                            assert(i == is[i]);
                         }
                     }
                 }
@@ -4773,12 +4769,12 @@ int main( int argc, char **argv )
             {
                 int i = 0;
                 int is[] = { 0, 1, 2 };
-                while ( i < 3 )
+                while (i < 3)
                 {
-                    assert( i == is[i] );
+                    assert(i == is[i]);
                     i++;
                 }
-                assert( i == 3 );
+                assert(i == 3);
             }
 
             //#do-while
@@ -4788,10 +4784,10 @@ int main( int argc, char **argv )
                 int is[] = { 0, 1, 2 };
                 do
                 {
-                    i2 = 2*i*i + 3*i + ( i % 2 );
-                    assert( i == is[i] );
+                    i2 = 2*i*i + 3*i + (i % 2);
+                    assert(i == is[i]);
                     i++;
-                } while ( i2 < 7 );
+                } while (i2 < 7);
                     //don't forget the ';' !
 
                 //application:
@@ -4802,12 +4798,12 @@ int main( int argc, char **argv )
                     //without do-while, you would have to either:
 
                         //write:
-                        //`int i2 = 2*i*i + 3*i + ( i % 2 );`
+                        //`int i2 = 2*i*i + 3*i + (i % 2);`
                         //so you have to type this huge expression twice!
                         //so if you change one you have to change the other
                         //and you risk to forget creating a hard to find bug
 
-                        //write a function that does 2*i*i + 3*i + ( i % 2 );
+                        //write a function that does 2*i*i + 3*i + (i % 2);
                         //this function is almost useless (used only twice)
                         //adding needless boilerplate to your code
 
@@ -4826,14 +4822,14 @@ int main( int argc, char **argv )
         */
         {
             {
-                func_int( 1.1 );
-                func_float( 1 );
+                func_int(1.1);
+                func_float(1);
             }
 
             //return value is not an lval, so one cannot get its address
             {
                 int *ip;
-                //ip = &int_func_int( 1 );
+                //ip = &int_func_int(1);
                     //ERROR
             }
 
@@ -4852,16 +4848,16 @@ int main( int argc, char **argv )
                 This is not however enforced by the compiler.
             */
             {
-                func_string_abc( "abc" );
-                func_string_const_abc( "abc" );
+                func_string_abc("abc");
+                func_string_const_abc("abc");
 
-                //func_string_modify( "abc" );
+                //func_string_modify("abc");
             }
 
             //two decls on the same line
             {
-                assert( decl_1() == 1 );
-                assert( decl_2() == 2 );
+                assert(decl_1() == 1);
+                assert(decl_2() == 2);
             }
 
 #if __STDC_VERSION__ >= 199901L
@@ -4873,15 +4869,15 @@ int main( int argc, char **argv )
             Unlike string literals, array and struct literals can be modified on the function.
             */
             {
-                func_array( ( int[] ){ 1 } );
+                func_array((int[]){ 1 });
 
-                func_array_modify( ( int[] ){ 1 } );
+                func_array_modify((int[]){ 1 });
 
                 int is[] = { 1 };
-                func_array_modify( is );
-                assert( is[0] == -1 );
+                func_array_modify(is);
+                assert(is[0] == -1);
 
-                func_struct_1( ( struct func_struct ){ .i = 1 } );
+                func_struct_1((struct func_struct){ .i = 1 });
             }
 #endif
 
@@ -4908,7 +4904,7 @@ int main( int argc, char **argv )
 
                 gets converted to:
 
-                    void struct_func( struct struct_func_struct* sp)
+                    void struct_func(struct struct_func_struct* sp)
                     {
                         struct struct_func_struct s = { 0, 1 };
                         *sp = s;
@@ -4937,8 +4933,8 @@ int main( int argc, char **argv )
             {
                 struct struct_func_struct s;
                 s = struct_func();
-                assert( s.i == 0 );
-                assert( s.j == 1 );
+                assert(s.i == 0);
+                assert(s.j == 1);
             }
 
             /*
@@ -4959,7 +4955,7 @@ int main( int argc, char **argv )
                     //no definition inside another function
 
                 decl_and_int = 0;
-                assert( decl_and_int_func() == 0 );
+                assert(decl_and_int_func() == 0);
             }
 
             /*
@@ -4985,12 +4981,12 @@ int main( int argc, char **argv )
                     assert((*f)(1, 2) == -1);
                 }
 
-                assert( add_int != sub_int );
+                assert(add_int != sub_int);
 
                 // Function pointers can also be passed to functions of course.
                 {
-                    assert( int_func_func_int_int( add_int, 2, 1 ) == 3 );
-                    assert( int_func_func_int_int( sub_int, 2, 1 ) == 1 );
+                    assert(int_func_func_int_int(add_int, 2, 1) == 3);
+                    assert(int_func_func_int_int(sub_int, 2, 1) == 1);
                 }
 
                 // Array of function pointers.
@@ -5018,8 +5014,8 @@ int main( int argc, char **argv )
 
                     // Alternative call methods.
                     for (int i = 0; i < 4; i++) {
-                        assert((      fs[i])(1, 2) == 3);
-                        assert((     *fs[i])(1, 2) == 3);
+                        assert((    fs[i])(1, 2) == 3);
+                        assert((   *fs[i])(1, 2) == 3);
                         assert((******fs[i])(1, 2) == 3);
                         //assert((&fs[i])(1, 2) == 3);
                     }
@@ -5045,13 +5041,13 @@ int main( int argc, char **argv )
                 int i;
                 int si;
 
-                with_static_var( &i, &si );
-                assert( i == 1 );
-                assert( si == 1 );
+                with_static_var(&i, &si);
+                assert(i == 1);
+                assert(si == 1);
 
-                with_static_var( &i, &si );
-                assert( i == 1 );
-                assert( si == 2 );
+                with_static_var(&i, &si);
+                assert(i == 1);
+                assert(si == 2);
             }
 
             /*
@@ -5064,12 +5060,12 @@ int main( int argc, char **argv )
                 Possible to implement efficiently because of C 's calling convention.
             */
             {
-                assert( variadic_add( 3, 1, 2, 3 )       == 6 );
-                assert( variadic_add( 5, 1, 2, 3, 4, 5 ) == 15 );
+                assert(variadic_add(3, 1, 2, 3)       == 6);
+                assert(variadic_add(5, 1, 2, 3, 4, 5) == 15);
 
                 char s[32];
-                sprintf_wrapper( s, "%c", 'a' );
-                assert( s[0] == 'a' );
+                sprintf_wrapper(s, "%c", 'a');
+                assert(s[0] == 'a');
 
                 /*
                 The only problem with the wrapper is that compile time error checking is not done.
@@ -5079,13 +5075,13 @@ int main( int argc, char **argv )
                 {
                     //error checking is not done for the wrapper
                     //might segfault at runtime
-                    if ( 0 )
+                    if (0)
                     {
-                        sprintf_wrapper( s, "%s" /*missing arg*/ );
-                        printf( "sprintf_wrapper wrong = %s\n", s );
+                        sprintf_wrapper(s, "%s" /*missing arg*/);
+                        printf("sprintf_wrapper wrong = %s\n", s);
                     }
 
-                    //sprintf( s, "wrong %s" );
+                    //sprintf(s, "wrong %s");
                         //WARN
                         //type error checking is done for sprintf
                 }
@@ -5115,18 +5111,18 @@ int main( int argc, char **argv )
                     int i = 0;
                     int j = 0;
                     int add = 1;
-                    double_add( &i, &j, &add );
-                    assert( i == 1 );
-                    assert( j == 1 );
+                    double_add(&i, &j, &add);
+                    assert(i == 1);
+                    assert(j == 1);
                 }
 
                 {
                     int i = 0;
                     int j = 0;
                     int add = 1;
-                    restrict_double_add( &i, &j, &add );
-                    assert( i == 1 );
-                    assert( j == 1 );
+                    restrict_double_add(&i, &j, &add);
+                    assert(i == 1);
+                    assert(j == 1);
                 }
 
                 /*
@@ -5137,20 +5133,20 @@ int main( int argc, char **argv )
                 {
                     int i = 1;
                     int j = 1;
-                    restrict_double_add( &i, &j, &i );
-                    if ( i != 2 )
-                        printf( "restrict i = %d\n", i );
-                    if ( j != 3 )
-                        printf( "restrict j = %d\n", j );
+                    restrict_double_add(&i, &j, &i);
+                    if (i != 2)
+                        printf("restrict i = %d\n", i);
+                    if (j != 3)
+                        printf("restrict j = %d\n", j);
                 }
 
                 //OK not restrict
                 {
                     int i = 1;
                     int j = 1;
-                    double_add( &i, &j, &i );
-                    assert( i == 2 );
-                    assert( j == 3 );
+                    double_add(&i, &j, &i);
+                    assert(i == 2);
+                    assert(j == 3);
                 }
 
                 //outside functions
@@ -5224,36 +5220,36 @@ int main( int argc, char **argv )
             jmp_buf env_buffer;
             int val;
 
-            val = setjmp( env_buffer );
-            printf( "setjmp = %i\n", val );
-            if ( val != 0 )
+            val = setjmp(env_buffer);
+            printf("setjmp = %i\n", val);
+            if (val != 0)
             {
                 //returned from longjmp
                 //val encodes the error code
             } else {
 
                 //this is evaulated normally
-                assert( setjmp_func( false, env_buffer ) == 1 );
+                assert(setjmp_func(false, env_buffer) == 1);
 
                 //this assert is never evaluated
-                assert( setjmp_func( true, env_buffer ) * 0 == 1 );
+                assert(setjmp_func(true, env_buffer) * 0 == 1);
             }
         }
     }
 
     //#command line args
     {
-        printf( "argv[0] = %s\n", argv[0] );
+        printf("argv[0] = %s\n", argv[0]);
         int i = 0;
-        if ( argc > i )
+        if (argc > i)
         {
             i++;
-            printf( "argv[%d] = %s\n", i, argv[0] );
+            printf("argv[%d] = %s\n", i, argv[0]);
         }
-        if ( argc > i )
+        if (argc > i)
         {
             i++;
-            printf( "argv[%d] = %s\n", i, argv[0] );
+            printf("argv[%d] = %s\n", i, argv[0]);
         }
     }
 
@@ -5267,9 +5263,9 @@ int main( int argc, char **argv )
         TODO: setenv in POSIX but not in ANSI C?
     */
     {
-        printf( "getenv\n" );
-        printf( "  HOME = %s\n", getenv( "HOME" ) );
-        printf( "  USERPROFILE = %s\n", getenv( "USERPROFILE" ) );
+        printf("getenv\n");
+        printf("  HOME = %s\n", getenv("HOME"));
+        printf("  USERPROFILE = %s\n", getenv("USERPROFILE"));
     }
 
     //#preprocessor
@@ -5287,37 +5283,37 @@ int main( int argc, char **argv )
             {
 #define A B
 #define B 1
-                assert( A == 1 );
+                assert(A == 1);
             }
 
             //cannot redefine macros
             {
 //#define A 1
 //#define A 2
-                //assert( A == 2 );
+                //assert(A == 2);
             }
 
             //functions
             {
                 {
-#define SUM( x, y ) x + y
+#define SUM(x, y) x + y
 
                 /*
                 generates:
 
-                    assert( 1 + 1 == 2 );
+                    assert(1 + 1 == 2);
 
                 not:
 
-                    assert( 2 == 2 );
+                    assert(2 == 2);
                 */
-                assert( SUM( 1, 1 ) == 2 );
+                assert(SUM(1, 1) == 2);
                 }
 
                 //no overloading
                 {
-//#define SUM( x ) x + 1
-                //assert( SUM( 1 ) == 2 );
+//#define SUM(x) x + 1
+                //assert(SUM(1) == 2);
                 }
 
                 /*
@@ -5342,35 +5338,35 @@ int main( int argc, char **argv )
                     <http://stackoverflow.com/questions/9187614/how-do-i-have-a-comma-inside-braces-inside-a-macro-argument-when-parentheses-cau>
                 */
                 {
-                    assert( SUM( int_int_int_func( 1, 1 ), 1 ) == 3 );
+                    assert(SUM(int_int_int_func(1, 1), 1) == 3);
                     //                              ^    ^
                     //                              1    2
 
                     int i = 1;
-                    assert( SUM( (i++, i), 1 ) == 3 );
+                    assert(SUM((i++, i), 1) == 3);
                     //               ^
                     //               comma operator
 
-                    //assert( SUM( i++, i, 1 ) == 3 );
+                    //assert(SUM(i++, i, 1) == 3);
                         //ERROR
                         //must protect the comma operator
 
-#define CAT( x, y ) x y
-                    assert( strcmp( CAT( "1,", "2" ), "1,2" ) == 0 );
+#define CAT(x, y) x y
+                    assert(strcmp(CAT("1,", "2"), "1,2") == 0);
                     //                     ^ ^
                     //                     1 2
                 }
 
-                assert( SUM( int_int_int_func( 1, 1 ), 1 ) == 3 );
+                assert(SUM(int_int_int_func(1, 1), 1) == 3);
 
 #if __STDC_VERSION__ >= 199901L
 
                 //#variadic macro functions
                 {
                     char s[4];
-#define SPRINTF( string, format, ...) sprintf( string, format, __VA_ARGS__ )
-                    SPRINTF( s, "%c%c", 'a', 'b' );
-                    assert( strcmp( s, "ab" ) == 0 );
+#define SPRINTF(string, format, ...) sprintf(string, format, __VA_ARGS__)
+                    SPRINTF(s, "%c%c", 'a', 'b');
+                    assert(strcmp(s, "ab") == 0);
                 }
 
 #endif
@@ -5387,9 +5383,9 @@ int main( int argc, char **argv )
         {
             //basic
             {
-#define CAT_NO_SPACE( x, y ) x ## y
-                int CAT_NO_SPACE( c_, d ) = 1;
-                assert( c_d == 1);
+#define CAT_NO_SPACE(x, y) x ## y
+                int CAT_NO_SPACE(c_, d) = 1;
+                assert(c_d == 1);
             }
 
             //preprocessor variable gotcha: <http://stackoverflow.com/questions/1489932/c-preprocessor-and-concatenation>
@@ -5398,7 +5394,7 @@ int main( int argc, char **argv )
 #define VAR 3
 #define CAT_VAR_FAIL(x) x ## _ ## VAR
                     int CAT_VAR_FAIL(b) = 1;
-                    assert( b_VAR == 1 );
+                    assert(b_VAR == 1);
                 }
 
                 //solution
@@ -5408,7 +5404,7 @@ int main( int argc, char **argv )
 #define EVALUATOR(x,y)  PASTER(x,y)
 #define CAT_VAR(x) EVALUATOR(x, VAR)
                     int CAT_VAR(b) = 1;
-                    assert( b_3 == 1 );
+                    assert(b_3 == 1);
                 }
             }
         }
@@ -5510,7 +5506,7 @@ int main( int argc, char **argv )
                 - C99: 199901L
             */
             {
-                printf( "__STDC_VERSION__ = %li\n", __STDC_VERSION__ );
+                printf("__STDC_VERSION__ = %li\n", __STDC_VERSION__);
             }
 
             /*
@@ -5519,12 +5515,12 @@ int main( int argc, char **argv )
                 Defined only if using C++ compiler.
             */
 #ifdef __cplusplus
-            printf( "__cplusplus\n" );
+            printf("__cplusplus\n");
 #endif
 
                 //absolute or relative path of current file:
 
-            printf( "__FILE__ = %s\n", __FILE__ );
+            printf("__FILE__ = %s\n", __FILE__);
 
             /*
             #LINE
@@ -5536,7 +5532,7 @@ int main( int argc, char **argv )
                 If in a `.h`, position inside the `.h` before inclusion.
             */
             {
-                printf( "__LINE__ = %d\n", __LINE__ );
+                printf("__LINE__ = %d\n", __LINE__);
             }
 
             /*
@@ -5550,12 +5546,12 @@ int main( int argc, char **argv )
                 c99
             */
             {
-                printf( "__func__ = %s\n", __func__ );
+                printf("__func__ = %s\n", __func__);
             }
 
-            printf( "__DATE__ = %s\n", __DATE__ );
+            printf("__DATE__ = %s\n", __DATE__);
 
-            printf( "__TIME__ = %s\n", __TIME__ );
+            printf("__TIME__ = %s\n", __TIME__);
 
         //automatically defined by certain compilers on windows:
         //TODO0 gcc specific or not? if yes move out of here.
@@ -5602,20 +5598,20 @@ int main( int argc, char **argv )
         gcc won't annoy us with warnings.
     */
     {
-            //assert( '??=' == '#' );
-            //assert( '??(' == '[' );
-            //assert( '??/' == '\' );   //TODO0 literal backslash?
-            //assert( '??)' == ']' );
-            //assert( '??'' == '^' );
-            //assert( '??<' == '{' );
-            //assert( '??!' == '|' );
-            //assert( '??>' == '}' );
-            //assert( '??-' == '~' );
+            //assert('??=' == '#');
+            //assert('??(' == '[');
+            //assert('??/' == '\');   //TODO0 literal backslash?
+            //assert('??)' == ']');
+            //assert('??'' == '^');
+            //assert('??<' == '{');
+            //assert('??!' == '|');
+            //assert('??>' == '}');
+            //assert('??-' == '~');
 
         //TODO0 how to escape a trigraph on a string literal, say: `??=` ?
         //is it necessary to use `\x`?
 
-            //printf( "??" )
+            //printf("??")
     }
 
     /*
@@ -5649,17 +5645,17 @@ int main( int argc, char **argv )
     {
         /* basic usage */
         {
-            size_t bytes = sizeof( int ) * 2;
-            int* is = malloc( bytes );
-            if ( is == NULL )
+            size_t bytes = sizeof(int) * 2;
+            int* is = malloc(bytes);
+            if (is == NULL)
             {
-                printf( "malloc failed\n" );
+                printf("malloc failed\n");
             }
             else
             {
                 is[0] = 1;
-                assert( is[0] == 1 );
-                free( is );
+                assert(is[0] == 1);
+                free(is);
             }
         }
 
@@ -5686,7 +5682,7 @@ int main( int argc, char **argv )
 
             /* freeing a pointer twice leads to a segfault */
             {
-                int *ip = malloc( sizeof( int ) );
+                int *ip = malloc(sizeof(int));
                 free(ip);
                 //free(ip);
                     //RUNTIME ERROR
@@ -5708,30 +5704,30 @@ int main( int argc, char **argv )
             you still need the old pointer to clear up old memory.
         */
         {
-            size_t bytes = sizeof( int ) * 2;
-            int* is = malloc( bytes );
-            if ( is == NULL )
+            size_t bytes = sizeof(int) * 2;
+            int* is = malloc(bytes);
+            if (is == NULL)
             {
-                printf( "malloc failed\n" );
+                printf("malloc failed\n");
             }
             else
             {
                 is[1] = 1;
                 //you must use a second pointer here
-                int* is2 = realloc( is, sizeof(int) * 4 );
-                if ( is2 == NULL )
+                int* is2 = realloc(is, sizeof(int) * 4);
+                if (is2 == NULL)
                 {
-                    printf( "realloc failed\n" );
+                    printf("realloc failed\n");
                 }
                 else
                 {
                     is = is2;
                     is[3] = 1;
                     //old values are untouched:
-                    assert( is[1] == 1 );
-                    assert( is[3] == 1 );
+                    assert(is[1] == 1);
+                    assert(is[3] == 1);
                 }
-                free( is );
+                free(is);
             }
         }
 
@@ -5746,16 +5742,16 @@ int main( int argc, char **argv )
             Takes number of elements and elemetn size separately.
         */
         {
-            int* is = calloc( 2, sizeof(int) );
-            if ( is == NULL )
+            int* is = calloc(2, sizeof(int));
+            if (is == NULL)
             {
-                printf( "calloc failed\n" );
+                printf("calloc failed\n");
             }
             else
             {
-                assert( is[0] == 0 );
-                assert( is[1] == 0 );
-                free( is );
+                assert(is[0] == 0);
+                assert(is[1] == 0);
+                free(is);
             }
         }
 
@@ -5788,15 +5784,15 @@ int main( int argc, char **argv )
             TODO0 how to pass more than INT_MAX to malloc to break it? =)
         */
         {
-            if ( 0 )
+            if (0)
             {
                 size_t n = 1024 * 1024 * 1024;
-                int* ip = malloc( n );
-                if ( ip == NULL )
+                int* ip = malloc(n);
+                if (ip == NULL)
                 {
-                    printf( "could not allocate %zu bytes", n );
+                    printf("could not allocate %zu bytes", n);
                 }
-                free( ip );
+                free(ip);
             }
 
             /*
@@ -5804,16 +5800,16 @@ int main( int argc, char **argv )
             someday this will be possible and people will laugh at this...
             generates a segfault
             */
-            if ( 0 )
+            if (0)
             {
                 const size_t GB = 1024 * 1024 * 1024;
-                for ( int i = 0; i < GB; i++ )
+                for (int i = 0; i < GB; i++)
                 {
-                    int* ip = malloc( GB );
+                    int* ip = malloc(GB);
                     ip[0] = 0;
-                    if ( ip == NULL )
+                    if (ip == NULL)
                     {
-                        printf( "could not allocate %zu bytes", GB );
+                        printf("could not allocate %zu bytes", GB);
                     }
                 }
             }
@@ -5830,7 +5826,7 @@ int main( int argc, char **argv )
         If defined *before assert.h* is included, asserts do nothing.
     */
     {
-        //assert( 1 + 1 == 2 );
+        //assert(1 + 1 == 2);
     }
 
     /*
@@ -5878,8 +5874,8 @@ int main( int argc, char **argv )
         {
             //linux test:
 
-                //int r = system( "echo a | grep b" );
-                //assert( r == 1 );
+                //int r = system("echo a | grep b");
+                //assert(r == 1);
         }
     }
 
@@ -5923,8 +5919,8 @@ int main( int argc, char **argv )
         TODO
         */
         {
-            printf( "BUFSIZ = %ju\n", (uintmax_t)BUFSIZ );
-            assert( BUFSIZ >= 256 );
+            printf("BUFSIZ = %ju\n", (uintmax_t)BUFSIZ);
+            assert(BUFSIZ >= 256);
         }
 
         /*
@@ -5959,7 +5955,7 @@ int main( int argc, char **argv )
             printed to stdout.
         */
         {
-            fputs( "stderr\n", stderr );
+            fputs("stderr\n", stderr);
         }
 
         /*
@@ -5970,7 +5966,7 @@ int main( int argc, char **argv )
             Less useful since most IO functions have a convenience form that writes to stdout.
         */
         {
-            fputs( "stdout\n", stderr );
+            fputs("stdout\n", stderr);
         }
 
         /*
@@ -6073,8 +6069,8 @@ int main( int argc, char **argv )
 
                 //char:
 
-                    sprintf( s, "%c", 'a' );
-                    assert( strcmp( s, "a" ) == 0 );
+                    sprintf(s, "%c", 'a');
+                    assert(strcmp(s, "a") == 0);
 
                 //int:
 
@@ -6091,10 +6087,10 @@ int main( int argc, char **argv )
                 //you must keep unsigned correctness
                 //or prepare to get bitten by overflow problems:
 
-                    printf( "u UINT_MAX = %u\n", UINT_MAX );
+                    printf("u UINT_MAX = %u\n", UINT_MAX);
 
-                    sprintf( s, "%d", UINT_MAX );
-                    assert( strcmp( s, "-1" ) == 0 );
+                    sprintf(s, "%d", UINT_MAX);
+                    assert(strcmp(s, "-1") == 0);
 
                 //note how printf treats `UINT_MAX` as a signed integer
                 //which in 2's complement equals `-1`.
@@ -6111,25 +6107,25 @@ int main( int argc, char **argv )
                 {
                     //float and double (both the same char, float gets typecast):
 
-                        printf( "printf float = %f\n", 1.0f );
-                        printf( "printf double = %f\n", 1.0 );
+                        printf("printf float = %f\n", 1.0f);
+                        printf("printf double = %f\n", 1.0);
 
                     //long double:
 
-                        printf( "f = %Lf\n", (long double)1.0 );
+                        printf("f = %Lf\n", (long double)1.0);
 
                     //#control number of zeros after dot
                     {
                         //#fixed number
                         {
-                            sprintf( s, "%.2f", 1.0f );
-                            assert( strcmp( s, "1.00" ) == 0 );
+                            sprintf(s, "%.2f", 1.0f);
+                            assert(strcmp(s, "1.00") == 0);
                         }
 
                         //#given by variable
                         {
-                            sprintf( s, "%.*f", 2, 1.0f );
-                            assert( strcmp( s, "1.00" ) == 0 );
+                            sprintf(s, "%.*f", 2, 1.0f);
+                            assert(strcmp(s, "1.00") == 0);
                         }
                     }
                 }
@@ -6153,8 +6149,8 @@ int main( int argc, char **argv )
 
                     */
                     {
-                        sprintf( s, "%6.2f", 1.0f );
-                        assert( strcmp( s, "  1.00" ) == 0 );
+                        sprintf(s, "%6.2f", 1.0f);
+                        assert(strcmp(s, "  1.00") == 0);
                     }
 
                     /*
@@ -6167,23 +6163,23 @@ int main( int argc, char **argv )
                         "10" comes before "9"  ('1' < '0')!
                     */
                     {
-                        sprintf( s, "%06.2f", 1.0f );
-                        assert( strcmp( s, "001.00" ) == 0 );
+                        sprintf(s, "%06.2f", 1.0f);
+                        assert(strcmp(s, "001.00") == 0);
                     }
                 }
 
                 //#scientific
                 {
                     char s[10];
-                    sprintf( s, "%.3e", 1.0f );
-                    assert( strcmp( s, "1.000e+00" ) == 0 );
+                    sprintf(s, "%.3e", 1.0f);
+                    assert(strcmp(s, "1.000e+00") == 0);
                 }
 
                 //srings
                 {
                     char s[4];
-                    sprintf( s, "%s", "abc" );
-                    assert( strcmp( s, "abc" ) == 0 );
+                    sprintf(s, "%s", "abc");
+                    assert(strcmp(s, "abc") == 0);
 
                     /*
                     still not possible to print a null char with this
@@ -6191,32 +6187,32 @@ int main( int argc, char **argv )
                     */
                     {
                         char s[] = "000";
-                        sprintf( s, "%s", "a\0b" );
+                        sprintf(s, "%s", "a\0b");
                         //TODO0 why does this fail?
-                        //assert( memcmp( s, "a\00", 3 ) == 0 );
+                        //assert(memcmp(s, "a\00", 3) == 0);
                     }
                 }
 
                 //hexadecimal integer output (unsigned):
                 {
-                    printf( "16  in hex = %x\n", 16 );
+                    printf("16  in hex = %x\n", 16);
 
                     //case control
 
-                        printf( "0xA in hex = %x\n", 0xA );
-                        printf( "0xA in hex upper case = %X\n", 0xA );
+                        printf("0xA in hex = %x\n", 0xA);
+                        printf("0xA in hex upper case = %X\n", 0xA);
 
-                    printf( "-1  in hex = %x\n", -1 );
-                    printf( "16l in hex = %lx\n", 0x16l );
+                    printf("-1  in hex = %x\n", -1);
+                    printf("16l in hex = %lx\n", 0x16l);
                 }
 
 #if __STDC_VERSION__ >= 199901L
 
                 //hexadecimal scientific float output. C99
                 {
-                    printf( "0x1.Ap11           = %a\n", 0x1.Ap11 );
-                    printf( "0x1.Ap11 uppercase = %A\n", 0x1.Ap11 );
-                    printf( "0x10.Ap11          = %a\n", 0x10.Ap11 );
+                    printf("0x1.Ap11           = %a\n", 0x1.Ap11);
+                    printf("0x1.Ap11 uppercase = %A\n", 0x1.Ap11);
+                    printf("0x10.Ap11          = %a\n", 0x10.Ap11);
                 }
 
 #endif
@@ -6238,14 +6234,14 @@ int main( int argc, char **argv )
                     so address 16 is represented as `0x10`
                     */
                     {
-                        sprintf( s, "%p", (void*)16 );
-                        assert( strcmp( s, "0x10" ) == 0 );
+                        sprintf(s, "%p", (void*)16);
+                        assert(strcmp(s, "0x10") == 0);
                     }
 
                     /* NULL pointer has a special representation as `(nil)` */
                     {
-                        sprintf( s, "%p", NULL );
-                        assert( strcmp( s, "(nil)" ) == 0 );
+                        sprintf(s, "%p", NULL);
+                        assert(strcmp(s, "(nil)") == 0);
                     }
 
 #if __STDC_VERSION__ >= 199901L
@@ -6287,22 +6283,22 @@ int main( int argc, char **argv )
 
                     */
                     {
-                        printf( "PRIxPTR usage = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)(void*)1 );
+                        printf("PRIxPTR usage = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)(void*)1);
                     }
                 }
 #endif
 
                 /*
-                Escape percentage
+                #escape percentage.
 
-                    Note that this is printf specific,
+                    Note that `%` is printf specific,
                     not string literal specific,
-                    since percentages only have special meanings for `printf`.
+                    since percentages only have special meanings on strings passed to `printf`.
                 */
                 {
                     char s[2];
-                    sprintf( s, "%%" );
-                    assert( strcmp( s, "%" ) == 0 );
+                    sprintf(s, "%%");
+                    assert(strcmp(s, "%") == 0);
                 }
 
                 /*
@@ -6311,55 +6307,62 @@ int main( int argc, char **argv )
                     How to printf standard typedefs.
                 */
                 {
-                    //If they have specific format strings. Just use them..
+                    //If they have specific format strings. Just use them.
                     {
-                        printf( "printf size_t = %zu\n", (size_t)1 );
-                        printf( "printf intmax_t = %jd\n", (intmax_t)1 );
-                        printf( "printf uintmax_t = %ju\n", (uintmax_t)1 );
+                        printf("printf size_t    = %zu\n", (size_t)1);
+                        printf("printf intmax_t  = %jd\n", (intmax_t)1);
+                        printf("printf uintmax_t = %ju\n", (uintmax_t)1);
+                    }
+
+                    //If there is no format string, but the type is assured to be an integer type,
+                    //typecast to the largest possible integer type and use `%jd` or `%ju`.
+                    {
+
+                        /* Supppose that the API states that `integer_t` is a signed integer type. */
+                        typedef int integer_t;
+                        printf("printf integer_t = %jd\n", (intmax_t)1);
                     }
 
                     /*
-                    There is no specific printf format, but there is a macro that expands
-                    to part of a format string that allows to print it correctly.
+                    There are some cases in which there is no specific printf format,
+                    but there is a macro that expands to part of a format string that allows to print it correctly.
                     */
                     {
 #if __STDC_VERSION__ >= 199901L
-                        printf( "printf PRIxPTR uintptr_t = %" PRIxPTR "\n", (uintptr_t)16 );
-                        printf( "printf PRIdPTR uintptr_t = %" PRIdPTR "\n", (uintptr_t)16 );
+                        printf("printf PRIxPTR uintptr_t = %" PRIxPTR "\n", (uintptr_t)16);
+                        printf("printf PRIdPTR uintptr_t = %" PRIdPTR "\n", (uintptr_t)16);
 
                         /*
                         sprintf has a different macro defined for it!
                         */
                         {
                             char s[256];
-                            sprintf( s, "%" SCNxPTR, (uintptr_t)1 );
-                            printf( "sprintf uintptr_t = %s\n", s );
+                            sprintf(s, "%" SCNxPTR, (uintptr_t)1);
+                            printf("sprintf uintptr_t = %s\n", s);
                         }
 #endif
                     }
 
-                    //don't have specific format strings: TODO find one, clock_t is not defined integer or float
-                    {
-                        //printf( "printf clock_t = %ju\n", (uintmax_t)(clock_t)1 );
-                    }
 
                     /*
-                    if a typedef is not guaranteed to be either an integer type or a floating point type,
-                    just cast it to the largest floating point type possible
+                    If a typedef is not guaranteed to be either an integer type or a floating point type,
+                    such as `clock_t`, there seems to be no ideal solution as of C99 <http://stackoverflow.com/questions/1083142/whats-the-correct-way-to-use-printf-to-print-a-clock-t/17190680#17190680>
+
+                    The best solution is to just cast it to the largest floating point type possible
 
                     Unfortunatelly, as of c11 there is no way to get the largets floating point type
                     as can be done for integers: <http://stackoverflow.com/questions/17189423/how-to-get-the-largest-precision-floating-point-data-type-of-implemenation-and-i/17189562>
-
                     */
                     {
-                        printf( "printf clock_t = %Lf\n", (long double)(clock_t)1 );
+                        printf("printf clock_t = %Lf\n", (long double)(clock_t)1);
+                        printf("printf time_t  = %Lf\n", (long double)(clock_t)1);
                     }
                 }
 
-                //return value: number of bytes written, negative if error.
+                //Return value: number of bytes written, negative if error.
                 //for string versions, excludes traling '\0'.
 
-                    assert( sprintf( s, "%c", 'a' ) == 1 );
+                    assert(sprintf(s, "%c", 'a') == 1);
             }
 
             /*
@@ -6368,7 +6371,7 @@ int main( int argc, char **argv )
                 Same as printf, but to an arbitrary stream
             */
             {
-                assert( fprintf( stdout, "fprintf = %d\n", 1 ) == 12 );
+                assert(fprintf(stdout, "fprintf = %d\n", 1) == 12);
             }
 
             /*
@@ -6388,7 +6391,7 @@ int main( int argc, char **argv )
             {
                 const int bufsiz = 100000;
                 char buf[bufsiz];
-                memset( buf, 'z', bufsiz );
+                memset(buf, 'z', bufsiz);
                 buf[bufsiz] = '\0';
                 buf[bufsiz/2] = '\n';
                 //printf("%s\n", buf); //large amount of 'z's verywhere!
@@ -6410,7 +6413,7 @@ int main( int argc, char **argv )
 
                 whatever char entered including on a tty is made available immediatelly.
             */
-            if ( 0 )
+            if (0)
             {
 
                 //echo a | c.out
@@ -6418,18 +6421,18 @@ int main( int argc, char **argv )
                 //sleep 3 | c.out
                     //EOF after 3 secs
 
-                fputs( "enter a char (on linux, ctrl+d EOF): ", stderr );
-                //fputc( 'a', stdin );
+                fputs("enter a char (on linux, ctrl+d EOF): ", stderr);
+                //fputc('a', stdin);
                     //BAD
                     //does not work
                 char c = getchar();
-                if ( c != EOF )
+                if (c != EOF)
                 {
-                    fprintf( stderr, "you entered:\n%c|<<<\n", c );
+                    fprintf(stderr, "you entered:\n%c|<<<\n", c);
                 }
                 else
                 {
-                    fprintf( stderr, "EOF\n" );
+                    fprintf(stderr, "EOF\n");
                 }
             }
 
@@ -6444,7 +6447,7 @@ int main( int argc, char **argv )
                 no size checking possible
                 if too much input, just seg faults
             */
-            if ( 0 )
+            if (0)
             {
                 //printf("enter a string terminated by newline: (max %d chars, newline will be included in the string)\n", sn);
                 //gets(s);
@@ -6474,34 +6477,34 @@ int main( int argc, char **argv )
 
                 the trailling newline is included in the input.
             */
-            if ( 0 )
+            if (0)
             {
                 FILE* fp = stdin;
                 const int buff_size = 4;
                 char buff[buff_size];
-                fprintf( stderr, "enter a string and press enter (max %d bytes):\n", buff_size - 1 );
-                if ( fgets( buff, buff_size, fp ) == NULL )
+                fprintf(stderr, "enter a string and press enter (max %d bytes):\n", buff_size - 1);
+                if (fgets(buff, buff_size, fp) == NULL)
                 {
-                    if ( feof( fp ) )
+                    if (feof(fp))
                     {
-                        fprintf( stderr, "fgets was already at the end of the stream and read nothing" );
+                        fprintf(stderr, "fgets was already at the end of the stream and read nothing");
                     }
-                    else if ( ferror( fp ) )
+                    else if (ferror(fp))
                     {
-                        fprintf( stderr, "fgets error reading from stream" );
+                        fprintf(stderr, "fgets error reading from stream");
                     }
                 }
                 //some bytes are left in the buffer, may want to reread it.
-                else if ( ! feof( fp ) )
+                else if (! feof(fp))
                 {
                     //TODO why does this not work with stdin from a tty nor pipe?
                     //why is eof not reached even if user inputs 1 single char?
 
-                        //fprintf( stderr, "you entered more than the maximum number of bytes\n" );
+                        //fprintf(stderr, "you entered more than the maximum number of bytes\n");
 
                     //TODO why does this not work? why is eof not reached even if user inputs 1 single char?
                 }
-                fprintf( stderr, "you entered:\n%s", buff );
+                fprintf(stderr, "you entered:\n%s", buff);
             }
 
             /*
@@ -6519,28 +6522,28 @@ int main( int argc, char **argv )
 
                 to do proper error checking, try `fgets` and the `strtol` family
             */
-            if ( 0 )
+            if (0)
             {
                 int i, j;
                 unsigned int ui;
                 float f;
-                printf( "enter an integer in decimal and <enter> (max 32 bits signed):\n" );
-                i = scanf( "%d", &i );
-                printf( "you entered: %d\n", i );
+                printf("enter an integer in decimal and <enter> (max 32 bits signed):\n");
+                i = scanf("%d", &i);
+                printf("you entered: %d\n", i);
                 //stuff is space separated
                 //try 123 456 789 at once. 456 789 stay in the buffer, and are eaten by the second scanf
 
-                printf( "enter an integer, a space, an integer and a <enter> (max 32 bits signed):\n" );
-                i = scanf( "%d %d", &i, &j );
-                printf( "you entered: %d %d\n", i, j );
+                printf("enter an integer, a space, an integer and a <enter> (max 32 bits signed):\n");
+                i = scanf("%d %d", &i, &j);
+                printf("you entered: %d %d\n", i, j);
 
-                printf( "enter a float and a newline:\n" );
-                i = scanf( "%f", &f );
-                printf( "you entered: %.2f\n", f );
+                printf("enter a float and a newline:\n");
+                i = scanf("%f", &f);
+                printf("you entered: %.2f\n", f);
 
-                printf( "enter an integer in hexadecimal and a <enter>: (max 32 bits signed)\n" );
-                i = scanf( "%x", &ui );
-                printf( "you entered (in decimal): %d\n", i );
+                printf("enter an integer in hexadecimal and a <enter>: (max 32 bits signed)\n");
+                i = scanf("%x", &ui);
+                printf("you entered (in decimal): %d\n", i);
             }
 
             /*
@@ -6548,22 +6551,22 @@ int main( int argc, char **argv )
 
                 complicated like scanf
             */
-            if ( 0 )
+            if (0)
             {
                 FILE* fp = stdin;
                 int i;
                 float f;
-                puts( "enter a int a space and a float (scientific notation) and then EOF (ctrl-d in linux):" );
-                if ( fscanf( stdin, "%d %e\n", &i, &f ) != 2 )
+                puts("enter a int a space and a float (scientific notation) and then EOF (ctrl-d in linux):");
+                if (fscanf(stdin, "%d %e\n", &i, &f) != 2)
                 {
-                    if ( feof( fp ) )
+                    if (feof(fp))
                     {
-                        fprintf( stderr, "fscanf reached the of file and read nothing\n" );
-                    } else if ( ferror( fp ) ) {
-                        fprintf( stderr, "fscanf error reading from stream\n" );
+                        fprintf(stderr, "fscanf reached the of file and read nothing\n");
+                    } else if (ferror(fp)) {
+                        fprintf(stderr, "fscanf error reading from stream\n");
                     }
                 }
-                fprintf( stderr, "you entered: %d %.2e\n", i, f );
+                fprintf(stderr, "you entered: %d %.2e\n", i, f);
             }
         }
 
@@ -6642,22 +6645,22 @@ int main( int argc, char **argv )
 
             //simple example of file io:
             {
-                strcpy( path, "f.tmp" );
-                fp = fopen( path, "w" );
-                if ( !fp )
+                strcpy(path, "f.tmp");
+                fp = fopen(path, "w");
+                if (!fp)
                 {
                     report_cant_open_file(path);
-                    exit( EXIT_FAILURE );
+                    exit(EXIT_FAILURE);
                 }
                 else
                 {
-                    if ( fputc( 'a', fp ) == EOF )
+                    if (fputc('a', fp) == EOF)
                     {
-                        report_cant_write_file( path );
-                        exit( EXIT_FAILURE );
+                        report_cant_write_file(path);
+                        exit(EXIT_FAILURE);
                     }
                 }
-                if( fclose(fp) == EOF )
+                if(fclose(fp) == EOF)
                 {
                     fprintf(stderr, "could not close:\n%s\n", path);
                 }
@@ -6675,10 +6678,10 @@ int main( int argc, char **argv )
 
             //#fwrite
             {
-                fp = fopen( path, "wb" );
-                if ( fp == NULL )
+                fp = fopen(path, "wb");
+                if (fp == NULL)
                 {
-                    fprintf( stderr, "could not open:\n%s\n", path );
+                    fprintf(stderr, "could not open:\n%s\n", path);
                     exit(EXIT_FAILURE);
                 }
                 else
@@ -6690,39 +6693,39 @@ int main( int argc, char **argv )
                         //nelems=sizeof(buff)/sizeof(buff[0]);
                         //nelems=strlen(buff)+1
 
-                    if ( fwrite( elems_write, sizeof(elems_write[0]), nelems, fp ) < nelems )
+                    if (fwrite(elems_write, sizeof(elems_write[0]), nelems, fp) < nelems)
                     {
                         fprintf(stderr, "could not write all the data:\n%s\n", path);
                     }
                 }
-                if ( fclose(fp) == EOF )
-                {
-                    fprintf( stderr, "could not close:\n%s\n", path );
-                }
-            }
-
-            //#fread
-            {
-                fp = fopen( path, "rb" );
-                if ( fp == NULL )
-                {
-                    fprintf(stderr, "could not open:\n%s\n", path);
-                }
-                else
-                {
-                    if ( fread( elems_read, sizeof(elems_read[0]), nelems, fp) < nelems )
-                    { //returns number of elements written
-                        fprintf(stderr, "could not read all the data:\n%s\n", path);
-                    }
-                }
-
-                if ( fclose(fp) == EOF )
+                if (fclose(fp) == EOF)
                 {
                     fprintf(stderr, "could not close:\n%s\n", path);
                 }
             }
 
-            assert( memcmp( elems_read, elems_write, nelems ) == 0);
+            //#fread
+            {
+                fp = fopen(path, "rb");
+                if (fp == NULL)
+                {
+                    fprintf(stderr, "could not open:\n%s\n", path);
+                }
+                else
+                {
+                    if (fread(elems_read, sizeof(elems_read[0]), nelems, fp) < nelems)
+                    { //returns number of elements written
+                        fprintf(stderr, "could not read all the data:\n%s\n", path);
+                    }
+                }
+
+                if (fclose(fp) == EOF)
+                {
+                    fprintf(stderr, "could not close:\n%s\n", path);
+                }
+            }
+
+            assert(memcmp(elems_read, elems_write, nelems) == 0);
         }
 
         //#reposition read write
@@ -6734,7 +6737,7 @@ int main( int argc, char **argv )
             */
             {
                 //long int curpos = ftell(pf)
-                //if ( curpos == -1L ){
+                //if (curpos == -1L){
                 //    report_cant_move_file();
                 //}
             }
@@ -6756,7 +6759,7 @@ int main( int argc, char **argv )
             {
                 //for binary, n bytes, for read, no necessarily
                 //
-                //if ( fseek ( pf, 0 , SEEK_SET ) != 0 ) {
+                //if (fseek (pf, 0 , SEEK_SET) != 0) {
                 //    report_cant_move_file();
                 //}
             }
@@ -6824,7 +6827,7 @@ int main( int argc, char **argv )
 
                 //write entire string to file at once
                 {
-                    if ( file_write( path, cs ) == -1 )
+                    if (file_write(path, cs) == -1)
                     {
                         report_cant_write_file(path);
                     }
@@ -6833,11 +6836,11 @@ int main( int argc, char **argv )
                 //read entire file at once to a string
                 {
                     char* cp = file_read(path);
-                    if ( cp == NULL )
+                    if (cp == NULL)
                     {
                         report_cant_read_file(path);
                     }
-                    assert( strcmp( cs, cp ) == 0 );
+                    assert(strcmp(cs, cp) == 0);
                     free(cp);
                 }
             }
@@ -6850,11 +6853,11 @@ int main( int argc, char **argv )
                 int arri[] = { 0, 1, -1, 12873453 };
                 float arrf[] = { 1.1f, 1.001f, -1.1f, 1.23456e2 };
 
-                strcpy( path, "arri.tmp" );
-                write_int_arr_file( path, arri, 4 );
+                strcpy(path, "arri.tmp");
+                write_int_arr_file(path, arri, 4);
 
-                strcpy( path, "arrf.tmp" );
-                write_float_arr_file( path, arrf, 4, 2 );
+                strcpy(path, "arrf.tmp");
+                write_float_arr_file(path, arrf, 4, 2);
             }
         }
 
@@ -6895,7 +6898,7 @@ int main( int argc, char **argv )
         */
         {
             errno = EDOM;
-            perror( "perror test EDOM" );
+            perror("perror test EDOM");
         }
     }
 
@@ -6904,24 +6907,46 @@ int main( int argc, char **argv )
         /*
         #time()
 
-            seconds since 1970
+            A representation of absolute time.
+
+            Returns a time_t type.
+
+            The interpretation of the return is implementation defined,
+            and therefore cannot be relied directly upon.
+
+            Traditionally, implementations use the number of seconds since 1970.
+
+        #time_t
+
+            All that is required is that `time_t` be an arithmetic type, either integer or floating point.
+
+            See printf for a discussion of how to print time_t.
         */
         {
-            printf( "time() = %ld\n", time( NULL ) );
+            time_t t = time(NULL);
         }
 
         //#CLOCKS_PER_SEC
 
-            printf( "CLOCKS_PER_SEC = %ld\n", CLOCKS_PER_SEC );
+            printf("CLOCKS_PER_SEC = %ld\n", CLOCKS_PER_SEC);
 
         /*
         #clock()
 
-            program virtual time in number of processor clock clicks
+            Program virtual time in number of processor clock clicks
 
-            precision is quite limited, and if too few clicks pass, it may return 0.
+            Precision is quite limited, and if too few clicks pass, it may return 0.
+
+        #clock_t
+
+            Type returned by `clock()`.
+
+            Like `time_t`, all that is required is that `time_t` be an arithmetic type,
+            either integer or floating point.
+
+            See printf for a discussion of how to print a `clock_t`.
         */
-        if ( 0 )
+        if (0)
         {
             clock_t t;
             int i = 0;
@@ -6934,16 +6959,16 @@ int main( int argc, char **argv )
             and very little time will have passed
             */
                 int j = 0;
-                for ( int i = 0; i < CLOCKS_PER_SEC * 10; i++ ){ j++; }
+                for (int i = 0; i < CLOCKS_PER_SEC * 10; i++) { j++; }
 
             t = clock() - t;
 
             //there is no printf specifier for `clock_t`
             //so cast to largest possible integer type:
 
-                printf( "clicks = %llu\n", (intmax_t)t );
+                printf("clicks = %llu\n", (intmax_t)t);
 
-            printf( "seconds = %f\n", ((float)t) / CLOCKS_PER_SEC );
+            printf("seconds = %f\n", ((float)t) / CLOCKS_PER_SEC);
         }
 
         /*
@@ -7006,7 +7031,7 @@ int main( int argc, char **argv )
         would need several floating point operations to implement, each one meaning a loss of precision,
         while the hardware can do them a single operation.
 
-        I guess however that good compilers will optimize `pow( x, 0.5 )` to `sqrt( x )`.
+        I guess however that good compilers will optimize `pow(x, 0.5)` to `sqrt(x)`.
 
         Anyways, it is better to play on the safe side, and always use the most specific operation possible.
 
@@ -7059,17 +7084,17 @@ int main( int argc, char **argv )
     {
         const double err = 10e-6;
 
-        printf( "math_errhandling & MATH_ERRNO = %d\n", math_errhandling & MATH_ERRNO );
+        printf("math_errhandling & MATH_ERRNO = %d\n", math_errhandling & MATH_ERRNO);
 
         //#abs
         {
             //absolute values, integer version:
 
-                assert( abs(-1.1)  == 1 );
+                assert(abs(-1.1) == 1);
 
             //absolute values, float version:
 
-                assert( fabsl(-1.1) == 1.1 );
+                assert(fabsl(-1.1) == 1.1);
         }
 
         /*
@@ -7078,8 +7103,8 @@ int main( int argc, char **argv )
         Don't forget to use the float versions which starts with f when you want floating operations!
         */
         {
-            assert( fminl( 0.1, 0.2 ) == 0.1 );
-            assert( fmaxl( 0.1, 0.2 ) == 0.2 );
+            assert(fminl(0.1, 0.2) == 0.1);
+            assert(fmaxl(0.1, 0.2) == 0.2);
         }
 
         /*
@@ -7088,8 +7113,8 @@ int main( int argc, char **argv )
             //many more: rint, lrint
         */
         {
-            assert( fabs( floor(0.5) - 0.0  ) < err );
-            assert( fabs( ceil(0.5)  - 1.0  ) < err );
+            assert(fabs(floor(0.5) - 0.0 ) < err);
+            assert(fabs(ceil(0.5)  - 1.0 ) < err);
 
             /*
             #trunc
@@ -7097,8 +7122,8 @@ int main( int argc, char **argv )
                 Never raises any errors because the new result always fits in the data type (magnitide decresases).
             */
             {
-                assert( fabs( trunc(  1.5 ) -  1.0  ) < err );
-                assert( fabs( trunc( -1.5 ) - -1.0  ) < err );
+                assert(fabs(trunc(1.5)  -  1.0) < err);
+                assert(fabs(trunc(-1.5) - -1.0) < err);
             }
 
             /*
@@ -7107,10 +7132,10 @@ int main( int argc, char **argv )
                 Away from 0 on mid case.
             */
             {
-                assert( fabs( round(  1.25 ) -  1.0 ) < err );
-                assert( fabs( round(  1.5  ) -  2.0 ) < err );
-                assert( fabs( round(  1.75 ) -  2.0 ) < err );
-                assert( fabs( round( -1.5  ) - -2.0 ) < err );
+                assert(fabs(round( 1.25) -  1.0) < err);
+                assert(fabs(round( 1.5 ) -  2.0) < err);
+                assert(fabs(round( 1.75) -  2.0) < err);
+                assert(fabs(round(-1.5 ) - -2.0) < err);
             }
 
             /*
@@ -7120,8 +7145,8 @@ int main( int argc, char **argv )
             */
             {
                 double d;
-                assert( fabs( modf( 3.25, &d ) - 0.25 ) < err );
-                assert( fabs( d                - 3.00 ) < err );
+                assert(fabs(modf(3.25, &d) - 0.25) < err);
+                assert(fabs(d              - 3.00) < err);
             }
         }
 
@@ -7136,14 +7161,14 @@ int main( int argc, char **argv )
             Has hardware implementations on certain platforms.
         */
         {
-            assert( fabs( fma( 2.0, 3.0, 4.0 ) - ( 2.0 * 3.0 + 4.0 ) ) < err );
+            assert(fabs(fma(2.0, 3.0, 4.0) - (2.0 * 3.0 + 4.0)) < err);
         }
 
         //#exponential functions
         {
             //#exp
             {
-                assert( fabs( exp( 1.0 ) - 2.71 ) < 0.01 );
+                assert(fabs(exp(1.0) - 2.71) < 0.01);
             }
 
             /*
@@ -7156,9 +7181,9 @@ int main( int argc, char **argv )
                 Calculates the ln.
             */
             {
-                assert( fabs( log( exp(1.0) ) - 1.0 ) < err );
-                assert( fabs( log2( 8.0 ) - 3.0 ) < err );
-                assert( fabs( log10( 100.0 ) - 2.0 ) < err );
+                assert(fabs(log(exp(1.0)) - 1.0) < err);
+                assert(fabs(log2(8.0)     - 3.0) < err);
+                assert(fabs(log10(100.0)  - 2.0) < err);
             }
 
             /*
@@ -7169,24 +7194,24 @@ int main( int argc, char **argv )
                 To get complex on negative values, use `csqrt`.
             */
             {
-                assert( fabs( sqrt( 4.0 ) - 2.0 ) < err );
+                assert(fabs(sqrt(4.0) - 2.0) < err);
 
                 //GCC 4.7 -O3 is smart enough to see that this is bad:
                 {
                     float f = -4.0;
-                    //printf( "sqrt(-4.0) = %f\n", sqrt( f ) );
+                    //printf("sqrt(-4.0) = %f\n", sqrt(f));
                 }
 
                 {
                     float f;
                     volatile float g;
 
-                    if ( true ) f = -4.0;
+                    if (true) f = -4.0;
                     errno = 0;
-                    g = sqrt( f );
-                    if ( math_errhandling & MATH_ERRNO )
-                        assert( errno == EDOM );
-                    printf( "sqrt(-4.0) = %f\n", f );
+                    g = sqrt(f);
+                    if (math_errhandling & MATH_ERRNO)
+                        assert(errno == EDOM);
+                    printf("sqrt(-4.0) = %f\n", f);
                 }
             }
 
@@ -7195,10 +7220,10 @@ int main( int argc, char **argv )
             /*
             #hypot
 
-                Hypotenuse: sqrt( x^2 + y^2 )
+                Hypotenuse: sqrt(x^2 + y^2)
             */
             {
-                assert( fabs( hypot( 3.0, 4.0 ) - 5.0 ) < err );
+                assert(fabs(hypot(3.0, 4.0) - 5.0) < err);
             }
 #endif
 
@@ -7209,22 +7234,22 @@ int main( int argc, char **argv )
                 CuBe RooT
             */
             {
-                assert( fabs( cbrt( 8.0  ) -  2.0 ) < err );
-                assert( fabs( cbrt( -8.0 ) - -2.0 ) < err );
+                assert(fabs(cbrt(8.0 ) -  2.0) < err);
+                assert(fabs(cbrt(-8.0) - -2.0) < err);
             }
 #endif
 
             //#pow
             {
-                assert( fabs( pow( 2.0, 3.0 ) - 8.0  ) < err );
+                assert(fabs(pow(2.0, 3.0) - 8.0 ) < err);
             }
         }
 
         //#trig
         {
-            float f = sin( 0.2 );
-            assert( fabs( sin( 0.0 ) - 0.0 ) < err );
-            assert( fabs( cos( 0.0 ) - 1.0 ) < err );
+            float f = sin(0.2);
+            assert(fabs(sin(0.0) - 0.0) < err);
+            assert(fabs(cos(0.0) - 1.0) < err);
 
             /*
             #PI
@@ -7238,7 +7263,7 @@ int main( int argc, char **argv )
                 are calculated at compile time and stored in the program text.
             */
             {
-                assert( fabs( acos(-1.0) - 3.14 )    < 0.01 );
+                assert(fabs(acos(-1.0) - 3.14)    < 0.01);
             }
         }
 
@@ -7283,27 +7308,27 @@ int main( int argc, char **argv )
             lgamma = ln tgamma
         */
         {
-            assert( fabs( tgamma( 5.0 ) - 4*3*2  ) < err );
-            assert( fabs( tgamma( 3.5 ) - 2.5 * tgamma( 2.5 )  ) < err );
+            assert(fabs(tgamma(5.0) - 4*3*2 ) < err);
+            assert(fabs(tgamma(3.5) - 2.5 * tgamma(2.5) ) < err);
 
             errno = 0;
-            volatile double d = tgamma( -1.0 );
-            if ( math_errhandling & MATH_ERRNO )
+            volatile double d = tgamma(-1.0);
+            if (math_errhandling & MATH_ERRNO)
             {
-                if ( errno == ERANGE )
-                    assert( d == HUGE_VAL );
+                if (errno == ERANGE)
+                    assert(d == HUGE_VAL);
                 else
-                    assert( errno == EDOM );
+                    assert(errno == EDOM);
             }
 
-            assert( fabs( lgamma( 3.5 ) - log( tgamma( 3.5 ) ) ) < err );
+            assert(fabs(lgamma(3.5) - log(tgamma(3.5))) < err);
         }
 
         //floating point manipulation functions
         {
-            /* #ldexp( x, y ) = x * 2 ^ y */
+            /* #ldexp(x, y) = x * 2 ^ y */
             {
-                assert( fabs( ldexp( 1.5, 2.0) - 6.0  ) < err );
+                assert(fabs(ldexp(1.5, 2.0) - 6.0 ) < err);
             }
 
             /*
@@ -7318,9 +7343,9 @@ int main( int argc, char **argv )
                 TODO0 diff from nextafter
             */
             {
-                printf( "nexttowards( 0.0, 1.0 ) = %a\n", nexttoward( 0.0, 1.0 ) );
-                assert( nexttoward( 0.0, 0.0 ) == 0.0 );
-                printf( "nextafter  ( 0.0, 1.0 ) = %a\n", nextafter( 0.0, 1.0 ) );
+                printf("nexttowards(0.0, 1.0) = %a\n", nexttoward(0.0, 1.0));
+                assert(nexttoward(0.0, 0.0) == 0.0);
+                printf("nextafter  (0.0, 1.0) = %a\n", nextafter(0.0, 1.0));
             }
         }
 
@@ -7328,13 +7353,27 @@ int main( int argc, char **argv )
         #random
 
         #srand
+
+            See random number generator.
+
+            It is very common to seed with `time(NULL)`.
+
+        #rand
+
+            Get a uniformly random `int` between 0 and RAND_MAX.
         */
         {
-            //seed the random number generator with the current time in seconds
-            srand ( time( NULL ) );
+            srand(time(NULL));
 
             //integer between 0 and RAND_MAX:
-            int i = rand();
+            {
+                int i = rand();
+            }
+
+            // int between 0 and 99:
+            {
+                int i = rand() % 99;
+            }
 
             //float between 0 and 1:
             float f = rand()/(float)RAND_MAX;
@@ -7358,7 +7397,7 @@ int main( int argc, char **argv )
         {
 
 #ifdef __STDC_IEC_559__
-            puts( "__STDC_IEC_559__" );
+            puts("__STDC_IEC_559__");
 #endif
 
             /*
@@ -7370,7 +7409,7 @@ int main( int argc, char **argv )
                 In Linux the default handler is implemented by the OS and sends a signal to our application,
                 which if we don't catch will kill us.
             */
-            if ( 0 )
+            if (0)
             {
                 //gcc 4.7 is smart enough to warn on literal division by 0:
                 {
@@ -7380,11 +7419,11 @@ int main( int argc, char **argv )
                 //gcc 4.7 is not smart enough to warn here:
                 {
                     volatile int i = 0;
-                    printf( "int 1/0 = %d\n", 1 / i );
+                    printf("int 1/0 = %d\n", 1 / i);
 
                     //on gcc 4.7 with `-O3` this may not generate an exception,
                     //as the compiler replaces 0 / X by 0
-                    printf( "int 0/0 = %d\n", 0 / i );
+                    printf("int 0/0 = %d\n", 0 / i);
                 }
             }
 
@@ -7396,9 +7435,9 @@ int main( int argc, char **argv )
                 Can equal `INFINITY`.
             */
             {
-                printf( "HUGE_VAL = %f\n", HUGE_VAL );      //double
-                printf( "HUGE_VALF = %f\n", HUGE_VALF );    //float
-                printf( "HUGE_VALL = %Lf\n", HUGE_VALL );   //long double
+                printf("HUGE_VAL = %f\n", HUGE_VAL);      //double
+                printf("HUGE_VALF = %f\n", HUGE_VALF);    //float
+                printf("HUGE_VALL = %Lf\n", HUGE_VALL);   //long double
             }
 
             /*
@@ -7415,33 +7454,33 @@ int main( int argc, char **argv )
                 It is possible that `INFINITY == HUGE_VALF`.
             */
             {
-                printf( "INFINITY = %f\n", INFINITY );
-                printf( "-INFINITY = %f\n", -INFINITY );
+                printf("INFINITY = %f\n", INFINITY);
+                printf("-INFINITY = %f\n", -INFINITY);
 
                 volatile float f = 0;
-                assert( 1 / f == INFINITY );
-                assert( isinf( INFINITY ) );
-                assert( ! isnan( INFINITY ) );
+                assert(1 / f == INFINITY);
+                assert(isinf(INFINITY));
+                assert(! isnan(INFINITY));
 
-                assert( INFINITY + INFINITY == INFINITY );
-                assert( INFINITY + 1.0      == INFINITY );
-                assert( INFINITY - 1.0      == INFINITY );
-                assert( isnan( INFINITY - INFINITY ) );
+                assert(INFINITY + INFINITY == INFINITY);
+                assert(INFINITY + 1.0      == INFINITY);
+                assert(INFINITY - 1.0      == INFINITY);
+                assert(isnan(INFINITY - INFINITY));
 
-                assert( INFINITY * INFINITY     == INFINITY );
-                assert( INFINITY * -INFINITY    == -INFINITY );
-                assert( INFINITY * 2.0          == INFINITY );
-                assert( INFINITY * -1.0         == -INFINITY );
-                assert( isnan( INFINITY * 0.0 ) );
+                assert(INFINITY *  INFINITY    ==  INFINITY);
+                assert(INFINITY * -INFINITY    == -INFINITY);
+                assert(INFINITY *  2.0         ==  INFINITY);
+                assert(INFINITY * -1.0         == -INFINITY);
+                assert(isnan(INFINITY * 0.0));
 
-                assert( 1.0 / INFINITY == 0.0 );
-                assert( isnan( INFINITY / INFINITY ) );
+                assert(1.0 / INFINITY == 0.0);
+                assert(isnan(INFINITY / INFINITY));
 
                 //compairisons with INFINITY all work as expected
-                assert( INFINITY == INFINITY );
-                assert( INFINITY != - INFINITY );
-                assert( -INFINITY < - 1e100 );
-                assert( 1e100 < INFINITY );
+                assert(INFINITY == INFINITY);
+                assert(INFINITY != - INFINITY);
+                assert(-INFINITY < - 1e100);
+                assert(1e100 < INFINITY);
             }
 
             /*
@@ -7461,28 +7500,28 @@ int main( int argc, char **argv )
                 The sign of NAN has no meaning.
             */
             {
-                printf( "NAN = %f\n", NAN );
-                printf( "-NAN = %f\n", -NAN );
+                printf("NAN = %f\n", NAN);
+                printf("-NAN = %f\n", -NAN);
 
                 //TODO0 why do both fail
-                    //assert( 0 / f == -NAN );
-                    //assert( 0 / f == NAN );
+                    //assert(0 / f == -NAN);
+                    //assert(0 / f == NAN);
 
                 volatile float f = 0;
-                assert( isnan( 0 / f ) );
-                assert( isnan( NAN ) );
-                assert( ! isinf( NAN ) );
+                assert(isnan(0 / f));
+                assert(isnan(NAN));
+                assert(! isinf(NAN));
 
-                assert( isnan( NAN ) );
-                assert( isnan( NAN + 1.0 ) );
-                assert( isnan( NAN + INFINITY ) );
-                assert( isnan( NAN + NAN ) );
-                assert( isnan( NAN - 1.0 ) );
-                assert( isnan( NAN * 2.0 ) );
-                assert( isnan( NAN / 1.0 ) );
-                assert( isnan( INFINITY - INFINITY ) );
-                assert( isnan( INFINITY * 0.0 ) );
-                assert( isnan( INFINITY / INFINITY ) );
+                assert(isnan(NAN));
+                assert(isnan(NAN + 1.0));
+                assert(isnan(NAN + INFINITY));
+                assert(isnan(NAN + NAN));
+                assert(isnan(NAN - 1.0));
+                assert(isnan(NAN * 2.0));
+                assert(isnan(NAN / 1.0));
+                assert(isnan(INFINITY - INFINITY));
+                assert(isnan(INFINITY * 0.0));
+                assert(isnan(INFINITY / INFINITY));
 
                 /*
                 NAN is not ordered. any compairison to it yields false!
@@ -7490,9 +7529,9 @@ int main( int argc, char **argv )
                 This is logical since 0 is neither smaller, larger or equal to NAN.
                 */
                 {
-                    assert( ! ( 0.0 < NAN ) );
-                    assert( ! ( 0.0 > NAN ) );
-                    assert( ! ( 0.0 == NAN ) );
+                    assert(! (0.0 < NAN));
+                    assert(! (0.0 > NAN));
+                    assert(! (0.0 == NAN));
                 }
             }
         }
@@ -7514,19 +7553,19 @@ int main( int argc, char **argv )
 
         //exactly 32 bits:
 
-            assert( sizeof( int32_t) == 4 );
+            assert(sizeof(int32_t) == 4);
 
         //all have unsigned verions prefixed by 'u'
 
-            assert( sizeof( uint32_t) == 4 );
+            assert(sizeof(uint32_t) == 4);
 
         //at least 32 bits:
 
-            assert( sizeof( int_least32_t ) >= 4 );
+            assert(sizeof(int_least32_t) >= 4);
 
         //fastest operations with at least 32 bits:
 
-            assert( sizeof( int_least32_t ) >= 4 );
+            assert(sizeof(int_least32_t) >= 4);
 
         /*
         #intptr_t
@@ -7542,8 +7581,8 @@ int main( int argc, char **argv )
         TODO0 example of real life application?
         */
         {
-            assert( sizeof( void* ) == sizeof( intptr_t ) );
-            assert( sizeof( void* ) == sizeof( uintptr_t ) );
+            assert(sizeof(void*) == sizeof(intptr_t));
+            assert(sizeof(void*) == sizeof(uintptr_t));
         }
 
         //uniquelly defined by machine address space
@@ -7557,22 +7596,22 @@ int main( int argc, char **argv )
             for those macros
         */
         {
-            assert( sizeof( intmax_t ) >= sizeof( long long ) );
-            assert( sizeof( uintmax_t ) >= sizeof( unsigned long long ) );
+            assert(sizeof(intmax_t) >= sizeof(long long));
+            assert(sizeof(uintmax_t) >= sizeof(unsigned long long));
         }
 
         //inttypes also includes limits for each of the defined types:
         {
             {
                 int32_t i = 0;
-                assert( INT32_MIN < i );
-                assert( INT32_MAX > i );
+                assert(INT32_MIN < i);
+                assert(INT32_MAX > i);
             }
 
             {
                 int_fast32_t i = 0;
-                assert( INT_FAST32_MIN < i );
-                assert( INT_FAST32_MAX > i );
+                assert(INT_FAST32_MIN < i);
+                assert(INT_FAST32_MAX > i);
             }
         }
         //all have max/min ranges
@@ -7589,10 +7628,10 @@ int main( int argc, char **argv )
     */
     {
 
-        printf( "INT_MAX = %d\n", INT_MAX );
-        printf( "INT_MIN = %d\n", INT_MIN );
-        printf( "LONG_MAX = %ld\n", LONG_MAX );
-        printf( "LLONG_MIN = %lld\n", LLONG_MIN );
+        printf("INT_MAX = %d\n", INT_MAX);
+        printf("INT_MIN = %d\n", INT_MIN);
+        printf("LONG_MAX = %ld\n", LONG_MAX);
+        printf("LLONG_MIN = %lld\n", LLONG_MIN);
 
         /*
         unsigned versions start with `U`
@@ -7600,7 +7639,7 @@ int main( int argc, char **argv )
         there is no min value for unsigned versions since it is necessarily 0
         */
 
-        printf( "UINT_MAX = %u\n", UINT_MAX );
+        printf("UINT_MAX = %u\n", UINT_MAX);
     }
 
     /*
@@ -7632,7 +7671,7 @@ int main( int argc, char **argv )
             TODO0 can it be changed?
         */
         {
-            printf( "FLT_ROUNDS = %d\n", FLT_ROUNDS );
+            printf("FLT_ROUNDS = %d\n", FLT_ROUNDS);
         }
 
         /*
@@ -7646,7 +7685,7 @@ int main( int argc, char **argv )
             TODO0 understand better
         */
         {
-            printf( "FLT_EVAL_METHOD = %d\n", FLT_EVAL_METHOD );
+            printf("FLT_EVAL_METHOD = %d\n", FLT_EVAL_METHOD);
         }
 
         /*
@@ -7658,9 +7697,9 @@ int main( int argc, char **argv )
             and support is optional.
         */
         {
-            printf( "FLT_MIN = %a\n", FLT_MIN );
-            printf( "DBL_MIN = %a\n", DBL_MIN );
-            printf( "LDBL_MIN = %La\n", LDBL_MIN );
+            printf("FLT_MIN = %a\n", FLT_MIN);
+            printf("DBL_MIN = %a\n", DBL_MIN);
+            printf("LDBL_MIN = %La\n", LDBL_MIN);
         }
 
         /*
@@ -7677,7 +7716,7 @@ int main( int argc, char **argv )
             TODO0 wow, there are non radix 2 representation implementations?!
         */
         {
-            printf( "FLT_RADIX = %d\n", FLT_RADIX );
+            printf("FLT_RADIX = %d\n", FLT_RADIX);
         }
 
 #if __STDC_VERSION__ >= 201112L
@@ -7724,19 +7763,19 @@ int main( int argc, char **argv )
             - 1: yes
         */
         {
-            printf( "FLT_HAS_SUBNORM = %d\n",     FLT_HAS_SUBNORM );
-            printf( "DBL_HAS_SUBNORM = %d\n",     DBL_HAS_SUBNORM );
-            printf( "LDBL_HAS_SUBNORM = %d\n",    LDBL_HAS_SUBNORM );
+            printf("FLT_HAS_SUBNORM = %d\n",     FLT_HAS_SUBNORM);
+            printf("DBL_HAS_SUBNORM = %d\n",     DBL_HAS_SUBNORM);
+            printf("LDBL_HAS_SUBNORM = %d\n",    LDBL_HAS_SUBNORM);
 
-            assert( isnormal( LDBL_MIN ) );
+            assert(isnormal(LDBL_MIN));
 
-            if ( LDBL_HAS_SUBNORM )
+            if (LDBL_HAS_SUBNORM)
             {
                 long double ldbl_min_2 = LDBL_MIN / 2.0;
-                printf( "LDBL_MIN / 2.0 = %La\n", ldbl_min_2 );
-                assert( ldbl_min_2 != 0 );
-                assert( ldbl_min_2 != LDBL_MIN );
-                assert( ! isnormal( ldbl_min_2 ) );
+                printf("LDBL_MIN / 2.0 = %La\n", ldbl_min_2);
+                assert(ldbl_min_2 != 0);
+                assert(ldbl_min_2 != LDBL_MIN);
+                assert(! isnormal(ldbl_min_2));
             }
         }
 
@@ -7771,14 +7810,14 @@ int main( int argc, char **argv )
     {
         // True in 2's complement. Modulo arithmetic holds.
         {
-            assert( (char)-1 == (char)255 );
-            assert( (unsigned char)-1 == (unsigned char)255 );
-            assert( (unsigned char)-2 == (unsigned char)254 );
+            assert((char)-1 == (char)255);
+            assert((unsigned char)-1 == (unsigned char)255);
+            assert((unsigned char)-2 == (unsigned char)254);
         }
 
         {
-            assert( (char)0 > (char)255 );
-            assert( (unsigned char)0 < (unsigned char)255 );
+            assert((char)0 > (char)255);
+            assert((unsigned char)0 < (unsigned char)255);
         }
     }
 
@@ -7799,34 +7838,34 @@ int main( int argc, char **argv )
     {
         const double err = 10e-6;
 
-        assert( sizeof( float complex  ) <= sizeof( double complex ) );
-        assert( sizeof( double complex ) <= sizeof( long double complex ) );
+        assert(sizeof(float complex ) <= sizeof(double complex));
+        assert(sizeof(double complex) <= sizeof(long double complex));
 
         const double complex zd =  1.0 + 2.0*I;
         const double complex zd2 = 1.0 + 1.0*I;
 
         //addition
-        assert( creal( zd + zd ) == 2.0 );
-        assert( cimag( zd + zd ) == 4.0 );
+        assert(creal(zd + zd) == 2.0);
+        assert(cimag(zd + zd) == 4.0);
 
         //subtraction
-        assert( creal( zd - zd2 ) == 0.0 );
-        assert( cimag( zd - zd2 ) == 1.0 );
+        assert(creal(zd - zd2) == 0.0);
+        assert(cimag(zd - zd2) == 1.0);
 
         //multiplication
-        assert( creal( zd * zd ) == -3.0 );
-        assert( cimag( zd * zd ) ==  4.0 );
+        assert(creal(zd * zd) == -3.0);
+        assert(cimag(zd * zd) ==  4.0);
 
         //division
-        assert( creal( zd / zd ) == 1.0 );
-        assert( cimag( zd / zd ) == 0.0 );
+        assert(creal(zd / zd) == 1.0);
+        assert(cimag(zd / zd) == 0.0);
 
         //conjugation
-        assert( creal( conj(zd) ) ==  1.0 );
-        assert( cimag( conj(zd) ) == -2.0 );
+        assert(creal(conj(zd)) ==  1.0);
+        assert(cimag(conj(zd)) == -2.0);
 
         //absolute value == norm == module
-        assert( abs( cabs( 3.0 + 4.0 * I ) - 5.0 ) < err );
+        assert(abs(cabs(3.0 + 4.0 * I) - 5.0) < err);
 
         /*
         #csqrt
@@ -7834,7 +7873,7 @@ int main( int argc, char **argv )
             Unlike sqrt, can return imaginary outputs and take imaginary inputs.
         */
         {
-            assert( cabs( csqrt( -1.0 ) - I ) < err );
+            assert(cabs(csqrt(-1.0) - I) < err);
         }
 
         //cproj
@@ -7842,7 +7881,7 @@ int main( int argc, char **argv )
 
         //csin
         //TODO0 predict result and assert it
-        //assert( cabs( csin( I ) -  ) < err );
+        //assert(cabs(csin(I) - ) < err);
 
         /*
         #complex integer
@@ -7879,7 +7918,7 @@ int main( int argc, char **argv )
         - xor_eq:   ^=
     */
     {
-        assert( true and true );
+        assert(true and true);
     }
 
     /*
@@ -7899,14 +7938,14 @@ int main( int argc, char **argv )
     //- even without optimization, cache access speed is hard to predict
     //   so what you expect may be false
 
-    loop_only_prof( n_prof_runs );
-    while_only_prof( n_prof_runs );
+    loop_only_prof(n_prof_runs);
+    while_only_prof(n_prof_runs);
 
-    int_assign_prof( n_prof_runs );
-    int_sum_prof( n_prof_runs );
-    int_sub_prof( n_prof_runs );
-    int_mult_prof( n_prof_runs );
-    int_div_prof( n_prof_runs );
+    int_assign_prof(n_prof_runs);
+    int_sum_prof(n_prof_runs);
+    int_sub_prof(n_prof_runs);
+    int_mult_prof(n_prof_runs);
+    int_div_prof(n_prof_runs);
 
     float_sum_prof(n_prof_runs);
     float_sub_prof(n_prof_runs);
@@ -7952,26 +7991,26 @@ int main( int argc, char **argv )
         void *heap;
         char *text = "abc";
 
-        printf( "PRIxPTR usage = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)(void*)1 );
+        printf("PRIxPTR usage = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)(void*)1);
 
 #if __STDC_VERSION__ >= 199901L
 
-        printf( "processs address space\n" );
-        printf( "  &env    = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)getenv( "HOME" ) );
-        printf( "  &argv   = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)argv );
-        printf( "  &argc   = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&argc );
-        printf( "  &stack1 = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&stack1 );
-        printf( "  &stack2 = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&stack2 );
-        heap = malloc( 1 );
-        printf( "  &heap   = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)heap );
-        free( heap );
-        printf( "  &BSS    = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&BSS );
-        printf( "  &DATA   = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&DATA );
+        printf("processs address space\n");
+        printf("  &env    = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)getenv("HOME"));
+        printf("  &argv   = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)argv);
+        printf("  &argc   = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&argc);
+        printf("  &stack1 = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&stack1);
+        printf("  &stack2 = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&stack2);
+        heap = malloc(1);
+        printf("  &heap   = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)heap);
+        free(heap);
+        printf("  &BSS    = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&BSS);
+        printf("  &DATA   = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&DATA);
 
         //TODO0 why on linux this is not on the text setment,
         //even if modification gives segfault?
-            printf( "  &text   = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&text );
-            //fflush( stdout );
+            printf("  &text   = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&text);
+            //fflush(stdout);
             //text[0] = '0';
 #endif
 
@@ -7996,15 +8035,15 @@ int main( int argc, char **argv )
         {
             int i;
             float f;
-            i = asm_precalc( 0 );
-            i = asm_precalc_inline( 0 );
-            f = sin( 0.2 );
+            i = asm_precalc(0);
+            i = asm_precalc_inline(0);
+            f = sin(0.2);
         }
     }
 
-    atexit( atexit_func );
-    if ( 0 ) exit_func();
-    if ( 0 ) abort_func();
+    atexit(atexit_func);
+    if (0) exit_func();
+    if (0) abort_func();
 
     //main returns status:
 
