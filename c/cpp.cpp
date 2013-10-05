@@ -1,10 +1,7 @@
 /*
-This will focus in differences between cpp and c.
-for the rest, look for a c cheat.
+C++ cheatsheat.
 
-Read this comment, then jump to main and read stuff there.
-
-Backtrack to definitions outside of main as needed.
+Features which are identical to C will not be described.
 
 #C++ vs C
 

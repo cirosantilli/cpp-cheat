@@ -1,10 +1,7 @@
 /*
-Main ansi c cheat, no extensions
+Main ANSI C cheat, no extensions
 
-Certain features do not fit nicelly into the assertion format of this
-cheat, and may have been moved to separate files.
-
-features that require user input or that make programs wait
+Features that require user input or that make programs wait
 shall be put inside `if ( 0 ){ ... }` clauses to be turned on
 only when users want to test those features.
 
