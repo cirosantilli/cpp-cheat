@@ -874,7 +874,8 @@ Time complexity:    $O(n)$
 
 Memory complexity:  $O(1)$ (excluding the input).
 
-@param[in]  input        Container with the array.
+@param[in]  input_begin, input_end  Iterators pointing to the two corners of the input interval of the input container.
+                                    input_end points to one element after the maximu, that is, the interval is semi open [input_begin; input_end)
 
 @param[out] output_range Container with two elements: the index of the beginning and the end of the optimal interval.
     The end is one past the last element, which allows a pair of equal numbers (0, 0) to mean an empty interval.
@@ -890,7 +891,7 @@ Memory complexity:  $O(1)$ (excluding the input).
     If all the input numbers are negative, the empty interval will be selected,
     and this output shall be `0`.
 
-@tparam T The type of the values on the array.
+@tparam ITER  The type of iterator to the input.
 
 #algorithm idea
 
@@ -926,28 +927,32 @@ void Kadane(
     ValueType max_so_far, max_ending_here;
     begin = input_begin;
     begin_temp = input_begin;
-    end = input_end;
-    max_so_far = *input_begin;
-    max_ending_here = *input_begin; // Holds the frontier value of K[i-1].
-    for(auto it = input_begin; it != input_end; ++it) {
-        if(max_ending_here <= 0) {
+    end = input_begin;
+    max_so_far = -1;
+    max_ending_here = -1;  // Holds the frontier value of K[i-1].
+    for (auto it = input_begin; it != input_end; ++it) {
+#ifdef DEBUG_OUTPUT
+        std::cout << "*it = " << *it << std::endl;
+        std::cout << "max_ending_here = " << max_ending_here << std::endl;
+        std::cout << std::endl;
+#endif
+        if (max_ending_here <= 0) {
             max_ending_here = *it;
             begin_temp = it;
-
         } else {
             max_ending_here += *it;
         }
-        if(max_ending_here > max_so_far) {
-            max_so_far  = max_ending_here;
+        if (max_ending_here > max_so_far) {
+            max_so_far = max_ending_here;
             begin = begin_temp;
             end = it;
         }
     }
-    if (end != input_begin)
+    if (max_so_far <= 0)
+        max_so_far = 0;
+    else
         end++;
     output_range = std::pair<ITER,ITER>{begin, end};
-    if (max_so_far < 0)
-        max_so_far = 0;
     output_value = max_so_far;
 }
 
@@ -1627,7 +1632,8 @@ int main(int argc, char **argv)
     {
         typedef int InputType ;
         typedef std::tuple<std::vector<InputType>,
-                          std::pair<std::vector<InputType>::size_type, std::vector<InputType>::size_type>,
+                          std::pair< std::iterator_traits<std::vector<InputType>::iterator>::difference_type,
+                                     std::iterator_traits<std::vector<InputType>::iterator>::difference_type >,
                           InputType > InOut;
         InOut in_outs[]{
             // All positive: easy, take all.
@@ -1648,6 +1654,7 @@ int main(int argc, char **argv)
                 0
             },
             // Multiple solutions. Take the one that starts first and is shortest.
+            // In this case, the shortest solution is the empty solution.
             InOut{
                 {0, 0, 0},
                 {0, 0},
@@ -1665,6 +1672,12 @@ int main(int argc, char **argv)
                 {0, 2},
                 3
             },
+            // Edge case: single element in input.
+            InOut{
+                {1},
+                {0, 1},
+                1
+            },
         };
         std::pair<std::vector<InputType>::iterator, std::vector<InputType>::iterator> output_range;
         InputType output_value;
@@ -1680,12 +1693,12 @@ int main(int argc, char **argv)
 #endif
             Kadane(input.begin(), input.end(), output_range, output_value);
 #ifdef DEBUG_OUTPUT
-            std::cout << "output begin = " << output_range[0] << std::endl;
-            std::cout << "output end   = " << output_range[1] << std::endl;
-            std::cout << "output value = " << output_value    << std::endl;
+            std::cout << "output begin = " << output_range.first  - input.begin() << std::endl;
+            std::cout << "output end   = " << output_range.second - input.begin() << std::endl;
+            std::cout << "output value = " << output_value << std::endl;
             std::cout << std::endl;
-            std::cout << "expected output begin = " << expected_output_range[0] << std::endl;
-            std::cout << "expected output end   = " << expected_output_range[1] << std::endl;
+            std::cout << "expected output begin = " << expected_output_range.first  << std::endl;
+            std::cout << "expected output end   = " << expected_output_range.second << std::endl;
             std::cout << "expected output value = " << expected_output_value << std::endl;
             std::cout << std::endl;
 #endif

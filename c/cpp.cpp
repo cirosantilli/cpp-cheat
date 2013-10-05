@@ -1512,9 +1512,10 @@ void printCallStack()
 
     //default args. C++ only. creates several name mungled functions on the assembly code.
 
-        int DefaultArgs(int i, int j=0) {
-            return i + j;
-        }
+        int DefaultArgs(int i, int j=0)      { return i + j; }
+
+        // ERROR: Cannot use one argument as the default for the other.
+        //int DefaultArgs(float f, float f2=f) { return f + f2; }
 
     //ERROR: no compound literals in c++
 
@@ -3904,8 +3905,8 @@ int main(int argc, char **argv)
 
             //#default arguments
             {
-                assert( DefaultArgs(1)   == 1 );
-                assert( DefaultArgs(1,1) == 2 );
+                assert(DefaultArgs(1)    == 1);
+                assert(DefaultArgs(1, 1) == 2);
             }
 
             /*
@@ -6957,11 +6958,11 @@ int main(int argc, char **argv)
         */
         {
             std::cout << "numeric_limits<int>::" << std::endl;
-            std::cout << "  max() = " << numeric_limits<int>::max() << std::endl;
-            std::cout << "  min() = " << numeric_limits<int>::min() << std::endl;
-            std::cout << "  digits = " << numeric_limits<int>::digits << std::endl;
-            std::cout << "  is_signed = " << numeric_limits<int>::is_signed << std::endl;
-            std::cout << "  is_integer = " << numeric_limits<int>::is_integer << std::endl;
+            std::cout << "  max() = "            << numeric_limits<int>::max() << std::endl;
+            std::cout << "  min() = "            << numeric_limits<int>::min() << std::endl;
+            std::cout << "  digits = "           << numeric_limits<int>::digits << std::endl;
+            std::cout << "  is_signed = "        << numeric_limits<int>::is_signed << std::endl;
+            std::cout << "  is_integer = "       << numeric_limits<int>::is_integer << std::endl;
             std::cout << std::endl;
         }
 
@@ -8349,6 +8350,10 @@ int main(int argc, char **argv)
 
                 /*
                 #difference_type
+
+                    The type returned on a difference between two pointers.
+
+                    Unlike size_type, this value is signed, since the difference may well be negative.
                 */
                 {
                     typedef typename std::iterator_traits<std::vector<int>::iterator>::difference_type DifferenceType;
@@ -8375,12 +8380,17 @@ int main(int argc, char **argv)
 
             Array of values.
 
-            Container that overload many mathematical operations in a similar way to what Fortran does.
+            Container that overload many mathematical operations in a similar way to what Fortran does,
+            which may be more efficient and convenient.
 
-            Very obscure, it seem for several reasons:
+            Very obscure, for several reasons:
 
             - other techniques achieve what it achieves
             - low compiler support
+
+            Downsides compared to vectors:
+
+            - not resizable, so no push_back
 
             <http://stackoverflow.com/questions/1602451/c-valarray-vs-vector>
         */
@@ -8411,7 +8421,7 @@ int main(int argc, char **argv)
 
             }
 
-            // +, -, *, /, etc are elementwise
+            // +, -, *, /, etc are overloaded elementwise.
             //
             // They are also overloaded for contained data type.
             {
