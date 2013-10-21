@@ -1188,6 +1188,100 @@ void Knapsack01Dynamic(const std::vector<WEIGHT>& weights,
     }
 }
 
+typedef int InputType;
+typedef std::tuple<std::vector<InputType>,
+                    std::vector<InputType>,
+                    InputType,
+                    std::vector<std::pair<std::vector<InputType>::size_type,InputType>>> InOut;
+
+/**
+Finds a minimal path solution to generalizations of the towers of Hanoi problem.
+
+The generalizations to the classic puzzle include:
+
+- from any starting position to any ending position.
+
+    The classical puzzel always starts from the position where all pegs are the first pike,
+    and they must finish at either the second or third pike.
+
+    This also solves the problem for any initial or final configuration in a minimal number of moves.
+
+    For exapmle, this could solve the problem if the initial position is:
+
+    - smallest        disk is on first pike
+    - second smallest disk is on first pike
+
+    and the desired final position is:
+
+    - both disks on the third pike
+
+- more than 3 pikes.
+
+    There exists no proven algorithm for those cases, although it is conjectured that
+    the Frame–Stewart algorithm solves those cases.
+
+    TODO implement this algorithm.
+
+@param[in] inital_position, final_position Container that describes the initial and final positions.
+
+    Positions are described as follows: the ith element of the vector contains the number of peg
+    on which the ith largest pike is located.
+
+    For example, the following situation:
+
+    -        largest disk is on first  pike
+    - second largest disk is on second pike
+    - third  largest disk is on first  pike
+
+    can be represented as:
+
+    {0, 1, 0}
+
+@parm[in] n_pegs The total number of pegs.
+
+@parm[out] output The minimal sequence of moves that solves the puzzle.
+
+    Each move is represented as a pair `{i, j}` meaning the top disk of the ith peg
+    is to be moved to the top of the jth peg.
+*/
+template<typename INPUT_TYPE>
+void HanoiTowers(const std::vector<INPUT_TYPE>& inital_position,
+                 const std::vector<INPUT_TYPE>& final_position,
+                 const INPUT_TYPE n_pegs,
+                 std::vector<std::pair<typename std::vector<INPUT_TYPE>::size_type,INPUT_TYPE>>& output) {
+/*
+    if (n_pegs > 3) {
+        throw "not yet implemented";
+    } else {
+        for (initial_position_it = initial_position.begin(), final_position_it = final_position.begin();
+                initial_position_it != inital_position.end();
+                ++initial_position_it, ++final_position_it) {
+            auto largest_wrong_position = *initial_position_it;
+            auto largest_correct_position = *final_position_it;
+            if (largest_wrong_position != largest_correct_position) {  // Largest disk in an incorrect position.
+                auto other_position = 3 - (largest_wrong_position + largest_correct_position);
+                auto new_final_position = std::vector<INPUT_TYPE>(std::next(initial_position_it, 1), initial_position.end());
+                bool more_than_one_move = false;
+                for (auto new_initial_position_it = new_initial_position;
+                        new_initial_position_it != new_initial_position.end();
+                        ++new_initial_position_it) {
+                    if (*new_initial_position_it != other_position) {
+                        *new_final_position_it = other_position;
+                        more_than_one_move = true;
+                    }
+                }
+                if (more_than_one_move) {
+                    std::vector<std::pair<typename std::vector<INPUT_TYPE>::size_type,INPUT_TYPE>>& new_output;
+                    HanoiTowers(new_initial_position, new_final_position, new_output);
+                    output.insert(output.end(), new_output.begin(), new_output.end());
+                }
+                output.push_back({largest_wrong_position, largest_correct_position});
+            }
+        }
+    }
+*/
+}
+
 void VectorSum(const std::vector<int>& v0, const std::vector<int>& v1,
         std::vector<int>& output) {
     output.resize(v0.size());
@@ -1243,7 +1337,7 @@ void MakeChange(const std::vector<int>& coin_values, int total, std::vector<int>
             int second = subtotal - first;
             if (possible[first] && possible[second]) {
 #ifdef DEBUG_OUTPUT
-/*
+/*RA_CONTAINER::size_type
                 std::cout << "first = " << first << std::endl;
                 std::cout << "second = " << second << std::endl;
                 std::cout << "coin_counts[first] = " << coin_counts[first] << std::endl;
@@ -1878,6 +1972,67 @@ int main(int argc, char **argv)
             std::cout << std::endl;
 #endif
             assert(output == expected_output);
+        }
+    }
+
+    // Towers of hanoi.
+    {
+        typedef unsigned int InputType;
+        typedef std::tuple<std::vector<InputType>,
+                           std::vector<InputType>,
+                           InputType,
+                           std::vector<std::pair<std::vector<InputType>::size_type,InputType>>> InOut;
+        InOut in_outs[]{
+            InOut{
+                {0},
+                {1},
+                3,
+                {
+                    {0,1}
+                },
+            },
+            InOut{
+                {0, 0},
+                {1, 1},
+                3,
+                {
+                    {0,2},
+                    {0,1},
+                    {2,1}
+                },
+            },
+        };
+        std::vector<std::pair<std::vector<InputType>::size_type,InputType>> output;
+        for (auto& in_out : in_outs) {
+            auto& initial_position = std::get<0>(in_out);
+            auto& final_position   = std::get<1>(in_out);
+            auto& n_pegs          = std::get<2>(in_out);
+            auto& expected_output  = std::get<3>(in_out);
+#ifdef DEBUG_OUTPUT
+            std::cout << "initial_position =";
+            for (auto& i : initial_position) std::cout << " " << i;
+            std::cout << std::endl;
+            std::cout << std::endl;
+            std::cout << "final_position =";
+            for (auto& i : initial_position) std::cout << " " << i;
+            std::cout << std::endl;
+            std::cout << std::endl;
+            std::cout << "n_pegs = " << n_pegs << std::endl;
+#endif
+            HanoiTowers(initial_position, final_position, n_pegs, output);
+#ifdef DEBUG_OUTPUT
+            std::cout << "output.size() = " << output.size() << std::endl;
+            std::cout << "output = ";
+            for (auto& i : output) std::cout << i << " ";
+            std::cout << std::endl;
+            std::cout << "expected_output.size() = " << expected_output.size() << std::endl;
+            std::cout << "expected_output        = ";
+            for (auto& i : expected_output) std::cout << i << " ";
+            std::cout << std::endl;
+            std::cout << std::endl;
+#endif
+            // TODO make work.
+            //assert(output == expected_output);
         }
     }
 

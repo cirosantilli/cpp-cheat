@@ -1,7 +1,7 @@
 /*
 C++ cheatsheat.
 
-Features which are identical to C will not be described.
+Features which are identical to C will not be described
 
 #C++ vs C
 
@@ -6609,8 +6609,9 @@ int main(int argc, char **argv)
             {
                 string s = "ab";
                 string s1 = "cd";
-                string s2 = s + s1;
-                assert(s2 == "abcd");
+                assert(s + s1   == "abcd");
+                assert(s + "cd" == "abcd");
+                assert("cd" + s == "cdab");
             }
 
             //length
@@ -7184,7 +7185,7 @@ int main(int argc, char **argv)
 
                     //NEW way in C++11
                     //initializer lists
-                    std::vector<int> v1 = {};
+                    std::vector<int> v1{};
 
                     assert(v == v1);
                 }
@@ -7402,18 +7403,38 @@ int main(int argc, char **argv)
                     assert(v == std::vector<int>{});
                 }
 
-                //#insert
+                /*
+                #insert
+
+                    This operation is inneficient for `std::vector` if it is not done at the end.
+
+                #concatenate
+
+                    The range form of insert can be used to append one vector to anoter.
+                */
                 {
-                    std::vector<int> v = {0,1};
-                    std::vector<int> v1;
+                    // Single element form.
+                    {
+                        std::vector<int> v = {0,1};
+                        std::vector<int> v1;
 
-                    v.insert(v.begin(), -1);
-                    v1 = {-1, 0, 1};
-                    assert(v == v1);
+                        v.insert(v.begin(), -1);
+                        v1 = {-1, 0, 1};
+                        assert(v == v1);
 
-                    v.insert(v.end(), 2);
-                    v1 = {-1, 0, 1, 2};
-                    assert(v == v1);
+                        v.insert(v.end(), 2);
+                        v1 = {-1, 0, 1, 2};
+                        assert(v == v1);
+                    }
+
+                    // Range form.
+                    {
+                        std::vector<int> v = {0,1};
+                        std::vector<int> v1 = {2,3};
+
+                        v.insert(v.end(), v1.begin(), v1.end());
+                        assert((v == std::vector<int>{0, 1, 2, 3}));
+                    }
                 }
 
                 /*
@@ -7960,27 +7981,27 @@ int main(int argc, char **argv)
         {
             //initializer list constructor
             {
-                std::list<int> l = {0, 1};
+                std::list<int> l{0, 1};
             }
 
             //emplace
             {
-                std::list<int> l = {0, 1};
+                std::list<int> l{0, 1};
                 l.emplace(++l.begin(), 2);
-                assert(l == std::list<int>({0, 2, 1}) );
+                assert(l == std::list<int>({0, 2, 1}));
             }
 
             //remove: remove all elements with a given value from list
             {
-                std::list<int> l = {0, 1, 0, 2};
+                std::list<int> l{0, 1, 0, 2};
                 l.remove(0);
                 assert(l == std::list<int>({1, 2}) );
             }
 
             //splice: transfer elements from one list to another
             {
-                std::list<int> l = {0, 1};
-                std::list<int> l2 = {2, 3};
+                std::list<int> l{0, 1};
+                std::list<int> l2{2, 3};
                 l.splice(++l.begin(), l2);
                 assert(l == std::list<int>({0, 2, 3, 1}) );
                 assert(l2 == std::list<int>());
@@ -8489,7 +8510,7 @@ int main(int argc, char **argv)
             /*
             #equal
 
-                Compares two ranges of containers.
+                Compares ranges of two containers.
             */
             {
                 std::vector<int> v {0, 1, 2   };

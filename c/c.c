@@ -4169,6 +4169,15 @@ int main(int argc, char **argv)
                                     "cd";
                         assert(strcmp(cs, "abcd") == 0);
                     }
+
+                    // It is not possible to break a string literal on multiple lines.
+                    /*
+                    {
+                        char cs[] = "ab
+                                    cd";
+                        assert(strcmp(cs, "abcd") == 0);
+                    }
+                    */
                 }
             }
 
@@ -5371,6 +5380,18 @@ int main(int argc, char **argv)
 
 #endif
             }
+
+            /*
+            ##include
+
+                It is possible, and very confusing, to include any type of file,
+                not just header files.
+            */
+            {
+                int i = 0;
+#include "i_plus_one"
+                assert(i == 1);
+            }
         }
 
         /*
@@ -6413,8 +6434,7 @@ int main(int argc, char **argv)
 
                 whatever char entered including on a tty is made available immediatelly.
             */
-            if (0)
-            {
+            if (0) {
 
                 //echo a | c.out
                     //a
@@ -6426,12 +6446,10 @@ int main(int argc, char **argv)
                     //BAD
                     //does not work
                 char c = getchar();
-                if (c != EOF)
-                {
+                if (c != EOF) {
                     fprintf(stderr, "you entered:\n%c|<<<\n", c);
                 }
-                else
-                {
+                else {
                     fprintf(stderr, "EOF\n");
                 }
             }

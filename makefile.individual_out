@@ -5,12 +5,13 @@
 -include makefile_params
 
 #c/cpp
-CC			?= gcc
-CXX			?= g++
-CFLAGS		?= -std=c11   -Wall -pedantic-errors -march=native $(CFLAGS_EXTRA)
-CXXFLAGS	?= -std=c++11 -Wall -pedantic-errors -march=native $(CXXFLAGS_EXTRA)
-LIBS		?= -lm #-lGL -lGLU -lglut
-DEFINES 	?= #-D_XOPEN_SOURCE 700
+CC				?= gcc
+CXX				?= g++
+CFLAGS			?= -std=c11   -Wall -pedantic-errors -march=native $(CFLAGS_EXTRA)
+CXXFLAGS		?= -std=c++11 -Wall -pedantic-errors -march=native $(CXXFLAGS_EXTRA)
+LIBS			?= -lm #-lGL -lGLU -lglut
+INCLUDE_DIRS 	?= #-I/usr/include
+DEFINES 		?= #-D_XOPEN_SOURCE 700
 
 #fortran
 FF 		?= gfortran
@@ -50,10 +51,10 @@ OUTS		:= $(addprefix $(OUT_DIR), $(OUTS_NODIR))
 all: mkdir $(OUTS)
 
 $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.c
-	$(CC) $(CFLAGS)    $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) -o "$@" "$<" $(LIBS)
+	$(CC) $(CFLAGS)    $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) $(INCLUDE_DIRS) -o "$@" "$<" $(LIBS)
 
 $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.cpp
-	$(CXX) $(CXXFLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) -o "$@" "$<" $(LIBS)
+	$(CXX) $(CXXFLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) $(INCLUDE_DIRS) -o "$@" "$<" $(LIBS)
 
 $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.f
 	$(FF) $(FFLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) -o "$@" "$<" $(FFLIBS)

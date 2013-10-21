@@ -12,6 +12,13 @@
 
 using namespace std;
 
+//if false: outputs to screen and to stdout, may not go over 60FPS.
+//if true : outputs to stdout only, and may go over 60FPS!
+bool offscreen = false;
+int maxNFrames = -1; //number of frames to calculate on offscreen rendering.
+                     //After that number, stop.
+                     //If negative, never stop (until program receives a signal).
+
 //some colors constants
     const GLfloat white[] = {1.0, 1.0, 1.0};
     const GLfloat gray [] = {0.1, 0.1, 0.1};
@@ -211,11 +218,6 @@ class Camera
 
     int oldT;  //used to keep real time consistent
     int nFrames = 0; //total number of frames
-    int maxNFrames = 100; //maximum number of frames on offscreen rendering
-
-    //if True: outputs to screen and to stdout, may not go over 60FPS.
-    //if False: outputs to stdout only, and may go over 60FPS!
-    bool offscreen = false;
 
 //events
     bool mouseLeftDown;
@@ -557,8 +559,7 @@ void idle(void)
         spheres[0].pos += Vec3<>(0.005, 0.0, 0.0);
 
     nFrames++;
-    if (offscreen && nFrames == maxNFrames )
-    {
+    if (offscreen && nFrames == maxNFrames) {
         exit(EXIT_SUCCESS);
     }
 
@@ -576,7 +577,7 @@ void display()
         //GL_DEPTH_BUFFER_BIT
         //GL_ACCUM_BUFFER_BIT
         //GL_STENCIL_BUFFER_BIT
-	
+
     glLoadIdentity(); // reset everything before starting
 
     Vec3<> lookat = camera.getLookat();
