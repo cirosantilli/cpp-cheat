@@ -2933,13 +2933,13 @@ int main(int argc, char **argv)
         }
 
         {
-            stringstream oss;
+            std::stringstream oss;
             oss << true;
             assert(oss.str() == "1");
         }
 
         {
-            stringstream oss;
+            std::stringstream oss;
             oss << false;
             assert(oss.str() == "0");
         }
@@ -6700,7 +6700,7 @@ int main(int argc, char **argv)
                 /*
                 C++11 solves the question once and for all with a robust one-liner for base types.
 
-                It is not intended however for operation with classes.
+                It is not intended however for class input.
                 */
 #if __cplusplus >= 201103L
                 assert(std::to_string(123) == "123");
