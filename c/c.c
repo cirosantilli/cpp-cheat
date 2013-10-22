@@ -5399,7 +5399,7 @@ int main(int argc, char **argv)
 
         ###
 
-            `##` allows to concatenate two preprocessor functio arguments without spaces between them.
+            `##` allows to concatenate two preprocessor function arguments without spaces between them.
         */
         {
             //basic

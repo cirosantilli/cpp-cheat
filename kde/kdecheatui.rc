@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gui name="tutorial3"
+     version="1"
+     xmlns="http://www.kde.org/standards/kxmlgui/1.0"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xsi:schemaLocation="http://www.kde.org/standards/kxmlgui/1.0
+                         http://www.kde.org/standards/kxmlgui/1.0/kxmlgui.xsd" >
+
+  <MenuBar>
+    <Menu name="file" >
+      <Action name="clear" />
+    </Menu>
+  </MenuBar>
+
+  <ToolBar name="mainToolBar" >
+    <text>Main Toolbar</text>
+    <Action name="clear" />
+  </ToolBar>
+
+</gui>

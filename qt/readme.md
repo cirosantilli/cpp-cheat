@@ -1,6 +1,11 @@
-Inital `qt.pro` template generated via `qmake -project`.
+On Linux:
 
-Inital `Makefile` template was generated via `qmake`.
+- to build and run use `./make.sh`.
+- to clean use `make distclean`.
+
+Initial `qt.pro` template generated via `qmake -project`.
+
+Initial `Makefile` template was generated via `qmake`.
 
 Find Qt version:
 
@@ -13,7 +18,7 @@ Sample output:
 
 QT adds new keywords to the C++ language such as `slots` and `emmit`.
 Those are then translated into C++ before compilation.
-This is a point that compliates QT learning.
+This is a point that complicates QT learning.
 *Never* use those keywords, or they will get preprocessed
 and you will get weird errors!
 

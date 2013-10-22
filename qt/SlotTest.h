@@ -14,6 +14,7 @@ class SlotTest : public QObject
         int i;
 
     public slots:
+    //public Q_SLOTS: // Generally the same.
 
         void cout();
         void inc();

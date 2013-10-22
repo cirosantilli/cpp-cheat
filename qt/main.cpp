@@ -13,9 +13,12 @@
 #include <QTabWidget>
 #include <QWidget>
 #include <QObject>      //tr
-#include <QShortcut>    //tr
+#include <QShortcut>
+#include <Qt>           //enum Qt::AlignmentFlag {AlignTop, ...}
 
 #include "SlotTest.h"
+
+int buttonHeight = 25;
 
 void SlotTest::cout() {
     std::cout << "i = " << i << std::endl;
@@ -62,10 +65,13 @@ int main(int argc, char *argv[])
 
         Has no `std::string` constructor.
         Solution: `QString::fromStdString(s)` or `QString(s.c_str())`
+
+        Convertion to `std::string`: <http://stackoverflow.com/questions/4214369/how-to-convert-qstring-to-stdstring>
+        As of 5.0, toStdString is good.
     */
 
     /*
-    #button
+    #PushButton
 
     #connect
 
@@ -76,34 +82,39 @@ int main(int argc, char *argv[])
         - object 2
         - signal 2
 
-    When working with qmake, without modifying defaults,
-    declaration of QObjects with slots *must be in separate headers!*.
-    <http://stackoverflow.com/questions/13614593/linker-error-with-qt-signal-slot-example>
+        When working with qmake, without modifying defaults,
+        declaration of QObjects with slots *must be in separate headers!*.
+        <http://stackoverflow.com/questions/13614593/linker-error-with-qt-signal-slot-example>
     */
 
         QVBoxLayout *pushButtonLayout = new QVBoxLayout();
         {
             QPushButton *quit = new QPushButton(QObject::tr("quit"));
             QObject::connect(quit, SIGNAL(clicked()), qApp, SLOT(quit()));
+            quit->setFixedHeight(buttonHeight);
 
             //TODO why clicking on the button does nothing?
             QPushButton *cout = new QPushButton(QObject::tr("cout"));
             QObject::connect(cout, SIGNAL(clicked()), &slotTest, SLOT(cout()));
+            cout->setFixedHeight(buttonHeight);
 
             QPushButton *inc = new QPushButton(QObject::tr("inc"));
             QObject::connect(inc, SIGNAL(clicked()), &slotTest, SLOT(inc()));
+            inc->setFixedHeight(buttonHeight);
 
             QPushButton *title = new QPushButton(QObject::tr("title"));
             QObject::connect(title, SIGNAL(clicked()), &slotTest, SLOT(title()));
+            title->setFixedHeight(buttonHeight);
 
             pushButtonLayout->addWidget(quit);
             pushButtonLayout->addWidget(cout);
             pushButtonLayout->addWidget(title);
             pushButtonLayout->addWidget(inc);
+
+            pushButtonLayout->setAlignment(Qt::AlignTop);
         }
         QWidget *pushButtonWidget = new QWidget();
         pushButtonWidget->setLayout(pushButtonLayout);
-        //pushButtonWidget->setFixedHeight(30);
 
     //#setCursor
     QHBoxLayout *setCursorLayout = new QHBoxLayout();
@@ -166,10 +177,10 @@ int main(int argc, char *argv[])
         QPixmap ico("ico.png");
 
         QAction *cout = new QAction(ico, QObject::tr("&cout"), &window);
-        QAction *title = new QAction(ico, QObject::tr("&title"), &window);
+        QAction *title = new QAction(QObject::tr("&title"), &window);
         QAction *inc  = new QAction(QObject::tr("&inc"),  &window);
         QAction *quit = new QAction(QObject::tr("&quit"), &window);
-        quit->setShortcut(QObject::tr("CTRL+SHIFT+Q"));
+        quit->setShortcut("CTRL+SHIFT+Q");
 
         QMenu *m1;
         //menuBar method only exists for QMainWindow, not for QWidget.
@@ -186,9 +197,9 @@ int main(int argc, char *argv[])
         QObject::connect(inc,   SIGNAL(triggered()), &slotTest, SLOT(inc()));
     }
 
+    tabs->addTab(pushButtonWidget, QObject::tr("PushButton"));
     tabs->addTab(setCursorWidget,  QObject::tr("setCursor"));
     tabs->addTab(setToolTipWidget, QObject::tr("setToolTip"));
-    tabs->addTab(pushButtonWidget, QObject::tr("PushButton"));
     tabs->addTab(shortcutWidget,   QObject::tr("Shortcut"));
 
     //#window

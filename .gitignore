@@ -7,6 +7,8 @@ _out/
 _tmp/
 #intermediate compilation files: .o
 
+build/
+
 # Compiled Object files
 *.slo
 *.lo
