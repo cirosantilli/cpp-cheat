@@ -1,9 +1,21 @@
-TEMPLATE = app
-TARGET = 
-DEPENDPATH += .
+TEMPLATE    = app
+
+# Executable name:
+TARGET      = qtcheat
+
+DEPENDPATH  += .
 INCLUDEPATH += .
 
-SOURCES += main.cpp
-HEADERS += SlotTest.h
-#SOURCES += main_notepad.cpp \
-#           notepad.cpp
+# Input source files:
+SOURCES     += main.cpp
+
+# Input header files:
+HEADERS     += SlotTest.h
+
+# Will only execute in POSIX systems (includes MAC OS):
+# TODO generated makefile uninstall attempts to remove the intall dir(/usr/local/bin). How to prevent that?
+# TODO how to install the icons / resources? How to run tests with them?
+unix {
+    target.path = /usr/local/bin
+    INSTALLS    += target
+}

@@ -5,6 +5,7 @@
 #include <QDesktopWidget>
 #include <QFrame>
 #include <QGridLayout>
+#include <QLabel>
 #include <QMainWindow>
 #include <QMenu>
 #include <QMenuBar>
@@ -43,17 +44,28 @@ int main(int argc, char *argv[])
     QTabWidget *tabs = new QTabWidget(&window);
 
     /*
+    The main GUI objects used to set the position of GUI objects are Widget and Layout.
+
     #Widget
 
         Can have fixed sizes.
 
-        Can set an internal layout with `setLayout`.
+        Can set one single internal layout with `setLayout`.
+
+        Widgets in general don't have setAlignment, but some such as QLabel do,
+        so there is no need to embed them inside another layout for alignment.
 
     #Layout
 
         Cannot have fixed size.
-
         Occupies its entire parent.
+
+        Can contain several:
+
+        - layouts via `addLayout`
+        - widgets via `addWidget`.
+
+        Possible determine the aligment of items (center, left, etc) inside it via `setAlignment`.
 
     #MainWindow
 
@@ -110,53 +122,108 @@ int main(int argc, char *argv[])
             pushButtonLayout->addWidget(cout);
             pushButtonLayout->addWidget(title);
             pushButtonLayout->addWidget(inc);
-
             pushButtonLayout->setAlignment(Qt::AlignTop);
         }
         QWidget *pushButtonWidget = new QWidget();
         pushButtonWidget->setLayout(pushButtonLayout);
 
     //#setCursor
-    QHBoxLayout *setCursorLayout = new QHBoxLayout();
+    QVBoxLayout *setCursorTabLayout = new QVBoxLayout();
     {
-        QFrame *frame1 = new QFrame(&window);
-        frame1->setFrameStyle(QFrame::Box);
-        frame1->setCursor(Qt::SizeAllCursor);
+        QLabel *label = new QLabel("Hover the mouse over the frames:");
+        label->setAlignment(Qt::AlignCenter);
+        label->setFixedHeight(buttonHeight);
 
-        QFrame *frame2 = new QFrame(&window);
-        frame2->setFrameStyle(QFrame::Box);
-        frame2->setCursor(Qt::WaitCursor);
+        QHBoxLayout *framesLayout = new QHBoxLayout();
+        {
+            {
+                QFrame *frame = new QFrame(&window);
+                frame->setFrameStyle(QFrame::Box);
+                frame->setCursor(Qt::SizeAllCursor);
+                QHBoxLayout *frameLayout = new QHBoxLayout();
+                QLabel *label = new QLabel("SizeAllCursor", frame);
+                frameLayout->addWidget(label);
+                frameLayout->setAlignment(Qt::AlignCenter);
+                frame->setLayout(frameLayout);
+                framesLayout->addWidget(frame);
+            }
 
-        QFrame *frame3 = new QFrame(&window);
-        frame3->setFrameStyle(QFrame::Box);
-        frame3->setCursor(Qt::PointingHandCursor);
+            {
+                QFrame *frame = new QFrame(&window);
+                frame->setFrameStyle(QFrame::Box);
+                frame->setCursor(Qt::WaitCursor);
+                QHBoxLayout *frameLayout = new QHBoxLayout();
+                QLabel *label = new QLabel("WaitCursor", frame);
+                frameLayout->addWidget(label);
+                frameLayout->setAlignment(Qt::AlignCenter);
+                frame->setLayout(frameLayout);
+                framesLayout->addWidget(frame);
+            }
 
-        setCursorLayout->addWidget(frame1);
-        setCursorLayout->addWidget(frame2);
-        setCursorLayout->addWidget(frame3);
+            {
+                QFrame *frame = new QFrame(&window);
+                frame->setFrameStyle(QFrame::Box);
+                frame->setCursor(Qt::PointingHandCursor);
+                QHBoxLayout *frameLayout = new QHBoxLayout();
+                QLabel *label = new QLabel("PointingHandCursor", frame);
+                frameLayout->addWidget(label);
+                frameLayout->setAlignment(Qt::AlignCenter);
+                frame->setLayout(frameLayout);
+                framesLayout->addWidget(frame);
+            }
+        }
+
+        setCursorTabLayout->addWidget(label);
+        setCursorTabLayout->addLayout(framesLayout);
     }
     QWidget *setCursorWidget = new QWidget();
-    setCursorWidget->setLayout(setCursorLayout);
+    setCursorWidget->setLayout(setCursorTabLayout);
 
     //#setToolTip
-    QHBoxLayout *setToolTipLayout = new QHBoxLayout();
+    QVBoxLayout *setToolTipLayout = new QVBoxLayout();
     {
-        QFrame *frame1 = new QFrame(&window);
-        frame1->setFrameStyle(QFrame::Box);
-        frame1->setToolTip(QObject::tr("setToolTip left"));
+        QLabel *label = new QLabel("Hover the mouse over the frames and don't move it for a while:");
+        label->setAlignment(Qt::AlignCenter);
+        label->setFixedHeight(buttonHeight);
 
-        QFrame *frame2 = new QFrame(&window);
-        frame2->setFrameStyle(QFrame::Box);
-        frame2->setToolTip(QObject::tr("setToolTip right"));
+        QHBoxLayout *framesLayout = new QHBoxLayout();
+        {
+            {
+                QFrame *frame = new QFrame(&window);
+                frame->setFrameStyle(QFrame::Box);
+                frame->setToolTip(QObject::tr("setToolTip left"));
 
-        setToolTipLayout->addWidget(frame1);
-        setToolTipLayout->addWidget(frame2);
+                QHBoxLayout *frameLayout = new QHBoxLayout();
+                QLabel *label = new QLabel("left", frame);
+                frameLayout->addWidget(label);
+                frameLayout->setAlignment(Qt::AlignCenter);
+                frame->setLayout(frameLayout);
+                framesLayout->addWidget(frame);
+            }
+
+            {
+                QFrame *frame = new QFrame(&window);
+                frame->setFrameStyle(QFrame::Box);
+                frame->setToolTip(QObject::tr("setToolTip right"));
+
+                QHBoxLayout *frameLayout = new QHBoxLayout();
+                QLabel *label = new QLabel("right", frame);
+                frameLayout->addWidget(label);
+                frameLayout->setAlignment(Qt::AlignCenter);
+                frame->setLayout(frameLayout);
+                framesLayout->addWidget(frame);
+            }
+        }
+
+        setToolTipLayout->addWidget(label);
+        setToolTipLayout->addLayout(framesLayout);
     }
     QWidget *setToolTipWidget = new QWidget();
     setToolTipWidget->setLayout(setToolTipLayout);
 
     //#Shortcut
-
+    QWidget *shortcutWidget = new QWidget();
+    {
         QShortcut *mainWindowShortcut = new QShortcut(QKeySequence("Ctrl+Q"), &window);
         QObject::connect(mainWindowShortcut, SIGNAL(activated()), qApp, SLOT(quit()));
 
@@ -166,11 +233,25 @@ int main(int argc, char *argv[])
         If there are two possible actions for a shortcut, TODO nothing happens, or undefined?
         */
 
-        QWidget *shortcutWidget = new QWidget();
         QShortcut *tabShortcut = new QShortcut(QKeySequence("Ctrl+W"), shortcutWidget);
-        QObject::connect(tabShortcut, SIGNAL(activated()), qApp, SLOT(quit()));
+        QObject::connect(tabShortcut, SIGNAL(activated()), &slotTest, SLOT(cout()));
         QShortcut *tabShortcut2 = new QShortcut(QKeySequence("Ctrl+Q"), shortcutWidget);
         QObject::connect(tabShortcut2, SIGNAL(activated()), &slotTest, SLOT(cout()));
+
+        QHBoxLayout *layout = new QHBoxLayout();
+        QLabel *label = new QLabel(
+                "<p>Shortcuts:</p>"
+                "<ul>"
+                 "<li>Ctrl+Q : quit (global</li>"
+                 "<li>Ctrl+Q : cout (local to this tab)</li>"
+                 "<li>Ctrl+W : cout (local to this tab)</li>"
+                "<ul>\n"
+                ,
+                shortcutWidget);
+        layout->addWidget(label);
+        layout->setAlignment(Qt::AlignCenter);
+        shortcutWidget->setLayout(layout);
+    }
 
     //#MenuBar
     {
@@ -180,7 +261,7 @@ int main(int argc, char *argv[])
         QAction *title = new QAction(QObject::tr("&title"), &window);
         QAction *inc  = new QAction(QObject::tr("&inc"),  &window);
         QAction *quit = new QAction(QObject::tr("&quit"), &window);
-        quit->setShortcut("CTRL+SHIFT+Q");
+        quit->setShortcut(Qt::CTRL + Qt::SHIFT +Qt::Key_Q);
 
         QMenu *m1;
         //menuBar method only exists for QMainWindow, not for QWidget.

@@ -7,8 +7,14 @@
                          http://www.kde.org/standards/kxmlgui/1.0/kxmlgui.xsd" >
 
   <MenuBar>
+    <!-- The file menu is already given by KXmlGuiWindow. -->
     <Menu name="file" >
       <Action name="clear" />
+    </Menu>
+    <Menu name="action" >
+      <Action name="setText" />
+      <Action name="setConf" />
+      <Action name="setTextConf" />
     </Menu>
   </MenuBar>
 

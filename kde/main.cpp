@@ -77,28 +77,52 @@ void MainWindow::setTextConf()
 
 void MainWindow::setupActions()
 {
-    KAction* clearAction = new KAction(this);
-    clearAction->setText(i18n("&Clear"));
-    clearAction->setIcon(KIcon("document-new"));
-    clearAction->setShortcut(Qt::CTRL + Qt::Key_W);
-    // The first string determines the action name
-    actionCollection()->addAction("clear", clearAction);
-    connect(clearAction, SIGNAL(triggered(bool)),
-            textArea, SLOT(clear()));
-    KStandardAction::quit(kapp, SLOT(quit()), actionCollection());
+    {
+        KAction* clearAction = new KAction(this);
+        clearAction->setText(i18n("&Clear"));
+        clearAction->setIcon(KIcon("document-new"));
+        clearAction->setShortcut(Qt::CTRL + Qt::Key_W);
+        // The first string determines the action name
+        actionCollection()->addAction("clear", clearAction);
+        connect(clearAction, SIGNAL(triggered(bool)),
+                textArea, SLOT(clear()));
+    }
+
+    /*
+    #StandardAction
+
+        Offers standard actions.
+
+        Those actions have standard names, icons and shortcuts.
+
+        They are automatically put inside standard menus. For exampe, quit goes under "File".
+    */
+    {
+        KStandardAction::quit(kapp, SLOT(quit()), actionCollection());
+    }
+
+    {
+        KAction* action = new KAction(this);
+        action->setText(i18n("&Action"));
+        actionCollection()->addAction("action", action);
+    }
 
     // setText action
-    KAction* setTextAction = new KAction(this);
-    setTextAction->setShortcut(Qt::CTRL + Qt::Key_S);
-    actionCollection()->addAction("setText", setTextAction);
-    connect(setTextAction, SIGNAL(triggered(bool)),
-            this, SLOT(setText()));
-    KStandardAction::quit(kapp, SLOT(quit()), actionCollection());
+    {
+        KAction* action = new KAction(this);
+        action->setText(i18n("&Set Text"));
+        action->setShortcut(Qt::CTRL + Qt::Key_S);
+        actionCollection()->addAction("setText", action);
+        connect(action, SIGNAL(triggered(bool)),
+                this, SLOT(setText()));
+        KStandardAction::quit(kapp, SLOT(quit()), actionCollection());
+    }
 
     // setConf action
     {
         KAction* action = new KAction(this);
         action->setShortcut(Qt::CTRL + Qt::Key_D);
+        action->setText(i18n("Set Conf"));
         actionCollection()->addAction("setConf", action);
         connect(action, SIGNAL(triggered(bool)),
                 this, SLOT(setConf()));
@@ -107,6 +131,7 @@ void MainWindow::setupActions()
     {
         KAction* action = new KAction(this);
         action->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_C);
+        action->setText(i18n("Set Text Conf"));
         actionCollection()->addAction("setTextConf", action);
         connect(action, SIGNAL(triggered(bool)),
                 this, SLOT(setTextConf()));
@@ -122,6 +147,7 @@ void MainWindow::setupActions()
 
 int main (int argc, char *argv[])
 {
+    // Most of the descriptive parameters show on the `Help > About` menu item.
     KAboutData aboutData(
         // The program name used internally.
         "kdecheat",
@@ -150,7 +176,15 @@ int main (int argc, char *argv[])
     KApplication app;
 
     /*
-    #KXmlGuiWindow
+    #XMLGUI
+
+        GUI components that can be configured via *ui.rc XML files.
+
+        Examples:
+
+        - KXmlGuiWindow
+
+    #XmlGuiWindow
 
         Suitable for a main window.
 
@@ -165,6 +199,14 @@ int main (int argc, char *argv[])
             - Show statusbar
 
         - status bar
+
+        As the name suggests, this class is part of the XMLGUI KDE technology.
+
+    #MainWindow
+
+        Good possibility for main window class.
+
+        Inherits KXmlGuiWindow, so supports XMLGUI.
     */
 
     MainWindow* window = new MainWindow();

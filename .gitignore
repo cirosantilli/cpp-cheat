@@ -1,12 +1,13 @@
-_gitignore/
 #docs, examples, tests
+_gitignore/
 
-_out/
 #output files: bins/.so/.a
+_out/
 
-_tmp/
 #intermediate compilation files: .o
+_tmp/
 
+#cmake style generated files
 build/
 
 # Compiled Object files

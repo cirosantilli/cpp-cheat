@@ -1,11 +1,12 @@
 project (kdecheat)
 find_package(KDE4 REQUIRED)
 include (KDE4Defaults)
-include_directories(${KDE4_INCLUDES})
+include_directories(${KDE4_INCLUDES} ${CMAKE_CURRENT_BINARY_DIR})
 set(kdecheat_SRCS main.cpp)
 kde4_add_executable(kdecheat ${kdecheat_SRCS})
+kde4_add_kcfg_files(kdecheat_SRCS kdecheat.kcfgc)
 target_link_libraries(kdecheat ${KDE4_KDEUI_LIBS})
-
-install(TARGETS kdecheat DESTINATION ${BIN_INSTALL_DIR})
 install(FILES kdecheatui.rc
         DESTINATION  ${DATA_INSTALL_DIR}/kdecheat)
+install(FILES kdecheat.kcfg DESTINATION ${KCFG_INSTALL_DIR})
+install(TARGETS kdecheat DESTINATION ${BIN_INSTALL_DIR})
