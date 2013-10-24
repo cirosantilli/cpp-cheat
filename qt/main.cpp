@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
         Cannot have fixed size.
         Occupies its entire parent.
 
-        Can contain several:
+        Can contain several inner:
 
         - layouts via `addLayout`
         - widgets via `addWidget`.

@@ -12,16 +12,17 @@ class MainWindow : public KXmlGuiWindow
         MainWindow(QWidget *parent=0);
 
     public Q_SLOTS:
-        void setText();
-        void saveConf();
-        void readConf();
-        void saveConfXT();
+        void saveConfig();
+        void viewConfig();
         void showSettingsDialog();
-        void readConfXT();
+        void saveSettingsXt();
+        void loadSettingsXt();
 
     private:
         KTextEdit* textArea;
         void setupActions();
+        int port;
+        QString serverName;
 };
 
 #endif
