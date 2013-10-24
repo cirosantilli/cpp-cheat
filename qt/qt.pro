@@ -9,6 +9,9 @@ INCLUDEPATH += .
 # Input source files:
 SOURCES     += main.cpp
 
+# Input Qt Designer ui files:
+FORMS       = qt_designer.ui
+
 # Input header files:
 HEADERS     += SlotTest.h
 

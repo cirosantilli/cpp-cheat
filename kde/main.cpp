@@ -6,13 +6,14 @@
 #include <KAction>
 #include <KActionCollection>
 #include <KCmdLineArgs>
+#include <KConfigDialog>
 #include <KConfigGroup>
 #include <KLocale>
 #include <KMessageBox>
 #include <KMenuBar>
 #include <KSharedConfigPtr>
 
-#include <kdecheat_settings.h>
+#include <settings.h>
 #include "main.h"
 
 MainWindow::MainWindow(QWidget *parent)
@@ -93,14 +94,14 @@ void MainWindow::readConf()
     Configuration is specified in an XML format.
 */
 void MainWindow::saveConfXT() {
-    ExampleSettings::setServerName( "www.kde.com" );
-    ExampleSettings::setPort( 80 );
-    ExampleSettings::self()->writeConfig();
+    Settings::setServerName( "www.kde.com" );
+    Settings::setPort( 80 );
+    Settings::self()->writeConfig();
 }
 
 void MainWindow::readConfXT() {
-    QString m_server = ExampleSettings::serverName();
-    int m_port       = ExampleSettings::port();
+    QString m_server = Settings::serverName();
+    int m_port       = Settings::port();
 }
 
 void MainWindow::setupActions()
@@ -126,7 +127,11 @@ void MainWindow::setupActions()
         They are automatically put inside standard menus. For exampe, quit goes under "File".
     */
     {
+        /* Adds "Quit" under file menu, default shortcut Ctrl + Q. */
         KStandardAction::quit(kapp, SLOT(quit()), actionCollection());
+
+        /* Adds "Appname Preferences" under "Settings" menu. */
+        KStandardAction::preferences(this, SLOT(showSettingsDialog()), actionCollection());
     }
 
     // setText action
@@ -176,6 +181,53 @@ void MainWindow::setupActions()
         connect(action, SIGNAL(triggered(bool)),
                 this, SLOT(readConfXT()));
     }
+}
+
+/*
+#ConfigDialog
+
+    A standard KDE config dialog. It contains:
+
+    - "Ok", "Cancel", "Apply" buttons with signals `settingsChanged()` for both Apply and Ok.
+    - side pages which can be added via the `addPage` method
+
+    It is up to you do design each page, but KCOnfigDialog magically integrates with
+    KConfig XT: all you have to do is to name input fields as:
+
+        kcfg_NAME
+
+    where `NAME` is the `name` attribute of the `kcfg` file!
+
+    That's all! Not setting the input field values will automagically
+    modify the configuration files as expected.
+*/
+
+void MainWindow::showSettingsDialog()
+{
+    // An instance of your dialog could be already created and could be
+    // cached, in which case you want to display the cached dialog
+    // instead of creating another one
+    if (KConfigDialog::showDialog("settings"))
+        return;
+
+    // KConfigDialog didn't find an instance of this dialog, so lets
+    // create it :
+    KConfigDialog* dialog = new KConfigDialog(this, "settings",
+                                            Settings::self());
+
+    /*
+    ExampleDesignerWidget* confWdg =
+                    new ExampleDesignerWidget(0, "Example");
+
+    dialog->addPage(confWdg, i18n("Example"), "example");
+    */
+
+    // User edited the configuration - update your local copies of the
+    // configuration data
+    connect(dialog, SIGNAL(settingsChanged()),
+            this, SLOT(updateConfiguration()));
+
+    dialog->show();
 }
 
 int main (int argc, char *argv[])
@@ -229,6 +281,10 @@ int main (int argc, char *argv[])
 
             - Help
             - Settings with "Configure Shortcuts" and "Configure Toolbars"
+
+                "Configure Shortcuts" automatically contains any shortcuts added to actions,
+                in addition to many standard shortcuts.
+
             - Show statusbar
 
         - status bar

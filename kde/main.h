@@ -16,6 +16,7 @@ class MainWindow : public KXmlGuiWindow
         void saveConf();
         void readConf();
         void saveConfXT();
+        void showSettingsDialog();
         void readConfXT();
 
     private:
