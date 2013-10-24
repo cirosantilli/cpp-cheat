@@ -9,8 +9,10 @@
 #include <KConfigGroup>
 #include <KLocale>
 #include <KMessageBox>
+#include <KMenuBar>
 #include <KSharedConfigPtr>
 
+#include <kdecheat_settings.h>
 #include "main.h"
 
 MainWindow::MainWindow(QWidget *parent)
@@ -19,6 +21,14 @@ MainWindow::MainWindow(QWidget *parent)
     textArea = new KTextEdit;
     setCentralWidget(textArea);
     setupActions();
+
+    /*
+    #setGUI
+
+        Creates GUI elements from `ui.rc` files.
+    */
+
+        this->setupGUI(Default, "kdecheatui.rc");
 }
 
 void MainWindow::setText()
@@ -45,7 +55,7 @@ void MainWindow::setText()
 
     Writting to config file is immediate.
 */
-void MainWindow::setConf()
+void MainWindow::saveConf()
 {
     // Name of the config file is determined from the application name if not given.
     // Ex: kdecheatrc.
@@ -67,12 +77,30 @@ void MainWindow::setConf()
 
     The second parameter is the default value.
 */
-void MainWindow::setTextConf()
+void MainWindow::readConf()
 {
     KSharedConfigPtr config = KSharedConfig::openConfig();
     // Name of the ini header is `[general]`.
     KConfigGroup generalGroup(config, "general");
     textArea->setText(generalGroup.readEntry("string", "abc"));
+}
+
+/*
+#Config XT
+
+    Newer configuration method.
+
+    Configuration is specified in an XML format.
+*/
+void MainWindow::saveConfXT() {
+    ExampleSettings::setServerName( "www.kde.com" );
+    ExampleSettings::setPort( 80 );
+    ExampleSettings::self()->writeConfig();
+}
+
+void MainWindow::readConfXT() {
+    QString m_server = ExampleSettings::serverName();
+    int m_port       = ExampleSettings::port();
 }
 
 void MainWindow::setupActions()
@@ -101,12 +129,6 @@ void MainWindow::setupActions()
         KStandardAction::quit(kapp, SLOT(quit()), actionCollection());
     }
 
-    {
-        KAction* action = new KAction(this);
-        action->setText(i18n("&Action"));
-        actionCollection()->addAction("action", action);
-    }
-
     // setText action
     {
         KAction* action = new KAction(this);
@@ -115,34 +137,45 @@ void MainWindow::setupActions()
         actionCollection()->addAction("setText", action);
         connect(action, SIGNAL(triggered(bool)),
                 this, SLOT(setText()));
-        KStandardAction::quit(kapp, SLOT(quit()), actionCollection());
     }
 
-    // setConf action
+    // saveConf action
     {
         KAction* action = new KAction(this);
         action->setShortcut(Qt::CTRL + Qt::Key_D);
-        action->setText(i18n("Set Conf"));
-        actionCollection()->addAction("setConf", action);
+        action->setText(i18n("Save Conf"));
+        actionCollection()->addAction("saveConf", action);
         connect(action, SIGNAL(triggered(bool)),
-                this, SLOT(setConf()));
+                this, SLOT(saveConf()));
     }
 
+    // readConf action
     {
         KAction* action = new KAction(this);
         action->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_C);
-        action->setText(i18n("Set Text Conf"));
-        actionCollection()->addAction("setTextConf", action);
+        action->setText(i18n("Read Conf"));
+        actionCollection()->addAction("readConf", action);
         connect(action, SIGNAL(triggered(bool)),
-                this, SLOT(setTextConf()));
+                this, SLOT(saveConf()));
     }
 
-    /*
-    #setGUI
+    // saveConfXT action
+    {
+        KAction* action = new KAction(this);
+        action->setText(i18n("save Conf XT"));
+        actionCollection()->addAction("saveConfXT", action);
+        connect(action, SIGNAL(triggered(bool)),
+                this, SLOT(saveConfXT()));
+    }
 
-        Creates GUI elements from `ui.rc` files.
-    */
-    setupGUI(Default, "kdecheatui.rc");
+    // readConfXT action
+    {
+        KAction* action = new KAction(this);
+        action->setText(i18n("Read Conf XT"));
+        actionCollection()->addAction("readConfXT", action);
+        connect(action, SIGNAL(triggered(bool)),
+                this, SLOT(readConfXT()));
+    }
 }
 
 int main (int argc, char *argv[])

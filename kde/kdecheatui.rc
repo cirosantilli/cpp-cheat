@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<gui name="tutorial3"
+<gui name="kdecheat"
      version="1"
      xmlns="http://www.kde.org/standards/kxmlgui/1.0"
      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -11,10 +11,10 @@
     <Menu name="file" >
       <Action name="clear" />
     </Menu>
-    <Menu name="action" >
+    <Menu name="action" ><text>A&amp;ction</text>
       <Action name="setText" />
-      <Action name="setConf" />
-      <Action name="setTextConf" />
+      <Action name="readConf" />
+      <Action name="saveConf" />
     </Menu>
   </MenuBar>
 

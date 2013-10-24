@@ -1,9 +1,6 @@
 BUILD_DIR := build/
 TARGET    := qtcheat
 
-run: all
-	cd "$(BUILD_DIR)" && ./$(TARGET)
-
 # Doing `qmake ../` is called a shadow build.
 all:
 	if [ ! -r qt.pro ]; then qmake -project; fi &&\
@@ -15,10 +12,15 @@ all:
 clean:
 	rm -rf "$(BUILD_DIR)"
 
+run: all
+	cd "$(BUILD_DIR)" && ./$(TARGET)
+
 install: all
-	cd "$(BUILD_DIR)" && sudo make install
+	cd "$(BUILD_DIR)" && make install
+
+install-run:
 	$(TARGET)
 
 uninstall: all
-	cd "$(BUILD_DIR)" && sudo make uninstall
+	cd "$(BUILD_DIR)" && make uninstall
 	$(TARGET)

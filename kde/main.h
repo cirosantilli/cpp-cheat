@@ -13,8 +13,10 @@ class MainWindow : public KXmlGuiWindow
 
     public Q_SLOTS:
         void setText();
-        void setConf();
-        void setTextConf();
+        void saveConf();
+        void readConf();
+        void saveConfXT();
+        void readConfXT();
 
     private:
         KTextEdit* textArea;
