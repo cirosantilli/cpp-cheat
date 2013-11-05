@@ -88,7 +88,8 @@ void MainWindow::viewConfig()
     textArea->setText(
         "[general] string = " + generalGroup.readEntry("string", "abc") + "\n" +
         "[general][lessGeneral] int = " + QString::number(lessGeneralGroup.readEntry("int", 1)) + "\n" +
-        "[configxt] serverName = " + serverName
+        "[configxt] serverName = " + serverName + "\n" +
+        "[configxt] serverName = " + QString::number(port)
     );
 }
 
@@ -201,7 +202,7 @@ void MainWindow::setupActions()
         action->setText(i18n("&Clear"));
         action->setIcon(KIcon("document-new"));
         action->setShortcut(Qt::CTRL + Qt::Key_W);
-        // The first string determines the action name
+        // The first argument determines the action name
         actionCollection()->addAction("clear", action);
         connect(action, SIGNAL(triggered(bool)),
                 textArea, SLOT(clear()));
@@ -231,8 +232,10 @@ void MainWindow::setupActions()
             - Help
             - Settings with "Configure Shortcuts" and "Configure Toolbars"
 
-                "Configure Shortcuts" automatically contains any shortcuts added to actions,
+                Configure Shortcuts" automatically contains any shortcuts added to actions,
                 in addition to many standard shortcuts.
+
+                TODO where is Configure Shortcuts config stored?
 
             - Show statusbar
 
@@ -247,12 +250,12 @@ void MainWindow::setupActions()
         Inherits KXmlGuiWindow, so supports XMLGUI.
     */
 
+    // TODO how to fix all the properties of the action via XMLGUI?
+    // For example, setText().
+
     // This kaction activates a slot on the main window.
-    // All its GUI properties are specified via XMLGUI.
     {
         KAction* action = new KAction(this);
-        // TODO how to fix all the properties of the action via XMLGUI?
-        // For example, setText().
         action->setText(i18n("View Configuration"));
         actionCollection()->addAction("viewConfig", action);
         connect(action, SIGNAL(triggered(bool)),
@@ -312,7 +315,7 @@ int main (int argc, char *argv[])
         // The bug report email address
         "submit@bugs.kde.org");
 
-    KCmdLineArgs::init( argc, argv, &aboutData );
+    KCmdLineArgs::init(argc, argv, &aboutData);
     KApplication app;
 
     MainWindow* window = new MainWindow();

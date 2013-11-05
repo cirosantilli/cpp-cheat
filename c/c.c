@@ -1127,6 +1127,24 @@ void abort_func()
     abort();
 }
 
+
+/*
+#main signature
+
+    <http://stackoverflow.com/questions/204476/what-should-main-return-in-c-and-c>
+
+    Valid signatures:
+
+        int main()
+
+    and
+
+        int main(int argc, char* argv[])
+
+    which is the same as:
+
+        int main(int argc, char** argv)
+*/
 int main(int argc, char **argv)
 {
     /*
@@ -3456,11 +3474,11 @@ int main(int argc, char **argv)
             int i = 0;
 
             /*
-            There is no corresponding data type
+            There is no corresponding data type.
 
-            Since there is no data, there is no data size
+            Since there is no data, there is no data size.
 
-            This means that `sizeof(void)` is not possible, nor is pointer arithmetic operations..
+            This means that `sizeof(void)` is not possible, nor is pointer arithmetic operations.
             */
             {
                 /*ERROR*/
@@ -6340,7 +6358,7 @@ int main(int argc, char **argv)
                     {
 
                         /* Supppose that the API states that `integer_t` is a signed integer type. */
-                        typedef int integer_t;
+                        //typedef int integer_t;
                         printf("printf integer_t = %jd\n", (intmax_t)1);
                     }
 
@@ -8062,6 +8080,17 @@ int main(int argc, char **argv)
     atexit(atexit_func);
     if (0) exit_func();
     if (0) abort_func();
+
+    /*
+    #main return
+
+        Valid returns are:
+
+        - `EXIT_SUCCESS` or `0` to indicate success
+        - `EXIT_FAILURE`        to indicate failure
+
+        C99: return is optional. If omited a `return 0` is added to the program.
+    */
 
     //main returns status:
 

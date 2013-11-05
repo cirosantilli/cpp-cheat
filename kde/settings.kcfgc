@@ -1,0 +1,4 @@
+File=kdecheat.kcfg
+ClassName=Settings
+Singleton=true
+Mutators=true

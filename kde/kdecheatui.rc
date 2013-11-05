@@ -11,7 +11,8 @@
     <Menu name="file" >
       <Action name="clear" />
     </Menu>
-    <Menu name="action" ><text>asdfA&amp;ction</text>
+    <Menu name="action" >
+      <text>A&amp;ction</text>
       <Action name="viewConfig" />
       <Action name="saveConfig" />
     </Menu>

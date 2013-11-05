@@ -2,9 +2,9 @@
  * Minimal program to test that the compiler is working.
  * */
 
-#include <stdio.h>
+#include <iostream>
 
 int main()
 {
-    puts("hello world");
+    std::cout << "hello world" << std::endl;
 }

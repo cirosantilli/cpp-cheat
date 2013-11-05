@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0
+                          http://www.kde.org/standards/kcfg/1.0/kcfg.xsd" >
+  <!-- Name of the file where configs will be stored: -->
+  <kcfgfile name="kdecheatrc"/>
+  <group name="configxt">
+    <entry name="serverName" type="String">
+      <label>Server Name</label>
+    </entry>
+    <entry name="port" type="Int">
+      <label>Port</label>
+      <default>21</default>
+      <min>20</min>
+      <max>990</max>
+    </entry>
+  </group>
+</kcfg>

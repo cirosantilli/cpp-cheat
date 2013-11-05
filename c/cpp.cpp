@@ -56,6 +56,8 @@ Features which are identical to C will not be described
 
             Not official in any way, despite the amazing url and google rank.
 
+            Is said to contain many errors, and that cppreference is superior.
+
         - <http://en.cppreference.com/w/>
 
             Similar to cplusplus.com, but seems to have more info.
@@ -138,6 +140,13 @@ Features which are identical to C will not be described
         The future as of 2013. The language seems to be accelerating speed of changes
         since this is expected only 3 years after the last standard. Cool.
 
+#STL
+
+    STL is not mentioned in the C++ ISO standard. It seems that it was once a separate library
+    which heavily influenced the C++ ISO standrad when it was created.
+
+    <http://stackoverflow.com/questions/5205491/whats-this-stl-vs-c-standard-library-fight-all-about>
+
 #coding styles
 
     - <http://google-styleguide.googlecode.com/svn/trunk/cppguide.xml>
@@ -211,14 +220,6 @@ Features which are identical to C will not be described
 
     Obscure language features.
 
-#POD
-
-    Plain old data:
-
-    - structs
-    - class without constructors or destructors.
-
-    <http://stackoverflow.com/questions/146452/what-are-pod-types-in-c>
 */
 
 /*
@@ -409,6 +410,7 @@ void printCallStack()
     {
         public:
             int i;
+            std::string s;
     };
 
     /*
@@ -417,7 +419,8 @@ void printCallStack()
     class NoDefaultCtor
     {
         public:
-            NoDefaultCtor(int i){}
+            NoDefaultCtor(int i) : i(i) {}
+            int i;
     };
 
     /*
@@ -566,6 +569,80 @@ void printCallStack()
             ~NoBaseNoMember1(){callStack.push_back("NoBaseNoMember1::~NoBaseNoMember1()");}
             void method(){callStack.push_back("NoBaseNoMember1::method()");}
     };
+
+
+#if __cplusplus >= 201103L
+
+    /**
+    This class exemplifies the `= default` syntax.
+    */
+    class DefaultKeyword
+    {
+        public:
+
+            /**
+            This is an explicitly defaulted constructor.
+            */
+            DefaultKeyword() = default;
+
+            /**
+            This is an explicitly defaulted copy constructor.
+            */
+            DefaultKeyword(const DefaultKeyword&) = default;
+
+            /**
+            This is an explicitly defaulted assignment operator.
+            */
+            DefaultKeyword & operator=(const DefaultKeyword&) = default;
+
+            ~DefaultKeyword() = default;
+
+            // ERROR: Not possible because the default constructor must take no arguments.
+            //DefaultKeyword(int i) = default;
+
+            // With the default keyword it is possible to have other
+            // constructors besides the Implicitly defined constructor.
+            DefaultKeyword(int i, std::string s) : i(i), s(s) {}
+
+
+            /**
+            ERROR: Cannot default anything other than:
+
+            - constructors
+            - destructors
+            - copy
+            - assignment
+            */
+            //void f() = default;
+
+            int i;
+            std::string s;
+    };
+
+    /**
+    This class exemplifies the `= delete` syntax.
+    */
+    class DeleteKeyword
+    {
+        public:
+            DeleteKeyword() = delete;
+            DeleteKeyword(int i) : i(i) {}
+            DeleteKeyword(const DeleteKeyword&) = delete;
+            DeleteKeyword & operator=(const DeleteKeyword&) = delete;
+
+            /**
+            With this, the code would compile, but it would not be possible
+            to create any instances of this class, since at some point the destructor
+            would have to be called!
+            */
+            //~DeleteKeyword() = delete;
+
+            /* It is possible to delete any function. */
+            void f() = delete;
+            int i;
+    };
+
+#endif
 
     /**
     This class has an implicit default constructor.
@@ -973,6 +1050,7 @@ void printCallStack()
             private:
 
                 int i;
+                void privateMethod(){};
         };
 
         /* cannot use the word friend here */
@@ -991,6 +1069,7 @@ void printCallStack()
 
                 FriendOfFriend(int i) : i(i) {}
                 int getFriendI(Friend f){return f.i;}
+                void callFriendPrivateMethod(Friend f){f.privateMethod();}
 
             private:
 
@@ -4711,13 +4790,14 @@ int main(int argc, char **argv)
             Destructors are meant to clean up after exceptions, so if you throw exceptions from them,
             things get messy.
 
-            C++ specifies that if this happens during stack unwinding, the program can terminate!
+            C++ specifies that if this happens during stack unwinding, the program may terminate!
 
             What to do to avoid that: <http://stackoverflow.com/questions/130117/throwing-exceptions-out-of-a-destructor>
-        */
-        {
-            //TODO so, how do I make my program crash wide open? =)
 
+            The following code could lead to that.
+        */
+        if (0)
+        {
             try {
                 ExceptionDestructor e;
             } catch (...) {
@@ -4776,20 +4856,52 @@ int main(int argc, char **argv)
             /*
             #default constructor
 
+                <http://en.cppreference.com/w/cpp/language/default_constructor>
+
                 Constructor that takes no arguments.
 
+                Can be one explicitly created by the programmer:
+                all that matters is that it takes no arguments.
+
                 It is a good idea to always implement a default constructor,
-                since this is the only way arrays of fiexed numbers of objects can be created before C++03
+                since this is the only way arrays of fixed numbers of objects can be created before C++03
+
+                The concept of default constructor exists because there are
+                certain differences in syntax and behaviour when using default constructors,
+                for example:
+
+                - the most vexing parse only happens for default constructors.
+                - the default constructor can be is implicitly declared and defiend by the compiler.
+
+            #implicily declared constructors
+
+                If no explicit constructor is declared,
+                the compiler automatically declares the following functions:
+
+                - default constructor
+                - copy constructor
+                - assignment constructor
+                - destructor
+
+                If constructor is explicitly declared, even one taking multiple default args,
+                then the default contructor *not* created by the compiler.
+
+            #trivial default constructor
 
             #implicily defined default constructor
 
-                If no other constructor is declared, a default constructor is created.
+                If the implicitly-declared default constructor is not deleted
+                or trivial, it is defined (that is, a function body is generated
+                and compiled) by the compiler, and it has exactly the same effect
+                as a user-defined constructor with empty body and empty initializer list.
+                That is, it calls the default constructors of the bases
+                and of the non-static members of this class.
 
-                If any case constructor is declared, even one taking multiple default args,
-                then the default contructor not created by the compiler.
+                In particular, the IDDC does not do zero initialization on non-class members
+                such as `int`, so those have undefined values.
             */
             {
-                //to call the default constructor, use this syntax
+                // To call the default constructor, use this syntax
                 {
                     callStack.clear();
                     NoBaseNoMember c; //default constructor was called!
@@ -4799,40 +4911,81 @@ int main(int argc, char **argv)
                     assert(callStack == expectedCallStack);
                 }
 
-                //this class has a compiler created default constructor.
+                /*
+                The implicitly defined default constructor does not necessarily initialize member built-in types:
+
+                    <http://stackoverflow.com/questions/2417065/does-the-default-constructor-initialize-built-in-types>
+
+                Class member default constructors however are called.
+                */
                 {
                     ImplicitDefaultCtor o;
+                    if (o.i != 0)
+                        //undefined behaviour
+                        std::cout << "ImplicitDefaultCtor undefined behaviour: o.i = " << o.i << std::endl;
+
+                    //Defined behaviour because class:
+                    assert(o.s == "");
+
+                    //*however*, the following does value initialization,
+                    //not the default constructor, and built-in members are indeed 0 initialized!
+                    {
+                        ImplicitDefaultCtor o = ImplicitDefaultCtor();
+                        assert(o.i == 0);
+                    }
                 }
 
-                //this class does not have a default constructor
                 {
-                    //NoDefaultCtor o = NoDefaultCtor();
-                        //ERROR
+                    // ERROR
+                    //NoDefaultCtor o;
 
+                    // ERROR cannot be done because this class has not default constructors.
                     //NoDefaultCtor os[2];
-                        //ERROR cannot be done because this class has not default constructors.
+
+                    // Implicit copy and assign are still defined:
+                    NoDefaultCtor o(1);
+                    NoDefaultCtor o2(o);
+                    o = o2;
                 }
-            }
 
-            /*
-            The implicitly defined default constructor does not necessarily initialize member built-in types:
+#if __cplusplus >= 201103L
+                /*
+                #default keyword
 
-                <http://stackoverflow.com/questions/2417065/does-the-default-constructor-initialize-built-in-types>
+                    As of C++11, the `= default` statement can be added to a constructor to explicitly
+                    say that the default should be used.
 
-            Class member default constructors are called, possibly
-            */
-            {
-                ImplicitDefaultCtor o;
-                if (o.i != 0)
-                    std::cout << "o.i = " << o.i << std::endl;
-                    //BAD: undefined behaviour
-
-                //*however*, the following does value initialization,
-                //not the default constructor, and built-in members are indeed 0 initialized!
+                    This allows a class to have multple constructors,
+                    plus the implictly defined one.
+                */
                 {
-                    ImplicitDefaultCtor o = ImplicitDefaultCtor();
-                    assert(o.i == 0);
+                    DefaultKeyword o;
+                    //assert(o.i == 0); // undefined behaviour
+                    assert(o.s == std::string());
+
+                    o = DefaultKeyword(1, "a");
+                    assert(o.i == 1);
+                    assert(o.s == "a");
                 }
+
+                /*
+                #delete keyword
+                */
+                {
+                    // ERROR: Explicitly deleted:
+                    //DeleteKeyword o;
+
+                    DeleteKeyword o(1);
+
+                    // ERROR: Explicitly deleted:
+                    //DeleteKeyword o2(o);
+
+                    DeleteKeyword o2(2);
+
+                    // ERROR: Explicitly deleted:
+                    //o2 = o1;
+                }
+#endif
             }
 
             /*
@@ -4879,202 +5032,216 @@ int main(int argc, char **argv)
                     assert(c.i == 1);
                 }
             }
-        }
 
-        /*
-        Value initialization and zero initialization are both a bit subtle, so it is best not to rely on them.
+            /*
+            Value initialization and zero initialization are both a bit subtle, so it is best not to rely on them.
 
-        #value initialization
+            #value initialization
 
-        #zero initialization
+                <http://en.cppreference.com/w/cpp/language/value_initialization>
 
-            <http://stackoverflow.com/questions/1613341/what-do-the-following-phrases-mean-in-c-zero-default-and-value-initializat>
-        */
-        {
-            //syntax with new
+            #aggregate initialization
+
+                <http://en.cppreference.com/w/cpp/language/aggregate_initialization>
+
+            #POD
+
+                Plain old data:
+
+                <http://stackoverflow.com/questions/4178175/what-are-aggregates-and-pods-and-how-why-are-they-special>
+
+            #zero initialization
+
+                <http://en.cppreference.com/w/cpp/language/zero_initialization>
+
+                <http://stackoverflow.com/questions/1613341/what-do-the-following-phrases-mean-in-c-zero-default-and-value-initializat>
+            */
             {
-                //base types
+                //syntax with new
                 {
-                    int* is = new int[2]();
-                    assert(is[0] == 0);
-                    assert(is[1] == 0);
-                    delete[] is;
-                }
-
-                //works for structs
-                {
-                    struct T {int a;};
-                    T *t = new T[1]();
-                    assert(t[0].a == 0);
-                    delete[] t;
-                }
-
-                /*
-                Works for objects.
-
-                Note how the default constructor was called since `z == 1`.
-                */
-                {
+                    //base types
                     {
-                        Class *cs = new Class[1]();
-                        assert(cs[0].i == 0);
-                        assert(cs[0].z == 1);
-                        delete[] cs;
+                        int* is = new int[2]();
+                        assert(is[0] == 0);
+                        assert(is[1] == 0);
+                        delete[] is;
+                    }
+
+                    //works for structs
+                    {
+                        struct T {int a;};
+                        T *t = new T[1]();
+                        assert(t[0].a == 0);
+                        delete[] t;
+                    }
+
+                    /*
+                    Works for objects.
+
+                    Note how the default constructor was called since `z == 1`.
+                    */
+                    {
+                        {
+                            Class *cs = new Class[1]();
+                            assert(cs[0].i == 0);
+                            assert(cs[0].z == 1);
+                            delete[] cs;
+                        }
+                    }
+
+                    //but only works with default constructors
+                    {
+                        //Class *cs = new [1](1);
                     }
                 }
+            }
 
-                //but only works with default constructors
+            /*
+            #initialize built-in types
+
+                <http://stackoverflow.com/questions/5113365/do-built-in-types-have-default-constructors>
+
+                C++ adds new ways to initialize base types.
+
+                Those are not however constructors.
+
+                They probably just mimic constructor syntax to help blurr the distinction
+                between built-in types and classes.
+            */
+            {
+                //parenthesis initialization
                 {
-                    //Class *cs = new [1](1);
+                    int i(1);
+                    assert(i == 1);
                 }
-            }
-        }
 
-        /*
-        #initialize built-in types
+                {
+                    //int i();
+                        //fails like the most vexing parse
+                }
 
-            <http://stackoverflow.com/questions/5113365/do-built-in-types-have-default-constructors>
-
-            C++ adds new ways to initialize base types.
-
-            Those are not however constructors.
-
-            They probably just mimic constructor syntax to help blurr the distinction
-            between built-in types and classes.
-        */
-        {
-            //parenthesis initialization
-            {
-                int i(1);
-                assert(i == 1);
-            }
-
-            {
-                //int i();
-                    //fails like the most vexing parse
-            }
-
-            {
-                int i = int();
-                assert(i == 0);
-            }
+                {
+                    int i = int();
+                    assert(i == 0);
+                }
 
 #if __cplusplus >= 201103L
 
-            /*
-            #brace initialization of scalars
+                /*
+                #brace initialization of scalars
 
-                See uniform initialization.
+                    See uniform initialization.
 
-                <http://stackoverflow.com/questions/14232184/initializing-scalars-with-braces>
+                    <http://stackoverflow.com/questions/14232184/initializing-scalars-with-braces>
 
-            #uniform initialization
+                #uniform initialization
 
-                In c++11 every type can be initialized consistently with `{}`.
+                    In c++11 every type can be initialized consistently with `{}`.
 
-                TODO what is the advantage of using it?
+                    TODO what is the advantage of using it?
 
-                Advantages:
+                    Advantages:
 
-                - non verbose initialization of multiple structures
+                    - non verbose initialization of multiple structures
 
-                Disadvantages:
+                    Disadvantages:
 
-                - ambiguous with initializer list construction!
-                - implementing the initializer list constructor breaks client code?!
-                    because it has priority over other constructors.
-            */
-            {
-                //built-int types
+                    - ambiguous with initializer list construction!
+                    - implementing the initializer list constructor breaks client code?!
+                        because it has priority over other constructors.
+                */
                 {
-                    int i{1};
-                    assert(i == 1);
-
-                    //int iNarrow{1.5};
-                        //ERROR: narrowing conversion from double to int not allowed inside `{}`
-                        //this is the main difference between `{}` and `()` and `=`.
-
-                    // Widening types is ok
-                    float f{1};
-
-                    // Works for arrays.
-                    int is[]{0, 1, 2};
-                    assert(is[1] == 1);
-                }
-
-                //objects
-                {
-                    //the 2 argument constructor is called
+                    //built-int types
                     {
-                        {
-                            UniformInitializationCtor2 o{1, 1};
-                            assert(o.i == 1);
-                            assert(o.j == 2);
-                        }
+                        int i{1};
+                        assert(i == 1);
 
-                        //conversion gets done for passing args to functions
-                        {
-                            UniformInitializationCtor2 o = {1, 1};
-                            assert(o.i == 1);
-                            assert(o.j == 2);
+                        //int iNarrow{1.5};
+                            //ERROR: narrowing conversion from double to int not allowed inside `{}`
+                            //this is the main difference between `{}` and `()` and `=`.
 
-                            assert(UniformInitializationCtor2Func({1, 1}) == 3);
+                        // Widening types is ok
+                        float f{1};
 
-                            assert((o == UniformInitializationCtor2{1,1}) );
-                            assert((o.operator==({1,1})) );
-                            //assert((o == {1,1}) );
-                                //ERROR TODO why does this fail to compile?
-                        }
+                        // Works for arrays.
+                        int is[]{0, 1, 2};
+                        assert(is[1] == 1);
                     }
 
-                    //If there is an initializer list ctor, the init list wins.
-                    //
-                    //This is one inconvenient of using uniform initialization.
-                    //
-                    //If ever an initializer list is created, it may breaks client code
-                    //that uses the other constructor.
+                    //objects
                     {
-                        UniformInitializationList o{1, 1};
-                        assert(o.i == 1);
-                        assert(o.j == 1);
-                    }
-
-                    //application: initialize complex objects
-                    {
-                        //with uniform init
+                        //the 2 argument constructor is called
                         {
-                            std::vector<std::pair<int,std::string> > v{
-                                {0, "zero"},
-                                {1, "one"},
-                                {2, "two"},
-                            };
+                            {
+                                UniformInitializationCtor2 o{1, 1};
+                                assert(o.i == 1);
+                                assert(o.j == 2);
+                            }
 
-                            assert(v[0].second == "zero");
+                            //conversion gets done for passing args to functions
+                            {
+                                UniformInitializationCtor2 o = {1, 1};
+                                assert(o.i == 1);
+                                assert(o.j == 2);
+
+                                assert(UniformInitializationCtor2Func({1, 1}) == 3);
+
+                                assert((o == UniformInitializationCtor2{1,1}) );
+                                assert((o.operator==({1,1})) );
+                                //assert((o == {1,1}) );
+                                    //ERROR TODO why does this fail to compile?
+                            }
                         }
 
-                        //without uniform init. Slightly less readable don't you think??
+                        //If there is an initializer list ctor, the init list wins.
+                        //
+                        //This is one inconvenient of using uniform initialization.
+                        //
+                        //If ever an initializer list is created, it may breaks client code
+                        //that uses the other constructor.
                         {
-                            std::vector<std::pair<int,std::string> > v{
-                                std::pair<int,std::string>(0, "zero"),
-                                std::pair<int,std::string>(1, "one"),
-                                std::pair<int,std::string>(2, "two"),
-                            };
-                        }
-                    }
-
-                    //TODO0 why are they different?
-                    {
-                        //does this work because it is treated like a struct since it does not have
-                        //constructors?
-                        {
-                            UniformInitializationImplicitCtor o{1, 2};
+                            UniformInitializationList o{1, 1};
                             assert(o.i == 1);
-                            assert(o.j == 2);
+                            assert(o.j == 1);
                         }
 
-                        //ERROR
+                        //application: initialize complex objects
                         {
-                            //UniformInitializationExplicitCtor o = {1, 2};
+                            //with uniform init
+                            {
+                                std::vector<std::pair<int,std::string> > v{
+                                    {0, "zero"},
+                                    {1, "one"},
+                                    {2, "two"},
+                                };
+
+                                assert(v[0].second == "zero");
+                            }
+
+                            //without uniform init. Slightly less readable don't you think??
+                            {
+                                std::vector<std::pair<int,std::string> > v{
+                                    std::pair<int,std::string>(0, "zero"),
+                                    std::pair<int,std::string>(1, "one"),
+                                    std::pair<int,std::string>(2, "two"),
+                                };
+                            }
+                        }
+
+                        //TODO0 why are they different?
+                        {
+                            //does this work because it is treated like a struct since it does not have
+                            //constructors?
+                            {
+                                UniformInitializationImplicitCtor o{1, 2};
+                                assert(o.i == 1);
+                                assert(o.j == 2);
+                            }
+
+                            //ERROR
+                            {
+                                //UniformInitializationExplicitCtor o = {1, 2};
+                            }
                         }
                     }
                 }
@@ -5100,12 +5267,16 @@ int main(int argc, char **argv)
 
             See inializer list
 
+        #list initialization
+
+            See initializer list constructor.
+
         #initializer list contructor
 
             Useful in cases where you don't know beforehand how many arguments
             a constructor should receive.
 
-            For example, the STL std::vector class gets an initializer list constructor on C++11,
+            For example, the stdlib std::vector class gets an initializer list constructor on C++11,
             which allows one to initialize it to any constant.
 
             TODO0 could this not be achieved via cstdarg?
@@ -5429,17 +5600,17 @@ int main(int argc, char **argv)
         }
 
         /*
-        #copy vs assign
+        #copy and assign constructors
 
-            Every class has a default assign operator (=) and a default copy constructor (`Classname(Classname other)`).
+            The difference is that:
 
-            The difference is that copy is a way to initialize a new object,
-            and assign is a way to modify an existing object.
+            - copy is a way to initialize a new object
+            - assign is a way to modify an existing object to ressemble another
 
-            The defaults might not be what you want, specially when you allocate memory inside the constructor!
-            See the rule of three.
+            The implicitly defined constructors might not do what you want, specially when you
+            allocate memory inside the constructor! See the Rule of Three.
 
-            Default copy and assign is probably exist in order to allow class parameter passing to functions.
+            Implicilty Default copy and assign is probably exist in order to allow class parameter passing to functions.
 
             - <http://stackoverflow.com/questions/3279543/what-is-the-copy-and-swap-idiom>
             - <http://stackoverflow.com/questions/4172722/what-is-the-rule-of-three>
@@ -7143,7 +7314,7 @@ int main(int argc, char **argv)
         /*
         #containers
 
-            The STL furnishes several containers.
+            The stdlib furnishes several containers.
 
             It is a very important part of an algorithm to choose the right container for the task.
 
@@ -8263,7 +8434,7 @@ int main(int argc, char **argv)
                 This can be done via type erasure techinques.
 
                 But would mean loss of performance because of lots of polymorphic calls
-                and STL is obssessed with performance.
+                and stdlib is obssessed with performance.
 
                 The best solution seems to use typedefs:
 
@@ -8309,7 +8480,7 @@ int main(int argc, char **argv)
             /*
             Base pointers and arrays can be used anywhere iterators can.
 
-            The STL functions have specializations for pointers.
+            The stdlib functions have specializations for pointers.
 
             <http://stackoverflow.com/questions/713309/c-stl-can-arrays-be-used-transparently-with-stl-functions>
             */
@@ -8486,9 +8657,9 @@ int main(int argc, char **argv)
                         T c(a); a=b; b=c;
                     }
 
-                However STL can specialize it to do operations more efficiently.
+                However stdlib can specialize it to do operations more efficiently.
 
-                Some STL classes implement swap as a method.
+                Some stdlib classes implement swap as a method.
 
                 Particularly important because of the copy and swap idiom.
             */
@@ -8722,7 +8893,7 @@ int main(int argc, char **argv)
                 only heap operations over random access data structures.
                 This is why this is under algoritms and is not a data structure of its own.
 
-                There is however a `priority_queue` STL container.
+                There is however a `priority_queue` stdlib container.
 
                 Why random access structure is needed: <https://github.com/cirosantilli/comp-sci/blob/1.0/src/heap.md#array-implementation>
             */
@@ -8815,7 +8986,7 @@ int main(int argc, char **argv)
 
                 Tranform a function that takes two arguments into a function that takes only the first.
 
-                Useful with STL functions that must take functions that take a single argument,
+                Useful with stdlib functions that must take functions that take a single argument,
                 but you want to pass an extra parameter to that function.
 
                 TODO0 get working
@@ -8839,7 +9010,7 @@ int main(int argc, char **argv)
 
             <http://www.cplusplus.com/reference/functional/hash/>
 
-            The STL furnishes overloaded hash functions for STL containers.
+            The stdlib furnishes overloaded hash functions for stdlib containers.
 
             Those functions are implemented as callable classes that implement `()`.
 
@@ -9052,10 +9223,13 @@ int main(int argc, char **argv)
         }
     }
 
-    return EXIT_SUCCESS;
+    /*
+    #main return
 
-    //C++ requires that compilers add an implicit `return 0;
-    //at the end of the main();
+        Like in C99, C++ return can omit the return, in which case it returns 0.
+    */
+
+    return EXIT_SUCCESS;
 
     //global/static destructors happen at exit time
 }

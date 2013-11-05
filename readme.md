@@ -4,7 +4,7 @@ Larger projects may be in separate dirs.
 
 There may be other compiled languages here for which I don't
 have much material for a separate dir, specially when I interface
-that language with c. Ex: fotran.
+that language with C. Ex: Fortran.
 
 Non-portable features shall be clearly separated from portable ones
 in either:
