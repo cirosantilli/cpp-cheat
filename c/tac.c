@@ -36,23 +36,23 @@ The most delicate part of the implementation are the unsigned index manipulation
 
 int main(int argc, char* argv[]) {
   FILE *fp;
-  enum CONSTEXPR { BUF_SIZE = 4 }; // Maximum accepted line length is BUF_SIZE including the newline.
-  char buffer[BUF_SIZE], buffer_leftover[BUF_SIZE];
+  enum Constexpr { buf_size = 4 }; // Maximum accepted line length is buf_size including the newline.
+  char buffer[buf_size], buffer_leftover[buf_size];
   size_t print_up_to, leftover_bytes, file_size, seek_end_offset, nbytes_read;
 
   fp = fopen(argv[1], "r");
   fseek(fp, 0, SEEK_END);
   file_size = ftell(fp);
-  nbytes_read = BUF_SIZE;
+  nbytes_read = buf_size;
   leftover_bytes = 0;
 #ifdef DEBUG_OUTPUT
     printf("file_size = %zu\n", file_size);
 #endif
   // Unsigned type loop: use two variables idiom.
-  for (size_t seek_end_offset = BUF_SIZE; seek_end_offset < file_size + BUF_SIZE; seek_end_offset += BUF_SIZE) {
+  for (size_t seek_end_offset = buf_size; seek_end_offset < file_size + buf_size; seek_end_offset += buf_size) {
     // Last iteration.
     if (seek_end_offset > file_size) {
-        nbytes_read = BUF_SIZE - (seek_end_offset - file_size);
+        nbytes_read = buf_size - (seek_end_offset - file_size);
         seek_end_offset = file_size;
     }
     fseek(fp, -seek_end_offset, SEEK_END);
@@ -84,7 +84,7 @@ int main(int argc, char* argv[]) {
         }
       }
     }
-    if (print_up_to == BUF_SIZE) {
+    if (print_up_to == buf_size) {
       fprintf(stderr, "line too long\n");
       exit(EXIT_FAILURE);
     }

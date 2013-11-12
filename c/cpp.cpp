@@ -4826,8 +4826,6 @@ int main(int argc, char **argv)
 
     //#class
     {
-
-
 #if __cplusplus >= 201103L
         /*
         define class inside function
@@ -5251,13 +5249,11 @@ int main(int argc, char **argv)
 #endif
 
 #if __cplusplus >= 201103L
-
-    //#call one constructor from constructor
-    {
-        CtorFromCtor c(0,1);
-        assert((c.v == std::vector<int>{0, 1}) );
-    }
-
+        //#call one constructor from constructor
+        {
+            CtorFromCtor c(0,1);
+            assert((c.v == std::vector<int>{0, 1}) );
+        }
 #endif
 
 #if __cplusplus >= 201103L
@@ -5347,7 +5343,6 @@ int main(int argc, char **argv)
                 }
             }
         }
-
 #endif
 
         /*
@@ -5812,7 +5807,8 @@ int main(int argc, char **argv)
 
             #prvalue
 
-                In addition to the C99 rvalues and lvalues, the C++11 standard mentions new concepts:
+                In addition to the C99 rvalues and lvalues,
+                the C++11 standard defines new concepts:
 
                 - xvalue
                 - glvalue
@@ -6080,6 +6076,14 @@ int main(int argc, char **argv)
             callStack.clear();
             c.BaseAbstract::methodAmbiguous();
             assert(callStack.back() == "BaseAbstract::methodAmbiguous()");
+
+            /*
+            #virtual inheritance
+
+                <http://en.wikipedia.org/wiki/Virtual_inheritance>
+
+                TODO
+            */
         }
 
         /*

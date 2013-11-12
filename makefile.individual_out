@@ -4,11 +4,14 @@
 
 -include makefile_params
 
-#c/cpp
-CC				?= gcc
-CXX				?= g++
+# c/cpp
+#
+# Don't use the standard names like `CC` and `CXX` to avoid `?=` getting overridden.
+# by the default values.
+MYCC			?= gcc
+MYCXX			?= g++
 CFLAGS			?= -std=c11   -Wall -pedantic-errors -march=native $(CFLAGS_EXTRA)
-CXXFLAGS		?= -std=c++11 -Wall -pedantic-errors -march=native $(CXXFLAGS_EXTRA)
+MYCXXFLAGS		?= -std=c++11 -Wall -pedantic-errors -march=native $(MYCXXFLAGS_EXTRA)
 LIBS			?= -lm #-lGL -lGLU -lglut
 INCLUDE_DIRS 	?= #-I/usr/include
 DEFINES 		?= #-D_XOPEN_SOURCE 700
@@ -51,26 +54,26 @@ OUTS		:= $(addprefix $(OUT_DIR), $(OUTS_NODIR))
 all: mkdir $(OUTS)
 
 $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.c
-	$(CC) $(CFLAGS)    $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) $(INCLUDE_DIRS) -o "$@" "$<" $(LIBS)
+	$(MYCC) $(CFLAGS)    $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) $(INCLUDE_DIRS) -o "$@" "$<" $(LIBS)
 
 $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.cpp
-	$(CXX) $(CXXFLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) $(INCLUDE_DIRS) -o "$@" "$<" $(LIBS)
+	$(MYCXX) $(MYCXXFLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) $(INCLUDE_DIRS) -o "$@" "$<" $(LIBS)
 
 $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.f
 	$(FF) $(FFLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) -o "$@" "$<" $(FFLIBS)
 
 #make assembly intermingled with original c code to stdout
 #TODO0: how not to rewrite the make rules?
-#for bare asm: $(CC) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) $(CFLAGS) -fverbose-asm -S "$(ASSEMBLER_NOEXT)$$EXT"
+#for bare asm: $(MYCC) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) $(CFLAGS) -fverbose-asm -S "$(ASSEMBLER_NOEXT)$$EXT"
 asm: mkdir set_asm_flags
 	for EXT in $(IN_EXTS); do \
 		if [ -f "$(ASSEMBLER_NOEXT)$$EXT" ]; then \
 			case "$$EXT" in \
 				.c)\
-					$(CC) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) $(CFLAGS) -c -fverbose-asm -Wa,-adhln "$(ASSEMBLER_NOEXT)$$EXT" $(LIBS)\
+					$(MYCC) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) $(CFLAGS) -c -fverbose-asm -Wa,-adhln "$(ASSEMBLER_NOEXT)$$EXT" $(LIBS)\
 					;;\
 				.cpp)\
-					$(CXX) $(CXXFLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) -c -fverbose-asm -Wa,-adhln "$(ASSEMBLER_NOEXT)$$EXT" $(LIBS)\
+					$(MYCXX) $(MYCXXFLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) -c -fverbose-asm -Wa,-adhln "$(ASSEMBLER_NOEXT)$$EXT" $(LIBS)\
 					;;\
 				.f)\
 					;;\

@@ -21,21 +21,26 @@ Small comments on comparing ANSI C with extensions are acceptable.
 
         Quite readable, and fun to find obscure features which you had never heard of before!
 
+    - <http://locklessinc.com/articles/obscurec/>
+
+        Obscure only stuff. Cool.
+
 #motivation
 
     C is amazingly important as it is used to implement:
 
-    - linux kernel
-    - windows kernel
-    - python and ruby reference implementation
+    - Linux kernel
+    - Windows kernel
+    - Python and Ruby reference implementations
     - opengl
 
     And the list goes on and on...
 
-    The reason for this is that c:
+    The reason for this is that C:
 
     - is quite low level, so you can do low level things other languages can't
     - is low level, so it can be very fast (if you program it correctly)
+    - is robust and easy to understand.
 
 #standards
 
@@ -140,6 +145,17 @@ Small comments on comparing ANSI C with extensions are acceptable.
 
         Name for the gnu implementation of the c standard library
 
+#K&R #The C Programming Language
+
+    <http://en.wikipedia.org/wiki/The_C_Programming_Language>
+
+    First edition 1978.
+
+    De facto standard for the C language and style for many years.
+
+    You will still hear about it in discussions, or even to describe some ANSI C
+    concepts like K&R function declaration.
+
 #libs
 
     this section is a list of whose main interface is c or which have a good c interface
@@ -156,7 +172,7 @@ Small comments on comparing ANSI C with extensions are acceptable.
 
         - c++11 supports it, c++03 not
 
-        - openMP is is a library supported on C, C++, fortran, windows, linux macos
+        - openMP is is a library supported on C, C++, Fortran, Windows, Linux MacOS
 
 #compilers
 
@@ -339,22 +355,19 @@ int debugVar;
     void print_array(int **mat, int m, int n)
     {
         int i, j;
-        for (i = 0; i < m; i++)
-        {
-            for (j = 0; j < n; j++)
-            {
+        for (i = 0; i < m; i++) {
+            for (j = 0; j < n; j++) {
                 printf("%d ", mat[i][j]);
             }
             printf("\n");
         }
     }
 
-/*
 int goto_func(int i) {
-    goto goto_func_after;
+    /*goto goto_func_after;*/
+    in_func_label:
     return 1;
 }
-*/
 
 int setjmp_func(bool jmp, jmp_buf env_buf)
 {
@@ -430,6 +443,23 @@ int setjmp_func(bool jmp, jmp_buf env_buf)
 
             int decl_and_int_func(), decl_and_int;
             int decl_and_int_func(){ return 0; }
+
+        int k_and_r(a, p)
+            int a;
+            char *p;
+        {
+            return 0;
+        }
+
+        /* The "[*]" declaration syntax is possible to avoid naming parameters. */
+        void vla_arg(size_t, int vla[*]);
+        void vla_arg(size_t size, int vla[size]) {}
+
+        void vla_arg_k_and_r(size, vla)
+            //int vla[size]; //ERROR: must come after
+            size_t size;
+            int vla[size];
+        {}
 
     /*
     #overload
@@ -834,167 +864,122 @@ int setjmp_func(bool jmp, jmp_buf env_buf)
         return res;
     }
 
-//#file io
+//file io
 
-    void report_cant_open_file (char * path){
-        fprintf(stderr, "could not read from:\n%s\n", path);
-    }
-
-    void report_cant_read_file (char * path){
-        fprintf(stderr, "could not read from:\n%s\n", path);
-    }
-
-    void report_cant_move_file (char * path){
-        fprintf(stderr, "could not move in file:\n%s\n", path);
-    }
-
-    void report_cant_write_file (char * path){
-        fprintf(stderr, "could not write to:\n%s\n", path);
-    }
-
-    void report_cant_close_file (char * path){
-        fprintf(stderr, "could not close from:\n%s\n", path);
-    }
-
-    void report_cant_allocate_file (size_t bytes){
-        fprintf(stderr, "could not allocate %zu bytes", bytes);
-    }
-
-    //opens file at given path, calculates its size, and closes and returns size
-    long file_size_open(char *path)
-    {
-        FILE *fp = fopen(path, "r");
-        if (fp == NULL){
-            report_cant_open_file(path);
-            return -1L;
-        }
-        if (fseek (fp, 0 , SEEK_END) != 0){
-            report_cant_move_file(path);
-            return -1L;
-        }
-        long l = ftell (fp);
-        if (l == -1L){
-            report_cant_move_file(path);
-            return -1L;
-        }
-        if (fclose(fp) == EOF){
-            report_cant_close_file(path);
-            return -1L;
-        }
-        return l;
-    }
-
-    //returns the size of the given open file pointer
-    long file_size(FILE *fp)
-    {
-
-        long oldpos = ftell (fp);
-        if (oldpos == -1L){
-            return -1L;
-        }
-
-        if (fseek (fp, 0 , SEEK_END) != 0){
-            return -1L;
-        }
-
-        long l = ftell (fp);
-        if (l == -1L){
-            return -1L;
-        }
-
-        //retore old position
-        if (fseek (fp, oldpos , SEEK_SET) != 0){
-            return -1L;
-        }
-
-        return l;
-
+    /*
+    Standard action to take in case of an IO error.
+    */
+    void io_error(char *function, char *path){
+        fprintf(stderr, "eror: %s errno = %d, path = %s\n", function, errno, path);
+        exit(EXIT_FAILURE);
     }
 
     /*
-    reads the entire file to a char[]
+    Returns the size of the given open `FILE*`.
 
-    returns a pointer to the start of that array
+    If an error occurs, returns `-1L`.
 
-    memory is dynamically allocated, so caller must free it!
-
-    if any problem happens, returns NULL
+    Does not work for pipes.
     */
-    char * file_read(char *path)
+    long fget_get_file_size(FILE *fp)
     {
-        FILE * fp;
-        long l;
-        char * buffer;
-        size_t bytes;
+        long oldpos;
+        long return_value;
+        oldpos = ftell(fp);
+        if (oldpos == -1L) {
+            return -1L;
+        }
+        if (fseek(fp, 0, SEEK_END) != 0) {
+            return -1L;
+        }
+        return_value = ftell(fp);
+        if (return_value == -1L) {
+            return -1L;
+        }
+        //retore old position
+        if (fseek(fp, oldpos , SEEK_SET) != 0) {
+            return -1L;
+        }
+        return return_value;
+    }
 
+    /*
+    Same as `get_file_size`, but takes the path instead of a `FILE*`.
+    */
+    long get_file_size(char *path)
+    {
+        FILE *fp;
+        long retur_value;
+        fp = fopen(path, "r");
+        if (fp == NULL){
+            return -1L;
+        }
+        retur_value = fget_get_file_size(fp);
+        if (fclose(fp) == EOF){
+            return -1L;
+        }
+        return retur_value;
+    }
+
+    /*
+    Read the entire file to a char[] dynamically allocated inside this function.
+
+    Returns a pointer to the start of that array.
+
+    In case of any error, returns NULL.
+
+    The entire file must fit into the memory avilable to the program.
+    */
+    char *file_read(char *path)
+    {
+        FILE *fp;
+        char *buffer;
+        long fsize;
         fp = fopen (path , "rb");
         if (fp==NULL) {
-            report_cant_open_file(path);
             return NULL;
         }
-
-        // obtain file size:
-        l = file_size(fp);
-        if (l < 0){
+        fsize = fget_get_file_size(fp);
+        if (fsize < 0){
             fprintf(stderr, "could not determine lenght of:\n%s\n", path);
             return NULL;
         }
-
-        // allocate memory to contain the whole file:
-        bytes = sizeof(char)*l;
-        buffer = (char*) malloc (bytes);
+        buffer = (char*)malloc(fsize);
         if (buffer == NULL) {
-            report_cant_allocate_file(bytes);
             return NULL;
         }
-
-        // copy the file into the buffer:
-        if (fread (buffer,1,l,fp) != l) {
-            report_cant_read_file(path);
+        if (fread (buffer, 1, fsize, fp) != fsize) {
             return NULL;
         }
-
-        /* the whole file is now loaded in the memory buffer. */
-
-        if (EOF == fclose (fp)){
-            report_cant_close_file(path);
+        if (fclose(fp) == EOF){
             return NULL;
         }
-
         return buffer;
     }
 
     /*
-    write null terminated string to file
+    Write null terminated string to file
 
-    returns -1 on fail
+    Returns `-1` on failulre, 1 on success.
     */
-    int file_write(char *path, char *s)
+    int file_write(char *path, char *write_string)
     {
-        FILE * fp;
-        long l;
-        char * buffer;
-        size_t bytes;
+        long len;
+        char *buffer;
+        FILE *fp;
 
-        fp = fopen (path , "wb");
-        if (fp==NULL) {
-            report_cant_open_file(path);
+        fp = fopen(path, "wb");
+        if (fp == NULL) {
             return -1;
         }
-
-        l = strlen(s);
-
+        len = strlen(write_string);
         // copy the file into the buffer:
-        if (fwrite (s,1,l,fp) != l) {
-            report_cant_write_file(path);
+        if (fwrite(write_string, 1, len, fp) != len) {
             return -1;
         }
-
-        if (EOF == fclose (fp)){
-            report_cant_close_file(path);
+        if (fclose(fp) == EOF) {
             return -1;
         }
-
         return 0;
     }
 
@@ -1010,21 +995,17 @@ int setjmp_func(bool jmp, jmp_buf env_buf)
         int i;
         FILE * fp = fopen(path,"w");
 
-        if (fp == NULL)
-        {
-            report_cant_open_file(path);
+        if (fp == NULL) {
             return -1;
         }
 
         for(i=0; i<len; i++){
             if (fprintf(fp,"%d ", arr[i]) < 0){
-                report_cant_write_file(path);
                 return -1;
             }
         }
 
         if (EOF == fclose (fp)){
-            report_cant_close_file(path);
             return -1;
         }
 
@@ -1040,20 +1021,17 @@ int setjmp_func(bool jmp, jmp_buf env_buf)
 
         fp = fopen(path,"w");
         if (fp == NULL){
-            report_cant_open_file(path);
             return -1;
         }
 
         for(i=0; i<len; i++){
             /*if (fprintf(fp,format, arr[i]) < 0){*/
             if (fprintf(fp,"%.*e", precision, arr[i]) < 0){
-                report_cant_write_file(path);
                 return -1;
             }
         }
 
         if (EOF == fclose (fp)){
-            report_cant_close_file(path);
             return -1;
         }
 
@@ -1374,7 +1352,7 @@ int main(int argc, char **argv)
             { unsigned long long ulli = 1llu; }
             { unsigned long long ulli = 1LLU; }
 
-            //we do not recommend those unless you are into code obfsucation:
+            //The following are not recommended unless you are into code obfsucation:
 
                 { unsigned long uli = 1Lu; }
                 { unsigned long uli = 1lU; }
@@ -1407,6 +1385,22 @@ int main(int argc, char **argv)
 
             //binary: no ANSI way
         }
+
+        /*
+        #integer representation
+
+            C does not fix the binary representation for integers,
+            it only states which properties represenations must have.
+
+            As an example, the C standard explicitly mentions that the following
+            representations (but there may be more) are compatible with the standard:
+
+            - 2’s complement
+            - 1’s complement
+            - signed magnitude
+
+            <http://stackoverflow.com/questions/12125650/what-do-the-c-and-c-standards-say-about-bit-level-integer-representation-and-m>
+        */
     }
 
     //#floating point types and literals
@@ -1473,43 +1467,6 @@ int main(int argc, char **argv)
         Great source: <www.drdobbs.com/the-new-c-compound-literals/184401404>
     */
     {
-        //int useless examples
-        {
-            int i;
-
-            i = (int){ 1 };
-            assert(i == 1);
-
-            i = (int){ 1 } + (int){ 1 };
-            assert(i == 2);
-
-            //any expression is fine
-            {
-                i = 0;
-                i = (int){ i + 1 };
-                assert(i == 1);
-            }
-        }
-
-        /*
-        address
-
-            Compound literals yield lvalues.
-
-            It is possible to take the address of compound literals.
-
-            Unlike string literals, array literals can be modified.
-
-            This means that the compound literal is an unnamed stack variable,
-            and takes stack space.
-        */
-        {
-            int *ip;
-            ip = &(int){ 1 };
-            ip[0]++;
-            assert(*ip == 2);
-        }
-
         //#compound literals for arrays
         {
             int *is;
@@ -1529,12 +1486,49 @@ int main(int argc, char **argv)
             is = (int[2]){ 1 };
             assert(is[0] == 1);
             assert(is[1] == 0);
+
+            //Major application: pass initialized arrays and structs to functions.
+            {
+                func_array((int[]){ 1 });
+                func_struct_1((struct func_struct){ .i = 1 });
+            }
         }
 
-        //Major application: pass initialized arrays and structs to functions.
+        /*
+        address
+
+            Compound literals yield lvalues.
+
+            It is possible to take the address of compound literals.
+
+            Unlike string literals, array literals can be modified.
+
+            This means that the compound literal is an unnamed stack variable,
+            and takes stack space.
+        */
         {
-            func_array((int[]){ 1 });
-            func_struct_1((struct func_struct){ .i = 1 });
+            int *ip;
+            ip = &(int){1};
+            ip[0]++;
+            assert(*ip == 2);
+        }
+
+        //int useless examples
+        {
+            int i;
+
+            i = (int){1};
+            assert(i == 1);
+
+            i = (int){1} + (int){1};
+            assert(i == 2);
+
+            // Any expression is fine
+            {
+                i = 0;
+                i = (int){i + 1};
+                assert(i == 1);
+            }
         }
 
         //struct: see compound literal for struct
@@ -1550,7 +1544,7 @@ int main(int argc, char **argv)
         {
             int *p;
             {
-                p = (int []){1, 2};
+                p = (int[]){1, 2};
                 assert(p[0] == 1);
             }
             //assert(p[0] == 1); //BAD *p is undefined
@@ -1630,103 +1624,93 @@ int main(int argc, char **argv)
     }
 
     /*
-    #overflow
-
-        there is no automatic overflow check on operations
-        except at initialization and assignment by constants
-        at compile time.
-
-        therefore, is something overflows,
-        it just silently fails overflows, possibly causing a hard to find bug
-
-        there is no check because that would cost time on every basic operation.
-    */
-    {
-
-        //char c = 256;
-        //char c = 255+1;
-        //unsigned char c = 257;
-            //WARN
-
-        //lli = 0x10000000000000000;
-            //WARN constant too large (even for long long, the largest type)
-
-        //char c = 255;
-        //c++;
-            //WARN
-
-        assert(1.00000000000000000000000000000000000000000000001 == 1.0);
-            //OK
-            //lost of precision is not checked
-    }
-
-    /*
     #typecast
 
-        transformation of one datatype to another
+        Transformation of one datatype to another.
 
-        can be done either implicitly or explicitly via a typecast operator
+        Can be done either implicitly or explicitly via a typecast operator.
 
-        some convertions may be possible to do implicitly
+        Some convertions may be possible to do implicitly
         but generate compiler warnings when done implicitly.
-        this may depend on the compilation flags used
+        this may depend on the compilation flags used.
 
-        some convertions always generate compilation errors.
-
-        TODO understand this better
+        Some convertions always generate compilation errors.
     */
     {
-        //#typecasts with data modification
+        // Implicit typecasts done on operations
+        {
+            // On assignment, the value is cast to the type of the variable assigned to.
+            {
+                int i;
+                // A typecast to int is done because `i` is `int`.
+                i = 0.1;
+                // SAME:
+                i = (int)0.1;
+                assert(i == 0);
+            }
 
-            //some typecasts are possible, but may alter the data to fit the new type
+            // If an operation involves an integer type and a floating type,
+            // TODO the integer type is cast to the floating type.
+            {
+                assert(1/2 == 0);
+                assert(1/2.0 == 0.5);
 
-            //doubles are rounded down on typecast to int:
+                // Typecasts happen on the same order that the operations are evaluated.
+                assert(2.0*(1/2) == 0.0);
+                assert((2.0*1)/2 == 1.0);
+            }
 
-                assert((int)0.1 == 0);
+            // If an operation involves a smaller integer type and a larget integer type
+            // TODO the smaller type is first cast to the larger type
+            {
+                assert((char)CHAR_MAX + 1 == ((int)(char)CHAR_MAX + 1));
+            }
+        }
 
-            //however doubles that are too large to in the int are silently TODO what happens exactly
+        // integers and floating point types.
+        {
+            // float to int rounds towards 0.
+            {
+                assert((int)0.5 == 0);
+                assert((int)-0.5 == 0);
+            }
 
-                printf("typecast 1e10 = %d\n", (int)1e2);
-                printf("typecast 1e100 = %d\n", (int)1e100);
+            // int to float can cause loss of precision if the int does not fit
+            // in the fp mantissa.
+            {
+            }
+        }
 
-            //so don't rely on typecasting for rounding!
+        // Typecasts without data modification
+        {
+            //Integer type to larger integer type (int -> long)
+            {
+                int i = 1;
+                assert((int)(long)i == i);
+            }
 
-            //implicit typecast based on the variable type:
+            // Floating type to larger floating type (float -> double)
+            {
+                float f = 1.0f;
+                assert((float)(double)f == f);
+            }
 
-                {
-                    int i;
-                    i = 0.1;
-                    assert(i == 0);
-                }
+        }
 
-            //once again, the double is rounded down
+        // Typecast of a value outside of range is undefined behaviour
+        // (could return any value or raise any signal).
+        if (0) {
+            unsigned char uc = 256;
 
-            //long to int: there may be loss of precision if the long is too large to fit into the int
+            char c = 1e1000;
+        }
 
-                //assert((int) 0xFFFFFFFFFFL != 0xFFFFFFFFFF);
-
-            //it is not possible to be sure about the exact values since the size of ints and longs
-            //is not fixed by ANSI, but they can happen!
-
-        //#typecasts without data modification
-
-            //if you convert a type to a type that is similar (floating point -> floating point)
-            //but larger in size, there will be no modification of the data
-
-            //int to long:
-
-                assert((long) 1 == 1L);
-
-            //float to double:
-
-                assert((double) 1.0f == 1.0);
-
-            //array to pointer of same type:
-
-                {
-                    int is[3];
-                    int* ip = (int*)is;
-                }
+        // Array to pointer of same type:
+        {
+            int is[] = {0, 1, 2};
+            int *is2 = is;
+            assert(is2[0] == 0);
+        }
 
         //#impossible typecats
         {
@@ -1768,6 +1752,104 @@ int main(int argc, char **argv)
                 //    int is2[2];
                 //    is2 = (int[])is1;
                 //}
+        }
+    }
+
+    /*
+    #overflow
+
+        Overflow has two meanings:
+
+        - mathemtaical definition: making an operation in which the result
+            is larger than the maximum value or smaller than the minimum value.
+
+            This is the more common meaning of the term *overflow* outside of this context.
+
+            In this section this will be called *mathematical overflow*.
+
+            There is no automatic overflow check on operations
+            except at initialization and assignment by constants
+            at compile time.
+
+            Operations that can overflow mathematically but never overflow include:
+
+            - unsigned integer sum or multiplication
+
+        - flag definition: raising the overflow FLAG on a x86 processor or analogous.
+
+            This is the meaning of overflow in the ANSI C definition.
+
+            Therefore, in this section this will be called simply *overflow*.
+
+            Overflow always implies undefined behaviour. This could include a program crash!
+
+            Therefore, is something overflows,
+            it just silently overflows, possibly causing a hard to find bug.
+
+            Operations that may overflow include:
+
+            - signed integer sum or multiplication
+
+            Since this kind of overflow modifies an observable processor state,
+            it is possible for compilers to detect this situation.
+
+        Flag overflow always implies mathematical overflow, but not the converse.
+        For instance, unsigned integer overflow never raises the overflow flag of an x86
+        processor: it just wraps around.
+        Therefore, unsigned integer multiplication never overflows.
+
+        #gcc overflow specifics
+
+            gcc 4.8 is smart enough to warn in many cases with `-Woverflow`:
+            which is part of `-Wall`. We have turned it off so it wont annoy us on our tests.
+
+            `-ftrapv` causes gcc to detect an overflow and raise a `SIGABRT`,
+            this making their behaviour defined.
+    */
+    {
+        //integer overflow
+        {
+            // The same holds true for unsigned integer type.
+            {
+                unsigned int ui;
+                ui = UINT_MAX + 1;
+                assert(ui == 0);
+            }
+
+            // This could crash due to undefined behaviour.
+            if (0) {
+                int i;
+                i = INT_MAX + 1;
+                printf("signed integer sum overflow = %x\n", i);
+            }
+
+            // Detect if integer sum overflow would happen
+            // http://stackoverflow.com/questions/199333/best-way-to-detect-integer-overflow-in-c-c
+
+            // Unsigned multiplication does modulo:
+            {
+                unsigned char uc = 255;
+                uc *= 2;
+                assert(uc == 254);
+            }
+
+            // Signed multiplication undefined.
+            // This could crash due to undefined behaviour.
+            if (0) {
+                char c = 0x8FFF;
+                c *= -2;
+                printf("char 0x8FFF * -2 = %x\n", c);
+            }
+
+            // Detect if integer multiplication overflow would happen:
+            //http://stackoverflow.com/questions/1815367/multiplication-of-large-numbers-how-to-catch-overflow
+        }
+
+        //floating point
+        {
+            // TODO what happens? how to detect?
+
+            assert(1.00000000000000000000000000000000000000000000001 == 1.0);
         }
     }
 
@@ -2142,26 +2224,43 @@ int main(int argc, char **argv)
     /*
     #typedef
 
-        create new types based on old ones
+        Create new types based on old ones
 
-        on libc, convention append `_t` to typedefs is used
-        ex: `size_t`, `wchar_t`, etc
+        On libc, the convention append `_t` to typedefs is used
+        ex: `size_t`, `wchar_t`, etc.
 
-        some of those macros are defined to be strcitly integer types (like size_t)
+        Some of those macros are defined to be strcitly integer types (like size_t)
         while others can be either integer or floating points according to the implementation.
 
-        to print integer typedefs such with `printf`, see `printf`
+        To print integer typedefs such with `printf`, see `printf`.
     */
     {
 
         {
-            typedef int NEWINT;
-            NEWINT i = 1;
-            assert(sizeof(NEWINT) == sizeof(int));
+            typedef int Newint;
+            Newint i = 1;
+            assert(sizeof(Newint) == sizeof(int));
         }
 
-        //NEWINT i = 1;
-            //typedef has scope
+
+        //ERROR: unlike macros, typedef has scope just like that of variables:
+
+            //Newint i = 1;
+
+        /*
+        typedef position is very flexible.
+
+        Only use the first though if you want to be sane.
+        */
+        {
+            typedef unsigned int uint;
+            unsigned typedef int vint;
+            unsigned int typedef wint;
+
+            /* This is the only one that fails: */
+
+                /*unsigned int xint typedef;*/
+        }
     }
 
     //#enum
@@ -2853,7 +2952,8 @@ int main(int argc, char **argv)
         <http://stackoverflow.com/questions/3575350/sequence-points-in-c>
         <http://stackoverflow.com/questions/4176328/undefined-behavior-and-sequence-points>
 
-        Some language features force side effects of an expression evaluation to happen before continuing while others don't.
+        Some language features force side effects of an expression evaluation
+        to happen before continuing while others don't.
 
         A typical example of a side effect is the increment of `i` on `i++`,
         being the main effect the returning of the value of `i` before the increment.
@@ -2972,18 +3072,23 @@ int main(int argc, char **argv)
         }
 
         /*
-        comma operator introduces a sequence point
+        Comma operator introduces a sequence point.
         */
         {
             int i = 0;
             assert((i++, i++) == 1);
         }
 
+        /* declarators in declarator sequence instroduce sequence points */
+        {
+            int i = 0, j = i;
+            assert(j == 0);
+        }
+
         /*
-        boolean operators `||` and `&&` introduces a sequence point
+        Boolean operators `||` and `&&` introduce a sequence point.
         */
         {
-
             /*
             The following happens:
 
@@ -3009,13 +3114,45 @@ int main(int argc, char **argv)
     {
         //#arithmetic
         {
-            assert((1 + 2)         == 3  );
-            assert((2 * 3)         == 6  );
-            assert((4 / 2)         == 2  );
-            assert((1 / 2)         == 0  );
-            assert((1.0 / 2.0)     == 0.5);
-            assert((1 / 2.0)       == 0.5);
-            assert((1 / (double)2) == 0.5);
+            assert((1 + 2) == 3 );
+            assert((2 * 3) == 6 );
+
+            /*
+            #division
+
+                Division is the most complex of the basic operations.
+
+                Integer division and floating point division are different
+                operations, which translate to different CPU instructions!
+
+                Remember that if an operation involves a floating point and an integer,
+                C first casts the integer type to a floating point type, then does
+                the floating point operation.
+
+                Division by `0` leads to different problems, which are also different
+                on the floating point and integer cases.
+
+            #INT_MIN / -1
+
+                `INT_MIN / -1` is undefined in 2's complement,
+                and 2's complement is explicitly said to be compliant to the C
+                integer representation standard.
+            */
+            {
+                assert((4 / 2)         == 2  );
+
+                /* integer division */
+                assert((1 / 2)         == 0  );
+
+                /* floating poitn division */
+                assert((1.0 / 2.0)     == 0.5);
+
+                /* floating poitn division. `1` is cast to `double` point */
+                assert((1 / 2.0)       == 0.5);
+
+                /* same as above */
+                assert((1 / (double)2) == 0.5);
+            }
 
             assert((3 % 3) == 0);
             assert((4 % 3) == 1);
@@ -3085,18 +3222,35 @@ int main(int argc, char **argv)
             assert(((char)0xFF ^ (char)0x00) == (char)0xFF);
             assert(((char)0xFF ^ (char)0xFF) == (char)0x00);
 
-            //#shift
-            assert((1 << 0) == 1);
-            assert((1 << 1) == 2);
-            assert((1 << 2) == 4);
-            assert((1 << 3) == 8);
+            /*
+            #shift operators
 
-            assert((8 >> 0) == 8);
-            assert((8 >> 1) == 4);
-            assert((8 >> 2) == 2);
-            assert((8 >> 3) == 1);
-            assert((8 >> 4) == 0);
-            assert((5 >> 1) == 2);
+                Low level bit shifting.
+
+                Undefined behaviour occurs if *any* of the inputs is signed.
+
+                For the right input, the result would
+                depend on which integer representation is being used,
+                which is not fixed by the C standard.
+            */
+            {
+                assert((1u << 0u) == 1u);
+                assert((1u << 1u) == 2u);
+                assert((1u << 2u) == 4u);
+                assert((1u << 3u) == 8u);
+
+                assert((8u >> 0) == 8u);
+                assert((8u >> 1) == 4u);
+                assert((8u >> 2) == 2u);
+                assert((8u >> 3) == 1u);
+                assert((8u >> 4) == 0u);
+                assert((5u >> 1) == 2u);
+
+                /* Undefined behaviour, likely warnings: */
+
+                    /*printf("2u << -1 = %d\n", 2u << -1);*/
+                    /*printf("-1 << 1u = %d\n", -1 << 1u);*/
+            }
         }
 
         /*
@@ -3275,23 +3429,46 @@ int main(int argc, char **argv)
         }
 
         /*
-        #question mark #?
+        #ternary operator #question mark #?
 
-            The ternary conditional operator.
+            Called ternary operator since it is the only operator that
+            takes 3 inputs.
+
+            It seems that the only use for the ternary operator is writing less,
+            so it is completely redundant with and if else:
+            <http://stackoverflow.com/questions/758849/the-ternary-conditional-operator-in-c>
         */
         {
             assert((1 < 2 ? 3 : 4) == 3);
             assert((1 > 2 ? 3 : 4) == 4);
+
+            /* The ternary operator can also yield lvalues. */
+            {
+                int x = 0, y = 1, *xp = &x, *yp = &y;
+                *(1 ? xp : yp) = 10;
+                assert(x == 10);
+            }
+
+            /* The possible to initialize consts with the ternary operator. */
+            {
+                const int i = 0 ? 1 : 2;
+                char *s = 0 ? "a" : "b";
+            }
         }
 
         /*
         #comma operator
 
-            almost useless
+            Obscure and almost useless C operator.
         */
         {
-            //comma here is separator, not operator. same comma in functions calls/defs:
-            int i=0, a=1, b=2, c=3;
+            /*
+            Commas here are part of the declarator sequence,
+            just like in functions calls/defs. They are not
+            comma operators!
+            */
+
+                int i=0, a=1, b=2, c=3;
 
             /*
             ignores values on left
@@ -3299,8 +3476,9 @@ int main(int argc, char **argv)
 
             BAD: operations on left has no effect
             */
-            assert((i = 0, 1       ) == 1);
-            assert((i = 0, i = 1, 2) == 2);
+
+                assert((i = 0, 1       ) == 1);
+                assert((i = 0, i = 1, 2) == 2);
 
             /*
             assign has precedence over comma
@@ -3757,27 +3935,51 @@ int main(int argc, char **argv)
             }
 
 #if __STDC_VERSION__ >= 199901L
-
             /*
             #vla #variable length array
 
                 C99
 
-                implementation:
+                Implementation:
 
                 - increase/decrease stack pointer
                 - requires one addition and one multiplication per declaration
+
+                Pros and cons:
+                <http://stackoverflow.com/questions/3082126/c99-faq-and-variable-length-arrays>
             */
             {
+                srand(time(NULL));
+                int size = 1 + (rand() % 10);
+                int vla[size];
+
+                /* sizeof is evaluated at runtime for VLAs */
+                assert(sizeof(vla) == size * sizeof(int));
+
+                /*
+                VLAs can be passed to functions.
+
+                <http://stackoverflow.com/questions/17371645/parameter-of-a-function?lq=1>
+                */
                 {
-                    int n = 2;
-                    //scanf("%d", &n);
-                        //OK
-                    int isVla[n];
+                    size_t size = 2;
+                    int vla[size];
+                    vla_arg(size, vla);
+                }
+
+                /*
+                If the size must come after the vla (for example, to interface witha FORTRAN
+                interface that does so), the only possibility is to use K&R function definition syntax!
+
+                This is one of the very few application of K&R syntax to C99.
+                */
+                {
+                    size_t size = 2;
+                    int vla[size];
+                    vla_arg_k_and_r(vla, size);
                 }
             }
         }
-
 #endif
 
         //pointers and arrays are different
@@ -3848,18 +4050,15 @@ int main(int argc, char **argv)
 
             Unspecified behaviour.
             */
-            if (0)
-            {
+            if (0) {
                 srand(time(NULL));
                 i = rand() % 2;
                 printf("overflow = %d\n", is[2 + i]);
             }
 
             //this will amost certainly lead to a segmentation fault
-            if (0)
-            {
-                for (size_t i = 0; i < SIZE_MAX; i++)
-                {
+            if (0) {
+                for (size_t i = 0; i < SIZE_MAX; i++) {
                     is[i] = 0;
                     //j = is[i];
                 }
@@ -3890,7 +4089,7 @@ int main(int argc, char **argv)
             assert(memcmp(is, is2, 3 * sizeof(int)) > 0);
 
 #if __STDC_VERSION__ >= 199901L
-            //C99 compound literals compare
+            /* memcmp with compound literals. */
             {
                 int is[] = { 2, 0, 1 };
                 assert(memcmp(is, &(int [3]){ 2, 0, 1 }, 3 * sizeof(int)) == 0);
@@ -4242,7 +4441,6 @@ int main(int argc, char **argv)
                     snprintf(cs2, 3, "%s", cs);
                     assert(strcmp(cs2, "12") == 0);
                 }
-
 #endif
 
                 /*
@@ -4259,6 +4457,11 @@ int main(int argc, char **argv)
                 #strcpy
 
                     Copy one string (up to first '\0') into another location.
+
+                    If they overlap, undefined behaviour.
+
+                    Could be more efficient than a for loop since it could
+                    tell the compiler to use a better specialized instruction.
                 */
                 {
                     char cs[] = "abc";
@@ -4266,12 +4469,11 @@ int main(int argc, char **argv)
                     char cs3[1];
 
                     strcpy(cs2, cs);
-                        //more efficient than for loop
                     strcpy(cs2, "abc");
-                        //OK
-                    //strcpy(cs3, "abc");
-                        //BAD
-                        //no born checking as always
+
+                    //BAD: no born checking as always
+
+                        //strcpy(cs3, "abc");
                 }
 
                 /*
@@ -4352,6 +4554,19 @@ int main(int argc, char **argv)
                         }
                     }
                 }
+
+
+                /*
+                #split
+
+                    See strtok
+
+                #strtok
+
+                    split string at a given character sequence.
+
+                    <http://en.cppreference.com/w/c/string/byte/strtok>
+                */
 
                 /*
                 #ctype.h
@@ -4515,8 +4730,7 @@ int main(int argc, char **argv)
             //scope
             {
                 int i = 0;
-                if (1)
-                {
+                if (1) {
                     int i = 1;
                     assert(i == 1);
                 }
@@ -4605,6 +4819,39 @@ int main(int argc, char **argv)
                     break;
                 }
             }
+
+            /*
+            - case statements are just like GOTO labels
+            - break is like a jump
+            - each case does not need a corresponding break
+            - and switch statements can contain any other construct like `if` or `while`
+                even outside of a case break pair.
+
+            The major application of this is to impress your friends
+            with your mastery of C obscurantism.
+
+            However there is a classic optimization trick that relies on that:
+            <http://en.wikipedia.org/wiki/Duff%27s_device>
+
+            #duffs device
+            */
+            {
+                int i = 0;
+                switch (2) {
+                    while (i < 2) {
+                    label_switch_in_while:
+                    case 0:
+                        i++;
+                    }
+                    case 1:
+                        i++;
+                        break;
+                    case 2:
+                        goto label_switch_in_while;
+                }
+                printf("%d\n", i);
+                assert(i == 3);
+            }
         }
 
         /*
@@ -4632,8 +4879,7 @@ int main(int argc, char **argv)
 
                 int i;
                 int is[] = { 0, 1, 2 };
-                for (i = 0; i < 3; ++i)
-                {
+                for (i = 0; i < 3; ++i) {
                     assert(i == is[i]);
                     int i;
                         //OK new scope
@@ -4657,8 +4903,7 @@ int main(int argc, char **argv)
             // Putting `int i = 0` inside for is only possible in C99.
             {
                 int is[] = {0, 1, 2};
-                for (int i = 0; i < 3; ++i)
-                {
+                for (int i = 0; i < 3; ++i) {
                     assert(i == is[i]);
                     //int i;
                         //ERROR
@@ -4671,8 +4916,7 @@ int main(int argc, char **argv)
             {
                 int is[] = {0, 1, 2};
                 int js[] = {0, 1, 2};
-                for (int i = 0, j = 0; i * j < 5; i++, j++)
-                {
+                for (int i = 0, j = 0; i * j < 5; i++, j++) {
                     assert(i == is[i]);
                     assert(i == js[i]);
                 }
@@ -4683,10 +4927,8 @@ int main(int argc, char **argv)
                 int n = 0;
                 int is[] = {0, 0, 1, 1};
                 int js[] = {0, 1, 0, 1};
-                for (int i = 0; i < 2; i++)
-                {
-                    for (int j = 0; j < 2; j++)
-                    {
+                for (int i = 0; i < 2; i++) {
+                    for (int j = 0; j < 2; j++) {
                         assert(i == is[n]);
                         assert(j == js[n]);
                         n++;
@@ -4702,8 +4944,7 @@ int main(int argc, char **argv)
                 int js[] = {0, 2, 4};
                 int js2[] = {1, 3};
                 int j = 0;
-                for (int i = 0; i < n; i += step)
-                {
+                for (int i = 0; i < n; i += step) {
                     assert(js[j] == is[i]);
                     if (i < n - step + 1)
                         assert(js2[j] == is[i + 1]);
@@ -4717,8 +4958,7 @@ int main(int argc, char **argv)
                 int is[] = { 0, 1, 2 };
                 int js[] = { 2, 1, 0 };
                 int j = 0;
-                for (int i = n - 1; i >= 0; --i)
-                {
+                for (int i = n - 1; i >= 0; --i) {
                     assert(is[i] == js[j]);
                     j++;
                 }
@@ -4739,8 +4979,7 @@ int main(int argc, char **argv)
                         int is[] = { 0, 1, 2 };
                         int js[] = { 2, 1, 0 };
                         int j = 0;
-                        for (unsigned int i = n - 1; i >= 0; --i)
-                        {
+                        for (unsigned int i = n - 1; i >= 0; --i) {
                             assert(is[i] == js[j]);
                             j++;
                         }
@@ -4753,8 +4992,7 @@ int main(int argc, char **argv)
                     {
                         unsigned int n = 3;
                         int is[] = { 0, 1, 2 };
-                        for (unsigned int i_fake = n; i_fake > 0; --i_fake)
-                        {
+                        for (unsigned int i_fake = n; i_fake > 0; --i_fake) {
                             unsigned int i = i_fake - 1;
                             assert(is[i] == i);
                         }
@@ -4767,8 +5005,7 @@ int main(int argc, char **argv)
                     {
                         unsigned int n = 3;
                         int is[] = { 0, 1, 2 };
-                        for (unsigned int i = n - 1; i < n; --i)
-                        {
+                        for (unsigned int i = n - 1; i < n; --i) {
                             assert(i == is[i]);
                         }
                     }
@@ -4782,8 +5019,7 @@ int main(int argc, char **argv)
                     {
                         unsigned int n = 3;
                         int is[] = { 0, 1, 2 };
-                        for (unsigned int i = n - 1; i-- > 0;)
-                        {
+                        for (unsigned int i = n - 1; i-- > 0;) {
                             assert(i == is[i]);
                         }
                     }
@@ -4796,8 +5032,7 @@ int main(int argc, char **argv)
             {
                 int i = 0;
                 int is[] = { 0, 1, 2 };
-                while (i < 3)
-                {
+                while (i < 3) {
                     assert(i == is[i]);
                     i++;
                 }
@@ -4986,6 +5221,22 @@ int main(int argc, char **argv)
             }
 
             /*
+            #K&R function declaration
+
+                This form of funciton declaration, while standard,
+                is almost completely obsolete and forgotten today.
+
+                It is however still ANSI C.
+
+                There seems to be only one case in which it may allow for something
+                that ANSI C declarations don't: <http://locklessinc.com/articles/obscurec/>
+            */
+            {
+                char c = 0;
+                assert(k_and_r(1, &c) == 0);
+            }
+
+            /*
             #function pointers
 
                 Functions can be stored in pointers and used through them.
@@ -5102,8 +5353,7 @@ int main(int argc, char **argv)
                 {
                     //error checking is not done for the wrapper
                     //might segfault at runtime
-                    if (0)
-                    {
+                    if (0) {
                         sprintf_wrapper(s, "%s" /*missing arg*/);
                         printf("sprintf_wrapper wrong = %s\n", s);
                     }
@@ -5207,15 +5457,45 @@ int main(int argc, char **argv)
                 assert(1);
 
             /*
-            Labels have scope, so this is not possible.
+            goto cannot cross functions.
 
-            If you really want to do this, see longjmp.
+            Use `setjmp` for that.
             */
             {
-                /*
-                    goto_func (1);
-                    goto_func_after:
-                */
+                int i;
+                goto_func_after:
+                    i = 1;
+                /*goto in_func_label;*/
+            }
+
+            /* Labels cannot be at the end of compound statments */
+            {
+                { /*label_end_compound:*/ }
+                { label_end_compound: 1; }
+            }
+
+            // Labels and loops
+            {
+                int i;
+                for ( /*label_in_for:*/ i = 0; i < 2; i++)
+                label_after_if:
+                {
+                    label_after_if2: 1;
+                }
+            }
+
+            // Labels and switch.
+            {
+                int a = 1;
+                switch (a) {
+                    case 0:
+                    label_case_0:
+                        assert(a == 1);
+                    break;
+                    case 1:
+                        goto label_case_0;
+                    break;
+                }
             }
         }
 
@@ -5249,8 +5529,7 @@ int main(int argc, char **argv)
 
             val = setjmp(env_buffer);
             printf("setjmp = %i\n", val);
-            if (val != 0)
-            {
+            if (val != 0) {
                 //returned from longjmp
                 //val encodes the error code
             } else {
@@ -5268,13 +5547,11 @@ int main(int argc, char **argv)
     {
         printf("argv[0] = %s\n", argv[0]);
         int i = 0;
-        if (argc > i)
-        {
+        if (argc > i) {
             i++;
             printf("argv[%d] = %s\n", i, argv[0]);
         }
-        if (argc > i)
-        {
+        if (argc > i) {
             i++;
             printf("argv[%d] = %s\n", i, argv[0]);
         }
@@ -5686,12 +5963,9 @@ int main(int argc, char **argv)
         {
             size_t bytes = sizeof(int) * 2;
             int* is = malloc(bytes);
-            if (is == NULL)
-            {
+            if (is == NULL) {
                 printf("malloc failed\n");
-            }
-            else
-            {
+            } else {
                 is[0] = 1;
                 assert(is[0] == 1);
                 free(is);
@@ -5745,21 +6019,15 @@ int main(int argc, char **argv)
         {
             size_t bytes = sizeof(int) * 2;
             int* is = malloc(bytes);
-            if (is == NULL)
-            {
+            if (is == NULL) {
                 printf("malloc failed\n");
-            }
-            else
-            {
+            } else {
                 is[1] = 1;
                 //you must use a second pointer here
                 int* is2 = realloc(is, sizeof(int) * 4);
-                if (is2 == NULL)
-                {
+                if (is2 == NULL) {
                     printf("realloc failed\n");
-                }
-                else
-                {
+                } else {
                     is = is2;
                     is[3] = 1;
                     //old values are untouched:
@@ -5782,12 +6050,9 @@ int main(int argc, char **argv)
         */
         {
             int* is = calloc(2, sizeof(int));
-            if (is == NULL)
-            {
+            if (is == NULL) {
                 printf("calloc failed\n");
-            }
-            else
-            {
+            } else {
                 assert(is[0] == 0);
                 assert(is[1] == 0);
                 free(is);
@@ -5823,12 +6088,10 @@ int main(int argc, char **argv)
             TODO0 how to pass more than INT_MAX to malloc to break it? =)
         */
         {
-            if (0)
-            {
+            if (0) {
                 size_t n = 1024 * 1024 * 1024;
                 int* ip = malloc(n);
-                if (ip == NULL)
-                {
+                if (ip == NULL) {
                     printf("could not allocate %zu bytes", n);
                 }
                 free(ip);
@@ -5839,15 +6102,12 @@ int main(int argc, char **argv)
             someday this will be possible and people will laugh at this...
             generates a segfault
             */
-            if (0)
-            {
+            if (0) {
                 const size_t GB = 1024 * 1024 * 1024;
-                for (int i = 0; i < GB; i++)
-                {
+                for (int i = 0; i < GB; i++) {
                     int* ip = malloc(GB);
                     ip[0] = 0;
-                    if (ip == NULL)
-                    {
+                    if (ip == NULL) {
                         printf("could not allocate %zu bytes", GB);
                     }
                 }
@@ -5873,7 +6133,9 @@ int main(int argc, char **argv)
 
         Used for error handling.
 
-        Defines errno, which can be set by user or library functions to indicate the error type.
+        Defines `errno`, which can be set by user or library functions to indicate the error type.
+
+        It is commonly used in operations such as file IO.
 
         Also define a few possible values which libc may set `errno` to:
 
@@ -5927,15 +6189,15 @@ int main(int argc, char **argv)
         /*
         #stream
 
-            an stream is an abstraction over different input/output methods
+            An stream is an abstraction over different input/output methods
             such as regular files, stdin/stdout/stderr (pipes in linux), etc.
             so that all of them can be treated on an uniform basis once you opened the stream.
 
-            most functions have a form which outputs only to stdout,
+            Most functions have a form which outputs only to stdout,
             and most input functions have a form which reads only from sdtin
             coupled with a general form that outputs to any stream.
 
-            unfortunatelly, sometimes there are subtle differences between those two
+            Unfortunatelly, sometimes there are subtle differences between those two
             forms, so beawere!
 
         #FILE
@@ -5965,7 +6227,7 @@ int main(int argc, char **argv)
         /*
         #EOF
 
-            EOF is a C concept
+            EOF is a C concept.
 
             EOF works because there are only 256 bytes you can get from an fd
             so EOF is just some int outside of the possible 0-255 range, tipically -1
@@ -6002,10 +6264,10 @@ int main(int argc, char **argv)
 
             Sames as stderr but for stdout.
 
-            Less useful since most IO functions have a convenience form that writes to stdout.
+            Less useful than `stderr` since most IO functions have a convenience form that writes to stdout.
         */
         {
-            fputs("stdout\n", stderr);
+            fputs("stdout\n", stdout);
         }
 
         /*
@@ -6106,6 +6368,18 @@ int main(int argc, char **argv)
             {
                 char s[256];
 
+                //typecasts in printf
+                {
+                    // In most cases, gcc 4.8 can emmit warning for wrong types.
+
+                    // TODO what happens when a wrong type is passed? Typecast? Undefined?
+
+                        printf("u UINT_MAX = %u\n", UINT_MAX);
+
+                        sprintf(s, "%d", UINT_MAX);
+                        assert(strcmp(s, "-1") == 0);
+                }
+
                 //char:
 
                     sprintf(s, "%c", 'a');
@@ -6123,28 +6397,9 @@ int main(int argc, char **argv)
 
                     printf("lld LLONG_MAX = %lld\n", LLONG_MAX);
 
-                //you must keep unsigned correctness
-                //or prepare to get bitten by overflow problems:
-
-                    printf("u UINT_MAX = %u\n", UINT_MAX);
-
-                    sprintf(s, "%d", UINT_MAX);
-                    assert(strcmp(s, "-1") == 0);
-
-                //note how printf treats `UINT_MAX` as a signed integer
-                //which in 2's complement equals `-1`.
-
-                //WARN: expects unsigned int, found int
-                //that is, you must keep unsigned correctness
-
-                    //printf("u -1 = %u\n", -1);
-                    //printf("u -1 = %lu\n", -1);
-
-                printf("%d %d\n",1,2);
-
                 //#floating point numbers
                 {
-                    //float and double (both the same char, float gets typecast):
+                    //float and double both use the the same char `f` char:
 
                         printf("printf float = %f\n", 1.0f);
                         printf("printf double = %f\n", 1.0);
@@ -6246,22 +6501,20 @@ int main(int argc, char **argv)
                 }
 
 #if __STDC_VERSION__ >= 199901L
-
                 //hexadecimal scientific float output. C99
                 {
                     printf("0x1.Ap11           = %a\n", 0x1.Ap11);
                     printf("0x1.Ap11 uppercase = %A\n", 0x1.Ap11);
                     printf("0x10.Ap11          = %a\n", 0x10.Ap11);
                 }
-
 #endif
 
                 /*
                 pointers
 
-                        prints the hexadeciamal linear address.
+                    prints the hexadeciamal linear address.
 
-                        %p excpects a `void*`.
+                    %p excpects a `void*`.
                 */
                 {
                     char s[ PRIxPTR_WIDTH + 3 ]; //2 for "0x" and one for trailling '\0'
@@ -6473,7 +6726,6 @@ int main(int argc, char **argv)
             }
 
 #if __STDC_VERSION__ < 201112L
-
             /*
             #gets
 
@@ -6483,13 +6735,11 @@ int main(int argc, char **argv)
                 no size checking possible
                 if too much input, just seg faults
             */
-            if (0)
-            {
+            if (0) {
                 //printf("enter a string terminated by newline: (max %d chars, newline will be included in the string)\n", sn);
                 //gets(s);
                 //printf("you entered:\n%s\n\n",s);
             }
-
 #endif
 
             /*
@@ -6513,16 +6763,13 @@ int main(int argc, char **argv)
 
                 the trailling newline is included in the input.
             */
-            if (0)
-            {
+            if (0) {
                 FILE* fp = stdin;
                 const int buff_size = 4;
                 char buff[buff_size];
                 fprintf(stderr, "enter a string and press enter (max %d bytes):\n", buff_size - 1);
-                if (fgets(buff, buff_size, fp) == NULL)
-                {
-                    if (feof(fp))
-                    {
+                if (fgets(buff, buff_size, fp) == NULL) {
+                    if (feof(fp)) {
                         fprintf(stderr, "fgets was already at the end of the stream and read nothing");
                     }
                     else if (ferror(fp))
@@ -6558,8 +6805,7 @@ int main(int argc, char **argv)
 
                 to do proper error checking, try `fgets` and the `strtol` family
             */
-            if (0)
-            {
+            if (0) {
                 int i, j;
                 unsigned int ui;
                 float f;
@@ -6587,16 +6833,13 @@ int main(int argc, char **argv)
 
                 complicated like scanf
             */
-            if (0)
-            {
+            if (0) {
                 FILE* fp = stdin;
                 int i;
                 float f;
                 puts("enter a int a space and a float (scientific notation) and then EOF (ctrl-d in linux):");
-                if (fscanf(stdin, "%d %e\n", &i, &f) != 2)
-                {
-                    if (feof(fp))
-                    {
+                if (fscanf(stdin, "%d %e\n", &i, &f) != 2) {
+                    if (feof(fp)) {
                         fprintf(stderr, "fscanf reached the of file and read nothing\n");
                     } else if (ferror(fp)) {
                         fprintf(stderr, "fscanf error reading from stream\n");
@@ -6607,19 +6850,19 @@ int main(int argc, char **argv)
         }
 
         /*
-        #file streams
+        #file streams #file io
 
-            To get streams that deal with files, use fopen.
+            To get streams that deal with files, use `fopen`.
 
-            To close those streams, use fclose.
+            To close those streams after usage, use `fclose`.
 
             #fopen
 
-                open file for read/write
+                Open file for read/write
 
-                don't forget to fclose after using! open streams are a process resource.
+                Don't forget to fclose after using! open streams are a process resource.
 
-                modes:
+                Modes:
 
                 - r: read. compatible with a,w
                 - w: read and write. destroy if exists, create if not.
@@ -6631,31 +6874,38 @@ int main(int argc, char **argv)
                     there are two different modes there
                     Therefore, for portability, make this difference.
 
-            #text vs binary
+                In case of error:
+
+                - return `NULL` and set `errno`.
+
+            #text io vs #binary io
 
                 #text vs binary for numerical types
 
-                    example: an int 123 can be written to a file in two ways:
+                    Example: an int 123 can be written to a file in two ways:
 
                     - text: three bytes containing the ascii values of `1`, `2` and then `3`
+
                     - binary: as the internal int representation of the c value, that is 4 bytes,
                         with `123` in binary and zeroes at the front.
 
-                    advantages of text:
+                    Advantages of text:
 
                     - it is human readable since it contains only ASCII or UTF values
+
                     - for small values it may be more efficient (123 is 3 bytes in ascii instead of 4 in binary)
 
-                    advantages of binary:
+                    Advantages of binary:
 
                     - it is shorter for large integers
+
                     - inevitable for data that cannot be interpretred as text (images, executables)
 
                 #newline vs carriage return newline
 
-                    newline carriage return realated TODO confirm
+                    Newline carriage return realated TODO confirm
 
-                    for portability, use it consistently.
+                    For portability, use it consistently.
 
                     In linux the difference between text methods and binary methods is only conceptual:
                     some methods output human readable text (`fprintf`) and can be classified as text,
@@ -6663,122 +6913,107 @@ int main(int argc, char **argv)
 
             #fclose
 
-                don't forget to close!
+                Don't forget to close because:
 
-                there is a limited ammount of open files at a time by the os
+                - open `FILE*` are a program resource
+                - close also flushes
 
-                buffered output may not have been saved before closing
+                In case of error:
+
+                - return `EOF`
+                - set `errno`
+
         */
         {
-            FILE* fp;
-            int err, had_error, fi;
-            float ff;
-            char c1;
-            char *cp1;
-
-            const int buff_size = 16;
-            char path[buff_size], buff[buff_size];
-
-            //simple example of file io:
-            {
-                strcpy(path, "f.tmp");
-                fp = fopen(path, "w");
-                if (!fp)
-                {
-                    report_cant_open_file(path);
-                    exit(EXIT_FAILURE);
-                }
-                else
-                {
-                    if (fputc('a', fp) == EOF)
-                    {
-                        report_cant_write_file(path);
-                        exit(EXIT_FAILURE);
-                    }
-                }
-                if(fclose(fp) == EOF)
-                {
-                    fprintf(stderr, "could not close:\n%s\n", path);
-                }
-            }
-        }
-
-        //#binary io
-        {
-            int elems_write[] = { 1, 2, 3 };
-            const int nelems = sizeof(elems_write) / sizeof(elems_write[0]);
+            int elems_write[] = {1, 2, 3};
+            enum constexpr {nelems = sizeof(elems_write) / sizeof(elems_write[0])};
             int elems_read[nelems];
-
             FILE* fp;
             char path[] = "fwrite.tmp";
 
-            //#fwrite
+            /*
+            #fwrite
+
+                Returns number of elements written.
+
+                If less elements are written than required an erro ocurred.
+
+                Why take both bytes per item and items instead of just total bytes:
+                <http://stackoverflow.com/questions/295994/what-is-the-rationale-for-fread-fwrite-taking-size-and-count-as-arguments>
+
+                It seems that no less than size per item can be writen, so we are guaranteed
+                that some object will not be half writen.
+            */
             {
                 fp = fopen(path, "wb");
-                if (fp == NULL)
-                {
-                    fprintf(stderr, "could not open:\n%s\n", path);
-                    exit(EXIT_FAILURE);
+                if (fp == NULL) {
+                    io_error("fopen", path);
                 }
-                else
-                {
-                    //returns number of elements written
-
-                    //common nelems source:
-
-                        //nelems=sizeof(buff)/sizeof(buff[0]);
-                        //nelems=strlen(buff)+1
-
-                    if (fwrite(elems_write, sizeof(elems_write[0]), nelems, fp) < nelems)
-                    {
-                        fprintf(stderr, "could not write all the data:\n%s\n", path);
+                else {
+                    if (fwrite(elems_write, sizeof(elems_write[0]), nelems, fp) < nelems) {
+                        io_error("fwrite", path);
                     }
-                }
-                if (fclose(fp) == EOF)
-                {
-                    fprintf(stderr, "could not close:\n%s\n", path);
+                    if (fclose(fp) == EOF) {
+                        io_error("fclose", path);
+                    }
                 }
             }
 
-            //#fread
+            /*
+            #fread
+
+                Returns number of *elements* written, not bytes.
+
+                If less elements are returned than required then either:
+
+                - an error ocured
+                - the end of file was reached.
+
+                It is only possible to distinguish between those cases by using
+                the `feof` and `ferror` functions.
+
+            #ferror
+            #feof
+            */
             {
                 fp = fopen(path, "rb");
-                if (fp == NULL)
-                {
-                    fprintf(stderr, "could not open:\n%s\n", path);
+                if (fp == NULL) {
+                    io_error("fopen", path);
                 }
-                else
-                {
-                    if (fread(elems_read, sizeof(elems_read[0]), nelems, fp) < nelems)
-                    { //returns number of elements written
-                        fprintf(stderr, "could not read all the data:\n%s\n", path);
+                else {
+                    if (fread(elems_read, sizeof(elems_read[0]), nelems, fp) < nelems && ferror(fp)) {
+                        io_error("fread", path);
                     }
                 }
-
-                if (fclose(fp) == EOF)
-                {
-                    fprintf(stderr, "could not close:\n%s\n", path);
+                if (fclose(fp) == EOF) {
+                    io_error("fclose", path);
                 }
             }
-
             assert(memcmp(elems_read, elems_write, nelems) == 0);
+        }
+
+        /*
+        #freopen
+
+            Open a given `FILE*` again but as a different file.
+        */
+        {
+            //this will discard stdin on linux
+            //freopen("/dev/null", "r", stdin);
         }
 
         //#reposition read write
         {
             /*
+            For new code, always use `fgetpos` and `fsetpos` unless you absolutely
+            need `SEEK_END` because ftell and fseek
+            must return `long` which may limit the maximum file to be read,
+            while `fgetpos` uses a typedef `fpos_t`
+
             #ftell
 
                 Get current position of `FILE*`.
-            */
-            {
-                //long int curpos = ftell(pf)
-                //if (curpos == -1L){
-                //    report_cant_move_file();
-                //}
-            }
 
-            /*
             #fseek
 
                 Set current position in `FILE*` relative to:
@@ -6793,39 +7028,44 @@ int main(int argc, char **argv)
                 This contrasts with POSIX lseek + write, in which the unwriten gap is 0.
             */
             {
-                //for binary, n bytes, for read, no necessarily
-                //
-                //if (fseek (pf, 0 , SEEK_SET) != 0) {
-                //    report_cant_move_file();
+                //long int curpos = ftell(pf)
+                //if (curpos == -1L){
+                //  //ERROR
+                //}
+
+                //FILE* fp;
+                //if (fseek (fp, 0 , SEEK_SET) != 0) {
+                //  //ERROR
                 //}
             }
 
             /*
             #rewind
 
-                Same as:
+                Same as therefore useless.
 
                     fseek(stream, 0L, SEEK_SET)
             */
 
             /*
+            Like ftell/fseek except that:
+
+            - the return is a typedef `fpos_t`, so it may represent larger files.
+            - there is a single possible reference position equivalent to `SEEK_SET`.
+                This makes sence since that argument was only useful for convenience.
+
+            Always use it instead of ftell/fseek.
+
             #fgetpos
 
-                Get a position in stream that is usable with a later call to fsetpos.
+                Get a position in stream that is later usable with a later call to `fsetpos`.
 
             #fsetpos
 
                 Set position to a point retreived via fgetpos.
-
-                TODO0 example and details
             */
-
-            //#freopen
-                //freopen("/dev/null", "r", stdin);
-                //this will discard stdin on linux
-
-            //TRY: echo "123" | ./c_cheatsheet.out
-                //this will use stdin from a pipe! no user input
+            {
+            }
         }
 
         /*
@@ -6835,7 +7075,7 @@ int main(int argc, char **argv)
 
             Makes sure all the data is put on the stream.
 
-            TODO0 example
+            May be necessary as the data may be in a buffer.
         */
         {
             // if (flush(fp) == EOF){
@@ -6855,33 +7095,104 @@ int main(int argc, char **argv)
 
         //#applications
         {
-            //string to from file
             {
-                FILE* fp;
                 char path[] = "str_file.tmp";
-                char cs[] = "asdf\nqwer";
+                char input[] = "asdf\nqwer";
 
-                //write entire string to file at once
+                // Write entire string to file at once.
                 {
-                    if (file_write(path, cs) == -1)
-                    {
-                        report_cant_write_file(path);
+                    if (file_write(path, input) == -1) {
+                        io_error("file_write", path);
                     }
                 }
 
-                //read entire file at once to a string
+                // Read entire file at once to a string.
                 {
-                    char* cp = file_read(path);
-                    if (cp == NULL)
-                    {
-                        report_cant_read_file(path);
+                    char *output = file_read(path);
+                    if (output == NULL) {
+                        io_error("file_read", path);
                     }
-                    assert(strcmp(cs, cp) == 0);
-                    free(cp);
+                    assert(strcmp(input, output) == 0);
+                    free(output);
+                }
+
+                // Get file size:
+                {
+                    long size = get_file_size(path);
+                    if (size == -1) {
+                        io_error("get_file_size", path);
+                    }
+                    assert(size == strlen(input));
                 }
             }
 
-            //simple write arrays to file
+            /*
+            Process a file linewise.
+
+            Allows one to read files larger than RAM, suppposing that
+            each line is smaller than RAM.
+
+            glibc offers the `getline` function.
+            */
+            {
+                FILE* fp;
+                // Maximum accepted line length is buf_size including the newline.
+                enum Constexpr {buffer_size = 4};
+                char buffer[buffer_size];
+                size_t last_newline_pos, current_pos;
+                int linenum = 0;
+                long file_size;
+                long nbytes_read;
+
+                char path[] = "cat.tmp";
+                char file_data[] = "abc\nde\nfgh";
+                size_t file_data_size = strlen(file_data);
+                char lines[3][4] = {"abc\n", "de\n", "fgh\n"};
+                size_t current_line;
+
+                // Prepare test.
+                fp = fopen(path, "wb");
+                if (fp == NULL) {
+                    io_error("fopen", path);
+                } else {
+                    if (fwrite(file_data, 1, file_data_size, fp) < file_data_size) {
+                        io_error("fwrite", path);
+                    }
+                    if (fclose(fp) == EOF) {
+                        io_error("fclose", path);
+                    }
+                }
+
+                /*
+                // The actual cat.
+                fp = fopen(path, "rb");
+                if (fp == NULL) {
+                    io_error("fopen", path);
+                } else {
+                    nbytes_read = buffer_size;
+                    last_newline_pos = buffer_size;
+                    current_line = 0;
+                    while (fread(buffer, 1, nbytes_read, fp) == nbytes_read) {
+                        while (current_pos != last_newline_pos)
+                            if (buffer[current_pos] == '\n') {
+                                assert(memcmp(&buffer[current_pos], lines[current_line],  ));
+                                last_newline_pos = current_pos;
+                                cur_line++;
+                            }
+                            current_pos = (current_pos + 1) % buffer_size;
+                        }
+                    }
+                    if (feof(fp)) {
+                        io_error("fread", path);
+                    }
+                    if (fclose(fp) == EOF) {
+                        io_error("fclose", path);
+                    }
+                }
+                */
+            }
+
+            // Simple write arrays to file
             {
                 FILE* fp;
                 char path[16];
@@ -6982,8 +7293,7 @@ int main(int argc, char **argv)
 
             See printf for a discussion of how to print a `clock_t`.
         */
-        if (0)
-        {
+        if (0) {
             clock_t t;
             int i = 0;
             t = clock();
@@ -7349,8 +7659,7 @@ int main(int argc, char **argv)
 
             errno = 0;
             volatile double d = tgamma(-1.0);
-            if (math_errhandling & MATH_ERRNO)
-            {
+            if (math_errhandling & MATH_ERRNO) {
                 if (errno == ERANGE)
                     assert(d == HUGE_VAL);
                 else
@@ -7445,8 +7754,7 @@ int main(int argc, char **argv)
                 In Linux the default handler is implemented by the OS and sends a signal to our application,
                 which if we don't catch will kill us.
             */
-            if (0)
-            {
+            if (0) {
                 //gcc 4.7 is smart enough to warn on literal division by 0:
                 {
                     //int i = 1 / 0;
@@ -7574,7 +7882,6 @@ int main(int argc, char **argv)
     }
 
 #if __STDC_VERSION__ >= 199901L
-
     /*
     #stdint.h
 
@@ -7663,16 +7970,18 @@ int main(int argc, char **argv)
         in the current architecure
     */
     {
-
+        //#INT_MAX #UINT_MAX
+        printf("CHAR_MAX = %d\n", CHAR_MAX);
+        assert(CHAR_MAX == 127);
         printf("INT_MAX = %d\n", INT_MAX);
         printf("INT_MIN = %d\n", INT_MIN);
         printf("LONG_MAX = %ld\n", LONG_MAX);
         printf("LLONG_MIN = %lld\n", LLONG_MIN);
 
         /*
-        unsigned versions start with `U`
+        Unsigned versions are prefiexed by `U`.
 
-        there is no min value for unsigned versions since it is necessarily 0
+        There is no MIN macro for unsigned versions since it is necessarily `0`.
         */
 
         printf("UINT_MAX = %u\n", UINT_MAX);
@@ -7805,8 +8114,7 @@ int main(int argc, char **argv)
 
             assert(isnormal(LDBL_MIN));
 
-            if (LDBL_HAS_SUBNORM)
-            {
+            if (LDBL_HAS_SUBNORM) {
                 long double ldbl_min_2 = LDBL_MIN / 2.0;
                 printf("LDBL_MIN / 2.0 = %La\n", ldbl_min_2);
                 assert(ldbl_min_2 != 0);
