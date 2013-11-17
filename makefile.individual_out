@@ -11,7 +11,7 @@
 MYCC			?= gcc
 MYCXX			?= g++
 CFLAGS			?= -std=c11   -Wall -pedantic-errors -march=native $(CFLAGS_EXTRA)
-MYCXXFLAGS		?= -std=c++11 -Wall -pedantic-errors -march=native $(MYCXXFLAGS_EXTRA)
+MYCXXFLAGS		?= -std=c++11 -Wall -pedantic-errors -march=native $(CXXFLAGS_EXTRA)
 LIBS			?= -lm #-lGL -lGLU -lglut
 INCLUDE_DIRS 	?= #-I/usr/include
 DEFINES 		?= #-D_XOPEN_SOURCE 700

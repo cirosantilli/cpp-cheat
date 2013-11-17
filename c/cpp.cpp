@@ -1224,12 +1224,49 @@ void printCallStack()
     class PureVirtualImplementedOtherBase
     {
         public:
-
-            void pureVirtualImplementedOtherBase()
+            void pureVirtual()
             {
-                callStack.push_back("PureVirtualImplementedOtherBase::pureVirtualOtherBase()");
+                callStack.push_back("PureVirtualImplementedOtherBase::pureVirtual()");
+            }
+        private:
+            void privatePureVirtual()
+            {
+                callStack.push_back("PureVirtualImplementedOtherBase::privatePureVirtual()");
             }
     };
+
+    class DerivedAbtractAndImplementator : BaseAbstract, PureVirtualImplementedOtherBase
+    {
+        //public:
+            //void pureVirtual()
+            //{
+                //callStack.push_back("PureVirtualImplementedOtherBase::pureVirtual()");
+            //}
+        //private:
+            //void privatePureVirtual()
+            //{
+                //callStack.push_back("PureVirtualImplementedOtherBase::privatePureVirtual()");
+            //}
+    };
+
+    class MultipleInheritanceConflictBase1 {
+        public:
+            const static int is = 1;
+            int i;
+            void f(){}
+    };
+
+    class MultipleInheritanceConflictBase2 {
+        public:
+            const static int is = 2;
+            int i;
+            void f(){}
+    };
+
+    class MultipleInheritanceConflictDerived :
+        MultipleInheritanceConflictBase1,
+        MultipleInheritanceConflictBase2
+        {};
 
     class BaseProtected
     {
@@ -1258,8 +1295,7 @@ void printCallStack()
         //public Derived,   //WARN cannot use BasePrivate inside: ambiguous
         protected BaseProtected,
         private BasePrivate,
-        public BaseAbstract,
-        public PureVirtualImplementedOtherBase
+        public BaseAbstract
     {
         public:
 
@@ -6038,163 +6074,197 @@ int main(int argc, char **argv)
             }
         }
 
-        //#overridding
-        {
-            Class c;
-            Class* cp = &c;
-
-            c.i = 0;
-            c.Class::i = 0;
-            cp->Class::i = 0;
-            c.Base::i = 1;
-            c.BaseAbstract::i = 2;
-
-            assert(c.i          == 0);
-            assert(c.Class::i   == 0);
-            assert(cp->Class::i == 0);
-
-            assert(c.Base::i   == 1);
-            assert(cp->Base::i == 1);
-
-            assert(c.BaseAbstract::i   == 2);
-            assert(cp->BaseAbstract::i == 2);
-
-            //c.iAmbiguous = 0;
-                //ERROR ambiguous
-            c.Base::iAmbiguous = 0;
-            c.BaseAbstract::iAmbiguous = 0;
-
-            callStack.clear();
-            c.method();
-            assert(callStack.back() == "Class::method()");
-            //c.methodAmbiguous();
-                //ERROR ambiguous
-            callStack.clear();
-            c.Base::methodAmbiguous();
-            assert(callStack.back() == "Base::methodAmbiguous()");
-
-            callStack.clear();
-            c.BaseAbstract::methodAmbiguous();
-            assert(callStack.back() == "BaseAbstract::methodAmbiguous()");
-
-            /*
-            #virtual inheritance
-
-                <http://en.wikipedia.org/wiki/Virtual_inheritance>
-
-                TODO
-            */
-        }
-
         /*
-        #virtual
-
-            Virtual: decides on runtime based on object type.
-
-            <http://stackoverflow.com/questions/2391679/can-someone-explain-c-virtual-methods>
-
-        #pure virtual function
-
-            Cannot instantiate this class
-
-            Can only instantiate derived classes that implement this.
-
-            If a class has a pure virtual method is called as an *abstract class* or *interface*.
-
-            In Java there is a language difference between those two terms,
-            and it might be a good idea to differentiate them when speaking about C++:
-
-            - interface: no data
-            - abstract: data
-
-        #polymorphism
-
-            - loop an array of several dereived classes
-            - call a single base class method
-            - uses the correct derived override
-
-            Implementation: *vtable* is used to implement this.
-
-        #vtable
-
-            <http://en.wikipedia.org/wiki/Virtual_method_table>
-
-            Whenever you create a pointer to a class with a virtual method,
-            that pointer points to a pointer that identifies the class type,
-            and points to the correct method.
-
-            Consequence: every call to a virtual methods means:
-
-            - an extra pointer dereference
-            - an extra pointer stored in memory
-
-            Also virtual functions cannot be inlined.
-
-        #Static interfaces
-
-            It is possible to assert that interfaces are implemented without dynamic vtable overhead via CRTP:
-
-            - <http://stackoverflow.com/questions/2587541/does-c-have-a-static-polymorphism-implementation-of-interface-that-does-not-us>
-
-            - <http://en.wikipedia.org/wiki/Template_metaprogramming#Static_polymorphism>
-
-        #CRTP
-
-            Curiously recurring template pattern.
-
-            <http://en.wikipedia.org/wiki/Curiously_recurring_template_pattern#Static_polymorphism>
+        #inheritance
         */
         {
-            //BaseAbstract b;
-                //ERROR: BaseAbstract cannot be instantiated because it contains a pure virtual method
-                //virtual = 0;. That method must be implemented on derived classes
-
-            //even if you can't instantiate base, you can have pointers to it
+            //#overridding
             {
-                BaseAbstract* bap = new Class;
-                //BaseAbstract* bap = &c;
-                    //SAME
-
-                callStack.clear();
-                bap->method();
-                assert(callStack.back() == "BaseAbstract::method()");
-                    //base method because non-virtual
-
-                callStack.clear();
-                bap->virtualMethod();
-                assert(callStack.back() == "Class::virtualMethod()");
-                    //class method because virtual
-
-                delete bap;
-            }
-
-            {
-                //you can also have BaseAbstract&
                 Class c;
-                BaseAbstract& ba = c;
+                Class* cp = &c;
+
+                c.i = 0;
+                c.Class::i = 0;
+                cp->Class::i = 0;
+                c.Base::i = 1;
+                c.BaseAbstract::i = 2;
+
+                assert(c.i          == 0);
+                assert(c.Class::i   == 0);
+                assert(cp->Class::i == 0);
+
+                assert(c.Base::i   == 1);
+                assert(cp->Base::i == 1);
+
+                assert(c.BaseAbstract::i   == 2);
+                assert(cp->BaseAbstract::i == 2);
+
+                //c.iAmbiguous = 0;
+                    //ERROR ambiguous
+                c.Base::iAmbiguous = 0;
+                c.BaseAbstract::iAmbiguous = 0;
 
                 callStack.clear();
-                ba.method();
-                assert(callStack.back() == "BaseAbstract::method()");
+                c.method();
+                assert(callStack.back() == "Class::method()");
+                //c.methodAmbiguous();
+                    //ERROR ambiguous
+                callStack.clear();
+                c.Base::methodAmbiguous();
+                assert(callStack.back() == "Base::methodAmbiguous()");
 
                 callStack.clear();
-                ba.virtualMethod();
-                assert(callStack.back() == "Class::virtualMethod()");
+                c.BaseAbstract::methodAmbiguous();
+                assert(callStack.back() == "BaseAbstract::methodAmbiguous()");
             }
 
+            /*
+            #virtual
+
+                Virtual: decides on runtime based on object type.
+
+                <http://stackoverflow.com/questions/2391679/can-someone-explain-c-virtual-methods>
+
+            #pure virtual function
+
+                Cannot instantiate this class
+
+                Can only instantiate derived classes that implement this.
+
+                If a class has a pure virtual method is called as an *abstract class* or *interface*.
+
+                In Java there is a language difference between those two terms,
+                and it might be a good idea to differentiate them when speaking about C++:
+
+                - interface: no data
+                - abstract: data
+
+            #polymorphism
+
+                - loop an array of several dereived classes
+                - call a single base class method
+                - uses the correct derived override
+
+                Implementation: *vtable* is used to implement this.
+
+            #vtable
+
+                <http://en.wikipedia.org/wiki/Virtual_method_table>
+
+                Whenever you create a pointer to a class with a virtual method,
+                that pointer points to a pointer that identifies the class type,
+                and points to the correct method.
+
+                Consequence: every call to a virtual methods means:
+
+                - an extra pointer dereference
+                - an extra pointer stored in memory
+
+                Also virtual functions cannot be inlined.
+
+            #Static interfaces
+
+                It is possible to assert that interfaces are implemented without dynamic vtable overhead via CRTP:
+
+                - <http://stackoverflow.com/questions/2587541/does-c-have-a-static-polymorphism-implementation-of-interface-that-does-not-us>
+
+                - <http://en.wikipedia.org/wiki/Template_metaprogramming#Static_polymorphism>
+
+            #CRTP
+
+                Curiously recurring template pattern.
+
+                <http://en.wikipedia.org/wiki/Curiously_recurring_template_pattern#Static_polymorphism>
+            */
             {
-                Class c = Class();
-                Base* bp = &c;
-                bp = bp->covariantReturn();
+                //BaseAbstract b;
+                    //ERROR: BaseAbstract cannot be instantiated because it contains a pure virtual method
+                    //virtual = 0;. That method must be implemented on derived classes
 
-                callStack.clear();
-                bp->virtualMethod();
-                assert(callStack.back() == "Class::virtualMethod()");
+                //even if you can't instantiate base, you can have pointers to it
+                {
+                    BaseAbstract* bap = new Class;
+                    //BaseAbstract* bap = &c;
+                        //SAME
 
-                //classPtr = basePtr->covariantReturn();
-                    //ERROR
-                    //conversion from Base to Class
+                    callStack.clear();
+                    bap->method();
+                    assert(callStack.back() == "BaseAbstract::method()");
+                        //base method because non-virtual
+
+                    callStack.clear();
+                    bap->virtualMethod();
+                    assert(callStack.back() == "Class::virtualMethod()");
+                        //class method because virtual
+
+                    delete bap;
+                }
+
+                {
+                    //you can also have BaseAbstract&
+                    Class c;
+                    BaseAbstract& ba = c;
+
+                    callStack.clear();
+                    ba.method();
+                    assert(callStack.back() == "BaseAbstract::method()");
+
+                    callStack.clear();
+                    ba.virtualMethod();
+                    assert(callStack.back() == "Class::virtualMethod()");
+                }
+
+                {
+                    Class c = Class();
+                    Base* bp = &c;
+                    bp = bp->covariantReturn();
+
+                    callStack.clear();
+                    bp->virtualMethod();
+                    assert(callStack.back() == "Class::virtualMethod()");
+
+                    //classPtr = basePtr->covariantReturn();
+                        //ERROR
+                        //conversion from Base to Class
+                }
+
+                /*
+                It is not possibleto implement pure virtual methods on another base class:
+                they must be implemented on the Derived class.
+                */
+                {
+                    //DerivedAbtractAndImplementator d; //ERROR
+                }
             }
+
+            /*
+            #multiple inheritance
+
+                In C++, if a member of an object or static variable of a class
+                comes from two base classes, an ambiguity occurs and the program does not
+                compile.
+
+                This just makes multiple inheritance very insane, since the addition of
+                new fields in a Base class can break existing code on Derived classes.
+            */
+            {
+                //MultipleInheritanceConflictDerived::is;
+                //MultipleInheritanceConflictDerived().i;
+                //MultipleInheritanceConflictDerived().f();
+            }
+
+            /*
+            #dreaded diamond
+
+            #virtual inheritance
+
+                Solves the dreaded diamond problem.
+
+                Has nothing to do with the `virtual` keyword for methods:
+                everything is done at compile time in thie usage.
+
+                <http://stackoverflow.com/questions/21558/in-c-what-is-a-virtual-base-class>
+            */
         }
 
         //#friend

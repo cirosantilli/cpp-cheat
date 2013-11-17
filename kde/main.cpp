@@ -98,7 +98,17 @@ void MainWindow::viewConfig()
 
     Newer configuration method.
 
-    Configuration is specified in an XML format.
+    This method generates a C++ configuration interface from two non C++ files:
+
+    - a `.kcfg` XML file which specifies all the options,
+        including their types and validation conditions they must pass
+        maximum and minimum values for integers.
+
+        Besides being used to generate a C++ interface for the configurations,
+        this file is also stored under `/usr/share/config.kcfg` to be used at runtime.
+
+    - a `.kcfgc` conf file which specifies the details of how the `.kcfg` file will be transformed
+        into a C++ and class, such as the class name.
 
     Configuration managed by Config XT is merged without problem to
     configuration managed via `KConfig` classes.
@@ -154,12 +164,12 @@ void MainWindow::showSettingsDialog()
 {
     // An instance of your dialog could be already created and could be
     // cached, in which case you want to display the cached dialog
-    // instead of creating another one
+    // instead of creating another one.
     if (KConfigDialog::showDialog("settings"))
         return;
 
     // KConfigDialog didn't find an instance of this dialog, so lets
-    // create it :
+    // create it:
     KConfigDialog* dialog = new KConfigDialog(this, "settings",
                                             Settings::self());
 
@@ -169,7 +179,7 @@ void MainWindow::showSettingsDialog()
     dialog->addPage(widget, i18n("General"), "general");
 
     // User edited the configuration - update your local copies of the
-    // configuration data
+    // configuration data.
     connect(dialog, SIGNAL(settingsChanged(QString)),
             this, SLOT(loadSettingsXt()));
 
@@ -229,8 +239,8 @@ void MainWindow::setupActions()
 
         - main menu with:
 
-            - Help
-            - Settings with "Configure Shortcuts" and "Configure Toolbars"
+            - help
+            - settings with "Configure Shortcuts" and "Configure Toolbars"
 
                 Configure Shortcuts" automatically contains any shortcuts added to actions,
                 in addition to many standard shortcuts.
