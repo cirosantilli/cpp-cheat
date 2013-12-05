@@ -451,7 +451,11 @@ int setjmp_func(bool jmp, jmp_buf env_buf)
             return 0;
         }
 
-        /* The "[*]" declaration syntax is possible to avoid naming parameters. */
+        /*
+        #[*]
+
+            The "[*]" declaration syntax is possible to avoid naming parameters.
+        */
         void vla_arg(size_t, int vla[*]);
         void vla_arg(size_t size, int vla[size]) {}
 
@@ -629,6 +633,15 @@ int setjmp_func(bool jmp, jmp_buf env_buf)
             return (struct struct_func_struct){ 0, 1 };
         }
 
+#if __STDC_VERSION__ >= 199901L
+        void const_array_size_argument(int is[const]) {
+            is[0] = 1;
+            int j;
+            // Compilation ERROR: assignment of read-only parameter is:
+                //is = &j;
+        }
+#endif
+
     //restrict
 
         void restrict_double_add(int * restrict i, int * restrict j, int * restrict add)
@@ -651,6 +664,12 @@ int setjmp_func(bool jmp, jmp_buf env_buf)
             *i += *add;
             *j += *add;
         }
+
+#if __STDC_VERSION__ >= 199901L
+        int static_array_argument(int is[static 3]) {
+            return is[3];
+        }
+#endif
 
 #ifdef PROFILE
 
@@ -1419,7 +1438,6 @@ int main(int argc, char **argv)
         { long double ld = 1.23L; }
 
 #if __STDC_VERSION__ >= 199901L
-
         /*
         #float hex literal
 
@@ -1446,13 +1464,10 @@ int main(int argc, char **argv)
         {
             //float f = 01.2p3;
         }
-
 #endif
-
     }
 
 #if __STDC_VERSION__ >= 199901L
-
     /*
     #compound literals
 
@@ -1550,7 +1565,6 @@ int main(int argc, char **argv)
             //assert(p[0] == 1); //BAD *p is undefined
         }
     }
-
 #endif
 
     /*
@@ -1894,11 +1908,11 @@ int main(int argc, char **argv)
         /*
         #const pointers
 
-        There are 3 types of const pointers:
+            There are 3 types of const pointers:
 
-        - `const X *` or `X const *`    : cannot change the data of the thing pointer points to
-        - `X * const`                   : cannot change which thing the pointer points to
-        - `const X * const` or `X const * const` : both of the above
+            - `const X *` or `X const *`    : cannot change the data of the thing pointer points to
+            - `X * const`                   : cannot change which thing the pointer points to
+            - `const X * const` or `X const * const` : both of the above
         */
         {
             //const int *
@@ -2115,6 +2129,77 @@ int main(int argc, char **argv)
                 //const_struct_func
             }
         }
+
+#if __STDC_VERSION__ >= 199901L
+        /*
+        #const in array size function argument
+
+            Same effect as declaring `int *const`, but without cast to pointer.
+        */
+        {
+            int is2[2];
+            is2[0] = 0;
+            const_array_size_argument(is2);
+            assert(is2[0] == 1);
+        }
+#endif
+    }
+
+    /*
+    #static
+
+        The static keyword has many uses in C.
+
+        Multifile scope usage shall not be described here.
+    */
+    {
+        /*
+        #static variable in functions
+
+            It is as if the variable were a global.
+
+            Use with caution:
+
+            - hard to understand
+            - not thread safe
+        */
+        {
+            int i;
+            int si;
+
+            with_static_var(&i, &si);
+            assert(i == 1);
+            assert(si == 1);
+
+            with_static_var(&i, &si);
+            assert(i == 1);
+            assert(si == 2);
+        }
+
+#if __STDC_VERSION__ >= 199901L
+        /*
+        #static in function argument array size
+
+            Specifies the minimum size of the array to be passed.
+
+            Can be used by the compiler for optimization
+
+            <http://stackoverflow.com/questions/3693429/c-parameter-array-declarators>
+
+            Not enforced by the compiler and does not alter any behaviour
+            except for the exact generated assembly code.
+
+            If the contract is not followed by the programmer, undefined behaviour.
+        */
+        {
+            // Undefined behaviour:
+            int is2[2];
+            //static_array_argument(is2);
+
+            int is4[4];
+            static_array_argument(is4);
+        }
+#endif
     }
 
     /*
@@ -5306,29 +5391,6 @@ int main(int argc, char **argv)
             }
 
             /*
-            #static variable in functions
-
-                It is as if the variable were a global.
-
-                Use with caution:
-
-                - hard to understand
-                - not thread safe
-            */
-            {
-                int i;
-                int si;
-
-                with_static_var(&i, &si);
-                assert(i == 1);
-                assert(si == 1);
-
-                with_static_var(&i, &si);
-                assert(i == 1);
-                assert(si == 2);
-            }
-
-            /*
             #variadic function
 
                 Takes a variable number of arguments.
@@ -7335,32 +7397,6 @@ int main(int argc, char **argv)
         for numerical computations, which would be a blessing as it would mean that the system programming
         croud (C) would be closer to the numerical programming one (FORTRAN).
 
-    #IEEE-754
-
-        See IEC 60599.
-
-    #IEC 60599
-
-        Standard on which floating point formats and operations should be available
-        on an implementation, and how they should work.
-
-        C implements IEC 60599 to large extent, specially after C99.
-
-        Many CUPs implement large parts of IEC 60599, which C implementations can use if available.
-
-        Good overview wiki article: <http://en.wikipedia.org/wiki/IEEE_floating_point>
-
-        if an implementation defines this, then it conforms to the  IEC 60559.
-
-        IEC 60559 has the same contents as the IEEE 754-2008,
-        Outside of the C standard it is commonly known by the IEEE name, or simply as IEEE floating point.
-
-        The previous IEEE version was from 1985.
-
-        Conforming to it is not obligatory if the macro "__STDC_IEC_559__" is not defined.
-
-        C99 introduced many features which allow greater conformance to IEC 60599.
-
     #redundant mathematical functions
 
         Many functions are redundant, but are furnished because of possible speedups and better precision.
@@ -7725,6 +7761,53 @@ int main(int argc, char **argv)
         }
 
         /*
+        #IEEE-754
+
+            IEC 60559 has the same contents as the IEEE 754-2008,
+            Outside of the C standard it is commonly known by the IEEE name, or simply as IEEE floating point.
+
+            IEEE dates from 1985.
+
+        #__STDC_IEC_559__
+
+        #IEC 60599
+
+            Standard on which floating point formats and operations should be available
+            on an implementation, and how they should work.
+
+            Good overview wiki article: <http://en.wikipedia.org/wiki/IEEE_floating_point>
+
+            Many CUPs implement large parts of IEC 60599, which C implementations can use if available.
+
+            The C standard specifies that implementing the IEC 60599 is not mandatory.
+
+            If the macro `__STDC_IEC_559__` is defined this means that the implementation is compliant
+            to the interface specified in Annex F of the C11 standard.
+
+            C99 introduced many features which allow greater conformance to IEC 60599.
+        */
+        {
+#ifdef __STDC_IEC_559__
+        puts("__STDC_IEC_559__");
+
+        /*
+        C float is 32 bits, double 64 bits.
+
+        long double extende precision, and could be one of the format not spceified by IEC.
+
+        IEC explicitly allows for extended formats, and makes basic restrictions such that
+        its exponent should have more bits than the preceding type.
+
+        This is probably the case to accomodate x86's 80 bit representation.
+        */
+        {
+            assert(sizeof(float) == 4);
+            assert(sizeof(double) == 8);
+        }
+#endif
+        }
+
+        /*
         #division by 0
 
             Time to have some fun and do naughty things.
@@ -7740,11 +7823,6 @@ int main(int argc, char **argv)
             FP_INFINITE, FP_NAN, FP_NORMAL, FP_SUBNORMAL, FP_ZERO
         */
         {
-
-#ifdef __STDC_IEC_559__
-            puts("__STDC_IEC_559__");
-#endif
-
             /*
             #floating point exception
 
