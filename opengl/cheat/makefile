@@ -1,5 +1,5 @@
 CC 		:= g++
-LIBS 	:= -lGL -lGLU -lglut
+LIBS 	:= -lm -pthread -lGL -lGLU -lglut
 
 IN_EXT 	:=.cpp
 IN_DIR 	:=./

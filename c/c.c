@@ -2381,11 +2381,13 @@ int main(int argc, char **argv)
 
         //Typedef combo. No need to type enum everywhere.
         {
-            enum E { E1, E2, };
+            // Multi line
+            enum E { E1, E2};
             typedef enum E E;
             E e;
 
-            typedef enum F {g1,g2} F;
+            // Single line
+            typedef enum F {g1, g2} F;
             F f;
         }
 
