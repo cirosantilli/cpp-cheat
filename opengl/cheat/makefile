@@ -35,5 +35,5 @@ clean:
 	rm -rf $(AUX_DIR) $(OUT_DIR)
 
 install-deps-ubuntu:
-	sudo aptitude install -y g++
-	sudo aptitude install -y freeglut3-dev
+	sudo apt-get install -y g++
+	sudo apt-get install -y freeglut3-dev
