@@ -6491,20 +6491,19 @@ int main(int argc, char **argv)
                 //#control minimum number chars to output
                 {
                     /*
-                    #pad with spaces
+                    Pad with spaces, right align.
 
-                        Useful to output nicely formatted tables.
+                    Useful to output nicely formatted tables.
 
-                        Ugly:
+                    Ugly:
 
-                            12345 1
-                            1 1
+                        12345 1
+                        1 1
 
-                        Beautiful:
+                    Beautiful:
 
                         12345 1
                         1     1
-
                     */
                     {
                         sprintf(s, "%6.2f", 1.0f);
@@ -6512,17 +6511,30 @@ int main(int argc, char **argv)
                     }
 
                     /*
-                    #pad with zeros
+                    Pad with zeros
 
-                        useful for naming files:
+                    Useful for naming files: with `0`
 
-                        "10" comes after  "09" ('1' > '0')
-
-                        "10" comes before "9"  ('1' < '0')!
+                    - "10" comes after  "09" ('1' > '0')
+                    - "10" comes before "9"  ('1' < '0')!
                     */
                     {
                         sprintf(s, "%06.2f", 1.0f);
                         assert(strcmp(s, "001.00") == 0);
+                    }
+
+                    /*
+                    Left align with `-`
+                    */
+                    {
+                        sprintf(s, "%-6s", "abc");
+                        assert(strcmp(s, "abc   ") == 0);
+
+                        // Does not work with zeros:
+
+                        sprintf(s, "%-06s", "abc");
+                        /*printf("%s\n", s);*/
+                        /*assert(strcmp(s, "abc   ") == 0);*/
                     }
                 }
 
