@@ -1,0 +1,3 @@
+LIBS	:= -lm -lblas -llapacke
+FFLIBS 	:= -l:libblas/libblas.so -l:lapack/liblapack.so
+PHONY	:= install-ubuntu

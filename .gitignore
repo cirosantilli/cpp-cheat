@@ -1,13 +1,10 @@
-#docs, examples, tests
-_gitignore/
-
-#output files: bins/.so/.a
+# Output files: bins/.so/.a
 _out/
 
-#intermediate compilation files: .o
+# Intermediate compilation files: .o
 _tmp/
 
-#cmake style generated files
+# Cmake style generated files
 build/
 
 # Compiled Object files
@@ -25,8 +22,8 @@ build/
 *.la
 *.a
 
-#assembly code
+# Assembly code
 *.s
 
-#temporary files
+# Temporary files
 *.tmp

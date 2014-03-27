@@ -1,4 +1,0 @@
-install-deps-ubuntu:
-	sudo apt-get install -y libportaudio-dev
-	sudo apt-get install -y libasound-dev
-	sudo apt-get install -y libjack-dev

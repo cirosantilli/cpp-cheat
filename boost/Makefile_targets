@@ -1,0 +1,3 @@
+install-ubuntu:
+	sudo aptitude update
+	sudo aptitude install -y libboost1.48-all-dev

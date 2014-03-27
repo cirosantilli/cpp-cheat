@@ -1,4 +1,0 @@
-install-deps-ubuntu:
-	sudo apt-get install -y libgsl0-dev gsl-doc-info
-	#if you will use plplot:
-	sudo apt-get install -y libplplot-dev plplot11-driver-xwin

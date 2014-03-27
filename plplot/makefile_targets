@@ -1,3 +1,0 @@
-install-deps-ubuntu:
-	sudo apt-get install -y libplplot-dev
-	sudo apt-get install -y plplot11-driver-xwin

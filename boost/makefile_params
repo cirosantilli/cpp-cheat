@@ -1,2 +1,0 @@
-LIBS	:= -lboost_graph -lm
-PHONY	:= install-deps-ubuntu

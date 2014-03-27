@@ -1,0 +1,78 @@
+# Compiles all C or CPP files in current dir into a single output file.
+
+-include Makefile_params
+
+ASSEMBLE_BASENAME 		?= a.c									#basename of the file to generate assembly code for
+AUX_DIR 				?= _aux/
+AUX_EXT 				?= .o
+CC 						?= g++
+CFLGS 					?= -Wall -std=c++0x -pedantic-errors
+DEBUG_DEFINE 			?=
+DEBUG_FLAGS 			?=
+DEFINES 				?= #-DPOSIX 							#for -DDEBUG and -DPROFILE, used dedicated DEFINES
+IN_EXTS 				?= .c .cpp
+IN_DIR 					?= ./
+INCLUDE_DIRS 			?= #-L/usr/include/GL
+LIBS 					?= #-lglut -lGLU -lGL
+PREDEF 					?= #-DDEBUG -DPROFILE -DWINDOWS 		#preprocessor defines
+RUN_ARGS 				?= #0 1									#passed as command line args to bin on run
+OPTIMIZE_FLAGS			?= -O3
+OUT_DIR 				?= _out/
+OUT_BASENAME_NOEXT		?= cheat
+OUT_EXT 				?=
+PROFILE_DEFINE 			?=
+PROFILE_FLAGS 			?=
+
+INS 		:= $(foreach IN_EXT, $(IN_EXTS), $(wildcard $(IN_DIR)*$(IN_EXT)) )
+INS_NODIR 	:= $(notdir $(INS))
+AUX_NODIR	:= $(filter %$(OBJ_EXT), $(foreach IN_EXT, $(IN_EXTS), $(patsubst %$(IN_EXT),%$(OBJ_EXT),$(INS_NODIR))))
+AUXS		:= $(addprefix $(AUX_DIR),$(AUXS_NODIR))
+
+OUT_BASENAME:= $(OUT_BASENAME_NOEXT)$(OUT_EXT)
+OUT			:= $(OUT_DIR)$(OUT_BASENAME)
+
+.PHONY: all mkdir clean assembler debug set_debug_flags profile set_profile_flags help ubuntu_install_deps
+
+all: mkdir $(OUT)
+
+$(OUT): $(AUXS)
+	$(CC) $(PROFILE_FLAGS) $^ -o "$@" $(LIBS)
+
+$(AUX_DIR)%$(AUX_EXT): $(IN_DIR)%.c
+	$(CC) $(DEFINES) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(OPTIMIZE_FLAGS) $(PREDEF) $(INCLUDE_DIRS) $(CFLAGS) -c "$<" -o "$@"
+
+$(AUX_DIR)%$(AUX_EXT): $(IN_DIR)%.cpp
+	$(CC) $(DEFINES) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(OPTIMIZE_FLAGS) $(PREDEF) $(INCLUDE_DIRS) $(CFLAGS) -c "$<" -o "$@"
+
+asm: mkdir $(IN_DIR)$(ASSEMBLER_BASENAME)
+	$(eval OPTIMIZE_FLAGS := -O0)
+	$(CC) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) $(CFLAGS) -S "$(IN_DIR)$(ASSEMBLE_BASENAME)" -o "$(OUT_DIR)$(ASSEMBLE_BASENAME).s"
+
+clean:
+	rm -rf "$(AUX_DIR)" "$(OUT_DIR)"
+
+debug: clean set_debug_flags all
+	gdb $(OUT)
+
+mkdir:
+	mkdir -p "$(AUX_DIR)"
+	mkdir -p "$(OUT_DIR)"
+
+profile: clean set_profile_flags all run
+	mv -f gmon.out "$(OUT_DIR)"
+	gprof -b $(OUT) "$(OUT_DIR)"gmon.out | tee "$(OUT).profile_out" | less
+
+set_debug_flags:
+	$(eval DEBUG_FLAGS := -ggdb3)
+	$(eval DEBUG_DEFINE := -DDEBUG)
+	$(eval OPTIMIZE_FLAGS := -O0)
+
+set_profile_flags:
+	$(eval PROFILE_FLAGS := -p -pg)
+	$(eval PROFILE_DEFINE := -DPROFILE)
+	#$(eval OPTIMIZE_FLAGS := )
+
+run: all
+	cd $(OUT_DIR) && ./$(OUT_BASENAME) $(RUN_ARGS)
+
+-include Makefile_targets

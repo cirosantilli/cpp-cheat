@@ -1,28 +1,22 @@
-Automatic dependencies installation may be available for your system in a make target of type:
-`make install-deps-XXX`, for example, `make install-deps-ubuntu`.
+TODO BROKEN: how to install LAPACKE on Ubuntu 12.04?
 
-#intro
+BLAS and LAPACK are:
 
 - linear algebra packages
 - de-facto standards
 - non-parallel 
-- originally written in fortran
-- there are also c interfaces available
+- originally written in Fortran
+- also have C interfaces available
 
-it might be a good idea to understand how to interface fortran with c
-before trying the c interfaces
+    It might be a good idea to understand how to interface Fortran with C before the C interfaces.
 
-#install
+#Related projects
 
-
-
-#related projects
-
-##blas
+##BLAS
 
 <http://www.netlib.org/blas/>
 
-blas contains low level functions such as:
+BLAS contains low level functions such as:
 
 - vector norm
 - vector sum
@@ -30,45 +24,44 @@ blas contains low level functions such as:
 - vector matrix multiplication
 - matrix matrix multiplication
 
-the blas project provides `cblas.h`, which contains a c interface for blas.
+The BLAS project provides `cblas.h`, which contains a C interface for BLAS.
 
-##lapack
+##LAPACK
 
-lapack contains higher level functions such as:
+LAPACK contains higher level functions such as:
 
 - solving linear systems
-- eigenvalue/eigenvector caltulations
+- eigenvalue/eigenvector calculations
 
-it now includes an official c interface called `lapacke`.
+It now includes an official C interface called `lapacke`.
 
-this does not ship with the ubuntu `liblapack-dev` package at the time of writting,
-but there is a `liblapacke-dev` package available which provides it.
+This does not ship with the Ubuntu `liblapack-dev` package at the time of writing, but there is a `liblapacke-dev` package available which provides it.
 
-##scalapack
+##ScaLAPACK
 
 <http://www.netlib.org/scalapack/>
 
-continuation of lapack.
+Continuation of LAPACK.
 
-considers paralellism.
+Considers parallelism.
 
-##atlas
+##ATLAS
 
 <http://math-atlas.sourceforge.net/>
 
-automatically tuned blas lapack. not sure what this means, but sounds good!
+Automatically tuned BLAS LAPACK. Not sure what this means, but sounds good!
 
-implements full blas, but only part of lapack.
+Implements full BLAS, but only part of LAPACK.
 
-has c interface.
+Has C interface.
 
-#installation on ubuntu
+#Installation on Ubuntu
 
-##fortran
+##Fortran
 
     sudo aptitude install liblapack-dev liblapack-doc libblas-doc
 
-##c interface
+##C interface
 
 via atlas:
 
@@ -78,47 +71,44 @@ via lapacke (`libblas-dev` already contains `cblas.h`):
 
     sudo aptitude install liblapacke-dev
 
-#levels
+#Levels
 
 1: array array. ex: array sum.
 2: matrix array. ex: solve linear system.
 3: matrix matrix. ex: multiply two matrices.
 
-#function naming conventions
+#Function naming conventions
 
-`XYYZZZ`
+The functions are named according to the pattern:
 
-X: data type:
+    XYYZZZ
 
-- S: single precision (c float)
-- D: double precision
-- C: complex
-- Z: double complex
+Where:
 
-##YY
+- `X`: data type:
 
-known type the type of input matrices
+    - S: single precision (C float)
+    - D: double precision
+    - C: complex
+    - Z: double complex
 
-examples:
+- `YY`: known type the type of input matrices:
 
-- GE: general
-- TR: triangular
+    - `GE`: general
+    - `TR`: triangular
 
-the more restrict the matrix type, the more efficient algorithms will be.
+    The more restrict the matrix type, the more efficient algorithms can be.
 
-ZZZ: computation to be done:
+- `ZZ`: computation to be done:
 
-- SV: SolVe linear system
+    - `SV`: SolVe linear system
 
-#sources
+#Sources
 
-- function signatures: in source code olny
-    <http://www.netlib.org/lapack/double/>
-    
-- naming convention
-    <http://www.cs.rochester.edu/~bh/cs400/using_lapack.html>
+- function signatures: in source code olny <http://www.netlib.org/lapack/double/>
 
-- user's guide. algorithm info
-    <http://www.netlib.org/lapack/lug/>
+- naming convention <http://www.cs.rochester.edu/~bh/cs400/using_lapack.html>
 
-- http://www.tat.physik.uni-tuebingen.de/~kley/lehre/ftn77/tutorial/blas.html
+- user's guide. algorithm info <http://www.netlib.org/lapack/lug/>
+
+- <http://www.tat.physik.uni-tuebingen.de/~kley/lehre/ftn77/tutorial/blas.html>

@@ -1,4 +1,0 @@
-install-deps-ubuntu:
-	sudo apt-get install -y libboost-dbg
-	sudo apt-get install -y libboost-doc
-	sudo apt-get install -y libboost-graph-dev

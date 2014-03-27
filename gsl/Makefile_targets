@@ -1,0 +1,6 @@
+install-ubuntu:
+	sudo aptitude update
+	# gsl
+	sudo aptitude install -y libgsl0-dev gsl-doc-info
+	# plplot
+	sudo apt-get install -y libplplot-dev plplot11-driver-xwin

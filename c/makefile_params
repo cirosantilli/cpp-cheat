@@ -1,5 +1,0 @@
-CFLAGS_EXTRA	:= -Wno-overflow -Wno-sequence-point -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-label -Wno-unused-value -Wno-unused-local-typedefs
-CXXFLAGS_EXTRA	:= -Wno-sequence-point -Wno-unused-variable -Wno-unused-but-set-variable -pthread
-FFLAGS_EXTRA 	:= -Wno-unused-variable -Wno-unused-but-set-variable
-RUN				:= c
-PHONY			:= install-deps-ubuntu

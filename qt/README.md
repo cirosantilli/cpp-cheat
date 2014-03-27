@@ -1,11 +1,10 @@
-On Linux:
+Initial `qt.pro` template generated with:
 
-- to build and run use `./make.sh`.
-- to clean use `make distclean`.
+    qmake -project
 
-Initial `qt.pro` template generated via `qmake -project`.
+Initial `Makefile` template was generated with:
 
-Initial `Makefile` template was generated via `qmake`.
+    qmake
 
 Find Qt version that will be linked against:
 
@@ -24,16 +23,11 @@ All key value pairs:
 
     qmake -query
 
-QT adds new keywords to the C++ language such as `slots` and `emmit`.
-Those are then translated into C++ before compilation.
-This is a point that complicates QT learning.
-*Never* use those keywords, or they will get preprocessed
-and you will get weird errors!
+QT adds new keywords to the C++ language such as `slots` and `emmit`. Those are then translated into C++ before compilation. This is a point that complicates QT learning. *Never* use those keywords, or they will get preprocessed and you will get weird errors!
 
-Some objects cannot be created on the stack, only on the heap.
-QT takes charge of their deletion when the time comes.
+Some objects cannot be created on the stack, only on the heap. QT takes charge of their deletion when the time comes.
 
-#sources
+#Sources
 
 - <www.zetcode.com/gui/qt4/firstprograms/>
 

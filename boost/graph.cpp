@@ -62,7 +62,7 @@ main(int, char *[])
 
   graph_traits < graph_t >::edge_iterator ei, ei_end;
   for (boost::tie(ei, ei_end) = edges(g); ei != ei_end; ++ei) {
-    graph_traits < graph_t >::edge_descriptor e = *ei;
+    edge_descriptor e = *ei;
     graph_traits < graph_t >::vertex_descriptor
       u = source(e, g), v = target(e, g);
     dot_file << name[u] << " -> " << name[v]

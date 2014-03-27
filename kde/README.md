@@ -1,3 +1,22 @@
+Build:
+
+    make
+
+To run you have two choices:
+
+- install and run from `PATH` (best option):
+
+        sudo make install
+        kdecheat
+
+- run directly from this directory:
+
+        make run
+
+    The downside of this method is that it is necessary to install in order for certain features to apply, for example `ui.rc` files.
+
+#KDE
+
 KDE is built on top of QT.
 
 If factors out many parts of applications, such as providing
@@ -7,11 +26,9 @@ If factors out many parts of applications, such as providing
 
     This greatly simplifies the harsh task of configuration management.
 
-API tutorials can be found on the <http://techbase.kde.org> site.
-The <http://userbase.kde.org> is only for user docs.
+API tutorials can be found at <http://techbase.kde.org>. <http://userbase.kde.org> is only for end-user docs.
 
-A good way to learn APIs it to look for very simple applications,
-download the source and see how they behave. A good one is `ksnakeduel`:
+A good way to learn APIs it to look for very simple applications, download the source and see how they behave. A good one is `ksnakeduel`:
 
     git clone git://anongit.kde.org/ksnakeduel
 

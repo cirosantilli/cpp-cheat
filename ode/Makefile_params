@@ -1,0 +1,2 @@
+LIBS	:= -lode
+PHONY	:= install-ubuntu

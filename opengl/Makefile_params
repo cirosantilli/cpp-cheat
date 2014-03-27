@@ -1,0 +1,2 @@
+LIBS	:= -lm -pthread -lGL -lGLU -lglut
+PHONY	:= install-ubuntu
