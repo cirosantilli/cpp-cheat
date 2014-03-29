@@ -380,13 +380,18 @@ int setjmp_func(bool jmp, jmp_buf env_buf)
 //#functions
 
     /*
-    #declaration vs definition
+    #declaration vs #definition
     */
 
         /*
             Declaration can happen many times.
 
             Definition no.
+
+            Rationale:
+
+            - declaratoin tells the compiler something exists. Its fine to say it exists many times.
+            - definition determines what code will be stored in programs. There can only be one such code.
         */
 
             void decl_def();

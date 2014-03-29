@@ -2,7 +2,15 @@ C and C++ information, cheatsheets and mini-projects.
 
 Based on Linux tools, but portable code is clearly separated from non-portable. Thoroughly tested on Ubuntu 12.04. Ports and reproduction reports on other systems are welcome.
 
-# Compile and run
+# Most useful files
+
+- [c.c](c.c): C cheatsheet.
+- [cpp.cpp](main_cpp.cpp): C++ cheatsheet.
+- `Makefile.*`: Makefiles that take care of a ton of possibilities.
+- [opengl/](opengl/)
+- [kde/](kde/)
+
+# Quickstart
 
 To compile and run each directory on Ubuntu 12.04 do:
 
@@ -21,15 +29,17 @@ run a given file by specifying the basename without extension:
     make run=c
     make run=cpp
 
+The `=` sign is *not* optional!
+
 Doing just `make run` in those cases will run the default file.
 
-# Most useful files
+To print the generated assembly code to the screen use:
 
-- [c.c](c.c): C cheatsheet.
-- [cpp.cpp](main_cpp.cpp): C++ cheatsheet.
-- `Makefile.*`: Makefiles that take care of a ton of possibilities.
-- [opengl/](opengl/)
-- [kde/](kde/)
+    make asm RUN=cpp
+
+To get help on all options use:
+
+    make help
 
 # About
 

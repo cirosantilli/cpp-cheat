@@ -1,33 +1,27 @@
 #include <stdio.h>
 
+// MUST come before the include.
+// Preprocessor does things in the exact same order it sees them.
+//#define DEF
 #define DEF
 #include "a.h"
-//#define DEF
-    //ERROR def undefined
-    //preprocessor does things in the exact same order it sees them
-
 #include "b.h"
 
 int i = 0;
 static int staticInt = 0;
 
-//extern int externIntInit = 1;
-    //WARN
-    //extern initialized?!
-
-static void staticFunc()
-{
-    printf( "main"              );
-    printf( "%d\n", staticInt   );
-    printf( "%d\n", aHStaticInt );
-    printf( "%d\n", externInt   );
+static void staticFunc() {
+    printf( "main#staticFunc:\n"                );
+    printf( "  staticInt   = %d\n", staticInt   );
+    printf( "  aHStaticInt = %d\n", aHStaticInt );
+    printf( "  externInt   = %d\n", externInt   );
+    puts("");
 }
 
 void func(){ puts( "mainFunc" ); }
 
-int main( int argc, char** argv )
-{
-    //static demostration
+int main(int argc, char** argv) {
+    // Static demostration
         staticFunc();
         a();
         staticFunc();
@@ -36,8 +30,6 @@ int main( int argc, char** argv )
     a();
     b();
 
-    //preprocessor includes
+    // Preprocessor includes
         def++;
-
-    return 0;
 }

@@ -1,0 +1,3 @@
+[submodule "boilerplate"]
+	path = boilerplate
+	url = https://github.com/cirosantilli/cpp-boilerplate

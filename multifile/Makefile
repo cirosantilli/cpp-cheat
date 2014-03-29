@@ -1,19 +1,18 @@
 CFLGS := -Wall
 
-.PHONY: all clean run 
+.PHONY: all clean run
 
 all: maina.elf mainso.elf mainso_fullpath.elf libab.so
 
 run: maina.elf mainso.elf mainso_fullpath.elf
 	./maina.elf
+	# This works only after install target and is the standard production method:
 	#./mainso.elf
-		#this works only after install target
-		#and is the standard production method
+	# This only a test method:
 	env LD_LIBRARY_PATH=.:$LD_LIBRARY_PATH ./mainso.elf
-		#this is only a test method
+	# Full path is stored in the elf.
+	# Since it starts with './', linker knows it is an absolute path:
 	./mainso_fullpath.elf
-		#full path is stored in the elf
-		#since it starts with './', linker knows it is an abs path
 
 install:
 	#sudo mv libabso /some/where/in/ld/path/
@@ -33,9 +32,9 @@ mainso.elf: main.o libab.so
 		#select an specific version such as `libab.so.1`
 	#env LIBRARY_PATH=$LIBRARY_PATH:. gcc $(CFLGS) main.c -o mainso.elf -lab
 
-#this is not recommended
-#better use linker path as in mainso.elf
-#readelf -d shows that the ouptut stores the full path
+# This is not recommended
+# Better use linker path as in mainso.elf
+# readelf -d shows that the ouptut stores the full path.
 mainso_fullpath.elf: main.o libab.so
 	gcc $(CFLGS) main.o "$(shell realpath libab.so)" -o mainso_fullpath.elf
 	#gcc $(CFLGS) main.o -o mainso_fullpath.elf -l"$(shell realpath libab.so)" 

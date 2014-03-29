@@ -1,0 +1,30 @@
+#!/usr/bin/env python
+
+"""
+Run executables with filenames given in argv[2:] and inside directory argv[1].
+Stop on the first that returns non 0 status.
+"""
+
+import os
+import subprocess
+import sys
+
+out_dir = sys.argv[1]
+out_files = sys.argv[2:]
+
+os.chdir(out_dir)
+# TODO make tac work.
+for out_file in [ x for x in out_files if not x in ['tac']]:
+    process = subprocess.Popen(
+        ['./' + out_file],
+        shell  = False,
+        stdin  = subprocess.PIPE,
+        stdout = subprocess.PIPE,
+        stderr = subprocess.PIPE,
+        universal_newlines = True
+    )
+    exit_status = process.wait()
+    if exit_status != 0:
+        print "Test failed for file: " + out_file
+        sys.exit(1)
+print "All tests passed."

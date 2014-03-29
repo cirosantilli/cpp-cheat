@@ -1,26 +1,4 @@
-# Compiles C files with GCC, and c++ files with g++, one by one separatelly.
-#
-# Executables have no extension, and the same name without extension as the file that originated it:
-#
-#     c.c -> c
-#     cpp.c -> cpp
-#     fortran.f -> fortran
-#
-# Therefore don'e use files with the same basename without extension: e.g. `main.c` and `main.cpp`.
-#
-# # Most useful invocations
-#
-# Build all:
-#
-#     make
-#
-# Build and run output with the default basename:
-#
-#     make run
-#
-# Build and run output with given basename:
-#
-#     make run c
+# `make help` for documentation.
 
 -include Makefile_params
 
@@ -69,7 +47,7 @@ OUTS_NODIR	:= $(basename $(INS_NODIR))
 OUTS_NODIR	:= $(addsuffix $(OUT_EXT), $(OUTS_NODIR))
 OUTS		:= $(addprefix $(OUT_DIR), $(OUTS_NODIR))
 
-.PHONY: all asm set_asm_flags clean debug set_debug_flags help mkdir objdump set_objdump_flags profile set_profile_flags $(PHONY)
+.PHONY: all asm set_asm_flags clean debug set_debug_flags help mkdir objdump set_objdump_flags profile set_profile_flags test $(PHONY)
 
 all: mkdir $(OUTS)
 ifneq ($(strip $(run)),)
@@ -93,7 +71,7 @@ asm: mkdir set_asm_flags
 		if [ -f "$(ASSEMBLER_NOEXT)$$EXT" ]; then \
 			case "$$EXT" in \
 				.c)\
-					$(MYCC) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) $(CFLAGS) -c -fverbose-asm -Wa,-adhln "$(ASSEMBLER_NOEXT)$$EXT" $(LIBS)\
+					$(MYCC) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) $(CFLAGS) -c -fverbose-asm -Wa,-adhln "$(ASSEMBLER_NOEXT)$$EXT" $(LIBS) -o $(OUT_DIR)asm.o\
 					;;\
 				.cpp)\
 					$(MYCXX) $(MYCXXFLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) -c -fverbose-asm -Wa,-adhln "$(ASSEMBLER_NOEXT)$$EXT" $(LIBS)\
@@ -121,7 +99,7 @@ set_debug_flags:
 	$(eval OPTIMIZE_FLAGS := -O0)
 
 mkdir:
-	mkdir -p "$(OUT_DIR)"
+	@mkdir -p "$(OUT_DIR)"
 
 objdump: mkdir set_objdump_flags all
 	cd $(OUT_DIR) && objdump -S $(RUN_BNAME)
@@ -141,4 +119,45 @@ set_profile_flags:
 	$(eval PROFILE_DEFINE := -DPROFILE)
 	#$(eval OPTIMIZE_FLAGS := -O0)
 
+test: all
+	./test $(OUT_DIR) $(OUTS_NODIR)
+
 -include Makefile_targets
+
+help:
+	@echo 'Compiles C files with GCC, and C++ files with g++, Fortran files with gfortran one by one separatelly.'
+	@echo ''
+	@echo 'Executables have the same name without extension as the file that originated it:'
+	@echo ''
+	@echo '    c.c -> c'
+	@echo '    cpp.c -> cpp'
+	@echo '    fortran.f -> fortran'
+	@echo ''
+	@echo 'Therefore dont use files with the same basename without extension: e.g. `main.c` and `main.cpp`.'
+	@echo ''
+	@echo '# Most useful invocations'
+	@echo ''
+	@echo 'Build all:'
+	@echo ''
+	@echo '    make'
+	@echo ''
+	@echo 'Build and run output with the default basename:'
+	@echo ''
+	@echo '    make run'
+	@echo ''
+	@echo 'Build and run output with given basename:'
+	@echo ''
+	@echo '    make run=c'
+	@echo ''
+	@echo 'The `=` sign is *not* optional.'
+	@echo ''
+	@echo '# Targets'
+	@echo ''
+	@echo 'all ................. Build all.'
+	@echo 'asm [RUN=name] ...... Print generated assembly code for the file with given basename without extension.'
+	@echo 'clean ............... Clean built files.'
+	@echo 'debug ............... Run with `gdb`.'
+	@echo 'help ................ Print help to stdout.'
+	@echo 'profile ............. Run with `gprof`.'
+	@echo 'run[=name] .......... Run a file with the given basename withotu extension or the default not given.'
+	@echo 'test ................ Run `./test <output-directory> <output-basename> ...`'
