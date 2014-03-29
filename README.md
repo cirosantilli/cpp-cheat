@@ -9,7 +9,7 @@ To compile and run each directory on Ubuntu 12.04 do:
     make install-ubuntu
     make run
 
-You *must* run `make install-ubuntu` on the top-level before compiling any subdirectories.
+You *must* run `make install-ubuntu` on the top-level before compiling any subdirectories, as this will install basic tools such as recent enough `gcc` and `g++` for C11 and C++11.
 
 When there are multiple files compiled, e.g.:
 
@@ -18,8 +18,8 @@ When there are multiple files compiled, e.g.:
 
 run a given file by specifying the basename without extension:
 
-    make run RUN=c
-    make run RUN=cpp
+    make run=c
+    make run=cpp
 
 Doing just `make run` in those cases will run the default file.
 

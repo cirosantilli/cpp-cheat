@@ -7422,25 +7422,14 @@ int main(int argc, char **argv)
             shall only be cheated here once.
         */
         {
-            //create
+            // Create
             {
-                //empty
+                // Empty
                 {
                     std::vector<int> v;
-
-                    //NEW way in C++11
-                    //initializer lists
+                    //C++11 initializer lists:
                     std::vector<int> v1{};
-
                     assert(v == v1);
-                }
-
-                {
-                    typedef std::vector<int>::size_type IndexType;
-                    std::vector<IndexType> v;
-                    v = std::vector<IndexType>(5);
-                    v = std::vector<unsigned int>(4, 0);
-
                 }
 
                 /*

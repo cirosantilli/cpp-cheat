@@ -46,8 +46,10 @@ IN_EXTS 	?= .c .cpp .f
 OUT_DIR 	?= _out/
 OUT_EXT 	?= #.elf
 
-# Basename without extension of file to run:
+# Basename without extension of file to run on run target.
 RUN ?= main
+# Allow users to write `make run=name`.
+run ?=
 
 ASSEMBLER_NOEXT		?= $(IN_DIR)$(RUN)
 DEBUG_DEFINE 		?=
@@ -70,6 +72,9 @@ OUTS		:= $(addprefix $(OUT_DIR), $(OUTS_NODIR))
 .PHONY: all asm set_asm_flags clean debug set_debug_flags help mkdir objdump set_objdump_flags profile set_profile_flags $(PHONY)
 
 all: mkdir $(OUTS)
+ifneq ($(strip $(run)),)
+	cd $(OUT_DIR) && ./"$(run)"
+endif
 
 $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.c
 	$(MYCC) $(CFLAGS)    $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) $(INCLUDE_DIRS) -o "$@" "$<" $(LIBS)
