@@ -1,15 +1,15 @@
 deps:
-	sudo aptitude update
-	sudo aptitude install build-essential
+	sudo apt-get update
+	sudo apt-get install aptitude
+	sudo aptitude install -y build-essential
+	# C and C++
+	sudo aptitude install -y python-software-properties
 	sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-	# C
+	sudo aptitude update
 	sudo aptitude install -y gcc-4.8
 	sudo aptitude install -y gcc-4.8-doc
 	sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 50
-	# C++
 	sudo aptitude install -y g++-4.8
 	sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50
 	# Fortran
-	sudo aptitude install -y gfortran
-
-	sudo aptitude install -y g++
+	sudo aptitude install -y gfortran-4.8

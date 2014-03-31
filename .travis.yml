@@ -1,0 +1,3 @@
+install: make deps
+language: cpp
+script: make test

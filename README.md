@@ -1,5 +1,7 @@
 C and C++ information, cheatsheets and mini-projects.
 
+[![Build Status](https://travis-ci.org/cirosantilli/cpp.svg?branch=master)](https://travis-ci.org/cirosantilli/cpp)
+
 Based on Linux tools, but portable code is clearly separated from non-portable. Thoroughly tested on Ubuntu 12.04. Ports and reproduction reports on other systems are welcome.
 
 # Most useful files
