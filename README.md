@@ -14,10 +14,10 @@ Based on Linux tools, but portable code is clearly separated from non-portable. 
 
 To compile and run each directory on Ubuntu 12.04 do:
 
-    make install-ubuntu
+    make deps
     make run
 
-You *must* run `make install-ubuntu` on the top-level before compiling any subdirectories, as this will install basic tools such as recent enough `gcc` and `g++` for C11 and C++11.
+You *must* run `make deps` on the top-level before compiling any subdirectories, as this will install basic tools such as recent enough `gcc` and `g++` for C11 and C++11.
 
 When there are multiple files compiled, e.g.:
 

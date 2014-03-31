@@ -1,2 +1,1 @@
 LIBS	:= -lgsl -lgslcblas -lm -lplplotd
-PHONY	:= install-ubuntu

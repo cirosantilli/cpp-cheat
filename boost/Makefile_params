@@ -1,2 +1,1 @@
 LIBS	:= -lboost_graph -lm
-PHONY	:= install-ubuntu

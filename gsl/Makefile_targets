@@ -1,4 +1,4 @@
-install-ubuntu:
+deps:
 	sudo aptitude update
 	# gsl
 	sudo aptitude install -y libgsl0-dev gsl-doc-info

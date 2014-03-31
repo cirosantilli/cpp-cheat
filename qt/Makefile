@@ -21,7 +21,7 @@ install: all
 install-run:
 	$(TARGET)
 
-install-ubuntu:
+deps:
 	sudo aptitude update
 	sudo aptitude install -y libqt4-dev
 

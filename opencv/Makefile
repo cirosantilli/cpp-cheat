@@ -35,5 +35,5 @@ $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%$(IN_EXT)
 clean:
 	rm -rf $(OUT_DIR) $(AUX_DIR)
 
-install-ubuntu:
+deps:
 	sudo apt-get install -y libopencv-dev opencv-doc

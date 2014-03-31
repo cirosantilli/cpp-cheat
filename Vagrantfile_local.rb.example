@@ -1,0 +1,7 @@
+# This file is gitignored.
+
+Box = "precise32"
+BoxUrl = "http://files.vagrantup.com/precise32.box"
+
+#Box = "debian-7.2.0"
+#BoxUrl = "https://dl.dropboxusercontent.com/u/197673519/debian-7.2.0.box"

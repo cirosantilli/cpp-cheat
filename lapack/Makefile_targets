@@ -1,4 +1,4 @@
-install-ubuntu:
+deps:
 	sudo aptitude update
 	# BLAS C/Fotran and LAPACK Fortran:
 	sudo aptitude install -y liblapack-dev

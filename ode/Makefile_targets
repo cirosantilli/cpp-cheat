@@ -1,3 +1,3 @@
-install-ubuntu:
+deps:
 	sudo aptitude update
 	sudo aptitude install -y libode-dev

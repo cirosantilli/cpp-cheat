@@ -13,7 +13,7 @@ clean:
 install: all
 	cd "$(BUILD_DIR)" && make install
 
-install-ubuntu:
+deps:
 	sudo aptitude install -y kdelibs5-dev
 
 run: all
