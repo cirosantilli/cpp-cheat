@@ -1,5 +1,4 @@
 " Used on directories that compile files individually (e.g. c.c -> c and cpp.cpp -> cpp)
-" <F5>: compile all
 " <F6>: compile and run the current file
 
 function! RedirStdoutNewTabSingle(cmd)
