@@ -6958,10 +6958,9 @@ int main(int argc, char **argv)
 
             #printf
 
-                In c++ there is no more printf formatting strings
-                must use the C libs for that.
+                In C++ there is no more printf formatting strings: must use the C libs for that.
 
-                It is possible however to obtain some level of formatting control
+                It is possible however to obtain some level of formatting control.
 
             #endl
 
@@ -8074,7 +8073,7 @@ int main(int argc, char **argv)
             }
 
             /*
-            insert
+            #insert
 
                 Insert pair into map.
 
@@ -8084,16 +8083,16 @@ int main(int argc, char **argv)
                 std::map<int,std::string> m;
                 std::pair<map<int,std::string>::iterator,bool> ret;
 
-                ret = m.insert(std::pair<int,std::string>(0, "zero") );
+                ret = m.insert(std::pair<int,std::string>(0, "zero"));
                 assert(ret.first == m.find(0));
                 assert(ret.second == true);
 
-                ret = m.insert(std::pair<int,std::string>(1, "one") );
+                ret = m.insert(std::pair<int,std::string>(1, "one"));
                 assert(ret.first == m.find(1));
                 assert(ret.second == true);
 
                 //key already present
-                ret = m.insert(std::pair<int,std::string>(1, "one2") );
+                ret = m.insert(std::pair<int,std::string>(1, "one2"));
                 assert(m[1] == "one");
                 assert(ret.first == m.find(1));
                 assert(ret.second == false);

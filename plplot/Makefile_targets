@@ -1,4 +1,0 @@
-deps:
-	sudo aptitude update
-	sudo aptitude install -y libplplot-dev
-	sudo aptitude install -y plplot11-driver-xwin

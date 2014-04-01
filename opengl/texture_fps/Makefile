@@ -27,7 +27,3 @@ mkdir:
 
 clean:
 	rm -rf $(OUT_DIR) $(SAUX_DIR)
-
-deps:
-	sudo apt-get install freeglut-dev
-	sudo apt-get install libopencv-dev

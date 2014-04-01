@@ -1,16 +1,16 @@
 #!/usr/bin/env python
 
 """
-does many test cases
+Does many test cases.
 
-run as:
-        
+Run as:
+
     test.py executable
 """
 
 import subprocess
 import sys
-import unittest 
+import unittest
 
 class ProgramInput:
 

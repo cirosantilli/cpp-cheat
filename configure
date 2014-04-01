@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# This cannot be put into makefiles because some systems don't have make installed.
+set -e
+distro_id="$(lsb_release -i | sed -r 's/.*:\t(.*)/\1/')"
+distro_version="$(lsb_release -r | sed -r 's/.*:\t(.*)/\1/')"
+if [ "$distro_id" = "Ubuntu" ]; then
+  sudo apt-get update
+  sudo apt-get install -y aptitude
+  sudo aptitude install -y build-essential
+  # C and C++
+  sudo aptitude install -y python-software-properties
+  sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+  sudo aptitude update
+  sudo aptitude install -y gcc-4.8
+  sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 50
+  sudo aptitude install -y g++-4.8
+  sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50
+  # Fortran
+  sudo aptitude install -y gfortran-4.8
+elif [ "$distro_id" = "Debian" ]; then
+  sudo apt-get update
+  sudo apt-get install aptitude
+  sudo aptitude install -y build-essential
+  sudo aptitude install -y g++
+else
+  echo 'Automatic dependency installation is not supported on your system.'
+  printf 'Dependencies are:
+gcc >= 4.7
+gfortran >= 4.7
+g++ >= 4.7
+make
+'
+  exit 1
+fi

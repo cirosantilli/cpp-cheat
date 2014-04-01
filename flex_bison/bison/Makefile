@@ -15,29 +15,29 @@ CC			:= gcc
 CFLAGS	?= -Wall -std=c99 -pedantic -Wno-unused-function
 
 #paths
-AUX_DIR 						?= _out/
-OBJ_EXT 						?= .o
-IN_DIR 						?= ./
-FLEX_EXT  				  ?= .l
-BISON_EXT  				?= .y
-IN_EXTS 						?= $(FLEX_EXT) $(BISON_EXT) .c
-OUT_DIR 						?= $(AUX_DIR)
-OUT_EXT 						?= .elf
+AUX_DIR				?= _out/
+OBJ_EXT				?= .o
+IN_DIR				?= ./
+FLEX_EXT			?= .l
+BISON_EXT			?= .y
+IN_EXTS 			?= $(FLEX_EXT) $(BISON_EXT) .c
+OUT_DIR 			?= $(AUX_DIR)
+OUT_EXT 			?= .elf
 OUT_BASENAME_NOEXT	?= a
 
-INS 				:= $(foreach IN_EXT, $(IN_EXTS), $(wildcard $(IN_DIR)*$(IN_EXT)) )
+INS 		:= $(foreach IN_EXT, $(IN_EXTS), $(wildcard $(IN_DIR)*$(IN_EXT)) )
 INS_NODIR 	:= $(notdir $(INS))
 OBJS_NODIR	:= $(filter %$(OBJ_EXT), $(foreach IN_EXT, $(IN_EXTS), $(patsubst %$(IN_EXT),%$(OBJ_EXT),$(INS_NODIR))))
-OBJS				:= $(addprefix $(AUX_DIR), $(OBJS_NODIR))
+OBJS		:= $(addprefix $(AUX_DIR), $(OBJS_NODIR))
 
 OUT_BASENAME:= $(OUT_BASENAME_NOEXT)$(OUT_EXT)
-OUT					:= $(OUT_DIR)$(OUT_BASENAME)
+OUT			:= $(OUT_DIR)$(OUT_BASENAME)
 
 #bison generated header:
 BISON_H			:= $(addprefix $(AUX_DIR), $(notdir $(patsubst %$(BISON_EXT), %.h, $(wildcard $(IN_DIR)*$(BISON_EXT)))))
 FLEX_C			:= $(addprefix $(AUX_DIR), $(notdir $(patsubst %$(FLEX_EXT), %.c, $(wildcard $(IN_DIR)*$(FLEX_EXT)))))
 
-.PHONY: all run test mkdir clean ubuntu_install_deps
+.PHONY: all clean mkdir run test
 
 .SECONDARY: $(FLEX_C) $(BISON_H)
 
@@ -72,6 +72,3 @@ run: all
 
 test: all
 	python test.py "$(OUT)"
-
-ubuntu_install_deps:
-	sudo aptitude install -y flex bison

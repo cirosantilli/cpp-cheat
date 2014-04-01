@@ -34,7 +34,7 @@ OUT					:= $(OUT_DIR)$(OUT_BASENAME)
 BISON_H			:= $(addprefix $(AUX_DIR), $(notdir $(patsubst %$(BISON_EXT), %.h, $(wildcard $(IN_DIR)*$(BISON_EXT)))))
 FLEX_C			:= $(addprefix $(AUX_DIR), $(notdir $(patsubst %$(FLEX_EXT), %.c, $(wildcard $(IN_DIR)*$(FLEX_EXT)))))
 
-.PHONY: all run test mkdir clean ubuntu_install_deps
+.PHONY: all clean mkdir run test
 
 .SECONDARY: $(FLEX_C) $(BISON_H)
 
@@ -46,20 +46,20 @@ all: mkdir $(OUT)
 $(OUT): $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) -o $(OUT) -lfl
 
-$(AUX_DIR)%$(OBJ_EXT): $(IN_DIR)%.c $(BISON_H) 
+$(AUX_DIR)%$(OBJ_EXT): $(IN_DIR)%.c $(BISON_H)
 	$(CC) $(CFLAGS) -c "$<" -o "$@"
 
-$(AUX_DIR)%$(OBJ_EXT): $(IN_DIR)%.cpp $(BISON_H) 
+$(AUX_DIR)%$(OBJ_EXT): $(IN_DIR)%.cpp $(BISON_H)
 	$(CC) $(CFLAGS) -c "$<" -o "$@"
 
-$(AUX_DIR)%$(OBJ_EXT): $(AUX_DIR)%.c $(BISON_H) 
+$(AUX_DIR)%$(OBJ_EXT): $(AUX_DIR)%.c $(BISON_H)
 	$(CC) $(CFLAGS) -I. -c "$<" -o "$@"
 
 $(AUX_DIR)%.c: $(IN_DIR)%$(FLEX_EXT)
 	flex -o "$(AUX_DIR)$*".c "$<"
 
 $(AUX_DIR)%.c $(AUX_DIR)%.h: $(IN_DIR)%$(BISON_EXT)
-	bison -v -o "$(AUX_DIR)$*".c --defines="$(AUX_DIR)$*".h "$<" 
+	bison -v -o "$(AUX_DIR)$*".c --defines="$(AUX_DIR)$*".h "$<"
 
 clean:
 	rm -rf "$(AUX_DIR)" "$(OUT_DIR)"
@@ -72,6 +72,3 @@ run: all
 
 test: all
 	python test.py "$(OUT)"
-
-ubuntu_install_deps:
-	sudo aptitude install -y flex bison

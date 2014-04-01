@@ -2,24 +2,21 @@ C and C++ information, cheatsheets and mini-projects.
 
 [![Build Status](https://travis-ci.org/cirosantilli/cpp.svg?branch=master)](https://travis-ci.org/cirosantilli/cpp)
 
-Based on Linux tools, but portable code is clearly separated from non-portable. Thoroughly tested on Ubuntu 12.04. Ports and reproduction reports on other systems are welcome.
+Relies on <https://github.com/cirosantilli/cpp-boilerplate> to factor code out. See [its documentation](https://github.com/cirosantilli/cpp-boilerplate/blob/master/README.md) for useful information on how to use this project.
 
 # Most useful files
 
 - [c.c](c.c): C cheatsheet.
 - [cpp.cpp](main_cpp.cpp): C++ cheatsheet.
-- `Makefile.*`: Makefiles that take care of a ton of possibilities.
 - [opengl/](opengl/)
 - [kde/](kde/)
 
 # Quickstart
 
-To compile and run each directory on Ubuntu 12.04 do:
+On Ubuntu 12.04:
 
-    make deps
+    ./configure
     make run
-
-You *must* run `make deps` on the top-level before compiling any subdirectories, as this will install basic tools such as recent enough `gcc` and `g++` for C11 and C++11.
 
 When there are multiple files compiled, e.g.:
 
@@ -45,9 +42,9 @@ To get help on all options use:
 
 # About
 
-Larger projects may be in separate dirs.
+Larger projects may be in separate repositories.
 
-There may be other compiled languages here for which we don't have much material for a separate dir, specially when we interface that language with C. Ex: Fortran.
+There may be other compiled languages here for which we don't have much material for a separate repository, specially when we interface that language with C. Ex: Fortran.
 
 Non-portable features shall be clearly separated from portable ones in either:
 

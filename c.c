@@ -4014,7 +4014,7 @@ int main(int argc, char **argv)
             }
 
             /*
-            macro
+            #macro
 
                 Shares the disadvantage of every macro of having no scope.
 

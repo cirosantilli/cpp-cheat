@@ -13,9 +13,6 @@ clean:
 install: all
 	cd "$(BUILD_DIR)" && make install
 
-deps:
-	sudo aptitude install -y kdelibs5-dev
-
 run: all
 	cd "$(BUILD_DIR)" && ./$(TARGET)
 

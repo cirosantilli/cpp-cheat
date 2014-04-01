@@ -1,3 +1,0 @@
-deps:
-	sudo aptitude update
-	sudo aptitude install -y libgtk-3-dev

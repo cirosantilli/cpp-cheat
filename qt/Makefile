@@ -21,10 +21,6 @@ install: all
 install-run:
 	$(TARGET)
 
-deps:
-	sudo aptitude update
-	sudo aptitude install -y libqt4-dev
-
 uninstall: all
 	cd "$(BUILD_DIR)" && make uninstall
 	$(TARGET)

@@ -1,3 +1,0 @@
-deps:
-	sudo aptitude update
-	sudo aptitude install -y freeglut3-dev

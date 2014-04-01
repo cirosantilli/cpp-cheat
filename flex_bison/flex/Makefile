@@ -22,7 +22,7 @@ OUT					:= $(OUT_DIR)$(OUT_BASENAME)
 #bison generated header:
 FLEX_C			:= $(addprefix $(AUX_DIR), $(notdir $(patsubst %.lex, %.c, $(wildcard $(IN_DIR)*.lex))))
 
-.PHONY: all run test mkdir clean ubuntu_install_deps
+.PHONY: all clean mkdir test run 
 
 all: mkdir $(OUT)
 
@@ -51,6 +51,3 @@ run: all
 
 test: all
 	python test.py "$(OUT)"
-
-ubuntu_install_deps:
-	sudo aptitude install -y flex bison

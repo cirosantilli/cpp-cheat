@@ -5,10 +5,10 @@
 // accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //=======================================================================
-#include <boost/config.hpp>
 #include <iostream>
 #include <fstream>
 
+#include <boost/config.hpp>
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/dijkstra_shortest_paths.hpp>
@@ -17,8 +17,7 @@
 using namespace boost;
 
 int
-main(int, char *[])
-{
+main(int, char *[]) {
   typedef adjacency_list < listS, vecS, directedS,
     no_property, property < edge_weight_t, int > > graph_t;
   typedef graph_traits < graph_t >::vertex_descriptor vertex_descriptor;
