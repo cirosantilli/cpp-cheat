@@ -9186,7 +9186,7 @@ int main(int argc, char **argv) {
         */
         {
             // Js has `[:d:]` equivalent POSIX `[:digit:]`.
-            std::regex r("a[[:d:]]");
+            std::regex r("a.(c|d)");
         }
 #endif
 
