@@ -1,32 +1,53 @@
-this is the main bison cheat.
+Main Bison cheat.
 
-it is hard to test bison without flex, so they are used together here.
+It is hard to test Bison without Flex, so they are used together.
 
-#cudos
+Information on Flex is not given here.
 
-i have taken this from a very good intro source:
+#What the it does
 
-[Tom Niemann - Lex & Yacc Tutorial](http://epaperpress.com/lexandyacc/)
+This generates a simple C-like calculator which supports:
 
-and only made minor modfications (mostly annotations to explain what stuff does)
-
-#features
-
-it is a simple c-like calculator which supports:
-
-- + - * /
-- < > <= >= == !=
+- `print` statement
+- `+` `-` `*` `/`
+- `<` `>` `<=` `>=` `==` `!=`
 - variables
-- if, if else, while
+- `if`, `while`
 
-possible outputs:
+The program takes output from stdin, and outputs printed results to stdout.
+
+Sample input:
+
+    i = 0;
+    while (i < 3) {
+        print i;
+        i = i + 1;
+    }
+
+Output:
+
+    0
+    1
+    2
+
+Many input examples can be found in the [test](test) file.
+
+Possible outputs:
 
 - interpreter
 - assembler
-- visual ascii syntax tree
+- visual ASCII syntax tree
 
-non-features:
+Missing features:
 
 - integers arithmetic only
 - functions
 - strings
+
+#cudos
+
+This was  taken this from a very good intro source:
+
+[Tom Niemann - Lex & Yacc Tutorial](http://epaperpress.com/lexandyacc/)
+
+and only minor modifications were made, mostly annotations to explain what lines are doing.

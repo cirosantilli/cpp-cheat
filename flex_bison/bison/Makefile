@@ -15,7 +15,7 @@ CC			:= gcc
 CFLAGS	?= -Wall -std=c99 -pedantic -Wno-unused-function
 
 #paths
-AUX_DIR				?= _out/
+AUX_DIR				?= _build/
 OBJ_EXT				?= .o
 IN_DIR				?= ./
 FLEX_EXT			?= .l
@@ -71,4 +71,4 @@ run: all
 	( cd $(OUT_DIR) && ./$(OUT_BASENAME) $(RUN_ARGS) )
 
 test: all
-	python test.py "$(OUT)"
+	./test "$(OUT)"

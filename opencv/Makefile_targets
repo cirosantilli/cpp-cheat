@@ -1,0 +1,3 @@
+# Called after all.
+all-post:
+	ln -s ../media "$(OUT_DIR)media"

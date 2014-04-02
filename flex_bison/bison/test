@@ -5,7 +5,7 @@ Does many test cases.
 
 Run as:
 
-    test.py executable
+    ./test executable
 """
 
 import subprocess
@@ -14,7 +14,7 @@ import unittest
 
 class ProgramInput:
 
-    def __init__(self, stdin, args = [] ):
+    def __init__(self, stdin, args = []):
         self.stdin  = stdin
         self.args   = args
 
@@ -54,25 +54,29 @@ class Test(unittest.TestCase):
 
             #print
 
-                ( ProgramInput( 'print 1;' ),           ProgramOutput( '1\n' ) ),
-                ( ProgramInput( 'a = 1; print a;' ),    ProgramOutput( '1\n' ) ),
+                (ProgramInput('print 1;'),           ProgramOutput('1\n')),
+                (ProgramInput('a = 1; print a;'),    ProgramOutput('1\n')),
 
             ##vars
 
-                ( ProgramInput( 'a = 1 + 1; print a;' ),             ProgramOutput( '2\n' ) ),
-                ( ProgramInput( 'a = 1; b = a; print b;' ),          ProgramOutput( '1\n' ) ),
+                (ProgramInput('a = 1 + 1; print a;'),    ProgramOutput('2\n')),
+                (ProgramInput('a = 1; b = a; print b;'), ProgramOutput('1\n')),
 
             ##if
 
-                ( ProgramInput( 'if(1); print 1;' ),             ProgramOutput( '1\n' ) ),
-                #( ProgramInput( 'if(0); print 1;' ),             ProgramOutput( '\n' ) ),
+                (ProgramInput('if(1); print 1;'),        ProgramOutput('1\n')),
+                #(ProgramInput('if(0); print 1;'),       ProgramOutput('\n')),
+
+            ##while
+
+                (ProgramInput('i = 0; while (i < 3) {print i; i = i + 1;}'), ProgramOutput('0\n1\n2\n')),
         ]
 
         for inout in inouts:
 
             inp, out_expect = inout
             command = [ program_path ]
-            command.extend( inp.args )
+            command.extend(inp.args)
 
             process = subprocess.Popen(
                 command,
@@ -81,17 +85,17 @@ class Test(unittest.TestCase):
                 stdout = subprocess.PIPE,
                 stderr = subprocess.PIPE
             )
-            stdout, stderr = process.communicate( inp.stdin )
+            stdout, stderr = process.communicate(inp.stdin)
             exit_status = process.wait()
-            out = ProgramOutput( stdout, stderr, exit_status )
+            out = ProgramOutput(stdout, stderr, exit_status)
 
             #print inp
             #print out
             #print out_expect
 
-            self.assertEqual( out, out_expect )
+            self.assertEqual(out, out_expect)
 
 if __name__ == '__main__':
 
     program_path = sys.argv[1]
-    unittest.main( argv = [sys.argv[0]] )
+    unittest.main(argv = [sys.argv[0]])

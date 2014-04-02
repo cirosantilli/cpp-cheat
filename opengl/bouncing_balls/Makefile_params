@@ -1,1 +1,2 @@
-../Makefile_params
+LIBS	:= -lm -pthread -lGL -lGLU -lglut
+RUN		:= many

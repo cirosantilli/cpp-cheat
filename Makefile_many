@@ -2,7 +2,7 @@
 
 -include Makefile_params
 
-# c/cpp
+# C/CPP
 # Don't use the standard names like `CC` and `CXX` to avoid `?=` getting overridden.
 # by the Makefile default values.
 MYCC			?= gcc
@@ -21,7 +21,8 @@ FFLAGS 	?= -std=f2003 -Wall -pedantic-errors -march=native $(FFLAGS_EXTRA)
 # Paths
 IN_DIR 		?= ./
 IN_EXTS 	?= .c .cpp .f
-OUT_DIR 	?= _out/
+# Unlike in Makefile_one, there is no TMP_DIR because there are no .o files generated.
+OUT_DIR 	?= _build/
 OUT_EXT 	?= #.elf
 
 # Basename without extension of file to run on run target.
@@ -50,6 +51,8 @@ OUTS		:= $(addprefix $(OUT_DIR), $(OUTS_NODIR))
 .PHONY: all asm set_asm_flags clean debug set_debug_flags help mkdir objdump set_objdump_flags profile set_profile_flags test $(PHONY)
 
 all: mkdir $(OUTS)
+	@#TODO ignore errors if not present
+	@-$(MAKE) all-post
 ifneq ($(strip $(run)),)
 	cd $(OUT_DIR) && ./"$(run)"
 endif

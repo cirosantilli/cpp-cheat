@@ -305,6 +305,7 @@ Features which are identical to C will not be described
 #include <mutex>
 #include <new>              //new
 #include <numeric>          //partial sums, differences on std::vectors of numbers
+#include <regex>
 #include <set>              //set, multiset
 #include <string>           //string
 #include <sstream>          //stringstream
@@ -2160,7 +2161,7 @@ void printCallStack()
                 return 0;
             }
 
-            int adlMultiArg(int i, struct s s, int j  ){
+            int adlMultiArg(int i, struct s s, int j){
                 return 0;
             }
         }
@@ -2601,13 +2602,13 @@ void printCallStack()
                 assert(tq.TemplateMethod<1>() == 1);
                 assert(tq.template TemplateMethod<1>() == 1);
 
-                //assert( t.TemplateMethod<1>() );
+                //assert( t.TemplateMethod<1>());
                 assert(t.template TemplateMethod<1>() == 1);
 
-                //assert( tp TemplateMethod<1>() == 1 )
+                //assert( tp TemplateMethod<1>() == 1)
                 assert(tp->template TemplateMethod<1>() == 1);
 
-                //assert( T::TemplateMethod<1>() == 1 );
+                //assert( T::TemplateMethod<1>() == 1);
                 assert(T::template TemplateMethod<1>() == 1);
 
                 //typename T::Nested<1> n;
@@ -2940,9 +2941,7 @@ void printCallStack()
 
 //find_if
 
-    bool isOdd(int i){
-        return i % 2 == 1;
-    }
+    bool odd(int i){ return (i % 2) == 1; }
 
 int bind2ndTarget(int i, int j){
     return i + j;
@@ -2995,8 +2994,25 @@ class ClassWithTypedef
     }
     */
 
-int main(int argc, char **argv)
-{
+// #string
+
+    std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems) {
+        std::stringstream ss(s);
+        std::string item;
+        while (std::getline(ss, item, delim)) {
+            elems.push_back(item);
+        }
+        return elems;
+    }
+
+    std::vector<std::string> split(const std::string &s, char delim) {
+        std::vector<std::string> elems;
+        split(s, delim, elems);
+        return elems;
+    }
+
+int main(int argc, char **argv) {
+
     /*
     #assign operator
 
@@ -3807,7 +3823,7 @@ int main(int argc, char **argv)
             */
             {
                 int i = 0;
-                (getIntRef(i) ) = 2;
+                (getIntRef(i)) = 2;
                 assert(i == 2);
             }
         }
@@ -4411,7 +4427,7 @@ int main(int argc, char **argv)
             */
             {
                 TemplateQualifier tq;
-                TemplateQualifierTest<TemplateQualifier>(tq, tq, &tq );
+                TemplateQualifierTest<TemplateQualifier>(tq, tq, &tq);
             }
         }
 
@@ -4521,11 +4537,11 @@ int main(int argc, char **argv)
             and (2) are necessary.
         */
         {
-            assert((templateDefault<int,TemplateTemplateParam,1>(1, TemplateTemplateParam<int>(1) )) == 3);
+            assert((templateDefault<int,TemplateTemplateParam,1>(1, TemplateTemplateParam<int>(1))) == 3);
             //      ^                                                                                  ^
             //      1                                                                                  2
 
-            //assert(templateDefault<int,TemplateTemplateParam,1>(1, TemplateTemplateParam<int>(1) ) == 3);
+            //assert(templateDefault<int,TemplateTemplateParam,1>(1, TemplateTemplateParam<int>(1)) == 3);
             //                       ^                           ^
             //                       1                           2
                 //ERROR
@@ -4544,12 +4560,12 @@ int main(int argc, char **argv)
         Each of the 3 parameters types that can be passed to templates can have defaults.
     */
     {
-        assert((templateDefault<int,TemplateTemplateParam,1>(1, TemplateTemplateParam<int>(1) )) == 3);
-        assert((templateDefault<int,TemplateTemplateParam  >(1, TemplateTemplateParam<int>(1) )) == 3);
-        assert((templateDefault<int                        >(1, TemplateTemplateParam<int>(1) )) == 3);
-        assert((templateDefault<                           >(1, TemplateTemplateParam<int>(1) )) == 3);
+        assert((templateDefault<int,TemplateTemplateParam,1>(1, TemplateTemplateParam<int>(1))) == 3);
+        assert((templateDefault<int,TemplateTemplateParam  >(1, TemplateTemplateParam<int>(1))) == 3);
+        assert((templateDefault<int                        >(1, TemplateTemplateParam<int>(1))) == 3);
+        assert((templateDefault<                           >(1, TemplateTemplateParam<int>(1))) == 3);
             //if there are no parameters left, the `<>` can be ommited:
-        assert((templateDefault                             (1, TemplateTemplateParam<int>(1) )) == 3);
+        assert((templateDefault                             (1, TemplateTemplateParam<int>(1))) == 3);
     }
 
 #if __cplusplus >= 201103L
@@ -4573,9 +4589,9 @@ int main(int argc, char **argv)
                 Return number of template arguments passed to tempalte.
             */
             {
-                assert(   VariadicSizeof<>()        == 0   );
-                assert(   VariadicSizeof<int>()     == 1   );
-                assert( ( VariadicSizeof<int,int>() == 2 ) );
+                assert( VariadicSizeof<>()        == 0 );
+                assert( VariadicSizeof<int>()     == 1 );
+                assert((VariadicSizeof<int,int>() == 2));
             }
         }
 #endif
@@ -5220,9 +5236,9 @@ int main(int argc, char **argv)
 
                                 assert(UniformInitializationCtor2Func({1, 1}) == 3);
 
-                                assert((o == UniformInitializationCtor2{1,1}) );
-                                assert((o.operator==({1,1})) );
-                                //assert((o == {1,1}) );
+                                assert((o == UniformInitializationCtor2{1,1}));
+                                assert((o.operator==({1,1})));
+                                //assert((o == {1,1}));
                                     //ERROR TODO why does this fail to compile?
                             }
                         }
@@ -5288,7 +5304,7 @@ int main(int argc, char **argv)
         //#call one constructor from constructor
         {
             CtorFromCtor c(0,1);
-            assert((c.v == std::vector<int>{0, 1}) );
+            assert((c.v == std::vector<int>{0, 1}));
         }
 #endif
 
@@ -5321,32 +5337,31 @@ int main(int argc, char **argv)
                     //SAME
                 assert(v[0] == 0);
                 assert(v[1] == 1);
-                assert(v == std::vector<int>({0, 1}) );
-                assert((v == std::vector<int>{0, 1}) );
+                assert(v == std::vector<int>({0, 1}));
+                assert((v == std::vector<int>{0, 1}));
 
-                //assignment also works via implicit conversion
+                // Assignment also works via implicit conversion.
                 v = {1, 0};
-                assert((v == std::vector<int>{1, 0}) );
+                assert((v == std::vector<int>{1, 0}));
 
-                //assert((v == {0, 1}) );
-                    //ERROR
-                    //todo why no implicit conversion is made?
+                // ERROR: TODO why no implicit conversion is made?
+                //assert((v == {0, 1}));
             }
 
-            //how to use it in a class
+            // How to implemente one.
             {
                 {
                     InitializerListCtor o{0, 1};
                     assert((o.v == std::vector<int>{0, 1}));
                 }
 
-                //initializer list constructor is called
+                // Initializer list constructor is called
                 {
                     InitializerListCtor o{0, 0, 0, 0};
                     assert((o.v == std::vector<int>{0, 0, 0, 0}));
                 }
 
-                //3 param constructor is called
+                // 3 param constructor is called
                 {
                     InitializerListCtor o(0, {0, 0,}, 0);
                     assert((o.v == std::vector<int>{1, 0, 0, -1}));
@@ -5356,21 +5371,20 @@ int main(int argc, char **argv)
             /*
             auto rule: brace initializer can be bound to auto
 
-            this means that for loop work
+            This means that for loop work
 
             http://en.cppreference.com/w/cpp/utility/initializer_list
             */
             {
                 {
-                    auto l = {0, 1, 2};
-                    //initializer_list<int> l = {0, 1, 2};
+                    auto l{0, 1, 2};
+                    // Same:
                     //initializer_list<int> l{0, 1, 2};
-                        //same
                     assert(l.size() == 3);
                     assert(*l.begin() == 0);
                 }
 
-                // the rule for auto makes this ranged for work.
+                // The rule for auto makes this ranged for work.
                 // TODO0 why here? I see an `int`, not an `auto`
                 int i = 0;
                 for (int x : {0, 1, 2}) {
@@ -6360,10 +6374,10 @@ int main(int argc, char **argv)
             int& ia = i;
             Class c;
 
-            assert(typeid(i)  == typeid(int));
+            assert(typeid(i)  == typeid(int) );
             assert(typeid(ia) == typeid(int&));
-            assert(typeid(i)  == typeid(i1) );
-            assert(typeid(i)  != typeid(c)  );
+            assert(typeid(i)  == typeid(i1)  );
+            assert(typeid(i)  != typeid(c)   );
         }
 
         // name: returns a string representation of the type.
@@ -6779,7 +6793,7 @@ int main(int argc, char **argv)
             for operators completely destroys their eyecandy appeal.
         */
         {
-            //ADL allows both to be found and differentiated!
+            // ADL allows both to be found and differentiated!
             {
                 {
                     struct adl0::s s;
@@ -6792,7 +6806,7 @@ int main(int argc, char **argv)
                 }
             }
 
-            //only works if the type is defined on the same namespace as the function
+            // Only works if the type is defined on the same namespace as the function
             {
                 struct adl0::s s;
                 //assert(adl0FromAdl1(s) == 1);
@@ -6800,34 +6814,32 @@ int main(int argc, char **argv)
                     //not declared on this scope
             }
 
-            //works if at least one of the argument types is in the namespace
+            // Works if at least one of the argument types is in the namespace
             {
                 struct adl0::s s;
                 assert(adlMultiArg(0, s, 1) == 0);
             }
 
-            //lookup works even if types from both namespaces are used
+            // Lookup works even if types from both namespaces are used
             {
                 struct adl0::s s0;
                 struct adl1::s s1;
                 assert(adl0And1FromAdl1(s0, s1) == 1);
             }
 
-            //of course, calls can still be ambiguous
+            // Of course, calls can still be ambiguous
             {
                 struct adl0::s s0;
                 struct adl1::s s1;
                 //assert(adl01(s0, s1) == 0.5);
-                    //ERROR
-                    //ambiguous call
+                    //ERROR: ambiguous call
             }
 
             //only works for *types* defined in the namespaces, not values
             {
                 //assert(adlNoType(adl0::i) == 0);
                 //assert(adlNoType(adl1::i) == 0);
-                    //ERROR
-                    //adlNoType not found on this scope
+                    //ERROR: adlNoType not found on this scope
             }
         }
     }
@@ -6836,21 +6848,20 @@ int main(int argc, char **argv)
     {
         //#string
         {
-            //initialize from string literal
+            // Initialize from string literal
             {
                 string s = "abc";
             }
 
-            //cout works as expected
+            // cout works as expected
             {
                 string s = "abc";
-
-                stringstream oss;
+                std::stringstream oss;
                 oss << s;
                 assert(oss.str() == "abc");
             }
 
-            //cat. Creates a new string.
+            // #cat. Creates a new string.
             {
                 string s = "ab";
                 string s1 = "cd";
@@ -6859,7 +6870,7 @@ int main(int argc, char **argv)
                 assert("cd" + s == "cdab");
             }
 
-            //length
+            // Length:
             {
                 std::string s = "abc";
                 assert(s.length() == 3);
@@ -6887,8 +6898,41 @@ int main(int argc, char **argv)
                 assert((std::strcmp(s.c_str(), "abc")) == 0);
             }
 
+            // #split
+            {
+                // Best stdlib solution for any character: http://stackoverflow.com/questions/236129/how-to-split-a-string-in-c
+                // There are shorters sstream solutions that split at whitespace.
+                // For Boost it's a one liner.
+                {
+                    assert((split("01:23::45", ':') == std::vector<std::string>{"01", "23", "", "45"}));
+
+                    std::vector<std::string> v;
+                    split("01:23::45", ':', v);
+                    assert((v == std::vector<std::string>{"01", "23", "", "45"}));
+                }
+            }
+
+            // #strip #filter
+            // Exact same techniques as removing elements from vectors but for characters.
+            // Its just that those operations are so common on strings.
+            {
+                // A single character: remove and erase idiom.
+                // Single remove_all call in Boost.
+                {
+                    std::string s = "a bc d";
+                    auto end = s.end();
+                    s.erase(std::remove(s.begin(), end, ' '), end);
+                    assert((s == "abcd"));
+                }
+
+                // Any character in a string: remove_if + custom function. std::ispunct is a typical choice.
+                // Single liner with boost::remove_if + is_any_of.
+            }
+
             /*
             #stringstream
+
+                    typedef basic_stringstream<char>
 
                 Like cout, but output does not get put to stdout, but stored.
 
@@ -6898,17 +6942,24 @@ int main(int argc, char **argv)
                 May be more efficient than concatenations which always generates new objects.
             */
             {
-                stringstream oss;
+                std::stringstream oss;
                 oss << "ab";
                 oss << "cd";
                 assert(oss.str() == "abcd");
 
-                //str does not clear the stringstream object
+                // str does not clear thestd::stringstream object
                 assert(oss.str() == "abcd");
 
-                //to clear it you could do
+                // To clear it you could do: http://stackoverflow.com/questions/20731/in-c-how-do-you-clear-a-stringstream-variable
+                // Set to empty:
                 oss.str("");
+                // Clear error flags:
+                oss.clear();
                 assert(oss.str() == "");
+
+                // error: use of delete function:
+                // because the constructor is =delete
+                //oss = std::stringstream();
             }
 
             /*
@@ -6920,12 +6971,12 @@ int main(int argc, char **argv)
             */
             {
                 /*
-                stringstream seems to be the best pre C++11 solution.
+               std::stringstream seems to be the best pre C++11 solution.
 
                 It also has the advantage of working for any class that implements `operator<<`.
                 */
                 {
-                    stringstream oss;
+                   std::stringstream oss;
                     oss << 123;
                     assert(oss.str() == "123");
                 }
@@ -6954,9 +7005,24 @@ int main(int argc, char **argv)
         }
 
         /*
-        #file io
+        #io
 
-            #printf
+            See cppref now: http://en.cppreference.com/w/cpp/io
+
+            Take a good look at the inheritance tree.
+
+            The following are defined:
+
+                extern  istream  cin;   //standard input (stdin)
+                extern wistream wcin;
+                extern  ostream  cout;  //standard output (stdout)
+                extern wostream wcout;
+                extern  ostream  cerr;  //standard error (stderr)
+                extern wostream wcerr;
+                extern  ostream  clog;  //standard log (stdlog)
+                extern wostream wclog;
+
+            #printf format strings
 
                 In C++ there is no more printf formatting strings: must use the C libs for that.
 
@@ -6970,7 +7036,9 @@ int main(int argc, char **argv)
 
                 stdout.
 
-                For tests, stringstream shall be used as the results can then be tested,
+                `ostream` object.
+
+                For tests, std::stringstream shall be used as the results can then be tested,
                 and the behaviour is identical to cout.
 
                 `<<` is very magic. You need to understand:
@@ -6985,21 +7053,33 @@ int main(int argc, char **argv)
 
                 Cout for stderr
 
-            #cin
+            #clog
 
-                stdin.
+                By default also points to stderr.
         */
         {
             std::cout << "cout" << std::endl;
             std::cerr << "cerr" << std::endl;
 
-            //cin
+            /*
+            #cin #stdin
 
-                //cout << "Enter an integer:" << endl
-                //cin >> i;
-                //cout << i
+                `istream` object.
 
-            //this is how a very explicit usage of `<<` would look like
+                Avoid using it for similar reasons as scanf:
+
+                - hard to handle invalid inputs
+                - difficult to predict behaviour
+
+                readline is the best option.
+            */
+            {
+                //std::cout << "Enter an integer:" << endl;
+                //std::cin >> i;
+                //std::cout << i << std::endl;
+            }
+
+            // #<< This is how a very explicit usage of `<<` would look like
             {
                 std::stringstream ss;
 
@@ -7007,8 +7087,6 @@ int main(int argc, char **argv)
                     //TODO0 how to get his working?
 
                 std::operator<<(std::operator<<(ss, "explicit "), "call");
-
-                assert(ss.str() == "explicit call");
             }
 
             /*
@@ -7182,7 +7260,7 @@ int main(int argc, char **argv)
                 //ERROR
                 //static assertion failed
 
-            std::srand(time(NULL) );
+            std::srand(time(NULL));
             //static_assert(std::rand() >= 0);
                 //ERROR
                 //needs to be a constexpr
@@ -7450,23 +7528,23 @@ int main(int argc, char **argv)
 
                 // Range copy.
                 {
-                    std::vector<int> v = {0, 1, 2};
+                    std::vector<int> v{0, 1, 2};
                     std::vector<int> v1(v.begin(), v.end());
                     assert(v == v1);
                 }
 
                 // From existing array.
                 {
-                    int myints[] = {0, 1, 2};
-                    std::vector<int> v(myints, myints + sizeof(myints) / sizeof(int) );
+                    int myints[]{0, 1, 2};
+                    std::vector<int> v(myints, myints + sizeof(myints) / sizeof(int));
                     std::vector<int> v1 = {0, 1, 2};
                     assert(v == v1);
                 }
 
                 // Vectors have order.
                 {
-                    std::vector<int> v =  {0, 1, 2};
-                    std::vector<int> v1 = {2, 1, 0};
+                    std::vector<int> v{0, 1, 2};
+                    std::vector<int> v1{2, 1, 0};
                     assert(v != v1);
                 }
 
@@ -7495,7 +7573,7 @@ int main(int argc, char **argv)
                 */
                 {
                     std::cout << "capacity:" << std::endl;
-                    std::vector<int> v = {};
+                    std::vector<int> v{};
                     std::cout << "  " << v.capacity() << std::endl;
                     v.push_back(0);
                     std::cout << "  " << v.capacity() << std::endl;
@@ -7519,7 +7597,7 @@ int main(int argc, char **argv)
                     {
                         std::vector<int> v{0, 1};
                         v.resize(1);
-                        assert((v == std::vector<int>{0}) );
+                        assert((v == std::vector<int>{0}));
                     }
 
                     //increase size
@@ -7529,14 +7607,14 @@ int main(int argc, char **argv)
                         {
                             std::vector<int> v{1};
                             v.resize(3);
-                            assert((v == std::vector<int>{1, 0, 0}) );
+                            assert((v == std::vector<int>{1, 0, 0}));
                         }
 
                         //using copies of given object
                         {
                             std::vector<int> v{1};
                             v.resize(3, 2);
-                            assert((v == std::vector<int>{1, 2, 2}) );
+                            assert((v == std::vector<int>{1, 2, 2}));
                         }
                     }
                 }
@@ -7560,7 +7638,7 @@ int main(int argc, char **argv)
             // `std::vector` stores copies of elements, not references.
             {
                 std::string s = "abc";
-                std::vector<std::string> v = {s};
+                std::vector<std::string> v{s};
                 v[0][0] = '0';
                 assert(v[0]    == "0bc");
                 assert(s       == "abc");
@@ -7572,7 +7650,7 @@ int main(int argc, char **argv)
                     std::vector<int> v;
                     v = {0};
                     v = {0, 1};
-                    assert(v == std::vector<int>({0, 1}) );
+                    assert((v == std::vector<int>{0, 1}));
                 }
 
                 /*
@@ -7681,19 +7759,19 @@ int main(int argc, char **argv)
                     Returns a pointer to the new location of the element next to the last removed element.
                 */
                 {
-                    //single element
+                    // Single element
                     {
                         std::vector<int> v{0, 1, 2};
                         auto it = v.erase(v.begin() + 1);
-                        assert((v == std::vector<int>{0, 2}) );
+                        assert((v == std::vector<int>{0, 2}));
                         assert(*it == 2);
                     }
 
-                    //range
+                    // Range
                     {
                         std::vector<int> v{0, 1, 2, 3};
                         auto it = v.erase(v.begin() + 1, v.end() - 1);
-                        assert((v == std::vector<int>{0, 3}) );
+                        assert((v == std::vector<int>{0, 3}));
                         assert(*it == 3);
                     }
                 }
@@ -7703,7 +7781,7 @@ int main(int argc, char **argv)
 
                     Helper to remove all elements that compare equal to a value from container.
 
-                    Does not actually remove the elements: only ensure that the beginning of the range
+                    Does not actually remove the elements: only ensures that the beginning of the range
                     does not contain the item to be removed.
 
                     Ex:
@@ -7733,30 +7811,40 @@ int main(int argc, char **argv)
 
                         1, 2, 0, 1
 
-                #erase and remove idiom
+                #erase and remove idiom #remove and erase idiom
 
                     See remove.
                 */
                 {
-                    //verbose version
+                    // Verbose version
                     {
                         std::vector<int> v{0, 1, 0, 2, 0, 1};
-                        auto removeEndRangeIt = std::next(v.end(), -2);
-                        auto firstTrashIt = std::remove(v.begin(), removeEndRangeIt, 0);
-                        std::cout << "remove:" << std::endl;
-                        for (auto& i : v) std::cout << "  " << i << std::endl;
+                        auto end = std::next(v.end(), -2);
+                        auto firstTrashIt = std::remove(v.begin(), end, 0);
+                        // Unpredictable result:
+                        std::cout << "remove:";
+                        for (auto& i : v) std::cout << " " << i;
                         std::cout << std::endl;
-                        v.erase(firstTrashIt, removeEndRangeIt);
-                        assert((v == std::vector<int>{1, 2, 0, 1}) );
+                        v.erase(firstTrashIt, end);
+                        assert((v == std::vector<int>{1, 2, 0, 1}));
                     }
 
-                    //compact version
+                    // Compact version
                     {
                         std::vector<int> v{0, 1, 0, 2, 0, 1};
-                        auto removeEndRangeIt = std::next(v.end(), -2);
-                        v.erase(std::remove(v.begin(), removeEndRangeIt, 0), removeEndRangeIt);
-                        assert((v == std::vector<int>{1, 2, 0, 1}) );
+                        auto end = std::next(v.end(), -2);
+                        v.erase(std::remove(v.begin(), end, 0), end);
+                        assert((v == std::vector<int>{1, 2, 0, 1}));
                     }
+                }
+
+                //#remove_if #filter
+                // Remove if a given function evaluates to true on an element.
+                {
+                    std::vector<int> v{0, 1, 2, 3, 4};
+                    auto end = v.end();
+                    v.erase(std::remove_if(v.begin(), end, odd), end);
+                    assert((v == std::vector<int>{0, 2, 4}));
                 }
 
                 //#clear
@@ -7767,8 +7855,8 @@ int main(int argc, char **argv)
                 }
 
 
-                //cout v;
-                    //ERROR no default operator `<<`
+                // ERROR: no default operator `<<`
+                //cout << v;
             }
 
             // Random access is O(1) since array backed
@@ -8109,8 +8197,8 @@ int main(int argc, char **argv)
             */
             {
                 std::map<int,std::string> m;
-                m.insert(std::pair<int,std::string>(1, "one") );
-                m.insert(std::pair<int,std::string>(0, "zero") );
+                m.insert(std::pair<int,std::string>(1, "one"));
+                m.insert(std::pair<int,std::string>(0, "zero"));
 
                 int i = 0;
                 int is[] = {0, 1};
@@ -8184,7 +8272,7 @@ int main(int argc, char **argv)
                 };
 
                 std::map<int,std::string> m2;
-                m2.insert(std::pair<int,std::string>(0, "zero") );
+                m2.insert(std::pair<int,std::string>(0, "zero"));
 
                 ret = m.erase(1);
                 assert(ret = 1);
@@ -8228,7 +8316,7 @@ int main(int argc, char **argv)
             {
                 std::list<int> l{0, 1, 0, 2};
                 l.remove(0);
-                assert(l == std::list<int>({1, 2}) );
+                assert(l == std::list<int>({1, 2}));
             }
 
             //splice: transfer elements from one list to another
@@ -8236,7 +8324,7 @@ int main(int argc, char **argv)
                 std::list<int> l{0, 1};
                 std::list<int> l2{2, 3};
                 l.splice(++l.begin(), l2);
-                assert(l == std::list<int>({0, 2, 3, 1}) );
+                assert(l == std::list<int>({0, 2, 3, 1}));
                 assert(l2 == std::list<int>());
             }
         }
@@ -8699,14 +8787,14 @@ int main(int argc, char **argv)
                 std::vector<int> v{2, 0, 1};
                 std::sort(v.begin(), v.end());
                 std::vector<int> v1 = {0, 1, 2};
-                assert((v == std::vector<int>{0, 1, 2}) );
+                assert((v == std::vector<int>{0, 1, 2}));
             }
 
             //#reverse
             {
                 std::vector<int> v{2, 0, 1};
                 std::reverse(v.begin(), v.end());
-                assert((v == std::vector<int>{1, 0, 2}) );
+                assert((v == std::vector<int>{1, 0, 2}));
             }
 
             /*
@@ -8748,7 +8836,7 @@ int main(int argc, char **argv)
             {
                 std::vector<int> v {0, 1, 2   };
                 std::vector<int> v2{   1, 2, 3};
-                assert(std::equal(v.begin() + 1, v.end(), v2.begin()) );
+                assert(std::equal(v.begin() + 1, v.end(), v2.begin()));
             }
 
             /*
@@ -8789,13 +8877,13 @@ int main(int argc, char **argv)
             /*
             #find_if
 
-                Like find, but usint an arbitrary condition on each element instead of equality.
+                Like find, but using an arbitrary condition on each element instead of equality.
 
                 Consider usage with C++11 lambdas and functional.
             */
             {
                 std::vector<int> v{2, 0, 1};
-                assert(std::find_if (v.begin(), v.end(), isOdd) == --v.end());
+                assert(std::find_if (v.begin(), v.end(), odd) == --v.end());
             }
 
             /*
@@ -8894,7 +8982,6 @@ int main(int argc, char **argv)
             }
 
 #if __cplusplus >= 201103L
-
             /*
             #next
 
@@ -8907,7 +8994,6 @@ int main(int argc, char **argv)
                 assert(*it == 0);
                 assert(*itNext == 2);
             }
-
 #endif
 
             /*
@@ -9032,9 +9118,7 @@ int main(int argc, char **argv)
             }
         }
 
-
 #if __cplusplus >= 201103L
-
         /*
         #functional
 
@@ -9064,7 +9148,6 @@ int main(int argc, char **argv)
                 */
             }
         }
-
 #endif
 
         /*
@@ -9091,11 +9174,25 @@ int main(int argc, char **argv)
             std::cout << "  string abc = "    << std::hash<std::string>()("abc") << std::endl;
         }
 
+#if __cplusplus >= 201103L
+        /*
+        #regex
+
+            Finally they are supported!
+
+            Many types are supported: Javascript, grep, awk, ...
+
+            It is probably saner and more powerful to stick to Javascript regexes.
+        */
+        {
+            // Js has `[:d:]` equivalent POSIX `[:digit:]`.
+            std::regex r("a[[:d:]]");
+        }
+#endif
+
         //#memory
         {
-
 #if __cplusplus >= 201103L
-
             /*
             #shared_ptr
 
@@ -9114,18 +9211,16 @@ int main(int argc, char **argv)
                     assert(callStack.back() == "NoBaseNoMember::~NoBaseNoMember()");
                 }
             }
-
 #endif
         }
 
 #if __cplusplus >= 201103L
-
         /*
         #thread #multithreading #parallel #concurrency
 
             c++11
 
-            Needs `-pthread` flag on g++ Linux. 
+            Needs `-pthread` flag on g++ Linux.
         */
         {
 
@@ -9147,7 +9242,6 @@ int main(int argc, char **argv)
             std::this_thread::yield();
         }
     }
-
 #endif
 
     /*
@@ -9174,7 +9268,6 @@ int main(int argc, char **argv)
     }
 
 #ifdef PROFILE
-
         loopOnlyProf(nProfRuns);
         whileOnlyProf(nProfRuns);
 

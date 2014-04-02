@@ -7,8 +7,8 @@ using namespace cv;
 
 int main( int argc, char** argv )
 {
-  string infile = "sky.jpg";
-  string outfile = "_out/sky2.jpg";
+  string infile = "media/sky.jpg";
+  string outfile = "sky2.jpg";
   double d;
   int i2, nRows, nCols, channels;
   Mat I, I1, I2, I3, I4, I5;
@@ -23,7 +23,7 @@ int main( int argc, char** argv )
 
     I1 = Mat(2,2, CV_8UC3, Scalar::all(0));
     //all black
- 
+
     I2 = Mat(I);
     //copy constructor
     //data is *not* copied
@@ -36,7 +36,7 @@ int main( int argc, char** argv )
 
     I1.copyTo(I4);
     //data is copied
-   
+
   cout << "info" << endl;
     I = Mat(2,2, CV_8UC3, Scalar(0,127,255));
     cout << "cout" << endl << I << endl;
@@ -104,11 +104,11 @@ int main( int argc, char** argv )
       } else {
         cout << "not continuous" << endl;
       }
- 
+
   //fileio
     I1 = imread( infile, 1 );
     imwrite( outfile, I1 );
- 
+
   //highgui
     namedWindow( "sky", CV_WINDOW_AUTOSIZE );
     namedWindow( "gray", CV_WINDOW_AUTOSIZE );

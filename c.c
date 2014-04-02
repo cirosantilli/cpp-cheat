@@ -1319,10 +1319,16 @@ int main(int argc, char **argv)
 
                 { char c = 'a'; }
 
-            //char literals can be cast to integers by replacing them with
-            //their corresponding ascii integer value for example, 'a' == 97:
+            // Char literals can be cast to integers by replacing them with
+            // their corresponding ascii integer value for example, 'a' == 97:
 
                 assert('a' == 97);
+
+            // WARNING: multi-character character literals are obscure valid code, but the
+            // byte ordering is undefined, so they are rarelly useful, and should be avoided.
+            // gcc raises 4.8 warnings on -pedantic.
+
+                // assert('ab' == 'ab');
 
             /*
             char literals can contain any byte even those which have
@@ -4668,22 +4674,31 @@ int main(int argc, char **argv)
                 {
                     //#isspace
                     {
-                        assert( isspace(' ' ));
-                        assert( isspace('\n'));
-                        assert(! isspace('a' ));
+                        assert(isspace(' ' ));
+                        assert(isspace('\n'));
+                        assert(!isspace('a' ));
                     }
 
                     //#isdigit
                     {
-                        assert( isdigit('0'));
-                        assert(! isdigit('a'));
+                        assert(isdigit('0'));
+                        assert(!isdigit('a'));
+                    }
+
+                    //#ispunct
+                    {
+                        assert(ispunct('"'));
+                        assert(ispunct('('));
+                        assert(ispunct('.'));
+                        assert(!ispunct('a'));
+                        assert(!ispunct('0'));
                     }
                 }
 
                 /*
                 #strerror
 
-                    returns a readonly pointer to the description of the error with the given number:
+                    Returns a readonly pointer to the description of the error with the given number:
 
                         char *strerror(int errnum);
 
@@ -4703,21 +4718,17 @@ int main(int argc, char **argv)
             */
             {
                 char cs[] = "汉语";
-                printf("%s\n",cs);
+                printf("%s\n", cs);
 
+                // BAD only changes first byte you get trash all over:
                 //cs[0] = 'a';
                 //printf("%s\n",cs);
-                    //BAD
-                    //only changes first byte
-                    //you get trash all over
 
                 //WARN
+                //cs[0] = '英';
 
-                    //cs[0] = '英';
-
-                //you *need* setlocale to print correctly:
-
-                    setlocale(LC_CTYPE, "");
+                // you *need* setlocale to print correctly:
+                setlocale(LC_CTYPE, "");
 
                 wchar_t  wcs[] = L"汉语";
 
@@ -4729,9 +4740,8 @@ int main(int argc, char **argv)
                 wcs[0] = L'a';
                 printf("%ls\n", wcs);
 
-                //ERROR: non wide init
-
-                    //wchar_t  wideString2[] = "asdf";
+                // ERROR: non wide init
+                //wchar_t  wideString2[] = "asdf";
             }
 
             /*
@@ -5180,7 +5190,7 @@ int main(int argc, char **argv)
                 func_float(1);
             }
 
-            //return value is not an lval, so one cannot get its address
+            // Return value is not an lval, so one cannot get its address
             {
                 int *ip;
                 //ip = &int_func_int(1);
@@ -5208,7 +5218,7 @@ int main(int argc, char **argv)
                 //func_string_modify("abc");
             }
 
-            //two decls on the same line
+            // Two decls on the same line
             {
                 assert(decl_1() == 1);
                 assert(decl_2() == 2);
@@ -5217,21 +5227,20 @@ int main(int argc, char **argv)
 #if __STDC_VERSION__ >= 199901L
 
             /*
-            Pass struct and array literals to function
-            using C99 compound literals.
+            Pass struct and array literals to function using C99 compound literals.
 
             Unlike string literals, array and struct literals can be modified on the function.
             */
             {
-                func_array((int[]){ 1 });
+                func_array((int[]){1});
 
-                func_array_modify((int[]){ 1 });
+                func_array_modify((int[]){1});
 
-                int is[] = { 1 };
+                int is[] = {1};
                 func_array_modify(is);
                 assert(is[0] == -1);
 
-                func_struct_1((struct func_struct){ .i = 1 });
+                func_struct_1((struct func_struct){.i = 1});
             }
 #endif
 

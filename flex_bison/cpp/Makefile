@@ -12,7 +12,7 @@ CC			:= g++
 CFLAGS	?= -Wall -std=c++0x -pedantic
 
 #paths
-AUX_DIR 						?= _out/
+AUX_DIR 						?= _build/
 OBJ_EXT 						?= .o
 IN_DIR 						?= ./
 FLEX_EXT  				  ?= .l
