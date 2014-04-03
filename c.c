@@ -3,7 +3,7 @@ ANSI C cheat.
 
 Small comments on comparing ANSI C with extensions are acceptable.
 
-#sources
+#Sources
 
     - <http://c-faq.com/index.html>
 
@@ -25,7 +25,7 @@ Small comments on comparing ANSI C with extensions are acceptable.
 
         Obscure only stuff. Cool.
 
-#motivation
+#Motivation
 
     C is amazingly important as it is used to implement:
 
@@ -42,7 +42,7 @@ Small comments on comparing ANSI C with extensions are acceptable.
     - is low level, so it can be very fast (if you program it correctly)
     - is robust and easy to understand.
 
-#standards
+#Standards
 
     #ANSI C
 
@@ -143,7 +143,7 @@ Small comments on comparing ANSI C with extensions are acceptable.
 
     #glibc
 
-        Name for the gnu implementation of the c standard library
+        Name for the GNU implementation of the c standard library, and possibly its extensions.
 
 #K&R #The C Programming Language
 
@@ -156,7 +156,7 @@ Small comments on comparing ANSI C with extensions are acceptable.
     You will still hear about it in discussions, or even to describe some ANSI C
     concepts like K&R function declaration.
 
-#libs
+#Libs
 
     this section is a list of whose main interface is c or which have a good c interface
 
@@ -174,7 +174,7 @@ Small comments on comparing ANSI C with extensions are acceptable.
 
         - openMP is is a library supported on C, C++, Fortran, Windows, Linux MacOS
 
-#compilers
+#Compilers
 
     Most of those compilers work for multiple related languages such as C, C++, etc.
 
@@ -207,13 +207,13 @@ Small comments on comparing ANSI C with extensions are acceptable.
 
         Closed source.
 
-#doxigen
+#Doxigen
 
-    Documentation generation from comments. De-facto stadnard for C++.
+    Documentation generation from comments. De-facto stadnard for C++, but covers many other languages.
 
     <http://www.stack.nl/~dimitri/doxygen/docblocks.html>
 
-#funny
+#Funny
 
     <http://www.ioccc.org/>
 
@@ -260,15 +260,15 @@ Small comments on comparing ANSI C with extensions are acceptable.
 #include <stdio.h>     //printf, puts
 #include <string.h>    //sprintf, strlen, strcpy, memset
 #include <math.h>
-//#include <tgmath.h>    //
+//#include <tgmath.h>
 #include <time.h>      //time()
 #include <wchar.h>
-//#include <thread.h>             //c99 but not yet implemented for me
+//#include <thread.h>  //c99 but not yet implemented gcc 4.8
 
 /*
-one way to define constant is with preprocessor directives
+One way to define constant is with preprocessor directives.
 
-however using a const may be a better idea because:
+However using a const may be a better idea because:
 
 - constants have scope
 - produce meaningful error messages
@@ -320,8 +320,7 @@ int debugVar;
     int global2 = 1+1;
 
 
-    int ret1()
-    {
+    int ret1() {
         int i;
         //before main!
         return 1;
@@ -339,8 +338,7 @@ int debugVar;
 
 //pointer array
 
-    int* get_arr(int i)
-    {
+    int* get_arr(int i) {
         //int is[] = {i};
         //return is;
             //WARN
@@ -352,8 +350,7 @@ int debugVar;
     }
 
     //cheatsheet on pointers and arrays
-    void print_array(int **mat, int m, int n)
-    {
+    void print_array(int **mat, int m, int n) {
         int i, j;
         for (i = 0; i < m; i++) {
             for (j = 0; j < n; j++) {
@@ -369,8 +366,7 @@ int goto_func(int i) {
     return 1;
 }
 
-int setjmp_func(bool jmp, jmp_buf env_buf)
-{
+int setjmp_func(bool jmp, jmp_buf env_buf) {
     if (jmp)
         longjmp(env_buf, 1);
     else
@@ -397,9 +393,9 @@ int setjmp_func(bool jmp, jmp_buf env_buf)
             void decl_def();
             void decl_def();
 
-            void decl_def(){;}
-            //ERROR redefine
-            //void decl_def(){;}
+            void decl_def() {}
+            // ERROR redefine
+            //void decl_def() {}
 
         /*
         Declarations don't need argment names.
@@ -411,7 +407,7 @@ int setjmp_func(bool jmp, jmp_buf env_buf)
         */
 
             void decl_def_args(int,   float,   char c);
-            void decl_def_args(int i, float f, char d){}
+            void decl_def_args(int i, float f, char d) {}
 
             //void def_no_argname(int){}
 
@@ -480,56 +476,52 @@ int setjmp_func(bool jmp, jmp_buf env_buf)
 
         //ERRORS:
 
-            //void overload(float n){}
-            //void overload(int n, int o){}
+            //void overload(float n) {}
+            //void overload(int n, int o) {}
 
-    int * int_ptr_func_int_ptr(int *ip){
+    int * int_ptr_func_int_ptr(int *ip) {
         (*ip)++;
         return ip;
     }
-    int int_func_int(int i){
+    int int_func_int(int i) {
         return i;
     }
 
-    void func_int(int i){}
-    void func_float(float f){}
-    void func_double(double d){}
+    void func_int(int i) {}
+    void func_float(float f) {}
+    void func_double(double d) {}
 
-    void func_string_abc(char s[]){ assert(strcmp(s, "abc") == 0); }
-    void func_string_const_abc(char const s[]){ assert(strcmp(s, "abc") == 0); }
-    void func_string_modify(char s[]){ s[0] = '0'; }
+    void func_string_abc(char s[]) { assert(strcmp(s, "abc") == 0); }
+    void func_string_const_abc(char const s[]) { assert(strcmp(s, "abc") == 0); }
+    void func_string_modify(char s[]) { s[0] = '0'; }
 
     void func_array(int a[]){
         assert(a[0] == 1);
-    }
+     }
 
-    void func_array_modify(int a[]){
+    void func_array_modify(int a[]) {
         a[0] = -1;
     }
 
-    struct struct_func_struct
-    {
+    struct struct_func_struct {
         int i;
         int j;
     };
 
-    struct struct_func_struct struct_func()
-    {
+    struct struct_func_struct struct_func() {
         return (struct struct_func_struct){ 0, 1 };
     }
 
     struct func_struct { int i; };
 
-    void func_struct_1(struct func_struct s)
-    {
+    void func_struct_1(struct func_struct s) {
         assert(s.i == 1);
     }
 
-    void func_int_ptr (int *i){}
-    void func_int_arr (int i[]){}
+    void func_int_ptr (int *i) {}
+    void func_int_arr (int i[]) {}
 
-    void with_static_var(int *i_out, int *si_out)
-    {
+    void with_static_var(int *i_out, int *si_out) {
         int i = 0;
 
         //static initialization is evaluated only once
@@ -542,13 +534,11 @@ int setjmp_func(bool jmp, jmp_buf env_buf)
         *si_out = si;
     }
 
-    int add_int(int n, int m)
-    {
+    int add_int(int n, int m) {
         return n+m;
     }
 
-    int sub_int(int n, int m)
-    {
+    int sub_int(int n, int m) {
         return n-m;
     }
 
@@ -556,8 +546,7 @@ int setjmp_func(bool jmp, jmp_buf env_buf)
         return m + n;
     }
 
-    int int_func_func_int_int(int (*function_ptr)(int, int), int m, int n)
-    {
+    int int_func_func_int_int(int (*function_ptr)(int, int), int m, int n) {
         return (*function_ptr)(m, n);
     }
 
@@ -569,8 +558,7 @@ int setjmp_func(bool jmp, jmp_buf env_buf)
 
         struct FuncReturn { int i; };
 
-        struct FuncReturn structReturn(struct FuncReturn sIn)
-        {
+        struct FuncReturn structReturn(struct FuncReturn sIn) {
             struct FuncReturn s_out;
             s_out.i = sIn.i + 1;
             return s_out;
@@ -588,13 +576,11 @@ int setjmp_func(bool jmp, jmp_buf env_buf)
         Initialize va_list variable varname. Indicates that varargs come after numargs.
     */
 
-        int variadic_add(int numargs, ...)
-        {
+        int variadic_add(int numargs, ...) {
             va_list args;
             va_start(args, numargs);
             int sum = 0;
-            for(int i = 0 ; i < numargs; i++)
-            {
+            for(int i = 0 ; i < numargs; i++) {
                 int arg = va_arg(args, int);
                 sum += arg;
             }
@@ -612,11 +598,9 @@ int setjmp_func(bool jmp, jmp_buf env_buf)
 
             This is the raison d'etre for the `vprintf` family, which takes a va_list argument.
         */
-        int sprintf_wrapper(char *s, const char *fmt, ...)
-        {
+        int sprintf_wrapper(char *s, const char *fmt, ...) {
             int ret;
             va_list args;
-
             va_start(args, fmt);
             ret = vsprintf(s, fmt, args);
             va_end(args);
@@ -625,16 +609,16 @@ int setjmp_func(bool jmp, jmp_buf env_buf)
 
     /* #return const from func */
 
-        const int const_int_func(){
+        const int const_int_func() {
             return 0;
         }
 
-        const int* const_int_ptr_func_int_ptr(int *ip){
+        const int* const_int_ptr_func_int_ptr(int *ip) {
             (*ip)++;
             return ip;
         }
 
-        const struct struct_func_struct const_struct_func(){
+        const struct struct_func_struct const_struct_func() {
             return (struct struct_func_struct){ 0, 1 };
         }
 
@@ -649,14 +633,12 @@ int setjmp_func(bool jmp, jmp_buf env_buf)
 
     //restrict
 
-        void restrict_double_add(int * restrict i, int * restrict j, int * restrict add)
-        {
+        void restrict_double_add(int * restrict i, int * restrict j, int * restrict add) {
             *i += *add;
             *j += *add;
         }
 
-        void double_add(int *i, int *j, int *add)
-        {
+        void double_add(int *i, int *j, int *add) {
             *i += *add;
             *j += *add;
         }
@@ -664,8 +646,7 @@ int setjmp_func(bool jmp, jmp_buf env_buf)
         /**
         It makes no sense to mark a single pointer as restricted.
         */
-        void restrict_double_add_one_restrict(int * restrict i, int *j, int *add)
-        {
+        void restrict_double_add_one_restrict(int * restrict i, int *j, int *add) {
             *i += *add;
             *j += *add;
         }
@@ -680,25 +661,20 @@ int setjmp_func(bool jmp, jmp_buf env_buf)
 
     const static int n_prof_runs = 100000000;
 
-    //only the loop.
-    //discount this from every other profile run
-    void loop_only_prof(int n)
-    {
+    // Only the loop.
+    // Discount this from every other profile run
+    void loop_only_prof(int n) {
         int i;
         for(i=0; i<n; i++);
     }
 
-    void while_only_prof(int n)
-    {
+    void while_only_prof(int n) {
         int i = 0;
         while(i < n)
-        {
             ++i;
-        }
     }
 
-    void int_assign_prof(int n)
-    {
+    void int_assign_prof(int n) {
         int i,j;
         for(i=0; i<n; i++)
             j=1;
@@ -706,8 +682,7 @@ int setjmp_func(bool jmp, jmp_buf env_buf)
 
     void do_nothing(){}
 
-    void func_all_prof(int n)
-    {
+    void func_all_prof(int n) {
         int i;
         for(i=0; i<n; i++)
             do_nothing();
@@ -715,138 +690,116 @@ int setjmp_func(bool jmp, jmp_buf env_buf)
 
     static inline void inline_do_nothing(){}
 
-    void inline_func_call_prof(int n)
-    {
+    void inline_func_call_prof(int n) {
         int i;
         for(i=0; i<n; i++)
             inline_do_nothing();
     }
 
-    void int_sum_prof(int n)
-    {
+    void int_sum_prof(int n) {
         int i, j = 0;
         for(i=0; i<n; i++)
             j = j + 0;
     }
 
-    void int_sub_prof(int n)
-    {
+    void int_sub_prof(int n) {
         int i, j = 0;
         for(i=n; i>0; i--);
             j = j - 0;
     }
 
-    void int_mult_prof(int n)
-    {
+    void int_mult_prof(int n) {
         int i, j = 1;
         for(i=0; i<n; i++)
             j = j * 1;
     }
 
-    void int_div_prof(int n)
-    {
+    void int_div_prof(int n) {
         int i, j = 1;
         for(i=0; i<n; i++)
             j = j / 1;
     }
 
-    void float_sum_prof(int n)
-    {
+    void float_sum_prof(int n) {
         float f;
         int i;
         for(i=0; i<n; i++)
             f = f + 0.0;
     }
 
-    void float_sub_prof(int n)
-    {
+    void float_sub_prof(int n) {
         float f;
         int i;
         for(i=0; i<n; i++)
             f = f - 0.0;
     }
 
-    void float_mult_prof(int n)
-    {
+    void float_mult_prof(int n) {
         int i;
         float j;
         for(i=0; i<n; i++)
             j = j * 1.0;
     }
 
-    void float_div_prof(int n)
-    {
+    void float_div_prof(int n) {
         int i;
         float j;
         for(i=0; i<n; i++)
             j = j / 1.0;
     }
 
-    void putsProf(int n)
-    {
+    void putsProf(int n) {
         int i;
         for(i = 0; i < n; ++i)
             puts("a");
     }
 
-    void stack1b_prof(int n)
-    {
+    void stack1b_prof(int n) {
         int is[1];
         int i;
-        for(i = 0; i < n; ++i)
-        {
+        for(i = 0; i < n; ++i) {
             int is[1];
         }
     }
 
-    void stack1kb_prof(int n)
-    {
+    void stack1kb_prof(int n) {
         int is[1];
         int i;
-        for(i = 0; i < n; ++i)
-        {
+        for(i = 0; i < n; ++i) {
             int is[0x800];
         }
     }
 
-    void stack1mb_prof(int n)
-    {
+    void stack1mb_prof(int n) {
         int is[1];
         int i;
-        for(i = 0; i < n; ++i)
-        {
+        for(i = 0; i < n; ++i) {
             int is[0xF0000];
         }
     }
 
-    void heap1b_prof(int n)
-    {
+    void heap1b_prof(int n) {
         char* cp;
         int i;
-        for(i = 0; i < n; ++i)
-        {
+        for(i = 0; i < n; ++i) {
             cp = (char*) malloc(sizeof(char) * 1);
             free(cp);
         }
     }
 
-    void heap1kb_prof(int n)
-    {
+    void heap1kb_prof(int n) {
         char* cp;
         int i;
-        for(i = 0; i < n; ++i)
-        {
+        for(i = 0; i < n; ++i) {
             cp = (char*) malloc(sizeof(char) * 0x800);
             free(cp);
         }
     }
 
-    void heap1mbProf(int n)
-    {
+    void heap1mbProf(int n) {
         char* cp;
         int i;
-        for(i = 0; i < n; ++i)
-        {
+        for(i = 0; i < n; ++i) {
             cp = (char*) malloc(sizeof(char) * 0xF0000);
             free(cp);
         }
@@ -859,32 +812,27 @@ int setjmp_func(bool jmp, jmp_buf env_buf)
     //simple fun algorithms
 
     //random
-    //{
-        float rand_range(float a, float b)
-        { //float in a range
+
+        // Returna a random float in a range.
+        float rand_range(float a, float b) {
             return ((b - a) * ((float)rand() / RAND_MAX)) + a;
         }
-    //}
 
-    //a pow b
-    int pow2(int a, int b)
-    {
+    // a pow b naive.
+    int pow2(int a, int b) {
         int res = 1;
         int i;
-        for(i=0; i<b; i++){
-        res = res*a;
-        }
+        for(i=0; i<b; i++)
+            res *= a;
         return res;
     }
 
-    //TODO does not work
-    float pow2f(float a, float b)
-    {
+    // TODO does not work
+    float pow2f(float a, float b) {
         float res = 1.f;
         float i;
-        for(i=0; i<b; i++){
-        res = res*a;
-        }
+        for(i = 0; i < b; i++)
+            res *= a;
         return res;
     }
 
@@ -905,8 +853,7 @@ int setjmp_func(bool jmp, jmp_buf env_buf)
 
     Does not work for pipes.
     */
-    long fget_get_file_size(FILE *fp)
-    {
+    long fget_file_size(FILE *fp) {
         long oldpos;
         long return_value;
         oldpos = ftell(fp);
@@ -928,18 +875,17 @@ int setjmp_func(bool jmp, jmp_buf env_buf)
     }
 
     /*
-    Same as `get_file_size`, but takes the path instead of a `FILE*`.
+    Same as `file_size`, but takes the path instead of a `FILE*`.
     */
-    long get_file_size(char *path)
-    {
+    long file_size(char *path) {
         FILE *fp;
         long retur_value;
         fp = fopen(path, "r");
-        if (fp == NULL){
+        if (fp == NULL) {
             return -1L;
         }
-        retur_value = fget_get_file_size(fp);
-        if (fclose(fp) == EOF){
+        retur_value = fget_file_size(fp);
+        if (fclose(fp) == EOF) {
             return -1L;
         }
         return retur_value;
@@ -954,8 +900,7 @@ int setjmp_func(bool jmp, jmp_buf env_buf)
 
     The entire file must fit into the memory avilable to the program.
     */
-    char *file_read(char *path)
-    {
+    char *file_read(char *path) {
         FILE *fp;
         char *buffer;
         long fsize;
@@ -963,7 +908,7 @@ int setjmp_func(bool jmp, jmp_buf env_buf)
         if (fp==NULL) {
             return NULL;
         }
-        fsize = fget_get_file_size(fp);
+        fsize = fget_file_size(fp);
         if (fsize < 0){
             fprintf(stderr, "could not determine lenght of:\n%s\n", path);
             return NULL;
@@ -986,8 +931,7 @@ int setjmp_func(bool jmp, jmp_buf env_buf)
 
     Returns `-1` on failulre, 1 on success.
     */
-    int file_write(char *path, char *write_string)
-    {
+    int file_write(char *path, char *write_string) {
         long len;
         char *buffer;
         FILE *fp;
@@ -1014,8 +958,7 @@ int setjmp_func(bool jmp, jmp_buf env_buf)
 
     on errror, returns, -1, succes 0
     */
-    int write_int_arr_file(char * path, int *arr, int len)
-    {
+    int write_int_arr_file(char * path, int *arr, int len) {
         int i;
         FILE * fp = fopen(path,"w");
 
@@ -1038,8 +981,7 @@ int setjmp_func(bool jmp, jmp_buf env_buf)
 
     //same as int, saved in exp notation,
     //    with precision (deciamal places) precision
-    int write_float_arr_file(char * path, float *arr, int len, int precision)
-    {
+    int write_float_arr_file(char * path, float *arr, int len, int precision) {
         int i;
         FILE * fp;
 
@@ -1070,19 +1012,16 @@ int setjmp_func(bool jmp, jmp_buf env_buf)
     int BSS;
     int DATA = 1;
 
-int post_inc_global()
-{
+int post_inc_global() {
     global++;
     return global - 1;
 }
 
-int asm_precalc(int i)
-{
+int asm_precalc(int i) {
     return i + 1;
 }
 
-int asm_precalc_inline(int i)
-{
+int asm_precalc_inline(int i) {
     return i + 1;
 }
 
@@ -1124,8 +1063,7 @@ void atexit_func() {
     - does not call C++ destructors
 */
 
-void abort_func()
-{
+void abort_func() {
     abort();
 }
 
@@ -1147,8 +1085,7 @@ void abort_func()
 
         int main(int argc, char** argv)
 */
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     /*
     #scope of brace pairs inside a function #braces
 
@@ -1433,7 +1370,7 @@ int main(int argc, char **argv)
         */
     }
 
-    //#floating point types and literals
+    // #floating point types and literals
     {
         float f = 1.23f;
             //1 signal 23 number 8 exponent
@@ -2390,7 +2327,7 @@ int main(int argc, char **argv)
                 assert(E4 == 3);
         }
 
-        //Typedef combo. No need to type enum everywhere.
+        // Typedef combo. No need to type enum everywhere.
         {
             // Multi line
             enum E { E1, E2};
@@ -2402,7 +2339,7 @@ int main(int argc, char **argv)
             F f;
         }
 
-        //you can choose the values explicitly
+        // You can choose the values explicitly
         {
             enum E
             {
@@ -2434,26 +2371,36 @@ int main(int argc, char **argv)
             //int is[N];
         }
 
-        // It seems that it is not possible to control the size of an enum
-        // without extensions.
-        //
-        // Compilers could make them smaller than int if there are less than INT_MAX
-        // values in the enum, but gcc 4.8 -O0 does not do that.
-        //
-        // <http://stackoverflow.com/questions/4879286/specifying-size-of-enum-type-in-c>
+        /*
+        It seems that it is not possible to control the size of an enum
+        without extensions.
+
+        Compilers could make them smaller than int if there are less than INT_MAX
+        values in the enum, but gcc 4.8 -O0 does not do that.
+
+        <http://stackoverflow.com/questions/4879286/specifying-size-of-enum-type-in-c>
+        */
         {
             {
-                enum E { E1, E2, };
+                enum E {E1, E2,};
                 printf("sizeof(enum E) = %zu\n", sizeof(enum E));
             }
 
             // The largest value that can be portably stored is INT_MAX.
-            //
             // <http://stackoverflow.com/questions/366017/what-is-the-size-of-an-enum-in-c>
             {
-                enum E { E1 = INT_MAX };
+                enum E {E1 = INT_MAX};
                 //enum E_BAD { E1 = INT_MAX + 1};
             }
+        }
+
+        // Count elements of an ENUM.
+        // Does not seem possible: http://stackoverflow.com/questions/2102582/how-can-i-count-the-items-in-an-enum
+        // Possible workaround: add an extra element and rely on the increasing order.
+        // Obvious downside: remote name conflict possibility.
+        {
+            enum E {E1, E2, E_SIZE};
+            assert(E_SIZE == 2);
         }
     }
 
@@ -3788,30 +3735,30 @@ int main(int argc, char **argv)
         }
 
             /*
-                #usage of the void pointer type
+            #Usage of the void pointer type
 
-                    should almost never be used since it gives little information to the compiler
-                    and code readers about the function of the variable.
+                Should almost never be used since it gives little information to the compiler
+                and code readers about the function of the variable.
 
-                    one libc ocurrence of void pointers is the return type of `malloc`:
-                    it is not aware of the type of data it returns, and it is usually typecast
-                    to whatever datatype needed.
+                One libc ocurrence of void pointers is the return type of `malloc`:
+                it is not aware of the type of data it returns, and it is usually typecast
+                to whatever datatype needed.
 
-                    another possibility functions which require arguments where it is impossible to
-                    determine the type of the argument. For example, a function that takes a function,
-                    and parameters to that function. Here, the parameters are arbitrary. This is used
-                    on the ODE solver of the gnu project GSL.
+                Another possibility functions which require arguments where it is impossible to
+                determine the type of the argument. For example, a function that takes a function,
+                and parameters to that function. Here, the parameters are arbitrary. This is used
+                on the ODE solver of the gnu project GSL.
 
-                    TODO add simple examples of valid usage
+                TODO add simple examples of valid usage
             */
     }
 
     /*
     #array
 
-        c arrays are simply lots of values put side by side on memory
+        C arrays are simply lots of values put side by side on memory.
 
-        because they are side by side, it is simple to get the nth value
+        Because they are side by side, it is simple to get the nth value
         quickly (random access), unless like, say, a linked list, in which
         you have to go follow lots of links before you reach the searched value.
 
@@ -3982,6 +3929,16 @@ int main(int argc, char **argv)
         }
 
         /*
+        Get array length, find array length.
+
+        In C the only method is to use sizeof.
+        */
+        {
+            int is[] = {0, 1, 2};
+            assert(sizeof(is) / sizeof(is[0]) == 3);
+        }
+
+        /*
         #store array length in variables
 
             Before C99, it was not possible to store array length in variables,
@@ -3992,7 +3949,7 @@ int main(int argc, char **argv)
             - enum
             - macros
 
-            C99 introduces VLA which allows that.
+            C99 introduces VLA which allows that, but may introduce a performace cost.
 
             In C++ it is possible to store array sizes inside const variables,
             and this is even more explicit with C++11 `constexpr` keyword.
@@ -5661,18 +5618,26 @@ int main(int argc, char **argv)
             Use defines with discretion: they make it much harder to debug!
         */
         {
-            //constants
+            // Constants.
             {
 #define A B
 #define B 1
                 assert(A == 1);
             }
 
-            //cannot redefine macros
+            // Cannot redefine macros.
             {
 //#define A 1
 //#define A 2
                 //assert(A == 2);
+            }
+
+            // Undefined evaluate equal.
+            {
+#if NOT_DEFINED == NOT_DEFINED2
+#else
+            assert(false);
+#endif
             }
 
             //functions
@@ -5815,12 +5780,18 @@ int main(int argc, char **argv)
         }
 
 	/*
-        ##if
+        ##if ##else
 
-	    The preprocessor can do certain integer arithmetic operations such as:
-	    +, -, ==, <.
+	    The preprocessor can do certain integer arithmetic operations such as: +, -, ==, <.
         */
 	{
+#if 1 == 0
+    assert(false);
+#elif 1 == 1
+#else
+    assert(false);
+#endif
+
 #define INIF 1
 #if INIF + 1 == 2
 #else
@@ -5829,6 +5800,17 @@ int main(int argc, char **argv)
 
 #if 16 == 0x10
 #else
+            assert(false);
+#endif
+
+    //Cannot compare strings directly! http://stackoverflow.com/questions/2335888/how-to-compare-string-in-c-conditional-preprocessor-directives
+    //Always define to integers.
+#define STR1 1
+#define STR2 2
+#define STR STR1
+
+#if STR == STR1
+#elif STR == STR2
             assert(false);
 #endif
 	}
@@ -6959,36 +6941,40 @@ int main(int argc, char **argv)
                 - a: append. write to the end. creates if does not exist.
                 - +: can do both input and output. msut use flush or fseek
                 - x: don't destroy if exist (c11, not c++!)
-                - b: binary. means nothing in POSIX systems,
-                    on our dear DOS must be used for NL vs NLCR problems
-                    there are two different modes there
-                    Therefore, for portability, make this difference.
+                - b: binary.
+
+                    Means nothing in POSIX systems.
+
+                    On our dear DOS/Windows and Mac OS X, automatically converts between \n and \n\r or \r.
+                    http://stackoverflow.com/questions/229924/difference-between-files-writen-in-binary-and-text-mode
+
+                    Windows also does trailing \z magic for ultra backwards compatibility.
+
+                    Therefore for portability, always use this when you are going to do IO with binary IO functions 
+                    such as fwrite.
 
                 In case of error:
 
                 - return `NULL` and set `errno`.
 
-            #text io vs #binary io
+            #text IO vs #binary IO
 
                 #text vs binary for numerical types
 
                     Example: an int 123 can be written to a file in two ways:
 
                     - text: three bytes containing the ascii values of `1`, `2` and then `3`
-
-                    - binary: as the internal int representation of the c value, that is 4 bytes,
-                        with `123` in binary and zeroes at the front.
+                    - binary: as the internal int representation of the c value, that is 4 bytes, with `123` in binary and zeroes at the front.
 
                     Advantages of text:
 
                     - it is human readable since it contains only ASCII or UTF values
-
                     - for small values it may be more efficient (123 is 3 bytes in ascii instead of 4 in binary)
+                    - it is portable across multiple systems, while binary varies, especially byte ordering.
 
                     Advantages of binary:
 
-                    - it is shorter for large integers
-
+                    - it much shorter for large integers
                     - inevitable for data that cannot be interpretred as text (images, executables)
 
                 #newline vs carriage return newline
@@ -7088,7 +7074,7 @@ int main(int argc, char **argv)
             Open a given `FILE*` again but as a different file.
         */
         {
-            //this will discard stdin on linux
+            // This will discard stdin on Linux.
             //freopen("/dev/null", "r", stdin);
         }
 
@@ -7168,7 +7154,7 @@ int main(int argc, char **argv)
             May be necessary as the data may be in a buffer.
         */
         {
-            // if (flush(fp) == EOF){
+            // if (flush(fp) == EOF) {
             //        //error
             // }
 
@@ -7208,21 +7194,22 @@ int main(int argc, char **argv)
 
                 // Get file size:
                 {
-                    long size = get_file_size(path);
+                    long size = file_size(path);
                     if (size == -1) {
-                        io_error("get_file_size", path);
+                        io_error("file_size", path);
                     }
                     assert(size == strlen(input));
                 }
             }
 
             /*
-            Process a file linewise.
+            Process a file #linewise.
 
-            Allows one to read files larger than RAM, suppposing that
-            each line is smaller than RAM.
+            Allows one to read files larger than RAM, suppposing that each line is smaller than RAM.
 
-            glibc offers the `getline` function.
+            glibc and C++ stdlib offer the `getline` function which does it.
+
+            There does not seem to be such a function in C! <http://stackoverflow.com/questions/3501338/c-read-file-line-by-line>
             */
             {
                 FILE* fp;
@@ -7299,13 +7286,11 @@ int main(int argc, char **argv)
         }
 
         /*
-        #file operation
+        #file operations
 
             A few file operations are available in ANSI C.
 
-            They are present in <stdio.h> mainly to support file io.
-
-            There seems to be no directory operations however.
+            They are present in <stdio.h> mainly to support file IO.
 
         #remove
 
@@ -7324,6 +7309,11 @@ int main(int argc, char **argv)
                 int rename(const char *old, const char *new);
 
             If the new file exists, undefined behaviour.
+
+        #directory operations #path
+
+            There seems to be no directory of path operations with system independent separator,
+            only with POSIX or Boost.
         */
 
         /*

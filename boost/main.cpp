@@ -1,21 +1,14 @@
 /**
-Boost is the most important C++ utilities library.
-
-It has very widespread use, and some of its features have been included or are candidates for inclusion
-on newer versions of the STL.
-
-Full list of libs: <http://www.boost.org/doc/libs/>
-
-Some of boost libraries may be in separate packages / shared objects than others.
-
-The library naming convention is: `-lboost_XXX` to include libs in gcc, e.g. `-lboost_graph`
+General boost cheat. Libraries which are too large may be in different files.
 */
+
 #include <cassert>
 #include <cstdlib>
 #include <iostream>
 #include <vector>
 
-#include <boost/algorithm/string.hpp> // split
+#include <boost/algorithm/string.hpp>             // split
+#include <boost/filesystem.hpp>                   // -lboost_filesystem -lsystem
 #include <boost/iterator/counting_iterator.hpp>
 #include <boost/range/algorithm/remove_if.hpp>
 
@@ -52,9 +45,20 @@ int main() {
                 assert((str == "abcd"));
 
                 std::vector<int> is{0, 1, 2, 0, 3};
-                str.erase(boost::remove_if(str, boost::is_any_of(std::vector<int>{0, 2})), str.end());
+                is.erase(boost::remove_if(is, boost::is_any_of(std::vector<int>{0, 2})), is.end());
                 assert((is == std::vector<int>{1, 3}));
             }
         }
+    }
+
+
+    /*
+    #filesystem #path #join
+
+    Proposed for inclusion on TR2.
+    */
+    {
+        std::cout << "filesystem /tmp + foo.txt = " <<
+            boost::filesystem::path("/tmp") / boost::filesystem::path("foo.txt") << std::endl;
     }
 }

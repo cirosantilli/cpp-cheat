@@ -1,1 +1,1 @@
-LIBS	:= -lboost_graph -lm
+LIBS	:= -lm -lboost_graph -lboost_filesystem -lboost_system

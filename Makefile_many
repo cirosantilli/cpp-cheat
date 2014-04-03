@@ -35,6 +35,8 @@ DEBUG_DEFINE 		?=
 DEBUG_FLAGS  		?=
 PROFILE_DEFINE 		?= #-DDEBUG
 PROFILE_FLAGS  		?= #
+# Should be turned on for production.
+# For development leave off to compile faster and produce more predictable assembly code.
 OPTIMIZE_FLAGS		?= #-O3
 
 # Extra phony targets
@@ -87,7 +89,7 @@ asm: mkdir set_asm_flags
 	done
 
 set_asm_flags:
-	$(eval OPTIMIZE_FLAGS := -O3)
+	$(eval OPTIMIZE_FLAGS :=)
 	$(eval DEBUG_FLAGS := -ggdb3)
 
 clean:
