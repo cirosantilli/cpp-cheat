@@ -7,7 +7,7 @@ using namespace cv;
 
 int main( int argc, char** argv )
 {
-  string infile = "media/sky.jpg";
+  string infile = "input/sky.jpg";
   string outfile = "sky2.jpg";
   double d;
   int i2, nRows, nCols, channels;

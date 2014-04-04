@@ -223,7 +223,7 @@ GLfloat GREEN[] = {0.0, 1.0, 0.0};
 GLfloat BLUE[] = {0.0, 0.0, 1.0};
 
 enum NTEXTURES {NTEXTURES = 3};
-string texture_path = "media/";
+string texture_path = "input/";
 string texture_files[] = { "grass.jpg", "wood.jpg", "sky.jpg" };
 GLuint textures[NTEXTURES]; //the actual textures
 

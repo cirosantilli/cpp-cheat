@@ -20,7 +20,7 @@ function! MapAllBuff(keys, rhs)
     exe 'noremap! <buffer>' a:keys '<ESC>'.a:rhs
 endfunction
 
-call MapAllBuff( '<F5>'  , ':w<CR>:make<CR>' )
+call MapAllBuff('<F5>'  , ':w<CR>:make<CR>')
 if expand('%:e') =~ '\(c\|cpp\|f\)'
 	call MapAllBuff('<F6>', ':call RedirStdoutNewTabSingle("make run=''\"' . expand('%:r')  . '\"''")<CR>')
 	call MapAllBuff('<F9>', ':call RedirStdoutNewTabSingle("make profile=''\"' . expand('%:r')  . '\"''")<CR>')

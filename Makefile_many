@@ -26,7 +26,10 @@ OUT_DIR 	?= _build/
 OUT_EXT 	?= #.elf
 
 # Basename without extension of file to run on run target.
-RUN ?= main
+RUN 		?= main
+# If exists, will be symlinked into the same directory from which the executable will be run.
+# This way, the executable can suppose that this file or directory is in the current directory.
+RUN_INPUT	?= input
 # Allow users to write `make run=name`.
 run ?=
 
@@ -54,6 +57,7 @@ OUTS		:= $(addprefix $(OUT_DIR), $(OUTS_NODIR))
 
 all: mkdir $(OUTS)
 	@#TODO ignore errors if not present
+	@if [ -e "$(RUN_INPUT)" ] && [ ! -e "$(OUT_DIR)$(RUN_INPUT)" ]; then ln -s ../$(RUN_INPUT) "$(OUT_DIR)$(RUN_INPUT)"; fi
 	@-$(MAKE) all-post
 ifneq ($(strip $(run)),)
 	cd $(OUT_DIR) && ./"$(run)"

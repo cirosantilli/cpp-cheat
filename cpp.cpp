@@ -303,7 +303,7 @@ Features which are identical to C will not be described.
 */
 
 #include <array>            // array
-#include <algorithm>
+#include <algorithm>        // erase, remove_if, transform
 #include <chrono>           // time operations
 #include <exception>        // exception, bad_alloc, bad_cast, bad_exception, bad_typeid, ios_base::failure
 #include <fstream>          // ofstream, ifstream, fstream
@@ -2804,6 +2804,17 @@ void printCallStack() {
         ifs.seekg(0);
         ifs.read(&data_read[0], size);
         ifs.close();
+    }
+
+//to_str
+
+    template <class K, class V>
+    std::string map_to_str(std::map<K,V> map) {
+        std::stringstream result;
+        for (auto& pair : map) {
+            result << pair.first << ":" << pair.second << ", ";
+        }
+        return result.str();
     }
 
 //Misc
@@ -6398,6 +6409,19 @@ int main(int argc, char **argv) {
                     //const_cast<int>(i) = 1;
                 }
             }
+
+            // Function pointer typecast.
+            {
+                // Required when a function is overloaded, and you want to use a function pointer.
+                // TODO understand syntax.
+                {
+                    std::string s = "a,bc. d";
+                    auto end = s.end();
+                    s.erase(std::remove_if(s.begin(), end, (int(*)(int))std::ispunct), end);
+                    std::cout << s << std::endl;
+                    assert(s == "abc d");
+                }
+            }
         }
     }
 
@@ -6740,6 +6764,17 @@ int main(int argc, char **argv) {
                 //s[3] = 'd';
             }
 
+            // #lowercase
+            // http://stackoverflow.com/questions/313970/stl-string-to-lower-case
+            {
+                // Best stdlib way with transform:
+                std::string s = "AbCd1_";
+                std::transform(s.begin(), s.end(), s.begin(), ::tolower);
+                assert(s == "abcd1_");
+
+                //Boost has a single function: boost::algorithm::to_lower(str);
+            }
+
             /*
             #c_str
 
@@ -6779,6 +6814,15 @@ int main(int argc, char **argv) {
 
                 // Any character in a string: remove_if + custom function. std::ispunct is a typical choice.
                 // Single liner with boost::remove_if + is_any_of.
+                {
+                    std::string s = "a,bc. d";
+                    auto end = s.end();
+                    // stdc ispunct:
+                    s.erase(std::remove_if(s.begin(), end, ::ispunct), end);
+                    // stdlib ispunct. Fails without the cast.
+                    //s.erase(std::remove_if(s.begin(), end, (int(*)(int))std::ispunct), end);
+                    assert((s == "abc d"));
+                }
             }
 
             /*
@@ -6872,7 +6916,7 @@ int main(int argc, char **argv) {
                 // To clear it you could do: http://stackoverflow.com/questions/20731/in-c-how-do-you-clear-a-stringstream-variable
                 // Set to empty:
                 oss.str("");
-                // Clear error flags (optional here):
+                // Clear flags. Very important, not only for error indicators but also for end of stream.
                 oss.clear();
                 assert(oss.str() == "");
 
@@ -7021,7 +7065,7 @@ int main(int argc, char **argv) {
                 - hard to handle invalid inputs
                 - difficult to predict behaviour
 
-                readline is the best option.
+                getline is the best option.
             */
             {
                 //std::cout << "Enter an integer:" << endl;
@@ -7979,8 +8023,8 @@ int main(int argc, char **argv) {
                     }
                 }
 
-                //#remove_if #filter
-                // Remove if a given function evaluates to true on an element.
+                // #remove_if #filter
+                // Algorithm. Remove if a given function evaluates to true on an element.
                 {
                     std::vector<int> v{0, 1, 2, 3, 4};
                     auto end = v.end();
@@ -7997,6 +8041,15 @@ int main(int argc, char **argv) {
                     }
                 }
 
+                // #transform
+                // Algorithm. Replace elements by output of a function.
+                {
+                    std::vector<int> v{0, 1, 2};
+                    std::transform(v.begin(), v.end(), v.begin(),
+                            [](int i) {return i * i;});
+                    assert((v == std::vector<int>{0, 1, 4}));
+                }
+
                 //#clear
                 {
                     std::vector<int> v{0, 1, 2};
@@ -8004,8 +8057,10 @@ int main(int argc, char **argv) {
                     assert(v.size() == 0);
                 }
 
-
+                // #print vector
                 // ERROR: no default operator `<<`.
+                // People want that really bad: http://stackoverflow.com/questions/4850473/pretty-print-c-stl-containers
+                // 190 votes on question, 30 on top answer! Come on C++!
                 //cout << v;
             }
 
@@ -8014,24 +8069,22 @@ int main(int argc, char **argv) {
 
                 std::vector<int> v{0, 1, 2};
 
-                //first element
+                // First element:
 
                     assert(v.front() == 0);
                     assert(v.front() == v[0]);
 
-                //last element
+                // Last element:
 
                     assert(v.back() == 2);
 
-                //nth element:
+                // Nth element:
 
                     v[0] = 1;
                     assert(v[0] == 1);
 
                 /*
-                BAD:
-                just like array overflow
-                will not change std::vector size,
+                BAD: just like array overflow will not change std::vector size,
                 and is unlikelly to give an error
                 */
                 {
@@ -8122,7 +8175,7 @@ int main(int argc, char **argv) {
                 This is so because modification may mean reordering.
         */
         {
-            //C++11 initializer list
+            // C++11 initializer list
             {
                 {
                     std::set<int> s{1, 2, 0, 1};
@@ -8137,7 +8190,7 @@ int main(int argc, char **argv) {
                 }
             }
 
-            //you can modify objects if you store pointers
+            // You can modify objects if you store pointers.
             {
                 int i = 0;
                 std::set<int*> s;
@@ -8346,18 +8399,20 @@ int main(int argc, char **argv) {
                 Iteration returns key value pairs.
             */
             {
-                std::map<int,std::string> m;
-                m.insert(std::pair<int,std::string>(1, "one"));
-                m.insert(std::pair<int,std::string>(0, "zero"));
+                std::map<int,std::string> m{
+                    {1, "one"},
+                    {0, "zero"},
+                };
 
                 int i = 0;
                 int is[] = {0, 1};
-                for (auto& im : m)
-                {
+                for (auto& im : m) {
                     assert(im.first == is[i]);
                     //cout << im->second << endl;
                     ++i;
                 }
+                assert(i == 2);
+                assert(map_to_str(m) == "0:zero, 1:one, ");
             }
 
             /*
@@ -8384,7 +8439,7 @@ int main(int argc, char **argv) {
             }
 
             /*
-            find
+            #find #check if in map
 
                 Similar to `std::set` find with respect to the keys:
                 returns an iterator pointing to the pair which has given key, not the value.
@@ -8752,29 +8807,29 @@ int main(int argc, char **argv) {
                 std::vector<int>::iterator itVec(v.begin());
                 std::set<int>::iterator itSeti(s.begin());
 
-                //DOES NOT EXIST:
+                // Does not exist:
+
                     //iterator<int> itVec = v.begin();
                     //iterator<int> itSeti = s.begin();
 
-                //best ``workaround'' is using auto:
+                // Best workaround is using auto:
 
                     auto vit(v.begin());
                     auto sit(v.begin());
             }
 
-            //no born checking is done
+            // No born checking is done
             {
                 std::vector<int> v{1, 2};
 
+                // Last element.
                 *(v.end() - 1);
-                    //last element
 
+                // After last element no born check.
                 *(v.end());
-                    //after last element
-                    //no born check
 
+                // No such method.
                 //(v.end().hasNext());
-                    //no such method
             }
 
             /*
