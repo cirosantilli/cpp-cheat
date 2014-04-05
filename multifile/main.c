@@ -18,8 +18,6 @@ static void staticFunc() {
     puts("");
 }
 
-void func(){ puts( "mainFunc" ); }
-
 int main(int argc, char** argv) {
     // Static demostration
         staticFunc();

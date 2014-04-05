@@ -338,11 +338,10 @@ Features which are identical to C will not be described.
 
 // Keeps a list of functions that called it for testing purposes.
 static std::vector<std::string> callStack;
-
 void printCallStack() {
     std::cout << "callStack:" << std::endl;
-    for (std::vector<std::string>::iterator it = callStack.begin(); it != callStack.end(); ++it)
-        std::cout << *it << std::endl;
+    for (auto& s : callStack)
+        std::cout << s << std::endl;
     std::cout << "END callStack" << std::endl;
 }
 
@@ -3282,9 +3281,7 @@ int main(int argc, char **argv) {
         }
 
         /*
-        ERROR
-
-        Must not initialize non-const ref with a rvalue.
+        ERROR: Must not initialize non-const ref with a rvalue.
 
         Can however do that for const references.
 
@@ -3293,6 +3290,7 @@ int main(int argc, char **argv) {
         {
             //int& ia = 0;
             //std::string& s = getString();
+            const std::string& s = getString();
             //byref(1);
         }
 
@@ -6785,7 +6783,13 @@ int main(int argc, char **argv) {
                 assert((std::strcmp(s.c_str(), "abc")) == 0);
             }
 
-            // #split
+            //#substring
+            {
+                std::string s = "abcde";
+                assert(s.substr(1, 3) == "bcd");
+            }
+
+            // #split at a character into array of strings.
             {
                 // Best stdlib solution for any character: http://stackoverflow.com/questions/236129/how-to-split-a-string-in-c
                 // There are shorters sstream solutions that split at whitespace.
@@ -7680,8 +7684,7 @@ int main(int argc, char **argv) {
 
             $O(1)$ element append to end (amortized, $O(n)$ worst case)
 
-            All methods that work for several SLT containers
-            shall only be cheated here once.
+            All methods that work for several SLT containers shall only be cheated here once.
         */
         {
             // Create
@@ -7725,14 +7728,49 @@ int main(int argc, char **argv) {
                     std::vector<int> v1 = {0, 1, 2};
                     assert(v == v1);
                 }
+            }
 
-                // Vectors have order.
-                {
-                    std::vector<int> v{0, 1, 2};
-                    std::vector<int> v1{2, 1, 0};
-                    assert(v != v1);
-                }
+            // Vectors have order.
+            {
+                std::vector<int> v{0, 1, 2};
+                std::vector<int> v1{2, 1, 0};
+                assert(v != v1);
+            }
 
+            /*
+            #contigous storage #data
+
+            Storage is required to be contiguous by TR1: http://stackoverflow.com/questions/849168/are-stdvector-elements-guaranteed-to-be-contiguous
+
+            C++11 introduces the `data()` method which returns a pointer to the first element. It works even if the vector is empty.
+            http://stackoverflow.com/questions/6485496/how-to-get-stdvector-pointer-to-the-raw-data
+
+            Before C++11, &v[0] works for non-empty vectors.
+
+            vector<bool> as usual is an exception.
+            */
+            {
+                std::vector<int> v{0, 1, 2};
+                assert(&v[0] == v.data());
+                // True because contiguous:
+                assert(v.data()[1] == v[1]);
+            }
+
+            /*
+            Size related methods:
+
+            - size            no of elements pushed back
+            - empty           same as size() == 0
+            - max_size        maximum size (estimtion of what could fit your computer ram)
+
+            Allocation related:
+
+            - reserve         change how much memory is allocated but not actual size.
+                              If smaller or less than current capacity, do nothing.
+            - shrink_to_fit   shrink allocated array to size
+            - data            get pointer to allocated array
+            */
+            {
                 /*
                 #size #size_type
 
@@ -7803,21 +7841,6 @@ int main(int argc, char **argv) {
                         }
                     }
                 }
-
-                /*
-                size related:
-
-                - size            no of elements pushed back
-                - empty           same as size() == 0
-                - max_size        maximum size (estimtion of what could fit your computer ram)
-
-                allocation related:
-
-                - reserve         change how much memory is allocated but not actual size.
-                                  If smaller or less than current capacity, do nothing.
-                - shrink_to_fit   shrink allocated array to size
-                - data            get pointer to allocated array
-                */
             }
 
             // `std::vector` stores copies of elements, not references.
@@ -8539,15 +8562,13 @@ int main(int argc, char **argv) {
 
             Iteration could be done with random access in certain data structures with a for i loop.
 
-            But still use iterators:
+            Iterators are better becase:
 
-            - if you ever want to change to a container that
-                has slow random access it will be a breeze
-
-            - with iterators you don't need to know total container size
+            - you can also use them for structures without random access, so if you decide to change
+                structures in the future the job will be much easier.
 
             - iterators may allow you not to keep the whole sequence in
-               memory, but calculate it on the fly
+               memory, but calculate it on the fly.
 
             #iterator categories
 
@@ -8575,18 +8596,68 @@ int main(int argc, char **argv) {
                     typedef random_it std::vector<int>::iterator;
 
                 It is possible to retreive the class of an interator via `std::iterator_traits<ITER>::interator_category`.
-
-        #numerical range interators
-
-            There seems to be nothing built-in like python's `xrange()`, but Boost offers `counting_iterator`.
         */
         {
+            // Before C++11: begin and end were the only way to use iterators.
+            // After C++11; the range based syntax is the best way to use them.
+            {
+                /*
+                #forward iteration
+
+                    Can be done on all containers.
+
+                    #begin
+
+                        Returns an iterator to the first element.
+
+                    #end
+
+                        Returns an iterator to the first element *after* the last.
+                */
+                {
+                    std::vector<int> v{1, 2, 0};
+                    int i = 0;
+                    int is[]{1, 2, 0};
+
+                    for (auto it = v.begin(); it != v.end(); ++it) {
+                        assert(*it == is[i]);
+                        ++i;
+                    }
+                }
+
+                /*
+                #backwards iteration
+
+                    Can only be done on biderectional containers.
+
+                    #rbegin
+
+                        Reversed begin.
+
+                        Returns a `reverse_iterator` that points to the last emlement.
+
+                        ++ on reversed iterators decreases them.
+
+                    #rend
+
+                        Returns a reversed iterator to the element before the first.
+                */
+                {
+                    std::vector<int> v{1, 2, 0};
+                    int i;
+                    int is[]{1, 2, 0};
+
+                    i = 2;
+                    for (auto it = v.rbegin(); it != v.rend(); ++it) {
+                        assert(*it == is[i]);
+                        //cout << *it << endl;
+                        --i;
+                    }
+                }
+            }
+
             /*
-            #foreach
-
-                See range based for.
-
-            #range based for loop
+            #range based for loop #foreach
 
                 C++11
 
@@ -8611,13 +8682,11 @@ int main(int argc, char **argv) {
                 - operator*()
             */
             {
-
 #if __cplusplus >= 201103L
                 //forward
                 {
                     // If `int&` is used, no useless copies are made.
-                    //
-                    // std::vector can be modified directly.
+                    // and the vector can be modified directly.
                     {
                         std::vector<int> v{1, 2, 0};
                         int is[]{1, 2, 0};
@@ -8632,7 +8701,6 @@ int main(int argc, char **argv) {
                     }
 
                     // Without `&`, makes copies of each element.
-                    //
                     // Usually not what we want.
                     {
                         std::vector<int> v{1, 2, 0};
@@ -8647,9 +8715,8 @@ int main(int argc, char **argv) {
                         assert((v == std::vector<int>{1, 2, 0}));
                     }
 
-                    // Even easier to write with auto.
-                    //
-                    // This is the recommended way to do it.
+                    // Less code duplication with auto.
+                    // This is the best way to do it.
                     {
                         std::vector<int> v{1, 2, 0};
                         int is[]{1, 2, 0};
@@ -8692,13 +8759,12 @@ int main(int argc, char **argv) {
                     }
                 }
 #endif
-
                 /*
                 backwards
 
                     TODO possible? Seems not out of the C++11 box: <http://stackoverflow.com/questions/8542591/c11-reverse-range-based-for-loop>
 
-                    Best workaround with auto.
+                    Auto is a lifesaver here to avoid typing the iterator type.
                 */
                 {
                     std::vector<int> v = {1, 2, 0};
@@ -8708,75 +8774,11 @@ int main(int argc, char **argv) {
                     //forward
                     {
                         i = 2;
-                        for (auto it = v.rbegin(); it != v.rend(); it++)
-                        {
+                        for (auto it = v.rbegin(); it != v.rend(); ++it) {
                             assert(*it == is[i]);
                             //cout << *it << endl;
                             i--;
                         }
-                    }
-                }
-            }
-            /*
-            before C++11: begin(), end() and ++.
-            */
-            {
-                /*
-                #forward iteration
-
-                    Can be done on all containers.
-
-                    #begin
-
-                        Returns an iterator to the first element.
-
-                    #end
-
-                        Returns an iterator to the first element *after* the last.
-                */
-                {
-                    std::vector<int> v{1, 2, 0};
-                    int i = 0;
-                    int is[]{1, 2, 0};
-
-                    for (std::vector<int>::iterator it = v.begin();
-                         it != v.end();
-                         ++it) {
-                        assert(*it == is[i]);
-                        //cout << *it << endl;
-                        ++i;
-                    }
-                }
-
-                /*
-                #backwards iteration
-
-                    Can only be done on biderectional containers.
-
-                    #rbegin
-
-                        Reversed begin.
-
-                        Returns a `reverse_iterator` that points to the last emlement.
-
-                        ++ on reversed iterators decreases them.
-
-                    #rend
-
-                        Returns a reversed iterator to the element before the first.
-                */
-                {
-                    std::vector<int> v{1, 2, 0};
-                    int i;
-                    int is[]{1, 2, 0};
-
-                    i = 2;
-                    for (auto it = v.rbegin();
-                            it != v.rend();
-                            ++it) {
-                        assert(*it == is[i]);
-                        //cout << *it << endl;
-                        --i;
                     }
                 }
             }

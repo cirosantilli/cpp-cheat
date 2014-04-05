@@ -7764,7 +7764,7 @@ int main(int argc, char **argv) {
         {
             srand(time(NULL));
 
-            //integer between 0 and RAND_MAX:
+            // Integer between 0 and RAND_MAX:
             {
                 int i = rand();
             }

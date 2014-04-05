@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <iostream>
 #include <fstream>
 
@@ -8,47 +9,62 @@
 #include <boost/graph/dijkstra_shortest_paths.hpp>
 #include <boost/property_map/property_map.hpp>
 
-int main(int, char *[]) {
+int main() {
+
+    //#source
+    //
+    //  Source is also a global function: <http://stackoverflow.com/questions/16114616/why-is-boost-graph-librarys-source-a-global-function>
+
     // #dijikstra
     {
-        typedef boost::adjacency_list<boost::listS, boost::vecS, boost::directedS, boost::no_property, boost::property<boost::edge_weight_t, int>> graph_t;
+        typedef boost::adjacency_list<
+            boost::listS,
+            boost::vecS,
+            boost::directedS,
+            boost::no_property,
+            boost::property<boost::edge_weight_t, int>
+        > graph_t;
         typedef boost::graph_traits<graph_t>::vertex_descriptor vertex_descriptor;
         typedef boost::graph_traits<graph_t>::edge_descriptor edge_descriptor;
-        typedef std::pair<int, int> Edge;
+        typedef std::pair<int, int> edge_t;
 
         // Model inputs.
         const int num_nodes = 5;
-        Edge edge_array[] = {
+        const int sorce = 0;
+        std::vector<edge_t> edge_array{
             {0, 2}, {1, 1}, {1, 3}, {1, 4}, {2, 1},
             {2, 3}, {3, 4}, {4, 0}, {4, 1}
         };
-        int weights[] = {
+        std::vector<int> weights{
             1, 2, 1, 2, 7,
             3, 1, 1, 1
         };
 
-        // Solve
-        int num_arcs = sizeof(edge_array) / sizeof(Edge);
-        graph_t g(edge_array, edge_array + num_arcs, weights, num_nodes);
+        // Solve.
+        graph_t g(edge_array.data(), edge_array.data() + edge_array.size(), weights.data(), num_nodes);
         std::vector<vertex_descriptor> p(num_vertices(g));
         std::vector<int> d(num_vertices(g));
-        vertex_descriptor s = vertex(0, g);
+        vertex_descriptor s = vertex(sorce, g);
         dijkstra_shortest_paths(g, s,
-            predecessor_map(boost::make_iterator_property_map(p.begin(), get(boost::vertex_index, g))).
-            distance_map(boost::make_iterator_property_map(d.begin(), get(boost::vertex_index, g))));
+            predecessor_map(boost::make_iterator_property_map(
+                p.begin(),
+                boost::get(boost::vertex_index, g)
+            )).distance_map(boost::make_iterator_property_map(
+                d.begin(),
+                boost::get(boost::vertex_index, g)
+            ))
+        );
 
         // Print solution to stdout.
-        std::cout <<"distances and parents:" <<std::endl;
+        std::cout << "node | distance from source | parent" << std::endl;
         boost::graph_traits<graph_t>::vertex_iterator vi, vend;
-        for (boost::tie(vi, vend) = vertices(g); vi != vend; ++vi) {
-            std::cout << "distance(" << *vi << ") = " << d[*vi] << ", "
-                      << "wparent("  << *vi << ") = " << p[*vi] << std::endl;
-        }
+        for (boost::tie(vi, vend) = vertices(g); vi != vend; ++vi)
+            std::cout << *vi << " " << d[*vi] << " " << p[*vi] << std::endl;
         std::cout <<std::endl;
 
         // Generate a .dot graph file with shortest path highlighted.
-        // To png with: dot -Tpng -o outfile.png input.dot
-        boost::property_map<graph_t, boost::edge_weight_t>::type weightmap = get(boost::edge_weight, g);
+        // To PNG with: dot -Tpng -o outfile.png input.dot
+        boost::property_map<graph_t, boost::edge_weight_t>::type weightmap = boost::get(boost::edge_weight, g);
         std::ofstream dot_file("dijkstra.dot");
         dot_file << "digraph D {\n"      << "  rankdir=LR\n"           << "  size=\"4,3\"\n"
                  << "  ratio=\"fill\"\n" << "  edge[style=\"bold\"]\n" << "  node[shape=\"circle\"]\n";
@@ -56,8 +72,8 @@ int main(int, char *[]) {
         for (boost::tie(ei, ei_end) = edges(g); ei != ei_end; ++ei) {
             edge_descriptor e = *ei;
             boost::graph_traits<graph_t>::vertex_descriptor
-                u = source(e, g), v = target(e, g);
-            dot_file << u << " -> " << v << "[label=\"" << get(weightmap, e) << "\"";
+                u = boost::source(e, g), v = boost::target(e, g);
+            dot_file << u << " -> " << v << "[label=\"" << boost::get(weightmap, e) << "\"";
             if (p[v] == u)
                 dot_file << ", color=\"black\"";
             else
@@ -65,5 +81,21 @@ int main(int, char *[]) {
             dot_file << "]";
         }
         dot_file << "}";
+
+        // Construct forward path to a destination.
+        int dest = 4;
+        int cur = dest;
+        std::vector<int> path;
+        path.push_back(cur);
+        while(cur != sorce) {
+            cur = p[cur];
+            path.push_back(cur);
+        }
+        std::reverse(path.begin(), path.end());
+        // Print.
+        std::cout << "Path to node " << std::to_string(dest) << ":" << std::endl;
+        for(auto& node : path) {
+            std::cout << node << std::endl;
+        }
     }
 }

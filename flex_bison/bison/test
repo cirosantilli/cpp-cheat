@@ -1,19 +1,22 @@
 #!/usr/bin/env python
 
 """
-Does many test cases.
+Test an executable IO.
+
+Supports input: stdin, comand line arguments, stdout, stderr, and exit status checks.
 
 Run as:
 
-    ./test executable
+    ./test path_to_executable
 """
 
 import subprocess
 import sys
-import unittest
 
-class ProgramInput:
-
+class Input:
+    """
+    TODO environment variables.
+    """
     def __init__(self, stdin, args = []):
         self.stdin  = stdin
         self.args   = args
@@ -24,78 +27,105 @@ class ProgramInput:
         return False
 
     def __repr__(self):
-        return \
-            'stdin:\n' + self.stdin + '\n\n' \
-            'args: ' + self.args.__repr__() + '\n'
+        output = ""
+        previous = False
+        if self.args:
+            output += 'args:\n'  + repr(self.args)
+            previous = True
+        if self.stdin:
+            if previous:
+                output += '\n'
+            output += 'stdin:\n' + self.stdin
+            previous = True
+        return output
 
-class ProgramOutput:
-
+class Output:
     def __init__(self, stdout, stderr = '', exit_status = 0):
         self.stdout         = stdout
         self.stderr         = stderr
         self.exit_status    = exit_status
 
     def __eq__(self, other):
-        if type(other) is type(self):
-            return self.__dict__ == other.__dict__
-        return False
+        return ((type(other) is type(self))
+            and self.__dict__ == other.__dict__)
 
     def __repr__(self):
-        return \
-            'stdout:\n' + self.stdout + '\n\n' \
-            'stderr:\n' + self.stderr + '\n\n' \
-            'exit_status: ' + str(self.exit_status) + '\n'
+        output = ""
+        previous = False
+        if self.stdout:
+            output += 'stdout:\n' + self.stdout
+        if self.stderr:
+            if previous:
+                output += '\n'
+            output += 'stderr:\n' + self.stderr
+            previous = True
+        if self.exit_status != 0:
+            if previous:
+                output += '\n'
+            output += 'exit_status: ' + str(self.exit_status)
+        return output
 
-class Test(unittest.TestCase):
+class IO:
+    """
+    Contains an Input Output pair, and information on how to run the input.
 
-    def test(self):
+    Has many creation default parameters so that the least used parameters do not need to be specified.
+    """
+    def __init__(self, name, stdin, stdout, args = [], stderr = '', exit_status = 0):
+        self.name = name
+        self.input = Input(stdin, args)
+        self.output_expected = Output(stdout, stderr, exit_status)
 
-        inouts = [
+    def run(self, program_path):
+        """
+        Run test case using given program.
 
-            #print
+        :returns: empty str it test passed, error message if test failed.
+        :rtype:   str
+        """
+        return_val = ""
+        command = [program_path]
+        command.extend(self.input.args)
+        process = subprocess.Popen(
+            command,
+            shell  = False,
+            stdin  = subprocess.PIPE,
+            stdout = subprocess.PIPE,
+            stderr = subprocess.PIPE
+        )
+        stdout, stderr = process.communicate(self.input.stdin)
+        exit_status = process.wait()
+        output = Output(stdout, stderr, exit_status)
+        if output != self.output_expected:
+            return_val += (
+                self.name + "\n"
+                + (60 * "=") + "\n"
+                + "Input\n" + repr(self.input) + "\n"
+                + (40 * "-") + "\n"
+                + "Output\n" + repr(output) + "\n"
+                + (40 * "-") + "\n"
+                + "Expected output\n" + repr(self.output_expected))
+        return return_val
 
-                (ProgramInput('print 1;'),           ProgramOutput('1\n')),
-                (ProgramInput('a = 1; print a;'),    ProgramOutput('1\n')),
-
-            ##vars
-
-                (ProgramInput('a = 1 + 1; print a;'),    ProgramOutput('2\n')),
-                (ProgramInput('a = 1; b = a; print b;'), ProgramOutput('1\n')),
-
-            ##if
-
-                (ProgramInput('if(1); print 1;'),        ProgramOutput('1\n')),
-                #(ProgramInput('if(0); print 1;'),       ProgramOutput('\n')),
-
-            ##while
-
-                (ProgramInput('i = 0; while (i < 3) {print i; i = i + 1;}'), ProgramOutput('0\n1\n2\n')),
-        ]
-
-        for inout in inouts:
-
-            inp, out_expect = inout
-            command = [ program_path ]
-            command.extend(inp.args)
-
-            process = subprocess.Popen(
-                command,
-                shell  = False,
-                stdin  = subprocess.PIPE,
-                stdout = subprocess.PIPE,
-                stderr = subprocess.PIPE
-            )
-            stdout, stderr = process.communicate(inp.stdin)
-            exit_status = process.wait()
-            out = ProgramOutput(stdout, stderr, exit_status)
-
-            #print inp
-            #print out
-            #print out_expect
-
-            self.assertEqual(out, out_expect)
+inouts = [
+    ["print",               "print 1;\n",                                   "1\n"],
+    ["print variable",      "a = 1; print a;\n",                            "1\n"],
+    ["variables",           "a = 1; b = a; print b;",                       "1\n"],
+    ["variables",           "a = 1 + 1; print a;",                          "2\n"],
+    ["if",                  "if(1); print 1;",                              "1\n"],
+    ["while",               "i = 0; while (i < 3) {print i; i = i + 1;}",   "0\n1\n2\n"],
+]
 
 if __name__ == '__main__':
-
     program_path = sys.argv[1]
-    unittest.main(argv = [sys.argv[0]])
+    errors = []
+    for inout in inouts:
+        error = IO(*inout).run(program_path)
+        if error:
+            errors.append(error)
+            sys.stdout.write('F')
+        else:
+            sys.stdout.write('.')
+        sys.stdout.flush()
+    print "\n"
+    print "\n\n".join(errors)

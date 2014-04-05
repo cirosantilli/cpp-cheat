@@ -22,9 +22,9 @@ endfunction
 
 call MapAllBuff('<F5>'  , ':w<CR>:make<CR>')
 if expand('%:e') =~ '\(c\|cpp\|f\)'
-	call MapAllBuff('<F6>', ':call RedirStdoutNewTabSingle("make run=''\"' . expand('%:r')  . '\"''")<CR>')
-	call MapAllBuff('<F9>', ':call RedirStdoutNewTabSingle("make profile=''\"' . expand('%:r')  . '\"''")<CR>')
+	call MapAllBuff('<F6>', ':w<CR>:call RedirStdoutNewTabSingle("make run=''\"' . expand('%:r')  . '\"''")<CR>')
+	call MapAllBuff('<F9>', ':w<CR>:call RedirStdoutNewTabSingle("make profile=''\"' . expand('%:r')  . '\"''")<CR>')
 else
-	call MapAllBuff('<F6>', ':call RedirStdoutNewTabSingle("make run")<CR>')
+	call MapAllBuff('<F6>', ':w<CR>:call RedirStdoutNewTabSingle("make run")<CR>')
 	call MapAllBuff('<F9>', ':w<CR>:call RedirStdoutNewTabSingle("make profile")<CR>')
 endif
