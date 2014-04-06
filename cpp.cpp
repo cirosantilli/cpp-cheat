@@ -6428,7 +6428,22 @@ int main(int argc, char **argv) {
 
         C++ replaces C's malloc and free with new and delete.
 
-        Use it always instead of malloc on new code.
+        It is very rare to need explicit dynamic allocation. Always use:
+
+            std::vector<int> is(n)
+
+        instead of:
+
+            int *is = new int[n];
+
+        and `vector<int>(n)` is as efficient and much more flexible than `new int[N]`.
+
+        Dynamic allocation is a dangerous, and it may lead to hard to debug memory leaks.
+
+        Always encapsulate dynamic allocation inside class constructors,
+        and free it the destructor, like `std::vector` does.
+
+        Never use C style malloc on C++ code. `new` works better with classes.
 
     #new
 
@@ -6447,12 +6462,9 @@ int main(int argc, char **argv) {
         */
         {
             int* ip;
-            try
-            {
+            try {
                 ip = new int[5];
-            }
-            catch(std::bad_alloc& ba)
-            {
+            } catch(std::bad_alloc& ba) {
                 assert(false);
             }
             ip[0] = 1;
@@ -8562,13 +8574,8 @@ int main(int argc, char **argv) {
 
             Iteration could be done with random access in certain data structures with a for i loop.
 
-            Iterators are better becase:
-
-            - you can also use them for structures without random access, so if you decide to change
-                structures in the future the job will be much easier.
-
-            - iterators may allow you not to keep the whole sequence in
-               memory, but calculate it on the fly.
+            Iterators are better becase you can also use them for structures without random access,
+            so if you decide to change structures in the future the job will be much easier.
 
             #iterator categories
 
