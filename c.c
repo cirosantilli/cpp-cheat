@@ -3622,9 +3622,9 @@ int main(int argc, char **argv) {
         /*
         #NULL pointer
 
-            good source: <http://c-faq.com/null/macro.html>
+            Good source: <http://c-faq.com/null/macro.html>
 
-            basic usage: indicate error as return value from function
+            Basic usage: indicate error as return value from function
         */
         {
             /*
@@ -5604,7 +5604,8 @@ int main(int argc, char **argv) {
     {
         printf("getenv\n");
         printf("  HOME = %s\n", getenv("HOME"));
-        printf("  USERPROFILE = %s\n", getenv("USERPROFILE"));
+        printf("  NOT_DEFINED = %s\n", getenv("USERPROFILE"));
+        assert(getenv("NOT_DEFINED") == NULL);
     }
 
     //#preprocessor

@@ -71,4 +71,4 @@ run: all
 	( cd $(OUT_DIR) && ./$(OUT_BASENAME) $(RUN_ARGS) )
 
 test: all
-	./test "$(OUT)"
+	./test "$(OUT_DIR)" $(OUT_BASENAME)

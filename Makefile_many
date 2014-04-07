@@ -121,6 +121,7 @@ profile: clean set_profile_flags all run
 	cd $(OUT_DIR) && gprof -b $(RUN_BNAME) gmon.out | tee "$(RUN_BNAME).profile_out" | less
 
 run: all
+	@echo
 	cd $(OUT_DIR) && ./$(RUN_BNAME)
 
 set_profile_flags:
@@ -129,6 +130,7 @@ set_profile_flags:
 	#$(eval OPTIMIZE_FLAGS := -O0)
 
 test: all
+	@echo
 	./test $(OUT_DIR) $(OUTS_NODIR)
 
 -include Makefile_targets
