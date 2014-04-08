@@ -303,30 +303,30 @@ Features which are identical to C will not be described.
 */
 
 #include <array>            // array
-#include <algorithm>        // erase, remove_if, transform
-#include <chrono>           // time operations
-#include <exception>        // exception, bad_alloc, bad_cast, bad_exception, bad_typeid, ios_base::failure
-#include <fstream>          // ofstream, ifstream, fstream
+#include <algorithm>        // copy, erase, lower_bound, remove_if, swap, transform
+#include <chrono>           // nanoseconds
+#include <exception>        // bad_alloc, bad_cast, bad_exception, bad_typeid, exception, ios_base::failure
+#include <fstream>          // fstream, ifstream, ofstream
 #include <functional>       // bind2nd
 #include <iostream>         // cout, endl
-#include <iterator>         // iterator, iterator_traits, input_iterator_tag, advance, next
-#include <list>             // list, forward_list
+#include <iterator>         // advance, input_iterator_tag, iterator, iterator_traits, next
+#include <list>             // forward_list, list
 #include <limits>           //
 #include <map>              // map, multimap
 #include <memory>           // shared_ptr
 #include <mutex>            //
-#include <new>              // new
+#include <new>              //
 #include <numeric>          // partial sums, differences on std::vectors of numbers
 #include <regex>            //
-#include <set>              // set, multiset
-#include <string>           // string, getline
+#include <set>              // multiset, set
+#include <string>           // getline, string
 #include <sstream>          // stringstream
 #include <thread>           //
 #include <typeinfo>         // typeid, bad_typeid, bad_typecast
 #include <typeindex>        // type_index
 #include <tuple>            // tuple
 #include <unordered_map>    // unordered_map, unordered_multimap
-#include <utility>          // pair, forward, type_info, size_t
+#include <utility>          // forward, get, pair, size_t, type_info
 #include <vector>
 #include <valarray>
 
@@ -7232,9 +7232,9 @@ int main(int argc, char **argv) {
                 }
 
                 /*
-                #dec hex oct
+                #dec #hex #oct
 
-                    Control how integers are printed
+                    Control how integers are printed.
                 */
                 {
                     std::stringstream ss;
@@ -7317,7 +7317,7 @@ int main(int argc, char **argv) {
                     }
                 }
 
-                // Read entire file at once: stackoverflow.com/questions/2602013/read-whole-ascii-file-into-c-stdstring
+                // #Read entire file at once: stackoverflow.com/questions/2602013/read-whole-ascii-file-into-c-stdstring
                 // Best way seems to be to get file size, allocate, and read manually.
                 {
                     std::ifstream ifs(path);
@@ -7330,7 +7330,46 @@ int main(int argc, char **argv) {
                     }
                 }
 
-                // Append to file.
+                // #Copy file to another. #cp
+                // #rdbuf http://stackoverflow.com/questions/2141749/what-does-ifstreamrdbuf-actually-do
+                {
+                    std::string data = "abc\ndef\n";
+                    std::string src_path = "src.tmp";
+                    std::string dst_path = "dst.tmp";
+                    // Create input file.
+                    {
+                        std::ofstream src(src_path, std::ios::binary);
+                        src << data;
+                        // 2 times 4 Gb.
+                        //for (int i = 0; i < 2; i++) {
+                            //for (int j = 0; j < 0xFFFFFFFF; j++) {
+                                //src << std::hex << j;
+                            //}
+                        //}
+                        src.close();
+                    }
+                    // Copy.
+                    std::ifstream src(src_path, std::ios::binary);
+                    std::ofstream dst(dst_path,   std::ios::binary);
+                    dst << src.rdbuf();
+                    src.close();
+                    dst.close();
+                    // Check copy.
+                    {
+                        std::ifstream dst(dst_path, std::ios::binary);
+                        std::string data_read;
+                        read_file(dst, data_read);
+                        assert(data_read == data);
+                        src.close();
+                    }
+                }
+
+                // #Compare two files larger than memory.
+                // TODO is there an easier way than reading each?
+                {
+                }
+
+                // #Append to file.
                 {
                     std::ofstream ofs(path);
 

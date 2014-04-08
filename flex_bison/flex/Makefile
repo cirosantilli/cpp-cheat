@@ -1,6 +1,6 @@
 #compiler options
 CC			:= gcc
-CFLAGS	?= -Wall -std=c99 -pedantic -Wno-unused-function 
+CFLAGS	?= -Wall -std=c99 -pedantic -Wno-unused-function
 
 #paths
 AUX_DIR 						?= _build/

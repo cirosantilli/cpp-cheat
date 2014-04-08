@@ -7293,7 +7293,7 @@ int main(int argc, char **argv) {
 
             They are present in <stdio.h> mainly to support file IO.
 
-        #remove
+        #remove #delete file
 
             Remove a file.
 
