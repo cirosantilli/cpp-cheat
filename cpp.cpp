@@ -449,9 +449,7 @@ void printCallStack() {
             int i;
     };
 
-
 #if __cplusplus >= 201103L
-
     class CtorFromCtor {
 
         public:
@@ -472,7 +470,6 @@ void printCallStack() {
                 v.push_back(j);
             }
     };
-
 #endif
 
     /**
@@ -1185,6 +1182,21 @@ void printCallStack() {
                 not_overload();
             }
     };
+
+#if __cplusplus >= 201103L
+    class InheritingCtorBase {
+        public:
+            int i;
+            InheritingCtorBase() : i(0) {}
+            InheritingCtorBase(int i) : i(i) {}
+    };
+
+    class InheritingCtorDerived : public InheritingCtorBase {
+        public:
+            // Will define InheritingCtorDerived(int) and the copy constructor.
+            using InheritingCtorBase::InheritingCtorBase;
+    };
+#endif
 
     class MultipleInheritanceConflictBase1 {
         public:
@@ -2545,7 +2557,6 @@ void printCallStack() {
     }
 
 #ifdef PROFILE
-
     const static int nProfRuns = 100000000;
 
     // Only the loop. Discount this from every other profile run.
@@ -2833,6 +2844,10 @@ void printCallStack() {
         }
         return result.str();
     }
+
+//attributes
+
+    void noreturn_func [[ noreturn ]] () { throw 1; }
 
 //Misc
 
@@ -4798,7 +4813,7 @@ int main(int argc, char **argv) {
         */
         {
             /*
-            #Default constructor
+            #Default constructors
 
                 <http://en.cppreference.com/w/cpp/language/default_constructor>
 
@@ -4827,8 +4842,8 @@ int main(int argc, char **argv) {
                 - assignment constructor
                 - destructor
 
-                If constructor is explicitly declared, even one taking multiple default args,
-                then the default contructor *not* created by the compiler.
+                If any constructor is explicitly declared, even one taking multiple default args,
+                then *none* of the implicitly declared constructors are declared: that must be done manually.
 
             #Trivial default constructor
 
@@ -6033,6 +6048,23 @@ int main(int argc, char **argv) {
                 InheritOverloadDerived c;
                 c.overload();
             }
+
+#if __cplusplus >= 201103L
+            // #inheriting constructors
+            //
+            // Reuse base class constructors: <http://stackoverflow.com/questions/8093882/using-c-base-class-constructors>
+            // is possible "automatically" only in C++11 (using `using`).
+            //
+            // Before C++11, is was necessary to call each constructor explicitly and forward the argments.
+            //
+            // Only implemented in G++ 4.8. -std=c++11 flag available since G++ 4.7.
+            {
+                InheritingCtorDerived c0;
+                assert(c0.i == 0);
+                InheritingCtorDerived c1(1);
+                InheritingCtorDerived c2(c0);
+            }
+#endif
 
             /*
             #virtual
@@ -9499,19 +9531,16 @@ int main(int argc, char **argv) {
         /*
         #thread #multithreading #parallel #concurrency
 
-            c++11
-
-            Needs `-pthread` flag on g++ Linux.
+            Requires `-pthread` flag on g++ Linux.
         */
         {
-
+            // Start threads.
             std::thread t1(threadFunc, 1000);
             std::thread t2(threadFunc, 1000);
-                //starts them
 
+            // Ensure that both threads ended.
             t1.join();
             t2.join();
-                //both must end
 
             assert(threadChange > 0);
             //assert(threadIds.size() == 2);
@@ -9548,6 +9577,28 @@ int main(int argc, char **argv) {
         }
     }
 
+#if __cplusplus >= 201103L
+    /*
+    #attributes
+
+    Implemented in GCC via __attribtes__ and in Microsoft with #pragma.
+    Now standardized!
+
+    Intended only for functions which don't change behaviour: only to help
+    compilers optimize or geneate better error messages.
+
+    <http://www.stroustrup.com/C++11FAQ.html#attributes>
+
+    Attributes can be defined for various objects, and there are 2 standard ones:
+    noreturn and carries_dependency
+    */
+    {
+        try {
+            noreturn_func();
+        } catch (int i) {}
+    }
+#endif
+
 #ifdef PROFILE
         loopOnlyProf(nProfRuns);
         whileOnlyProf(nProfRuns);
@@ -9566,7 +9617,7 @@ int main(int argc, char **argv) {
         funcCallProf(nProfRuns);
         inlineFuncCallProf(nProfRuns);
 
-        //allocation
+        // Allocation.
         {
             stack1bProf(nProfRuns);
             stack1kbProf(nProfRuns);
@@ -9578,18 +9629,17 @@ int main(int argc, char **argv) {
 
             heapNew1bProf(nProfRuns);
             heapNew1kbProf(nProfRuns);
+            // new is faster!
             //heapNew1mbProf(nProfRuns);
-                //new is faster!
         }
 
         methodCallProf(nProfRuns);
+        // 2x as expensive than function call
         virtualMethodCallProf(nProfRuns);
-            //2x as expensive than function call
 
+        // BAD: don't do stdout on profiling
+        // system time is not counted anyways
         //putsProf(nProfRuns);
-            //BAD
-            //don't do stdout on profiling
-            //system time is not counted anyways
 #endif
 
     //#design patterns
