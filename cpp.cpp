@@ -458,10 +458,15 @@ void printCallStack() {
 
             std::vector<int> v;
 
+            /**
+            This constructor does the default which is calling the parent's default constrctor before its own.
+
+            An error would be generated if the parent class has no defalt constructor.
+            */
             CtorFromCtor(int i) : v(1,i) {}
 
             /**
-            This constructor calls another constructor before running its own.
+            This constructor calls another constructor with arguments before running its own.
             */
             CtorFromCtor(int i, int j) : CtorFromCtor(i) {
                 v.push_back(j);
@@ -1115,17 +1120,13 @@ void printCallStack() {
             // Can be called in derived classes init list.
             BaseAbstract(){}
 
-            virtual ~BaseAbstract(){}
-
-            void method(){callStack.push_back("BaseAbstract::method()");}
-
-            void methodAmbiguous(){callStack.push_back("BaseAbstract::methodAmbiguous()");}
-
-            virtual void virtualMethod(){callStack.push_back("BaseAbstract::virtualMethod()");}
-
+            virtual ~BaseAbstract() {}
+            void method() { callStack.push_back("BaseAbstract::method()"); }
+            void methodAmbiguous() {callStack.push_back("BaseAbstract::methodAmbiguous()"); }
+            virtual void virtualMethod() { callStack.push_back("BaseAbstract::virtualMethod()"); }
             virtual void pureVirtual() = 0;
 
-            // BAD won't work: must implement on derived class only
+            // BAD: won't work: must implement on derived class only.
             //virtual void pureVirtualImplementedOtherBase() = 0;
 
             int i;
@@ -1166,6 +1167,23 @@ void printCallStack() {
             //{
                 //callStack.push_back("PureVirtualImplementedOtherBase::privatePureVirtual()");
             //}
+    };
+
+    class InheritOverloadBase {
+        public:
+            void overload(){}
+            void not_overload(){}
+    };
+
+    class InheritOverloadDerived : public InheritOverloadBase {
+        public:
+            // `using` is required, or f(int) hides `f()`.
+            using InheritOverloadBase::overload;
+            void overload(int i) {
+                overload();
+                // This one does not reqire using becase it is not overloaded.
+                not_overload();
+            }
     };
 
     class MultipleInheritanceConflictBase1 {
@@ -1276,10 +1294,10 @@ void printCallStack() {
             /*
             Also calls Base destructor after
             */
-            ~Class(){callStack.push_back("Class::~Class()");}
+            ~Class() { callStack.push_back("Class::~Class()"); }
 
             // Called method overwriding.
-            void method(){callStack.push_back("Class::method()");}
+            void method() { callStack.push_back("Class::method()"); }
 
             // OK.
             template<class C=int>
@@ -1288,14 +1306,14 @@ void printCallStack() {
             }
 
             // Different than overwriding non virtual methods. see polymorphism.
-            void virtualMethod(){callStack.push_back("Class::virtualMethod()");}
+            void virtualMethod() { callStack.push_back("Class::virtualMethod()"); }
 
             // OK: only difference: if you have a pointer to this class,
             // you can only use virtual if this is declared virtual.
             //virtual void virtualMethod(){callStack.push_back("Class::virtualMethod()");}
 
             // Definition obligatory if you want to create objects of this class.
-            void pureVirtual(){callStack.push_back("Class::pureVirtual()");}
+            void pureVirtual() { callStack.push_back("Class::pureVirtual()"); }
 
             // ERROR: unlike function overloading, polyomorphism is decided at runtime
             // and therefore return type must be the same as in declaration
@@ -6004,6 +6022,18 @@ int main(int argc, char **argv) {
                 assert(callStack.back() == "BaseAbstract::methodAmbiguous()");
             }
 
+            // Inheritance and overloading.
+            //
+            // You cannot overload an inherited method directly
+            //
+            // http://stackoverflow.com/questions/72010/c-overload-resolution
+            //
+            // TODO why is that using required? What is the advantage?
+            {
+                InheritOverloadDerived c;
+                c.overload();
+            }
+
             /*
             #virtual
 
@@ -6070,24 +6100,24 @@ int main(int argc, char **argv) {
                 //even if you can't instantiate base, you can have pointers to it
                 {
                     BaseAbstract* bap = new Class;
+                    // SAME:
                     //BaseAbstract* bap = &c;
-                        //SAME
 
                     callStack.clear();
                     bap->method();
+                    // Base method because non-virtual.
                     assert(callStack.back() == "BaseAbstract::method()");
-                        //base method because non-virtual
 
                     callStack.clear();
                     bap->virtualMethod();
+                    // Class method because virtual.
                     assert(callStack.back() == "Class::virtualMethod()");
-                        //class method because virtual
 
                     delete bap;
                 }
 
                 {
-                    //you can also have BaseAbstract&
+                    // You can also have BaseAbstract&.
                     Class c;
                     BaseAbstract& ba = c;
 
@@ -6146,7 +6176,7 @@ int main(int argc, char **argv) {
                 Solves the dreaded diamond problem.
 
                 Has nothing to do with the `virtual` keyword for methods:
-                everything is done at compile time in thie usage.
+                everything is done at compile time in this usage.
 
                 <http://stackoverflow.com/questions/21558/in-c-what-is-a-virtual-base-class>
             */
@@ -7584,11 +7614,11 @@ int main(int argc, char **argv) {
                         std::tuple<int,char,std::string> t{0, 'a', "a"};
                     }
 
-                    //aha, fails because the constructors are is `explicit`!
-                    //TODO Rationale?? <http://stackoverflow.com/questions/14961809/returning-a-tuple-from-a-function-using-uniform-initialization-syntax>
+                    // Fails because the tuple constructor are is `explicit`!
+                    // TODO Rationale? <http://stackoverflow.com/questions/14961809/returning-a-tuple-from-a-function-using-uniform-initialization-syntax>
                     {
-                        //std::tuple<int,int> t = {0, 1};
-                        //std::tuple<int,int > t[]{ {0, 1} };
+                        //std::tuple<int, int> t = {0, 1};
+                        //std::tuple<int, int> t[]{{0, 1}};
                     }
                 }
 
