@@ -1110,112 +1110,134 @@ void printCallStack() {
     // ERROR: must be declared inside.
     //int Base::k;
 
-    class BaseAbstract {
+    //#virtual
 
-        public:
+        class BaseAbstract {
 
-            // Can be called in derived classes init list.
-            BaseAbstract(){}
+            public:
 
-            virtual ~BaseAbstract() {}
-            void method() { callStack.push_back("BaseAbstract::method()"); }
-            void methodAmbiguous() {callStack.push_back("BaseAbstract::methodAmbiguous()"); }
-            virtual void virtualMethod() { callStack.push_back("BaseAbstract::virtualMethod()"); }
-            virtual void pureVirtual() = 0;
+                // Can be called in derived classes init list.
+                BaseAbstract(){}
 
-            // BAD: won't work: must implement on derived class only.
-            //virtual void pureVirtualImplementedOtherBase() = 0;
+                virtual ~BaseAbstract() {}
+                void method() { callStack.push_back("BaseAbstract::method()"); }
+                void methodAmbiguous() {callStack.push_back("BaseAbstract::methodAmbiguous()"); }
+                virtual void virtualMethod() { callStack.push_back("BaseAbstract::virtualMethod()"); }
+                virtual void pureVirtual() = 0;
 
-            int i;
-            int iAmbiguous;
+                // BAD: won't work: must implement on derived class only.
+                //virtual void pureVirtualImplementedOtherBase() = 0;
 
-        private:
+                int i;
+                int iAmbiguous;
 
-            // This can/must still be implemented on the base class, even if private!
-            virtual void privatePureVirtual() = 0;
+            private:
 
-            // How private pure virtual can be useful.
-            void usefulPrivatePureVirtual() {
-                callStack.push_back("common before");
-                privatePureVirtual();
-                callStack.push_back("common after");
-            }
-    };
+                // This can/must still be implemented on the base class, even if private!
+                virtual void privatePureVirtual() = 0;
 
-    class PureVirtualImplementedOtherBase {
-        public:
-            void pureVirtual() {
-                callStack.push_back("PureVirtualImplementedOtherBase::pureVirtual()");
-            }
-        private:
-            void privatePureVirtual() {
-                callStack.push_back("PureVirtualImplementedOtherBase::privatePureVirtual()");
-            }
-    };
+                // How private pure virtual can be useful.
+                void usefulPrivatePureVirtual() {
+                    callStack.push_back("common before");
+                    privatePureVirtual();
+                    callStack.push_back("common after");
+                }
+        };
 
-    class DerivedAbtractAndImplementator : BaseAbstract, PureVirtualImplementedOtherBase {
-        //public:
-            //void pureVirtual()
-            //{
-                //callStack.push_back("PureVirtualImplementedOtherBase::pureVirtual()");
-            //}
-        //private:
-            //void privatePureVirtual()
-            //{
-                //callStack.push_back("PureVirtualImplementedOtherBase::privatePureVirtual()");
-            //}
-    };
+        class PureVirtualImplementedOtherBase {
+            public:
+                void pureVirtual() {
+                    callStack.push_back("PureVirtualImplementedOtherBase::pureVirtual()");
+                }
+            private:
+                void privatePureVirtual() {
+                    callStack.push_back("PureVirtualImplementedOtherBase::privatePureVirtual()");
+                }
+        };
 
-    class InheritOverloadBase {
-        public:
-            void overload(){}
-            void not_overload(){}
-    };
+        class DerivedAbtractAndImplementator : BaseAbstract, PureVirtualImplementedOtherBase {
+            //public:
+                //void pureVirtual()
+                //{
+                    //callStack.push_back("PureVirtualImplementedOtherBase::pureVirtual()");
+                //}
+            //private:
+                //void privatePureVirtual()
+                //{
+                    //callStack.push_back("PureVirtualImplementedOtherBase::privatePureVirtual()");
+                //}
+        };
 
-    class InheritOverloadDerived : public InheritOverloadBase {
-        public:
-            // `using` is required, or f(int) hides `f()`.
-            using InheritOverloadBase::overload;
-            void overload(int i) {
-                overload();
-                // This one does not reqire using becase it is not overloaded.
-                not_overload();
-            }
-    };
+        class InheritOverloadBase {
+            public:
+                void overload(){}
+                void not_overload(){}
+        };
+
+        class InheritOverloadDerived : public InheritOverloadBase {
+            public:
+                // `using` is required, or f(int) hides `f()`.
+                using InheritOverloadBase::overload;
+                void overload(int i) {
+                    overload();
+                    // This one does not reqire using becase it is not overloaded.
+                    not_overload();
+                }
+        };
 
 #if __cplusplus >= 201103L
-    class InheritingCtorBase {
-        public:
-            int i;
-            InheritingCtorBase() : i(0) {}
-            InheritingCtorBase(int i) : i(i) {}
-    };
+        class InheritingCtorBase {
+            public:
+                int i;
+                InheritingCtorBase() : i(0) {}
+                InheritingCtorBase(int i) : i(i) {}
+        };
 
-    class InheritingCtorDerived : public InheritingCtorBase {
-        public:
-            // Will define InheritingCtorDerived(int) and the copy constructor.
-            using InheritingCtorBase::InheritingCtorBase;
-    };
+        class InheritingCtorDerived : public InheritingCtorBase {
+            public:
+                // Will define InheritingCtorDerived(int) and the copy constructor.
+                using InheritingCtorBase::InheritingCtorBase;
+        };
 #endif
 
-    class MultipleInheritanceConflictBase1 {
-        public:
-            const static int is = 1;
-            int i;
-            void f(){}
-    };
+        class VirtualFromCtorBase {
+            public:
+                int i;
+                int j;
+                VirtualFromCtorBase() {
+                    // Calls base::a, not derived::a
+                    this->i = a();
+                    // LINKER ERROR: undefined reference to b().
+                    //j = b();
+                }
+                virtual int a() { return 0; }
+                virtual int b() = 0;
+        };
 
-    class MultipleInheritanceConflictBase2 {
-        public:
-            const static int is = 2;
-            int i;
-            void f(){}
-    };
+        class VirtualFromCtorDerived : public VirtualFromCtorBase {
+            public:
+                virtual int a() { return 1; }
+                virtual int b() { return 10; }
+        };
 
-    class MultipleInheritanceConflictDerived :
-        MultipleInheritanceConflictBase1,
-        MultipleInheritanceConflictBase2
-        {};
+        class MultipleInheritanceConflictBase1 {
+            public:
+                const static int is = 1;
+                int i;
+                void f(){}
+        };
+
+        class MultipleInheritanceConflictBase2 {
+            public:
+                const static int is = 2;
+                int i;
+                void f(){}
+        };
+
+        class MultipleInheritanceConflictDerived :
+            MultipleInheritanceConflictBase1,
+            MultipleInheritanceConflictBase2
+            {};
 
     class BaseProtected {
         public:
@@ -5206,18 +5228,17 @@ int main(int argc, char **argv) {
                         }
                     }
                 }
-            }
-        }
-
 #endif
+            }
 
 #if __cplusplus >= 201103L
-        // Call one constructor from constructor.
-        {
-            CtorFromCtor c(0,1);
-            assert((c.v == std::vector<int>{0, 1}));
-        }
+            // Call one constructor from constructor.
+            {
+                CtorFromCtor c(0,1);
+                assert((c.v == std::vector<int>{0, 1}));
+            }
 #endif
+        }
 
 #if __cplusplus >= 201103L
 
@@ -5410,8 +5431,7 @@ int main(int argc, char **argv) {
                 Like many C functions, memset does not work with objects, because objects
                 may contain extra data such as a VTABLE.
             */
-            if (0)
-            {
+            if (0) {
                 Class *var = new Class;
                 std::memset(var, 0, sizeof(Class));
             }
@@ -5994,10 +6014,14 @@ int main(int argc, char **argv) {
         }
 
         /*
-        #inheritance
+        #Inheritance
         */
         {
-            //#overridding
+            /*
+            #Override
+
+                Means to implement a method on the derived class, replacing the definition on the base class.
+            */
             {
                 Class c;
                 Class* cp = &c;
@@ -6037,27 +6061,31 @@ int main(int argc, char **argv) {
                 assert(callStack.back() == "BaseAbstract::methodAmbiguous()");
             }
 
-            // Inheritance and overloading.
-            //
-            // You cannot overload an inherited method directly
-            //
-            // http://stackoverflow.com/questions/72010/c-overload-resolution
-            //
-            // TODO why is that using required? What is the advantage?
+            /*
+            Inheritance and overloading.
+
+            You cannot overload an inherited method directly
+
+            http://stackoverflow.com/questions/72010/c-overload-resolution
+
+            TODO why is that using required? What is the advantage?
+            */
             {
                 InheritOverloadDerived c;
                 c.overload();
             }
 
 #if __cplusplus >= 201103L
-            // #inheriting constructors
-            //
-            // Reuse base class constructors: <http://stackoverflow.com/questions/8093882/using-c-base-class-constructors>
-            // is possible "automatically" only in C++11 (using `using`).
-            //
-            // Before C++11, is was necessary to call each constructor explicitly and forward the argments.
-            //
-            // Only implemented in G++ 4.8. -std=c++11 flag available since G++ 4.7.
+            /*
+            #inheriting constructors
+
+            Reuse base class constructors: <http://stackoverflow.com/questions/8093882/using-c-base-class-constructors>
+            is possible "automatically" only in C++11 (using `using`).
+
+            Before C++11, is was necessary to call each constructor explicitly and forward the argments.
+
+            Only implemented in G++ 4.8. -std=c++11 flag available since G++ 4.7.
+            */
             {
                 InheritingCtorDerived c0;
                 assert(c0.i == 0);
@@ -6073,7 +6101,7 @@ int main(int argc, char **argv) {
 
                 <http://stackoverflow.com/questions/2391679/can-someone-explain-c-virtual-methods>
 
-            #pure virtual function
+            #Pure virtual function
 
                 Cannot instantiate this class
 
@@ -6087,7 +6115,7 @@ int main(int argc, char **argv) {
                 - interface: no data
                 - abstract: data
 
-            #polymorphism
+            #Polymorphism
 
                 - loop an array of several dereived classes
                 - call a single base class method
@@ -6125,11 +6153,11 @@ int main(int argc, char **argv) {
                 <http://en.wikipedia.org/wiki/Curiously_recurring_template_pattern#Static_polymorphism>
             */
             {
+                // ERROR: BaseAbstract cannot be instantiated because it contains a pure virtual method
+                // virtual = 0;. That method must be implemented on derived classes
                 //BaseAbstract b;
-                    //ERROR: BaseAbstract cannot be instantiated because it contains a pure virtual method
-                    //virtual = 0;. That method must be implemented on derived classes
 
-                //even if you can't instantiate base, you can have pointers to it
+                // Even if you can't instantiate base, you can have pointers to it.
                 {
                     BaseAbstract* bap = new Class;
                     // SAME:
@@ -6148,8 +6176,8 @@ int main(int argc, char **argv) {
                     delete bap;
                 }
 
+                // You can also have BaseAbstract&.
                 {
-                    // You can also have BaseAbstract&.
                     Class c;
                     BaseAbstract& ba = c;
 
@@ -6171,8 +6199,8 @@ int main(int argc, char **argv) {
                     bp->virtualMethod();
                     assert(callStack.back() == "Class::virtualMethod()");
 
-                    //classPtr = basePtr->covariantReturn();
                     // ERROR: conversion from Base to Class
+                    //classPtr = basePtr->covariantReturn();
                 }
 
                 /*
@@ -6181,6 +6209,15 @@ int main(int argc, char **argv) {
                 */
                 {
                     //DerivedAbtractAndImplementator d; //ERROR
+                }
+
+                // Call virtual method from base constructor: http://stackoverflow.com/questions/496440/c-virtual-function-from-constructor?lq=1
+                // Not possible because derived class has not yet been initialized.
+                // Workaround? http://www.parashift.com/c%2B%2B-faq-lite/calling-virtuals-from-ctor-idiom.html
+                // THe simplest thing to do seems to be to define a separate init function.
+                {
+                    VirtualFromCtorDerived c;
+                    assert(c.i == 0);
                 }
             }
 
