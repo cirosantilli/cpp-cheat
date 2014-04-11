@@ -1220,6 +1220,26 @@ void printCallStack() {
                 virtual int b() { return 10; }
         };
 
+        class VirtualFromCtor2PhaseBase {
+            public:
+                int i;
+                int j;
+                VirtualFromCtor2PhaseBase() {}
+                void init() {
+                    this->i = a();
+                    this->j = b();
+                }
+                virtual int a() { return 0; }
+                virtual int b() = 0;
+        };
+
+        class VirtualFromCtor2PhaseDerived : public VirtualFromCtor2PhaseBase {
+            public:
+                VirtualFromCtor2PhaseDerived() { init(); }
+                virtual int a() { return 1; }
+                virtual int b() { return 10; }
+        };
+
         class MultipleInheritanceConflictBase1 {
             public:
                 const static int is = 1;
@@ -6214,10 +6234,19 @@ int main(int argc, char **argv) {
                 // Call virtual method from base constructor: http://stackoverflow.com/questions/496440/c-virtual-function-from-constructor?lq=1
                 // Not possible because derived class has not yet been initialized.
                 // Workaround? http://www.parashift.com/c%2B%2B-faq-lite/calling-virtuals-from-ctor-idiom.html
-                // THe simplest thing to do seems to be to define a separate init function.
                 {
-                    VirtualFromCtorDerived c;
-                    assert(c.i == 0);
+                    {
+                        VirtualFromCtorDerived c;
+                        assert(c.i == 0);
+                    }
+
+                    // The simplest thing to do seems to be to define a separate init function.
+                    // Downside: requires you to write a new constructor on the derived, and forward all argments.
+                    {
+                        VirtualFromCtor2PhaseDerived c;
+                        assert(c.i == 1);
+                        assert(c.j == 10);
+                    }
                 }
             }
 
@@ -7234,6 +7263,17 @@ int main(int argc, char **argv) {
                     assert(f == 3.0f);
                     ss >> f;
                     // TODO what happens? Error checking.
+                }
+
+                // Since `>>` returns the istream, it is possible to chain calls:
+                {
+                    std::stringstream ss("1 1.5 2");
+                    int i, j;
+                    float f;
+                    ss >> i >> f >> j;
+                    assert(i == 1);
+                    assert(f == 1.5);
+                    assert(j == 2);
                 }
             }
 
@@ -9031,9 +9071,9 @@ int main(int argc, char **argv) {
                 //pointer
                 //reference
                 {
-                    typedef std::iterator_traits<std::vector<int>::iterator>::value_type    ValueType;
-                    typedef std::iterator_traits<std::vector<int>::iterator>::pointer       Pointer;
-                    typedef std::iterator_traits<std::vector<int>::iterator>::reference     Reference;
+                    typedef std::iterator_traits<std::vector<int>::iterator>::value_type ValueType;
+                    typedef std::iterator_traits<std::vector<int>::iterator>::pointer    Pointer;
+                    typedef std::iterator_traits<std::vector<int>::iterator>::reference  Reference;
                     assert(typeid(ValueType) == typeid(int));
                     assert(typeid(Pointer)   == typeid(int*));
                     assert(typeid(Reference) == typeid(int&));
