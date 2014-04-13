@@ -1,6 +1,12 @@
+/**
+Good tutorial: http://www.informit.com/articles/article.aspx?p=673259
+*/
+
 #include <algorithm>
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <set>
+#include <vector>
 
 #include <boost/config.hpp>
 //-lboost_graph
@@ -27,6 +33,48 @@ int main() {
                                         AdjacenyMatrix ---+
     */
     {
+        /*
+        #properties
+
+            Properties are values associated to edges and vertices.
+        */
+        {
+            /*
+            There are a few predefined properties which you should use whenever possible
+            as they are already used in many algorithms, but you can also define your own properties.
+
+            Predefined properties include:
+
+            - `edge_weight_t`. Used for most algorithms that have a single value associated to each
+                edge such as Dijikstra.
+
+            - `vertex_name_t`
+            */
+            {
+                typedef boost::property<boost::vertex_name_t, std::string> VertexProperties;
+                typedef boost::property<boost::edge_weight_t, int> EdgeProperties;
+            }
+
+            /*
+            Multiple properties can be specified either by:
+
+            - using a custom class as the property type. TODO is there any limitation to this?
+            - chaining multile properties
+            */
+            {
+            }
+
+            /*
+            The absense of a property is speficied by boost::no_property.
+            */
+            {
+                typedef boost::no_property VertexProperties;
+            }
+
+        }
+
+        typedef boost::property<boost::vertex_name_t, std::string> VertexProperties;
+        typedef boost::property<boost::edge_weight_t, int> EdgeProperties;
         typedef boost::adjacency_list<
             // Data structure to represent the out edges for each vertex.
             // Possibilities:
@@ -48,18 +96,25 @@ int main() {
             // #bidirectionalS: directed graph with access to in and out edges
             // #directedS:      directed graph with access only to out-edges
             // #undirectedS:    undirected graph
-            boost::bidirectionalS
+            boost::bidirectionalS,
+
+            // Optional.
+            VertexProperties,
+
+            // Optional.
+            EdgeProperties
         > Graph;
+        //typedef boost::graph_traits<Graph>::vertex_iterator VertexIter;
+        //typedef boost::graph_traits<Graph>::vertex_descriptor Vertex;
+        //typedef boost::property_map<Graph, boost::vertex_index_t>::type IndexMap;
 
-        // Fix number of vertexes, and add one edge at a time.
-        {
-            int num_vertices = 3;
-            Graph g(num_vertices);
-            boost::add_edge(0, 1, g);
-            boost::add_edge(1, 2, g);
-        }
+        // Fix number of vertices, and add one edge at a time.
+        int num_vertices = 3;
+        Graph g(num_vertices);
+        boost::add_edge(0, 1, g);
+        boost::add_edge(1, 2, g);
 
-        // Fix number of vertexes, and add one edge array.
+        // Fix number of vertices, and add one edge array.
         {
             int num_vertices = 3;
             typedef std::pair<int, int> Edge;
@@ -70,7 +125,44 @@ int main() {
             Graph g(edges.data(), edges.data() + edges.size(), num_vertices);
         }
 
-        // It is also possible to add vertices with add_vertex.
+        // It is also possible to add vertices with #add_vertex.
+
+        //#vertices
+        {
+            // Number of vertices.
+            boost::graph_traits<Graph>::vertices_size_type num_vertices = boost::num_vertices(g);
+            assert(num_vertices == 3u);
+
+            //#vertices() Returns a begin() end() vertex iterator pair so we know where to stop.
+            {
+                typedef std::vector<boost::graph_traits<Graph>::vertex_descriptor> Vertices;
+                Vertices vertices;
+                vertices.reserve(num_vertices);
+                //IndexMap
+                auto index = boost::get(boost::vertex_index, g);
+                //std::pair<vertex_iter, vertex_iter> vp
+                for (auto vp = boost::vertices(g); vp.first != vp.second; ++vp.first) {
+                    // Vertex
+                    auto v = *vp.first;
+                    vertices.push_back(index[v]);
+                }
+                assert((vertices == Vertices{0, 1, 2}));
+            }
+
+            // The iterator is a ranom access iterator.
+            {
+                auto index = boost::get(boost::vertex_index, g);
+                auto it = boost::vertices(g).first;
+                assert(index[it[2]] == 2);
+                assert(index[it[1]] == 1);
+            }
+        }
+
+        //#edges
+        {
+            // It seems that only AdjencyMatrix has a method to get an edge given two vertices:
+            //edge(u, v, g)
+        }
     }
 
     //#source is also a global function: <http://stackoverflow.com/questions/16114616/why-is-boost-graph-librarys-source-a-global-function>
@@ -130,7 +222,7 @@ int main() {
         dot_file << "digraph D {\n"      << "  rankdir=LR\n"           << "  size=\"4,3\"\n"
                  << "  ratio=\"fill\"\n" << "  edge[style=\"bold\"]\n" << "  node[shape=\"circle\"]\n";
         boost::graph_traits <Graph>::edge_iterator ei, ei_end;
-        for (boost::tie(ei, ei_end) = edges(g); ei != ei_end; ++ei) {
+        for (std::tie(ei, ei_end) = boost::edges(g); ei != ei_end; ++ei) {
             edge_descriptor e = *ei;
             boost::graph_traits<Graph>::vertex_descriptor
                 u = boost::source(e, g), v = boost::target(e, g);

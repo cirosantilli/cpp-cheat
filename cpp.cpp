@@ -7235,7 +7235,9 @@ int main(int argc, char **argv) {
             // Get input out of streams into string.
             // Overloaded for many different types of inputs: <http://www.cplusplus.com/reference/istream/istream/operator%3E%3E/>
             {
-                // char*, std::string: reads until a whitespace character, as defined by `isspace`.
+                // char*, std::string
+                // - skip whitespace as defined by `isspace`.
+                // - read until first whitespace found
                 {
                     std::stringstream ss("ab cd\tef  \t\ngh i.;)j");
                     std::string s;
@@ -7251,16 +7253,24 @@ int main(int argc, char **argv) {
                     assert(s == "i.;)j");
                 }
 
-                // Numeric types: int, float. Parse type until it cannot be part of the type anymore.
+                // Numeric types: int, float.
+                // - skip whitespace as defined by `isspace`.
+                // - read until cannot be part of the type anymore (TODO what does that mean exactly?)
                 {
-                    std::stringstream ss("1.0 2 3.0f a");
+                    std::stringstream ss("1.0 2 \n \t 3.0f 4a a");
                     float f;
+                    std::string s;
                     ss >> f;
                     assert(f == 1.0f);
                     ss >> f;
                     assert(f == 2.0f);
                     ss >> f;
                     assert(f == 3.0f);
+
+                    // f suffix is not part of floats
+                    ss >> s;
+                    assert(s == "f");
+
                     ss >> f;
                     // TODO what happens? Error checking.
                 }
@@ -7946,20 +7956,7 @@ int main(int argc, char **argv) {
                 assert(v.data()[1] == v[1]);
             }
 
-            /*
-            Size related methods:
-
-            - size            no of elements pushed back
-            - empty           same as size() == 0
-            - max_size        maximum size (estimtion of what could fit your computer ram)
-
-            Allocation related:
-
-            - reserve         change how much memory is allocated but not actual size.
-                              If smaller or less than current capacity, do nothing.
-            - shrink_to_fit   shrink allocated array to size
-            - data            get pointer to allocated array
-            */
+            //size methods
             {
                 /*
                 #size #size_type
@@ -7976,34 +7973,11 @@ int main(int argc, char **argv) {
                 }
 
                 /*
-                #capacity
-
-                    Get currently allocated size.
-
-                    Different from size, which is the number of elements in the std::vector!
-
-                    At least as large as size.
-                */
-                {
-                    std::cout << "capacity:" << std::endl;
-                    std::vector<int> v{};
-                    std::cout << "  " << v.capacity() << std::endl;
-                    v.push_back(0);
-                    std::cout << "  " << v.capacity() << std::endl;
-                    v.push_back(1);
-                    std::cout << "  " << v.capacity() << std::endl;
-                    v.push_back(2);
-                    std::cout << "  " << v.capacity() << std::endl;
-                    v.reserve(v.capacity() + 1);
-                    std::cout << "  " << v.capacity() << std::endl;
-                    std::cout << std::endl;
-                }
-
-                /*
                 #resize
 
-                    if larger than current size,    append given element at end
-                    if smaller than current size,   remove elements from end
+                    If larger than current size,    append given element at end.
+
+                    If smaller than current size,   remove elements from end.
                 */
                 {
                     // Reduce size
@@ -8033,13 +8007,60 @@ int main(int argc, char **argv) {
                 }
             }
 
+            //capacity methods
+            {
+                /*
+                #capacity
+
+                    Get currently allocated size.
+
+                    Different from size, which is the number of elements in the std::vector!
+
+                    At least as large as size.
+
+                    Likely to be a power of 2 on most implementations.
+                */
+                {
+                    std::vector<int> v;
+                    v.push_back(0);
+                    v.push_back(1);
+                    v.push_back(2);
+                    assert(v.capacity() >= 3);
+                    std::cout << "capacity = " << v.capacity() << std::endl;
+                }
+
+                //#max_size: estimative of what your OS allows you to allocate
+                {
+                    std::cout << "max_size (MiB) = " << std::vector<int>().max_size() / (1 << 20) << std::endl;
+                }
+
+                //#reserve: increase allocated size if larger than current size.
+                {
+                    std::vector<int> v;
+                    v.reserve(3);
+                    assert(v.capacity() >= 3);
+                    // size() is untouched
+                    assert(v.empty());
+                }
+
+#if __cplusplus >= 201103L
+                //#shrink_to_fit
+                {
+                    std::vector<int> v{0, 1};
+                    v.reserve(4);
+                    v.shrink_to_fit();
+                    assert(v.capacity() == 2);
+                }
+#endif
+            }
+
             // `std::vector` stores copies of elements, not references.
             {
                 std::string s = "abc";
                 std::vector<std::string> v{s};
                 v[0][0] = '0';
-                assert(v[0]    == "0bc");
-                assert(s       == "abc");
+                assert(v[0] == "0bc");
+                assert(s    == "abc");
             }
 
             // Modify.
@@ -8414,7 +8435,7 @@ int main(int argc, char **argv) {
             }
 
             /*
-            insert
+            #insert
 
                 Like for std::vector, insert makes copies.
 
@@ -8723,21 +8744,21 @@ int main(int argc, char **argv) {
                 std::list<int> l{0, 1};
             }
 
-            //emplace
+            //#emplace
             {
                 std::list<int> l{0, 1};
                 l.emplace(++l.begin(), 2);
                 assert(l == std::list<int>({0, 2, 1}));
             }
 
-            //remove: remove all elements with a given value from list
+            //#remove: remove all elements with a given value from list
             {
                 std::list<int> l{0, 1, 0, 2};
                 l.remove(0);
                 assert(l == std::list<int>({1, 2}));
             }
 
-            //splice: transfer elements from one list to another
+            //#splice: transfer elements from one list to another
             {
                 std::list<int> l{0, 1};
                 std::list<int> l2{2, 3};
