@@ -260,10 +260,10 @@ Small comments on comparing ANSI C with extensions are acceptable.
 #include <stdio.h>     //printf, puts
 #include <string.h>    //sprintf, strlen, strcpy, memset
 #include <math.h>
-//#include <tgmath.h>
+// #include <tgmath.h>
 #include <time.h>      //time()
 #include <wchar.h>
-//#include <thread.h>  //c99 but not yet implemented gcc 4.8
+// #include <thread.h>  //c99 but not yet implemented gcc 4.8
 
 /*
 One way to define constant is with preprocessor directives.
@@ -303,15 +303,15 @@ compare this with the very simple message generated if PI were a constant
 int debugVar;
 #endif
 
-//##line
+// ##line
 
 //from now on, counts from given line to report errors:
 
-//#line 1
+// #line 1
 
 //}
 
-//#global scope
+// #global scope
 
     int global = 1;
         //this is a global variable: can be accessed and modified everywhere
@@ -373,7 +373,7 @@ int setjmp_func(bool jmp, jmp_buf env_buf) {
         return 1;
 }
 
-//#functions
+// #functions
 
     /*
     #declaration vs #definition
@@ -497,7 +497,7 @@ int setjmp_func(bool jmp, jmp_buf env_buf) {
 
     void func_array(int a[]){
         assert(a[0] == 1);
-     }
+    }
 
     void func_array_modify(int a[]) {
         a[0] = -1;
@@ -807,7 +807,7 @@ int setjmp_func(bool jmp, jmp_buf env_buf) {
 
 #endif
 
-//#algorithms
+// #algorithms
 
     //simple fun algorithms
 
@@ -1196,7 +1196,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    //#variables
+    // #variables
     {
         {
             int i;
@@ -1246,7 +1246,7 @@ int main(int argc, char **argv) {
         `char` is also an integer type
     */
     {
-        //#char
+        // #char
         {
             //char has fixed size 1 byte:
 
@@ -1330,7 +1330,7 @@ int main(int argc, char **argv) {
 
                 //{ unsigned long long ulli = 1Llu; }
 
-        //#bases for integer literals
+        // #bases for integer literals
         {
             //hexadecimal
             {
@@ -1430,7 +1430,7 @@ int main(int argc, char **argv) {
         Great source: <www.drdobbs.com/the-new-c-compound-literals/184401404>
     */
     {
-        //#compound literals for arrays
+        // #compound literals for arrays
         {
             int *is;
 
@@ -1674,12 +1674,12 @@ int main(int argc, char **argv) {
             assert(is2[0] == 0);
         }
 
-        //#impossible typecats
+        // #impossible typecats
         {
 
-            //certain typecasts always generates compilation errors
+            // Certain typecasts always generates compilation errors.
 
-            //implicit pointer to int is impossible:
+            // Implicit pointer to int is impossible:
 
                 //{
                 //    int* ip;
@@ -1687,7 +1687,7 @@ int main(int argc, char **argv) {
                 //    i = ip;
                 //}
 
-            //pointer to float is impossible even with explicit typecast:
+            // Pointer to float is impossible even with explicit typecast:
 
                 //{
                 //    int* ip;
@@ -1695,8 +1695,8 @@ int main(int argc, char **argv) {
                 //    f = (float)ip;
                 //}
 
-            //pointers of different types,
-            //even if types for which data can be converted like floats and doubles:
+            // Pointers of different types,
+            // even if types for which data can be converted like floats and doubles:
 
                 //{
                 //    float* fp;
@@ -1704,10 +1704,10 @@ int main(int argc, char **argv) {
                 //    dp = fp;
                 //}
 
-            //the big exception to this are void pointers, which can be converted
-            //to/from any other type
+            // The big exception to this are void pointers, which can be converted
+            // to/from any other type.
 
-            //array to array of different size:
+            // Array to array of different size:
 
                 //{
                 //    int is1[1];
@@ -1756,8 +1756,10 @@ int main(int argc, char **argv) {
             it is possible for compilers to detect this situation.
 
         Flag overflow always implies mathematical overflow, but not the converse.
+
         For instance, unsigned integer overflow never raises the overflow flag of an x86
         processor: it just wraps around.
+
         Therefore, unsigned integer multiplication never overflows.
 
         #gcc overflow specifics
@@ -1815,19 +1817,19 @@ int main(int argc, char **argv) {
         }
     }
 
-    //#const
+    // #const
     {
         int i = 0;
         const int ic = 0;
+        // Same.
         //int const ic = 0
-            //exact same thing!
         const int ic2 = i;
 
+        // BAD.
+        // Compiles without warning, but is bad since ic3 cannot get a value
+        // unless you typecast its pointer with a warning.
+        // Consts should normally have a value at initialization time.
         const int ic3;
-            //BAD
-            //compiles without warning, but is bad since ic3 cannot get a value
-            //unless you typecast its pointer with a warning. Consts should normally
-            //have a value at initialization time.
 
         /*
         ERROR: consts are... almost consts!
@@ -2296,7 +2298,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    //#enum
+    // #enum
     {
         // Basics.
         {
@@ -3155,9 +3157,9 @@ int main(int argc, char **argv) {
         }
     }
 
-    //#operators
+    // #operators
     {
-        //#arithmetic
+        // #arithmetic
         {
             assert((1 + 2) == 3 );
             assert((2 * 3) == 6 );
@@ -3205,7 +3207,7 @@ int main(int argc, char **argv) {
             assert((6 % 3) == 0);
         }
 
-        //#boolean
+        // #boolean
         {
             assert((1 == 1) == 1);
             assert((0 == 1) == 0);
@@ -3251,18 +3253,18 @@ int main(int argc, char **argv) {
             }
         }
 
-        //#bitwise
+        // #bitwise
         {
-            //#NOT
+            // #NOT
             assert((~(char)0x00) == (char)0xFF);
             assert((~(char)0xFF) == (char)0x00);
 
-            //#OR
+            // #OR
             assert(((char)0x00 & (char)0x00) == (char)0x00);
             assert(((char)0xFF & (char)0x00) == (char)0x00);
             assert(((char)0xFF & (char)0xFF) == (char)0xFF);
 
-            //#XOR
+            // #XOR
             assert(((char)0x00 ^ (char)0x00) == (char)0x00);
             assert(((char)0xFF ^ (char)0x00) == (char)0xFF);
             assert(((char)0xFF ^ (char)0xFF) == (char)0x00);
@@ -4402,7 +4404,7 @@ int main(int argc, char **argv) {
                 }
             }
 
-            //#string literals
+            // #string literals
             {
                 //escape chars in string conts
                 {
@@ -4629,20 +4631,20 @@ int main(int argc, char **argv) {
                     character classficiation functions
                 */
                 {
-                    //#isspace
+                    // #isspace
                     {
                         assert(isspace(' ' ));
                         assert(isspace('\n'));
                         assert(!isspace('a' ));
                     }
 
-                    //#isdigit
+                    // #isdigit
                     {
                         assert(isdigit('0'));
                         assert(!isdigit('a'));
                     }
 
-                    //#ispunct
+                    // #ispunct
                     {
                         assert(ispunct('"'));
                         assert(ispunct('('));
@@ -4730,9 +4732,9 @@ int main(int argc, char **argv) {
         }
     }
 
-    //#branching
+    // #branching
     {
-        //#if
+        // #if
         {
             // Only 0 counts as false.
             if (0) {
@@ -4931,7 +4933,7 @@ int main(int argc, char **argv) {
             beforehand how many times the loop will execute.
         */
 
-        //#for
+        // #for
         {
             //basic example
             {
@@ -5086,7 +5088,7 @@ int main(int argc, char **argv) {
             }
         }
 
-        //#while
+        // #while
         {
             {
                 int i = 0;
@@ -5098,7 +5100,7 @@ int main(int argc, char **argv) {
                 assert(i == 3);
             }
 
-            //#do-while
+            // #do-while
             {
                 int i = 0;
                 int i2;
@@ -5578,7 +5580,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    //#command line args
+    // #command line args
     {
         printf("argv[0] = %s\n", argv[0]);
         int i = 0;
@@ -5608,7 +5610,7 @@ int main(int argc, char **argv) {
         assert(getenv("NOT_DEFINED") == NULL);
     }
 
-    //#preprocessor
+    // #preprocessor
     {
         /*
         ##define
@@ -5628,8 +5630,8 @@ int main(int argc, char **argv) {
 
             // Cannot redefine macros.
             {
-//#define A 1
-//#define A 2
+// #define A 1
+// #define A 2
                 //assert(A == 2);
             }
 
@@ -5660,7 +5662,7 @@ int main(int argc, char **argv) {
 
                 //no overloading
                 {
-//#define SUM(x) x + 1
+// #define SUM(x) x + 1
                 //assert(SUM(1) == 2);
                 }
 
@@ -5709,7 +5711,7 @@ int main(int argc, char **argv) {
 
 #if __STDC_VERSION__ >= 199901L
 
-                //#variadic macro functions
+                // #variadic macro functions
                 {
                     char s[4];
 #define SPRINTF(string, format, ...) sprintf(string, format, __VA_ARGS__)
@@ -5769,7 +5771,7 @@ int main(int argc, char **argv) {
             }
         }
 
-        //##ifdef
+        // ##ifdef
         {
 #ifdef COMMANDLINE
             //gcc -DCOMMANDLINE c.c
@@ -5816,7 +5818,7 @@ int main(int argc, char **argv) {
 #endif
 	}
 
-        //#&&
+        // #&&
 #define C 1
 #if defined(C) && C > 0
 #else
@@ -5831,7 +5833,7 @@ int main(int argc, char **argv) {
             Useful to enforce preprocessor conditions.
         */
         {
-//#error "the error message"
+// #error "the error message"
         }
 
         /*
@@ -6349,7 +6351,7 @@ int main(int argc, char **argv) {
             behind the pipe.
         */
 
-        //#stream output
+        // #stream output
         {
             /*
             #putchar
@@ -6458,7 +6460,7 @@ int main(int argc, char **argv) {
 
                     printf("lld LLONG_MAX = %lld\n", LLONG_MAX);
 
-                //#floating point numbers
+                // #floating point numbers
                 {
                     //float and double both use the the same char `f` char:
 
@@ -6469,15 +6471,15 @@ int main(int argc, char **argv) {
 
                         printf("f = %Lf\n", (long double)1.0);
 
-                    //#control number of zeros after dot
+                    // #control number of zeros after dot
                     {
-                        //#fixed number
+                        // #fixed number
                         {
                             sprintf(s, "%.2f", 1.0f);
                             assert(strcmp(s, "1.00") == 0);
                         }
 
-                        //#given by variable
+                        // #given by variable
                         {
                             sprintf(s, "%.*f", 2, 1.0f);
                             assert(strcmp(s, "1.00") == 0);
@@ -6485,7 +6487,7 @@ int main(int argc, char **argv) {
                     }
                 }
 
-                //#control minimum number chars to output
+                // #control minimum number chars to output
                 {
                     /*
                     Pad with spaces, right align.
@@ -6535,7 +6537,7 @@ int main(int argc, char **argv) {
                     }
                 }
 
-                //#scientific
+                // #scientific
                 {
                     char s[10];
                     sprintf(s, "%.3e", 1.0f);
@@ -6763,7 +6765,7 @@ int main(int argc, char **argv) {
             }
         }
 
-        //#stream input
+        // #stream input
         {
             /*
             #getchar
@@ -7079,7 +7081,7 @@ int main(int argc, char **argv) {
             //freopen("/dev/null", "r", stdin);
         }
 
-        //#reposition read write
+        // #reposition read write
         {
             /*
             For new code, always use `fgetpos` and `fsetpos` unless you absolutely
@@ -7170,7 +7172,7 @@ int main(int argc, char **argv) {
             */
         }
 
-        //#applications
+        // #applications
         {
             {
                 char path[] = "str_file.tmp";
@@ -7330,7 +7332,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    //#time.h
+    // #time.h
     {
         /*
         #time()
@@ -7354,7 +7356,7 @@ int main(int argc, char **argv) {
             time_t t = time(NULL);
         }
 
-        //#CLOCKS_PER_SEC
+        // #CLOCKS_PER_SEC
 
             printf("CLOCKS_PER_SEC = %ld\n", CLOCKS_PER_SEC);
 
@@ -7487,7 +7489,7 @@ int main(int argc, char **argv) {
 
         printf("math_errhandling & MATH_ERRNO = %d\n", math_errhandling & MATH_ERRNO);
 
-        //#abs
+        // #abs
         {
             //absolute values, integer version:
 
@@ -7565,9 +7567,9 @@ int main(int argc, char **argv) {
             assert(fabs(fma(2.0, 3.0, 4.0) - (2.0 * 3.0 + 4.0)) < err);
         }
 
-        //#exponential functions
+        // #exponential functions
         {
-            //#exp
+            // #exp
             {
                 assert(fabs(exp(1.0) - 2.71) < 0.01);
             }
@@ -7640,13 +7642,13 @@ int main(int argc, char **argv) {
             }
 #endif
 
-            //#pow
+            // #pow
             {
                 assert(fabs(pow(2.0, 3.0) - 8.0 ) < err);
             }
         }
 
-        //#trig
+        // #trig
         {
             float f = sin(0.2);
             assert(fabs(sin(0.0) - 0.0) < err);
@@ -7668,7 +7670,7 @@ int main(int argc, char **argv) {
             }
         }
 
-        //#erf: TODO0 understand
+        // #erf: TODO0 understand
 
         /*
         #factorial
@@ -8067,7 +8069,7 @@ int main(int argc, char **argv) {
         in the current architecure
     */
     {
-        //#INT_MAX #UINT_MAX
+        // #INT_MAX #UINT_MAX
         printf("CHAR_MAX = %d\n", CHAR_MAX);
         assert(CHAR_MAX == 127);
         printf("INT_MAX = %d\n", INT_MAX);
@@ -8139,8 +8141,8 @@ int main(int argc, char **argv) {
             and support is optional.
         */
         {
-            printf("FLT_MIN = %a\n", FLT_MIN);
-            printf("DBL_MIN = %a\n", DBL_MIN);
+            printf("FLT_MIN  = %a\n",  FLT_MIN);
+            printf("DBL_MIN  = %a\n",  DBL_MIN);
             printf("LDBL_MIN = %La\n", LDBL_MIN);
         }
 
@@ -8205,9 +8207,9 @@ int main(int argc, char **argv) {
             - 1: yes
         */
         {
-            printf("FLT_HAS_SUBNORM = %d\n",     FLT_HAS_SUBNORM);
-            printf("DBL_HAS_SUBNORM = %d\n",     DBL_HAS_SUBNORM);
-            printf("LDBL_HAS_SUBNORM = %d\n",    LDBL_HAS_SUBNORM);
+            printf("FLT_HAS_SUBNORM  = %d\n", FLT_HAS_SUBNORM);
+            printf("DBL_HAS_SUBNORM  = %d\n", DBL_HAS_SUBNORM);
+            printf("LDBL_HAS_SUBNORM = %d\n", LDBL_HAS_SUBNORM);
 
             assert(isnormal(LDBL_MIN));
 
@@ -8251,13 +8253,13 @@ int main(int argc, char **argv) {
     {
         // True in 2's complement. Modulo arithmetic holds.
         {
-            assert((char)-1 == (char)255);
+            assert((char)-1          == (char)255);
             assert((unsigned char)-1 == (unsigned char)255);
             assert((unsigned char)-2 == (unsigned char)254);
         }
 
         {
-            assert((char)0 > (char)255);
+            assert((char)0          > (char)255);
             assert((unsigned char)0 < (unsigned char)255);
         }
     }
@@ -8412,7 +8414,6 @@ int main(int argc, char **argv) {
     //system time is not counted anyways
 
         //putsProf(n_prof_runs);
-
 #endif
 
     /*
@@ -8435,7 +8436,6 @@ int main(int argc, char **argv) {
         printf("PRIxPTR usage = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)(void*)1);
 
 #if __STDC_VERSION__ >= 199901L
-
         printf("processs address space\n");
         printf("  &env    = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)getenv("HOME"));
         printf("  &argv   = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)argv);
@@ -8448,13 +8448,13 @@ int main(int argc, char **argv) {
         printf("  &BSS    = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&BSS);
         printf("  &DATA   = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&DATA);
 
-        //TODO0 why on linux this is not on the text setment,
-        //even if modification gives segfault?
+        // TODO why on linux this is not on the text segment,
+        // even if modification gives segfault?
+
             printf("  &text   = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&text);
             //fflush(stdout);
             //text[0] = '0';
 #endif
-
     }
 
     /*
@@ -8487,7 +8487,7 @@ int main(int argc, char **argv) {
     if (0) abort_func();
 
     /*
-    #main return
+    #main return #return
 
         Valid returns are:
 

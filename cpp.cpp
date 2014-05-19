@@ -112,9 +112,9 @@ Features which are identical to C will not be described.
 
     Wrtie `stdlib` and say "Standard Library" instead.
 
-#Coding styles
+#Style
 
-    - <http://google-styleguide.googlecode.com/svn/trunk/cppguide.xml>
+    -   <http://google-styleguide.googlecode.com/svn/trunk/cppguide.xml>
 
         Google C++ coding standards.
 
@@ -123,7 +123,7 @@ Features which are identical to C will not be described.
         - a Boost subset is accepted
         - a C++11 subset is accepted
 
-    - <http://geosoft.no/development/cppstyle.html>
+    -   <http://geosoft.no/development/cppstyle.html>
 
         Coding guidelines, clearly exemplified.
 

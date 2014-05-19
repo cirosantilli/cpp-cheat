@@ -6,7 +6,7 @@ Relies on <https://github.com/cirosantilli/cpp-boilerplate> to factor code out. 
 
 # Most useful files
 
-- [c.c](c.c): C cheatsheet.
+- [c.c](c.c):              C cheatsheet.
 - [cpp.cpp](main_cpp.cpp): C++ cheatsheet.
 - [opengl/](opengl/)
 - [kde/](kde/)
