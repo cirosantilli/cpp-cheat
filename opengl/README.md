@@ -18,11 +18,11 @@ Requirement of freeglut.
 
 GLUT is a higher level interface built on top of GL, and adds things like:
 
-- mouse/keyboard input.
+-   mouse/keyboard input.
 
     This requires callback functions to be called from an event loop.
 
-- higher level geometric objects like spheres, cubes and teapots.
+-   higher level geometric objects like spheres, cubes and teapots.
 
 The original GLUT implementation is proprietary, but open source implementations exist such as Freeglut.
 
