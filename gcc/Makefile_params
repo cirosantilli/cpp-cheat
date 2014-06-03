@@ -1,0 +1,3 @@
+# TODO why `-std=gnu99` does not let me use gnu extensions such as nested functions?
+MYCFLAGS := -Wall -march=native -O2 -Wno-unused-variable -Wno-unused-but-set-variable
+IN_EXT   := .c
