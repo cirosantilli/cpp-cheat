@@ -8,6 +8,7 @@ Relies on <https://github.com/cirosantilli/cpp-boilerplate> to factor code out. 
 
 - [c.c](c.c):              C cheatsheet.
 - [cpp.cpp](main_cpp.cpp): C++ cheatsheet.
+- [posix](posix/):         POSIX C API.
 - [opengl/](opengl/)
 - [kde/](kde/)
 
