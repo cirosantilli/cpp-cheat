@@ -50,7 +50,7 @@ ANSI C features shall not be discussed here.
 //#define _POSIX_C_SOURCE 200112L
 //#define POSIX_SOURCE
 
-//ansi headers in which POSIX places extensions
+// ANSI headers to which POSIX adds extensions.
 
 #include <assert.h>
 #include <limits.h>         //NZERO
@@ -61,42 +61,41 @@ ANSI C features shall not be discussed here.
 #include <stdlib.h>
 #include <string.h>         //strerror
 
-//posix only headers:
+// POSIX only headers.
 
 #include <arpa/inet.h>
 #include <dirent.h>
 #include <errno.h>
-#include <fcntl.h>          //creat, O_CREAT
+#include <fcntl.h>          // creat, O_CREAT
 #include <libgen.h>
-#include <monetary.h>       //strfmon
-#include <netdb.h>          //gethostbyname
+#include <monetary.h>       // strfmon
+#include <netdb.h>          // gethostbyname
 #include <netinet/in.h>
 #include <pthread.h>
-#include <pwd.h>            //getpwuid, getpwnam, getpwent
+#include <pwd.h>            // getpwuid, getpwnam, getpwent
 #include <regex.h>
 #include <sched.h>
-#include <sys/mman.h>       //mmap, munmap
-#include <sys/resource.h>   //rusage, getrusage, rlimit, getrlimit
-#include <sys/select.h>     //select, FD_ZERO, FD_SET
-#include <sys/shm.h>        //shmget, shmat, etc.
+#include <sys/mman.h>       // mmap, munmap
+#include <sys/resource.h>   // rusage, getrusage, rlimit, getrlimit
+#include <sys/select.h>     // select, FD_ZERO, FD_SET
+#include <sys/shm.h>        // shmget, shmat, etc.
 #include <sys/socket.h>
-#include <sys/stat.h>       //S_IRUSR and family,
-#include <sys/types.h>      //lots of posix realted typedef types
-#include <sys/utsname.h>    //uname, struct utsname
-#include <sys/wait.h>       //wait, sleep
-#include <syslog.h>         //syslog
-#include <unistd.h>         //major posix header. Anything that is not elsewhere is here.
+#include <sys/stat.h>       // S_IRUSR and family,
+#include <sys/types.h>      // lots of posix realted typedef types
+#include <sys/utsname.h>    // uname, struct utsname
+#include <sys/wait.h>       // wait, sleep
+#include <syslog.h>         // syslog
+#include <unistd.h>         // major posix header. Anything that is not elsewhere is here.
 
 extern char **environ;
 
 /* pthreads related */
 
-#define NUM_THREADS      5
+#define NUM_THREADS 5
 
     pthread_mutex_t main_thread_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-    void* main_thread(void* vargument)
-    {
+    void* main_thread(void* vargument) {
         int argument;
 
         argument = *((int*)vargument);
@@ -104,15 +103,14 @@ extern char **environ;
         pthread_mutex_lock(&main_thread_mutex);
         printf("tid = %d\n", argument);
         //all threads of a process have the same PID
-        printf("  getpid() = %llu\n", (uintmax_t)getpid());
-        printf("  pthread_self() = %llu\n", (uintmax_t)pthread_self());
+        printf("  getpid() = %ju\n", (uintmax_t)getpid());
+        printf("  pthread_self() = %ju\n", (uintmax_t)pthread_self());
         pthread_mutex_unlock(&main_thread_mutex);
 
         return NULL;
     }
 
-int main(int argc, char** argv)
-{
+int main(int argc, char** argv) {
     /*
     #Namespace
 
@@ -146,21 +144,30 @@ int main(int argc, char** argv)
 
         Some of the POSIX specific errors and their error messages are:
 
-        - EPERM: Operation not permitted
+        -   `EPERM`: Operation not permitted
 
-            when users try to do something which requires previledges that they don't have,
+            When users try to do something which requires previledges that they don't have,
             such as being the root user.
 
-        - ENOENT: No such file or directory
-        - EINTR: Interrupted system call
-        - EIO: I/O Error
-        - EBUSY: Device or resource busy
-        - EEXIST: File exists
-        - EINVAL: Invalid argument
-        - EMFILE: Too many open files
-        - ENODEV: No such device
-        - EISDIR: Is a directory
-        - ENOTDIR: Isn’t a directory
+        -   `ENOENT`: No such file or directory
+
+        -   `EINTR`: Interrupted system call
+
+        -   `EIO`: I/O Error
+
+        -   `EBUSY`: Device or resource busy
+
+        -   `EEXIST`: File exists
+
+        -   `EINVAL`: Invalid argument
+
+        -   `EMFILE`: Too many open files
+
+        -   `ENODEV`: No such device
+
+        -   `EISDIR`: Is a directory
+
+        -   `ENOTDIR`: Isn’t a directory
 
         Functions that modify errno document that. The convention is that only functions which fail modify
         errno, not those that succeed.
@@ -171,30 +178,30 @@ int main(int argc, char** argv)
         /*
         #errno
 
-            errno can be modified by functions to contain a description of certain
+            `errno` can be modified by functions to contain a description of certain
             standard errors.
 
-            errno is a lvalue and users can explicitly modify it.
+            `errno` is a lvalue and users can explicitly modify it.
             This is necessary in certain error checking situations, when the error can only be decided
             by changes in errno and not by the return value.
 
-            0 indicates no error (ANSI C)
+            `0` indicates no `error` (ANSI C).
 
             Since many function may change errno, you must use the functions that
-            depend on errno immediatelly after the function that generates the error
+            depend on errno immediatelly after the function that generates the error.
         */
         {
             char *dirname = "i_dont_exist";
 
-            //assure that dirname does not exist
-            if(access(dirname, F_OK) == 0 )
-                assert(rmdir(dirname) != -1 );
+            // Assure that dirname does not exist.
+            if(access(dirname, F_OK) == 0)
+                assert(rmdir(dirname) != -1);
             errno = 0;
 
             rmdir(dirname);
             assert(errno != 0);
 
-            //sucessful calls do *not* set errno to 0
+            // Sucessful calls do *not* set errno to 0.
             mkdir(dirname, 0777);
             rmdir(dirname);
             assert(errno != 0);
@@ -249,41 +256,41 @@ int main(int argc, char** argv)
             char out[size];
             strfmon(out, size, "%n", 1234.567);
             printf("%s", out);
-            assert(strcmp(out, "1234.57") == 0 );
+            assert(strcmp(out, "1234.57") == 0);
         }
     }
 
     /*
     #syslog
 
-        writes error messages to standard system files
+        Write error messages to standard system files.
 
-        interface:
+        Interface:
 
             void syslog(int priority, const char *message, arguments...);
 
-        error levels:
+        Error levels:
 
-        - LOG_EMERG       Description
-        - LOG_ALERT       An emergency situation
-        - LOG_CRIT        High-priority problem, such as database corruption
-        - LOG_ERR         Critical error, such as hardware failure
-        - LOG_WARNING     Errors
-        - LOG_NOTICE      Warning
-        - LOG_INFO        Special conditions requiring attention
-        - LOG_DEBUG       Informational messages
+        - `LOG_EMERG`:   Description.
+        - `LOG_ALERT`:   Emergency situation.
+        - `LOG_CRIT`:    High-priority problem, such as database corruption.
+        - `LOG_ERR`:     Critical error, such as hardware failure.
+        - `LOG_WARNING`: Errors.
+        - `LOG_NOTICE`:  Warning.
+        - `LOG_INFO`:    Special conditions requiring attention.
+        - `LOG_DEBUG`:   Informational messages.
 
-        error source:
+        Error source:
 
-        - LOG_USER: a user space application
-        - LOG_LOCAL[0-7]: left for admins to specify
+        - `LOG_USER`:       a user space application
+        - `LOG_LOCAL[0-7]`: left for admins to specify
 
-        message: accepts format strings similar to printf with extensions
+        Message: accepts format strings similar to printf with extensions.
 
         - %m: errno message string
     */
     {
-        //TODO0 this breaks my poor program, why? needs root?
+        // TODO this breaks my poor program, why? needs root?
 
             //syslog(LOG_ERR | LOG_USER, "syslog test: %m\n");
     }
@@ -291,12 +298,12 @@ int main(int argc, char** argv)
     /*
     #environment variables
 
-        each process includes a list of its environment variables
+        Each process includes a list of its environment variables.
 
-        those can be modified for the process
+        Those can be modified for the process.
 
-        child processes inherit those variables, so this is a way
-        for processes to communicate
+        Child processes inherit those variables, so this is a way
+        for processes to communicate.
     */
     {
         /*
@@ -313,25 +320,25 @@ int main(int argc, char** argv)
             don't use, just use `setenv` instead. POSIX 7 itself says this.
         */
         {
-            assert(setenv("HOME", "asdf", true) != -1 );
-            assert(strcmp(getenv("HOME"), "asdf" ) == 0 );
+            assert(setenv("HOME", "asdf", true) != -1);
+            assert(strcmp(getenv("HOME"), "asdf") == 0);
 
             //with overwrite false, if existing is not overwritten
             //but error is not returned:
 
-                assert(setenv("HOME", "qwer", false) != -1 );
-                assert(strcmp(getenv("HOME"), "asdf" ) == 0 );
+                assert(setenv("HOME", "qwer", false) != -1);
+                assert(strcmp(getenv("HOME"), "asdf") == 0);
         }
 
         /*
         #environ
 
-            automatically set by POSIX libraries linked to
+            Automatically set by POSIX libraries linked to.
 
-            is a list of strings of type `VAR=val`
+            List of strings of type `VAR=val`.
         */
         if (0) {
-            //print entire environment
+            // Print entire environment.
             char **env = environ;
             puts("environ:");
             while (*env) {
@@ -344,27 +351,29 @@ int main(int argc, char** argv)
     /*
     #math.h
 
-        the `M_PI` constants are defined by POSIX inside of math.h
+        The `M_PI` constants are defined by POSIX inside of `math.h`.
     */
     {
         //#constants
         {
-            //ansi c way of calculating some constants:
+            // ANSI C way of calculating some constants.
+
                 const float PI = acos(-1);
                 const float E = exp(1);
 
-            //POSIX provides macros that expand to those constants:
-                assert(fabs(M_E - E) < 1e-6  );
-                assert(fabs(M_PI - PI) < 1e-6  );
-                assert(fabs(M_PI/2.0 - M_PI_2) < 1e-6  );
-                assert(fabs(M_PI/4.0 - M_PI_4) < 1e-6  );
+            // POSIX provides macros that expand to those constants.
+
+                assert(fabs(M_E      - E     ) < 1e-6);
+                assert(fabs(M_PI     - PI    ) < 1e-6);
+                assert(fabs(M_PI/2.0 - M_PI_2) < 1e-6);
+                assert(fabs(M_PI/4.0 - M_PI_4) < 1e-6);
         }
 
         /*
         #bessel
 
             As of POSIX 7, the only major function addition to the math library
-            seems to be bessel functions.
+            seems to be Bessel functions.
 
             TODO understand, specially why is it so important to be here?
 
@@ -383,12 +392,11 @@ int main(int argc, char** argv)
         Non busy sleep, that is, stop program execution for a given time,
         and let other programs run in the meantime.
 
-        There is no portable standard way of doing this.
+        There is ANSI way of doing this.
     */
     if (0) {
         printf("sleep:\n");
-        for(int i=0; i<3; i++)
-        {
+        for(int i=0; i<3; i++) {
             printf("%d\n", i);
             sleep(1);
         }
@@ -449,9 +457,9 @@ int main(int argc, char** argv)
 
             man 2 open
 
-        open file descriptors such as files
+        Open file descriptors such as files
 
-        returns an `int` (file descriptor number) instead of a file
+        Returns an `int` (file descriptor number) instead of a file.
 
         Interfaces:
 
@@ -672,8 +680,7 @@ int main(int argc, char** argv)
                     }
                     nbytes_total += nbytes_last;
                 }
-
-                if (close(fd) == -1 ) {
+                if (close(fd) == -1) {
                     perror("close");
                     exit(EXIT_FAILURE);
                 }
@@ -688,17 +695,16 @@ int main(int argc, char** argv)
                 exit(EXIT_FAILURE);
             } else {
                 nbytes_total = 0;
-                while ((nbytes_last = read(fd, out, nbytes) ) > 0 ) {
+                while ((nbytes_last = read(fd, out, nbytes)) > 0) {
                     //compare output as it comes out, even if less than nbytes comes
-                    assert(memcmp(in + nbytes_total, out, nbytes_last) == 0 );
+                    assert(memcmp(in + nbytes_total, out, nbytes_last) == 0);
                     nbytes_total += nbytes_last;
                 }
                 if (nbytes_last == -1) {
                     perror("read");
                     exit(EXIT_FAILURE);
                 }
-
-                if (close(fd) == -1 ) {
+                if (close(fd) == -1) {
                     perror("close");
                     exit(EXIT_FAILURE);
                 }
@@ -711,8 +717,7 @@ int main(int argc, char** argv)
             fd = open("/i/do/not/exist", O_RDONLY, S_IRWXU);
             if (fd == -1) {
                 assert(errno == ENOENT);
-            }
-            else {
+            } else {
                 assert(false);
             }
         }
@@ -726,9 +731,8 @@ int main(int argc, char** argv)
             if (fd == -1) {
                 perror("open");
                 exit(EXIT_FAILURE);
-            }
-            else {
-                if (close(fd) == -1 ) {
+            } else {
+                if (close(fd) == -1) {
                     perror("close");
                     exit(EXIT_FAILURE);
                 }
@@ -738,16 +742,13 @@ int main(int argc, char** argv)
             if (fd == -1) {
                 perror("open");
                 exit(EXIT_FAILURE);
-            }
-            else {
-                if (write(fd, "a", 1) == -1 ) {
+            } else {
+                if (write(fd, "a", 1) == -1) {
                     assert(errno == EBADF);
-                }
-                else {
+                } else {
                     assert(false);
                 }
-
-                if (close(fd) == -1 ) {
+                if (close(fd) == -1) {
                     perror("close");
                     exit(EXIT_FAILURE);
                 }
@@ -768,11 +769,11 @@ int main(int argc, char** argv)
                     perror("open");
                     exit(EXIT_FAILURE);
                 } else {
-                    if (write(fd, in, nbytes) != nbytes ) {
+                    if (write(fd, in, nbytes) != nbytes) {
                         perror("write");
                         exit(EXIT_FAILURE);
                     }
-                    if (close(fd) == -1 ) {
+                    if (close(fd) == -1) {
                         perror("close");
                         exit(EXIT_FAILURE);
                     }
@@ -785,9 +786,8 @@ int main(int argc, char** argv)
                 if (fd == -1) {
                     perror("open");
                     exit(EXIT_FAILURE);
-                }
-                else {
-                    if (write(fd, "01", 2) != 2 ) {
+                } else {
+                    if (write(fd, "01", 2) != 2) {
                         perror("write");
                         exit(EXIT_FAILURE);
                     }
@@ -796,19 +796,18 @@ int main(int argc, char** argv)
 
             //check the new result
             {
-                if (lseek(fd, 0, SEEK_SET) != 0 ) {
+                if (lseek(fd, 0, SEEK_SET) != 0) {
                     perror("lseek");
                     exit(EXIT_FAILURE);
                 }
-                if (read(fd, out, nbytes) != nbytes ) {
+                if (read(fd, out, nbytes) != nbytes) {
                     perror("read");
                     exit(EXIT_FAILURE);
-                }
-                else {
+                } else {
                     //the first two bytes were overwriten
-                    assert(memcmp(out, "01cd", nbytes) == 0 );
+                    assert(memcmp(out, "01cd", nbytes) == 0);
                 }
-                if (close(fd) == -1 ) {
+                if (close(fd) == -1) {
                     perror("close");
                     exit(EXIT_FAILURE);
                 }
@@ -817,7 +816,7 @@ int main(int argc, char** argv)
         }
 
         /*
-        lseek after eof
+        `lseek` after EOF
         */
         {
             int fd;
@@ -827,32 +826,31 @@ int main(int argc, char** argv)
             if (fd == -1) {
                 perror("open");
                 exit(EXIT_FAILURE);
-            }
-            else {
-                if (lseek(fd, 1, SEEK_SET) != 1 ) {
+            } else {
+                if (lseek(fd, 1, SEEK_SET) != 1) {
                     perror("lseek");
                     exit(EXIT_FAILURE);
                 }
-                if (write(fd, "a", 1) != 1 ) {
+                if (write(fd, "a", 1) != 1) {
                     perror("write");
                     exit(EXIT_FAILURE);
                 }
-                //read after eof, return 0 and read nothing
-                if (read(fd, out, 1) != 0 ) {
+                // Read after eof, return 0 and read nothing.
+                if (read(fd, out, 1) != 0) {
                     assert(false);
                 }
-                if (lseek(fd, 0, SEEK_SET) != 0 ) {
+                if (lseek(fd, 0, SEEK_SET) != 0) {
                     perror("lseek");
                     exit(EXIT_FAILURE);
                 }
-                //byte 0 was never writen, so reading it returns (int)0
-                if (read(fd, out, 2) != 2 ) {
+                // Byte 0 was never writen, so reading it returns `(int)0`.
+                if (read(fd, out, 2) != 2) {
                     perror("read");
                     exit(EXIT_FAILURE);
                 } else {
-                    assert(memcmp(out, "\0a", 2) == 0 );
+                    assert(memcmp(out, "\0a", 2) == 0);
                 }
-                if (close(fd) == -1 ) {
+                if (close(fd) == -1) {
                     perror("close");
                     exit(EXIT_FAILURE);
                 }
@@ -897,7 +895,7 @@ int main(int argc, char** argv)
         Is called unlink because what you are doing is not to directly remove a file from disk
         but instead remove one hardlink for the data.
 
-        if the number of hardlinks to a data equals 0, it the data gets deleted.
+        If the number of hardlinks to a data equals 0, it the data gets deleted.
 
         If the given path does not exist `errno = ENOENT`.
     */
@@ -910,48 +908,46 @@ int main(int argc, char** argv)
         char *oldpath = "link_old.tmp";
         char *newpath = "link_new.tmp";
 
-        //create old
+        // Create old.
         fd = open(oldpath, O_WRONLY | O_CREAT | O_TRUNC, S_IRWXU);
         if (fd == -1) {
             perror("open");
             exit(EXIT_FAILURE);
         } else {
-            if (write(fd, in, nbytes) != nbytes ) {
+            if (write(fd, in, nbytes) != nbytes) {
                 perror("write");
                 exit(EXIT_FAILURE);
             }
-            if (close(fd) == -1 ) {
+            if (close(fd) == -1) {
                 perror("close");
                 exit(EXIT_FAILURE);
             }
         }
 
-        /* ensure that the new path does not exist
-        ENOENT is ok since the path may not exist */
-        if (unlink(newpath) == -1 && errno != ENOENT ) {
+        // Ensure that the new path does not exist
+        // `ENOENT` is ok since the path may not exist
+        if (unlink(newpath) == -1 && errno != ENOENT) {
             perror("link");
             exit(EXIT_FAILURE);
         }
 
-        //make the hardlink
-        if (link(oldpath, newpath) == -1 ) {
+        // Make the hardlink.
+        if (link(oldpath, newpath) == -1) {
             perror("link");
             exit(EXIT_FAILURE);
         }
 
-        //write to new
+        // Write to new.
         fd = open(newpath, O_WRONLY);
         if (fd == -1) {
             perror("open");
             exit(EXIT_FAILURE);
         } else {
-
-            if (write(fd, in_new, nbytes) != nbytes ) {
+            if (write(fd, in_new, nbytes) != nbytes) {
                 perror("write");
                 exit(EXIT_FAILURE);
             }
-
-            if (close(fd) == -1 ) {
+            if (close(fd) == -1) {
                 perror("close");
                 exit(EXIT_FAILURE);
             }
@@ -963,14 +959,12 @@ int main(int argc, char** argv)
             perror("open");
             exit(EXIT_FAILURE);
         } else {
-            if (read(fd, out, nbytes) != nbytes ) {
+            if (read(fd, out, nbytes) != nbytes) {
                 perror("read");
                 exit(EXIT_FAILURE);
             }
-
-            assert(memcmp(out, in_new, nbytes) == 0 );
-
-            if (close(fd) == -1 ) {
+            assert(memcmp(out, in_new, nbytes) == 0);
+            if (close(fd) == -1) {
                 perror("close");
                 exit(EXIT_FAILURE);
             }
@@ -982,7 +976,7 @@ int main(int argc, char** argv)
     /*
     #symlink
 
-        create symbolic link
+        Create symbolic link.
 
         TODO0 example
     */
@@ -1020,7 +1014,7 @@ int main(int argc, char** argv)
         int result;
         int *map;  /* mmapped array of int's */
 
-        //write to file with mmap
+        // Write to file with mmap.
         {
             /* `O_WRONLY` is not sufficient when mmaping, need `O_RDWR`.*/
             fd = open(filepath, O_RDWR | O_CREAT | O_TRUNC, (mode_t)0600);
@@ -1029,7 +1023,7 @@ int main(int argc, char** argv)
                 exit(EXIT_FAILURE);
             }
 
-            /* set fd position and write to it to strech the file */
+            /* Set fd position and write to it to strech the file. */
             result = lseek(fd, filesize - 1, SEEK_SET);
             if (result == -1) {
                 close(fd);
@@ -1037,7 +1031,7 @@ int main(int argc, char** argv)
                 exit(EXIT_FAILURE);
             }
 
-            /* write something to the file to actually strech it */
+            /* Write something to the file to actually strech it. */
             result = write(fd, "", 1);
             if (result != 1) {
                 close(fd);
@@ -1045,7 +1039,7 @@ int main(int argc, char** argv)
                 exit(EXIT_FAILURE);
             }
 
-            /* do the actual mapping call */
+            /* Do the actual mapping call. */
             map = mmap(NULL, filesize, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
             if (map == MAP_FAILED) {
                 close(fd);
@@ -1053,25 +1047,25 @@ int main(int argc, char** argv)
                 exit(EXIT_FAILURE);
             }
 
-            /* write int's to the file as if it were memory because MAP_SHARED was used */
+            /* Write int's to the file as if it were memory because MAP_SHARED was used. */
             for (i = 0; i < numints; ++i) {
                 map[i] = i;
             }
 
-            /* free mmapped memory */
+            /* Free mmapped memory. */
             if (munmap(map, filesize) == -1) {
                 perror("munmap");
                 exit(EXIT_FAILURE);
             }
 
-            /* un-mmaping doesn't close the file, so we still need to do that. */
+            /* Un-mmaping doesn't close the file, so we still need to do that. */
             if (close(fd) == -1) {
                 perror("close");
                 exit(EXIT_FAILURE);
             }
         }
 
-        //read result back in
+        // Read result back in.
         {
             fd = open(filepath, O_RDONLY, 0);
             if (fd == -1) {
@@ -1088,7 +1082,7 @@ int main(int argc, char** argv)
 
             assert(map[1] == 1);
 
-            //segmentation fault because no PROT_WRITE:
+            // Segmentation fault because no `PROT_WRITE`:
             {
                 //map[1] = 2;
             }
@@ -1105,7 +1099,7 @@ int main(int argc, char** argv)
         }
 
         /*
-        MAP_PRIVATE
+        #MAP_PRIVATE
 
             Creates a copy-on-write version of file in memory.
 
@@ -1114,7 +1108,7 @@ int main(int argc, char** argv)
             TODO0 application?
         */
         {
-            //private write
+            // Private write
             {
                 fd = open(filepath, O_RDONLY, 0);
                 if (fd == -1) {
@@ -1142,7 +1136,7 @@ int main(int argc, char** argv)
                 }
             }
 
-            //read
+            // Read
             {
                 fd = open(filepath, O_RDONLY, 0);
                 if (fd == -1) {
@@ -1190,14 +1184,14 @@ int main(int argc, char** argv)
 
             The function does completelly different things depending if resolved_name is NULL or not:
 
-            - `resolved_name == NULL`: realpath mallocs the path for you and returns it.
+            -   `resolved_name == NULL`: realpath mallocs the path for you and returns it.
 
                 You have to free it in the future.
 
                 This is a good options if you don't already have a buffer of the right size, since calculating the required buffer size
                 would be annoying (would require calling `pathconf`).
 
-            - `resolved_name == NULL`: the pathname is copied to `resolved_name`.
+            -   `resolved_name == NULL`: the pathname is copied to `resolved_name`.
 
                 You must make sure that you have enough space there.
 
@@ -1242,16 +1236,16 @@ int main(int argc, char** argv)
 
             strcpy(p, "a/b");
             res = dirname(p);
-            assert(strcmp(res, "a") == 0 );
+            assert(strcmp(res, "a") == 0);
 
             strcpy(p, "a/b");
             res = basename(p);
-            assert(strcmp(res, "b") == 0 );
+            assert(strcmp(res, "b") == 0);
         }
     }
 
     /*
-    #file and directory operations
+    #File and directory operations
 
         there is no standard portable way of doing most them:
         <http://www.devarticles.com/c/a/Cplusplus/Directories-in-Cplusplus/>
@@ -1266,11 +1260,11 @@ int main(int argc, char** argv)
         /*
         #stat family
 
-            get info on paths
+            Get info on paths.
 
-            return value: 0 on success, other constants on errors.
+            Return value: `0` on success, other constants on errors.
 
-            If you get a 0, you know the file exists!
+            If you get a `0`, you know the file exists!
             This is not however the best way to check if a file exists since it incurs the large overhead
             of getting the parameters. Use `access` for that instead.
 
@@ -1313,36 +1307,34 @@ int main(int argc, char** argv)
                                       may vary from file to file.
             - blkcnt_t st_blocks      Number of blocks allocated for this object.
 
-        #find if a file exists
+        #Find if a file exists.
 
-            in *nix, you often cannot be sure if a file or directory exists,
+            In *nix, you often cannot be sure if a file or directory exists,
             because to do that you must have permission to list all of its parent dirs.
 
-            the only thing you can say is that a path is accessible or not.
+            The only thing you can say is that a path is accessible or not.
 
-            using stat is a good way to do that.
+            Using stat is a good way to do that.
         */
         {
             char in[] = "123\n";
             char fname[] = "stat.tmp";
             struct stat s;
 
-            //create the file
+            // Create the file.
             int fd = open(fname, O_WRONLY | O_CREAT, S_IRWXU);
             int nbytes = strlen(in);
             if (fd != -1) {
-                if (write(fd, in, nbytes) != nbytes )
+                if (write(fd, in, nbytes) != nbytes) {
                     assert(false);
-                else {
-                    //assert that file exists:
-                    assert(stat(fname, &s) == 0 );
-
-                    //view/assert the fields of the stat struct:
+                } else {
+                    // Assert that file exists.
+                    assert(stat(fname, &s) == 0);
+                    // View/assert the fields of the stat struct.
                     assert(s.st_size == nbytes);
                 }
                 close(fd);
-            }
-            else {
+            } else {
                 assert(false);
             }
         }
@@ -1352,24 +1344,24 @@ int main(int argc, char** argv)
 
             Check if file or directory exists and or has a given permission (rwx):
 
-            - R_OK
-            - W_OK
-            - X_OK
-            - F_OK: file exists
+            - `R_OK`
+            - `W_OK`
+            - `X_OK`
+            - `F_OK`: file exists
 
             If the access is not permitted, errno is still set even if this call did not give an error.
         */
         {
             char *exist = realpath(".", NULL);
-            if(access(exist, F_OK) == -1 ) {
+            if(access(exist, F_OK) == -1) {
                 perror("access");
                 assert(false);
             }
             free(exist);
 
             char *dont_exist = "/i/dont/canot/must/not/exist.asdf";
-            if(access(dont_exist, F_OK) == -1 ) {
-                perror("access(dont_exist, F_OK)" );
+            if(access(dont_exist, F_OK) == -1) {
+                perror("access(dont_exist, F_OK)");
             } else {
                 assert(false);
             }
@@ -1380,19 +1372,19 @@ int main(int argc, char** argv)
             struct stat s;
             char fname[] = "mkdir";
 
-            //remove the file if it exists:
-            if(stat(fname, &s) == 0 )
+            // Remove the file if it exists.
+            if(stat(fname, &s) == 0)
                 rmdir(fname);
 
-            //make the dir and check for error:
-            if(mkdir(fname, 0777) == -1 )
+            // Make the dir and check for error.
+            if(mkdir(fname, 0777) == -1)
                 assert(false);
         }
 
         //#rmdir
         {
             mkdir("rmdir", 0777);
-            if(rmdir("rmdir") == -1 )
+            if(rmdir("rmdir") == -1)
                 assert(false);
         }
 
@@ -1422,7 +1414,7 @@ int main(int argc, char** argv)
                 perror("opendir");
             } else {
                 printf("opendir:\n");
-                while ((entry = readdir(dp) ) != NULL ) {
+                while ((entry = readdir(dp)) != NULL) {
                     printf("  %s\n", entry->d_name);
                 }
             }
@@ -1432,27 +1424,28 @@ int main(int argc, char** argv)
     /*
     #getrusage
 
-        rusage stands for Resource usage
+        `rusage` stands for Resource usage
 
-        the kernel allows processes to use a certain ammount of ressources such as
-        memory or processor time
+        The kernel allows processes to use a certain ammount of ressources such as
+        memory or processor time.
 
-        exceeding those limits may lead the kernel to kill a processes
+        Exceeding those Limits may lead the kernel to kill a processes
 
-        returns the total time usage of current process (non sleeping/waiting)
+        Returns the total time usage of current process (non sleeping/waiting)
 
             int getrusage(int who, struct rusage *r_usage);
 
-        - who:
+        -   `who`:
 
-            - RUSAGE_SELF: only get information about current process
-            - RUSAGE_CHILDREN: information includes both current process and chidren who are dead
+            -   `RUSAGE_SELF`: only get information about current process
+
+            -   `RUSAGE_CHILDREN`: information includes both current process and chidren who are dead
                 and are just waiting for the parent to call `wait()` on them.
 
                 This makes sense here because the only thing that keeps their memory
                 used up is the existance of the parent process.
 
-        - r_usage: is the main return valu, and is set to contain a struct:
+        -   `r_usage`: is the main return valu, and is set to contain a struct:
 
                 struct rusage {
                     struct timeval ru_utime; // user time used
@@ -1462,7 +1455,7 @@ int main(int argc, char** argv)
             and `timeval` is of type:
 
                 struct timeval {
-                    time_t         tv_sec      Seconds. 
+                    time_t         tv_sec      Seconds.
                     suseconds_t    tv_usec     Microseconds.
                 };
 
@@ -1470,17 +1463,17 @@ int main(int argc, char** argv)
     */
     {
         struct rusage usage;
-        if (getrusage(RUSAGE_SELF, &usage) == -1 ) {
+        if (getrusage(RUSAGE_SELF, &usage) == -1) {
             perror("getrusage failed");
             exit(EXIT_FAILURE);
         } else {
             printf(
-                "user time      = %llu s %llu micro secs\n",
+                "user time      = %ju s %ju micro secs\n",
                 (uintmax_t)usage.ru_utime.tv_sec,
                 (uintmax_t)usage.ru_utime.tv_usec
             );
             printf(
-                "system time    = %llu s %llu micro secs\n",
+                "system time    = %ju s %ju micro secs\n",
                 (uintmax_t)usage.ru_stime.tv_sec,
                 (uintmax_t)usage.ru_stime.tv_usec
             );
@@ -1490,23 +1483,23 @@ int main(int argc, char** argv)
     /*
     #getrlimit
 
-        returns the maximum value for a given resource
+        Returns the maximum value for a given resource.
 
-        there are two types of limits:
+        There are two types of limits:
 
         - soft: can be increased by any process to any value lower than the hard maximum
         - hard: only processes with special privileges may increase the hard limit
 
-        if a resource goes over the soft limit, the kernel may choose to kill the process
+        If a resource goes over the soft limit, the kernel may choose to kill the process
 
-        interfaces:
+        Interfaces:
 
             int getrlimit(int resource, struct rlimit *rlp);
             int setrlimit(int resource, const struct rlimit *rlp);
 
-        - resource: see the docs for a description of each possible value
+        -   resource: see the docs for a description of each possible value
 
-        - rlp: struct of type:
+        -   rlp: struct of type:
 
                 struct rlimit {
                     rlim_t rlim_cur  // The current (soft) limit.
@@ -1517,8 +1510,8 @@ int main(int argc, char** argv)
     */
     {
         struct rlimit limit;
-        if (getrlimit(RLIMIT_DATA, &limit) == -1 ) {
-            perror("getrlimit(RLIMIT_DATA, ...) failed" );
+        if (getrlimit(RLIMIT_DATA, &limit) == -1) {
+            perror("getrlimit(RLIMIT_DATA, ...) failed");
             exit(EXIT_FAILURE);
         } else {
             //maximum process memory in bytes
@@ -1527,37 +1520,37 @@ int main(int argc, char** argv)
                 puts("RLIMIT_DATA: no limit imposed");
             } else {
                 printf(
-                    "RLIMIT_DATA\n  soft = %llu\n  hard = %llu\n",
+                    "RLIMIT_DATA\n  soft = %ju\n  hard = %ju\n",
                     (uintmax_t)limit.rlim_cur,
                     (uintmax_t)limit.rlim_max
                 );
             }
         }
 
-        //ok, enough of error checking from now on
+        // OK, enough of error checking from now on.
 
-        printf("RLIM_INFINITY = %llu\n", (uintmax_t)RLIM_INFINITY);
+        printf("RLIM_INFINITY = %ju\n", (uintmax_t)RLIM_INFINITY);
 
-        //maximum total cpu usage in seconds
+        // maximum total CPU usage in seconds.
         getrlimit(RLIMIT_CPU, &limit);
         printf(
-            "RLIMIT_CPU\n  soft = %llu\n  hard = %llu\n",
+            "RLIMIT_CPU\n  soft = %ju\n  hard = %ju\n",
             (uintmax_t)limit.rlim_cur,
             (uintmax_t)limit.rlim_max
         );
 
-        //maximum file size in bytes
+        // Maximum file size in bytes.
         getrlimit(RLIMIT_FSIZE, &limit);
         printf(
-            "RLIMIT_FSIZE\n  soft = %llu\n  hard = %llu\n",
+            "RLIMIT_FSIZE\n  soft = %ju\n  hard = %ju\n",
             (uintmax_t)limit.rlim_cur,
             (uintmax_t)limit.rlim_max
         );
 
-        //number of file descriptors:
+        // Number of file descriptors:
         getrlimit(RLIMIT_NOFILE, &limit);
         printf(
-            "RLIMIT_NOFILE\n  soft = %llu\n  hard = %llu\n",
+            "RLIMIT_NOFILE\n  soft = %ju\n  hard = %ju\n",
             (uintmax_t)limit.rlim_cur,
             (uintmax_t)limit.rlim_max
         );
@@ -1583,13 +1576,13 @@ int main(int argc, char** argv)
         For resources that have fixed values, this header furnishes them directly.
     */
     {
-        //static macros
+        // Static macros.
         {
-            //TODO0
+            // TODO what is it
             printf("NL_ARGMAX = %d\n", NL_ARGMAX);
 
-            //maximum value that fits into a `size_t`.
-            printf("SSIZE_MAX (Mib) = %ju\n", (uintmax_t)SSIZE_MAX / (1 << 20) );
+            // Maximum value that fits into a `size_t`.
+            printf("SSIZE_MAX (Mib) = %ju\n", (uintmax_t)SSIZE_MAX / (1 << 20));
 
         }
 
@@ -1620,16 +1613,16 @@ int main(int argc, char** argv)
             fixed variable arrays: a function is needed, and memory must be allocated with malloc.
         */
         {
-            //number of processors:
+            // Number of processors:
 
-                printf("_SC_NPROCESSORS_ONLN = %ld\n", sysconf(_SC_NPROCESSORS_ONLN) );
+                printf("_SC_NPROCESSORS_ONLN = %ld\n", sysconf(_SC_NPROCESSORS_ONLN));
 
-            //maximum lengh of command line arguments + environment variables:
+            // Maximum lengh of command line arguments + environment variables:
 
-                printf("_SC_ARG_MAX (MiB) = %ld\n", sysconf(_SC_ARG_MAX) / (1 << 20 ) );
+                printf("_SC_ARG_MAX (MiB) = %ld\n", sysconf(_SC_ARG_MAX) / (1 << 20));
 
-            //TODO0 find the number of processors / cpus / cores: not possible without glibc extension?
-            //<http://stackoverflow.com/questions/2693948/how-do-i-retrieve-the-number-of-processors-on-c-linux>
+            // TODO find the number of processors / cpus / cores: not possible without glibc extension?
+            // <http://stackoverflow.com/questions/2693948/how-do-i-retrieve-the-number-of-processors-on-c-linux>
         }
 
         /*
@@ -1638,11 +1631,11 @@ int main(int argc, char** argv)
             Similar to sysconf, but for parameters that depend on a path, such as maxium filename lengths.
         */
         {
-            //max basename in given dir including trailling null:
+            // Max basename in given dir including trailling null:
 
                 printf("pathconf(\".\", _PC_NAME_MAX) = %ld\n", pathconf(".", _PC_NAME_MAX));
 
-            //max pathname in (TODO this is per device?)
+            // Max pathname in (TODO this is per device?)
 
                 printf("pathconf(\".\", _PC_PATH_MAX) = %ld\n", pathconf(".", _PC_PATH_MAX));
         }
@@ -1651,21 +1644,21 @@ int main(int argc, char** argv)
     /*
     #user information
 
-        once use have uids for processes, you can querry standard user information
+        Once use have uids for processes, you can querry standard user information
         which was traditionally stored in the `/etc/passwd` file.
     */
     {
         /*
         #getpwuid
 
-            you can get those information either by username or by uid:
+            You can get those information either by username or by uid:
 
                 #include <pwd.h>
 
                 struct passwd *getpwuid(uid_t uid);
                 struct passwd *getpwnam(const char *name);
 
-            the struct returned is:
+            The struct returned is:
 
                 struct passwd {
                     passwd Member    // Description
@@ -1677,7 +1670,7 @@ int main(int argc, char** argv)
                     char *pw_shell   // The user’s default shell
                 }
 
-            which contains all the required user metadata specified by POSIX
+            Which contains all the required user metadata specified by POSIX.
         */
         {
             uid_t uid = getuid();
@@ -1687,10 +1680,10 @@ int main(int argc, char** argv)
                 exit(EXIT_FAILURE);
             } else {
                 puts("getpwuid");
-                printf("  pw_name        = %s\n", info->pw_name  );
-                printf("  pw_uid         = %d\n", info->pw_uid   );
-                printf("  pw_gid         = %d\n", info->pw_gid   );
-                printf("  pw_dir         = %s\n", info->pw_dir   );
+                printf("  pw_name        = %s\n", info->pw_name );
+                printf("  pw_uid         = %d\n", info->pw_uid  );
+                printf("  pw_gid         = %d\n", info->pw_gid  );
+                printf("  pw_dir         = %s\n", info->pw_dir  );
                 printf("  pw_gecos       = %s\n", info->pw_gecos);
                 printf("  pw_shell       = %s\n", info->pw_shell);
             }
@@ -1699,15 +1692,15 @@ int main(int argc, char** argv)
         /*
         #getpwuid
 
-            iterate a list of all passwd structures
+            Iterate a list of all passwd structures.
 
-            first call gets the first, every call gets the next
+            First call gets the first, every call gets the next.
 
-            to start from beginning again do:
+            To start from beginning again do:
 
                 void setpwent(void);
 
-            when you are done, free any associated resources with:
+            When you are done, free any associated resources with:
 
                 endpwent()
         */
@@ -1717,7 +1710,7 @@ int main(int argc, char** argv)
 
             info = getpwent();
             while (info != NULL) {
-                printf("  %s\n", info->pw_name  );
+                printf("  %s\n", info->pw_name);
                 info = getpwent();
             }
             endpwent();
@@ -1727,22 +1720,22 @@ int main(int argc, char** argv)
     /*
     #uname
 
-        you can get information about the current computer using `uname`
+        You can get information about the current computer using `uname`.
 
-        unsurprisingly, it is the same information given by the POSIX utility `uname`
+        Unsurprisingly, it is the same information given by the POSIX utility `uname`.
     */
     {
         struct utsname info;
-        if (uname(&info) == -1 ) {
+        if (uname(&info) == -1) {
             perror("uname failed");
             exit(EXIT_FAILURE);
         } else {
             puts("uname");
-            printf("  sysname   = %s\n", info.sysname   );
-            printf("  nodename  = %s\n", info.nodename  );
-            printf("  release   = %s\n", info.release   );
-            printf("  version   = %s\n", info.version   );
-            printf("  machine   = %s\n", info.machine   );
+            printf("  sysname   = %s\n", info.sysname );
+            printf("  nodename  = %s\n", info.nodename);
+            printf("  release   = %s\n", info.release );
+            printf("  version   = %s\n", info.version );
+            printf("  machine   = %s\n", info.machine );
         }
     }
 
@@ -1751,14 +1744,14 @@ int main(int argc, char** argv)
 
         #getpid
 
-            each process has an unique identifying integer called pid
+            Each process has an unique identifying integer called PID.
 
         #getuid
 
-            each process has user information associated to it
-            which determine what the process can or not
+            Each process has user information associated to it
+            which determine what the process can or not.
 
-            there are two types of uid and gid: real and effective:
+            There are two types of uid and gid: real and effective:
 
             - real is always of who executes the program
 
@@ -1766,15 +1759,15 @@ int main(int argc, char** argv)
 
         #getguid
 
-            like getuid but for user group
+            Like `getuid` but for user group.
 
         #setuid
 
-            sets the user id if you have the priviledges
+            Set the user id if you have the priviledges.
 
         #getppid
 
-            Gets paren't pid.
+            Get parent's pid.
 
         It seems that it is not possible to list all children of a process in POSIX:
         <http://stackoverflow.com/questions/1009552/how-to-find-all-child-processes>
@@ -1784,13 +1777,13 @@ int main(int argc, char** argv)
         uid_t euid = geteuid();
         gid_t gid  = getgid();
         gid_t egid = getegid();
-        pid_t pid = getpid();
-        printf("getpid()   = %llu\n",  (uintmax_t)pid     );
-        printf("getuid()   = %llu\n",  (uintmax_t)uid     );
-        printf("geteuid()  = %llu\n",  (uintmax_t)euid    );
-        printf("getgid()   = %llu\n",  (uintmax_t)gid     );
-        printf("getegid()  = %llu\n",  (uintmax_t)egid    );
-        printf("getppid()  = %llu\n",  (uintmax_t)getppid());
+        pid_t pid  = getpid();
+        printf("getpid()  = %ju\n",  (uintmax_t)pid      );
+        printf("getuid()  = %ju\n",  (uintmax_t)uid      );
+        printf("geteuid() = %ju\n",  (uintmax_t)euid     );
+        printf("getgid()  = %ju\n",  (uintmax_t)gid      );
+        printf("getegid() = %ju\n",  (uintmax_t)egid     );
+        printf("getppid() = %ju\n",  (uintmax_t)getppid());
 
         /*
         #getcwd
@@ -1806,7 +1799,7 @@ int main(int argc, char** argv)
         {
             const int n = 1 << 10;
             char buf[n];
-            if (getcwd(buf, n) == NULL ) {
+            if (getcwd(buf, n) == NULL) {
                 perror("getcwd");
             } else {
                 printf("getcwd() = %s\n", buf);
@@ -1837,24 +1830,24 @@ int main(int argc, char** argv)
 
         The actual effect of priority is undefined.
 
-        Nice:
+        `nice`:
 
             int nice(int incr)
 
         - incr: how much to increase the nice value
         - return: the new nice value after the increase
 
-        getpriority:
+        `getpriority`:
 
             int getpriority(int which, id_t who);
 
-        - which:
+        -   `which`:
 
             - PRIO_PROCESS:
             - PRIO_PGRP: TODO
             - PRIO_USER: TODO
 
-        - who: pid, uid or gid depending on which. `0` means current.
+        -   `who`: pid, uid or gid depending on which. `0` means current.
 
         #error checking
 
@@ -1890,47 +1883,47 @@ int main(int argc, char** argv)
         errno = 0;
         prio = getpriority(PRIO_PROCESS, 0);
         if (prio == -1 && errno != 0) {
-            perror("getpriority(PRIO_PROCESS, 0)" );
+            perror("getpriority(PRIO_PROCESS, 0)");
         } else {
-            printf("getpriority(PRIO_PROCESS, 0) = %d\n",  prio );
+            printf("getpriority(PRIO_PROCESS, 0) = %d\n",  prio);
         }
 
         errno = 0;
         prio = getpriority(PRIO_PGRP, 0);
         if (prio == -1 && errno != 0) {
-            perror("getpriority(PRIO_PGRP, 0)" );
+            perror("getpriority(PRIO_PGRP, 0)");
         } else {
-            printf("getpriority(PRIO_PGRP, 0) = %d\n",  prio );
+            printf("getpriority(PRIO_PGRP, 0) = %d\n",  prio);
         }
 
         errno = 0;
         prio = getpriority(PRIO_USER, 0);
         if (prio == -1 && errno != 0) {
-            perror("getpriority(PRIO_USER, 0)" );
+            perror("getpriority(PRIO_USER, 0)");
         } else {
-            printf("getpriority(PRIO_USER, 0) = %d\n",  prio );
+            printf("getpriority(PRIO_USER, 0) = %d\n",  prio);
         }
 
         errno = 0;
         prio = nice(0);
         if (prio == -1 && errno != 0) {
-            perror("nice(0)" );
+            perror("nice(0)");
         } else {
-            printf("nice(0)    = %d\n",    nice(0 ) );
+            printf("nice(0)    = %d\n",    nice(0));
         }
 
         //ok, tired of errno checking:
-        printf("nice(0)    = %d\n",    nice(0 ) );
-        printf("nice(1)    = %d\n",    nice(1 ) );
-        printf("nice(0)    = %d\n",    nice(0 ) );
+        printf("nice(0)    = %d\n",    nice(0));
+        printf("nice(1)    = %d\n",    nice(1));
+        printf("nice(0)    = %d\n",    nice(0));
 
         errno = 0;
         prio = nice(-1);
         if (prio == -1 && errno != 0) {
             //if not root we end up here
-            perror("nice(-1)" );
+            perror("nice(-1)");
         } else {
-            printf("nice(-1)  = %d\n", prio );
+            printf("nice(-1)  = %d\n", prio);
         }
     }
 
@@ -1943,9 +1936,9 @@ int main(int argc, char** argv)
 
         The precise decription of those policies can be found under System interfaces > Scheduling policies.
 
-        TODO0 what happens if there is both a FIFO and a RR process running?
+        TODO what happens if there is both a FIFO and a RR process running?
 
-        - SCHED_FIFO:
+        -   `SCHED_FIFO`:
 
             First in first out. Process runs untill it finishes, blocking the CPU while it runs.
 
@@ -1953,7 +1946,7 @@ int main(int argc, char** argv)
 
             In linux, applied to realtime process.
 
-        - SCHED_RR:
+        -   `SCHED_RR`:
 
             Round robin.
 
@@ -1961,13 +1954,13 @@ int main(int argc, char** argv)
 
             In linux, applied to realtime process.
 
-        - SCHED_SPORADIC:
+        -   `SCHED_SPORADIC`:
 
             TODO0
 
             Optional, so don't rely on it.
 
-        - SCHED_OTHER:
+        -   `SCHED_OTHER`:
 
             Any other type of scheduling.
 
@@ -1978,7 +1971,7 @@ int main(int argc, char** argv)
 
     #sched_getscheduler
 
-        pid_t for given pid, 0 for current process
+        `pid_t` for given pid, `0` for current process
 
     #sched_get_priority_max
 
@@ -1987,26 +1980,26 @@ int main(int argc, char** argv)
     #sched_get_priority_min
     */
     {
-        printf("SCHED_FIFO = %d\n",  SCHED_FIFO      );
+        printf("SCHED_FIFO = %d\n", SCHED_FIFO);
         printf("sched_get_priority_max(SCHED_FIFO) = %d\n", sched_get_priority_max(SCHED_FIFO));
         printf("sched_get_priority_min(SCHED_FIFO) = %d\n", sched_get_priority_min(SCHED_FIFO));
 
-        printf("SCHED_RR = %d\n",  SCHED_RR        );
+        printf("SCHED_RR = %d\n",  SCHED_RR);
         printf("sched_get_priority_max(SCHED_RR) = %d\n", sched_get_priority_max(SCHED_RR));
         printf("sched_get_priority_min(SCHED_RR) = %d\n", sched_get_priority_min(SCHED_RR));
 
-        //printf("SCHED_SPORADIC = %d\n",  SCHED_SPORADIC  );
+        //printf("SCHED_SPORADIC = %d\n",  SCHED_SPORADIC);
 
-        printf("SCHED_OTHER = %d\n",  SCHED_OTHER     );
+        printf("SCHED_OTHER = %d\n",  SCHED_OTHER);
         printf("sched_get_priority_max(SCHED_OTHER) = %d\n", sched_get_priority_max(SCHED_OTHER));
         printf("sched_get_priority_min(SCHED_OTHER) = %d\n", sched_get_priority_min(SCHED_OTHER));
 
-        printf("sched_getscheduler(0) = %d\n",  sched_getscheduler(0 ) );
+        printf("sched_getscheduler(0) = %d\n",  sched_getscheduler(0));
 
         /*
         #sched_setscheduler()
 
-            You need root permissions to change to higher priority modes such as from SCHED_NORMAL to SCHED_FIFO or SCHED_RR.
+            You need root permissions to change to higher priority modes such as from `SCHED_NORMAL` to `SCHED_FIFO` or `SCHED_RR`.
         */
         {
             int policy = SCHED_FIFO;
@@ -2014,11 +2007,11 @@ int main(int argc, char** argv)
                 .sched_priority = 99
             };
 
-            if (sched_setscheduler(0, policy, &sched_param) == -1 ) {
+            if (sched_setscheduler(0, policy, &sched_param) == -1) {
                 perror("sched_setscheduler");
                 //exit(EXIT_FAILURE);
             } else {
-                assert(sched_getscheduler(0) == policy );
+                assert(sched_getscheduler(0) == policy);
             }
         }
 
@@ -2048,7 +2041,7 @@ int main(int argc, char** argv)
                 .sched_priority = sched_get_priority_max(policy)
             };
 
-            if (sched_setscheduler(0, policy, &sched_param) == -1 ) {
+            if (sched_setscheduler(0, policy, &sched_param) == -1) {
                 perror("sched_setscheduler");
             } else {
                 while (1) {
@@ -2066,28 +2059,28 @@ int main(int argc, char** argv)
         }
     }
 
-    //#execl, execlp, execsle, execv, execvp, execvpe
-    {
-        /*
-        interfaces for ``execve`` system call
+    /*
+    #execl #execlp #execsle #execv #execvp #execvpe
 
-        execute and *leave*, ends current process!!
+        Interfaces for ``execve`` system call.
 
-        common combo: fork + execl
+        Execute and *leave*, ends current process!
 
-        this is effective because of COW implemented on some systems:
+        Common combo: fork + execl.
+
+        This is effective because of COW implemented on some systems:
         memory will only be copied to new process if needed, and in this case it is no needed.
 
-        takes variable number or args
+        Takes variable number or args.
 
-        must end null terminated
+        Must end null terminated.
 
-        versions:
+        Versions:
 
         - char 'p': path, uses PATH var to find executable
         - TODO: char 'v', char 'e'? what's the difference?
 
-        sample calls:
+        Sample calls:
 
             execl("/bin/ls", "-l", "-h", NULL);
 
@@ -2095,8 +2088,9 @@ int main(int argc, char** argv)
 
             execlp("cprogram", "cprogram", "arg0", NULL);
 
-        don't forget that in a c program the first arg is the program name
-        */
+        Don't forget that in a c program the first arg is the program name.
+    */
+    {
     }
 
     /*
@@ -2130,7 +2124,7 @@ int main(int argc, char** argv)
 
     #vfork
 
-        fork but keep same address space. POSIX 7 discourages its use,
+        Fork but keep same address space. POSIX 7 discourages its use,
         and says that it may be deprecated in the future
 
     #wait
@@ -2449,7 +2443,7 @@ int main(int argc, char** argv)
                 } else {
                     do
                     {
-                        chars_read = fread(buffer, sizeof(char), BUFSIZ, read_fp );
+                        chars_read = fread(buffer, sizeof(char), BUFSIZ, read_fp);
                         buffer[chars_read] = '\0';
                         printf("======== n bytes read: %d\n", chars_read);
                         //printf("%s\n", buffer); //if you want to see a bunch of 'a's...
@@ -2484,8 +2478,8 @@ int main(int argc, char** argv)
                     assert(false);
                 } else {
                     //TODO0 is safe to write twice BUFSIZ without a newline in the middle?
-                    fwrite(buf, sizeof(char), BUFSIZ, write_fp );
-                    fwrite(buf, sizeof(char), BUFSIZ, write_fp );
+                    fwrite(buf, sizeof(char), BUFSIZ, write_fp);
+                    fwrite(buf, sizeof(char), BUFSIZ, write_fp);
 
                     //prints 2 * BUFSIZ
                     //command waits until pipe close
@@ -2530,7 +2524,7 @@ int main(int argc, char** argv)
                 char data[] = "123";
                 char buf[BUFSIZ + 1];
 
-                if (pipe(pipes) == -1 ) {
+                if (pipe(pipes) == -1) {
                     perror("pipe");
                     exit(EXIT_FAILURE);
                 } else {
@@ -2539,7 +2533,7 @@ int main(int argc, char** argv)
                     nbytes = read(pipes[0], buf, BUFSIZ);
                     assert(nbytes == strlen(data));
                     buf[nbytes] = '\0';
-                    assert(strcmp(buf, data) == 0 );
+                    assert(strcmp(buf, data) == 0);
                 }
             }
 
@@ -2555,7 +2549,7 @@ int main(int argc, char** argv)
                 char buf[BUFSIZ + 1];
                 pid_t pid;
 
-                if (pipe(file_pipes) == -1 ) {
+                if (pipe(file_pipes) == -1) {
                     perror("pipe");
                     exit(EXIT_FAILURE);
                 } else {
@@ -2672,7 +2666,7 @@ int main(int argc, char** argv)
             int pipes[2];
 
             //unnamed pipe
-            if (pipe(pipes) == -1 ) {
+            if (pipe(pipes) == -1) {
                 perror("pipe");
                 exit(EXIT_FAILURE);
             } else {
@@ -2721,7 +2715,7 @@ int main(int argc, char** argv)
             - unique identifier of memory if positive
         */
         {
-            shmid = shmget((key_t)1234, sizeof(int) * 2, IPC_CREAT | S_IRWXU | S_IRWXO );
+            shmid = shmget((key_t)1234, sizeof(int) * 2, IPC_CREAT | S_IRWXU | S_IRWXO);
             assert(shmid >= 0);
         }
 
@@ -2746,58 +2740,60 @@ int main(int argc, char** argv)
                 pid_t pid = fork();
                 if (pid < 0) {
                     assert(false);
-                }
-                else {
+                } else {
 
-                    //child only
+                    // Child only.
                     if (pid == 0) {
 
-                        //child inherits attached memory
+                        // Child inherits attached memory.
                         shmem[0]++;
 
-                        //detach from child:
-                        assert(shmdt(shmem) == 0 );
+                        // Detach from child.
+                        assert(shmdt(shmem) == 0);
 
                         exit(EXIT_SUCCESS);
                     }
 
                     int status;
                     wait(&status);
-                    //parent after child
+                    // Parent only after child.
                     assert(status == EXIT_SUCCESS);
                     assert(shmem[0] == 2);
 
                     /*
                     #shmdt
 
-                        detach shared memory from current process
+                        Detach shared memory from current process:
 
                             int shmdt(void* shmem);
 
-                        each process should detach it separatelly before deleting the memory
+                        Each process should detach it separatelly before deleting the memory.
                     */
                     {
-                        //detach from parent:
-                        assert(shmdt(shmem) == 0 );
+                        // Detach from parent.
+                        assert(shmdt(shmem) == 0);
                     }
 
                     /*
                     #shmctl
 
-                        controls the shared memory, doing amongst other things its deletion
+                        Controls the shared memory, doing amongst other things its deletion
 
                             int shmctl(int shm_id, int command, struct shmid_ds *buf);
 
-                        - shm_id returned by shmget
-                        - command one of the following:
+                        -   shm_id returned by shmget
 
-                            - IPC_STAT: get parameters of memory into buf
-                            - IPC_SET:  set parameters of memory to match buf
-                            - IPC_RMID: delete memory.
+                        -   command is one of the following:
+
+                            -   `IPC_STAT`: get parameters of memory into buf
+
+                            -   `IPC_SET`:  set parameters of memory to match buf
+
+                            -   `IPC_RMID`: delete memory.
 
                                 It must be detached from all processes, or you get unspecified behaviour.
 
-                        - buf the following struct:
+                        -   buf the following struct:
 
                                 struct shmid_ds {
                                     uid_t shm_perm.uid;
@@ -2807,10 +2803,10 @@ int main(int argc, char** argv)
 
                             it can be `NULL` for `PIC_RMID`
 
-                        - return: 0 on success, -1 on failure
+                        -   Return: 0 on success, -1 on failure.
                     */
                     {
-                        assert(shmctl(shmid, IPC_RMID, NULL) == 0 );
+                        assert(shmctl(shmid, IPC_RMID, NULL) == 0);
                     }
                 }
             }
@@ -2841,7 +2837,7 @@ int main(int argc, char** argv)
 
         In Linux, based on the `clone` system call.
 
-        In gcc you must compile with `-pthread`.
+        In GCC you must compile with `-pthread`.
 
     #thread synchronization mechanisms
 
@@ -2924,7 +2920,7 @@ int main(int argc, char** argv)
         {
             rc = pthread_join(threads[i], NULL);
             if(rc != 0) {
-                printf("%s\n", strerror(rc) );
+                printf("%s\n", strerror(rc));
                 exit(EXIT_FAILURE);
             }
         }
@@ -2980,7 +2976,15 @@ int main(int argc, char** argv)
         }
 
         /*
+        #getaddrinfo #getnameinfo
+
+            Make `gethostbyname` and `gethostbyaddr` obsolete.
+        */
+
+        /*
         #gethostbyname
+
+            Obsoleted by `getaddrinfo` and `getnameinfo`.
 
             Give a hostname string ("localhost", "john") and get info on that host,
             including its IP.
@@ -3001,6 +3005,8 @@ int main(int argc, char** argv)
 
         #gethostbyaddr
 
+            Obsoleted by `getaddrinfo` and `getnameinfo`.
+
             Same as gethostbyname but by address.
         */
         {
@@ -3010,7 +3016,7 @@ int main(int argc, char** argv)
             struct hostent* hostent;
             char hostnames[2][namelength];
 
-            if (gethostname(hostnames[0], namelength) == -1 ) {
+            if (gethostname(hostnames[0], namelength) == -1) {
                 perror("gethostname");
                 exit(EXIT_FAILURE);
             }
@@ -3031,13 +3037,13 @@ int main(int argc, char** argv)
                         printf("    %s\n", *names);
                         names++;
                     }
-                    //assert that it is an inet address
+                    // Assert that it is an inet address.
                     if (hostent -> h_addrtype != AF_INET) {
                         printf("host is not AF_INET\n");
                         exit(EXIT_FAILURE);
                     }
 
-                    //show addresses
+                    // Show addresses.
                     printf("  IPs:\n");
                     addrs = hostent->h_addr_list;
                     while (*addrs) {
@@ -3048,7 +3054,7 @@ int main(int argc, char** argv)
 
                             Takes network byte ordering into consideration.
                         */
-                        printf("    %s", inet_ntoa(*(struct in_addr*)*addrs) );
+                        printf("    %s", inet_ntoa(*(struct in_addr*)*addrs));
                         addrs++;
                     }
                     printf("\n");
@@ -3175,13 +3181,13 @@ int main(int argc, char** argv)
     /*
     #terminal
 
-        some POSIX functions deal with the controlling terminal which called the program if any
+        Some POSIX functions deal with the controlling terminal which called the program if any.
 
     #getlogin
 
-        gets login name of controlling terminal
+        Get login name of controlling terminal
 
-        note that this is different from getuid, since it looks at the controlling terminal,
+        This is different from `getuid` since it looks at the controlling terminal,
         and not at processes specific information.
     */
     {

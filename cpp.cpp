@@ -2144,6 +2144,14 @@ void printCallStack() {
             }
         }
 
+//#preprocessor
+
+    // The C++ preprocessor it Turing complete by mistake.
+    //
+    // This leads to the concept of Template Metaprogramming,
+    // which allows you to write code that is ultra DRY / runs fast but is very large.
+    // TODO confirm.
+
 //#template
 
     /*

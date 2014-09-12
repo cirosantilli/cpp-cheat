@@ -241,29 +241,29 @@ Small comments on comparing ANSI C with extensions are acceptable.
 */
 
 #include <assert.h>
-#include <complex.h>   //complex constnats and arithemtic. c99.
-#include <ctype.h>     //isspace
+#include <complex.h>   // complex constnats and arithemtic. c99.
+#include <ctype.h>     // isspace
 #include <errno.h>
 #include <fenv.h>
 #include <float.h>     //
-#include <iso646.h>    //and, or, etc macros
-#include <inttypes.h>  //PRIxPTR
-#include <limits.h>    //*_MAX, *_MIN for integer types
+#include <iso646.h>    // and, or, etc macros
+#include <inttypes.h>  // PRIxPTR
+#include <limits.h>    // *_MAX, *_MIN for integer types
 #include <locale.h>
-#include <setjmp.h>    //setjmp, longjmp
+#include <setjmp.h>    // setjmp, longjmp
 #include <signal.h>
-#include <stdarg.h>    //..., va_list, va_start, va_arg, va_end
-#include <stdbool.h>   //true, false. c99
-#include <stddef.h>    //offsetof, type_t
-#include <stdint.h>    //uint32_t, etc.
-#include <stdlib.h>    //malloc, EXIT_SUCCESS, EXIT_FAILURE:
-#include <stdio.h>     //printf, puts
-#include <string.h>    //sprintf, strlen, strcpy, memset
+#include <stdarg.h>    // ..., va_list, va_start, va_arg, va_end
+#include <stdbool.h>   // true, false. c99
+#include <stddef.h>    // offsetof, type_t
+#include <stdint.h>    // uint32_t, etc.
+#include <stdlib.h>    // malloc, EXIT_SUCCESS, EXIT_FAILURE:
+#include <stdio.h>     // printf, puts
+#include <string.h>    // sprintf, strlen, strcpy, memset
 #include <math.h>
 // #include <tgmath.h>
-#include <time.h>      //time()
+#include <time.h>      // time()
 #include <wchar.h>
-// #include <thread.h>  //c99 but not yet implemented gcc 4.8
+// #include <thread.h>  // c99 but not yet implemented gcc 4.8
 
 /*
 One way to define constant is with preprocessor directives.
@@ -294,7 +294,7 @@ compare this with the very simple message generated if PI were a constant
 */
 
 #define PI_PLUS_ONE (3.14 + 1)
-    //use parenthesis or order of operation might destroy you
+    // use parenthesis or order of operation might destroy you
 
 //common recipe to control compilation:
 
@@ -313,43 +313,46 @@ int debugVar;
 
 // #global scope
 
+    // This is a global variable: can be accessed and modified everywhere
     int global = 1;
-        //this is a global variable: can be accessed and modified everywhere
 
-    //OK!
+    // OK!
     int global2 = 1+1;
 
 
     int ret1() {
         int i;
-        //before main!
+        // before main!
         return 1;
     }
-    //ERROR: only var declarations with const initialization allowed
-        //int global2 = global+1;  //non const
-        //puts("asdf");           //func call
-        //if(1){}                 //branching
-        //int global3 = ret1();   //functions
 
-    //{}
-        //ERROR
-        //Cannot create scopes here like that
-        //They'd be useless anyways.
+    // ERROR: only var declarations with const initialization allowed
+
+        //int global2 = global+1; // non const
+        //puts("asdf");           // func call
+        //if(1){}                 // branching
+        //int global3 = ret1();   // functions
+
+    // ERROR
+    // Cannot create scopes here like that
+    // They'd be useless anyways.
+
+        //{}
 
 //pointer array
 
     int* get_arr(int i) {
         //int is[] = {i};
         //return is;
-            //WARN
-            //return adress of local var
-            //data is destroyed on return!
+            // WARN
+            // return adress of local var
+            // data is destroyed on return!
 
         int* ip = (int*) malloc(sizeof(int) * 1);
         return ip;
     }
 
-    //cheatsheet on pointers and arrays
+    // cheatsheet on pointers and arrays
     void print_array(int **mat, int m, int n) {
         int i, j;
         for (i = 0; i < m; i++) {
@@ -373,7 +376,7 @@ int setjmp_func(bool jmp, jmp_buf env_buf) {
         return 1;
 }
 
-// #functions
+// #Functions
 
     /*
     #declaration vs #definition
@@ -429,18 +432,18 @@ int setjmp_func(bool jmp, jmp_buf env_buf) {
                 return 1;
             }
 
-        //Two decls on the same line, with same return type:
+        // Two decls on the same line, with same return type:
 
             int decl_1(), decl_2();
             int decl_1(){ return 1; }
             int decl_2(){ return 2; }
 
             //int decl_3(){return 3;}, decl_4(){return 4;};
-                //ERROR
-                //cannot define on same line
+                // ERROR
+                // cannot define on same line
 
-        //Can declare a function that returns int and a int var with the same `int`.
-        //Very confusing!
+        // Can declare a function that returns int and a int var with the same `int`.
+        // Very confusing!
 
             int decl_and_int_func(), decl_and_int;
             int decl_and_int_func(){ return 0; }
@@ -461,7 +464,7 @@ int setjmp_func(bool jmp, jmp_buf env_buf) {
         void vla_arg(size_t size, int vla[size]) {}
 
         void vla_arg_k_and_r(size, vla)
-            //int vla[size]; //ERROR: must come after
+            //int vla[size]; // ERROR: must come after
             size_t size;
             int vla[size];
         {}
@@ -474,7 +477,7 @@ int setjmp_func(bool jmp, jmp_buf env_buf) {
 
         void overload(int n){}
 
-        //ERRORS:
+        // ERRORS:
 
             //void overload(float n) {}
             //void overload(int n, int o) {}
@@ -524,8 +527,8 @@ int setjmp_func(bool jmp, jmp_buf env_buf) {
     void with_static_var(int *i_out, int *si_out) {
         int i = 0;
 
-        //static initialization is evaluated only once
-        //the first time this function is called
+        // static initialization is evaluated only once
+        // the first time this function is called
         static int si = 0;
 
         i++;
@@ -551,6 +554,21 @@ int setjmp_func(bool jmp, jmp_buf env_buf) {
     }
 
     /*
+    #void argument vs no argument
+
+        In C++, same.
+
+        In C, possibly different to suport archaic behavior,
+        which you should never rely on.
+
+        So always use `f(void)` instead of `f()` on declarations and definitions.
+
+        <http://stackoverflow.com/questions/693788/c-void-arguments>
+
+        TODO example.
+    */
+
+    /*
     function struct args
 
         how to deal with passing structs to/from functions
@@ -567,7 +585,7 @@ int setjmp_func(bool jmp, jmp_buf env_buf) {
     /*
     #variadic functions
 
-        these are functions with a variable number or arguments, just like `printf`.
+        These are functions with a variable number or arguments, just like `printf`.
 
     #va_start
 
@@ -585,7 +603,7 @@ int setjmp_func(bool jmp, jmp_buf env_buf) {
                 sum += arg;
             }
 
-            //you MUST do this
+            // you MUST do this
             va_end(args);
 
             return sum;
@@ -607,7 +625,7 @@ int setjmp_func(bool jmp, jmp_buf env_buf) {
             return ret;
         }
 
-    /* #return const from func */
+    // #return const from func
 
         const int const_int_func() {
             return 0;
@@ -631,7 +649,7 @@ int setjmp_func(bool jmp, jmp_buf env_buf) {
         }
 #endif
 
-    //restrict
+    // restrict
 
         void restrict_double_add(int * restrict i, int * restrict j, int * restrict add) {
             *i += *add;
@@ -643,9 +661,7 @@ int setjmp_func(bool jmp, jmp_buf env_buf) {
             *j += *add;
         }
 
-        /**
-        It makes no sense to mark a single pointer as restricted.
-        */
+        // It makes no sense to mark a single pointer as restricted.
         void restrict_double_add_one_restrict(int * restrict i, int *j, int *add) {
             *i += *add;
             *j += *add;
@@ -807,11 +823,11 @@ int setjmp_func(bool jmp, jmp_buf env_buf) {
 
 #endif
 
-// #algorithms
+// #Algorithms
 
-    //simple fun algorithms
+    // Simple fun algorithms.
 
-    //random
+    // Random.
 
         // Returna a random float in a range.
         float rand_range(float a, float b) {
@@ -827,7 +843,7 @@ int setjmp_func(bool jmp, jmp_buf env_buf) {
         return res;
     }
 
-    // TODO does not work
+    // TODO does not work.
     float pow2f(float a, float b) {
         float res = 1.f;
         float i;
@@ -836,7 +852,7 @@ int setjmp_func(bool jmp, jmp_buf env_buf) {
         return res;
     }
 
-//file io
+// File IO
 
     /*
     Standard action to take in case of an IO error.
@@ -867,7 +883,7 @@ int setjmp_func(bool jmp, jmp_buf env_buf) {
         if (return_value == -1L) {
             return -1L;
         }
-        //retore old position
+        // retore old position
         if (fseek(fp, oldpos , SEEK_SET) != 0) {
             return -1L;
         }
@@ -979,8 +995,8 @@ int setjmp_func(bool jmp, jmp_buf env_buf) {
         return 0;
     }
 
-    //same as int, saved in exp notation,
-    //    with precision (deciamal places) precision
+    // Same as int, saved in exp notation,
+    // with precision (deciamal places) precision
     int write_float_arr_file(char * path, float *arr, int len, int precision) {
         int i;
         FILE * fp;
@@ -1004,7 +1020,7 @@ int setjmp_func(bool jmp, jmp_buf env_buf) {
         return 0;
     }
 
-        //+1 for the null char
+        // +1 for the null char
 #define PRIxPTR_WIDTH ((int)(sizeof(void*)*2))
 
 //process address space
@@ -1101,7 +1117,7 @@ int main(int argc, char **argv) {
             //int i; //ERROR redeclaration
             {
                 int i = 1;
-                /* impossible to access the outer `i` from now on in this scope! */
+                // Impossible to access the outer `i` from now on in this scope!
                 //assert(i_outter == 0);
             }
             assert(i == 0);
@@ -1156,7 +1172,7 @@ int main(int argc, char **argv) {
         Allowed identifiers follow the regex: _[a-Z0-9_]*
         */
         {
-            //ERROR name cannot start with digit.
+            // ERROR name cannot start with digit.
 
                 //int 0a;
         }
@@ -1208,9 +1224,9 @@ int main(int argc, char **argv) {
             int j = 7;
         }
 
+        // 31 bit + 1 sign bit integer
         {
             int i = 5, j = 7;
-                //31 bit + 1 sign bit integer
         }
     }
 
@@ -1248,11 +1264,11 @@ int main(int argc, char **argv) {
     {
         // #char
         {
-            //char has fixed size 1 byte:
+            // char has fixed size 1 byte:
 
                 assert(sizeof(char) == 1);
 
-            //char literals are specified by single quotes
+            // char literals are specified by single quotes
 
                 { char c = 'a'; }
 
@@ -1276,39 +1292,40 @@ int main(int argc, char **argv) {
 
                 { char c = (char)130; }
 
-            //TODO possible via escape seqs like in strings?
+            // TODO possible via escape seqs like in strings?
 
-            //TODO how to make a literal backslash char?
+            // TODO how to make a literal backslash char?
         }
 
         /*
         #short
 
-            short has no specific literals, must typecast.
+            Short has no specific literals, the only way is to typecast.
         */
+        {
+            { short si = 1; }
+            { short si = (short int)1; }
+            { int i = 1; }
+            { long li = (long)1l; }
+            { long li = (long)1L; }
+        }
 
-        { short si = 1; }
-        { short si = (short int)1; }
-        { int i = 1; }
-        { long li = (long)1l; }
-        { long li = (long)1L; }
-
-        //long long int is C99
+        // long long int is C99
 
             { long long lli = 8ll; }
             { long long lli = 8LL; }
 
-        //ERROR: mixed cases not allowed
+        // ERROR: mixed cases not allowed
 
             //{ long long lli = 8Ll; }
 
-        //short, long and long long are the same as the int versions:
+        // Short, long and long long are the same as the int versions:
 
             assert(sizeof(short) == sizeof(short int));
             assert(sizeof(long) == sizeof(long int));
             assert(sizeof(long long) == sizeof(long long int));
 
-        //unsigned:
+        // Unsigned:
 
             { unsigned char uc = (unsigned char)1; }
             { unsigned short usi = (unsigned short int)1u; }
@@ -1319,20 +1336,20 @@ int main(int argc, char **argv) {
             { unsigned long long ulli = 1llu; }
             { unsigned long long ulli = 1LLU; }
 
-            //The following are not recommended unless you are into code obfsucation:
+            // The following are not recommended unless you are into code obfsucation:
 
                 { unsigned long uli = 1Lu; }
                 { unsigned long uli = 1lU; }
                 { unsigned long long ulli = 1LLu; }
                 { unsigned long long ulli = 1llU; }
 
-            //ERROR:
+            // ERROR:
 
                 //{ unsigned long long ulli = 1Llu; }
 
         // #bases for integer literals
         {
-            //hexadecimal
+            // hexadecimal
             {
                 assert(16 == 0x10   );
                 assert(16 == 0x10   );
@@ -1342,21 +1359,21 @@ int main(int argc, char **argv) {
                 assert(16 == 0x10ul );
                 assert(16 == 0x10ull);
 
-                //case does not matter
+                // case does not matter
                 assert(0xaB == 0xAb );
             }
 
-            //octal:
+            // octal:
 
                 assert(16 == 020);
 
-            //binary: no ANSI way
+            // binary: no ANSI way
         }
 
         /*
         #integer representation
 
-            C does not fix the binary representation for integers,
+            C does not fix the binary representation for signed integers,
             it only states which properties represenations must have.
 
             As an example, the C standard explicitly mentions that the following
@@ -1366,6 +1383,9 @@ int main(int argc, char **argv) {
             - 1’s complement
             - signed magnitude
 
+            Unsigned representation however seems to be fixed at the canonical binary.
+            This is what allows bitmasks to work.
+
             <http://stackoverflow.com/questions/12125650/what-do-the-c-and-c-standards-say-about-bit-level-integer-representation-and-m>
         */
     }
@@ -1373,11 +1393,11 @@ int main(int argc, char **argv) {
     // #floating point types and literals
     {
         float f = 1.23f;
-            //1 signal 23 number 8 exponent
+            // 1 signal 23 number 8 exponent
         float f1 = 1.23e-10f;
         float f2 = 1.f;
 
-        //ERROR: there must be a dot
+        // ERROR: there must be a dot
 
             //float f = 1f;
 
@@ -1408,7 +1428,7 @@ int main(int argc, char **argv) {
             assert(0x1.0p10 == 1024.0);
         }
 
-        //no octal float literal
+        // no octal float literal
         {
             //float f = 01.2p3;
         }
@@ -1438,19 +1458,19 @@ int main(int argc, char **argv) {
             assert(is[0] == 0);
             assert(is[1] == 1);
 
-            //reassign is to a new array
-            //old memory becomes innacessible
+            // reassign is to a new array
+            // old memory becomes innacessible
             is = (int[2]){ 2, 3 };
             assert(is[0] == 2);
             assert(is[1] == 3);
 
-            //the effect is the same as `int is[] = { 1 }`
-            //that is: fill with zeroes.
+            // the effect is the same as `int is[] = { 1 }`
+            // that is: fill with zeroes.
             is = (int[2]){ 1 };
             assert(is[0] == 1);
             assert(is[1] == 0);
 
-            //Major application: pass initialized arrays and structs to functions.
+            // Major application: pass initialized arrays and structs to functions.
             {
                 func_array((int[]){ 1 });
                 func_struct_1((struct func_struct){ .i = 1 });
@@ -1476,7 +1496,7 @@ int main(int argc, char **argv) {
             assert(*ip == 2);
         }
 
-        //int useless examples
+        // int useless examples
         {
             int i;
 
@@ -1494,7 +1514,7 @@ int main(int argc, char **argv) {
             }
         }
 
-        //struct: see compound literal for struct
+        // struct: see compound literal for struct
 
         /*
         scope
@@ -1566,11 +1586,11 @@ int main(int argc, char **argv) {
         printf("wchar_t     = %zu\n",  sizeof(wchar_t)      );
         printf("size_t      = %zu\n",  sizeof(size_t)       );
 
-        //char has fixed size:
+        // char has fixed size:
 
             assert(sizeof(char)      == 1                       );
 
-        //size equality is always possible:
+        // size equality is always possible:
 
             assert(sizeof(short int  ) <= sizeof(int           ));
             assert(sizeof(int        ) <= sizeof(long int      ));
@@ -1579,7 +1599,7 @@ int main(int argc, char **argv) {
             assert(sizeof(float      ) <= sizeof(double        ));
             assert(sizeof(double     ) <= sizeof(long double   ));
 
-        //unsigned does not change sizeof:
+        // unsigned does not change sizeof:
 
             assert(sizeof(unsigned int) == sizeof(int));
             assert(sizeof(unsigned long int) == sizeof(long int));
@@ -1645,7 +1665,7 @@ int main(int argc, char **argv) {
 
         // Typecasts without data modification
         {
-            //Integer type to larger integer type (int -> long)
+            // Integer type to larger integer type (int -> long)
             {
                 int i = 1;
                 assert((int)(long)i == i);
@@ -1771,7 +1791,7 @@ int main(int argc, char **argv) {
             this making their behaviour defined.
     */
     {
-        //integer overflow
+        // integer overflow
         {
             // The same holds true for unsigned integer type.
             {
@@ -1806,10 +1826,10 @@ int main(int argc, char **argv) {
             }
 
             // Detect if integer multiplication overflow would happen:
-            //http://stackoverflow.com/questions/1815367/multiplication-of-large-numbers-how-to-catch-overflow
+            // http://stackoverflow.com/questions/1815367/multiplication-of-large-numbers-how-to-catch-overflow
         }
 
-        //floating point
+        // floating point
         {
             // TODO what happens? how to detect?
 
@@ -1822,7 +1842,7 @@ int main(int argc, char **argv) {
         int i = 0;
         const int ic = 0;
         // Same.
-        //int const ic = 0
+        // int const ic = 0
         const int ic2 = i;
 
         // BAD.
@@ -1874,13 +1894,15 @@ int main(int argc, char **argv) {
                 const int *cip = &i;
                 int const *icp = &i;
 
-                cip = &j;
-                icp = &j;
-                    //can change which opbject it points to
+                // Can change which opbject it points to.
 
-                //*cip = 2;
-                //*icp = 2;
-                    //ERROR: const * prevents from changing the data of the object pointed to
+                    cip = &j;
+                    icp = &j;
+
+                // ERROR: const * prevents from changing the data of the object pointed to
+
+                    //*cip = 2;
+                    //*icp = 2;
             }
 
             //int * const
@@ -1892,12 +1914,13 @@ int main(int argc, char **argv) {
                 *ipc = 1;
                 assert(i == 1);
 
-                //ipc = &j;
-                    //ERROR
-                    //cannot change what is being pointed to
+                //ERROR
+                //cannot change what is being pointed to
+
+                    //ipc = &j;
 
                 /*
-                single line declaration of multiple const pointers
+                #Single line declaration of multiple const pointers
 
                     Just like `*` must be repeated once per variable, `*const` must also be repeated.
                 */
@@ -1914,20 +1937,24 @@ int main(int argc, char **argv) {
 
                 {
                     const int ic = 0;
-                    //int *const ipc = &ic;
-                        //WARN
-                        //initialization discards const
-                        //it would be possible to change the value of the const
-                    //*ipc = 1;
-                        //BAD: we changed the value!
+
+                    // WARN
+                    // Initialization discards const.
+                    // It would be possible to change the value of the const.
+
+                        //int *const ipc = &ic;
+
+                    // BAD: we changed the value!
+
+                        //*ipc = 1;
                 }
             }
 
             const int* const cipc = &ic;
 
             const int cis2[2] = { 1, 2 };
+            // ERROR
             //cis2[0] = 1;
-                //ERROR
 
             /*
             #const pointers to pointers
@@ -1969,7 +1996,7 @@ int main(int argc, char **argv) {
                     <http://stackoverflow.com/questions/1468148/initialization-between-types-const-int-const-and-int-is-not-allowed-why>
                 */
                 {
-                    //if `const int ** = int **` were possible then we could change constants
+                    // if `const int ** = int **` were possible then we could change constants
                     {
                         /*
                         int* p = 0;
@@ -1980,8 +2007,8 @@ int main(int argc, char **argv) {
                         */
                     }
 
-                    //the problem only arises in multidimensional cases.
-                    //here it is impossible to change a const
+                    // the problem only arises in multidimensional cases.
+                    // here it is impossible to change a const
                     {
                         int i = 0;
                         int const * p = &i;
@@ -2001,11 +2028,11 @@ int main(int argc, char **argv) {
             {
                 struct s { int i; };
                 const struct s s = { 1 };
+                // ERROR
                 //s.i = 2;
-                    //ERROR
             }
 
-            //single memebers can be declared const
+            // single memebers can be declared const
             {
                 struct s {
                     int i;
@@ -2013,15 +2040,15 @@ int main(int argc, char **argv) {
                 };
                 struct s s = { 0, 1 };
                 s.i = 2;
+                // ERROR
                 //s.j = 2;
-                    //ERROR
             }
 
-            //entire structs cannot be declared const
+            // entire structs cannot be declared const
             {
+                // WARN
+                // Useless type qualifier
                 //const struct s { int i; };
-                    //WARN
-                    //useless type qualifier
             }
         }
 
@@ -2046,14 +2073,14 @@ int main(int argc, char **argv) {
             For pointer types this has a noticeable effect
             */
             {
-                //possible
+                // possible
                 {
                     int i = 0;
                     (*int_ptr_func_int_ptr(&i)) = 2;
                     assert(i == 2);
                 }
 
-                //ERROR
+                // ERROR
                 {
                     int i = 0;
                     //(*const_int_ptr_func_int_ptr(&i)) = 2;
@@ -2159,12 +2186,12 @@ int main(int argc, char **argv) {
         that is not volatile neither register
     */
     {
-        //SAME:
+        // SAME:
 
             int i;
             auto int i2;
 
-        //ERROR:
+        // ERROR:
 
             //auto i3;
     }
@@ -2192,7 +2219,6 @@ int main(int argc, char **argv) {
                 while(other_task_finished == 0){
                     yield();
                 }
-                //continue
 
             If the value were stored in register, other threads in other processes may never see an update.
 
@@ -2219,7 +2245,7 @@ int main(int argc, char **argv) {
             register int ri;
         }
 
-        //ERROR: cpu registers don't have addresses!
+        // ERROR: cpu registers don't have addresses!
         {
             register int ri;
             //int* ip = &ri;
@@ -2278,7 +2304,7 @@ int main(int argc, char **argv) {
         }
 
 
-        //ERROR: unlike macros, typedef has scope just like that of variables:
+        // ERROR: unlike macros, typedef has scope just like that of variables:
 
             //Newint i = 1;
 
@@ -2312,16 +2338,16 @@ int main(int argc, char **argv) {
 
             enum E e = E1;
 
+            // ERROR
+            // redeclartion of a
             //int E1 = 1;
-                //ERROR
-                //redeclartion of a
 
+            // ERROR
+            // can't change value of enums
+            // this is why you can use them for array sizes
             //E1 = 2;
-                //ERROR
-                //can't change value of enums
-                //this is why you can use them for array sizes
 
-            //by default, values start from 0 and increase
+            // by default, values start from 0 and increase
 
                 assert(E1 == 0);
                 assert(E2 == 1);
@@ -2348,15 +2374,15 @@ int main(int argc, char **argv) {
                 E1 = 1,
                 E2 = 2,
                 E3,
-                E4 = 2, //equal values compile
+                E4 = 2, // equal values compile
             };
 
             assert(E1 == 1);
             assert(E2 == 2);
             assert(E4 == 2);
 
-            //if you don't give a value
-            //it gets a value different from all others
+            // if you don't give a value
+            // it gets a value different from all others
 
                 assert(E3 != E1);
                 assert(E3 != E2);
@@ -2418,17 +2444,22 @@ int main(int argc, char **argv) {
         - avoid changing function signatures if you add a new field
             to your struct.
 
-        Typedef: C structs are flawed in the sense that you must preffix
-        it is common to give typedefs to structs, so that if someday you
+        Typedef: C structs are flawed in the sense that you must use `struct`
+        whenever declaring elements the type. This is:
+
+        -   repetitive
+
+        -   restrictive for future changes.
+            Imagine someday you decide to replace your struct with an integer
+            where each byte of the integer represents a value.
     */
     {
-        struct S
-        {
+        struct S {
             int i;
             float f;
         };
 
-        //initialize by order
+        // initialize by order
         {
             struct S s = { 1, 1.0 };
             assert(s.i == 1);
@@ -2440,7 +2471,7 @@ int main(int argc, char **argv) {
             assert(s.f == 2.0);
         }
 
-        //define and initialize at the same time
+        // define and initialize at the same time
         {
             struct S { int i; int j; } s0 = { 0, 1 }, s1 = { 2, 3 };
             assert(s0.i == 0);
@@ -2452,7 +2483,7 @@ int main(int argc, char **argv) {
 #if __STDC_VERSION__ >= 199901L
 
         /*
-        #designated initializer for structs
+        #Designated initializer for structs
 
             C99.
 
@@ -2472,7 +2503,7 @@ int main(int argc, char **argv) {
                 assert(s.f == 1.0);
             }
 
-            //can be mixed with array designated initializers
+            // Can be mixed with array designated initializers.
             {
                 struct S { int a[2]; int i; };
 
@@ -2497,10 +2528,7 @@ int main(int argc, char **argv) {
 #endif
 
         {
-            /*
-            assignment only works for initialization,
-            unless use a c99 compound literal
-            */
+            //  Assignment only works for initialization, unless use a C99 compound literal.
             {
                 struct S { int i; };
                 struct S s;
@@ -2509,9 +2537,9 @@ int main(int argc, char **argv) {
             }
 
             /*
-            #compound literals for structs
+            #Compound literals for structs
 
-                c99 compound literals allow to assign structs to struct literals.
+                C99 compound literals allow to assign structs to struct literals.
             */
             {
                 struct S { int i; int j; };
@@ -2532,14 +2560,14 @@ int main(int argc, char **argv) {
             }
         }
 
-        //pointer to struct
+        // Pointer to struct.
         {
             struct S s;
             struct S* sp;
 
             sp = &s;
 
-            //equivalent `a->b` equals `(*a).b`
+            // equivalent `a->b` equals `(*a).b`
 
                 sp->i = 1;
                 //(*sp).i = 1;
@@ -2547,7 +2575,7 @@ int main(int argc, char **argv) {
             assert(s.i == 1);
         }
 
-        //array of structs initialization
+        // Array of structs initialization.
         {
             struct S
             {
@@ -2555,7 +2583,7 @@ int main(int argc, char **argv) {
                 int j;
             };
 
-            //non designated
+            // Non-designated.
             {
                 struct S ss[] = {
                     { 0, 1 },
@@ -2570,7 +2598,7 @@ int main(int argc, char **argv) {
 
 #if __STDC_VERSION__ >= 199901L
 
-            //designated
+            // Designated.
             {
                 struct S ss[] = {
                     { .j = 1, .i = 0 },
@@ -2587,17 +2615,18 @@ int main(int argc, char **argv) {
 #endif
 
         /*
-        array fields
+        Array fields
 
-            length must be specified,
-            allocates that many objects of the given type
+            Array length must be specified.
+
+            Allocates that many objects of the given type.
         */
         {
             {
                 struct S
                 {
-                    //ERROR:
-                        //int is[];
+                    // ERROR:
+                    //int is[];
                     int is0[2];
                     int is1[2];
                 };
@@ -2608,7 +2637,7 @@ int main(int argc, char **argv) {
                 assert(s.is1[0] == 2);
                 assert(s.is1[1] == 3);
 
-                //non designated init
+                // Non-designated init.
                 {
                     struct S ss[] = {
                         { { 0, 1 }, { 2, 3 } },
@@ -2626,7 +2655,7 @@ int main(int argc, char **argv) {
 
 #if __STDC_VERSION__ >= 199901L
 
-                //designated init
+                // Designated init.
                 {
                     struct S ss[] = {
                         { .is0 = { 0, 1 }, .is1 = { 2, 3 } },
@@ -2646,7 +2675,7 @@ int main(int argc, char **argv) {
 
             }
 
-            //works for strings
+            // Works for strings.
             {
                 struct S
                 {
@@ -2670,12 +2699,12 @@ int main(int argc, char **argv) {
             }
         }
 
-        /* substructure init: it all works as expected */
+        /* Substructure init: it all works as expected. */
         {
             struct S1 { int i; int j; };
             struct S0 { struct S1 s; };
 
-            //non-designated init
+            // Non-designated init.
             {
                 struct S0 s = { { 1, 2 } };
                 assert(s.s.i == 1);
@@ -2684,7 +2713,7 @@ int main(int argc, char **argv) {
 
 #if __STDC_VERSION__ >= 199901L
 
-            //designated init
+            // Designated init.
             {
                 struct S0 s = {
                     .s = {
@@ -2701,29 +2730,32 @@ int main(int argc, char **argv) {
         }
 
         /*
-        #incomplete type cycles
+        #Incomplete types
 
             Incomplete types are types which only have a declaration but no definition.
         */
         {
             /*
-            It is impossible to do the following, because that would create an infinite loop:
+            #Incomplete type cycless
 
-            - each S contains one S. and one i.
-            - therefore the size of each S must be 2 ints:
+                It is impossible to do the following, because that would create an infinite loop:
 
-                    size of S + size of int =
-                            1 +           1 =
-                                          2
+                    - each S contains one S. and one i.
 
-            - but then the size of S must be 3 ints:
+                    - therefore the size of each S must be 2 ints:
 
-                    size of S + size of int =
-                            2 +           1 =
-                                          3
+                            size of S + size of int =
+                                    1 +           1 =
+                                                2
+
+                    - but then the size of S must be 3 ints:
+
+                            size of S + size of int =
+                                    2 +           1 =
+                                                3
             */
             {
-                //ERROR s has incomplete type
+                // ERROR s has incomplete type.
                 {
                     /*
                     struct S {
@@ -2735,9 +2767,9 @@ int main(int argc, char **argv) {
 
                 {
                     /*
+                    // ERROR
+                    // struct s1 undefined
                     struct S0 { struct S1 s1; };
-                        //ERROR
-                        //struct s1 undefined
                     struct S1 { struct S0 s0; };
                     */
                 }
@@ -2746,17 +2778,39 @@ int main(int argc, char **argv) {
                     /*
                     struct S1;
                     struct S0 { struct S1 s1; };
-                        //ERROR
-                        //s1 has incomplete type
+                    // ERROR
+                    // s1 has incomplete type
                     struct S1 { struct S0 s0; };
                     */
                 }
             }
 
             /*
-            can have incomplete type pointers
+            #Opaque pointers
 
-            forward declaration of S1 makes it makes it alright.
+                You can have pointers to incomplete types.
+
+                Forward declaration of S1 makes it makes it alright.
+
+                Such pointers are called opaque pointers.
+                <http://stackoverflow.com/questions/3854113/what-is-an-opaque-value>
+
+                A common usage pattern is:
+
+                - declare the opaque type in the .h file
+                - declare functions that use the opaque pointer in the .h file
+                - defined the type and the functions in the .c file
+
+                Now clients can only pass around pointers,
+                and use the type through the functions you give them,
+                but not access the fields they choose.
+
+                This is a way to implement private member variables in C.
+
+                `FILE` is widely used as an example of an opaque pointer, but it is not strictly opaque:
+                ANSI does not say that you cannot instantiate it, and popular implementations
+                have allowed that: ANSI only says nothing about it's fields,
+                so using them makes your code non-standard. TODO confirm.
             */
             {
                 struct S1;
@@ -2778,7 +2832,7 @@ int main(int argc, char **argv) {
             assert(s.f == 2.0);
         }
 
-        //equality `==` does not exist. There have been failed proposals.
+        // equality `==` does not exist. There have been failed proposals.
         {
             struct S { int i; };
             struct S s  = { 1 };
@@ -2796,8 +2850,7 @@ int main(int argc, char **argv) {
         typedef struct combo: avoid typing struct all over
         */
         {
-            typedef struct
-            {
+            typedef struct {
                 int i;
             } S;
 
@@ -2814,13 +2867,12 @@ int main(int argc, char **argv) {
             which makes acess faster, using slightly more memory
         */
         {
-            struct S
-            {
+            struct S {
                 char c;
                 int i;
             };
 
-            //likelly to be 8 on a 2013 32 bit machine:
+            // likelly to be 8 on a 2013 32 bit machine:
             printf("struct sizeof = %d\n", sizeof(struct S));
 
             assert(sizeof(char) + sizeof(float) <= sizeof(struct S));
@@ -2834,21 +2886,21 @@ int main(int argc, char **argv) {
             Only the structs declared immediatiely after definition can be used.
         */
         {
-            //basic
+            // basic
             {
                 struct { int i; int j; } s;
                 s.i = 0;
                 assert(s.i == 0);
             }
 
-            //initialize
+            // initialize
             {
                 struct { int i; int j; } s = { 0, 1 };
                 assert(s.i == 0);
                 assert(s.j == 1);
             }
 
-            //initialize array good style
+            // initialize array good style
             {
                 struct { int i; int j; } s[] = { { 0, 1 }, { 2, 3 } };
                 assert(s[0].i == 0);
@@ -2881,7 +2933,7 @@ int main(int argc, char **argv) {
             <http://stackoverflow.com/questions/1972003/how-to-use-anonymous-structs-unions-in-c>
         */
         {
-            //TODO0
+            // TODO0
         }
 
 #endif
@@ -2898,15 +2950,15 @@ int main(int argc, char **argv) {
                 unsigned b2 : 2;
                 unsigned b3 : 3;
 
-                //padding untill next int is added automatically because
-                //next data is not a bitfield and accesses is faster if it is aligned
+                // padding untill next int is added automatically because
+                // next data is not a bitfield and accesses is faster if it is aligned
 
                     int i;
 
                 unsigned b4 : 1;
 
-                //manually adds padding untill next field
-                //even if it is a bitfield
+                // manually adds padding untill next field
+                // even if it is a bitfield
 
                     unsigned : 0;
 
@@ -2918,19 +2970,19 @@ int main(int argc, char **argv) {
             s.b1 = 1;
             assert(s.b1 == 1);
 
+            // WARN
+            // overflow
+            // truncate
             //s.b1 = 2;
-                //WARN
-                //overflow
-                //truncate
 
             int i = 2;
             s.b1 = i;
             assert(s.b1 == 0);
 
+            // Only takes lsb.
             i = 3;
             s.b1 = i;
             assert(s.b1 == 1);
-                //only takes lsb
         }
 
         /*
@@ -3255,19 +3307,43 @@ int main(int argc, char **argv) {
 
         // #bitwise
         {
-            // #NOT
+            // NOT
             assert((~(char)0x00) == (char)0xFF);
             assert((~(char)0xFF) == (char)0x00);
 
-            // #OR
+            // AND
             assert(((char)0x00 & (char)0x00) == (char)0x00);
             assert(((char)0xFF & (char)0x00) == (char)0x00);
             assert(((char)0xFF & (char)0xFF) == (char)0xFF);
 
-            // #XOR
+            // OR
+            assert(((char)0x00 | (char)0x00) == (char)0x00);
+            assert(((char)0xFF | (char)0x00) == (char)0xFF);
+            assert(((char)0xFF | (char)0xFF) == (char)0xFF);
+
+            // XOR.
             assert(((char)0x00 ^ (char)0x00) == (char)0x00);
             assert(((char)0xFF ^ (char)0x00) == (char)0xFF);
             assert(((char)0xFF ^ (char)0xFF) == (char)0x00);
+
+            /*
+            #bitmask
+
+                A major aplication of bitwise operators it making masks to:
+
+                - set: MASK & 
+                - reset
+                - toggle
+                - retrieve
+
+                bits from unsigned integer fields.
+
+                While such operators exist in almost all languages,
+                they are much more common in low level languages like C
+                where optimization is more present.
+
+                Only work because C fixes the binary representation of unsigned integers.
+            */
 
             /*
             #shift operators
@@ -3472,7 +3548,7 @@ int main(int argc, char **argv) {
             assert((i &= (char)0x00) == (char)0x00);
             assert(((char)i == (char)0x00));
 
-            //same others bitwise, except ~=
+            // same others bitwise, except ~=
         }
 
         /*
@@ -3538,11 +3614,11 @@ int main(int argc, char **argv) {
                 assert(i == 0);
             }
 
+            // ERROR
+            // declaration int j does not return a value
             //int j=0, 1;
-                //ERROR
-                //declaration int j does not return a value
 
-            //operation on left comes first
+            // operation on left comes first
             {
                 i=2;
                 assert((i=0, i) == 0);
@@ -3550,8 +3626,8 @@ int main(int argc, char **argv) {
                 assert((i=0, i++, i) == 1);
             }
 
-            //must be parenthesis protected when passesd as function argument
-            //to differentiate from argument separtor comma
+            // must be parenthesis protected when passesd as function argument
+            // to differentiate from argument separtor comma
             {
                 int i = 0;
                 assert(int_func_int((i++, i)) == 1);
@@ -3569,10 +3645,10 @@ int main(int argc, char **argv) {
     {
         int i;
         int *pi, *pi2;
+        // BAD
+        // you are modifying some random piece of memory!!!!
+        // must declare like that: multiple stars
         //*pi = 7;
-            //BAD
-            //you are modifying some random piece of memory!!!!
-            //must declare like that: multiple stars
         pi = &i;
         *pi = 1;
         assert(i == 1);
@@ -3584,17 +3660,17 @@ int main(int argc, char **argv) {
         printf("(void*)pi = %p\n", (void*)pi);
         printf("(void*)(pi+1) = %p\n",(void*)(pi+1));
 
-        //OK: implicit conversion * -> int:
+        // OK: implicit conversion * -> int:
 
             pi2 = pi + 1;
             printf("(void*)(pi2-pi) = %p\n", (void*)(pi2-pi));
             assert(pi2 - pi == 1);
 
-        //ERROR: incompatible pointer type
+        // ERROR: incompatible pointer type
 
             //float* fp = &i;
 
-        //OK: works with explicit cast:
+        // OK: works with explicit cast:
 
             float* fp = (float*)&i;
 
@@ -3606,13 +3682,13 @@ int main(int argc, char **argv) {
             This is not very intuitive since the asterisk is part of the type, not of the variable.
         */
         {
-            //correct
+            // correct
             {
                 int i, *ip ;
                 ip = &i;
             }
 
-            //ERROR: ip2 is not a pointer, but an int!
+            // ERROR: ip2 is not a pointer, but an int!
             {
                 //int i;
                 //int* ip, ip2;
@@ -3636,15 +3712,15 @@ int main(int argc, char **argv) {
             */
             {
                 int i = 0;
+                // GCC 4.7 warning: &i will never be null. Smart.
                 //assert(&i != NULL);
-                    //gcc 4.7 warning: &i will never be null. Smart.
             }
 
-            //how it prints like:
+            // how it prints like:
 
                 printf("NULL = %p\n", NULL);
 
-            //`if(NULL)` and `if(!NULL)` in error checking code always work as expected
+            // `if(NULL)` and `if(!NULL)` in error checking code always work as expected
 
                 assert(!NULL);
 
@@ -3668,7 +3744,7 @@ int main(int argc, char **argv) {
                 printf("sizeof(NULL) = %zu\n", sizeof(NULL));
             }
 
-            //ERROR: comparison of distinct pointer types requires a cast:
+            // ERROR: comparison of distinct pointer types requires a cast:
             {
                 //assert((int*)0 == (char*)0);
             }
@@ -3706,31 +3782,31 @@ int main(int argc, char **argv) {
             This means that `sizeof(void)` is not possible, nor is pointer arithmetic operations.
             */
             {
-                /*ERROR*/
+                //s ERROR
                 //void v;
 
-                //ERROR: invalid application of sizeof to void type
+                // ERROR: invalid application of sizeof to void type
 
                     //printf("sizeof (void) = %d\n", sizeof(void));
 
-                //it is however possible to get the size of a `void*` TODO0 it is the same size of all other pointers
+                // it is however possible to get the size of a `void*` TODO0 it is the same size of all other pointers
 
                     printf("sizeof (void*) = %d\n", sizeof(void*));
 
-                //ERROR: invalid application of sizeof to void type
+                // ERROR: invalid application of sizeof to void type
 
                     //vp = vp + 1;
             }
 
-            //int* to void*:
+            // int* to void*:
 
                 vp = (void*)&i;
 
-            //void* to int*:
+            // void* to int*:
 
                 ip = (int*)vp;
 
-            //void* to int:
+            // void* to int:
 
                 i = (int)vp;
 
@@ -3781,10 +3857,10 @@ int main(int argc, char **argv) {
             int is[] = { 0, 1, 2 };
             assert(is[0] == 0);
             assert(is[1] == 1);
+            // Allocates exact size.
             assert(is[2] == 2);
-                //allocates exact size
+            // ERROR
             //is = {3,4,5};
-                //ERROR
         }
 
         {
@@ -3798,7 +3874,7 @@ int main(int argc, char **argv) {
         {
             int is[4]  = { 1, 2 };
             int is2[4] = { 1, 2 };
-            //is = is2; //ERROR incompatible pointer types
+            //is = is2; // ERROR incompatible pointer types
         }
 
         /*WARN array too small*/
@@ -3838,7 +3914,7 @@ int main(int argc, char **argv) {
                 assert(is[1] == 1);
             }
 
-            //missing elements are zeroed
+            // missing elements are zeroed
             {
                 int is[2] = {
                     [1] = 1,
@@ -3862,7 +3938,7 @@ int main(int argc, char **argv) {
                 assert(is[0] == 1);
             }
 
-            //arrays of structs can refer multiple times to the same struct
+            // arrays of structs can refer multiple times to the same struct
             {
                 struct S { int i; int j; };
 
@@ -3889,10 +3965,10 @@ int main(int argc, char **argv) {
             {
                 {
                     int is[4] = {
-                        -1,             //[0]
-                                        //[1] was not specified, so it is 0.
+                        -1,             // [0]
+                                        // [1] was not specified, so it is 0.
                         [2] = 1,
-                        2,              //[3], because it comes after [2]
+                        2,              // [3], because it comes after [2]
                     };
                     assert(is[0] == -1);
                     assert(is[1] == 0);
@@ -3900,13 +3976,13 @@ int main(int argc, char **argv) {
                     assert(is[3] == 2);
                 }
 
-                //possible to overwrite values
+                // possible to overwrite values
                 {
                     int is[2] = {
-                        0,          //[0] first assign
-                        1,          //[1] first assign
-                        [0] = 2,    //[0] second assign, overwrites first
-                        3,          //[1] because comes after [0], second assign, overwrites first
+                        0,          // [0] first assign
+                        1,          // [1] first assign
+                        [0] = 2,    // [0] second assign, overwrites first
+                        3,          // [1] because comes after [0], second assign, overwrites first
                     };
                     assert(is[0] == 2);
                     assert(is[1] == 3);
@@ -3958,20 +4034,20 @@ int main(int argc, char **argv) {
         */
         {
             {
+                // ERROR
+                // cannot be initialized
                 //int n = 2;
                 //int isVla[n] = { 1, 2 };
-                    //ERROR
-                    //cannot be initialized
             }
 
             {
+                // ERROR
+                // cannot be initialized
                 //const int n = 2;
                 //int isVla[n] = { 1, 2 };
-                    //ERROR
-                    //cannot be initialized
             }
 
-            //enum. Seems to be the best solution.
+            // enum. Seems to be the best solution.
             {
                 enum Constexpr { N = 3 };
                 int is[N];
@@ -4039,18 +4115,18 @@ int main(int argc, char **argv) {
         }
 #endif
 
-        //pointers and arrays are different
+        // pointers and arrays are different
         {
             puts("pointers and arrays are different types:");
             printf("sizeof(int) = %d\n",sizeof(int));
             printf("sizeof(int*) = %d\n",sizeof(int*));
             printf("sizeof(int[3]) = %d\n",sizeof(int[3]));
-            /*ERROR: incomplete type*/
+            // ERROR: incomplete type
             //printf("sizeof(int[]) = %d\n",sizeof(int[]));
         }
 
 
-        //locations in memory of an array
+        // locations in memory of an array
         {
             int is[3];
             puts("locations of array:");
@@ -4060,7 +4136,7 @@ int main(int argc, char **argv) {
             printf("(void*)&is[2] = %p\n",(void*)&is[2]);
         }
 
-        //for combo
+        // for combo
         {
             int is[] = {0,1,2};
             int i;
@@ -4113,7 +4189,7 @@ int main(int argc, char **argv) {
                 printf("overflow = %d\n", is[2 + i]);
             }
 
-            //this will amost certainly lead to a segmentation fault
+            // this will amost certainly lead to a segmentation fault
             if (0) {
                 for (size_t i = 0; i < SIZE_MAX; i++) {
                     is[i] = 0;
@@ -4136,8 +4212,8 @@ int main(int argc, char **argv) {
             int is[]  = { 0, 1, 2 };
             int is2[] = { 0, 1, 2 };
 
+            // Compares addresses, not data!
             assert(is != is2);
-                //compares addresses, not data!
 
             assert(memcmp(is, is2, 3 * sizeof(int)) == 0);
             is[1] = 0;
@@ -4176,7 +4252,7 @@ int main(int argc, char **argv) {
             assert(memcmp(is, is2, 3 * sizeof(int)) == 0);
 
 #if __STDC_VERSION__ >= 199901L
-            //C99 compound literals copy
+            // C99 compound literals copy
             {
                 memcpy(&is, &(int [5]){ 0, 1, 2 }, sizeof(is));
                 assert(memcmp(is, &(int [5]){ 0, 1, 2 }, 3 * sizeof(int)) == 0);
@@ -4215,28 +4291,28 @@ int main(int argc, char **argv) {
             m1[0] = m11;
             m1[1] = m12;
 
-            //error: cannot know    how much memory to allocate!
+            // ERROR: cannot know    how much memory to allocate!
+
                 //int m31[][3];
 
-            //error: = {...} works only at declaration
+            // Error: = {...} works only at declaration
+
                 //int m111[2][3];
                 //m111[0] = &(int*[3]){1,2,3};
 
-            int m2[][3] =
-            {
+            // Allocate the exact ammount: 2 pointeres to int[3].
+            int m2[][3] = {
                 { 1, 2, 3 },
                 { 4, 5, 6 }
             };
-            //allocates the exact ammount: 2 pointeres to int[3]
 
-            int m3[3][3] =
-            {
+            // Allocate 3x3, fills only 2x3. The rest is 0 or m3[0] gets a NULL pointer?
+            int m3[3][3] = {
                 { 1, 2, 3 },
                 { 4, 5, 6 }
             };
-            //allocates 3x3, fills only 2x3. the rest is 0 or m3[0] gets a NULL pointer?
 
-            //error: last must be there
+            // ERROR: last must be there
                 //int m3[][] =
                 //{
                 //    { 1, 2, 3    },
@@ -6265,7 +6341,7 @@ int main(int argc, char **argv) {
 
         #FILE
 
-            FILE is a macro that represents a stream object
+            FILE is a macro that represents a stream object.
 
             Its name is FILE of course because files are one of the main types of streams.
 

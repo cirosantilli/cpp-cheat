@@ -1,5 +1,9 @@
 /*
-#feature macros
+#Feature macros
+
+#XOPEN_SOURCE
+
+#GNU_SOURCE
 
     Most glibc extensions are contained inside existing POSIX headers.
 
@@ -19,7 +23,7 @@
     The feature macro definition *must* come before includes header so that the
     preprocessor can see it when it inteprets the header.
 
-#lsb
+#LSB
 
     Linux standard base seems to require only the two following gnu extensions to be available:
 
@@ -45,11 +49,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <fcntl.h>
 #include <sched.h>              //SCHED_BATCH, SCHED_IDLE, sched_getaffinity, clone
+#include <unistd.h>             // sysconf
+
+#include <sys/wait.h>           // wait, sleep
 
 #include <gnu/libc-version.h>   //gnu_get_libc_version
-
-#include <unistd.h>             // sysconf
 
 int clone_fn(void* args) {
     return 0;
@@ -106,21 +112,13 @@ int main(int argc, char** argv) {
     /*
     #clone
 
-        creates a new thread
+        Create a new thread.
 
-        for the interface:
+        C interface for the `clone` Linux system call.
+
+        Used to implement the POSIX `pthread` interface.
 
             man 2 clone
-
-        on linux, very thin wrapper to the *clone* system call
-        and like that sytem call allows for great control on
-        exactly what will be shared between the threads.
-
-        for larget portability, consider using POSIX threads,
-        or even better, ANSI C threading when it becomes available
-        on compilers
-
-        TODO where is this on glibc docs?
 
         TODO get working
     */
@@ -174,6 +172,55 @@ int main(int argc, char** argv) {
         Read one line from a file:
         <http://stackoverflow.com/questions/3501338/c-read-file-line-by-line>
     */
+
+    /*
+    #stime
+
+        Set time retreived by time system call.
+    */
+
+    /*
+    #acct
+
+        Write acconting information on process that start and end to given file.
+
+        Given file must exist.
+
+        Must be sudo to do it.
+
+        Description of output under:
+
+            man 5 acct
+    */
+    {
+        char *fname = "acct.tmp";
+        if (creat(fname, S_IRWXU) == -1) {
+            //may fail because the file was owned by root
+            perror("creat");
+        }
+        if (acct(fname) == -1) {
+            perror("acct");
+            //may happen if we are not root
+        }
+    }
+
+    /*
+    #uselib
+
+        Load dynamic library.
+    */
+    {
+    }
+
+    /*
+    #swapon
+
+        Manage in shich devices swap memory can exist.
+
+    #swapoff
+    */
+    {
+    }
 
     return EXIT_SUCCESS;
 }
