@@ -1,92 +1,94 @@
+# POSIX sockets
+
 Sockets are similar to pipes but:
 
 - allow communication across different systems and are thus a base for networks local sockets also exist.
 
-- allow bidirection communication
+- allow bidirectional communication
 
-- allow multiple clients to connet to a single server (the concepts of client and server are clearly defined)
+- allow multiple clients to connect to a single server (the concepts of client and server are clearly defined)
 
-#What posix sockets can do
+## What POSIX sockets can do
 
-POSIX sockets allows to implement any Application layer program, and thus to implement things like web browsers, crawlers or wget like utilities.
+POSIX sockets allows to implement any Application layer program, and thus to implement things like web browsers, crawlers or `wget` like utilities.
 
 It seems however that POSIX does not support lower level layer control, for exapmle making an ICMP echo <http://www.microhowto.info/howto/send_an_arbitrary_ipv4_datagram_using_a_raw_socket_in_c.html>
 
 For those functionalities it seems that Linux specific functionalities must be used for example raw sockets: <http://www.pdbuchan.com/rawsock/rawsock.html>
 
-#Socket params
+## Socket params
 
-sockets are characterized by three parameters:
+Sockets are characterized by three parameters:
 
 - domain
 - type
 - protocol
 
-this are exactly the 3 parameters that the `socket` call receives.
+This are exactly the 3 parameters that the `socket` call receives.
 
-##Domain
+### Domain
 
--   `AF_UNIX`: local sockets for single machine usage
+-   `AF_UNIX`: local sockets for single machine usage.
 
-    UNIX domain sockets are uniquelly identified on the filesystem like pipes or other special files
+    UNIX domain sockets are uniquely identified on the filesystem like pipes or other special files.
 
--   `AF_INET`: internet IP protocol, regular local networks or the internet
+-   `AF_INET`: internet IP protocol, regular local networks or the internet.
 
-    this is one of the few stream like resources that are not put into the filesystem because TODO
+    This is one of the few stream like resources that are not put into the filesystem because TODO
 
 -   `AF_INET6`: IPv6
 
-##Type
+### Type
 
--   `SOCK_STREAM`: connexion works like a file stream to the program
+-   `SOCK_STREAM`: connexion works like a file stream to the program.
 
-    in `AF_INET` this is automatically done via TCP/IP
+    In `AF_INET` this is automatically done via TCP/IP.
 
-    delivery and ordering is guaranteed by TCP/IP
+    Delivery and ordering is guaranteed by TCP/IP.
 
-    a connection is maintained while data is being sent
+    A connection is maintained while data is being sent.
 
--   `SOCK_DGRAM`: datagram
+-   `SOCK_DGRAM`: datagram.
 
-    lower level protocol
+    Lower level protocol.
 
-    does not establish connection
+    Does not establish connection.
 
-    no automatic delivery guarantee
+    No automatic delivery guarantee.
 
-    data must be manually split into packages of a maximum width
+    Data must be manually split into packages of a maximum width.
 
-    in `AF_INET` this is UDP
+    In `AF_INET` this is UDP.
 
-certain domains may have differnt types
+Certain domains may have different types:
 
-`AF_UNIX` has a single type: `SOCK_STREAM`
+- `AF_UNIX` has a single type: `SOCK_STREAM`.
 
-`AF_INET` has the following types:
+- `AF_INET` has the following types: TODO
 
-##Protocol
+### Protocol
 
-sometimes it is possible to choose different protocols for a given type
+Sometimes it is possible to choose different protocols for a given type:
 
-`0` uses the default protocol
+- `0` uses the default protocol
 
-#Testing
+## Testing
 
--   run the server:
+-   Run the server:
 
         ./server &
 
--   run as many clients as you want:
+-   Run as many clients as you want:
 
         ./client && ./client
         ./client
 
--   kill the server:
+-   Kill the server:
 
         fg
 
     and then hit Ctrl-C
 
-#Local socket
+## Local socket
 
 Is inserted into the filesystem.

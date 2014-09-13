@@ -1,3 +1,5 @@
+# OpenCL
+
 OpenCL is an open standard language which models CPU GPU computing.
 
 It is similar to C, containing some extra keywords to model the CPU GPU world, and leaving out a few C features which GPUs cannot yet do very well.
@@ -8,7 +10,7 @@ The OpenCL standard in maintained by the Khronos Group, the same guys who mainta
 
 OpenCL, like any other language has versions. As of 2013 the latest version is OpenCL 2.0 released in preview (unstable) as of Jul 2013.
 
-#Install
+## Install
 
 The first step is to get you GPU working. Good luck on that, specially if you are on Linux =)
 

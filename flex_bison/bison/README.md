@@ -1,10 +1,12 @@
+# Bison
+
 Main Bison cheat.
 
 It is hard to test Bison without Flex, so they are used together.
 
 Information on Flex is not given here.
 
-#What the it does
+## What the it does
 
 This generates a simple C-like calculator which supports:
 
@@ -44,7 +46,7 @@ Missing features:
 - functions
 - strings
 
-#cudos
+## cudos
 
 This was  taken this from a very good intro source:
 

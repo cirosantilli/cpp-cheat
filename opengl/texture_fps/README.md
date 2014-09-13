@@ -1,3 +1,5 @@
+# Texture FPS
+
 Very simple example of textures and FPS collision detection.
 
 Controls:
@@ -7,6 +9,4 @@ Controls:
 - `E`: fast
 - `X`: slow
 
-# Sample run video
-
-<http://youtu.be/wAQxIla7F68>
+Demo video: <http://youtu.be/wAQxIla7F68>

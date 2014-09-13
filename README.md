@@ -1,10 +1,12 @@
+# C++ Cheat
+
 C and C++ information, cheatsheets and mini-projects.
 
 [![Build Status](https://travis-ci.org/cirosantilli/cpp.svg?branch=master)](https://travis-ci.org/cirosantilli/cpp)
 
 Relies on <https://github.com/cirosantilli/cpp-boilerplate> to factor code out. See [its documentation](https://github.com/cirosantilli/cpp-boilerplate/blob/master/README.md) for information on how to use this project.
 
-# Most useful files
+## Most useful files
 
 - [c.c](c.c):              C cheatsheet.
 - [cpp.cpp](main_cpp.cpp): C++ cheatsheet.
@@ -12,7 +14,7 @@ Relies on <https://github.com/cirosantilli/cpp-boilerplate> to factor code out. 
 - [opengl/](opengl/)
 - [kde/](kde/)
 
-# Quickstart
+## Quickstart
 
 On Ubuntu 12.04:
 
@@ -41,7 +43,7 @@ To get help on all options use:
 
     make help
 
-# About
+## About
 
 Larger projects may be in separate repositories.
 

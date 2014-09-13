@@ -1,21 +1,25 @@
+# KDE
+
+## Build and run
+
 Build:
 
     make
 
 To run you have two choices:
 
-- install and run from `PATH` (best option):
+-   install and run from `PATH` (best option):
 
         sudo make install
         kdecheat
 
-- run directly from this directory:
+-   run directly from this directory:
 
         make run
 
     The downside of this method is that it is necessary to install in order for certain features to apply, for example `ui.rc` files.
 
-#KDE
+## General information
 
 KDE is built on top of QT.
 
@@ -32,7 +36,7 @@ A good way to learn APIs it to look for very simple applications, download the s
 
     git clone git://anongit.kde.org/ksnakeduel
 
-#ui.rc file
+## ui.rc file
 
 Specifies GUI parts via an XML file.
 

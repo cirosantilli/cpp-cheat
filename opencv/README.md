@@ -1,4 +1,6 @@
-#Test OpenCV is working
+# OpenCV
+
+## Test OpenCV is working
 
 If something goes wrong, you will want to first test that OpenCV is working properly.
 
@@ -8,7 +10,7 @@ You can do that by running the example files
     cd examples/c
     ./build-all.sh
 
-#Usage
+## Usage
 
 There are 2 versions of OpenCV.
 
@@ -18,7 +20,7 @@ This is why you have both folders `/usr/include/opencv` and `/usr/include/opencv
 
 For new projects, use OpenCV 2 only.
 
-##Headers
+### Headers
 
 The only header needed is `opencv2/opencv.hpp` which includes all the others.
 

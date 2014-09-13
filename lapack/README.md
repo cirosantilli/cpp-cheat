@@ -1,18 +1,24 @@
+# BLAS and LAPACK
+
 TODO BROKEN: how to install LAPACKE on Ubuntu 12.04?
 
 BLAS and LAPACK are:
 
-- linear algebra packages
-- de-facto standards
-- non-parallel 
-- originally written in Fortran
-- also have C interfaces available
+-   linear algebra packages
+
+-   de-facto standards
+
+-   non-parallel 
+
+-   originally written in Fortran
+
+-   also have C interfaces available
 
     It might be a good idea to understand how to interface Fortran with C before the C interfaces.
 
-#Related projects
+## Related projects
 
-##BLAS
+### BLAS
 
 <http://www.netlib.org/blas/>
 
@@ -26,18 +32,18 @@ BLAS contains low level functions such as:
 
 The BLAS project provides `cblas.h`, which contains a C interface for BLAS.
 
-##LAPACK
+### LAPACK
 
 LAPACK contains higher level functions such as:
 
 - solving linear systems
 - eigenvalue/eigenvector calculations
 
-It now includes an official C interface called `lapacke`.
+It now includes an official C interface called LAPACKE.
 
 This does not ship with the Ubuntu `liblapack-dev` package at the time of writing, but there is a `liblapacke-dev` package available which provides it.
 
-##ScaLAPACK
+### ScaLAPACK
 
 <http://www.netlib.org/scalapack/>
 
@@ -45,7 +51,7 @@ Continuation of LAPACK.
 
 Considers parallelism.
 
-##ATLAS
+### ATLAS
 
 <http://math-atlas.sourceforge.net/>
 
@@ -55,29 +61,29 @@ Implements full BLAS, but only part of LAPACK.
 
 Has C interface.
 
-#Installation on Ubuntu
+## Installation on Ubuntu
 
-##Fortran
+### Fortran
 
     sudo aptitude install liblapack-dev liblapack-doc libblas-doc
 
-##C interface
+### C interface
 
 via atlas:
 
     sudo aptitude install 
 
-via lapacke (`libblas-dev` already contains `cblas.h`):
+via LAPACKE (`libblas-dev` already contains `cblas.h`):
 
     sudo aptitude install liblapacke-dev
 
-#Levels
+## Levels
 
 1: array array. ex: array sum.
 2: matrix array. ex: solve linear system.
 3: matrix matrix. ex: multiply two matrices.
 
-#Function naming conventions
+## Function naming conventions
 
 The functions are named according to the pattern:
 
@@ -85,25 +91,25 @@ The functions are named according to the pattern:
 
 Where:
 
-- `X`: data type:
+-   `X`: data type:
 
     - S: single precision (C float)
     - D: double precision
     - C: complex
     - Z: double complex
 
-- `YY`: known type the type of input matrices:
+-   `YY`: known type the type of input matrices:
 
     - `GE`: general
     - `TR`: triangular
 
     The more restrict the matrix type, the more efficient algorithms can be.
 
-- `ZZ`: computation to be done:
+-   `ZZ`: computation to be done:
 
     - `SV`: SolVe linear system
 
-#Sources
+## Sources
 
 - function signatures: in source code olny <http://www.netlib.org/lapack/double/>
 

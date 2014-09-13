@@ -1,3 +1,5 @@
+# OpenGL
+
 This directory contains the main source of OpenGL cheats and information
 
 OpenGL is an interface to use the graphics card for graphics.
@@ -6,7 +8,7 @@ It only contains basic primitives, and is often used together with other higher 
 
 OpenGL is only the interface, but there can be several implementations, open and closed source.
 
-#Mesa
+## Mesa
 
 Most common Linux OpenGL implementation. Open source.
 
@@ -14,7 +16,7 @@ Used by X server.
 
 Requirement of freeglut.
 
-#GLUT
+## GLUT
 
 GLUT is a higher level interface built on top of GL, and adds things like:
 
@@ -26,9 +28,9 @@ GLUT is a higher level interface built on top of GL, and adds things like:
 
 The original GLUT implementation is proprietary, but open source implementations exist such as Freeglut.
 
-#Freeglut
+## Freeglut
 
-Open source implementation of glut.
+Open source implementation of GLUT.
 
 Often used together with the mesa implementation of GL.
 
@@ -36,7 +38,7 @@ Installation Ubuntu on 12.04:
 
     sudo aptitude install freeglut3-dev
 
-#glxinfo
+## glxinfo
 
 Good way to get information on OpenGL in Linux:
 
