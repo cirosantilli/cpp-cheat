@@ -28,16 +28,16 @@ Features which are identical to C will not be described.
 
     at the cost of:
 
-    - adding huge complexity to the language (probably at least doubles the complexity).
+    -   adding huge complexity to the language (probably at least doubles the complexity).
 
         The problem is that individual features sometimes interact in ways which are not obvious to understand,
         so the complexity growth is exponential per feature.
 
-    - making it harder to track what assembly code is generated thus:
+    -   making it harder to track what assembly code is generated thus:
 
-        - making it harder to write very efficient code
+        -   making it harder to write very efficient code
 
-        - generating executables that are very large
+        -   generating executables that are very large
 
             For exmple, at one point I had a 7k line C file whose assembly was 8k lines,
             but a 7k C++ file generated 55k assembly code lines!!
@@ -70,18 +70,18 @@ Features which are identical to C will not be described.
 
     #TR1 #Technical report 1
 
-        # 2005 draft for extending C++11.
+        2005 draft for extending C++11.
 
-        # Most of its propositions were accepted for C++11, and before that many compilers implemented
-        # its propositions.
+        Most of its propositions were accepted for C++11, and before that many compilers implemented
+        its propositions.
 
     #TR2 #Technical report 2
 
-        # TODO when was it made?
+        TODO when was it made?
 
-        # Not in C++11, maybe C++1Y.
+        Not in C++11, maybe C++1Y.
 
-        # It proposes many inclusions from Boost.
+        It proposes many inclusions from Boost.
 
     #C++11
 
@@ -179,7 +179,7 @@ Features which are identical to C will not be described.
 
     #Free
 
-        - <http://www.cplusplus.com>
+        -   <http://www.cplusplus.com>
 
             Explains well what most the features of the language do for beginners.
 
@@ -187,7 +187,7 @@ Features which are identical to C will not be described.
 
             Is said to contain many errors, and that cppreference is superior.
 
-        - <http://en.cppreference.com/w/>
+        -   <http://en.cppreference.com/w/>
 
             Similar to cplusplus.com, but seems to have more info.
 
@@ -197,25 +197,25 @@ Features which are identical to C will not be described.
 
             Many behaviour examples.
 
-        - <http://www.parashift.com/c++-faq/index.html>
+        -   <http://www.parashift.com/c++-faq/index.html>
 
             C++ faq.
 
             Deep and extensive tutorial.
 
-        - <http://herbsutter.com/gotw/>
+        -   <http://herbsutter.com/gotw/>
 
             Herb Sutter Guru of the week.
 
             Hard topics with simple examples.
 
-        - <http://yosefk.com/c++fqa/>
+        -   <http://yosefk.com/c++fqa/>
 
             Comments on the quirks of c++.
 
             Fun and informative for those that know the language at intermediate level.
 
-        - <http://publib.boulder.ibm.com/infocenter/comphelp/v8v101/index.jsp>
+        -   <http://publib.boulder.ibm.com/infocenter/comphelp/v8v101/index.jsp>
 
             IBM implementation of C++.
 
@@ -227,7 +227,7 @@ Features which are identical to C will not be described.
 
     #Non-free
 
-        - <http://stackoverflow.com/questions/388242/the-definitive-c-book-guide-and-list>
+        -   <http://stackoverflow.com/questions/388242/the-definitive-c-book-guide-and-list>
 
             List of books.
 */
@@ -245,14 +245,14 @@ Features which are identical to C will not be described.
     When writting new libs, you can use either `.h` or `.hpp` as extensions,
     where `.hpp` indicates that the header is C++ specific, and not pure C.
 
-    #c headers
+    #C headers
 
         The standard C++ library provides a `cNAME` version to every `NAME.h` for every C header.
-        Ex: `math.h` vs `cmath`.
+        E.g.: `math.h` vs `cmath`.
 
         The difference is the following:
 
-        - cX puts things in std:: namespace. *always* use the CNAME version on new code,
+        -   cX puts things in std:: namespace. *always* use the CNAME version on new code,
             since this reduces the probability of a name conflicts, and is the standard c++ way of doing things.
 
             Macro expansion happens *before* namespaces are even compiled,
@@ -279,7 +279,7 @@ Features which are identical to C will not be described.
 
         git clone git://gcc.gnu.org/git/gcc.git
 
-    - the so is usually located at
+    -   the so is usually located at
 
             /usr/lib/i386-linux-gnu/libstdc++.so.X
 
@@ -287,7 +287,7 @@ Features which are identical to C will not be described.
 
             locate libstdc++
 
-    - std headers are usually located at
+    -   std headers are usually located at
 
             /usr/include/c++/4.X/`.
 
@@ -295,7 +295,7 @@ Features which are identical to C will not be described.
 
             locate /iostream
 
-    - the ubuntu package is called `libstdc++6.X`. `dpkg -l | grep libstd`
+    -   the Ubuntu package is called `libstdc++6.X`. `dpkg -l | grep libstd`
 
     With `g++` the C++ standard library is linked against automatically.
     This does not happen when compiling with `gcc`, and is one of the many reasons why you should use `g++`

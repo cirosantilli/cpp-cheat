@@ -1,8 +1,10 @@
 # C++ Cheat
 
+[![Build Status](https://travis-ci.org/cirosantilli/cpp-cheat.svg?branch=master)](https://travis-ci.org/cirosantilli/cpp-cheat)
+
 C and C++ information, cheatsheets and mini-projects.
 
-[![Build Status](https://travis-ci.org/cirosantilli/cpp-cheat.svg?branch=master)](https://travis-ci.org/cirosantilli/cpp-cheat)
+There may be other compiled languages here for which we don't have much material for a separate repository, specially when we interface that language with C. E.g.: Fortran.
 
 Relies on <https://github.com/cirosantilli/cpp-boilerplate> to factor code out. See [its documentation](https://github.com/cirosantilli/cpp-boilerplate/blob/master/README.md) for information on how to use this project.
 
@@ -43,18 +45,16 @@ To get help on all options use:
 
     make help
 
-## About
-
-Larger projects may be in separate repositories.
-
-There may be other compiled languages here for which we don't have much material for a separate repository, specially when we interface that language with C. Ex: Fortran.
+## Style
 
 Non-portable features shall be clearly separated from portable ones in either:
 
-- ifdef blocks
+- ifdef macro blocks
 - separate files
 - separate directories
 - separate repositories
+
+This includes features which were not present in the first standardized version of languages. E.g., C99 features must be put inside `#ifdf __STDC_VERSION__` blocks.
 
 Everything that can be checked in an assertion will be checked, and will not get printed.
 

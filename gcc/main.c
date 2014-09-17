@@ -217,7 +217,7 @@ void builtin_return_address_test() {
 int main() {
 
     /*
-    #binary int literals
+    #Binary int literals
 
         start with `0b`:
     */
@@ -226,7 +226,7 @@ int main() {
     }
 
     /*
-    #complex integer
+    #Complex integer.
 
         C99 has floating point complex numbers, but no integer complex numbers.
     */
@@ -282,13 +282,33 @@ int main() {
     */
 
     /*
-    Automatically defined on gcc even if `-std=cXX -pedantic-erors`:
+    #Version numbers
 
-    Contains major version number
+        `__GNUC__`           : major
+        `__GNUC_MINOR__`     : minor
+        `__GNUC_PATCHLEVEL__`: patch
+
+        <http://stackoverflow.com/questions/259248/how-do-i-test-the-current-version-of-gcc>
+
+        There is also:
+
+            __GNUC_PREREQ(4,8)
+
+        to test versions more conveniently than:
+
+            #if defined(__GNUC__) && __GNUC__ >= 4 && __GNUC_MINOR__ >= 8
+
+        in `<features.h>`.
+
+    #Detect if in GCC
+
+        #ifdef __GNUC__ is a good common way.
     */
-
+    {
 #ifdef __GNUC__
-        printf("__GUNC__ = %d\n", __GNUC__);
+        printf("__GUNC__       = %d\n", __GNUC__);
+        printf("__GUNC_MINOR__ = %d\n", __GNUC_MINOR__);
+        printf("__GUNC_PATCH   = %d\n", __GNUC_PATCHLEVEL__);
 #endif
 
         /*
@@ -321,6 +341,7 @@ int main() {
 #ifdef __linux__
         puts("__linux__");
 #endif
+    }
 
     /*
     #attribute
@@ -658,7 +679,7 @@ int main() {
         TODO: #asmlinkage
         TODO: #asm volatile
     */
-
+    {
         /*
         Examples of inline assembly in i386
 
@@ -807,11 +828,14 @@ int main() {
             assert(x == 1);
         }
 #endif
+    }
 
     /*
     #typeof
 
         Like C++11 decltype.
+
+        Partially reproductible with C11 `_Generic`.
     */
     {
         typeof(1 + 0.5) j = 0.5;
@@ -966,4 +990,9 @@ int main() {
             assert(j == 1);
         }
     }
+
+    /*
+    Only to silence the warning because I can't use `-std=gnu99` properly.
+    */
+    return EXIT_SUCCESS;
 }

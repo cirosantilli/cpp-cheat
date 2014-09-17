@@ -21,8 +21,8 @@ Most important:
 
 ## Supported executable formats
 
-- elf (linux)
-- mach-o (mac os)
+- elf (Linux)
+- mach-o (mac OS)
 - pe (windows)
 
 and more.
@@ -95,6 +95,22 @@ Output destination.
 Default: `a.out`.
 
 For stdout: `-o -`.
+
+### Input from stdin
+
+### x
+
+Specify the language explicitly.
+
+Required when input is from stdin with `-`.
+
+Compile from stdin:
+
+    echo 'int main(){}' | gcc -xc -
+
+For a C header use `c-header`. Note that this generates a `-.gch` file:
+
+    echo 'int i;' | gcc -xc-header -
 
 ### Wall
 
@@ -270,7 +286,11 @@ Generate assembly code:
 
 Generates gas assembly code to a new file called `a.S`.
 
-### -fverbose-asm
+### -f options
+
+TODO What are the `-f` options for in general? Give examples.
+
+#### verbose-asm
 
 Outputs comments on the generated assembly which say variable names are being operated on each statement:
 
@@ -293,9 +313,24 @@ With `-fverbose-asm`:
     movl -64(%ebp), %eax #i, tmp123
     movl %eax, -68(%ebp) #tmp123, j
 
-### -f options
+### syntax-only
 
-TODO What are the `-f` options for in general? Give examples.
+Only check if the syntax is correct, don't compile anything.
+
+    $ echo 'int i;' | gcc -fsyntax-only -xc -
+    $ echo 'int i' | gcc -fsyntax-only -xc -
+    <stdin>:1:1: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ at end of input
+
+Note how the above code would not compile because there is no `main` function:
+
+    $ echo 'int i;' | gcc -xc -
+    /usr/lib/gcc/x86_64-linux-gnu/4.8/../../../x86_64-linux-gnu/crt1.o: In function `_start':
+    (.text+0x20): undefined reference to `main'
+    collect2: error: ld returned 1 exit status
+
+As of GCC 4.8 fails on `c-header` files with "output filename specified twice"
+<http://stackoverflow.com/questions/12513665/how-can-i-use-g-to-get-assembly-code-for-a-c-header-hpp-file>
+The only solution seems to be to set the input type to `-xc`.
 
 ### -Wa options
 
@@ -335,7 +370,13 @@ which is the same as adding:
 
 to the top of file.
 
-### find include search path
+### -v option
+
+Output verbose information about the compilation.
+
+Great troubleshooting tool.
+
+#### Find include search path
 
     echo '' | cpp -v
 
