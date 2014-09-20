@@ -5,6 +5,8 @@ Small comments on comparing ANSI C with extensions are acceptable.
 
 #Sources
 
+    #Free
+
     -   <http://c-faq.com/index.html>
 
         Good straight to the point faq, covers specially confusing points
@@ -24,6 +26,8 @@ Small comments on comparing ANSI C with extensions are acceptable.
     -   <http://locklessinc.com/articles/obscurec/>
 
         Obscure stuff only. Cool.
+
+    #Non free
 
 #Motivation
 
@@ -84,11 +88,13 @@ Small comments on comparing ANSI C with extensions are acceptable.
 
         #C89
 
-            ANSI ratified the standard in 89, and ISO in 90 with formatting changes,
+            ANSI ratified the standard in 89, and ISO in 90 only with formatting changes.
 
         #C90
 
-            C90 almost the same as C89.
+            Sinonym for C89, because ISO adopted it in 90.
+
+            Formal name: ISO/IEC 9899:1990
 
         #C99
 
@@ -1054,11 +1060,6 @@ void exit_func() {
     exit(EXIT_SUCCESS);
 }
 
-/*
-#atexit
-
-    Function gets called when process ends via `exit` or a `return` on the `main` function.
-*/
 void atexit_func() {
     printf("atexit\n");
     printf("All asserts passed.\n");
@@ -1122,10 +1123,10 @@ int main(int argc, char **argv) {
     }
 
     /*
-    #identifiers.
+    #identifiers
 
-        Identifiers are names either for variables, functions, structs or enums.
-
+        Identifiers are names either for variables,
+        functions, structs, enums, unions, macros, ...
     */
     {
         /*
@@ -1164,7 +1165,8 @@ int main(int argc, char **argv) {
                         int i = 1;
                         ip = &i;
                     }
-                    //assert(*ip == 1); //BAD undetermined behaviour
+                    // BAD: undefined behaviour
+                    //assert(*ip == 1);
                 }
 
                 /*
@@ -1178,16 +1180,40 @@ int main(int argc, char **argv) {
                     }
                 }
             }
+        }
 
+        /*
+        #namespaces
+
+            Not like the C++ concept.
+
+            C puts the following identifiers in different namespaces:
+
+            - tags of: enums, structs, and union
+            - labels of goto
+            - fields of structs
+            - the rest: called *ordinary identifiers*: variable, function names
+
+            For this reason you can use the identifier name in the same scope
+            as long a they are in different namespaces.
+
+            In C++, tags are put in the same namespace as variables.
+        */
+        {
             /*
-            Scope spaces.
-
-            Variables and functions live in the same scope.
+            Tag and ordinary identifier.
             */
+            {
+                struct s {int i;};
+                int s;
+            }
+
+            /* Both ordinary identifiers. */
             {
                 int same_name_as_variable = 0;
                 // ERROR: called object is not a function:
                 //same_name_as_variable();
+                assert(same_name_as_variable == 0);
             }
         }
 
@@ -1204,8 +1230,29 @@ int main(int argc, char **argv) {
                     //int 0a;
             }
 
+
             /*
-            #reserved identifiers
+            #Keywords
+
+            #Reserved identifiers
+
+                Keywords are identiers which have a special meaning in the language like `for` or `if`.
+                You cannot use those in your variables.
+
+                Full list:
+
+                _Alignas        auto      extern    short
+                _Alignof        break     float     signed
+                _Atomic         case      for       sizeof
+                _Bool           char      goto      static
+                _Complex        const     if        struct
+                _Generic        continue  inline    switch
+                _Imaginary      default   int       typedef
+                _Noreturn       do        long      union
+                _Static_assert  double    register  unsigned
+                _Thread_local   else      restrict  void
+                                enum      return    volatile
+                                                    while
 
                 C99 specifies that:
 
@@ -1259,18 +1306,18 @@ int main(int argc, char **argv) {
     }
 
     /*
-    #basic types
+    #Basic types
 
         Types like `int`, `char`, `float` and `_Complex`.
 
-    #derived types
+    #Derived types
 
         Types which are not based, bur defined by users,
         e.g., arrays, structs and unions.
     */
 
 
-    // #variables
+    /* #variables */
     {
         {
             int i;
@@ -1282,7 +1329,7 @@ int main(int argc, char **argv) {
             int j = 7;
         }
 
-        // 31 bit + 1 sign bit integer
+        /* 31 bit + 1 sign bit integer */
         {
             int i = 5, j = 7;
         }
@@ -1323,7 +1370,7 @@ int main(int argc, char **argv) {
             Great source: <www.drdobbs.com/the-new-c-compound-literals/184401404>
         */
         {
-            // #compound literals for arrays
+            /* Compound literals for arrays */
             {
                 int *is;
 
@@ -1331,13 +1378,13 @@ int main(int argc, char **argv) {
                 assert(is[0] == 0);
                 assert(is[1] == 1);
 
-                // reassign is to a new array
-                // old memory becomes innacessible
+                // Reassign is to a new array.
+                // Old memory becomes innacessible.
                 is = (int[2]){ 2, 3 };
                 assert(is[0] == 2);
                 assert(is[1] == 3);
 
-                // the effect is the same as `int is[] = { 1 }`
+                // The effect is the same as `int is[] = { 1 }`,
                 // that is: fill with zeroes.
                 is = (int[2]){ 1 };
                 assert(is[0] == 1);
@@ -1351,16 +1398,14 @@ int main(int argc, char **argv) {
             }
 
             /*
-            address
+            Compound literals yield lvalues.
 
-                Compound literals yield lvalues.
+            It is possible to take the address of compound literals.
 
-                It is possible to take the address of compound literals.
+            Unlike string literals, array literals can be modified.
 
-                Unlike string literals, array literals can be modified.
-
-                This means that the compound literal is an unnamed stack variable,
-                and takes stack space.
+            This means that the compound literal is an unnamed stack variable,
+            and takes stack space.
             */
             {
                 int *ip;
@@ -1369,7 +1414,7 @@ int main(int argc, char **argv) {
                 assert(*ip == 2);
             }
 
-            // int useless examples
+            /* Int useless examples */
             {
                 int i;
 
@@ -1386,8 +1431,6 @@ int main(int argc, char **argv) {
                     assert(i == 1);
                 }
             }
-
-            // struct: see compound literal for struct.
 
             /*
             Scope of compound literals.
@@ -1605,6 +1648,8 @@ int main(int argc, char **argv) {
         #Boolean type
 
         #_Bool
+
+            Aliased as `bool` in `stdbool.h`.
         */
         {
             _Bool b = 0;
@@ -1753,20 +1798,78 @@ int main(int argc, char **argv) {
     }
 
     /*
+    #Constant expressions
+
+    #Compile time constants
+
+        Defined in C99 6.6.
+
+        The fact that an expression is a compile time constant
+        or not has effects such as:
+
+        -   when declaring an array, if the size is a constant expression
+            then the array is a regular aray, if not it is a VLA statring on C99,
+            or a compilation error before.
+
+        -   only constant expressions can be used in `_Static_assert`
+
+        C++ does not allow const pointer typecasts, so `const` variables generate constant expressions.
+        There is an even more explicit language feature in C++11 via the `constexpr` keyword.
+    */
+    {
+    }
+
+#if __STDC_VERSION__ >= 201112L
+    /*
+    #Static_assert
+
+    #_Static_assert
+
+        Makes compile time assertions.
+
+        Can only take constant expressions (C99 6.6).
+
+        Issues warnings or prevents compilation if failed.
+
+        C++ has the analogous `static_assert`.
+    */
+    {
+        // ERROR: static assertion failed: "Error message".
+        //_Static_assert(0, "Error message.");
+
+        _Static_assert(1, "e");
+        _Static_assert(1 + 1, "e");
+
+        const int i = 1;
+        // ERROR: expression in static assertion is not constant.
+        //_Static_assert(i, "e");
+    }
+#endif
+
+    /*
     #typecast
 
         Transformation of one datatype to another.
 
         Can be done either implicitly or explicitly via a typecast operator.
 
-        Some convertions may be possible to do implicitly
-        but generate compiler warnings when done implicitly.
-        this may depend on the compilation flags used.
+        Some convertions may are allowed by the standard implicitly,
+        but generate compiler warnings when done implicitly because in practice
+        they should almost never be used.
 
-        Some convertions always generate compilation errors.
+        Some convertions are not allowed by the standard
+        and should always generate compilation errors.
+
+        Typecasts only transform the data:
+        it seems that it is not possible to change the type of a variable itself:
+        <http://stackoverflow.com/questions/2822795/how-i-change-a-variable-of-a-type-to-another-one-in-c>
     */
     {
-        // Implicit typecasts done on operations
+        /*
+        #Implicit typecasts done on operations
+
+            The standard specifies which operations generate which typecasts.
+        */
         {
             // On assignment, the value is cast to the type of the variable assigned to.
             {
@@ -1778,25 +1881,29 @@ int main(int argc, char **argv) {
                 assert(i == 0);
             }
 
-            // If an operation involves an integer type and a floating type,
-            // TODO the integer type is cast to the floating type.
+            /*
+            If an operation involves an integer type and a floating type,
+            TODO the integer type is cast to the floating type.
+            */
             {
                 assert(1/2 == 0);
                 assert(1/2.0 == 0.5);
 
-                // Typecasts happen on the same order that the operations are evaluated.
+                /* Typecasts happen on the same order that the operations are evaluated. */
                 assert(2.0*(1/2) == 0.0);
                 assert((2.0*1)/2 == 1.0);
             }
 
-            // If an operation involves a smaller integer type and a larget integer type
-            // TODO the smaller type is first cast to the larger type
+            /*
+            If an operation involves a smaller integer type and a larget integer type
+            TODO the smaller type is first cast to the larger type
+            */
             {
                 assert((char)CHAR_MAX + 1 == ((int)(char)CHAR_MAX + 1));
             }
         }
 
-        // integers and floating point types.
+        /* Typecasts between integer and floating point types. */
         {
             // float to int rounds towards 0.
             {
@@ -1808,22 +1915,6 @@ int main(int argc, char **argv) {
             // in the fp mantissa.
             {
             }
-        }
-
-        // Typecasts without data modification
-        {
-            // Integer type to larger integer type (int -> long)
-            {
-                int i = 1;
-                assert((int)(long)i == i);
-            }
-
-            // Floating type to larger floating type (float -> double)
-            {
-                float f = 1.0f;
-                assert((float)(double)f == f);
-            }
-
         }
 
         // Typecast of a value outside of range is undefined behaviour
@@ -2019,42 +2110,54 @@ int main(int argc, char **argv) {
         }
     }
 
-    // #const
+    /*
+    #const
+
+        Indicates the programmers intention,
+        but can be changed through typecasts.
+
+        Can be overriden by typecasts, so it does not generate
+        compile time constant expressions (C99 6.6).
+    */
     {
         int i = 0;
         const int ic = 0;
-        // Same.
-        // int const ic = 0
+        /* Same. */
+        /*int const ic = 0*/
         const int ic2 = i;
 
-        // BAD.
-        // Compiles without warning, but is bad since ic3 cannot get a value
-        // unless you typecast its pointer with a warning.
-        // Consts should normally have a value at initialization time.
+        /*
+        BAD.
+
+        Legal and compiles without warning, but is bad since ic3 cannot get a value
+        unless you typecast its pointer with a warning.
+
+        consts should normally get a value at initialization time.
+        */
         const int ic3;
 
-        /*
-        ERROR: consts are... almost consts!
-
-        almost because you can change them with only a warning
-        */
+        /* ERROR: assignment of read only variable ic */
         {
-            //const int ic = 0;
-            //ic = 1;
+            const int ic = 0;
+            /*ic = 1;*/
         }
 
         /*
-        WARN: discards const. in c++, error!
+        WARN: discards const. In C++, error.
 
-        we changed the const with only a warning
+        We changed the const variable with only a warning, but the code is ISO legal.
 
-        this is why you can't int is[constint]; unless you have VLA
+        This is why const variable are not compile time constant expressions (C99 6.6),
+        and cannot for exapmle be used to declare the size of arrays in C89.
         */
         {
-            //const int ic = 0
-            //int* ip = &ic;
-            //*ip = 1;
-            //assert(ic == 1):
+            const int ic = 0;
+            /* WARN: initialization discards const qualifier from pointer type. */
+            /*
+            int* ip = &ic;
+            *ip = 1;
+            assert(ic == 1);
+            */
         }
 
         /*
@@ -2505,6 +2608,20 @@ int main(int argc, char **argv) {
 
                 /*unsigned int xint typedef;*/
         }
+
+        /*
+        Repeated typedef:
+        <http://stackoverflow.com/questions/8594954/repeated-typedefs-invalid-in-c-but-valid-in-c>
+
+        Allowed in C++ and C11, forbidden in C99.
+        */
+        {
+#if __STDC_VERSION__ >= 201112L
+            typedef int i;
+            typedef int i;
+            i j = 0;
+#endif
+        }
     }
 
 #if __STDC_VERSION__ >= 201112L
@@ -2928,26 +3045,28 @@ int main(int argc, char **argv) {
         */
         {
             /*
-            #Incomplete type cycless
+            #Incomplete type cycles
 
                 It is impossible to do the following, because that would create an infinite loop:
 
-                    - each S contains one S. and one i.
+                -   each S contains one S. and one i.
 
-                    - therefore the size of each S must be 2 ints:
+                -   therefore the size of each S must be 2 ints:
 
-                            size of S + size of int =
-                                    1 +           1 =
-                                                2
+                    size of S + size of int =
+                            1 +           1 =
+                                            2
 
-                    - but then the size of S must be 3 ints:
+                -   but then the size of S must be 3 ints:
 
-                            size of S + size of int =
-                                    2 +           1 =
-                                                3
+                        size of S + size of int =
+                                2 +           1 =
+                                              3
+
+                -   and so on
             */
             {
-                // ERROR s has incomplete type.
+                /* ERROR: s has incomplete type. */
                 {
                     /*
                     struct S {
@@ -2957,21 +3076,19 @@ int main(int argc, char **argv) {
                     */
                 }
 
+                /* ERROR: struct s1 undefined */
                 {
                     /*
-                    // ERROR
-                    // struct s1 undefined
                     struct S0 { struct S1 s1; };
                     struct S1 { struct S0 s0; };
                     */
                 }
 
+                /* ERROR: s1 has incomplete type */
                 {
                     /*
                     struct S1;
                     struct S0 { struct S1 s1; };
-                    // ERROR
-                    // s1 has incomplete type
                     struct S1 { struct S0 s0; };
                     */
                 }
@@ -3005,9 +3122,19 @@ int main(int argc, char **argv) {
                 so using them makes your code non-standard. TODO confirm.
             */
             {
-                struct S1;
-                struct S0 { struct S1 *s1; };
-                struct S1 { struct S0 *s0; };
+                {
+                    struct S1;
+                    struct S0 { struct S1* s1; };
+                    struct S1 { struct S0* s0; };
+                }
+
+                /*
+                The type itself has already been defined inside the struct definition,
+                so the following is fine.
+                */
+                {
+                    struct S { struct S* s; };
+                }
             }
         }
 
@@ -3054,16 +3181,20 @@ int main(int argc, char **argv) {
             assert(sizeof(char) + sizeof(float) <= sizeof(struct S));
         }
 
-#if __STDC_VERSION__ >= 201112L
         /*
-        #Anonymous structure
+        #Unnamed struct
 
-            It is possible to crate structs which don't have a name.
+            This is a different concept than *anonymous structs*!!
+            <http://stackoverflow.com/questions/14248044/are-anonymous-structs-standard-and-really-what-are-they>
+
+            It is possible to create structs which don't have a name.
 
             Only the structs declared immediatiely after definition can be used.
 
             In theory only standardized in C11, but I am yet to be able to make GCC generate a warning.
             even with `-std=89 -pedantic -Wall`.
+
+            <http://stackoverflow.com/questions/14248044/are-anonymous-structs-standard-and-really-what-are-they>
         */
         {
             // Basic.
@@ -3102,24 +3233,65 @@ int main(int argc, char **argv) {
                 //assert(s[1].j == 3);
             }
 
+#if __STDC_VERSION__ >= 201112L
             /*
             #Anonymous substructure and union
 
-                <http://stackoverflow.com/questions/1972003/how-to-use-anonymous-structs-unions-in-c>
+                Different from unnamed struct!
+                <http://stackoverflow.com/questions/14248044/are-anonymous-structs-standard-and-really-what-are-they>
+
+                Is an unnamed struct inside another struct.
+
+                Is / was also the non-standard name given to some concept.
+
+                TODO application?
             */
             {
-                // TODO
+                struct S {
+                    int i;
+                    struct {
+                        int j;
+                        int k;
+                    };
+                };
+                // ERROR: missing braces
+                //struct S s = {1, 2, 3};
+                struct S s = {1, {2, 3}};
+                assert(s.i == 1);
+                assert(s.j == 2);
+                assert(s.k == 3);
             }
-        }
 #endif
+        }
 
         /*
         #typedef struct combo
 
-            - avoid typing struct all over
+            Advantages:
 
-            - if in the future you decide to change a struct
+            -   avoid typing struct all over
+
+            -   if in the future you decide to change a struct
                 with many boolean flags for an integer, you can do it.
+
+            -   write the identifier only 2 times instead of 3
+
+            -   put all declaration information into one single place.
+                No more: should the typedef be before or after doubts.
+
+            TL;DR best practice: whenever possible use:
+
+                typedef struct {} S;
+
+            Unfortunately this cannot be done if you need to declare the struct elsewhere to:
+
+            -   you use a pointer to a struct of the same type inside it.
+                E.g.: linked lists.
+
+                In that case, use:
+
+            -   use the declaration across many files. The typedef declaration would go into a `types.h`,
+                and the definition on a `precise-topic.h`.
         */
         {
             /*
@@ -3144,6 +3316,14 @@ int main(int argc, char **argv) {
                     int i;
                 } T;
 
+                /* Same as: */
+                /*
+                typedef struct S T;
+                struct S {
+                    int i;
+                };
+                */
+
                 T t = {1};
                 T* tp = &t;
                 assert(tp->i == 1);
@@ -3156,7 +3336,7 @@ int main(int argc, char **argv) {
             /*
             The typedef and the struct can have the same name.
 
-            The common C89 pattern is `typedef struct S {...} S`.
+            So the common C89 pattern is `typedef struct S {...} S`.
 
             C11 adds anonymous structs which is even better.
             */
@@ -3170,23 +3350,58 @@ int main(int argc, char **argv) {
                 assert(ss.i == s.i);
             }
 
-#if __STDC_VERSION__ >= 201112L
             /*
-            typedef and anonymous struct
+            #typedef to an unamed struct
 
-            - type even less than for typedef struct
-            - prevent anyone from using the useless `struct S`
-            - DRYer
+                - type even less than for typedef struct
+                - prevent anyone from using the useless `struct S`
+                - DRYer
             */
             {
-                typedef struct {
-                    int i;
-                } S;
-                S s = {1};
-                S* sp = &s;
-                assert(sp->i == 1);
+                {
+                    typedef struct {
+                        int i;
+                    } TypedefUnnamed;
+                    TypedefUnnamed s = {1};
+                    TypedefUnnamed* sp = &s;
+                    assert(sp->i == 1);
+
+                    // ERROR: storage size of `t` isn't known.
+                    // Same error as when the struct is not defined.
+                    // Awesome, users cannot shoot themselves on the foot!
+
+                        //struct TypedefUnnamed t;
+                }
+
+                /* Does not work either if the typedef is needed inside the definition. */
+                {
+                    /*
+                    typedef struct {
+                        TypedefUnnamed* other;
+                    } TypedefUnnamed;
+                    */
+
+                    /* In that case you need: */
+                    {
+                        typedef struct TypedefUnnamed TypedefUnnamed;
+                        struct TypedefUnnamed {
+                            TypedefUnnamed* other;
+                        };
+                    }
+
+                    /* Or: */
+                    {
+                        typedef struct TypedefUnnamed {
+                            struct TypedefUnnamed* other;
+                        } TypedefUnnamed;
+                    }
+
+                    /*
+                    TODO possible to make it work such that it is impossible to say `struct s`,
+                    like with unnamed structs?
+                    */
+                }
             }
-#endif
         }
 
         /*
@@ -3955,13 +4170,13 @@ int main(int argc, char **argv) {
         */
         {
             /*
-            why it works: it never points to any possible valid memory location.
+            Why it works: it never points to any possible valid memory location.
             (`&` operator never gives anything equal to it).
             this is so guaranteed that gcc emmits a warning in the following code
             */
             {
                 int i = 0;
-                // GCC 4.7 warning: &i will never be null. Smart.
+                // WARN GCC 4.7 warning: &i will never be null. Smart.
                 //assert(&i != NULL);
             }
 
@@ -3974,18 +4189,18 @@ int main(int argc, char **argv) {
                 assert(!NULL);
 
             /*
-            #null macro vs 0
+            #NULL macro vs 0
 
-                Relationship to 0: `(int*)0`, `(char*)0` or any other pointer type followed by zero
-                is always converted internally to the null pointer
+                Relationship to 0: typecasting `(int)0` to any pointer type as
+                `(int*)0`, `(char*)0` always gives NULL.
 
-                This is a valid way of representing the null pointer,
+                This is a valid way of representing the NULL pointer,
                 but it is better style to always use the `NULL` macro
 
                 The exact definition of `NULL` is implementation dependant.
                 A very common implementation is as `(void*)0`.
 
-                C++11 introduces nullptr, which is a much cleaner solution.
+                C++11 also introduces the related `nullptr`.
             */
             {
                 assert(NULL == (int*)0);
@@ -4001,7 +4216,7 @@ int main(int argc, char **argv) {
             /*
             Never dereference the NULL pointer since it is guaranteed to point to nothing.
 
-            TODO0 to ANSI C, undefined behaviour? or guaranteed error?
+            TODO to ANSI C, undefined behaviour? or guaranteed error?
 
             May lead to a Segmentation fault.
             */
@@ -4119,8 +4334,6 @@ int main(int argc, char **argv) {
         Because they are side by side, it is simple to get the nth value
         quickly (random access), unless like, say, a linked list, in which
         you have to go follow lots of links before you reach the searched value.
-
-        no bound check is done to avoid overhead.
     */
     {
         {
@@ -4178,7 +4391,7 @@ int main(int argc, char **argv) {
 
 #if __STDC_VERSION__ >= 199901L
         /*
-        #designated initializer for arrays
+        #Designated initializer for arrays
 
             Allows to initialize array elements in any order.
         */
@@ -4234,11 +4447,11 @@ int main(int argc, char **argv) {
             }
 
             /*
-            mix designated and non designated initialization
+            Mix designated and non designated initialization.
 
-            non deignated pick off where the last designated left
+            Non deignated pick off where the last designated left.
 
-            non specified ones are zero.
+            Non specified ones are zero.
             */
             {
                 {
@@ -4270,14 +4483,18 @@ int main(int argc, char **argv) {
 #endif
 
         /*
-        Obscure and confusing access syntax that you should never use except to surprise your friends.
+        #1[is]
 
-        All that the standard says is that: a[b] = *(a + b). If a is the int and b the pointer or the contrary
-        does not matter: all that matters is that one is an int and the other a pointer.
+            Obscure and confusing access syntax that you should
+            never use except to surprise your friends.
 
-        This seems to have been left like this since it is easier to compile.
+            All that the standard says is that: a[b] = *(a + b).
+            If a is the int and b the pointer or the contrary
+            does not matter: all that matters is that one is an int and the other a pointer.
 
-        <http://stackoverflow.com/questions/381542/in-c-arrays-why-is-this-true-a5-5a>
+            This seems to have been left like this since it is easier to compile.
+
+            <http://stackoverflow.com/questions/381542/in-c-arrays-why-is-this-true-a5-5a>
         */
         {
             int is[] = { 1, 3, 2 };
@@ -4285,57 +4502,80 @@ int main(int argc, char **argv) {
         }
 
         /*
-        Get array length, find array length.
-
-        In C the only method is to use sizeof.
+        #Get array length on compile time
         */
         {
             int is[] = {0, 1, 2};
-            assert(sizeof(is) / sizeof(is[0]) == 3);
+            assert(sizeof(is)/sizeof(is[0]) == 3);
         }
 
         /*
-        #Store array length in variables
+        #Set array length from a variable
 
-            Before C99, it was not possible to store array length in variables,
-            not even if they are const.
+            Before C99, array length had to be a compile time constant expression (C99 6.6):
+            therefore you could not use variables for it, even `const` variables
+            (which can be modified via typecasts).
 
             The two workarounds were:
 
             - enum
             - macros
 
-            C99 introduces VLA which allows that, but may introduce a performace cost.
+            Sometimes you can also get away with `sizeof`, but this is limited.
 
-            In C++ it is possible to store array sizes inside const variables,
-            and this is even more explicit with C++11 `constexpr` keyword.
+            C99 introduces VLA which allows that, but may introduce a performace overhead.
+            If the size is not a compile time constant expression, then the array
+            automatically becomes a VLA.
 
             Bottomline: use enums. Macros have no scope, VLA has overhead.
         */
         {
             {
-                // ERROR
-                // cannot be initialized
-                //int n = 2;
-                //int isVla[n] = { 1, 2 };
+#if __STDC_VERSION__ < 199901L
+                /* ERROR: cannot be initialized */
+                /*
+                int n = 2;
+                int isVla[n] = { 1, 2 };
+                */
+#endif
             }
 
             {
-                // ERROR
-                // cannot be initialized
-                //const int n = 2;
-                //int isVla[n] = { 1, 2 };
+                /* ERROR: cannot be initialized */
+                /*
+                const int n = 2;
+                int isVla[n] = { 1, 2 };
+                */
             }
 
-            // enum. Seems to be the best solution.
+            /* Enum. Seems to be the best general solution. */
             {
-                enum Constexpr { N = 3 };
-                int is[N];
-                is[2] = 1;
+                {
+                    enum N { N = 3 };
+                    int is[N];
+                    assert(sizeof(is)/sizeof(is[0]) == 3);
+                }
+
+                /* Expressions involving enums are also fine. */
+                {
+                    enum N { N = 3 };
+                    int is[N + 1];
+                    assert(sizeof(is)/sizeof(is[0]) == 4);
+                }
             }
 
             /*
-            #macro
+            sizeof works well when you want to copy the size of an existing array
+            that had it size determined by the initialization.
+            */
+            {
+                int is[] = {0, 1, 2};
+                int is2[sizeof(is)/sizeof(is[0])];
+                assert(sizeof(is2)/sizeof(is2[0]) == 3);
+            }
+
+            /*
+            #Macro
 
                 Shares the disadvantage of every macro of having no scope.
 
@@ -4349,7 +4589,7 @@ int main(int argc, char **argv) {
 
 #if __STDC_VERSION__ >= 199901L
             /*
-            #vla #variable length array
+            #VLA #Variable length array
 
                 Implementation:
 
@@ -4393,18 +4633,40 @@ int main(int argc, char **argv) {
         }
 #endif
 
-        // pointers and arrays are different
+        /* Array type madness. */
         {
-            puts("pointers and arrays are different types:");
-            printf("sizeof(int)    = %zu\n", sizeof(int));
-            printf("sizeof(int*)   = %zu\n", sizeof(int*));
-            printf("sizeof(int[3]) = %zu\n", sizeof(int[3]));
-            // ERROR: incomplete type
-            //printf("sizeof(int[]) = %d\n",sizeof(int[]));
+            /* Pointers and arrays are different types. */
+            {
+                assert(sizeof(int*) != sizeof(int[3]));
+                assert(sizeof(int[3]) == 3 * sizeof(int));
+                /*
+                #int []
+
+                    Is this a type? is it different from int*?
+                */
+            }
+
+            /* Some operators like `+` implicly convert arrays to pointers to the same type. */
+            {
+                int is[2];
+                assert(sizeof(is + 1) == sizeof(int*));
+            }
+
+            /*
+            ERROR: declaration of `vs` as an array of voids.
+            You cannot have an array of void: how many bytes should the compiler allocate?
+            */
+            {
+                /*void vs[2];*/
+            }
+
+            /* ERROR: ou can't declare multidimentional arrays like that. */
+            {
+                /*int[2] iss[2];*/
+            }
         }
 
-
-        // locations in memory of an array
+        /* Locations in memory of an array. */
         {
             int is[3];
             puts("locations of array:");
@@ -4414,21 +4676,25 @@ int main(int argc, char **argv) {
             printf("(void*)&is[2] = %p\n",(void*)&is[2]);
         }
 
-        // for combo
+        // Loop array. The only way is with the good and old for loop.
         {
-            int is[] = {0,1,2};
+            int is[] = { 0, 1, 2 };
             int i;
-            for(i=0; i<3; i++)
-            {
+            for (i=0; i < sizeof(is)/sizeof(is[0]); i++) {
                 printf("%d ",is[i]);
             }
         }
 
         /*
-        #bounds breaking
+        #Bounds breaking
+
+            No bound check is done to avoid overhead.
 
             Time to break down the program by making this access memory
             locations it should not try to access! =)
+
+            Other less fun languages check those things and allow programs to avoid breakdown:
+            C does not. You try to cheat your OS, and the OS kills you.
 
             The C standard specifies that such actions lead to unspecified behaviour.
 
@@ -4438,7 +4704,7 @@ int main(int argc, char **argv) {
             just access another location inside its legal memory address space
             but in a completelly unpredicatable manner, and the os has no way to it did this
 
-            This leads to very hard to debug errors, but is invitable if you want
+            This leads to very hard to debug errors, but is inevitable if you want
             to avoid the overhead of checking arrays bounds on every dereference
         */
         {
@@ -4467,7 +4733,7 @@ int main(int argc, char **argv) {
                 printf("overflow = %d\n", is[2 + i]);
             }
 
-            // this will amost certainly lead to a segmentation fault
+            /* This will almost certainly lead to a segmentation fault. */
             if (0) {
                 for (size_t i = 0; i < SIZE_MAX; i++) {
                     is[i] = 0;
@@ -4478,89 +4744,15 @@ int main(int argc, char **argv) {
         }
 
         /*
-        #memcmp
+        #Multidimentional arrays
 
-            Compare arrays like strcmp
+            Before using them, always consider using single dimentional arrays,
+            which are much simpler to handle with some multiplication and modulos.
 
-            memcmp may be is faster than for loop because the compiler may optimize it better.
+            It is easier to explicily calculate indexes than to deal with the C
+            type system.
 
-            One catch: float NaN.
-        */
-        {
-            int is[]  = { 0, 1, 2 };
-            int is2[] = { 0, 1, 2 };
-
-            // Compares addresses, not data!
-            assert(is != is2);
-
-            assert(memcmp(is, is2, 3 * sizeof(int)) == 0);
-            is[1] = 0;
-            assert(memcmp(is, is2, 3 * sizeof(int)) < 0);
-            is[1] = 2;
-            assert(memcmp(is, is2, 3 * sizeof(int)) > 0);
-
-#if __STDC_VERSION__ >= 199901L
-            /* memcmp with compound literals. */
-            {
-                int is[] = { 2, 0, 1 };
-                assert(memcmp(is, &(int [3]){ 2, 0, 1 }, 3 * sizeof(int)) == 0);
-            }
-#endif
-        }
-
-        /*
-        #memcpy
-
-            Copy one array into another.
-
-            Potentially faster than a for loop like:
-
-                for(i=0; i<3; i++){
-                    is2[i] = is[i];
-                }
-
-            Since in some architectures this can be implemented with more efficient instructions
-            than a naive for, and your compiler may not be smart enough to optimize this if you use a for.
-        */
-        {
-            int is[] = { 0, 1, 2 };
-            int is2[3];
-
-            memcpy(is2, is, 3 * sizeof(int));
-            assert(memcmp(is, is2, 3 * sizeof(int)) == 0);
-
-#if __STDC_VERSION__ >= 199901L
-            // compound literals copy
-            {
-                memcpy(&is, &(int [5]){ 0, 1, 2 }, sizeof(is));
-                assert(memcmp(is, &(int [5]){ 0, 1, 2 }, 3 * sizeof(int)) == 0);
-            }
-#endif
-
-        }
-
-        /*
-        #memset
-
-            Set memory block to a single value.
-
-            Like memcpy, potentially more efficient than a for loop.
-        */
-        {
-            char cs[] = "abcdef";
-            memset(cs + 2, '0', 3);
-            assert(strcmp(cs, "ab000f") == 0);
-        }
-
-        /*
-        #multidimentional arrays
-
-            before using this, always consider using single dimentional arrays,
-            which are much simpler to handle.
-
-            cases where this would be a better design choice:
-
-            TODO
+            Cases where this would be a better design choice: TODO
         */
         {
             int *m1[2];
@@ -4683,7 +4875,7 @@ int main(int argc, char **argv) {
         /*
         #string
 
-            By convention, *c strings* are simply char arrays
+            By convention, *C strings* are simply char arrays
             terminated by the null character.
 
             This convention is used throughout libc string functions,
@@ -4803,281 +4995,6 @@ int main(int argc, char **argv) {
                     }
                     */
                 }
-            }
-
-            /*
-            #string.h
-
-                String operations.
-
-                Uses '\0' to see ther string ends so callers don't need to give lengths.
-            */
-            {
-                /*
-                #sprintf
-
-                    Same as printf, but stores result in a given string.
-
-                    Make sure that the string is large enough to contain the output.
-
-                    If this is a hard and important task, consider `snprintf` + malloc.
-                */
-                {
-                    char cs[] = "123";
-                    char cs2[4];
-                    sprintf(cs2, "%s", cs);
-                    assert(strcmp(cs, cs2) == 0);
-                }
-
-#if __STDC_VERSION__ >= 199901L
-
-                /*
-                #snprintf
-
-                    Like `sprintf`, but writes at most n bytes, so it is safer,
-                    because it may not be possible or easy to calculate the resulting
-                    size of a formated string.
-
-                    The size given *includes* the null terminator.
-                */
-                {
-                    char cs[] = "123";
-                    char cs2[3];
-                    snprintf(cs2, 3, "%s", cs);
-                    assert(strcmp(cs2, "12") == 0);
-                }
-#endif
-
-                /*
-                #strlen
-
-                    Get string length (up to first '\0').
-                */
-                {
-                    char cs[] = "abc";
-                    assert(strlen(cs) == 3);
-                }
-
-                /*
-                #strcpy
-
-                    Copy one string (up to first '\0') into another location.
-
-                    If they overlap, undefined behaviour.
-
-                    Could be more efficient than a for loop since it could
-                    tell the compiler to use a better specialized instruction.
-                */
-                {
-                    char cs[] = "abc";
-                    char cs2[4];
-                    char cs3[1];
-
-                    strcpy(cs2, cs);
-                    strcpy(cs2, "abc");
-
-                    //BAD: no born checking as always
-
-                        //strcpy(cs3, "abc");
-                }
-
-                /*
-                #strncpy
-
-                    strcpy with maximum chars to copy.
-                */
-
-                /*
-                #strcmp
-
-                    Compare two strings
-                */
-                {
-                    char cs[] = "abc";
-                    char cs2[] = "abc";
-
-                    assert(strcmp(cs, cs2) == 0);
-                    assert(strcmp(cs, "abc") == 0);
-                        //equality
-                    cs[1] = 'a';
-                    assert(strcmp(cs, cs2) < 0);
-                        //smaller
-                    cs[1] = 'd';
-                    assert(strcmp(cs, cs2) > 0);
-                        //larget
-                }
-
-                /*
-                #strcat
-
-                    Concatenate two strings.
-                */
-                {
-
-                    char s1[5];
-                    strcpy(s1, "ab");
-                    char s2[] = "cd";
-                    strcat(s1, s2);
-                    assert(strcmp(s1, "abcd") == 0);
-                    assert(strcmp(s2, "cd"  ) == 0);
-                }
-
-                /*
-                #strchr
-
-                    Search for char in string.
-
-                    Return pointer to that char if found.
-
-                    Return null if not found.
-                */
-                {
-                    {
-                        char cs[] = "abcb";
-                        assert(strchr(cs, 'b') == cs + 1);
-                        assert(strchr(cs, 'd') == NULL);
-                    }
-
-                    /*
-                    find all occurences of c in cs
-
-                    no direct libc function for this
-                    */
-                    {
-                        char cs[] = "abcb";
-                        char* cp;
-                        char c = 'b';
-                        int is[] = { 1, 3 };
-
-                        int i = 0;
-                        cp = strchr(cs, c);
-                        while(cp != NULL)
-                        {
-                            assert(cp - cs == is[i]);
-                            cp = strchr(cp + 1, c);
-                            ++i;
-                        }
-                    }
-                }
-
-
-                /*
-                #split
-
-                    See strtok
-
-                #strtok
-
-                    split string at a given character sequence.
-
-                    <http://en.cppreference.com/w/c/string/byte/strtok>
-                */
-
-                /*
-                #ctype.h
-
-                    character classficiation functions
-                */
-                {
-#include <ctype.h>
-                    // #isspace
-                    {
-                        assert(isspace(' '));
-                        assert(isspace('\n'));
-                        assert(!isspace('a'));
-                    }
-
-                    // #isdigit
-                    {
-                        assert(isdigit('0'));
-                        assert(!isdigit('a'));
-                    }
-
-                    // #ispunct
-                    {
-                        assert(ispunct('"'));
-                        assert(ispunct('('));
-                        assert(ispunct('.'));
-                        assert(!ispunct('a'));
-                        assert(!ispunct('0'));
-                    }
-                }
-
-                /*
-                #strerror
-
-                    Returns a readonly pointer to the description of the error with the given number:
-
-                        char *strerror(int errnum);
-
-                    Also consider perror if you want to print those error messages to stderr.
-                */
-                {
-                    printf("strerror(EDOM) = \"%s\"\n", strerror(EDOM));
-                }
-            }
-
-            /*
-            #unicode
-
-                Use wchar.
-
-            #wchar
-            */
-            {
-#include <wchar.h>
-                char cs[] = "汉语";
-                printf("%s\n", cs);
-
-                // BAD: only changes first byte you get trash all over:
-                //cs[0] = 'a';
-                //printf("%s\n",cs);
-
-                // WARN
-                //cs[0] = '英';
-
-                // you *need* setlocale to print correctly:
-                setlocale(LC_CTYPE, "");
-
-                wchar_t  wcs[] = L"汉语";
-
-                printf("%ls\n", wcs);
-
-                wcs[0] = L'英';
-                printf("%ls\n", wcs);
-
-                wcs[0] = L'a';
-                printf("%ls\n", wcs);
-
-                // ERROR: non wide init
-                //wchar_t  wideString2[] = "asdf";
-            }
-
-            /*
-            #strcoll
-            */
-            {
-                //TODO0 example
-            }
-
-            /*
-            #strcspn
-
-                How many characters in s1 are there before the first character present in s2.
-            */
-            {
-                assert(strcspn("ab01", "10") == 2);
-                assert(strcspn("a0b1", "10") == 1);
-            }
-
-            /*
-            #strpbrk
-
-                Point to the first character in s1 that is in s2.
-            */
-            {
-                char *s1 = "ab01";
-                assert(strpbrk(s1, "10") - s1 == 2);
             }
         }
     }
@@ -7788,6 +7705,401 @@ int main(int argc, char **argv) {
         }
 
         /*
+        #string.h
+
+            String and array operations.
+
+            The `str` prefixed functions use '\0' to see ther string ends
+            so callers don't need to give lengths.
+
+            Many of the functions exist both on `str` and `mem` forms,
+            where the `mem` form also takes a size.
+        */
+        {
+            /*
+            #memcpy
+
+                Copy one array into another.
+
+                Potentially faster than a for loop like:
+
+                    for(i=0; i<3; i++){
+                        is2[i] = is[i];
+                    }
+
+                Since in some architectures this can be implemented with more efficient instructions
+                than a naive for, and your compiler may not be smart enough to optimize this if you use a for.
+
+                If overlap, undefined behavior. Use memmove in that case.
+            */
+            {
+                {
+                    int is[] = { 0, 1, 2 };
+                    int is2[sizeof(is)/sizeof(is[0])];
+                    memcpy(is2, is, sizeof(is));
+                    assert(memcmp(is, is2, sizeof(is)) == 0);
+                }
+
+#if __STDC_VERSION__ >= 199901L
+                // Compound literal copy.
+                {
+                    int is[3];
+                    memcpy(&is, &(int []){ 0, 1, 2 }, sizeof(is));
+                    assert(memcmp(is, &(int []){ 0, 1, 2 }, sizeof(is)) == 0);
+                }
+#endif
+            }
+
+            /*
+            #memmove
+
+                Same as memcpy, but overlap may happen, thus slower.
+            */
+            {
+                int is[]  = { 0, 1, 2, 3, 4, 5 };
+                int is2[] = { 0, 1, 0, 1, 2, 5 };
+                memmove(is + 2, is, 3 * sizeof(int));
+                assert(memcmp(is, is2, sizeof(is)) == 0);
+            }
+
+            /*
+            #strcpy
+
+                Copy one string (up to first '\0') into another location.
+
+                If they overlap, undefined behaviour.
+
+                Could be more efficient than a for loop since it could
+                tell the compiler to use a better specialized instruction.
+            */
+            {
+                char cs[] = "abc";
+                char cs2[4];
+                char cs3[1];
+
+                strcpy(cs2, cs);
+                strcpy(cs2, "abc");
+
+                //BAD: no born checking as always
+
+                    //strcpy(cs3, "abc");
+            }
+
+            /*
+            #sprintf
+
+                Same as printf, but stores result in a given string.
+
+                Make sure that the string is large enough to contain the output.
+
+                If this is a hard and important task, consider `snprintf` + malloc.
+            */
+            {
+                char cs[] = "123";
+                char cs2[4];
+                sprintf(cs2, "%s", cs);
+                assert(strcmp(cs, cs2) == 0);
+            }
+
+#if __STDC_VERSION__ >= 199901L
+            /*
+            #snprintf
+
+                Like `sprintf`, but writes at most n bytes, so it is safer,
+                because it may not be possible or easy to calculate the resulting
+                size of a formated string.
+
+                The size given *includes* the null terminator.
+            */
+            {
+                char cs[] = "123";
+                char cs2[3];
+                snprintf(cs2, 3, "%s", cs);
+                assert(strcmp(cs2, "12") == 0);
+            }
+#endif
+
+            /*
+            #strlen
+
+                Get string length (up to first '\0').
+            */
+            {
+                char cs[] = "abc";
+                assert(strlen(cs) == 3);
+            }
+
+            /*
+            #strncpy
+
+                strcpy with maximum chars to copy.
+            */
+
+            /*
+            #memcmp
+
+                Compare arrays like strcmp.
+
+                memcmp may be is faster than for loop because
+                the compiler may optimize it better. TODO how, e.g. in x86?
+
+                One catch: float NaN.
+            */
+            {
+                int is[]  = { 0, 1, 2 };
+                int is2[] = { 0, 1, 2 };
+
+                // Compares addresses, not data!
+                assert(is != is2);
+
+                assert(memcmp(is, is2, 3 * sizeof(int)) == 0);
+                is[1] = 0;
+                assert(memcmp(is, is2, 3 * sizeof(int)) < 0);
+                is[1] = 2;
+                assert(memcmp(is, is2, 3 * sizeof(int)) > 0);
+
+#if __STDC_VERSION__ >= 199901L
+                /* memcmp with compound literals. */
+                {
+                    int is[] = { 2, 0, 1 };
+                    assert(memcmp(is, &(int [3]){ 2, 0, 1 }, 3 * sizeof(int)) == 0);
+                }
+#endif
+            }
+
+            /*
+            #strcmp
+
+                Compare two strings
+            */
+            {
+                char cs[] = "abc";
+                char cs2[] = "abc";
+
+                assert(strcmp(cs, cs2) == 0);
+                assert(strcmp(cs, "abc") == 0);
+                    //equality
+                cs[1] = 'a';
+                assert(strcmp(cs, cs2) < 0);
+                    //smaller
+                cs[1] = 'd';
+                assert(strcmp(cs, cs2) > 0);
+                    //larget
+            }
+
+            /*
+            #strcat
+
+                Concatenate two strings.
+            */
+            {
+
+                char s1[5];
+                strcpy(s1, "ab");
+                char s2[] = "cd";
+                strcat(s1, s2);
+                assert(strcmp(s1, "abcd") == 0);
+                assert(strcmp(s2, "cd"  ) == 0);
+            }
+
+            /*
+            #memchr
+
+                mem version of strchr.
+            */
+
+            /*
+            #strchr
+
+                Search for char in string.
+
+                Return pointer to that char if found.
+
+                Return NULL if not found.
+            */
+            {
+                {
+                    char cs[] = "abcb";
+                    assert(strchr(cs, 'b') == cs + 1);
+                    assert(strchr(cs, 'd') == NULL);
+                }
+
+                /*
+                Find all occurences of c in cs:
+                there is no direct libc function for this.
+                */
+                {
+                    char cs[] = "abcb";
+                    char* cp;
+                    char c = 'b';
+                    int is[] = { 1, 3 };
+
+                    int i = 0;
+                    cp = strchr(cs, c);
+                    while(cp != NULL) {
+                        assert(cp - cs == is[i]);
+                        cp = strchr(cp + 1, c);
+                        ++i;
+                    }
+                }
+            }
+
+            /*
+            #strrchr
+
+                Find last match of character in string.
+            */
+            {
+                char cs[] = "abcb";
+                assert(strrchr(cs, 'b') == cs + 3);
+                assert(strrchr(cs, 'd') == NULL);
+            }
+
+            /*
+            #strstr
+
+                Find first match of string in string.
+            */
+            {
+                char cs[] = "abcabcd";
+                assert(strstr(cs, "bc") == cs + 1);
+                assert(strstr(cs, "bd") == NULL);
+            }
+
+            /*
+            #split
+
+                See strtok
+
+            #strtok
+
+                Split string at a given character sequence.
+
+                <http://en.cppreference.com/w/c/string/byte/strtok>
+            */
+
+            /*
+            #strerror
+
+                Returns a readonly pointer to the description of the error with the given number:
+
+                    char *strerror(int errnum);
+
+                Also consider perror if you want to print those error messages to stderr.
+            */
+            {
+                printf("strerror(EDOM) = \"%s\"\n", strerror(EDOM));
+            }
+
+            /*
+            #strcoll
+            */
+            {
+                // TODO example
+            }
+
+            /*
+            #strcspn
+
+                How many characters in s1 are there before the first character present in s2.
+            */
+            {
+                assert(strcspn("ab01", "10") == 2);
+                assert(strcspn("a0b1", "10") == 1);
+            }
+
+            /*
+            #strpbrk
+
+                Point to the first character in s1 that is in s2.
+            */
+            {
+                char *s1 = "ab01";
+                assert(strpbrk(s1, "10") - s1 == 2);
+            }
+
+            /*
+            #memset
+
+                Set memory block to a single value.
+
+                Like memcpy, potentially more efficient than a for loop.
+            */
+            {
+                char cs[] = "abcdef";
+                memset(cs + 2, '0', 3);
+                assert(strcmp(cs, "ab000f") == 0);
+            }
+
+        }
+
+        /*
+        #ctype.h
+
+            character classficiation functions
+        */
+        {
+#include <ctype.h>
+            // #isspace
+            {
+                assert(isspace(' '));
+                assert(isspace('\n'));
+                assert(!isspace('a'));
+            }
+
+            // #isdigit
+            {
+                assert(isdigit('0'));
+                assert(!isdigit('a'));
+            }
+
+            // #ispunct
+            {
+                assert(ispunct('"'));
+                assert(ispunct('('));
+                assert(ispunct('.'));
+                assert(!ispunct('a'));
+                assert(!ispunct('0'));
+            }
+        }
+
+        /*
+        #unicode
+
+            Use wchar.
+
+        #wchar
+        */
+        {
+#include <wchar.h>
+            char cs[] = "汉语";
+            printf("%s\n", cs);
+
+            // BAD: only changes first byte you get trash all over:
+            //cs[0] = 'a';
+            //printf("%s\n",cs);
+
+            // WARN
+            //cs[0] = '英';
+
+            // You *need* setlocale to print correctly:
+            setlocale(LC_CTYPE, "");
+
+            wchar_t  wcs[] = L"汉语";
+
+            printf("%ls\n", wcs);
+
+            wcs[0] = L'英';
+            printf("%ls\n", wcs);
+
+            wcs[0] = L'a';
+            printf("%ls\n", wcs);
+
+            // ERROR: non wide init
+            //wchar_t  wideString2[] = "asdf";
+        }
+
+        /*
         #math.h
 
             Mathematical functions.
@@ -8916,9 +9228,55 @@ int main(int argc, char **argv) {
         }
     }
 
-    atexit(atexit_func);
-    if (0) exit_func();
-    if (0) abort_func();
+    /*
+    #Design patterns
+
+        A good way to learn is to look at existing libraries:
+
+        - <https://github.com/libgit2/libgit2>
+    */
+    {
+        /*
+        #Objects
+
+            Prefix every function that acts on an object with the name of the object.
+
+            The first non return parameter of the function
+            should be a pointer to the struct, AKA self in many languages.
+
+            E.g., libgit 2 repository methods are all of the type:
+
+                git_repository_X(git_repository* repo, ...);
+        */
+
+        /*
+        #Private struct fields
+
+            Use opaque structs and expose public fields through getter and setter methods.
+        */
+
+        /*
+        #Namespaces like in C++
+
+            Prefix everything public in your entire libray with a single identifier.
+
+            E.g., in libgit2, every public identifier starts with `git_`.
+
+            Of course, with this it is not possible to omit the namespace like in C++,
+            but many C++ coding styles don't allow that either because it becomes confusing what is what.
+        */
+    }
+
+    /*
+    #atexit
+
+        Function gets called when process ends via `exit` or a `return` on the `main` function.
+    */
+    {
+        atexit(atexit_func);
+        if (0) exit_func();
+        if (0) abort_func();
+    }
 
     /*
     #main return #return
@@ -8930,9 +9288,8 @@ int main(int argc, char **argv) {
 
         C99: return is optional. If omited a `return 0` is added to the program.
     */
-
-    // Main returns status:
-
+    {
         return EXIT_SUCCESS;
         return EXIT_FAILURE;
+    }
 }
