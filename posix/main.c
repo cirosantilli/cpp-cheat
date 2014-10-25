@@ -413,7 +413,7 @@ int main(int argc, char** argv) {
     }
 
     /*
-    #file descriptors
+    #File descriptors
 
         `int` identifier to a data stream.
 
@@ -422,7 +422,7 @@ int main(int argc, char** argv) {
         One very important property of file descriptors is the current position from which read and write shall operate.
         Reads and writes move the current position forward.
 
-        #file descriptors vs ANSI C FILE objects
+        #File descriptors vs ANSI C FILE objects
 
             ANSI C supports only the concept of file pointers via the `FILE` macro.
 
@@ -1757,13 +1757,11 @@ int main(int argc, char** argv) {
 
             - effective may be different depending on the suid and sgid bits
 
-        #getguid
-
-            Like `getuid` but for user group.
-
         #setuid
 
-            Set the user id if you have the priviledges.
+        #getguid
+
+            Like `uid` versions but for group.
 
         #getppid
 
@@ -1771,6 +1769,24 @@ int main(int argc, char** argv) {
 
         It seems that it is not possible to list all children of a process in POSIX:
         <http://stackoverflow.com/questions/1009552/how-to-find-all-child-processes>
+
+        #getsid
+
+        #setsid
+
+        #setpgid
+
+        #getpgid
+
+        #setpgrp
+
+        #getpgrp
+
+        #Session
+
+        #Process group
+
+            TODO http://en.wikipedia.org/wiki/Process_group
     */
     {
         uid_t uid  = getuid();
@@ -2124,8 +2140,14 @@ int main(int argc, char** argv) {
 
     #vfork
 
-        Fork but keep same address space. POSIX 7 discourages its use,
+        Fork but keep same address space. POSIX 7 discourages it's use,
         and says that it may be deprecated in the future
+
+        Somewhat similar to threads.
+
+    #posix_spawn
+
+        TODO
 
     #wait
 
@@ -2141,16 +2163,16 @@ int main(int argc, char** argv) {
 
     #copy on write #COW
 
-        often the fork is followed by an operation which does not use the old memory
+        Often the fork is followed by an operation which does not use the old memory
         such as `exec`, making copying the data useless.
 
-        some operating systems may at first not copy memory from old process,
+        Some operating systems may at first not copy memory from old process,
         but wait util memory is written to do that.
 
-        this has page granularity (physical RAM parameter, larger than most variables)
+        This has page granularity (physical RAM parameter, larger than most variables)
     */
     {
-        //this variable will be duplicated on the parent and on the child
+        // This variable will be duplicated on the parent and on the child.
         int i = 0;
         int ppid; /* parent pid */
 
@@ -2160,19 +2182,19 @@ int main(int argc, char** argv) {
             exit(EXIT_FAILURE);
         }
 
-        //this variable is visible only by the parent
-        //TODO0 is the compiler smart enough not to duplicate this to the child?
+        // This variable is visible only by the parent
+        // TODO0 is the compiler smart enough not to duplicate this to the child?
         {
             //int i = 0;
         }
 
         puts("fork parent only before child");
 
-        //flush before fork so that existing output won't be repeated twice:
+        // Flush before fork so that existing output won't be repeated twice.
         fflush(stdout);
 
-        //in case of success, pid is set differently on parent and child
-        //so you can distinguish between them. For the child, `pid = 0`.
+        // In case of success, pid is set differently on parent and child
+        // so you can distinguish between them. For the child, `pid = 0`.
         pid_t pid = fork();
         if (pid == -1) {
             perror("fork");
@@ -2180,14 +2202,14 @@ int main(int argc, char** argv) {
         } else {
             puts("fork child and parent");
 
-            //happens on child only:
+            // Happens on child only.
             if (pid == 0) {
                 /*
-                this puts is assynchonous with the process stdout
+                This puts is assynchonous with the process stdout.
 
-                so it might not be in the line program order
+                So it might not be in the line program order.
 
-                but they both go to the same terminal
+                But they both go to the same terminal.
                 */
                 puts("fork child only");
 
@@ -2199,14 +2221,14 @@ int main(int argc, char** argv) {
                 }
                 assert(pid != ppid);
 
-                //this shall only change the child's `i` because memory was cloned (unlike threads)
+                /* This shall only change the child's `i` because memory was cloned (unlike threads) */
                 i++;
 
-                //the child exits here:
+                /* The child exits here. */
                 exit(EXIT_SUCCESS);
             }
 
-            //happens on parent only, before or after child.
+            /* Happens on parent only, before or after child. */
             puts("fork parent only");
 
             //parent waits for the child to end.
@@ -2222,25 +2244,28 @@ int main(int argc, char** argv) {
             //memory was cloned, parent i was only modified in child memory
             assert(i == 0);
         }
-    }
 
-    /*
-    Forking too many processes
+        /*
+        #Fork bomb
 
-    Time to have some destructive fun and test the limits on how many processes the system can have.
+            Time to have some destructive fun and test the limits
+            of how many processes the system can have.
 
-    This will generate an infinite number of processes. Each one will sleep and terminate.
+            This will try generate an infinite number of processes.
+            Each one will sleep and terminate.
 
-    **SAVE ALL DATA BEFORE DOING THIS!!!**
+            **SAVE ALL DATA BEFORE DOING THIS!!!**
 
-    My computer bogged down and I could do nothing about it except turn off the power.
-    */
-    if (0) {
-        while (1) {
-            pid_t pid = fork();
-            if (pid == -1) {
-                perror("fork");
-                assert(false);
+            My computer bogged down and I could do nothing about it
+            except turn off the power.
+        */
+        if (0) {
+            while (1) {
+                pid_t pid = fork();
+                if (pid == -1) {
+                    perror("fork");
+                    assert(false);
+                }
             }
         }
     }
@@ -2289,7 +2314,7 @@ int main(int argc, char** argv) {
         and many operations on them are the same as operation on disk files using
         functions such as `write` and `read`.
 
-        #pipes are RAM only
+        #Pipes are RAM only
 
             Pipes are meant to be implementable on RAM only without using the filesystem.
 
@@ -2300,7 +2325,7 @@ int main(int argc, char** argv) {
             such as `ftell` and `fseek` are not possible.
             There are also fcntl flags which cannot be applied to pipes.
 
-        #read and write operations on pipes
+        #Read and write operations on pipes
 
             Read and write operations may be slightly differnt depending on the file descriptor type.
 
@@ -2310,7 +2335,7 @@ int main(int argc, char** argv) {
 
             See the documentation of read and write for the details.
 
-        #forbidden pipe operations
+        #Forbidden pipe operations
 
             Since pipes are meant to be implemented on RAM only, pipes cannot be rewinded.
 
@@ -2322,14 +2347,14 @@ int main(int argc, char** argv) {
             It seems that the only way to ask for forgiveness rather than permission and just do a `ftell`.
             <http://stackoverflow.com/questions/3238788/how-to-determine-if-a-file-descriptor-is-seekable>
 
-        #advantages over using files
+        #Advantages over using files
 
             Potentially faster because possible to be RAM only.
 
             If the read happens before the write it blocks untill the write is done.
             This lets the OS manage all the synchronization.
 
-        #pipe capacity
+        #Pipe capacity
 
             There is a maximum data ammount that can be writen to a pipe.
 
@@ -2343,7 +2368,7 @@ int main(int argc, char** argv) {
     */
     {
         /*
-        #unnamed pipe
+        #Unnamed pipe
 
             Can be created either via `popen` or `pipe`
 
@@ -2409,18 +2434,18 @@ int main(int argc, char** argv) {
 
         #pclose
 
-            waits for child generated process.
+            Wait for child generated process.
 
-            returns child exit status.
+            Return child exit status.
 
-            if child was already waited for, returns -1 to indicate an error.
+            If child was already waited for, return `-1` to indicate an error.
 
             errno may or not be set depending on what caused the error.
         */
         {
-            //read from stdout of command and get its exit status
+            /* Read from stdout of command and get its exit status. */
             {
-                //popen uses ANSI C fread which uses ANSI C FILE type:
+                /* popen uses ANSI C fread which uses ANSI C FILE type: */
                 FILE* read_fp;
                 char buffer[BUFSIZ + 1];
                 char cmd[1024];
@@ -2441,12 +2466,12 @@ int main(int argc, char** argv) {
                     printf("popen failed\n");
                     exit(EXIT_FAILURE);
                 } else {
-                    do
-                    {
+                    do {
                         chars_read = fread(buffer, sizeof(char), BUFSIZ, read_fp);
                         buffer[chars_read] = '\0';
                         printf("======== n bytes read: %d\n", chars_read);
-                        //printf("%s\n", buffer); //if you want to see a bunch of 'a's...
+                        /* If you want to see a bunch of 'a's... */
+                        /*printf("%s\n", buffer); */
                         read_cycles++;
                     } while (chars_read == BUFSIZ);
 
@@ -2462,7 +2487,7 @@ int main(int argc, char** argv) {
                 }
             }
 
-            //write to stdin of command, its stdout goes to current stdout
+            /* Write to stdin of command, its stdout goes to current stdout. */
             {
                 FILE *write_fp;
                 char buf[BUFSIZ];
@@ -2470,19 +2495,20 @@ int main(int argc, char** argv) {
 
                 memset(buf, 'b', BUFSIZ);
 
-                //counts how many charaters were given to stdin
-                //using many sh features to make it clear that a sh interpreter is called
+                /*
+                Counts how many charaters were given to stdin
+                using many sh features to make it clear that a sh interpreter is called.
+                */
                 write_fp = popen("read A; printf 'popen write = '; printf $A | wc -c", "w");
 
                 if (write_fp == NULL) {
                     assert(false);
                 } else {
-                    //TODO0 is safe to write twice BUFSIZ without a newline in the middle?
+                    /* TODO is safe to write twice BUFSIZ without a newline in the middle? */
                     fwrite(buf, sizeof(char), BUFSIZ, write_fp);
                     fwrite(buf, sizeof(char), BUFSIZ, write_fp);
 
-                    //prints 2 * BUFSIZ
-                    //command waits until pipe close
+                    /* Print `2 * BUFSIZ` command waits until pipe close. */
                     exit_status = pclose(write_fp);
                     assert(exit_status == 0);
                 }
@@ -3154,6 +3180,9 @@ int main(int argc, char** argv) {
         OSes may keep disk writes for later for efficienty, grouping several writes into one.
 
         This explicitly tells the OS to write everything down.
+
+        `fclose` only flushes data from internal C library bufferes to the OS,
+        but does not guarantee that the OS has written the data to disk.
 
         TODO what is an application for this, except before shutting down the system?
 

@@ -2916,13 +2916,24 @@ void printCallStack() {
 
 int main(int argc, char **argv) {
 
-    // Scope.
+    //#Scope
     {
-        // Unlike in C, struct tags and variable names live in the same space.
-        // The only way to refer to the struct is by appending `struct` do disambiguate.
-        // Note that in C++ you can normally omit it.
-        // `struct s` is called an #elaborated-type-specifier.
-        // <http://stackoverflow.com/a/14261176/895245>
+        /*
+        #typedef struct
+
+        #typedef class
+
+            #struct keyword omission
+
+            Unlike in C, struct tags and variable names live in the same namespace.
+
+            In C++ you can normally omit `struct`
+            `struct s` is called an #elaborated-type-specifier.
+            <http://stackoverflow.com/a/14261176/895245>
+
+            But if there is ambiguity, the only way to refer to the struct
+            is by appending `struct`.
+        */
         {
             int s = 1;
             struct s {int i;};
@@ -2931,6 +2942,14 @@ int main(int argc, char **argv) {
             //s t = {1};
             struct s t = {1};
             assert(t.i == 1);
+
+            int c = 1;
+            class c { public: int i; };
+            assert(c == 1);
+            // ERROR
+            //c u = {1};
+            class c u = {1};
+            assert(u.i == 1);
         }
     }
 

@@ -1,4 +1,4 @@
-# C++ Cheat
+# ![logo](logo.jpg) C++ Cheat
 
 [![Build Status](https://travis-ci.org/cirosantilli/cpp-cheat.svg?branch=master)](https://travis-ci.org/cirosantilli/cpp-cheat)
 
