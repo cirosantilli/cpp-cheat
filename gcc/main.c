@@ -18,9 +18,9 @@ because of the large influence of gcc.
 */
 
 #include <assert.h>
-#include <complex.h>   // Complex integer types
+#include <complex.h>   /* Complex integer types */
 #include <math.h>
-#include <stdarg.h>    // ..., va_list, va_start, va_arg, va_end
+#include <stdarg.h>    /* ..., va_list, va_start, va_arg, va_end */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -29,9 +29,9 @@ int nested() {
     return 0;
 }
 
-// Attribute
+/* Attribute */
 
-    // #Function attributes
+    /* # Function attributes */
 
         char not_aligned16 = 0;
         char aligned16 __attribute__ ((aligned (16))) = 0;
@@ -46,7 +46,7 @@ int nested() {
             return ret;
         }
 
-        // Format
+        /* Format */
 
             /*
             3 says: the 3rd argument is the format string
@@ -66,13 +66,13 @@ int nested() {
                 return ret;
             }
 
-        // Deprecated
+        /* Deprecated */
 
             void func_deprecated() __attribute__((deprecated));
 
             void func_deprecated(){}
 
-        // Used
+        /* Used */
 
             void func_used() __attribute__((used));
 
@@ -87,7 +87,7 @@ int nested() {
             int func_not_warn_unused_result(){ return 0; }
 
         /*
-        #noreturn
+        # noreturn
 
             It is possible that the function makes the program exit and therefore does not return.
 
@@ -136,7 +136,7 @@ int nested() {
                     return 0;
             }
 
-        // const
+        /* const */
 
             int next(int cur) {
                 return cur + 1;
@@ -148,7 +148,7 @@ int nested() {
                 return cur + 1;
             }
 
-        // Always inline
+        /* Always inline */
 
             /* Function must also be `inline` */
             inline int incr_always_inline(int i) __attribute__((always_inline));
@@ -160,13 +160,13 @@ int nested() {
             int incr(int i){ return i + 1; }
 
     /*
-    #variable attributes
+    # variable attributes
 
         Attributes that apply to individual variables.
     */
 
         /*
-        #section
+        # section
 
             Put *initilized* data on an arbitrary new section.
 
@@ -194,7 +194,7 @@ int nested() {
             int __attribute__((section("newsection1"))) newsection1_var = 1;
             int __attribute__((section("newsection2"))) newsection2_var = 2;
 
-// Do some random operations to try and get the cache dirty.
+/* Do some random operations to try and get the cache dirty. */
 void get_cache_dirty() {
     int i;
     int is[1024];
@@ -206,27 +206,53 @@ void get_cache_dirty() {
 int main();
 
 void builtin_return_address_test() {
-    printf("main                           = %p\n", main);
-    //0 means for current function
-    //1 for the parent of current function
-    //etc.
-    printf("__builtin_return_address(0)    = %p\n", __builtin_return_address(0));
+    /*
+    - 0 means for current function
+    - 1 for the parent of current function
+    - etc.
+    */
+    printf("main                        = %p\n", main);
+    printf("__builtin_return_address(0) = %p\n", __builtin_return_address(0));
     return;
 }
 
 int main() {
 
-    /*
-    #Binary int literals
-
-        start with `0b`:
-    */
+    /* # Literals */
     {
-        assert(0b10000 == 16);
+        /*
+        # Binary int literals
+
+            start with `0b`:
+        */
+        {
+            assert(0b10000 == 16);
+        }
+
+        /*
+        # D double specifier
+
+            Java also allows it, but Java also allows 1D which is more useful.
+        */
+        {
+            assert(1.2D == 1.2);
+        }
+
+        /*
+        # String
+
+        # \e
+
+            Esc escape character. Useful for the ANSI escape sequences,
+            and in particular terminal coloring.
+        */
+        {
+            assert(((int)'\e') == 27);
+        }
     }
 
     /*
-    #Complex integer.
+    # Complex integer.
 
         C99 has floating point complex numbers, but no integer complex numbers.
     */
@@ -237,12 +263,24 @@ int main() {
     }
 
     /*
-    #nested function
+    # Zero length arrays
 
-         is a function defined inside another function (the outter function here is `main`)
+        TODO0 application?
+    */
+    {
+        int is[0];
+        int i;
+        printf("&is[0] = %p\n", &is[0]);
+        printf("&i     = %p\n", &i);
+    }
 
-         this is not a redefinition because it is inside a parenthesis block
-         much like a variable definition inside a parenthesis block
+    /*
+    # Nested function
+
+         Is a function defined inside another function (the outter function here is `main`)
+
+         This is not a redefinition because it is inside a parenthesis block
+         much like a variable definition inside a parenthesis block.
     */
 
         int nested() {
@@ -254,23 +292,21 @@ int main() {
                 return 2;
             }
 
-            // This would cause a redefinition error:
+            /* This would cause a redefinition error: */
 
                 //int nested()
                 //{
                 //    return 2;
                 //}
 
-            // Like variable redefinitions, the nested version overrides all external version
-            // which have become completelly innacessible
+            /* Like variable redefinitions, the nested version overrides all external version */
+            /* which have become completelly innacessible */
 
             assert(nested() == 2);
         }
 
     /*
-    #preprocessor defines
-
-        Only GNU extensions are considered here.
+    # Preprocessor defines
 
         Full list: <http://gcc.gnu.org/onlinedocs/cpp/Common-Predefined-Macros.html#Common-Predefined-Macros>
 
@@ -282,7 +318,7 @@ int main() {
     */
 
     /*
-    #Version numbers
+    # Version numbers
 
         `__GNUC__`           : major
         `__GNUC_MINOR__`     : minor
@@ -300,7 +336,7 @@ int main() {
 
         in `<features.h>`.
 
-    #Detect if in GCC
+    # Detect if in GCC
 
         #ifdef __GNUC__ is a good common way.
     */
@@ -344,7 +380,7 @@ int main() {
     }
 
     /*
-    #attribute
+    # Attribute
 
         Specifies special attributes of functions or data.
 
@@ -380,7 +416,7 @@ int main() {
 
         and two attributes; noreturn and carries_dependency.
 
-    #multiple attributes
+    # Multiple attributes
 
         Two syntaxes:
 
@@ -393,11 +429,11 @@ int main() {
             extern void die(const char *format, ...)
                 __attribute__((noreturn, format(printf, 1, 2)));
 
-    #reason for double parenthesis
+    # Reason for double parenthesis
 
         See next section.
 
-    #eliminating __attribute__ on non gnu projects
+    # Eliminating __attribute__ on non gnu projects
 
         This is really easy:
 
@@ -407,7 +443,7 @@ int main() {
 
         This only work because attributes can only take a single argument: `(...)`.
 
-    #alternative syntax
+    # Alternative syntax
 
         Add prefix and suffix `__` to keywords and dispense `__attribute__`. Ex:
 
@@ -415,7 +451,7 @@ int main() {
     */
     {
         /*
-        #format
+        # format
 
             If this is used, gcc can check if printf format strings are correct because of the use of attributes,
             and emmit errors otherwise.
@@ -446,7 +482,7 @@ int main() {
         }
 
         /*
-        #deprecated
+        # deprecated
 
             Using a function marked as deprecated will emmit warnings.
         */
@@ -455,7 +491,7 @@ int main() {
         }
 
         /*
-        #used
+        # used
 
             Useful when the function may be called from assembly code, in which case GCC
             may not be easily able to detect that it was called.
@@ -466,14 +502,14 @@ int main() {
         }
 
         /*
-        #warn_unused_result
+        # warn_unused_result
 
             Always emmit a warning if the return value is not used.
 
             Useful to enforce callers to do error checks when the return value signals the error.
         */
         {
-            // No warning.
+            /* No warning. */
             func_not_warn_unused_result();
 
             assert(func_warn_unused_result() == 0);
@@ -484,7 +520,7 @@ int main() {
         }
 
         /*
-        #const
+        # const
 
             A function marked const may be optimized in the sense that the compiler calculates its value at compile time,
             or chaches its result of each calculation.
@@ -504,7 +540,7 @@ int main() {
         }
 
         /*
-        #always_inline
+        # always_inline
 
             Always inline the function.
 
@@ -522,11 +558,11 @@ int main() {
         }
 
         /*
-        #variable attributes
+        # variable attributes
         */
         {
             /*
-            #aligned
+            # aligned
 
                 Aligns variables on X bit lines.
 
@@ -540,7 +576,7 @@ int main() {
             }
 
             /*
-            #packed
+            # packed
 
                 Chars in structs are normally put on 32 bit lines to speed up retrieval.
 
@@ -554,20 +590,20 @@ int main() {
                     char c1;
                     char c2;
                 };
-                struct not_packed not_packed = { 0, 1 };
+                struct not_packed not_packed = {0, 1};
                 assert(sizeof(not_packed) >= 2 * sizeof(char));
 
                 struct packed {
                     char c1;
                     char c2;
                 } __attribute__((packed));
-                struct packed packed = { 0, 1 };
+                struct packed packed = {0, 1};
                 assert(sizeof(packed) == 2 * sizeof(char));
             }
         }
 
         /*
-        #type attributes
+        # type attributes
 
             Attribute that applies to all objects of a newly created user type.
 
@@ -578,7 +614,7 @@ int main() {
         */
         {
             /*
-            #vector extensions
+            # vector extensions
 
                 GCC built-ins for vectorized SIMD operations.
 
@@ -586,24 +622,24 @@ int main() {
 
                 Allowed operators: +, -, *, /, unary minus, ^, |, &, ~, %, ==, !=, <, <=, >, >=
 
-            #vector_size
+            # vector_size
             */
             {
                 typedef int v4si __attribute__ ((vector_size (16)));
 
-                // Create
+                /* Create */
                 {
                     v4si v = {0, 1, 2, 3};
                 }
 
-                // Access
+                /* Access */
                 {
                     v4si v = {0, 1, 2, 3};
                     assert(v[0] == 0);
                     assert(v[1] == 1);
                 }
 
-                // Operations
+                /* Operations */
                 {
                     v4si v = {0, 1, 2, 3};
                     v4si v2 = {0, 1, 2, 3};
@@ -624,11 +660,11 @@ int main() {
     }
 
     /*
-    # Inline assembly #asm
+    # Inline assembly
 
-        #sources
+    # asm
 
-            - great intro: <http://www.ibm.com/developerworks/library/l-ia/index.html>
+        Great intro: <http://www.ibm.com/developerworks/library/l-ia/index.html>
 
         Can be used if you really, really want to optimize at the cost of:
 
@@ -675,9 +711,9 @@ int main() {
 
         Both inputs and outputs are constrats. `X` will indicate the constraint type
 
-        TODO: #__asm__ vs asm
-        TODO: #asmlinkage
-        TODO: #asm volatile
+        TODO: # __asm__ vs asm
+        TODO: # asmlinkage
+        TODO: # asm volatile
     */
     {
         /*
@@ -689,7 +725,7 @@ int main() {
 
 #ifdef __i386__
         /*
-        #m constraint
+        # m constraint
 
             Instructs gcc to store keep value of given expressions into RAM.
 
@@ -709,7 +745,7 @@ int main() {
             assert(out == 1);
         }
 
-        // No input.
+        /* No input. */
         {
             int out = 0;
             //out = 1
@@ -720,7 +756,7 @@ int main() {
             assert(out == 1);
         }
 
-        // Simple example using floats
+        /* Simple example using floats */
         {
             float in = 1.0;
             float out = 0.0;
@@ -735,7 +771,7 @@ int main() {
             assert(out == -1.0);
         }
 
-        // Input and ouput can be the same memory location.
+        /* Input and ouput can be the same memory location. */
         {
             float x = 1.0;
             //x = -x
@@ -750,7 +786,7 @@ int main() {
         }
 
         /*
-        #register constraints
+        # register constraints
 
             tell gcc to automatically read memory into registers or write registers into memory
 
@@ -767,7 +803,7 @@ int main() {
         */
 
         /*
-        #r register constraint
+        # r register constraint
 
             gcc will automatically put the value of `in` from ram into a register for us
             and `out` from a register into ram at the end
@@ -792,7 +828,7 @@ int main() {
         }
 
         /*
-        #matching constraint
+        # matching constraint
 
             Represented by digits.
 
@@ -813,7 +849,7 @@ int main() {
         }
 
         /*
-        #specific register constraints
+        # specific register constraints
 
             If you look at the generated assembly code,
             you will see that x was put into `eax`.
@@ -831,7 +867,7 @@ int main() {
     }
 
     /*
-    #typeof
+    # typeof
 
         Like C++11 decltype.
 
@@ -843,10 +879,10 @@ int main() {
     }
 
     /*
-    #range notation
+    # range notation
     */
     {
-        // case
+        /* case */
         {
             int i = 1;
             switch (i) {
@@ -864,7 +900,7 @@ int main() {
             }
         }
 
-        // Intializations
+        /* Intializations */
         {
             int is[] = { [0 ... 2] = 0, [3 ... 5 ] = 1  };
             assert(memcmp(is, &(int[6]){ 0, 0, 0, 1, 1, 1 }, sizeof(typeof(is))) == 0);
@@ -872,26 +908,13 @@ int main() {
     }
 
     /*
-    #zero length arrays
-
-        TODO0 application?
-    */
-    {
-        int is[0];
-        int i;
-        printf("&is[0] = %p\n", &is[0]);
-        printf("&i     = %p\n", &i);
-
-    }
-
-    /*
-    #builtin
+    # builtin
 
         Many gcc special functions and macros are prefixed `__builtin_`.
     */
     {
         /*
-        #builtin_return_address
+        # builtin_return_address
 
             Get address that function will return to after return.
 
@@ -905,7 +928,7 @@ int main() {
         }
 
         /*
-        #builtin_constant_p()
+        # builtin_constant_p()
 
             Returns true iff gcc could determine that the given expression is constant,
             to decide if compile time optimizations may be done or not.
@@ -924,7 +947,7 @@ int main() {
         }
 
         /*
-        #builtin_expect
+        # builtin_expect
 
             Basis for the `likely` and `unlikely` macros used extensively on the Linux kernel to help with branch prediction:
 
@@ -946,7 +969,7 @@ int main() {
         }
 
         /*
-        #builtin_prefetch
+        # builtin_prefetch
 
             Pulls data into cache shortly before it is needed.
 
@@ -994,5 +1017,6 @@ int main() {
     /*
     Only to silence the warning because I can't use `-std=gnu99` properly.
     */
+    printf("ALL ASSERTS PASSED\n");
     return EXIT_SUCCESS;
 }

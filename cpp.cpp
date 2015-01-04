@@ -3,7 +3,7 @@ C++ cheatsheat.
 
 Features which are identical to C will not be described.
 
-#C++ vs C
+# C++ vs C
 
     C and C++ are two completelly different standards.
 
@@ -46,7 +46,7 @@ Features which are identical to C will not be described.
     It should be used on any new project, except if code efficiency is absolutelly crucial, and even in those cases
     it might be worth it to have a C++ project that use C only features for the 20% critical sections.
 
-#Standards
+# Standards
 
     Like C, C++ is standardized by ISO under the id: ISO/IEC 14882.
 
@@ -60,22 +60,22 @@ Features which are identical to C will not be described.
     Like any standard c++ has several versions noted by year.
     There are also minor revisions knows as technical reports.
 
-    #C++89
+    # C++89
 
         First version.
 
-    #C++03
+    # C++03
 
         Bug fix release, not many new features.
 
-    #TR1 #Technical report 1
+    # TR1 #Technical report 1
 
         2005 draft for extending C++11.
 
         Most of its propositions were accepted for C++11, and before that many compilers implemented
         its propositions.
 
-    #TR2 #Technical report 2
+    # TR2 #Technical report 2
 
         TODO when was it made?
 
@@ -83,7 +83,7 @@ Features which are identical to C will not be described.
 
         It proposes many inclusions from Boost.
 
-    #C++11
+    # C++11
 
         <https://en.wikipedia.org/wiki/C%2B%2B11>
 
@@ -94,11 +94,11 @@ Features which are identical to C will not be described.
         In gcc used to be enabled via `-std=c++0x` flag, now `-std=c++11`.
         Still marked experimental, but good support for the basic features.
 
-    #C++14
+    # C++14
 
         Will come after C++11. Known as C++1Y as many have doubts it will come out in 2014.
 
-#STL vs #stlib
+# STL vs stlib
 
     The term `STL` is *not* mentioned in the C++ ISO standard.
 
@@ -112,7 +112,7 @@ Features which are identical to C will not be described.
 
     Wrtie `stdlib` and say "Standard Library" instead.
 
-#Style
+# Style
 
     -   <http://google-styleguide.googlecode.com/svn/trunk/cppguide.xml>
 
@@ -127,57 +127,57 @@ Features which are identical to C will not be described.
 
         Coding guidelines, clearly exemplified.
 
-#Libraries
+# Libraries
 
     C++ has many major interesting non standard libs.
 
-    #unit testing
+    # unit testing
 
         Google unit test framework:
 
         <http://code.google.com/p/googletest/>
 
-    #linear algebra
+    # linear algebra
 
-        #eigen
+        # eigen
 
             http://eigen.tuxfamily.org/index.php?title=Main_Page
 
             Linear algebra, differential equations.
 
-        #blitz++
+        # blitz++
 
             http://blitz.sourceforge.net/
 
             Linear algebra.
 
-        #armadillo
+        # armadillo
 
             http://arma.sourceforge.net/
 
             Linear algebra.
 
-    #tokamak
+    # tokamak
 
         Rigid body physical engine.
 
-#Funny
+# Funny
 
-- <https://groups.google.com/forum/#!msg/comp.lang.c++.moderated/VRhp2vEaheU/IN1YDXhz8TMJ>
+-   <https://groups.google.com/forum/#!msg/comp.lang.c++.moderated/VRhp2vEaheU/IN1YDXhz8TMJ>
 
     Obscure language features.
 
-- <http://stackoverflow.com/questions/1642028/what-is-the-name-of-this-operator>
+-   <http://stackoverflow.com/questions/1642028/what-is-the-name-of-this-operator>
 
     How can this have so many upvotes?
 
-- <http://stackoverflow.com/questions/6163683/cycles-in-family-tree-software>
+-   <http://stackoverflow.com/questions/6163683/cycles-in-family-tree-software>
 
     Funny...
 
-#Sources
+# Sources
 
-    #Free
+    # Free
 
         -   <http://www.cplusplus.com>
 
@@ -225,7 +225,7 @@ Features which are identical to C will not be described.
 
             Horrible navigation and urls.
 
-    #Non-free
+    # Non-free
 
         -   <http://stackoverflow.com/questions/388242/the-definitive-c-book-guide-and-list>
 
@@ -233,7 +233,7 @@ Features which are identical to C will not be described.
 */
 
 /*
-#Headers
+# Headers
 
     C++ stdlib headers that are not C stdlib headers don't have the `.h` extension,
     and therefore are not included with the `.h` extension.
@@ -245,7 +245,7 @@ Features which are identical to C will not be described.
     When writting new libs, you can use either `.h` or `.hpp` as extensions,
     where `.hpp` indicates that the header is C++ specific, and not pure C.
 
-    #C headers
+    # C headers
 
         The standard C++ library provides a `cNAME` version to every `NAME.h` for every C header.
         E.g.: `math.h` vs `cmath`.
@@ -267,7 +267,7 @@ Features which are identical to C will not be described.
         Avoid using C headers and functionality altogether if that functionality has an equivalent C++ version,
         since the C++ version will play more nicely with new language features and libraries.
 
-#Linux specifics
+# Linux specifics
 
     The main c++ lib on linux is the GNU Standard C++ Library.
 
@@ -398,7 +398,7 @@ void printCallStack() {
         ExceptionDestructor e;
     }
 
-//#class
+// #class
 //{
     class Empty {};
 
@@ -727,7 +727,7 @@ void printCallStack() {
     };
 
     /*
-    #this
+    # this
 
         Magic value that points to the current object.
 
@@ -758,7 +758,7 @@ void printCallStack() {
                 //Base b;
             }
             /*
-            #Initialization list
+            # Initialization list
 
                 Initialization lists have 4 main uses:
 
@@ -767,7 +767,7 @@ void printCallStack() {
                 3) initializing const elements
                 4) initializing member references &
 
-            #Delegating constructors
+            # Delegating constructors
 
                 C++11 also makes it possible to call a different constructor of the current
                 class on the initialization list. This feature is called delegating constructors.
@@ -861,7 +861,7 @@ void printCallStack() {
             <http://stackoverflow.com/questions/634662/non-static-const-member-cant-use-default-assignment-operator>
             */
 
-            //#static
+            // # static
 
                 static void staticMethod();
 
@@ -877,7 +877,7 @@ void printCallStack() {
                 const static int iConstStatic = 0;
 
             /*
-            #member initialization outside of constructor
+            # member initialization outside of constructor
             */
 
                 const int iConstInit = 0;
@@ -944,7 +944,7 @@ void printCallStack() {
     };
 
     /*
-    #friend
+    # friend
 
         Allow external functions and other classes to access private memebers of this class.
 
@@ -956,7 +956,7 @@ void printCallStack() {
 
         <http://www.cplusplus.com/doc/tutorial/inheritance/>
 
-    #friend and templates
+    # friend and templates
 
         Things get complicated when friends and template classes interact:
 
@@ -1024,7 +1024,7 @@ void printCallStack() {
         //int Friend::getFriendI(FriendOfFriend f) {return f.i;}
 
     /*
-    #const method
+    # const method
 
         Methods that cannot change the data of their object.
 
@@ -1052,7 +1052,7 @@ void printCallStack() {
         //this->member.i = 1;
 
         /*
-        #mutable
+        # mutable
 
             OK
 
@@ -1110,7 +1110,7 @@ void printCallStack() {
     // ERROR: must be declared inside.
     //int Base::k;
 
-    //#virtual
+    // # virtual
 
         class BaseAbstract {
 
@@ -1517,7 +1517,7 @@ void printCallStack() {
     };
 
 
-//#global scope
+// #global scope
 
     int global = 0;
 
@@ -1683,7 +1683,7 @@ void printCallStack() {
     int def_no_argname(int, int){return 2;}
 
     /*
-    #auto arguments
+    # auto arguments
     */
 
             /*ERROR: no you can't*/
@@ -1695,7 +1695,7 @@ void printCallStack() {
         */
 
     /*
-    #operator overload
+    # operator overload
 
             Like regular functions, C++ also allows operators to be overloaded
 
@@ -1830,7 +1830,7 @@ void printCallStack() {
                     */
 
                 /*
-                #typecast overload
+                # typecast overload
 
                     Automatic conversions will be done using it.
 
@@ -1893,7 +1893,7 @@ void printCallStack() {
             }
 
         /*
-        #number of arguments
+        # number of arguments
 
             One major difference between regular functions and operators is that operators can only
             have  fixed number of arguments, because they have a very peculiar syntax.
@@ -2090,7 +2090,7 @@ void printCallStack() {
     // ERROR.
     //template<class T> namespace t {}
 
-    //#ADL
+    // # ADL
 
         namespace adl0 {
 
@@ -2144,7 +2144,7 @@ void printCallStack() {
             }
         }
 
-//#preprocessor
+// #preprocessor
 
     // The C++ preprocessor it Turing complete by mistake.
     //
@@ -2152,7 +2152,7 @@ void printCallStack() {
     // which allows you to write code that is ultra DRY / runs fast but is very large.
     // TODO confirm.
 
-//#template
+// #template
 
     /*
     TODO what is this?? why does it compile? how to call this func?
@@ -2169,13 +2169,13 @@ void printCallStack() {
         return t0 + t1;
     }
 
-    //#template integer parameter
+    // # template integer parameter
     template<int N>
     int templateAddInt(int t) {
         return t + N;
     }
 
-    //#template recursion
+    // # template recursion
 
         template<int N>
         int factorial() {
@@ -2191,7 +2191,7 @@ void printCallStack() {
         }
 
     /*
-    #template template parameters
+    # template template parameters
     */
 
         template<typename T>
@@ -2249,7 +2249,7 @@ void printCallStack() {
         };
 
     /*
-    #template default parameters
+    # template default parameters
     */
 
         template<typename T=int, template <typename U> class TT = TemplateTemplateParam, int N=1 >
@@ -2265,7 +2265,7 @@ void printCallStack() {
             return t;
         }
 
-    //#template specialization
+    // # template specialization
 
         template<typename T, typename U>
         double templateSpec(T t, U u) {
@@ -2293,7 +2293,7 @@ void printCallStack() {
             }
         */
 
-    //#template argument deduction
+    // # template argument deduction
 
         template<typename U>
         U templateArgDeduct(U u) {
@@ -2327,7 +2327,7 @@ void printCallStack() {
         }
 
     /*
-    #template class
+    # template class
     */
 
         template<class BASE=Base, class T=int, int N=10>
@@ -2402,7 +2402,7 @@ void printCallStack() {
         }
 
 #if __cplusplus >= 201103L
-        //#template specialization
+        // # template specialization
 
             // Specialization of function for case 12 only.
             template<>
@@ -2533,7 +2533,7 @@ void printCallStack() {
             }
 
 #if __cplusplus >= 201103L
-    //#variadic template
+    // # variadic template
 
         // Base case.
         template <typename T>
@@ -2916,14 +2916,14 @@ void printCallStack() {
 
 int main(int argc, char **argv) {
 
-    //#Scope
+    // # Scope
     {
         /*
-        #typedef struct
+        # typedef struct
 
-        #typedef class
+        # typedef class
 
-            #struct keyword omission
+            # struct keyword omission
 
             Unlike in C, struct tags and variable names live in the same namespace.
 
@@ -2954,7 +2954,7 @@ int main(int argc, char **argv) {
     }
 
     /*
-    #assign operator
+    # assign operator
 
         Unlike in C, C++ assign operator returns lvalues!
 
@@ -2983,7 +2983,7 @@ int main(int argc, char **argv) {
     }
 
     /*
-    #bool
+    # bool
 
         in C++, unlike in C, bool is part of the language.
     */
@@ -3016,7 +3016,7 @@ int main(int argc, char **argv) {
 
     }
 
-    //#unsigned
+    // # unsigned
     {
         unsigned int ui = -1;
         int i = 1;
@@ -3025,7 +3025,7 @@ int main(int argc, char **argv) {
     }
 
     /*
-    #constant expressions at compile time
+    # constant expressions at compile time
 
         <http://en.cppreference.com/w/cpp/language/constant_expression>
 
@@ -3068,7 +3068,7 @@ int main(int argc, char **argv) {
     }
 
     /*
-    #array size from variables
+    # array size from variables
 
         In C++, any constant expression at compile time can be used as an array size.
 
@@ -3101,7 +3101,7 @@ int main(int argc, char **argv) {
     }
 
     /*
-    #const keyword
+    # const keyword
 
         There are differences between the `const` keyword in C and C++!
 
@@ -3185,7 +3185,7 @@ int main(int argc, char **argv) {
 #if __cplusplus >= 201103L
 
     /*
-    #constexpr
+    # constexpr
 
         C++11 keyword.
 
@@ -3285,7 +3285,7 @@ int main(int argc, char **argv) {
 #if __cplusplus >= 201103L
 
     /*
-    #nullptr
+    # nullptr
 
         C++11 keyword.
 
@@ -3293,7 +3293,7 @@ int main(int argc, char **argv) {
 
         <http://stackoverflow.com/questions/1282295/what-exactly-is-nullptr>
 
-    #nullptr_t
+    # nullptr_t
 
         Type of nullptr.
     */
@@ -3333,9 +3333,9 @@ int main(int argc, char **argv) {
 #endif
 
     /*
-    #&
+    # &
 
-    #References.
+    # References.
 
         Basically aliases, similar to `int* const` poinsters or java objects.
 
@@ -3450,7 +3450,7 @@ int main(int argc, char **argv) {
         }
 
         /*
-        #const references
+        # const references
 
             References that do not allow one to modify the value of the variable.
         */
@@ -3541,7 +3541,7 @@ int main(int argc, char **argv) {
         }
 
         /*
-        #reference to pointer
+        # reference to pointer
 
             like for other variable, references can be made to pointer variables.
         */
@@ -3569,7 +3569,7 @@ int main(int argc, char **argv) {
             }
 
             /*
-            #reference to pointer and const
+            # reference to pointer and const
 
                 Just like for pointers to pointers in C, the rules prevent `const` variables
                 from being modified.
@@ -3719,7 +3719,7 @@ int main(int argc, char **argv) {
         }
 
         /*
-        #return reference from function
+        # return reference from function
 
             Just like when returning pointers from functions,
             one must take care not to return dangling references.
@@ -3783,7 +3783,7 @@ int main(int argc, char **argv) {
 #if __cplusplus >= 201103L
 
     /*
-    #auto
+    # auto
 
         C++11 keyword
 
@@ -3842,7 +3842,7 @@ int main(int argc, char **argv) {
 #if __cplusplus >= 201103L
 
     /*
-    #decltype
+    # decltype
 
         C++11 keyword
 
@@ -3876,7 +3876,7 @@ int main(int argc, char **argv) {
 #endif
 
     /*
-    #vla
+    # vla
 
         called variable length array VLS
 
@@ -3900,7 +3900,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    //#enum
+    // # enum
     {
         //unlike c, already does typedef
         {
@@ -3909,7 +3909,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    //#typedef
+    // # typedef
     {
         // It is possible to call constructors with typedefs
         {
@@ -3926,7 +3926,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    //#for
+    // # for
     {
 
         //you can define i inside the for scope only
@@ -3943,9 +3943,9 @@ int main(int argc, char **argv) {
 
 #endif
 
-    //#function
+    // # function
     {
-        //#overload
+        // # overload
         {
             overload(1);
             assert(callStack.back() == "overload(int)");
@@ -3979,14 +3979,14 @@ int main(int argc, char **argv) {
             //i=4;
             //overloadValAddr(i);
 
-            //#default arguments
+            // # default arguments
             {
                 assert(DefaultArgs(1)    == 1);
                 assert(DefaultArgs(1, 1) == 2);
             }
 
             /*
-            #default arguments for references
+            # default arguments for references
 
                 There seems to be no standard way of doing that without using extra memory / verbosity.
 
@@ -4005,7 +4005,7 @@ int main(int argc, char **argv) {
         }
 
         /*
-        #operator overload
+        # operator overload
         */
         {
             //OperatorOverload overload `+`
@@ -4130,7 +4130,7 @@ int main(int argc, char **argv) {
 #if __cplusplus >= 201103L
 
         /*
-        #lambda
+        # lambda
 
             C++11
 
@@ -4166,7 +4166,7 @@ int main(int argc, char **argv) {
     }
 
     /*
-    #template
+    # template
 
         Greatly reduces code duplication
 
@@ -4185,7 +4185,7 @@ int main(int argc, char **argv) {
             Pre-compiling all possibilities on a `.so` is obviously not an option:
             just consider int N, there are int many compilation possibilities!
 
-    #three types of arguments
+    # three types of arguments
 
         There are 3 possible arguments for templates:
 
@@ -4193,14 +4193,14 @@ int main(int argc, char **argv) {
         - integers values
         - other templates (see template teamplate)
 
-    #extends
+    # extends
 
         No equivalent to Javas "T extends Drawable"... sad.
 
         But wait, there seems to be something coming on C++14: template restrictions to the rescue?
         <http://stackoverflow.com/questions/15669592/what-are-the-differences-between-concepts-and-template-constraints>
 
-    #disambiguating dependent qualified type names
+    # disambiguating dependent qualified type names
 
         Syntax:
 
@@ -4216,7 +4216,7 @@ int main(int argc, char **argv) {
 
         TODO0
 
-    #Disambiguating explicitly qualified template member usage
+    # Disambiguating explicitly qualified template member usage
 
         Syntax:
 
@@ -4229,7 +4229,7 @@ int main(int argc, char **argv) {
 
         TODO0
 
-    #sources
+    # sources
 
         - <http://www.codeproject.com/Articles/257589/An-Idiots-Guide-to-Cplusplus-Templates-Part-1>
 
@@ -4250,7 +4250,7 @@ int main(int argc, char **argv) {
         }
 
         /*
-        #template specialization
+        # template specialization
 
             Give an specific behaviour for certain types.
         */
@@ -4259,7 +4259,7 @@ int main(int argc, char **argv) {
         }
 
         /*
-        #template argument deduction
+        # template argument deduction
 
             Deduce the template parameters based on the type of the arguments passed to the function,
             when those arguments are typenames used in the template.
@@ -4339,7 +4339,7 @@ int main(int argc, char **argv) {
             }
 
             /*
-            #typename keyword qualifier
+            # typename keyword qualifier
 
                 Besides the basic usage of typename for defining templates,
                 it must also be used under certain conditions to allow the compiler to parse the program
@@ -4390,7 +4390,7 @@ int main(int argc, char **argv) {
             }
 
             /*
-            #template keyword qualifier
+            # template keyword qualifier
 
                 Just like the typename qualifier helps the compiler solve another type of parsing ambiguity,
                 in this case if `<` is a minus or a template instantiation.
@@ -4407,7 +4407,7 @@ int main(int argc, char **argv) {
         }
 
         /*
-        #Template integer parameter
+        # Template integer parameter
 
             Templates can receive integer parameters
 
@@ -4423,7 +4423,7 @@ int main(int argc, char **argv) {
         }
 
         /*
-        #Template recursion
+        # Template recursion
 
             May lead to huge code bloat, but also great speads and non repetition.
         */
@@ -4440,7 +4440,7 @@ int main(int argc, char **argv) {
         }
 
         /*
-        #template template parameters
+        # template template parameters
 
             Passing a template as a template argument.
         */
@@ -4498,13 +4498,13 @@ int main(int argc, char **argv) {
         }
 
     /*
-    #template multiple parameters
+    # template multiple parameters
 
         Templates can have multiple parameters of any kind of type.
     */
     {
         /*
-        #Comma protection gotcha
+        # Comma protection gotcha
 
             The C++ preprocessor does not protect commas inside `<`, so the protecting parenthesis (1)
             and (2) are necessary.
@@ -4527,7 +4527,7 @@ int main(int argc, char **argv) {
     }
 
     /*
-    #template default parameters
+    # template default parameters
 
         Each of the 3 parameters types that can be passed to templates can have defaults.
     */
@@ -4542,7 +4542,7 @@ int main(int argc, char **argv) {
 
 #if __cplusplus >= 201103L
         /*
-        #variadic template
+        # variadic template
         */
         {
             assert(variadicSum(1)       == 1);
@@ -4556,7 +4556,7 @@ int main(int argc, char **argv) {
             assert(variadicSum(1, 1.0) == 2.0);
 
             /*
-            #sizeof...
+            # sizeof...
 
                 Return number of template arguments passed to tempalte.
             */
@@ -4569,7 +4569,7 @@ int main(int argc, char **argv) {
 #endif
 
         /*
-        #SFINAE
+        # SFINAE
 
             <http://en.wikipedia.org/wiki/Substitution_failure_is_not_an_error>
 
@@ -4577,7 +4577,7 @@ int main(int argc, char **argv) {
         */
 
         /*
-        #template class
+        # template class
 
             Only points which differ significantly from template functions shall be covered here.
         */
@@ -4644,7 +4644,7 @@ int main(int argc, char **argv) {
     }
 
     /*
-    #exception #throw #catch
+    # exception #throw #catch
 
         Great source: <http://www.cplusplus.com/doc/tutorial/exceptions/>
 
@@ -4660,7 +4660,7 @@ int main(int argc, char **argv) {
         There is no finally block: <http://stackoverflow.com/questions/161177/does-c-support-finally-blocks-and-whats-this-raii-i-keep-hearing-about>
         Deinitializations are left for destructors.
 
-        #Standard exceptions.
+        # Standard exceptions.
 
             - exception         base class of all stdlib exceptions.
             - bad_alloc         thrown by new on allocation failure
@@ -4669,7 +4669,7 @@ int main(int argc, char **argv) {
             - bad_typeid        thrown by typeid
             - ios_base::failure thrown by functions in the iostream library
 
-    #exception safety
+    # exception safety
 
         Different levels of how much excpetion handlind a function does:
 
@@ -4690,7 +4690,7 @@ int main(int argc, char **argv) {
         }
 
         /*
-        #std::exception
+        # std::exception
 
             Anything can be thrown, including classes and base types.
 
@@ -4761,7 +4761,7 @@ int main(int argc, char **argv) {
         }
 
         /*
-        #what
+        # what
 
             Returns a string which contains information about the exception.
 
@@ -4774,7 +4774,7 @@ int main(int argc, char **argv) {
         }
 
         /*
-        #uncaught exceptions.
+        # uncaught exceptions.
 
             Uncaught exceptions explose at top level and terminate the program.
 
@@ -4792,7 +4792,7 @@ int main(int argc, char **argv) {
         }
 
         /*
-        #exception specifications
+        # exception specifications
 
             Functions can specify which exceptions are catchable with the following syntax.
         */
@@ -4832,7 +4832,7 @@ int main(int argc, char **argv) {
         }
 
         /*
-        #exception from destructor
+        # exception from destructor
 
             Never throw an exception from a destructor.
 
@@ -4859,7 +4859,7 @@ int main(int argc, char **argv) {
 
 #if __cplusplus >= 201103L
         /*
-        #noexcept
+        # noexcept
 
             Improved version of `throw` for functions.
 
@@ -4872,7 +4872,7 @@ int main(int argc, char **argv) {
 #endif
     }
 
-    //#class
+    // # class
     {
 #if __cplusplus >= 201103L
         /*
@@ -4894,13 +4894,13 @@ int main(int argc, char **argv) {
 #endif
 
         /*
-        #Constructor
+        # Constructor
 
             Called whenever object is created to initialize the object.
         */
         {
             /*
-            #Default constructors
+            # Default constructors
 
                 <http://en.cppreference.com/w/cpp/language/default_constructor>
 
@@ -4919,7 +4919,7 @@ int main(int argc, char **argv) {
                 - the most vexing parse only happens for default constructors.
                 - the default constructor can be is implicitly declared and defiend by the compiler.
 
-            #Implicily declared constructors
+            # Implicily declared constructors
 
                 If no explicit constructor is declared,
                 the compiler automatically declares the following functions:
@@ -4932,9 +4932,9 @@ int main(int argc, char **argv) {
                 If any constructor is explicitly declared, even one taking multiple default args,
                 then *none* of the implicitly declared constructors are declared: that must be done manually.
 
-            #Trivial default constructor
+            # Trivial default constructor
 
-            #Implicily defined default constructor
+            # Implicily defined default constructor
 
                 If the implicitly-declared default constructor is not deleted
                 or trivial, it is defined (that is, a function body is generated
@@ -4996,7 +4996,7 @@ int main(int argc, char **argv) {
 
 #if __cplusplus >= 201103L
                 /*
-                #default keyword
+                # default keyword
 
                     As of C++11, the `= default` statement can be added to a constructor to explicitly
                     say that the default should be used.
@@ -5015,7 +5015,7 @@ int main(int argc, char **argv) {
                 }
 
                 /*
-                #delete keyword
+                # delete keyword
                 */
                 {
                     // ERROR: Explicitly deleted:
@@ -5035,7 +5035,7 @@ int main(int argc, char **argv) {
             }
 
             /*
-            #Most vexing parse
+            # Most vexing parse
 
                 Default constructor vs function declaration syntax gotcha!
 
@@ -5082,21 +5082,21 @@ int main(int argc, char **argv) {
             /*
             Value initialization and zero initialization are both a bit subtle, so it is best not to rely on them.
 
-            #value initialization
+            # value initialization
 
                 <http://en.cppreference.com/w/cpp/language/value_initialization>
 
-            #aggregate initialization
+            # aggregate initialization
 
                 <http://en.cppreference.com/w/cpp/language/aggregate_initialization>
 
-            #POD
+            # POD
 
                 Plain old data:
 
                 <http://stackoverflow.com/questions/4178175/what-are-aggregates-and-pods-and-how-why-are-they-special>
 
-            #zero initialization
+            # zero initialization
 
                 <http://en.cppreference.com/w/cpp/language/zero_initialization>
 
@@ -5143,7 +5143,7 @@ int main(int argc, char **argv) {
             }
 
             /*
-            #initialize built-in types
+            # initialize built-in types
 
                 <http://stackoverflow.com/questions/5113365/do-built-in-types-have-default-constructors>
 
@@ -5173,13 +5173,13 @@ int main(int argc, char **argv) {
 
 #if __cplusplus >= 201103L
                 /*
-                #brace initialization of scalars
+                # brace initialization of scalars
 
                     See uniform initialization.
 
                     <http://stackoverflow.com/questions/14232184/initializing-scalars-with-braces>
 
-                #uniform initialization
+                # uniform initialization
 
                     In c++11 every type can be initialized consistently with `{}`.
 
@@ -5308,15 +5308,15 @@ int main(int argc, char **argv) {
 #if __cplusplus >= 201103L
 
         /*
-        #brace enclosed initializer list
+        # brace enclosed initializer list
 
             See inializer list
 
-        #list initialization
+        # list initialization
 
             See initializer list constructor.
 
-        #initializer list contructor
+        # initializer list contructor
 
             Useful in cases where you don't know beforehand how many arguments
             a constructor should receive.
@@ -5393,7 +5393,7 @@ int main(int argc, char **argv) {
 #endif
 
         /*
-        #destructor
+        # destructor
 
             Called when:
 
@@ -5421,7 +5421,7 @@ int main(int argc, char **argv) {
             assert(callStack == expectedCallStack);
         }
 
-        //#array of objects
+        // # array of objects
         {
             // Default constructor is called when array is created.
             {
@@ -5491,7 +5491,7 @@ int main(int argc, char **argv) {
             }
 
             /*
-            #memset
+            # memset
 
                 Like many C functions, memset does not work with objects, because objects
                 may contain extra data such as a VTABLE.
@@ -5526,7 +5526,7 @@ int main(int argc, char **argv) {
             assert(callStack == expectedCallStack);
         }
 
-        //#static fields
+        // # static fields
         {
             {
                 Class c, c1;
@@ -5547,7 +5547,7 @@ int main(int argc, char **argv) {
         }
 
         /*
-        #temporary objects
+        # temporary objects
 
             Temporary objects are objects without a name that exist for short time on the stack.
 
@@ -5637,7 +5637,7 @@ int main(int argc, char **argv) {
         }
 
         /*
-        #copy and assign constructors
+        # copy and assign constructors
 
             The difference is that:
 
@@ -5672,7 +5672,7 @@ int main(int argc, char **argv) {
                 assert(c0.i == 0);
             }
 
-            //#copy constructor
+            // # copy constructor
             {
                 NoBaseNoMember c(1);
 
@@ -5728,7 +5728,7 @@ int main(int argc, char **argv) {
             }
 
             /*
-            #equality operator for classes
+            # equality operator for classes
 
                 There is no default `==` operator for classes.
 
@@ -5743,7 +5743,7 @@ int main(int argc, char **argv) {
             }
 
             /*
-            #rule of three
+            # rule of three
 
                 If you need to implement either of (to deal with dynamic allocation):
 
@@ -5757,7 +5757,7 @@ int main(int argc, char **argv) {
             */
 
             /*
-            #copy and swap idom
+            # copy and swap idom
 
                 The best way to implement the rule of three:
 
@@ -5782,7 +5782,7 @@ int main(int argc, char **argv) {
 
 #if __cplusplus >= 201103L
             /*
-            ##rvalue reference
+            # #rvalue reference
 
                 <http://www.artima.com/cppsource/rvalue.html>
 
@@ -5841,11 +5841,11 @@ int main(int argc, char **argv) {
             }
 
             /*
-            #xvalue
+            # xvalue
 
-            #glvalue
+            # glvalue
 
-            #prvalue
+            # prvalue
 
                 In addition to the C99 rvalues and lvalues,
                 the C++11 standard defines new concepts:
@@ -5861,13 +5861,13 @@ int main(int argc, char **argv) {
             */
 
             /*
-            #move constructor
+            # move constructor
 
                 Constructor that takes rvalues instead of lvalues.
 
                 Used to implement move semantics.
 
-            #move semantics
+            # move semantics
 
                 Useful in situtations where a class manages dynamic data.
 
@@ -5889,7 +5889,7 @@ int main(int argc, char **argv) {
 #endif
 
             /*
-            #as-if rule
+            # as-if rule
 
                 <http://en.cppreference.com/w/cpp/language/as_if>
 
@@ -5908,7 +5908,7 @@ int main(int argc, char **argv) {
             */
 
             /*
-            #copy elision
+            # copy elision
 
                 <http://en.cppreference.com/w/cpp/language/copy_elision>
                 <http://stackoverflow.com/questions/12953127/what-are-copy-elision-and-return-value-optimization>
@@ -5920,7 +5920,7 @@ int main(int argc, char **argv) {
             */
             {
                 /*
-                #temporary copy ellision
+                # temporary copy ellision
 
                     If no copy elision is done:
 
@@ -5963,7 +5963,7 @@ int main(int argc, char **argv) {
                 }
 
                 /*
-                #RVO
+                # RVO
 
                     Return value optimization.
 
@@ -6023,7 +6023,7 @@ int main(int argc, char **argv) {
                 }
 
                 /*
-                #NRVO
+                # NRVO
 
                     Named RVO.
 
@@ -6071,7 +6071,7 @@ int main(int argc, char **argv) {
                 }
 
                 /*
-                #exception copy elision
+                # exception copy elision
                 */
                 {
                 }
@@ -6079,11 +6079,11 @@ int main(int argc, char **argv) {
         }
 
         /*
-        #Inheritance
+        # Inheritance
         */
         {
             /*
-            #Override
+            # Override
 
                 Means to implement a method on the derived class, replacing the definition on the base class.
             */
@@ -6142,7 +6142,7 @@ int main(int argc, char **argv) {
 
 #if __cplusplus >= 201103L
             /*
-            #inheriting constructors
+            # inheriting constructors
 
             Reuse base class constructors: <http://stackoverflow.com/questions/8093882/using-c-base-class-constructors>
             is possible "automatically" only in C++11 (using `using`).
@@ -6160,13 +6160,13 @@ int main(int argc, char **argv) {
 #endif
 
             /*
-            #virtual
+            # virtual
 
                 Virtual: decides on runtime based on object type.
 
                 <http://stackoverflow.com/questions/2391679/can-someone-explain-c-virtual-methods>
 
-            #Pure virtual function
+            # Pure virtual function
 
                 Cannot instantiate this class
 
@@ -6180,7 +6180,7 @@ int main(int argc, char **argv) {
                 - interface: no data
                 - abstract: data
 
-            #Polymorphism
+            # Polymorphism
 
                 - loop an array of several dereived classes
                 - call a single base class method
@@ -6188,7 +6188,7 @@ int main(int argc, char **argv) {
 
                 Implementation: *vtable* is used to implement this.
 
-            #vtable
+            # vtable
 
                 <http://en.wikipedia.org/wiki/Virtual_method_table>
 
@@ -6203,7 +6203,7 @@ int main(int argc, char **argv) {
 
                 Also virtual functions cannot be inlined.
 
-            #Static interfaces
+            # Static interfaces
 
                 It is possible to assert that interfaces are implemented without dynamic vtable overhead via CRTP:
 
@@ -6211,7 +6211,7 @@ int main(int argc, char **argv) {
 
                 - <http://en.wikipedia.org/wiki/Template_metaprogramming#Static_polymorphism>
 
-            #CRTP
+            # CRTP
 
                 Curiously recurring template pattern.
 
@@ -6296,7 +6296,7 @@ int main(int argc, char **argv) {
             }
 
             /*
-            #multiple inheritance
+            # multiple inheritance
 
                 In C++, if a member of an object or static variable of a class
                 comes from two base classes, an ambiguity occurs and the program does not
@@ -6312,9 +6312,9 @@ int main(int argc, char **argv) {
             }
 
             /*
-            #dreaded diamond
+            # dreaded diamond
 
-            #virtual inheritance
+            # virtual inheritance
 
                 Solves the dreaded diamond problem.
 
@@ -6325,7 +6325,7 @@ int main(int argc, char **argv) {
             */
         }
 
-        //#friend
+        // # friend
         {
             Friend f(1);
             FriendOfFriend ff(2);
@@ -6335,13 +6335,13 @@ int main(int argc, char **argv) {
             assert(ff.getFriendI(f)            == f.getI());
         }
 
-        //#nested classes
+        // # nested classes
         {
             Base::Nested baseNested;
             Base::Nested2 baseNested2;
         }
 
-        //#nested typedefs
+        // # nested typedefs
         {
             Base::NESTED_INT i = 1;
             // ERROR: is private
@@ -6350,7 +6350,7 @@ int main(int argc, char **argv) {
     }
 
     /*
-    #struct
+    # struct
 
         Structs in C++ are very similar to classes: support access modifiers,
         inheritance, constructors, templates, etc.
@@ -6372,7 +6372,7 @@ int main(int argc, char **argv) {
     }
 
     /*
-    #RTTI
+    # RTTI
 
         Run time type information.
 
@@ -6387,7 +6387,7 @@ int main(int argc, char **argv) {
     */
 
     /*
-    #typeid
+    # typeid
 
         Get type of variables
 
@@ -6395,7 +6395,7 @@ int main(int argc, char **argv) {
 
         Returns objects of `type_info`
 
-    #type_info
+    # type_info
 
         Type returned by `typeid`.
     */
@@ -6435,7 +6435,7 @@ int main(int argc, char **argv) {
     }
 
     /*
-    #type_index
+    # type_index
 
         Wrapper around type_info that allows copy and assign.
     */
@@ -6444,7 +6444,7 @@ int main(int argc, char **argv) {
     }
 
     /*
-    #type_traits
+    # type_traits
 
         <http://www.cplusplus.com/reference/type_traits/>
     */
@@ -6452,7 +6452,7 @@ int main(int argc, char **argv) {
     }
 
     /*
-    #typecast
+    # typecast
 
         Sources:
 
@@ -6482,7 +6482,7 @@ int main(int argc, char **argv) {
             }
 
             /*
-            #explicit
+            # explicit
 
                 Keyword specifies that a given constructor can only be used explicitly.
             */
@@ -6493,17 +6493,17 @@ int main(int argc, char **argv) {
         }
 
         /*
-        #explicit typecast
+        # explicit typecast
         */
         {
             /*
-            #c style typecast
+            # c style typecast
 
                 TODO what does it do in relation to the others? why should it not be used?
             */
 
             /*
-            #dynamic_cast
+            # dynamic_cast
 
                 - done at runtime
                 - only for pointers or references
@@ -6521,7 +6521,7 @@ int main(int argc, char **argv) {
             }
 
             /*
-            #static_cast
+            # static_cast
 
                 - done at compile time
                 - only for pointers or references
@@ -6531,7 +6531,7 @@ int main(int argc, char **argv) {
             */
 
             /*
-            #reinterpret_cast
+            # reinterpret_cast
 
                 Converts anything to anything by copying bytes.
 
@@ -6539,7 +6539,7 @@ int main(int argc, char **argv) {
             */
 
             /*
-            #const_cast
+            # const_cast
 
                 Change (add/remove) constantness and volatility of objects (property called cv-qualification).
 
@@ -6597,7 +6597,7 @@ int main(int argc, char **argv) {
     }
 
     /*
-    #dynamic memory
+    # dynamic memory
 
         C++ replaces C's malloc and free with new and delete.
 
@@ -6618,13 +6618,13 @@ int main(int argc, char **argv) {
 
         Never use C style malloc on C++ code. `new` works better with classes.
 
-    #new
+    # new
 
         Allocate dynamic memory.
 
         Throw `std::bad_alloc` in case of error.
 
-    #realloc
+    # realloc
 
         There is no direct replacement to realloc or calloc as of C++11
         <http://stackoverflow.com/questions/3482941/how-do-you-realloc-in-c>
@@ -6645,7 +6645,7 @@ int main(int argc, char **argv) {
         }
 
         /*
-        #delete
+        # delete
 
             Free memory allocatedby `new`.
 
@@ -6737,7 +6737,7 @@ int main(int argc, char **argv) {
         }
 
         /*
-        #calloc
+        # calloc
 
             An analogue effect to calloc can be attained with *value-initialization*.
 
@@ -6746,7 +6746,7 @@ int main(int argc, char **argv) {
     }
 
     /*
-    #namespace
+    # namespace
     */
     {
         //variables
@@ -6766,7 +6766,7 @@ int main(int argc, char **argv) {
         }
 
         /*
-        #using
+        # using
 
             Be very careful with `using`, because there is no way to unuse afterwards.
 
@@ -6833,7 +6833,7 @@ int main(int argc, char **argv) {
         };
 
         /*
-        #ADL
+        # ADL
 
             Argument dependent name lookup.
 
@@ -6904,9 +6904,9 @@ int main(int argc, char **argv) {
         }
     }
 
-    //#stdlib
+    // # stdlib
     {
-        //#string
+        // # string
         {
             // Initialize from string literal.
             {
@@ -6959,7 +6959,7 @@ int main(int argc, char **argv) {
             }
 
             /*
-            #c_str
+            # c_str
 
                 Convert std::string to C null terminated char* string.
             */
@@ -6968,7 +6968,7 @@ int main(int argc, char **argv) {
                 assert((std::strcmp(s.c_str(), "abc")) == 0);
             }
 
-            //#substring
+            // # substring
             {
                 std::string s = "abcde";
                 assert(s.substr(1, 3) == "bcd");
@@ -7015,7 +7015,7 @@ int main(int argc, char **argv) {
             }
 
             /*
-            #getline
+            # getline
 
                 Read istream until a any given character, by default newline, and store chars read into a string.
 
@@ -7084,7 +7084,7 @@ int main(int argc, char **argv) {
             }
 
             /*
-            #stringstream #basic_stringstream
+            # stringstream #basic_stringstream
 
                 An iostream String backed implementation.
 
@@ -7123,7 +7123,7 @@ int main(int argc, char **argv) {
             }
 
             /*
-            #int to string
+            # int to string
 
                 There are a few standard alternatives.
 
@@ -7174,7 +7174,7 @@ int main(int argc, char **argv) {
         }
 
         /*
-        #io
+        # io
 
             See cppref now: http://en.cppreference.com/w/cpp/io
 
@@ -7191,7 +7191,7 @@ int main(int argc, char **argv) {
                 extern  ostream  clog;  //standard log (stdlog)
                 extern wostream wclog;
 
-            #istream #ostream
+            # istream #ostream
 
                 Istream and ostream are IO interfaces.
 
@@ -7206,14 +7206,14 @@ int main(int argc, char **argv) {
                 - operator << for word wise operations
                 - read(char*, size_t). Reads a fixed number of characters into an array.
 
-            #endl
+            # endl
 
                 System dependent newline.
 
         */
         {
             /*
-            #cout
+            # cout
 
                 stdout.
 
@@ -7230,11 +7230,11 @@ int main(int argc, char **argv) {
 
                 before really understanding why it works.
 
-            #cerr
+            # cerr
 
                 Cout for stderr
 
-            #clog
+            # clog
 
                 By default also points to stderr, but can be redirected with TODO.
             */
@@ -7245,7 +7245,7 @@ int main(int argc, char **argv) {
             }
 
             /*
-            #cin #stdin
+            # cin #stdin
 
                 `istream` object.
 
@@ -7333,19 +7333,19 @@ int main(int argc, char **argv) {
             }
 
             /*
-            #printf format strings
+            # printf format strings
 
                 In C++ there is no more printf formatting strings: must use the C libs for that.
 
                 It is possible however to obtain some level of formatting control with manipulators.
 
-            #manipulators
+            # manipulators
 
                 Allow to control the output format.
             */
             {
                 /*
-                #boolalpha
+                # boolalpha
 
                     Control the format of boolean printing.
 
@@ -7396,17 +7396,17 @@ int main(int argc, char **argv) {
                 }
 
                 /*
-                #width
+                # width
 
                     Minimum number of chars to output.
 
                     If not enough, complete with fill.
 
-                #fill
+                # fill
 
                     See width.
 
-                #left right internal
+                # left right internal
                 */
                 {
                     std::stringstream ss;
@@ -7426,7 +7426,7 @@ int main(int argc, char **argv) {
                 }
 
                 /*
-                #dec #hex #oct
+                # dec #hex #oct
 
                     Control how integers are printed.
                 */
@@ -7451,9 +7451,9 @@ int main(int argc, char **argv) {
                 }
 
                 /*
-                #scientific fixed none
+                # scientific fixed none
 
-                #precision
+                # precision
 
                     Controls number of digits to print.
                 */
@@ -7488,13 +7488,13 @@ int main(int argc, char **argv) {
             }
 
             /*
-            #file io
+            # file io
 
-            #ifstream
+            # ifstream
 
-            #ofstream
+            # ofstream
 
-            #fstream
+            # fstream
             */
             {
                 std::string path("fileio.tmp");
@@ -7597,7 +7597,7 @@ int main(int argc, char **argv) {
                 }
 
                 /*
-                #binary io
+                # binary io
 
                     Use ios::binary, and the binary functions write and read.
                 */
@@ -7626,9 +7626,9 @@ int main(int argc, char **argv) {
                 }
 
                 /*
-                #error handling
+                # error handling
 
-                    #is_open vs bool cast
+                    # is_open vs bool cast
 
                         `is_open` false implies `operator bool()` false, but the converse is false: `operator bool()` is more strict.
 
@@ -7660,13 +7660,13 @@ int main(int argc, char **argv) {
                     }
                 }
 
-                //#ios::in: flag automatically set for ifstream, but not fstream
+                // # ios::in: flag automatically set for ifstream, but not fstream
                 //http://stackoverflow.com/questions/7463410/is-iosin-needed-for-ifstreams-opened-in-binary-mode
             }
         }
 
         /*
-        #path #directory #join
+        # path #directory #join
 
             Like in C, no system independant path or directory operations (for the love of God...)
 
@@ -7677,7 +7677,7 @@ int main(int argc, char **argv) {
 
 #if __cplusplus >= 201103L
         /*
-        #static_assert
+        # static_assert
 
             Make assertions at compile time.
 
@@ -7702,7 +7702,7 @@ int main(int argc, char **argv) {
 #endif
 
         /*
-        #limits
+        # limits
 
             C++ version of climits.
 
@@ -7721,7 +7721,7 @@ int main(int argc, char **argv) {
         }
 
         /*
-        #utility
+        # utility
 
             Lots of miscelaneous utilities.
 
@@ -7731,7 +7731,7 @@ int main(int argc, char **argv) {
 
 #if __cplusplus >= 201103L
             /*
-            #tuple
+            # tuple
 
                 Hold a ordered collection of elements.
 
@@ -7748,7 +7748,7 @@ int main(int argc, char **argv) {
                     }
 
                     /*
-                    #make_tuple
+                    # make_tuple
 
                         forwards arguments to tuple constructor.
 
@@ -7787,7 +7787,7 @@ int main(int argc, char **argv) {
                 }
 
                 /*
-                #get
+                # get
 
                     Get single element from tuple.
 
@@ -7809,13 +7809,13 @@ int main(int argc, char **argv) {
                 }
 
                 /*
-                #tie
+                # tie
 
                     Unpack a tuple.
 
                     Unpack by reference seems not to be possible: <http://stackoverflow.com/questions/16571883/unpacking-a-std-tuple-into-pointers>
 
-                #ignore
+                # ignore
 
                     Magic that exists only to ignore one of tie outputs.
                 */
@@ -7870,7 +7870,7 @@ int main(int argc, char **argv) {
 #endif
 
             /*
-            #pair
+            # pair
 
                 Particular case of tuple for two elements
 
@@ -7888,7 +7888,7 @@ int main(int argc, char **argv) {
             }
 
             /*
-            #forward
+            # forward
 
                 TODO
             */
@@ -7897,7 +7897,7 @@ int main(int argc, char **argv) {
         }
 
         /*
-        #containers
+        # containers
 
             The stdlib furnishes several containers.
 
@@ -7919,7 +7919,7 @@ int main(int argc, char **argv) {
         */
 
         /*
-        #vector
+        # vector
 
             Array backed conatiner that grows / shrinks as necessary.
 
@@ -7983,7 +7983,7 @@ int main(int argc, char **argv) {
             }
 
             /*
-            #contigous storage #data
+            # contigous storage #data
 
             Storage is required to be contiguous by TR1: http://stackoverflow.com/questions/849168/are-stdvector-elements-guaranteed-to-be-contiguous
 
@@ -8004,7 +8004,7 @@ int main(int argc, char **argv) {
             //size methods
             {
                 /*
-                #size #size_type
+                # size #size_type
 
                     Number of elements in std::vector.
 
@@ -8018,7 +8018,7 @@ int main(int argc, char **argv) {
                 }
 
                 /*
-                #resize
+                # resize
 
                     If larger than current size,    append given element at end.
 
@@ -8055,7 +8055,7 @@ int main(int argc, char **argv) {
             //capacity methods
             {
                 /*
-                #capacity
+                # capacity
 
                     Get currently allocated size.
 
@@ -8074,12 +8074,12 @@ int main(int argc, char **argv) {
                     std::cout << "capacity = " << v.capacity() << std::endl;
                 }
 
-                //#max_size: estimative of what your OS allows you to allocate
+                // # max_size: estimative of what your OS allows you to allocate
                 {
                     std::cout << "max_size (MiB) = " << std::vector<int>().max_size() / (1 << 20) << std::endl;
                 }
 
-                //#reserve: increase allocated size if larger than current size.
+                // # reserve: increase allocated size if larger than current size.
                 {
                     std::vector<int> v;
                     v.reserve(3);
@@ -8089,7 +8089,7 @@ int main(int argc, char **argv) {
                 }
 
 #if __cplusplus >= 201103L
-                //#shrink_to_fit
+                // # shrink_to_fit
                 {
                     std::vector<int> v{0, 1};
                     v.reserve(4);
@@ -8118,7 +8118,7 @@ int main(int argc, char **argv) {
                 }
 
                 /*
-                #push_back #append
+                # push_back #append
 
                     Push to the end of the std::vector.
 
@@ -8126,7 +8126,7 @@ int main(int argc, char **argv) {
                     which may required a full data copy to a new location if the
                     current backing array cannot grow.
 
-                #push_front
+                # push_front
 
                     Does not exist for std::vector, as it would always be too costly (requires to move
                     each element forward.) Use deque if you need that.
@@ -8162,7 +8162,7 @@ int main(int argc, char **argv) {
                 }
 
                 /*
-                #pop_back
+                # pop_back
 
                     Remove last element from std::vector.
 
@@ -8179,11 +8179,11 @@ int main(int argc, char **argv) {
                 }
 
                 /*
-                #insert
+                # insert
 
                     This operation is inneficient for `std::vector` if it is not done at the end.
 
-                #concatenate
+                # concatenate
 
                     The range form of insert can be used to append one vector to anoter.
                 */
@@ -8213,7 +8213,7 @@ int main(int argc, char **argv) {
                 }
 
                 /*
-                #erase
+                # erase
 
                     Remove given elements from container given iterators to those elements.
 
@@ -8241,7 +8241,7 @@ int main(int argc, char **argv) {
                 }
 
                 /*
-                #remove
+                # remove
 
                     Helper to remove all elements that compare equal to a value from container.
 
@@ -8275,7 +8275,7 @@ int main(int argc, char **argv) {
 
                         1, 2, 0, 1
 
-                #erase and remove idiom #remove and erase idiom
+                # erase and remove idiom #remove and erase idiom
 
                     See remove.
                 */
@@ -8329,7 +8329,7 @@ int main(int argc, char **argv) {
                     assert((v == std::vector<int>{0, 1, 4}));
                 }
 
-                //#clear
+                // # clear
                 {
                     std::vector<int> v{0, 1, 2};
                     v.clear();
@@ -8388,7 +8388,7 @@ int main(int argc, char **argv) {
             }
 
             /*
-            #bool std::vector
+            # bool std::vector
 
                 *bool std::vectors are evil!*
 
@@ -8424,7 +8424,7 @@ int main(int argc, char **argv) {
         }
 
         /*
-        #deque
+        # deque
 
             Double ended queue.
 
@@ -8442,7 +8442,7 @@ int main(int argc, char **argv) {
         */
 
         /*
-        #set
+        # set
 
             - unique elements: inserting twice does nothing
 
@@ -8480,7 +8480,7 @@ int main(int argc, char **argv) {
             }
 
             /*
-            #insert
+            # insert
 
                 Like for std::vector, insert makes copies.
 
@@ -8516,7 +8516,7 @@ int main(int argc, char **argv) {
             }
 
             /*
-            #erase
+            # erase
 
                 Remove element from set.
 
@@ -8591,7 +8591,7 @@ int main(int argc, char **argv) {
         }
 
         /*
-        #hashmap
+        # hashmap
 
             There seems to be no explicit hashmap container, only a generic map interface,
 
@@ -8600,7 +8600,7 @@ int main(int argc, char **argv) {
             Nonstandard `hash_map` already provided with gcc and msvc++.
             It is placed in the `std::` namespace, but it is *not* ISO.
 
-        #map
+        # map
 
             <http://www.cplusplus.com/reference/map/map/>
 
@@ -8612,7 +8612,7 @@ int main(int argc, char **argv) {
 
             Does not require a hash function. Usually implemented as a self balancing tree such as a rb tree.
 
-        #unordered_map
+        # unordered_map
 
             TODO complexity comparison to map.
         */
@@ -8643,7 +8643,7 @@ int main(int argc, char **argv) {
             }
 
             /*
-            #insert
+            # insert
 
                 Insert pair into map.
 
@@ -8718,7 +8718,7 @@ int main(int argc, char **argv) {
             }
 
             /*
-            #find #check if in map
+            # find #check if in map
 
                 Similar to `std::set` find with respect to the keys:
                 returns an iterator pointing to the pair which has given key, not the value.
@@ -8769,7 +8769,7 @@ int main(int argc, char **argv) {
         }
 
         /*
-        #list
+        # list
 
             Doubly linked list.
 
@@ -8779,7 +8779,7 @@ int main(int argc, char **argv) {
 
             No random access.
 
-        #forward_list
+        # forward_list
 
             Like list, but singly linked, and therefore not backwards interable.
         */
@@ -8789,21 +8789,21 @@ int main(int argc, char **argv) {
                 std::list<int> l{0, 1};
             }
 
-            //#emplace
+            // # emplace
             {
                 std::list<int> l{0, 1};
                 l.emplace(++l.begin(), 2);
                 assert(l == std::list<int>({0, 2, 1}));
             }
 
-            //#remove: remove all elements with a given value from list
+            // # remove: remove all elements with a given value from list
             {
                 std::list<int> l{0, 1, 0, 2};
                 l.remove(0);
                 assert(l == std::list<int>({1, 2}));
             }
 
-            //#splice: transfer elements from one list to another
+            // # splice: transfer elements from one list to another
             {
                 std::list<int> l{0, 1};
                 std::list<int> l2{2, 3};
@@ -8814,14 +8814,14 @@ int main(int argc, char **argv) {
         }
 
         /*
-        #iterator
+        # iterator
 
             Iteration could be done with random access in certain data structures with a for i loop.
 
             Iterators are better becase you can also use them for structures without random access,
             so if you decide to change structures in the future the job will be much easier.
 
-            #iterator categories
+            # iterator categories
 
                 Iterators are categorized depending on the operations they can do:
 
@@ -8853,15 +8853,15 @@ int main(int argc, char **argv) {
             // After C++11; the range based syntax is the best way to use them.
             {
                 /*
-                #forward iteration
+                # forward iteration
 
                     Can be done on all containers.
 
-                    #begin
+                    # begin
 
                         Returns an iterator to the first element.
 
-                    #end
+                    # end
 
                         Returns an iterator to the first element *after* the last.
                 */
@@ -8877,11 +8877,11 @@ int main(int argc, char **argv) {
                 }
 
                 /*
-                #backwards iteration
+                # backwards iteration
 
                     Can only be done on biderectional containers.
 
-                    #rbegin
+                    # rbegin
 
                         Reversed begin.
 
@@ -8889,7 +8889,7 @@ int main(int argc, char **argv) {
 
                         ++ on reversed iterators decreases them.
 
-                    #rend
+                    # rend
 
                         Returns a reversed iterator to the element before the first.
                 */
@@ -8908,7 +8908,7 @@ int main(int argc, char **argv) {
             }
 
             /*
-            #range based for loop #foreach
+            # range based for loop #foreach
 
                 C++11
 
@@ -8981,7 +8981,7 @@ int main(int argc, char **argv) {
                 }
 
                 /*
-                #range based for loop for arrays
+                # range based for loop for arrays
 
                     Also works for bare arrays for which the size is known at compile time!
                 */
@@ -9035,7 +9035,7 @@ int main(int argc, char **argv) {
             }
 
             /*
-            #generic containers
+            # generic containers
 
                 There is no standard iterator independent from container.
 
@@ -9102,11 +9102,11 @@ int main(int argc, char **argv) {
             }
 
             /*
-            #size_t for slt containers
+            # size_t for slt containers
 
                 See size_type.
 
-            #size_type
+            # size_type
 
                 Random access containers such as std::vectors, strings, etc have a `size_type` member typedef
                 that represents a type large enough to hold its indexes.
@@ -9125,7 +9125,7 @@ int main(int argc, char **argv) {
             }
 
             /*
-            #iterator_traits
+            # iterator_traits
 
                 Contain information about iterators.
 
@@ -9146,7 +9146,7 @@ int main(int argc, char **argv) {
                 }
 
                 /*
-                #difference_type
+                # difference_type
 
                     The type returned on a difference between two pointers.
 
@@ -9159,7 +9159,7 @@ int main(int argc, char **argv) {
                 }
 
                 /*
-                #iterator_category
+                # iterator_category
 
                     iterator_category is a struct *type*, not a value.
 
@@ -9173,7 +9173,7 @@ int main(int argc, char **argv) {
         }
 
         /*
-        #valarray
+        # valarray
 
             Array of values. Wors much like a mathematical vector.
 
@@ -9231,14 +9231,14 @@ int main(int argc, char **argv) {
             }
         }
 
-        //#algorithm
+        // # algorithm
         {
             {
                 assert(std::min(0.1, 0.2) == 0.1);
                 assert(std::max(0.1, 0.2) == 0.2);
             }
 
-            //#sort
+            // # sort
             {
                 std::vector<int> v{2, 0, 1};
                 std::sort(v.begin(), v.end());
@@ -9246,7 +9246,7 @@ int main(int argc, char **argv) {
                 assert((v == std::vector<int>{0, 1, 2}));
             }
 
-            //#reverse
+            // # reverse
             {
                 std::vector<int> v{2, 0, 1};
                 std::reverse(v.begin(), v.end());
@@ -9254,7 +9254,7 @@ int main(int argc, char **argv) {
             }
 
             /*
-            #swap
+            # swap
 
                 Does things equivalent to:
 
@@ -9270,13 +9270,13 @@ int main(int argc, char **argv) {
                 Particularly important because of the copy and swap idiom.
             */
 
-            //#randomize
+            // # randomize
             {
                 std::vector<int> v{2, 0, 1};
                 std::random_shuffle(v.begin(), v.end());
             }
 
-            //#copy
+            // # copy
             {
                 std::vector<int> v{2, 0, 1};
                 std::vector<int> v2(5, 3);
@@ -9285,7 +9285,7 @@ int main(int argc, char **argv) {
             }
 
             /*
-            #equal
+            # equal
 
                 Compares ranges of two containers.
             */
@@ -9296,7 +9296,7 @@ int main(int argc, char **argv) {
             }
 
             /*
-            #accumulate
+            # accumulate
 
                 Sum over range.
 
@@ -9309,7 +9309,7 @@ int main(int argc, char **argv) {
             }
 
             /*
-            #find
+            # find
 
                 Return iterator to first found element.
             */
@@ -9331,7 +9331,7 @@ int main(int argc, char **argv) {
             }
 
             /*
-            #find_if
+            # find_if
 
                 Like find, but using an arbitrary condition on each element instead of equality.
 
@@ -9343,7 +9343,7 @@ int main(int argc, char **argv) {
             }
 
             /*
-            #binary_search
+            # binary_search
 
                 Container must be already sorted.
 
@@ -9362,7 +9362,7 @@ int main(int argc, char **argv) {
             }
 
             /*
-            #lower_bound
+            # lower_bound
 
                 Finds first element in container which is not less than val.
             */
@@ -9373,7 +9373,7 @@ int main(int argc, char **argv) {
             }
 
             /*
-            #upper_bound
+            # upper_bound
 
                 Finds first element in container is greater than val.
             */
@@ -9384,7 +9384,7 @@ int main(int argc, char **argv) {
             }
 
             /*
-            #equal_range
+            # equal_range
 
                 Finds first and last location of a value iniside a ranged container.
 
@@ -9400,7 +9400,7 @@ int main(int argc, char **argv) {
                 assert(end   - v.begin() == 3);
             }
 
-            //#count
+            // # count
             {
                 std::vector<int> v{2,1,2};
                 assert(std::count(v.begin(), v.end(), 0) == 0);
@@ -9409,7 +9409,7 @@ int main(int argc, char **argv) {
             }
 
 
-            //#max_element #min_element
+            // # max_element #min_element
             {
                 std::vector<int> v{2,0,1};
                 assert(*std::max_element(v.begin(), v.end()) == 2);
@@ -9417,7 +9417,7 @@ int main(int argc, char **argv) {
             }
 
             /*
-            #advance
+            # advance
 
                 Advance iterator by given number.
 
@@ -9439,7 +9439,7 @@ int main(int argc, char **argv) {
 
 #if __cplusplus >= 201103L
             /*
-            #next
+            # next
 
                 Same as advance, but returns a new iterator instead of modifying the old one.
             */
@@ -9453,7 +9453,7 @@ int main(int argc, char **argv) {
 #endif
 
             /*
-            #priority queue
+            # priority queue
 
                 Offers `O(1)` access to the smalles element.
 
@@ -9474,7 +9474,7 @@ int main(int argc, char **argv) {
             */
 
             /*
-            #heap
+            # heap
 
                 Binary heap implementation.
 
@@ -9506,7 +9506,7 @@ int main(int argc, char **argv) {
                 std::vector<int> v(myints, myints + 5);
 
                 /*
-                #make_heap
+                # make_heap
 
                     Make random access data structure into a heap.
 
@@ -9518,7 +9518,7 @@ int main(int argc, char **argv) {
                     assert(v.front() == 30);
 
                 /*
-                #pop_heap
+                # pop_heap
 
                     Remove the largest element from the heap.
 
@@ -9539,7 +9539,7 @@ int main(int argc, char **argv) {
                     v.pop_back();
 
                 /*
-                #push_heap
+                # push_heap
 
                     Insert element into a heap.
 
@@ -9558,7 +9558,7 @@ int main(int argc, char **argv) {
                     assert(v.front() == 99);
 
                 /*
-                #sort_heap
+                # sort_heap
 
                     Assumes that the input range is a heap, and sorts it in increasing order.
 
@@ -9576,7 +9576,7 @@ int main(int argc, char **argv) {
 
 #if __cplusplus >= 201103L
         /*
-        #functional
+        # functional
 
             Do magic with functions.
 
@@ -9584,7 +9584,7 @@ int main(int argc, char **argv) {
         */
         {
             /*
-            #bind2nd
+            # bind2nd
 
                 Tranform a function that takes two arguments into a function that takes only the first.
 
@@ -9607,7 +9607,7 @@ int main(int argc, char **argv) {
 #endif
 
         /*
-        #hash
+        # hash
 
             <http://www.cplusplus.com/reference/functional/hash/>
 
@@ -9632,7 +9632,7 @@ int main(int argc, char **argv) {
 
 #if __cplusplus >= 201103L
         /*
-        #regex
+        # regex
 
             Finally they are supported!
 
@@ -9646,11 +9646,11 @@ int main(int argc, char **argv) {
         }
 #endif
 
-        //#memory
+        // # memory
         {
 #if __cplusplus >= 201103L
             /*
-            #shared_ptr
+            # shared_ptr
 
                 Introuced in C++11.
 
@@ -9672,7 +9672,7 @@ int main(int argc, char **argv) {
 
 #if __cplusplus >= 201103L
         /*
-        #thread #multithreading #parallel #concurrency
+        # thread #multithreading #parallel #concurrency
 
             Requires `-pthread` flag on g++ Linux.
         */
@@ -9698,11 +9698,11 @@ int main(int argc, char **argv) {
 #endif
 
     /*
-    #standard preprocessor defines
+    # standard preprocessor defines
     */
     {
         /*
-        #__cplusplus
+        # __cplusplus
 
             Defined only if using C++ compiler.
 
@@ -9722,18 +9722,18 @@ int main(int argc, char **argv) {
 
 #if __cplusplus >= 201103L
     /*
-    #attributes
+    # Attributes
 
-    Implemented in GCC via __attribtes__ and in Microsoft with #pragma.
-    Now standardized!
+        Implemented as extensions for a long time in GCC via `__attribtes__`
+        and in Microsoft with `#pragma`. Now some have been standardized!
 
-    Intended only for functions which don't change behaviour: only to help
-    compilers optimize or geneate better error messages.
+        Intended only for functions which don't change behaviour: only to help
+        compilers optimize or geneate better error messages.
 
-    <http://www.stroustrup.com/C++11FAQ.html#attributes>
+        <http://www.stroustrup.com/C++11FAQ.html#attributes>
 
-    Attributes can be defined for various objects, and there are 2 standard ones:
-    noreturn and carries_dependency
+        Attributes can be defined for various objects, and there are 2 standard ones:
+        noreturn and carries_dependency
     */
     {
         try {
@@ -9785,7 +9785,7 @@ int main(int argc, char **argv) {
         //putsProf(nProfRuns);
 #endif
 
-    //#design patterns
+    // # Design patterns
     {
         //VisibleInnerIterable
         {
@@ -9807,13 +9807,13 @@ int main(int argc, char **argv) {
     }
 
     /*
-    #idioms
+    # Idioms
 
         Basically very small design patterns.
     */
     {
         /*
-        #dynamic multi dimensional array
+        # Dynamic multi-dimensional array
 
             Sources: <http://www.cplusplus.com/forum/articles/7459/>
 
@@ -9822,8 +9822,9 @@ int main(int argc, char **argv) {
 
             The tradeoff is that this method will be potentially slower since it:
 
-            - requires constructor calls at non uniform initialization.
-            - may require function calls for the `[]` operator overload.
+            -   requires constructor calls at non uniform initialization.
+
+            -   may require function calls for the `[]` operator overload.
 
                 It is however likely that the compiler will inline those.
         */
@@ -9853,12 +9854,13 @@ int main(int argc, char **argv) {
     }
 
     /*
-    #main return
+    # main return
 
         Like in C99, C++ return can omit the return, in which case it returns 0.
     */
 
-    return EXIT_SUCCESS;
+        std::cout << "ALL ASSERTS PASSED" << std::endl;
+        return EXIT_SUCCESS;
 
     //global/static destructors happen at exit time
 }

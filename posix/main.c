@@ -650,6 +650,22 @@ int main(int argc, char** argv) {
         Same as:
 
             fcntl(fildes, F_DUPFD, 0);
+
+    #send
+
+        Generalization of write:
+
+        <http://pubs.opengroup.org/onlinepubs/9699919799/functions/send.html>
+
+        TODO
+
+    #recv
+
+        Generalization of read:
+
+        <http://pubs.opengroup.org/onlinepubs/9699919799/functions/recv.html>
+
+        TODO
     */
     {
         int fd;
@@ -2393,60 +2409,50 @@ int main(int argc, char** argv) {
         /*
         #popen
 
+            <http://pubs.opengroup.org/onlinepubs/9699919799/functions/popen.html>
+
                 man popen
 
-            Creates unnamed pipes.
+            Conveninence method that does:
 
-            Consider using ansi c `system` instead of this.
+            - `fork`
+            - `exec`
+            - `pipe`
 
-            Opens a new process running the given command.
+            to / from the current process and a child.
 
-            Given string runs inside `sh` in a separated process and therefore it is:
+            It is:
 
-            - slow
-            - does magic stuff like pathname expansion (`*.txt`)
-            - harder to port to non posix systems if one day you decide to do that
+            -   more general than `system`, as it allows to either set the stdin of the process,
+                or get it's stdout (but not both since pipes are unidirectional)
 
-            It seems from the POSIX docs that the interpreter `sh` cannot be changed.
+                As a consequence, unlike `system` it does not automatically wait
+                for the command to return on the parent: you must wait for the process to end,
+                the most convenient way in thise case being with `pclose`, which takes the
+                `FILE*` returned by this function. But the `wait` family would also work
+                if you get the child PID.
 
-            Unlike the ANSI C `system` function,
-            does not automatically wait for the command to return: see `pclose` for that.
+            -   less general than `pipe`
 
-            For that reason, `popen` is slightly more general than `system`,
-            as you can do more work in the current program begore getting the shell output.
-
-            This is not however extremely useful since you usually need the shell output
-            to continue working anyways.
-
-            It is possible to either:
-
-            - read output from stdout of a command
-            - write to stdin of a command
-
-            TODO0 possible to both set stdin *and* get stdout?
-
-            The output of popen is put on an unnamed pipe, which is accessible via
-            ANSI C FILE type returned by the function, instead of POSIX file descriptor (integers)
-            Therefore you must use ANSI C file io functions like `fopen` or `fclose` with it,
-            instead of the more low level POSIX `open` or `write` family.
+                The output of popen is put on an unnamed pipe, which is accessible via
+                ANSI C FILE type returned by the function, instead of POSIX file descriptor (integers)
+                Therefore you must use ANSI C file io functions like `fopen` or `fclose` with it,
+                instead of the more low level POSIX `open` or `write` family.
 
             errno may or not be set depending on what caused the error.
 
         #pclose
 
-            Wait for child generated process.
+            Wait for process created by `popen` to terminate.
 
-            Return child exit status.
-
-            If child was already waited for, return `-1` to indicate an error.
-
-            errno may or not be set depending on what caused the error.
+            Returns child exit status if the process was not waited for before,
+            `-1` otherwise.
         */
         {
             /* Read from stdout of command and get its exit status. */
             {
                 /* popen uses ANSI C fread which uses ANSI C FILE type: */
-                FILE* read_fp;
+                FILE *read_fp;
                 char buffer[BUFSIZ + 1];
                 char cmd[1024];
                 int chars_read;
@@ -2459,7 +2465,7 @@ int main(int argc, char** argv) {
                 sprintf(
                     cmd,
                     "for i in `seq %ju`; do echo -n a; done",
-                    (uintmax_t)(desired_read_cycles-1) * BUFSIZ + desired_last_char_read
+                    (uintmax_t)(desired_read_cycles - 1) * BUFSIZ + desired_last_char_read
                 );
                 read_fp = popen(cmd, "r");
                 if (read_fp == NULL) {
@@ -2520,21 +2526,19 @@ int main(int argc, char** argv) {
 
             Create unnamed pipes.
 
-            Very close to the linux pipe system call.
+            Very close to the Linux pipe system call.
 
             Differences from popen:
 
-            - does not use a shell, avoiding many of its problems
+            -   does not use a shell, avoiding many of its problems
 
-            - uses two integer file descriptors, one for each end of the pipe,
+            -   uses two integer file descriptors, one for each end of the pipe,
                 instead of ANSI C `FILE` typedef.
 
                 Therefore you manipulate pipes with file descriptor functions
                 like `open` and `write` instead of ANSI C `fopen` family.
 
-            This potentially gives you more control over the operations.
-
-            It may however be a bit harder to setup.
+            This gives you more control over the operations, but is harder to setup.
 
             Typically used with fork + exec.
         */
@@ -2542,7 +2546,7 @@ int main(int argc, char** argv) {
             /*
             Producer and consumer are the same process.
 
-            Useuless but simple illustration of a pipe call.
+            Useless but a good simple example.
             */
             {
                 int nbytes;
@@ -2586,9 +2590,9 @@ int main(int argc, char** argv) {
                         exit(EXIT_FAILURE);
                     } else {
                         if (pid == 0) {
-                            //child only
+                            // Child only.
 
-                            //if read happens before write, it blocks because there is no data
+                            // If read happens before write, it blocks because there is no data.
                             nbytes = read(file_pipes[0], buf, BUFSIZ);
 
                             printf("pipe child. data: %s\n", buf);
