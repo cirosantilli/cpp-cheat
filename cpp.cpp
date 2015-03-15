@@ -4959,22 +4959,21 @@ int main(int argc, char **argv) {
 
                 /*
                 The implicitly defined default constructor does not necessarily initialize member built-in types:
-
-                    <http://stackoverflow.com/questions/2417065/does-the-default-constructor-initialize-built-in-types>
+                http://stackoverflow.com/questions/2417065/does-the-default-constructor-initialize-built-in-types
 
                 Class member default constructors however are called.
                 */
                 {
                     ImplicitDefaultCtor o;
                     if (o.i != 0)
-                        //undefined behaviour
+                        // undefined behaviour.
                         std::cout << "ImplicitDefaultCtor undefined behaviour: o.i = " << o.i << std::endl;
 
-                    //Defined behaviour because class:
+                    // Defined behaviour because class:
                     assert(o.s == "");
 
-                    //*however*, the following does value initialization,
-                    //not the default constructor, and built-in members are indeed 0 initialized!
+                    // *however*, the following does value initialization,
+                    // not the default constructor, and built-in members are indeed 0 initialized!
                     {
                         ImplicitDefaultCtor o = ImplicitDefaultCtor();
                         assert(o.i == 0);
@@ -4996,7 +4995,7 @@ int main(int argc, char **argv) {
 
 #if __cplusplus >= 201103L
                 /*
-                # default keyword
+                # Default keyword
 
                     As of C++11, the `= default` statement can be added to a constructor to explicitly
                     say that the default should be used.
@@ -5015,7 +5014,7 @@ int main(int argc, char **argv) {
                 }
 
                 /*
-                # delete keyword
+                # Delete keyword
                 */
                 {
                     // ERROR: Explicitly deleted:
@@ -5155,7 +5154,7 @@ int main(int argc, char **argv) {
                 between built-in types and classes.
             */
             {
-                //parenthesis initialization
+                // Parenthesis initialization
                 {
                     int i(1);
                     assert(i == 1);
@@ -5173,13 +5172,13 @@ int main(int argc, char **argv) {
 
 #if __cplusplus >= 201103L
                 /*
-                # brace initialization of scalars
+                # Brace initialization of scalars
 
                     See uniform initialization.
 
                     <http://stackoverflow.com/questions/14232184/initializing-scalars-with-braces>
 
-                # uniform initialization
+                # Uniform initialization
 
                     In c++11 every type can be initialized consistently with `{}`.
 
@@ -5195,7 +5194,7 @@ int main(int argc, char **argv) {
                         because it has priority over other constructors.
                 */
                 {
-                    //built-int types
+                    // Built-int types
                     {
                         int i{1};
                         assert(i == 1);
@@ -6921,9 +6920,18 @@ int main(int argc, char **argv) {
                 assert(oss.str() == "abc");
             }
 
-            // #cat #concatenate. Creates a new string.
-            // The only way to do inline this without creating a new string seems to be by using stringstream.
-            // http://stackoverflow.com/questions/662918/how-do-i-concatenate-multiple-c-strings-on-one-line
+            /*
+            # + for strings
+
+            # cat
+
+            # concatenate.
+
+                Creates a new string.
+
+                The only way to do inline this without creating a new string seems to be by using stringstream.
+                http://stackoverflow.com/questions/662918/how-do-i-concatenate-multiple-c-strings-on-one-line
+            */
             {
                 std::string s = "ab";
                 std::string s1 = "cd";
@@ -6932,7 +6940,7 @@ int main(int argc, char **argv) {
                 assert("cd" + s == "cdab");
             }
 
-            // Length.
+            // length
             {
                 std::string s = "abc";
                 assert(s.length() == 3);
@@ -6947,8 +6955,11 @@ int main(int argc, char **argv) {
                 //s[3] = 'd';
             }
 
-            // #lowercase
-            // http://stackoverflow.com/questions/313970/stl-string-to-lower-case
+            /*
+            # lowercase
+
+                http://stackoverflow.com/questions/313970/stl-string-to-lower-case
+            */
             {
                 // Best stdlib way with transform:
                 std::string s = "AbCd1_";
@@ -6974,7 +6985,7 @@ int main(int argc, char **argv) {
                 assert(s.substr(1, 3) == "bcd");
             }
 
-            // #split at a character into array of strings.
+            // # Split at a character into array of strings.
             {
                 // Best stdlib solution for any character: http://stackoverflow.com/questions/236129/how-to-split-a-string-in-c
                 // There are shorters sstream solutions that split at whitespace.
@@ -6988,9 +6999,19 @@ int main(int argc, char **argv) {
                 }
             }
 
-            // #strip #filter
-            // Exact same techniques as removing elements from vectors but for characters.
-            // Its just that those operations are so common on strings.
+            /*
+            # strip
+
+            # chomp
+
+            # trim
+
+                Exact same techniques as removing elements from vectors but for characters.
+
+                It's just that those operations are so common on strings...
+
+                http://stackoverflow.com/questions/216823/whats-the-best-way-to-trim-stdstring
+            */
             {
                 // A single character: remove and erase idiom.
                 // Single remove_all call in Boost.
@@ -7084,7 +7105,9 @@ int main(int argc, char **argv) {
             }
 
             /*
-            # stringstream #basic_stringstream
+            # stringstream
+
+            # basic_stringstream
 
                 An iostream String backed implementation.
 
@@ -7937,7 +7960,7 @@ int main(int argc, char **argv) {
                 // Empty
                 {
                     std::vector<int> v;
-                    //C++11 initializer lists:
+                    // C++11 initializer lists:
                     std::vector<int> v1{};
                     assert(v == v1);
                 }
@@ -7983,16 +8006,20 @@ int main(int argc, char **argv) {
             }
 
             /*
-            # contigous storage #data
+            # Contigous storage
 
-            Storage is required to be contiguous by TR1: http://stackoverflow.com/questions/849168/are-stdvector-elements-guaranteed-to-be-contiguous
+            # Data
 
-            C++11 introduces the `data()` method which returns a pointer to the first element. It works even if the vector is empty.
-            http://stackoverflow.com/questions/6485496/how-to-get-stdvector-pointer-to-the-raw-data
+                Storage is required to be contiguous by TR1:
+                http://stackoverflow.com/questions/849168/are-stdvector-elements-guaranteed-to-be-contiguous
 
-            Before C++11, &v[0] works for non-empty vectors.
+                C++11 introduces the `data()` method which returns a pointer to the first element.
+                It works even if the vector is empty.
+                http://stackoverflow.com/questions/6485496/how-to-get-stdvector-pointer-to-the-raw-data
 
-            vector<bool> as usual is an exception.
+                Before C++11, `&v[0]` works for non-empty vectors.
+
+                `vector<bool>` as usual is an exception.
             */
             {
                 std::vector<int> v{0, 1, 2};
@@ -8001,10 +8028,14 @@ int main(int argc, char **argv) {
                 assert(v.data()[1] == v[1]);
             }
 
-            //size methods
+            // size methods
             {
                 /*
-                # size #size_type
+                # size
+
+                # length of vector
+
+                # size_type
 
                     Number of elements in std::vector.
 
@@ -8020,9 +8051,9 @@ int main(int argc, char **argv) {
                 /*
                 # resize
 
-                    If larger than current size,    append given element at end.
+                    If larger than current size, append given element at end.
 
-                    If smaller than current size,   remove elements from end.
+                    If smaller than current size, remove elements from end.
                 */
                 {
                     // Reduce size
@@ -8052,7 +8083,7 @@ int main(int argc, char **argv) {
                 }
             }
 
-            //capacity methods
+            // Capacity methods.
             {
                 /*
                 # capacity
@@ -8118,7 +8149,9 @@ int main(int argc, char **argv) {
                 }
 
                 /*
-                # push_back #append
+                # push_back
+
+                # append
 
                     Push to the end of the std::vector.
 
@@ -8275,7 +8308,9 @@ int main(int argc, char **argv) {
 
                         1, 2, 0, 1
 
-                # erase and remove idiom #remove and erase idiom
+                # erase and remove idiom
+
+                # remove and erase idiom
 
                     See remove.
                 */
@@ -8302,7 +8337,7 @@ int main(int argc, char **argv) {
                     }
                 }
 
-                // #remove_if #filter
+                // # remove_if # filter
                 // Algorithm. Remove if a given function evaluates to true on an element.
                 {
                     std::vector<int> v{0, 1, 2, 3, 4};
@@ -8320,7 +8355,7 @@ int main(int argc, char **argv) {
                     }
                 }
 
-                // #transform
+                // # transform
                 // Algorithm. Replace elements by output of a function.
                 {
                     std::vector<int> v{0, 1, 2};
@@ -8336,10 +8371,19 @@ int main(int argc, char **argv) {
                     assert(v.size() == 0);
                 }
 
-                // #print vector
+                /*
+                # print vector
+
+                # vector to string
+
+                    No built-in way.
+
+                    http://stackoverflow.com/questions/4850473/pretty-print-c-stl-containers
+                    190 votes on question, 30 on top answer! Come on C++!
+
+                    http://stackoverflow.com/questions/1430757/c-vector-to-string?lq=1
+                */
                 // ERROR: no default operator `<<`.
-                // People want that really bad: http://stackoverflow.com/questions/4850473/pretty-print-c-stl-containers
-                // 190 votes on question, 30 on top answer! Come on C++!
                 //cout << v;
             }
 

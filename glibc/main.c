@@ -50,12 +50,12 @@
 #include <stdlib.h>
 
 #include <fcntl.h>
-#include <sched.h>              //SCHED_BATCH, SCHED_IDLE, sched_getaffinity, clone
-#include <unistd.h>             // sysconf
+#include <sched.h>              /* SCHED_BATCH, SCHED_IDLE, sched_getaffinity, clone */
+#include <unistd.h>             /* sysconf */
 
-#include <sys/wait.h>           // wait, sleep
+#include <sys/wait.h>           /* wait, sleep */
 
-#include <gnu/libc-version.h>   //gnu_get_libc_version
+#include <gnu/libc-version.h>   /* gnu_get_libc_version */
 
 int clone_fn(void* args) {
     return 0;
@@ -75,7 +75,7 @@ int main(int argc, char** argv) {
         printf("SCHED_BATCH    = %d\n",  SCHED_BATCH);
         printf("SCHED_IDLE     = %d\n",  SCHED_IDLE );
 
-        // Called SCHED_NORMAL in the kernel:
+        /* Called SCHED_NORMAL in the kernel: */
 
             printf("SCHED_OTHER = %d\n", SCHED_OTHER);
 
@@ -101,7 +101,8 @@ int main(int argc, char** argv) {
                 exit(EXIT_FAILURE);
             } else {
                 printf("sched_getaffinity = ");
-                for (int i = 0; i < sizeof(cpu_set_t); i++) {
+                int i;
+                for (i = 0; i < sizeof(cpu_set_t); i++) {
                     printf("%d", CPU_ISSET(0, &mask));
                 }
                 printf("\n");
@@ -123,27 +124,27 @@ int main(int argc, char** argv) {
         TODO get working
     */
     {
-        //int i = 0;
-        //int status;
-        //pid_t pid = clone(
-        //    clone_fn,
-        //    SIGCHLD,
-        //);
-        //if (pid < 0)
-        //{
-        //    perror("clone");
-        //    exit(EXIT_FAILURE);
-        //}
-        //if (pid == 0)
-        //{
-        //    i++;
-        //    return EXIT_SUCCESS;
-        //}
-        //wait(&status);
+        /*
+        int i = 0;
+        int status;
+        pid_t pid = clone(
+            clone_fn,
+            SIGCHLD,
+        );
+        if (pid < 0) {
+            perror("clone");
+            exit(EXIT_FAILURE);
+        }
+        if (pid == 0) {
+            i++;
+            return EXIT_SUCCESS;
+        }
+        wait(&status);
 
-        ////no more child process
-        //assert(status == EXIT_SUCCESS);
-        //assert(i == 1);
+        //no more child process
+        assert(status == EXIT_SUCCESS);
+        assert(i == 1);
+        */
     }
 
     /*
@@ -193,14 +194,14 @@ int main(int argc, char** argv) {
             man 5 acct
     */
     {
-        char *fname = "acct.tmp";
+        char *fname = "_acct.tmp";
         if (creat(fname, S_IRWXU) == -1) {
-            //may fail because the file was owned by root
+            /* May fail because the file was owned by root. */
             perror("creat");
         }
         if (acct(fname) == -1) {
             perror("acct");
-            //may happen if we are not root
+            /* May happen if we are not root. */
         }
     }
 
@@ -222,5 +223,6 @@ int main(int argc, char** argv) {
     {
     }
 
+    printf("ALL ASSERTS PASSED\n");
     return EXIT_SUCCESS;
 }

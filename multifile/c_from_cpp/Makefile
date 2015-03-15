@@ -1,20 +1,20 @@
-.PHONY: run clean 
+.PHONY: run clean
 
-main.elf: main.o c.o
-	g++ -o main.elf main.o c.o
+main.out: main.o c.o
+	g++ -o main.out main.o c.o
 
-run: main.elf
-	./main.elf
+run: main.out
+	./main.out
 
 main.o: main.cpp
 	g++ -c "$<" -o "$@"
 
 c.o: c.c
 	g++ -c "$<" -o "$@"
-	#the following does not work:!!!
+	# The following does not work:!!!
 		#gcc -c "$<" -o "$@"
-	#because gcc gives plain names to function in the object file
-	#whilt g++ uses the more complex cpp naming conventions.
+	# Because gcc gives plain names to function in the object file
+	# While g++ uses the more complex cpp naming conventions.
 
 clean:
-	rm -rf *.o *.elf
+	rm -f *.o *.out

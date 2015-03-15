@@ -1,10 +1,10 @@
-.PHONY: run clean 
+.PHONY: run clean
 
-main.elf: main.o f.o
-	gcc -o main.elf main.o f.o -l:libgfortran.so.3
+main.out: main.o f.o
+	gcc -o main.out main.o f.o -l:libgfortran.so.3
 
-run: main.elf
-	./main.elf
+run: main.out
+	./main.out
 
 main.o: main.c
 	gcc -c "$<" -o "$@"
@@ -13,4 +13,4 @@ f.o: f.f
 	gfortran -c "$<" -o "$@"
 
 clean:
-	rm -rf *.o *.elf
+	rm -rf *.o *.out

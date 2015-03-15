@@ -2,17 +2,17 @@ CFLGS := -Wall
 
 .PHONY: all clean run
 
-all: maina.elf mainso.elf mainso_fullpath.elf libab.so
+all: maina.out mainso.out mainso_fullpath.out libab.so
 
-run: maina.elf mainso.elf mainso_fullpath.elf
-	./maina.elf
+run: maina.out mainso.out mainso_fullpath.out
+	./maina.out
 	# This works only after install target and is the standard production method:
-	#./mainso.elf
+	#./mainso.out
 	# This only a test method:
-	env LD_LIBRARY_PATH=.:$LD_LIBRARY_PATH ./mainso.elf
-	# Full path is stored in the elf.
+	env LD_LIBRARY_PATH=.:$LD_LIBRARY_PATH ./mainso.out
+	# Full path is stored in the out.
 	# Since it starts with './', linker knows it is an absolute path:
-	./mainso_fullpath.elf
+	./mainso_fullpath.out
 
 install:
 	#sudo mv libabso /some/where/in/ld/path/
@@ -21,28 +21,28 @@ install:
 	#sudo ldconfig
 
 # Main to link to .so
-# readelf -d shows that the ouptut stores the relative path
-mainso.elf: main.o libab.so
-	gcc $(CFLGS) -L"." main.o -o mainso.elf -lab
+# readout -d shows that the ouptut stores the relative path
+mainso.out: main.o libab.so
+	gcc $(CFLGS) -L"." main.o -o mainso.out -lab
 		#will look for lib with basename *exactly* `libab.so`,
 		#`libab.so.1` will not do!
-	#gcc $(CFLGS) -L"." main.o -o mainso.elf -l:libab.so
+	#gcc $(CFLGS) -L"." main.o -o mainso.out -l:libab.so
 		#with ':' uses full basename
 		#APPLICATION
 		#select an specific version such as `libab.so.1`
-	#env LIBRARY_PATH=$LIBRARY_PATH:. gcc $(CFLGS) main.c -o mainso.elf -lab
+	#env LIBRARY_PATH=$LIBRARY_PATH:. gcc $(CFLGS) main.c -o mainso.out -lab
 
 # This is not recommended
-# Better use linker path as in mainso.elf
-# readelf -d shows that the ouptut stores the full path.
-mainso_fullpath.elf: main.o libab.so
-	gcc $(CFLGS) main.o "$(shell realpath libab.so)" -o mainso_fullpath.elf
-	#gcc $(CFLGS) main.o -o mainso_fullpath.elf -l"$(shell realpath libab.so)" 
+# Better use linker path as in mainso.out
+# readout -d shows that the ouptut stores the full path.
+mainso_fullpath.out: main.o libab.so
+	gcc $(CFLGS) main.o "$(shell realpath libab.so)" -o mainso_fullpath.out
+	#gcc $(CFLGS) main.o -o mainso_fullpath.out -l"$(shell realpath libab.so)" 
 		#does not work
 
 #main with .a
-maina.elf: main.o ab.a
-	gcc $(CFLGS) main.o ab.a -o maina.elf
+maina.out: main.o ab.a
+	gcc $(CFLGS) main.o ab.a -o maina.out
 
 #make .so
 libab.so: a.o b.o
@@ -60,4 +60,4 @@ ab.a: a.o b.o
 	gcc $(CFLGS) -fPIC -c "$<" -o "$@"
 
 clean:
-	rm -rf *.o *.a *.so *.elf
+	rm -rf *.o *.a *.so *.out

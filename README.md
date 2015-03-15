@@ -4,24 +4,44 @@
 
 C and C++ information, cheatsheets and mini-projects.
 
-There may be other compiled languages here for which we don't have much material for a separate repository, specially when we interface that language with C. E.g.: Fortran.
-
 Relies on <https://github.com/cirosantilli/cpp-boilerplate> to factor code out. See [its documentation](https://github.com/cirosantilli/cpp-boilerplate/blob/master/README.md) for information on how to use this project.
 
 ## Most useful files
 
-- [c.c](c.c):              C cheatsheet.
-- [cpp.cpp](main_cpp.cpp): C++ cheatsheet.
-- [posix](posix/):         POSIX C API.
+- [c.c](c.c): C cheatsheet
+- [cpp.cpp](main_cpp.cpp): C++ cheatsheet
+- [posix](posix/): POSIX C API
+- [multifile/](multifile/): `include`, `extern` vs `static`, dynamic libraries, cross language calls
+- [gcc/](gcc/): GCC extensions
 - [opengl/](opengl/)
 - [kde/](kde/)
 
-## Quickstart
+Less useful files:
 
-On Ubuntu 12.04:
+- [cmake](cmake.md)
+- [fortran/](fortran/)
+- [hello_world.c](hello_world.c)
+- [hello_world.c](hello_world.c)
+
+## Dependencies
+
+Most builds require:
+
+- `make` (POSIX)
+- `gcc` >= 4.7
+- `g++` >= 4.7
+
+Even though we use GNU tools by default, great attention is paid to portability of portable subjects like ANSI C, which should compile in any compiler.
+
+In addition, each directory may have their own extra dependencies as stated in their README.
+
+You can install dependencies on latest LTS Ubuntus with:
 
     ./configure
-    make run
+
+Other system install are not going to be supported as that would lead to too much maintenance overhead. If you don't have Ubuntu, consider using our [Vagrantfile](Vagrantfile).
+
+## Usage
 
 When there are multiple files compiled, e.g.:
 
@@ -35,15 +55,7 @@ run a given file by specifying the basename without extension:
 
 The `=` sign is *not* optional!
 
-Doing just `make run` in those cases will run the default file.
-
-To print the generated assembly code to the screen use:
-
-    make asm RUN=cpp
-
-To get help on all options use:
-
-    make help
+Doing just `make run` in those cases will run the default file: `main`.
 
 ## Style
 

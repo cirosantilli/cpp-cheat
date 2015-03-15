@@ -1,22 +1,3 @@
-/**
-Cheat on GNU C extensions.
-
-Extensiosn to the libc library present in glibc are excluded.
-
-Non-GNU specific  features (ex: ANSI C, POSIX) are excluded.
-
-You can disable all non-GNU specific languages features with flags like `-ansi or -std=c99`.
-
-This will not however stop defining certain GNU specific preprocessor macros such as `__GNUC__`
-
-Obviously, it is always better if you avoid using those features,
-but you may encounter them in Linux specific projects, such as the linux kernel itself for example.
-
-GNU extensions have a large chance of being implemented
-in future ansi C versions (but sometimes in a modified form)
-because of the large influence of gcc.
-*/
-
 #include <assert.h>
 #include <complex.h>   /* Complex integer types */
 #include <math.h>
@@ -150,11 +131,11 @@ int nested() {
 
         /* Always inline */
 
-            /* Function must also be `inline` */
+            /* Declaration must also be `inline`. */
             inline int incr_always_inline(int i) __attribute__((always_inline));
-
             inline int incr_always_inline(int i){ return i + 1; }
 
+            int incr_inline(int i);
             inline int incr_inline(int i){ return i + 1; }
 
             int incr(int i){ return i + 1; }
@@ -558,7 +539,7 @@ int main() {
         }
 
         /*
-        # variable attributes
+        # Variable attributes
         */
         {
             /*
@@ -603,7 +584,7 @@ int main() {
         }
 
         /*
-        # type attributes
+        # Type attributes
 
             Attribute that applies to all objects of a newly created user type.
 
@@ -614,7 +595,7 @@ int main() {
         */
         {
             /*
-            # vector extensions
+            # Vector extensions
 
                 GCC built-ins for vectorized SIMD operations.
 

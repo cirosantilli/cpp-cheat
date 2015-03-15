@@ -1,20 +1,33 @@
 # GCC
 
-Information about the Gnu Compile Collection (GCC), and in particular `gcc` and `g++`.
+Cheat on the GNU Compile Collection (GCC) language extensions and compile options, and in for `gcc` and `g++`.
 
-[main.c](main.c): `gcc` extensions to the ANSI C language.
+Most useful files:
 
-GCC stands for GNU Compiler Collection: *not* C compiler, and currently compiles: C, C++, Objective-C, Fortran, Java, Ada, and Go.
+- [main.c](main.c): `gcc` cheat
+- [Compile options](compiler-options.md)
 
 `gcc` is the C compiler. It is a large frontend for other tools such as `as`, `cpp`.
 
 `gcc` and `g++` are the dominant compilers on Linux. Important alternatives include `clang` and Intel's `icc`.
 
+Only *language* extension are discussed: glibc extensions are not.
+
+Non-GNU specific features (ex: ANSI C, POSIX) are excluded.
+
+You can disable all non-GNU specific languages features with flags like `-ansi or -std=c99`, which you should always do. This will not however stop defining certain GNU specific preprocessor macros such as `__GNUC__`
+
+Obviously, it is always better if you avoid using extensions, but you may encounter them in Linux specific projects, such as the Linux kernel itself for example.
+
+GNU extensions have a large chance of being implemented in future ANSI C versions (but sometimes in a modified form) because of the large influence of GCC.
+
+GCC stands for GNU Compiler Collection: *not* C compiler, and currently compiles: C, C++, Objective-C, Fortran, Java, Ada, and Go.
+
 ## g++ vs gcc
 
 `g++`: <http://stackoverflow.com/questions/172587/what-is-the-difference-between-g-and-gcc>
 
-Most important:
+Most important differences:
 
 - `g++` treats both `.c` and `.cpp` files as C++, since `.c` is backwards compatible with C++, it works
 - `g++` links to (but does not include) stdlib automatically, `gcc` does not!
@@ -73,281 +86,6 @@ Link object files into single executable
 Does all above steps in one
 
 If you use make, it is faster to generate `.o` and keep them, since if the source does not change, make will not recompile the corresponding `.o`
-
-## Flags
-
-### Recommended compilation flags
-
-Good discussion: <http://stackoverflow.com/questions/154630/recommended-gcc-warning-options-for-c>
-
-Always use this for production output code if possible:
-
-    gcc -std=c99 -pedantic-errors -Wall -Wextra -03 -march=native -o a a.c
-
-This will make for portable, efficient code.
-
-For test code, omit the `-03`, since that will make compilation faster.
-
-### o
-
-Output destination.
-
-Default: `a.out`.
-
-For stdout: `-o -`.
-
-### Input from stdin
-
-### x
-
-Specify the language explicitly.
-
-Required when input is from stdin with `-`.
-
-Compile from stdin:
-
-    echo 'int main(){}' | gcc -xc -
-
-For a C header use `c-header`. Note that this generates a `-.gch` file:
-
-    echo 'int i;' | gcc -xc-header -
-
-### Wall
-
-Enables many useful warnings:
-
-    gcc -Wall
-
-Understanding each warning and being able to write warning free code is a good way to improve language skills.
-
-### Wextra
-
-Enables even more useful warnings than wall.
-
-    `gcc -Wextra`
-
-### std
-
-Specifies the language to be used.
-
-Disables GCC extensions that conflict with ANSI C standard.
-
-Sample usage:
-
-    gcc -std=c90
-    gcc -std=c99
-    gcc -std=1x
-
-`c11` will be the next version and is still being developed at the time of writing.
-
-To allow gnu extensions:
-
-    gcc -std=gnu90
-
-This is necessary on projects that rely on the extensions, such as the Linux kernel.
-
-### ansi
-
-Don't use this, use `std` instead:
-
-    gcc -ansi
-
-Implies the most recent `-std` which gnu considers is stable manner (not necessarily the latest).
-
-Changes with time, currently equals:
-
-    gcc -std=c90
-
-It is a bit confusing not to have a fixed version of the standard to comply to, so just use std instead.
-
-### pedantic
-
-Give warnings for code that does not comply with `c1x` standard:
-
-    gcc -std=c1x -pedantic
-
-This does not mean *FULL* compliance, but greatly increases compliance.
-
-There is currently no full compliance check in `gcc`.
-
-Give errors instead of warnings:
-
-    gcc -std=c1x -pedantic-errors
-
-### march
-
-Optimizes code to given CPU (arch is for archtecture).
-
-May use instructions only available to given CPU.
-
-Optimize for current compiling machine:
-
-    gcc -march=native
-
-Strict 80386 instruction set. old, compatible, used on almost all desktops and laptops:
-
-    gcc -march=i386
-
-Arm v.7, used on mobiles today:
-
-    gcc -march=armv7
-
-### Optimization
-
-List possible optimizations for `-O`:
-
-    gcc -Q -O --help=optimizers
-
-The options:
-
-- `O0`: no speed optimization. This is the default
-- `O` : basic speed optimization. Same as `-O1`.
-- `O2`: more than `O1`
-- `O3`: more than `O2`
-- `Og`: optimize for debugging
-- `Os`: optimize for size
-- `Ofast`: optimize for speed more than `O3`, *even if it breaks standards*
-
-Best general code optimization method:
-
-    gcc -O3 a.c -o a.out
-
-Always use this for production code.
-
-### debugging
-
-GCC has options that allow you to add debugging information to binary outputs.
-
-This leads to larger output files, but the information can then be used by programs such as gdb or objdump to help debug programs, or for educational purposes.
-
-Add debug information to executable on compilation:
-
-    gcc -ggdb3 a.c
-
-Options:
-
-- `g`: generate debug info for GDB
-- `ggdb`: adds more info
-- `ggdb3`: adds max info. Default if 2 when ggdb is used.
-
-### M
-
-Don't compile, but generate a list of dependencies for the given source code in a format suitable for a makefile rule, and output it to stdout.
-
-Dependencies are basically the file itself and the required headers.
-
-For example, in `a.c`:
-
-    #include <stdio.h>
-    #include "a.h"
-
-then:
-
-    gcc -M a.c
-
-Output to stdout:
-
-    a.c : /usr/include/stdio.h \
-        a.h
-
-To make this even more suitable for a makefile, you should suppress the standard system files with `-MM`:
-
-    gcc -MM a.c
-
-giving:
-
-    a.c : a.h
-
-You can then use those on a makefile as:
-
-    $(shell gcc -MM a.c)
-        gcc a.c
-
-### assembly code
-
-If you want to interpret assembly code generated by `gcc`, the best combo is:
-
-    gcc -fverbose-asm -S a.c
-
-To get original line number / code from C code into `asm` comments, use either:
-
-    gcc -c -fverbose-asm -Wa,-adhln a.c
-
-or:
-
-    gcc -ggdb3 -o a.o a.c
-    objdump -S a.o
-
-#### -S
-
-Generate assembly code:
-
-    gcc -S a.c
-
-Generates gas assembly code to a new file called `a.S`.
-
-### -f options
-
-TODO What are the `-f` options for in general? Give examples.
-
-#### verbose-asm
-
-Outputs comments on the generated assembly which say variable names are being operated on each statement:
-
-    gcc -fverbose-asm -S a.c
-
-Sample C input:
-
-    i = 1;
-    j = i;
-
-Output without `-fverbose-asm`:
-
-    movl $1, -64(%ebp)
-    movl -64(%ebp), %eax
-    movl %eax, -68(%ebp)
-
-With `-fverbose-asm`:
-
-    movl $1, -64(%ebp)   # ,i
-    movl -64(%ebp), %eax #i, tmp123
-    movl %eax, -68(%ebp) #tmp123, j
-
-### syntax-only
-
-Only check if the syntax is correct, don't compile anything.
-
-    $ echo 'int i;' | gcc -fsyntax-only -xc -
-    $ echo 'int i' | gcc -fsyntax-only -xc -
-    <stdin>:1:1: error: expected ‘=’, ‘,’, ‘;’, ‘asm’ or ‘__attribute__’ at end of input
-
-Note how the above code would not compile because there is no `main` function:
-
-    $ echo 'int i;' | gcc -xc -
-    /usr/lib/gcc/x86_64-linux-gnu/4.8/../../../x86_64-linux-gnu/crt1.o: In function `_start':
-    (.text+0x20): undefined reference to `main'
-    collect2: error: ld returned 1 exit status
-
-As of GCC 4.8 fails on `c-header` files with "output filename specified twice"
-<http://stackoverflow.com/questions/12513665/how-can-i-use-g-to-get-assembly-code-for-a-c-header-hpp-file>
-The only solution seems to be to set the input type to `-xc`.
-
-### -Wa options
-
-Same as `-Xassembler`.
-
-Example:
-
-    gcc -c -fverbose-asm -Wa,-adhln a.c
-
-
-### -Xassembler
-
-Pass options directly to the `as` assembler.
-
-Example:
-
-    gcc -c -fverbose-asm -Xassembler -adhln a.c
 
 ## Preprocessor
 

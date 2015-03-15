@@ -1,48 +1,50 @@
-this dir demonstrates calling fotran code from c
+# Fortran from C
 
-#differences between c and fortran
+How to call Fortran code from C.
 
-- fortran appends `_` to the end of symbol names. See that with `readelf -s f.o`.
+## Differences between C and Fortran
 
-    Threfore, your c code must look for `f_` functions.
+-   Fortran appends `_` to the end of symbol names. See that with `readelf -s f.o`.
 
-    there are also `-fno-underscore` and `-fno-second-underscore` options to the fortran compiler.
+    Therefore, your c code must look for `f_` functions.
 
-- fortran is case insensitive, and symbols are all lowercased.
+    There are also `-fno-underscore` and `-fno-second-underscore` options to the Fortran compiler.
 
-- fortran arrays are column-major, c is row-major.
+-   Fortran is case insensitive, and symbols are all lowercased.
 
-    fortran memory:
+-   Fortran arrays are column-major, c is row-major.
+
+    Fortran memory:
 
         a(1,1)	a(2,1)	a(1,2)	a(2,2)	a(1,3)	a(2,3)
 
-    c memory:
+    C memory:
 
         a[0][0]	a[0][1]	a[0][2]	a[1][0]	a[1][1]	a[1][2]
 
-- fortran strings contain length. TODO:
+-   Fortran strings contain length. TODO: how?
 
-- fortran `subroutines` pass by reference by default.
+-   Fortran `subroutines` pass by reference by default.
 
-    therefore, corresponding c code must use pointers on function declaration.
+    Therefore, corresponding C code must use pointers on function declaration.
 
-    fortran functions however work like c functions.
+    Fortran functions however work like C functions.
 
-- you must convert correspoinding types correctly to match number of bytes and definition.
+-   You must convert corresponding types correctly to match number of bytes and definition.
 
-    this may be hard, because those values may be compiler/machine dependant.
+    This may be hard, because those values may be compiler/machine dependant.
 
-    not sure there is a bulletproff way to deal with this.
+    Not sure there is a bulletproof way to deal with this.
 
-- you have to link to the fotran standard library if you want to call functions such as `write` or `abs`.
+-   You have to link to the Fortran standard library if you want to call functions such as `write` or `abs`.
 
     In my Ubuntu system, it is called `libgfortran.so.3.0.0`, so `locate fortran.so` should show you the location.
 
     You could also find this by asking the dependencies of a regular fortran executable as:
-    
+
         readelf -d executable.elf
 
-#sources
+## Sources
 
 <http://owen.sj.ca.us/~rk/howto/FandC/FandC.call.html>
 

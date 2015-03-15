@@ -383,10 +383,10 @@ int setjmp_func(int jmp, jmp_buf env_buf) {
         return 1;
 }
 
-/* # Functions */
+/* Functions */
 
     /*
-    # declaration vs #definition
+    #Declaration vs #definition
     */
 
         /*
@@ -677,6 +677,15 @@ int setjmp_func(int jmp, jmp_buf env_buf) {
             *i += *add;
             *j += *add;
         }
+
+    /*
+    This declaration is required!
+
+    - http://stackoverflow.com/questions/6312597/is-inline-without-static-or-extern-ever-useful-in-c99
+    - http://stackoverflow.com/questions/12747198/compiling-error-when-std-gnu99-and-inline-function-is-used
+    */
+    int inline_func(int i);
+    inline int inline_func(int i) { return i + 1; }
 
 #if __STDC_VERSION__ >= 199901L
         int static_array_argument(int is[static 3]) {
@@ -2675,27 +2684,6 @@ int main(int argc, char **argv) {
             register struct S s;
         }
     }
-
-    /*
-    # inline keyword
-
-        Signals the compiler that it may be worth to copy paste the function instead of calling it.
-
-        The compiler is not obliged
-
-        effects:
-
-        - avoids function call, thus potentially faster
-        - code gets larger
-        - function pointer comparisons may differ for the same function
-        - instruction cache might be come less efficient making thigs slower
-
-        sources:
-
-        - <http://www.greenend.org.uk/rjk/tech/inline.html>
-
-            some warnings about inline and its usage
-    */
 
     /*
     # typedef
@@ -5405,7 +5393,7 @@ int main(int argc, char **argv) {
                 */
                 {
                     int is[] = {0, 1, 2};
-                    for (int i = 0, j = 10; i < 20; ++i, ++j) {
+                    for (int i = 0, j = 0; j < 30; ++i, j += 10) {
                         assert(i == is[i]);
 
                         /* ERROR: redeclaration. */
@@ -5867,6 +5855,30 @@ int main(int argc, char **argv) {
                 /*noreturn_func2();*/
             }
 #endif
+
+            /*
+            # inline keyword
+
+                Signals the compiler that it may be worth to copy paste the function instead of calling it.
+
+                The compiler is not obliged
+
+                effects:
+
+                - avoids function call, thus potentially faster
+                - code gets larger
+                - function pointer comparisons may differ for the same function
+                - instruction cache might be come less efficient making thigs slower
+
+                Sources:
+
+                -   <http://www.greenend.org.uk/rjk/tech/inline.html>
+
+                    Some warnings about inline and its usage.
+            */
+            {
+                assert(inline_func(0) == 1);
+            }
 
         }
 
@@ -7356,10 +7368,15 @@ int main(int argc, char **argv) {
                     Modes:
 
                     -   `r`: read. compatible with a,w
+
                     -   `w`: read and write. destroy if exists, create if not.
+
                     -   `a`: append. write to the end. creates if does not exist.
+
                     -   `+`: can do both input and output. msut use flush or fseek
+
                     -   `x`: don't destroy if exist (c11, not c++!)
+
                     -   `b`: binary.
 
                         Means nothing in POSIX systems.

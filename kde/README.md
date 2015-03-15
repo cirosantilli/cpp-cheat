@@ -17,7 +17,9 @@ To run you have two choices:
 
         make run
 
-    The downside of this method is that it is necessary to install in order for certain features to apply, for example `ui.rc` files.
+    The downside of this method is that certain features are only available if you install, for example `ui.rc` files.
+
+    But this method is faster.
 
 ## General information
 

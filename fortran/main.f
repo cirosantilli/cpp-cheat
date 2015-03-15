@@ -1,4 +1,5 @@
-      !mostly focused on differences from c      !my goal in this is the minimal knowledge for scientific computation
+      !mostly focused on differences from C
+      !my goal in this is the minimal knowledge for scientific computation
       !i also interested in c interfacing
 
       !#sources
@@ -55,7 +56,7 @@
         logical b
 
         if ( .not. b) then
-          write(*,*) 'assert failed'
+          write(*,*) 'ASSERT FAILED'
           stop 1
         endif
 
@@ -199,6 +200,7 @@
               is2x3(1,3) = 1
 
               !physical memory column major:
+
                 is2x2(1,1) = 1
                 is2x2(1,2) = 2
                 is2x2(2,1) = 3
@@ -236,7 +238,6 @@
                 call assert( 1 .eq. 1   )
                 call assert( 1 /=   2   )
                 call assert( 1 .ne. 2   )
-
 
           !#branch
 
@@ -338,19 +339,19 @@
             call get_command_argument(0, arg)
             write(*,*) arg
 
-          !#file io
+          !#IO
 
-            !#stdin out
+            !#stdout
 
               is2(1) = 1
               is2(2) = 2
               write(*,*) 'stdout', 1, 1.0, .true., is2
-                !write to stdout
+
+            !#stdin
 
               !read  (*,*) r
-                !read from stdin
 
-            !#file
+            !#file IO
 
               !TODO
 
@@ -360,14 +361,13 @@
               !write( u, * ) 'file', 1, 1.0, .true., is2
               !close( u )
 
-        !#3rd party
-
         !#stop
 
           !ends the program
 
           !0 exit status:
 
+            write(*,*) 'ALL ASSERTS PASSED'
             stop
 
           !other exit status:

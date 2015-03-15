@@ -2,6 +2,7 @@
 
 """
 Run executables with filenames given in argv[2:] and inside directory argv[1].
+
 Stop on the first that returns non 0 status.
 """
 

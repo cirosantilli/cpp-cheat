@@ -1,3 +1,5 @@
+# CMake
+
 Make alternative that aims to be:
 
 -   more cross platform: works on Linux and Windows
