@@ -10,18 +10,38 @@ Relies on <https://github.com/cirosantilli/cpp-boilerplate> to factor code out. 
 
 - [c.c](c.c): C cheatsheet
 - [cpp.cpp](main_cpp.cpp): C++ cheatsheet
-- [posix](posix/): POSIX C API
-- [multifile/](multifile/): `include`, `extern` vs `static`, dynamic libraries, cross language calls
-- [gcc/](gcc/): GCC extensions
-- [opengl/](opengl/)
-- [kde/](kde/)
+- [POSIX](posix/): POSIX C API
+- [Multi-file](multifile/): `include`, `extern` vs `static`, dynamic libraries, cross language calls
+- [GCC](gcc/): GCC extensions
+- [OpenGL](opengl/)
+- [KDE](kde/)
 
-Less useful files:
+Other files:
 
-- [cmake](cmake.md)
-- [fortran/](fortran/)
+- [Boost](boost/)
+- [Flex and Bison](flex-bison/)
+- [GDB](gdb.md)
+- [glibc](glibc/)
+- [Implementations](implementations.md)
+- [Style guides](style-guides.md)
+- [CMake](cmake.md)
 - [hello_world.c](hello_world.c)
-- [hello_world.c](hello_world.c)
+- [hello_world_cpp.cpp](hello_world_cpp.cpp)
+
+GUI:
+
+- [GTK](gtk/)
+- [Qt](qt/)
+- [X11](x11)
+- [Open GL](opengl/)
+
+Scientific:
+
+- [Fortran](fortran/)
+- [GSL](gsl/)
+- [LAPACK](lapack/)
+- [OpenCV](opencv/)
+- [PLplot](plplot/)
 
 ## Dependencies
 
@@ -94,3 +114,5 @@ shall be put inside a block analogous to a `if (0){ ... }` to be turned on only 
 Cheat source comments are written in markdown *indented by headers* and commented out.
 
 Every important keyword that one might search for in the feature has a hash before it, e.g. `#function`, `#include`, `#printf`, etc.
+
+##

@@ -112,21 +112,6 @@ Features which are identical to C will not be described.
 
     Wrtie `stdlib` and say "Standard Library" instead.
 
-# Style
-
-    -   <http://google-styleguide.googlecode.com/svn/trunk/cppguide.xml>
-
-        Google C++ coding standards.
-
-        Interesting points:
-
-        - a Boost subset is accepted
-        - a C++11 subset is accepted
-
-    -   <http://geosoft.no/development/cppstyle.html>
-
-        Coding guidelines, clearly exemplified.
-
 # Libraries
 
     C++ has many major interesting non standard libs.

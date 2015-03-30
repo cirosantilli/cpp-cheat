@@ -1,9 +1,9 @@
 /*
-#Feature macros
+# Feature macros
 
-#XOPEN_SOURCE
+# XOPEN_SOURCE
 
-#GNU_SOURCE
+# GNU_SOURCE
 
     Most glibc extensions are contained inside existing POSIX headers.
 
@@ -23,7 +23,7 @@
     The feature macro definition *must* come before includes header so that the
     preprocessor can see it when it inteprets the header.
 
-#LSB
+# LSB
 
     Linux standard base seems to require only the two following gnu extensions to be available:
 
@@ -32,7 +32,7 @@
 
     All the other functions seem to be present on all Linux distros only because glibc is a de-facto standard. TODO any others?
 
-#glibc vs gnulib
+# glibc vs gnulib
 
     gnulib seems is meant to be a source of code to be copied pasted, not preinstalled.
 
@@ -65,7 +65,7 @@ int main(int argc, char** argv) {
     printf("gnu_get_libc_version() = %s\n", gnu_get_libc_version());
 
     /*
-    #sched.h
+    # sched.h
 
         More scheduling policies are defined.
 
@@ -80,17 +80,17 @@ int main(int argc, char** argv) {
             printf("SCHED_OTHER = %d\n", SCHED_OTHER);
 
         /*
-        #sched_getaffinity
+        # sched_getaffinity
 
             view in which cpu's the given process can run
 
             Linux keeps track of this, and this can be set with appropriate premissions
 
-        #sched_setaffinity
+        # sched_setaffinity
 
             set for getaffinity
 
-        #cpu_set_t
+        # cpu_set_t
 
             a bitmap with a field per cpu
         */
@@ -111,7 +111,7 @@ int main(int argc, char** argv) {
     }
 
     /*
-    #clone
+    # clone
 
         Create a new thread.
 
@@ -148,7 +148,7 @@ int main(int argc, char** argv) {
     }
 
     /*
-    #sysconf
+    # sysconf
 
         Sysconf extensions.
     */
@@ -168,20 +168,20 @@ int main(int argc, char** argv) {
     }
 
     /*
-    #readline
+    # readline
 
         Read one line from a file:
         <http://stackoverflow.com/questions/3501338/c-read-file-line-by-line>
     */
 
     /*
-    #stime
+    # stime
 
         Set time retreived by time system call.
     */
 
     /*
-    #acct
+    # acct
 
         Write acconting information on process that start and end to given file.
 
@@ -206,21 +206,23 @@ int main(int argc, char** argv) {
     }
 
     /*
-    #uselib
+    # uselib
 
         Load dynamic library.
     */
     {
+        /* TODO */
     }
 
     /*
-    #swapon
+    # swapon
 
         Manage in shich devices swap memory can exist.
 
-    #swapoff
+    # swapoff
     */
     {
+        /* TODO */
     }
 
     printf("ALL ASSERTS PASSED\n");

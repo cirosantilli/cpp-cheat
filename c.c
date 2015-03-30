@@ -178,7 +178,11 @@ Small comments on comparing ANSI C with extensions are acceptable.
 
         <http://www.mcs.anl.gov/petsc/documentation/index.html>
 
-    # multithreading ipc concurrency.
+    # Multithreading
+
+    # IPC
+
+    # Concurrency
 
         -   C11 supports it, C99 not.
 
@@ -187,14 +191,6 @@ Small comments on comparing ANSI C with extensions are acceptable.
         -   C++11 supports it, C++03 not.
 
         -   openMP is is a library supported on C, C++, Fortran, Windows, Linux Mac OS.
-
-# Compilers
-
-    Most of those compilers work for multiple related languages such as C, C++, etc.
-
-    - gcc
-    - clang
-    - icc
 
 # Funny
 
@@ -225,20 +221,21 @@ Small comments on comparing ANSI C with extensions are acceptable.
 */
 
 #include <assert.h>
+#include <ctype.h> /* isspace, isdigit, ispunct, tolower, toupper */
 #include <errno.h>
 #include <fenv.h>
 #include <float.h>
 #include <inttypes.h>  /* PRIxPTR */
-#include <limits.h>    /* *_MAX, *_MIN for integer types */
+#include <limits.h> /* *_MAX, *_MIN for integer types */
 #include <locale.h>
-#include <setjmp.h>    /* setjmp, longjmp */
-#include <stdarg.h>    /* ..., va_list, va_start, va_arg, va_end */
-#include <stddef.h>    /* offsetof, type_t */
-#include <stdlib.h>    /* malloc, EXIT_SUCCESS, EXIT_FAILURE: */
-#include <stdio.h>     /* printf, puts */
-#include <string.h>    /* sprintf, strlen, strcpy, memset */
+#include <setjmp.h> /* setjmp, longjmp */
+#include <stdarg.h> /* ..., va_list, va_start, va_arg, va_end */
+#include <stddef.h> /* offsetof, type_t */
+#include <stdlib.h> /* malloc, EXIT_SUCCESS, EXIT_FAILURE: */
+#include <stdio.h> /* printf, puts */
+#include <string.h> /* sprintf, strlen, strcpy, memset */
 #include <math.h>
-#include <time.h>      /* time() */
+#include <time.h> /* time() */
 
 #if __STDC_VERSION__ >= 199901L
 /* Not yet implemented in GCC 4.8. */
@@ -1123,6 +1120,42 @@ void abort_func() {
 */
 int main(int argc, char **argv) {
     /*
+    # Undefined behaviour
+
+        http://stackoverflow.com/questions/2397984/undefined-unspecified-and-implementation-defined-behavior
+
+        Anything can happen while still complyig to the standard: the program continues to execute,
+        crashs, it deletes your hard disk, or make Deamons fly out of you nose
+        http://www.urbandictionary.com/define.php?term=nasal%20demons
+
+        Bad stuff.
+
+    # Implementation-defined behaviour
+
+        Each implementation must document what it does but setting a fixed parameter.
+
+        E.g.: `sizeof(int)`
+
+        The standard may put constraints on what is conforming.
+
+        E.g.,
+
+        - `sizeof(int)` does not change value in the middle of the program. :)
+        - `sizeof(int) >= sizeof(short)`
+
+    # Unspecified behaviour
+
+        What happens exactly is not specified by the standard.
+
+        The standard however may put constraints on what may happen.
+
+        E.g.: argument order of evaluation `f1() * f2()`.
+
+        Unlike undefined behaviour, we are sure that this will not produce nasal deamons:
+        there are only two valid outcomes: `f1()` runs before or after `f2()`.
+    */
+
+    /*
     Comments.
     */
     {
@@ -1131,16 +1164,16 @@ int main(int argc, char **argv) {
         assert(false);
         */
 
-        /* A comment may contain `/*`, but GCC warns with `-Wcomment`. */
+        /* A comment may contain `/ *`, but GCC warns with `-Wcomment`. */
 
 #if __STDC_VERSION__ >= 199901L
         /* Double slash comment like in C++ were only introduced in C99. */
-        /*assert(false);*/
+        //assert(false);
 #endif
     }
 
     /*
-    # identifiers
+    # Identifiers
 
         Identifiers are names either for variables,
         functions, structs, enums, unions, macros, ...
@@ -1776,17 +1809,19 @@ int main(int argc, char **argv) {
 
         Can be printed in `printf` with `%zu`.
 
-    # size of base types
+    # Size of base types
+
+        Implementation-defined behaviour.
 
         base types like int of float don't have fixed ANSI sizes: only a minimum value is specified.
         so machines are free to take optimal values in terms of speed/storage
 
         `char` is an exception as it has a fized size of one byte.
 
-        for most modifier os similar types (ex: short int, int, long, long long)
+        For most modifier os similar types (ex: short int, int, long, long long)
         the ANSI also guarantees size inequalities (equality is possible)
 
-    # fixed size types
+    # Fixed size types
 
         besides the base times with nonfixed sizes, c99 ANSI libc also furnishes
         fixed sized types. See
@@ -3610,11 +3645,14 @@ int main(int argc, char **argv) {
     }
 
     /*
-    # Order of evaulation
+    # Order of evaulation of arguments
 
-        The order of evaluation for expressions that are arguments of functions or operators is not specified.
+        The order of evaluation for expressions that are arguments
+        of functions or operators is unspecified behaviour.
 
-        For example, it is undetermined behaviour in `f1() * f2()` if `f1` or `f2` is evaluated first.
+        For example, it is unspecified behaviour in
+        `f1() * f2()` if `f1` or `f2` is evaluated first,
+        which may matter if they have side-effects.
 
         The same goes for `g(f1(), f2())`.
 
@@ -3789,13 +3827,28 @@ int main(int argc, char **argv) {
 
     /* # Operators */
     {
-        /* # Arithmetic */
+        /*
+        # Arithmetic operators
+
+            Always be on the lookout for overflows. Rockets have fallen because of them.
+        */
         {
-            assert((1 + 2) == 3 );
-            assert((2 * 3) == 6 );
+            /*
+            # Sum
+
+            # +
+            */
+            {
+                /* Basic example. */
+                assert((1 + 2) == 3);
+
+                /* TODO what happens on overflow? */
+            }
+
+            assert((2 * 3) == 6);
 
             /*
-            # division
+            # Division
 
                 Division is the most complex of the basic operations.
 
@@ -3816,28 +3869,44 @@ int main(int argc, char **argv) {
                 integer representation standard.
             */
             {
-                assert((4 / 2)         == 2  );
+                assert((4 / 2) == 2  );
 
                 /* integer division */
-                assert((1 / 2)         == 0  );
+                assert((1 / 2) == 0  );
 
                 /* floating poitn division */
-                assert((1.0 / 2.0)     == 0.5);
+                assert((1.0 / 2.0) == 0.5);
 
                 /* floating poitn division. `1` is cast to `double` point */
-                assert((1 / 2.0)       == 0.5);
+                assert((1 / 2.0) == 0.5);
 
                 /* same as above */
                 assert((1 / (double)2) == 0.5);
             }
 
-            assert((3 % 3) == 0);
-            assert((4 % 3) == 1);
-            assert((5 % 3) == 2);
-            assert((6 % 3) == 0);
+            /* # Unary minus */
+            {
+                /*
+                Unary minus can overflow for the smallest negative number!
+
+                TODO example.
+                */
+            }
+
+            /*
+            # Modulus
+
+            # %
+            */
+            {
+                assert((3 % 3) == 0);
+                assert((4 % 3) == 1);
+                assert((5 % 3) == 2);
+                assert((6 % 3) == 0);
+            }
         }
 
-        /* # Boolean */
+        /* # Boolean operators */
         {
             assert((1 == 1) == 1);
             assert((0 == 1) == 0);
@@ -3875,31 +3944,55 @@ int main(int argc, char **argv) {
 
                 - 1 is evaulated to true
                 - || does not need to go any further, so i++ is not evaluated
+
+                Those operators also define sequence points.
             */
             {
                 int i = 0;
-                if (1 || i++);
+                1 || i++;
                 assert(i == 0);
+                1 && i++;
+                assert(i == 1);
             }
         }
 
-        /* # Bitwise */
+        /* # Bitwise operators */
         {
             /* NOT */
             assert((~(char)0x00) == (char)0xFF);
             assert((~(char)0xFF) == (char)0x00);
 
-            /* AND */
-            assert(((char)0x00 & (char)0x00) == (char)0x00);
-            assert(((char)0xFF & (char)0x00) == (char)0x00);
-            assert(((char)0xFF & (char)0xFF) == (char)0xFF);
+            /* AND bitwise */
+            {
+                assert(((char)0x00 & (char)0x00) == (char)0x00);
+                assert(((char)0xFF & (char)0x00) == (char)0x00);
+                assert(((char)0xFF & (char)0xFF) == (char)0xFF);
+
+                /*
+                # even
+
+                # odd
+
+                # Find if number is even or odd
+
+                    http://stackoverflow.com/questions/160930/how-do-i-check-if-an-integer-is-even-or-odd
+
+                    This is another "application" of `&`.
+
+                    But seems to be as fast as `%`, and is definitely less readable.
+                */
+                {
+                    assert((3 & 1) == 1);
+                    assert((4 & 1) == 0);
+                }
+            }
 
             /* OR */
             assert(((char)0x00 | (char)0x00) == (char)0x00);
             assert(((char)0xFF | (char)0x00) == (char)0xFF);
             assert(((char)0xFF | (char)0xFF) == (char)0xFF);
 
-            /* XOR. */
+            /* XOR */
             assert(((char)0x00 ^ (char)0x00) == (char)0x00);
             assert(((char)0xFF ^ (char)0x00) == (char)0xFF);
             assert(((char)0xFF ^ (char)0xFF) == (char)0x00);
@@ -3907,7 +4000,7 @@ int main(int argc, char **argv) {
             /*
             # bitmask
 
-                A major aplication of bitwise operators it making masks to:
+                The major aplication of bitwise operators it making masks to:
 
                 - set: MASK &
                 - reset
@@ -3915,6 +4008,9 @@ int main(int argc, char **argv) {
                 - retrieve
 
                 bits from unsigned integer fields.
+
+                These exist to allow to use one bit to store one bit,
+                because the minimal addressable unit on computers is 8 bits.
 
                 While such operators exist in almost all languages,
                 they are much more common in low level languages like C
@@ -5051,7 +5147,23 @@ int main(int argc, char **argv) {
             }
 
             /*
-            # text segment
+            # Iterate string
+            */
+            {
+                /* Pointer version. */
+                {
+                    char s[] = "abc";
+                    char s2[] = "ABC";
+                    char* cPtr;
+                    for (cPtr = s; *cPtr != '\0'; cPtr++){
+                        *cPtr = toupper(*cPtr);
+                    }
+                    assert(strcmp(s, s2) == 0);
+                }
+            }
+
+            /*
+            # Text segment
 
                 C allows you to point directly to the text segment.
 
@@ -5067,10 +5179,11 @@ int main(int argc, char **argv) {
                 Note however that you cannot modify that string.
             */
             {
-                /* To create a pointer to text segment, initialize it as follows: */
-
+                /* To create a pointer to text segment, initialize it as: */
+                {
                     char* cs = "abc";
                     assert(cs[0] == 'a');
+                }
 
                 /* Segmentation fault: text segment cannot be modified */
                 {
@@ -5142,7 +5255,7 @@ int main(int argc, char **argv) {
         }
     }
 
-    /* # branching */
+    /* # Branching statements */
     {
         /* # if */
         {
@@ -5286,7 +5399,7 @@ int main(int argc, char **argv) {
             However there is a classic optimization trick that relies on that:
             <http://en.wikipedia.org/wiki/Duff%27s_device>
 
-            # duffs device
+            # Duff's device
             */
             {
                 int i = 0;
@@ -5405,15 +5518,32 @@ int main(int argc, char **argv) {
 
             /* Nested loops. */
             {
-                int n = 0;
-                int is[] = {0, 0, 1, 1};
-                int js[] = {0, 1, 0, 1};
-                for (int i = 0; i < 2; i++) {
-                    for (int j = 0; j < 2; j++) {
-                        assert(i == is[n]);
-                        assert(j == js[n]);
-                        n++;
+                /* Basic example. */
+                {
+                    int n = 0;
+                    int is[] = {0, 0, 1, 1};
+                    int js[] = {0, 1, 0, 1};
+                    for (int i = 0; i < 2; i++) {
+                        for (int j = 0; j < 2; j++) {
+                            assert(i == is[n]);
+                            assert(j == js[n]);
+                            n++;
+                        }
                     }
+                }
+
+                /*
+                # Break out of nested loops
+
+                    http://stackoverflow.com/questions/1257744/can-i-use-break-to-exit-multiple-nested-for-loops
+
+                    One of the few widely accepted uses of goto.
+
+                    Languages like Java have labeled loops to avoid the goto.
+
+                */
+                {
+                    /* TODO example: find number in a two dimensional array. */
                 }
             }
 
@@ -5885,21 +6015,35 @@ int main(int argc, char **argv) {
         /*
         # goto
 
-            One of the most basic loops: tranlates to `jmp` in x86.
-
-            However, avoid using this as it may generate unreadable code.
-
-            One of the few generally accepted use cases is error handling inside a large function,
-            where if a test fails, jump to the end of the function which deals with each type of error.
+            One of the most basic loops: tranlates to an unconditional `jmp` in x86.
         */
         {
-            goto a;
-                assert(0);
-            a:
-                assert(1);
+            /*
+            However, avoid using this as it may generate unreadable code.
+
+            Opinions vary, but possible acceptable uses are:
+
+            -   break out of nested loops, widely supported
+
+            -   any forward jump, e.g. for error handling.
+                Those are equivalent to return, which is well accepted.
+
+            Very few people support gotos that go backwards.
+
+            `return` is essentially a forward jump inside a function.
+            */
+
+            // Basic example
+            {
+                goto basic_example;
+                    assert(0);
+                basic_example:
+                    assert(1);
+            }
 
             /*
-            goto cannot cross functions.
+            goto cannot cross functions: that would lead to crazy
+            things like uninitialized parameters, and no return.
 
             Use `setjmp` for that.
             */
@@ -6766,20 +6910,20 @@ int main(int argc, char **argv) {
 
                 be careful!! stdin won't return EOF automatically
 
-                for a tty you can tell the user to input a EOF (ctrl d in linux, ctrl z in windows)
+                For a tty you can tell the user to input a EOF (ctrl d in linux, ctrl z in windows)
                 but as you see this is system dependent. for pipes I am yet to find how to do this,
                 might be automatic when process closes only.
 
-                the best way to know that a stdin ended is recognizing some specific
+                The best way to know that a stdin ended is recognizing some specific
                 pattern of the input, such as a newline with fgets, or the end of a
                 number with scanf
 
-                before this comes, the program just stops waiting for the stdin to
+                Before this comes, the program just stops waiting for the stdin to
                 produce this, either from user keyboard input, or from the program
                 behind the pipe.
             */
 
-            /* # stream output */
+            /* # Stream output */
             {
                 /*
                 # putchar
@@ -6992,9 +7136,9 @@ int main(int argc, char **argv) {
                         }
                     }
 
-                    /* # hexadecimal integer output (unsigned): */
+                    /* # Hexadecimal integer output (unsigned): */
                     {
-                        printf("16  in hex = %x\n", 16);
+                        printf("16 in hex = %x\n", 16);
 
                         /* Letter case control. */
                         {
@@ -8169,10 +8313,9 @@ int main(int argc, char **argv) {
         /*
         # ctype.h
 
-            character classficiation functions
+            Character classficiation functions.
         */
         {
-#include <ctype.h>
             /* # isspace */
             {
                 assert(isspace(' '));
@@ -8193,6 +8336,21 @@ int main(int argc, char **argv) {
                 assert(ispunct('.'));
                 assert(!ispunct('a'));
                 assert(!ispunct('0'));
+            }
+
+            /*
+            # toupper
+
+            # tolower
+
+                Work on characters.
+
+                There is no built-in string version:
+                http://stackoverflow.com/questions/2661766/c-convert-a-mixed-case-string-to-all-lower-case
+            */
+            {
+                assert(tolower('A') == 'a');
+                assert(toupper('a') == 'A');
             }
         }
 
@@ -8579,13 +8737,21 @@ int main(int argc, char **argv) {
 
             # srand
 
-                See random number generator.
+                Seed the random number generator.
 
-                It is very common to seed with `time(NULL)`.
+                It is very common to seed with `time(NULL)` for simple applications.
 
             # rand
 
                 Get a uniformly random `int` between 0 and RAND_MAX.
+
+                For cryptographic applications, use a library:
+                http://crypto.stackexchange.com/questions/15662/how-vulnerable-is-the-c-rand-in-public-cryptography-protocols
+
+                On Linux, `/dev/random` is the way to go.
+
+                Intel introduced a RdRand in 2011, but as of 2015 it is not widely used,
+                and at some point was used as part of the entropy of `/dev/random`.
             */
             {
                 srand(time(NULL));
@@ -9296,7 +9462,7 @@ int main(int argc, char **argv) {
 #endif
 
     /*
-    # process address space
+    # Process address space
 
         Lets have some fun reverse engeneering the process memory space modeul used on your OS!
 

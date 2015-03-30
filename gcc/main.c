@@ -1,7 +1,7 @@
 #include <assert.h>
-#include <complex.h>   /* Complex integer types */
+#include <complex.h> /* Complex integer types. */
 #include <math.h>
-#include <stdarg.h>    /* ..., va_list, va_start, va_arg, va_end */
+#include <stdarg.h> /* ..., va_list, va_start, va_arg, va_end */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -198,6 +198,19 @@ void builtin_return_address_test() {
 }
 
 int main() {
+
+    /* # Identifiers */
+    {
+        /*
+        # $ is legal in identifiers
+
+            In Java and JavaScript too.
+        */
+        {
+            int $ = 0;
+            assert($ == 0);
+        }
+    }
 
     /* # Literals */
     {
@@ -889,9 +902,20 @@ int main() {
     }
 
     /*
+    # __builtin
+
     # builtin
 
-        Many gcc special functions and macros are prefixed `__builtin_`.
+        - https://gcc.gnu.org/onlinedocs/gcc/Other-Builtins.html
+        - https://gcc.gnu.org/onlinedocs/gcc/Target-Builtins.html
+
+        Many GCC special functions and macros are prefixed `__builtin_`.
+
+        However, GCC also treats some ANSI C functions as built-ins
+        with the same semantics as the original method: e.g. `memcmp`
+        gets directly compiled to efficient platform specific instructions.
+
+        Some built-ins are also implementation specific.
     */
     {
         /*
@@ -911,7 +935,7 @@ int main() {
         /*
         # builtin_constant_p()
 
-            Returns true iff gcc could determine that the given expression is constant,
+            Returns true iff GCC could determine that the given expression is constant,
             to decide if compile time optimizations may be done or not.
 
             Gcc is not smart enough to decide all cases correctly.

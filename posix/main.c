@@ -4,7 +4,7 @@ Cheat on the POSIX C API.
 The POSIX C API is mostly an extension of the ANSI C API.
 ANSI C features shall not be discussed here.
 
-#implementations
+# Implementations
 
     On most Linux systems as of 2013, the POSIX C API is implemented by the GNU C library:
     <http://www.gnu.org/software/libc/>.
@@ -12,11 +12,11 @@ ANSI C features shall not be discussed here.
     The GNU documentation states that POSIX compliance
     is a design goal of the GNU C library.
 
-    #windows
+    # windows
 
         TODO Is there a Windows implementation for the POSIX C API? Official?
 
-#headers
+# Headers
 
     List of all headers: <http://en.wikipedia.org/wiki/C_POSIX_library>
 
@@ -37,9 +37,9 @@ ANSI C features shall not be discussed here.
     - 600: issue 6, 2004
     - 700: issue 7, 2008
 
-#TODO
+# TODO
 
-    #ptrace
+    # ptrace
 
         one process (tracer) observes another process' (tracee) memory directly
 
@@ -112,14 +112,14 @@ extern char **environ;
 
 int main(int argc, char** argv) {
     /*
-    #Namespace
+    # Namespace
 
         POSIX adds many further per header reserved names which it would be wise to follow even on ANSI C:
         <http://pubs.opengroup.org/onlinepubs/9699919799/functions/V2_chap02.html> section "The Name Space".
     */
 
     /*
-    #errors
+    # errors
 
         Typical error dealing conventions POSIX are:
 
@@ -135,7 +135,7 @@ int main(int argc, char** argv) {
 
         Whenever there is an error, set `errno` accordingly to determine what was the cause of the erro
 
-    #errno.h
+    # errno.h
 
         Is defined by ANSI C, but more predefined error constants are added extended in POSIX,
 
@@ -176,7 +176,7 @@ int main(int argc, char** argv) {
     */
     {
         /*
-        #errno
+        # errno
 
             `errno` can be modified by functions to contain a description of certain
             standard errors.
@@ -209,13 +209,13 @@ int main(int argc, char** argv) {
     }
 
     /*
-    #printf
+    # printf
 
         This discusses `printf` and `sprintf` POSIX extensions to ANSI.
     */
     {
         /*
-        #dollar
+        # dollar
 
             `%2$d` means: use second argument. Treat the following arguments as if this one did not exist.
 
@@ -237,7 +237,7 @@ int main(int argc, char** argv) {
     }
 
     /*
-    #string functions
+    # string functions
 
         POSIX offers some extra convenience functions to common string operations which are not present in ANSI C.
     */
@@ -247,7 +247,7 @@ int main(int argc, char** argv) {
         */
 
         /*
-        #strfmon
+        # strfmon
 
             Monetary string formatting.
         */
@@ -261,7 +261,7 @@ int main(int argc, char** argv) {
     }
 
     /*
-    #syslog
+    # syslog
 
         Write error messages to standard system files.
 
@@ -296,7 +296,7 @@ int main(int argc, char** argv) {
     }
 
     /*
-    #environment variables
+    # environment variables
 
         Each process includes a list of its environment variables.
 
@@ -307,15 +307,15 @@ int main(int argc, char** argv) {
     */
     {
         /*
-        #getenv
+        # getenv
 
             specified by ANSI C
 
-        #setenv
+        # setenv
 
             not specified by ANSI C TODO check
 
-        #putenv
+        # putenv
 
             don't use, just use `setenv` instead. POSIX 7 itself says this.
         */
@@ -331,7 +331,7 @@ int main(int argc, char** argv) {
         }
 
         /*
-        #environ
+        # environ
 
             Automatically set by POSIX libraries linked to.
 
@@ -349,7 +349,7 @@ int main(int argc, char** argv) {
     }
 
     /*
-    #math.h
+    # math.h
 
         The `M_PI` constants are defined by POSIX inside of `math.h`.
     */
@@ -370,7 +370,7 @@ int main(int argc, char** argv) {
         }
 
         /*
-        #bessel
+        # bessel
 
             As of POSIX 7, the only major function addition to the math library
             seems to be Bessel functions.
@@ -387,7 +387,7 @@ int main(int argc, char** argv) {
     }
 
     /*
-    #sleep
+    # sleep
 
         Non busy sleep, that is, stop program execution for a given time,
         and let other programs run in the meantime.
@@ -404,7 +404,7 @@ int main(int argc, char** argv) {
     }
 
     /*
-    #times
+    # times
 
         Get real time, user time and system time.
     */
@@ -413,7 +413,20 @@ int main(int argc, char** argv) {
     }
 
     /*
-    #File descriptors
+    #time.h
+    */
+    {
+        /*
+        # strptime
+
+            Parse time string with given format and store it in a struct.
+        */
+        {
+        }
+    }
+
+    /*
+    # File descriptors
 
         `int` identifier to a data stream.
 
@@ -422,7 +435,7 @@ int main(int argc, char** argv) {
         One very important property of file descriptors is the current position from which read and write shall operate.
         Reads and writes move the current position forward.
 
-        #File descriptors vs ANSI C FILE objects
+        # File descriptors vs ANSI C FILE objects
 
             ANSI C supports only the concept of file pointers via the `FILE` macro.
 
@@ -445,15 +458,15 @@ int main(int argc, char** argv) {
 
             It is possible to convert freely to and from `FILE*` via fdopen and fileno.
 
-    #fdopen
+    # fdopen
 
         Convert file descriptor to `FILE*`.
 
-    #fileno
+    # fileno
 
         Convert `FILE*` to file descriptor.
 
-    #open
+    # open
 
             man 2 open
 
@@ -509,19 +522,19 @@ int main(int argc, char** argv) {
 
         Return value: `-1` on error and set perror.
 
-    #creat
+    # creat
 
         Same as:
 
             open(path, O_WRONLY|O_CREAT|O_TRUNC, mode);
 
-    #close
+    # close
 
         File descriptors occupy memory and are thus a finite resource.
 
         When you are done with one, release it with a close call.
 
-    #write
+    # write
 
         Write to file descriptor, such as one representing a file gotten via `open`
         or one representing a pipe obtained with `pipe`.
@@ -530,7 +543,7 @@ int main(int argc, char** argv) {
         For regular files, if this becomes greater than the current file size,
         then the file size is increased as needed.
 
-        #return value
+        # return value
 
             Returns number of bytes writen.
 
@@ -558,7 +571,7 @@ int main(int argc, char** argv) {
             It is unlikely that an implementation will return 0, since that would make no progress,
             and it should return `-1` and set errno instead to report error cases.
 
-        #atomicity of simultaneous writes
+        # atomicity of simultaneous writes
 
             Writes of less than `PIPE_BUF` bytes cannot be interleaved with other writes.
 
@@ -567,13 +580,13 @@ int main(int argc, char** argv) {
         TODO0 are writes to seekable files atomic? Seems not: <http://stackoverflow.com/questions/10650861/atomicity-of-write2-to-a-local-filesystem>
             for pipes we know yes for writes smaller than PIPE_BUF.
 
-    #pwrite
+    # pwrite
 
         Same as write, but writes to a given offset and does not update fd position.
 
         It cannot be done on non seekable files.
 
-    #read
+    # read
 
         POSIX 7 docs: <http://pubs.opengroup.org/onlinepubs/9699919799/functions/read.html>
 
@@ -593,7 +606,7 @@ int main(int argc, char** argv) {
 
         The exact behaviour of read depends on the fd type: pipes and regular files have slightly different rules.
 
-        #read pipe
+        # read pipe
 
             When attempting to read from an empty pipe or FIFO:
 
@@ -606,7 +619,7 @@ int main(int argc, char** argv) {
                 read() shall block the calling thread until some data is written or
                 the pipe is closed by all processes that had the pipe open for writing.
 
-        #return value
+        # return value
 
             Returns number of bytes read.
 
@@ -625,25 +638,25 @@ int main(int argc, char** argv) {
 
             On error return -1 and set errno.
 
-    #lseek
+    # lseek
 
         Like ANSI C fseek for file descriptors.
 
         lseek cannot be done on certain file descriptor types which are not seekable,
         for example on pipes.
 
-        #lseek after eof
+        # lseek after eof
 
             If data is writen with offset after file size, file size is increased and data skipped reads `(int)0` (`'\0'`).
 
             This contrasts with ANSI C fseek, in which this is undefined behaviour.
-    #fcntl
+    # fcntl
 
         Manipulate a file descriptor.
 
         Check if a fd is open: <http://stackoverflow.com/questions/12340695/how-to-check-if-a-given-file-descriptor-stored-in-a-variable-is-still-valid>
 
-    #dup
+    # dup
 
         Duplicate file descriptor.
 
@@ -651,7 +664,7 @@ int main(int argc, char** argv) {
 
             fcntl(fildes, F_DUPFD, 0);
 
-    #send
+    # send
 
         Generalization of write:
 
@@ -659,7 +672,7 @@ int main(int argc, char** argv) {
 
         TODO
 
-    #recv
+    # recv
 
         Generalization of read:
 
@@ -878,15 +891,15 @@ int main(int argc, char** argv) {
 
         Analogous to ANSI C `stdout`, `stdin` and `stderr`, except that the ANSI C `FILE*` objects.
 
-        #STDIN_FILENO
+        # STDIN_FILENO
 
             stdin
 
-        #STDOUT_FILENO
+        # STDOUT_FILENO
 
             stdout
 
-        #STDERR_FILENO
+        # STDERR_FILENO
 
             stderr
         */
@@ -898,13 +911,13 @@ int main(int argc, char** argv) {
     }
 
     /*
-    #link
+    # link
 
         Create hardlink to file.
 
         If newfile exists, the link is not created, returns -1 and sets `errno = EEXIST`
 
-    #unlink
+    # unlink
 
         Delete file.
 
@@ -990,7 +1003,7 @@ int main(int argc, char** argv) {
     }
 
     /*
-    #symlink
+    # symlink
 
         Create symbolic link.
 
@@ -1000,7 +1013,7 @@ int main(int argc, char** argv) {
     }
 
     /*
-    #select
+    # select
 
         Wait for one of multiple file descriptors to become available for some operation.
 
@@ -1008,7 +1021,7 @@ int main(int argc, char** argv) {
     */
 
     /*
-    #mmap
+    # mmap
 
         Good man page:
 
@@ -1115,7 +1128,7 @@ int main(int argc, char** argv) {
         }
 
         /*
-        #MAP_PRIVATE
+        # MAP_PRIVATE
 
             Creates a copy-on-write version of file in memory.
 
@@ -1186,7 +1199,7 @@ int main(int argc, char** argv) {
     //#pathname operations
     {
         /*
-        #realpath
+        # realpath
 
             Return:
 
@@ -1228,7 +1241,7 @@ int main(int argc, char** argv) {
         }
 
         /*
-        #dirname #basename
+        # dirname # basename
 
             p may be modified memory is statically allocated
             and may change on next dirname/basename call.
@@ -1261,20 +1274,20 @@ int main(int argc, char** argv) {
     }
 
     /*
-    #File and directory operations
+    # File and directory operations
 
         there is no standard portable way of doing most them:
         <http://www.devarticles.com/c/a/Cplusplus/Directories-in-Cplusplus/>
 
         posix alternatives:
 
-        - portable semi heavyweight: booost: #include <boost/filesystem/operations.hpp>
+        - portable semi heavyweight: booost: # include <boost/filesystem/operations.hpp>
         - portable lightweight: dirent.h
     */
     {
 
         /*
-        #stat family
+        # stat family
 
             Get info on paths.
 
@@ -1293,7 +1306,7 @@ int main(int argc, char** argv) {
             - fstat: takes fd.
             - fstatat: can't understand, does not seem important.
 
-        #struct stat
+        # struct stat
 
             fields:
 
@@ -1323,7 +1336,7 @@ int main(int argc, char** argv) {
                                       may vary from file to file.
             - blkcnt_t st_blocks      Number of blocks allocated for this object.
 
-        #Find if a file exists.
+        # Find if a file exists.
 
             In *nix, you often cannot be sure if a file or directory exists,
             because to do that you must have permission to list all of its parent dirs.
@@ -1356,7 +1369,7 @@ int main(int argc, char** argv) {
         }
 
         /*
-        #access
+        # access
 
             Check if file or directory exists and or has a given permission (rwx):
 
@@ -1405,19 +1418,19 @@ int main(int argc, char** argv) {
         }
 
         /*
-        #ls
+        # ls
 
             Opendir is the basis for `ls`.
 
-        #opendir
+        # opendir
 
             Open a directory for reading.
 
-        #readdir
+        # readdir
 
             Get next directory entry, or NULL if over.
 
-        #dirent
+        # dirent
 
             <http://pubs.opengroup.org/onlinepubs/009604599/basedefs/dirent.h.html>
         */
@@ -1438,7 +1451,7 @@ int main(int argc, char** argv) {
     }
 
     /*
-    #getrusage
+    # getrusage
 
         `rusage` stands for Resource usage
 
@@ -1497,7 +1510,7 @@ int main(int argc, char** argv) {
     }
 
     /*
-    #getrlimit
+    # getrlimit
 
         Returns the maximum value for a given resource.
 
@@ -1573,7 +1586,7 @@ int main(int argc, char** argv) {
     }
 
     /*
-    #limits.h
+    # limits.h
 
         This header exists in ANSI C, and POSIX extends it with several values.
 
@@ -1603,7 +1616,7 @@ int main(int argc, char** argv) {
         }
 
         /*
-        #sysconf
+        # sysconf
 
             Get lots of info on the system configuration
 
@@ -1614,7 +1627,7 @@ int main(int argc, char** argv) {
 
             It seems
 
-        #maximum path length
+        # maximum path length
 
             This is needed often when you need to deal with paths names.
 
@@ -1642,7 +1655,7 @@ int main(int argc, char** argv) {
         }
 
         /*
-        #pathconf
+        # pathconf
 
             Similar to sysconf, but for parameters that depend on a path, such as maxium filename lengths.
         */
@@ -1658,18 +1671,18 @@ int main(int argc, char** argv) {
     }
 
     /*
-    #user information
+    # user information
 
         Once use have uids for processes, you can querry standard user information
         which was traditionally stored in the `/etc/passwd` file.
     */
     {
         /*
-        #getpwuid
+        # getpwuid
 
             You can get those information either by username or by uid:
 
-                #include <pwd.h>
+                # include <pwd.h>
 
                 struct passwd *getpwuid(uid_t uid);
                 struct passwd *getpwnam(const char *name);
@@ -1706,7 +1719,7 @@ int main(int argc, char** argv) {
         }
 
         /*
-        #getpwuid
+        # getpwuid
 
             Iterate a list of all passwd structures.
 
@@ -1734,7 +1747,7 @@ int main(int argc, char** argv) {
     }
 
     /*
-    #uname
+    # uname
 
         You can get information about the current computer using `uname`.
 
@@ -1756,13 +1769,13 @@ int main(int argc, char** argv) {
     }
 
     /*
-    #process info
+    # process info
 
-        #getpid
+        # getpid
 
             Each process has an unique identifying integer called PID.
 
-        #getuid
+        # getuid
 
             Each process has user information associated to it
             which determine what the process can or not.
@@ -1773,34 +1786,34 @@ int main(int argc, char** argv) {
 
             - effective may be different depending on the suid and sgid bits
 
-        #setuid
+        # setuid
 
-        #getguid
+        # getguid
 
             Like `uid` versions but for group.
 
-        #getppid
+        # getppid
 
             Get parent's pid.
 
         It seems that it is not possible to list all children of a process in POSIX:
         <http://stackoverflow.com/questions/1009552/how-to-find-all-child-processes>
 
-        #getsid
+        # getsid
 
-        #setsid
+        # setsid
 
-        #setpgid
+        # setpgid
 
-        #getpgid
+        # getpgid
 
-        #setpgrp
+        # setpgrp
 
-        #getpgrp
+        # getpgrp
 
-        #Session
+        # Session
 
-        #Process group
+        # Process group
 
             TODO http://en.wikipedia.org/wiki/Process_group
     */
@@ -1818,11 +1831,11 @@ int main(int argc, char** argv) {
         printf("getppid() = %ju\n",  (uintmax_t)getppid());
 
         /*
-        #getcwd
+        # getcwd
 
             pwd
 
-        #root directory
+        # root directory
 
             As of POSIX 7, this concept is not available.
 
@@ -1840,7 +1853,7 @@ int main(int argc, char** argv) {
     }
 
     /*
-    #getpriority
+    # getpriority
 
         Each process, user and group has a priority associated to it.
 
@@ -1881,7 +1894,7 @@ int main(int argc, char** argv) {
 
         -   `who`: pid, uid or gid depending on which. `0` means current.
 
-        #error checking
+        # error checking
 
             On error, returns `-1` and errno set to indicate the error.
 
@@ -1894,11 +1907,11 @@ int main(int argc, char** argv) {
             - make the call
             - there is an error iff ret = -1 errno != 0.
 
-    #setpriority
+    # setpriority
 
         Return value is the same as getpriority after the modification.
 
-    #nice
+    # nice
 
         Same as setpriority, but only for `PRIO_PROCESS` but increments
         (or decrements) the value instead of setting it to an absolute value.
@@ -1960,7 +1973,7 @@ int main(int argc, char** argv) {
     }
 
     /*
-    #sched.h
+    # sched.h
 
         Get or set scheduler information
 
@@ -2001,15 +2014,15 @@ int main(int argc, char** argv) {
             POSIX explicitly says that it is implementation defined what happens
             when there are both process of `SCHED_OTHER` and another type at the same time.
 
-    #sched_getscheduler
+    # sched_getscheduler
 
         `pid_t` for given pid, `0` for current process
 
-    #sched_get_priority_max
+    # sched_get_priority_max
 
         Get maximum possible priority for a given policy.
 
-    #sched_get_priority_min
+    # sched_get_priority_min
     */
     {
         printf("SCHED_FIFO = %d\n", SCHED_FIFO);
@@ -2029,7 +2042,7 @@ int main(int argc, char** argv) {
         printf("sched_getscheduler(0) = %d\n",  sched_getscheduler(0));
 
         /*
-        #sched_setscheduler()
+        # sched_setscheduler()
 
             You need root permissions to change to higher priority modes such as from `SCHED_NORMAL` to `SCHED_FIFO` or `SCHED_RR`.
         */
@@ -2092,7 +2105,7 @@ int main(int argc, char** argv) {
     }
 
     /*
-    #execl #execlp #execsle #execv #execvp #execvpe
+    # execl # execlp # execsle # execv # execvp # execvpe
 
         Interfaces for ``execve`` system call.
 
@@ -2126,7 +2139,7 @@ int main(int argc, char** argv) {
     }
 
     /*
-    #fork
+    # fork
 
         Makes a copy of this process.
 
@@ -2135,7 +2148,7 @@ int main(int argc, char** argv) {
         Global memory space (`.DATA` and `.BSD`) is copied to current value but separated
         (unlike threads, which share memory space).
 
-        #fork and buffering
+        # fork and buffering
 
             <http://stackoverflow.com/questions/3513242/working-of-fork-in-linux-gcc>
 
@@ -2154,18 +2167,18 @@ int main(int argc, char** argv) {
 
             This will print everything twice.
 
-    #vfork
+    # vfork
 
         Fork but keep same address space. POSIX 7 discourages it's use,
         and says that it may be deprecated in the future
 
         Somewhat similar to threads.
 
-    #posix_spawn
+    # posix_spawn
 
         TODO
 
-    #wait
+    # wait
 
         Wait for any child to terminate and then wake up.
 
@@ -2173,11 +2186,11 @@ int main(int argc, char** argv) {
 
             waitpid(-1, &status, 0);
 
-    #waitpid
+    # waitpid
 
         Wait for child with given PID to terminate.
 
-    #copy on write #COW
+    # copy on write # COW
 
         Often the fork is followed by an operation which does not use the old memory
         such as `exec`, making copying the data useless.
@@ -2262,7 +2275,7 @@ int main(int argc, char** argv) {
         }
 
         /*
-        #Fork bomb
+        # Fork bomb
 
             Time to have some destructive fun and test the limits
             of how many processes the system can have.
@@ -2287,7 +2300,7 @@ int main(int argc, char** argv) {
     }
 
     /*
-    #IPC
+    # IPC
 
         inter process communication
 
@@ -2308,7 +2321,7 @@ int main(int argc, char** argv) {
     */
 
     /*
-    #pipe
+    # pipe
 
         Must read man page:
 
@@ -2330,7 +2343,7 @@ int main(int argc, char** argv) {
         and many operations on them are the same as operation on disk files using
         functions such as `write` and `read`.
 
-        #Pipes are RAM only
+        # Pipes are RAM only
 
             Pipes are meant to be implementable on RAM only without using the filesystem.
 
@@ -2341,7 +2354,7 @@ int main(int argc, char** argv) {
             such as `ftell` and `fseek` are not possible.
             There are also fcntl flags which cannot be applied to pipes.
 
-        #Read and write operations on pipes
+        # Read and write operations on pipes
 
             Read and write operations may be slightly differnt depending on the file descriptor type.
 
@@ -2351,7 +2364,7 @@ int main(int argc, char** argv) {
 
             See the documentation of read and write for the details.
 
-        #Forbidden pipe operations
+        # Forbidden pipe operations
 
             Since pipes are meant to be implemented on RAM only, pipes cannot be rewinded.
 
@@ -2363,14 +2376,14 @@ int main(int argc, char** argv) {
             It seems that the only way to ask for forgiveness rather than permission and just do a `ftell`.
             <http://stackoverflow.com/questions/3238788/how-to-determine-if-a-file-descriptor-is-seekable>
 
-        #Advantages over using files
+        # Advantages over using files
 
             Potentially faster because possible to be RAM only.
 
             If the read happens before the write it blocks untill the write is done.
             This lets the OS manage all the synchronization.
 
-        #Pipe capacity
+        # Pipe capacity
 
             There is a maximum data ammount that can be writen to a pipe.
 
@@ -2384,7 +2397,7 @@ int main(int argc, char** argv) {
     */
     {
         /*
-        #Unnamed pipe
+        # Unnamed pipe
 
             Can be created either via `popen` or `pipe`
 
@@ -2407,7 +2420,7 @@ int main(int argc, char** argv) {
         */
 
         /*
-        #popen
+        # popen
 
             <http://pubs.opengroup.org/onlinepubs/9699919799/functions/popen.html>
 
@@ -2441,7 +2454,7 @@ int main(int argc, char** argv) {
 
             errno may or not be set depending on what caused the error.
 
-        #pclose
+        # pclose
 
             Wait for process created by `popen` to terminate.
 
@@ -2522,7 +2535,7 @@ int main(int argc, char** argv) {
         }
 
         /*
-        #pipe
+        # pipe
 
             Create unnamed pipes.
 
@@ -2614,7 +2627,7 @@ int main(int argc, char** argv) {
         }
 
         /*
-        #FIFO
+        # FIFO
 
             aka named pipes
 
@@ -2632,11 +2645,11 @@ int main(int argc, char** argv) {
 
             created with mkfifo
 
-        #mkfifo
+        # mkfifo
 
             Create a FIFO.
 
-        #mknod
+        # mknod
 
             Create a FIFO, character device, block device, directory or file.
 
@@ -2665,7 +2678,7 @@ int main(int argc, char** argv) {
         }
 
         /*
-        #PIPE_BUF
+        # PIPE_BUF
 
             Maximum size that guarantees that a pipe write operation will be atomic.
 
@@ -2717,7 +2730,7 @@ int main(int argc, char** argv) {
     }
 
     /*
-    #shared memory
+    # shared memory
 
         Memory that can be accessed by multiple separate processes.
 
@@ -2728,7 +2741,7 @@ int main(int argc, char** argv) {
         int *shmem;
 
         /*
-        #shmget
+        # shmget
 
             Allocate shared memory
 
@@ -2750,7 +2763,7 @@ int main(int argc, char** argv) {
         }
 
         /*
-        #shmat
+        # shmat
 
             Attach shared memory to current process so it can be used afterwards
 
@@ -2791,7 +2804,7 @@ int main(int argc, char** argv) {
                     assert(shmem[0] == 2);
 
                     /*
-                    #shmdt
+                    # shmdt
 
                         Detach shared memory from current process:
 
@@ -2805,7 +2818,7 @@ int main(int argc, char** argv) {
                     }
 
                     /*
-                    #shmctl
+                    # shmctl
 
                         Controls the shared memory, doing amongst other things its deletion
 
@@ -2844,11 +2857,11 @@ int main(int argc, char** argv) {
     }
 
     /*
-    #threads
+    # threads
 
         See pthread.
 
-    #pthread
+    # pthread
 
         Sources:
 
@@ -2869,7 +2882,7 @@ int main(int argc, char** argv) {
 
         In GCC you must compile with `-pthread`.
 
-    #thread synchronization mechanisms
+    # thread synchronization mechanisms
 
         - mutexes - Mutual exclusion lock: Block access to variables by other threads.
             This enforces exclusive access by a thread to a variable or set of variables.
@@ -2880,7 +2893,7 @@ int main(int argc, char** argv) {
 
         Good tutorial: <http://www.yolinux.com/TUTORIALS/LinuxTutorialPosixThreads.html#SYNCHRONIZATION>
 
-    #pthread_create
+    # pthread_create
 
         Create a new thread.
 
@@ -2903,31 +2916,31 @@ int main(int argc, char** argv) {
             - start_routine:    function that runs the thread code
             - arg:              argument to start_routine
 
-    #pthread_join
+    # pthread_join
 
         Wait for a given thread to terminated.
 
         If it has already terminated, does not wait.
 
-    #pthread_self
+    # pthread_self
 
         Get thread id of current running thread.
 
         vs linux gettid: <http://stackoverflow.com/questions/6372102/what-is-the-difference-between-pthread-self-and-gettid-which-one-should-i-u>
 
-    #pthread_mutex methods
+    # pthread_mutex methods
 
         Allows a single thread to enter some code region.
 
-        #PTHREAD_MUTEX_INITIALIZER
+        # PTHREAD_MUTEX_INITIALIZER
 
             New pthread_mutex_t should be initialized to it.
 
-        #pthread_mutex_lock
+        # pthread_mutex_lock
 
             Acquire mutex: from now one no one else can enter.
 
-        #pthread_mutex_unlock
+        # pthread_mutex_unlock
 
             Release mutex: from now one others can enter.
     */
@@ -2957,7 +2970,7 @@ int main(int argc, char** argv) {
     }
 
     /*
-    #thread synchronization
+    # thread synchronization
 
         Threads can be synchronized via:
 
@@ -2967,13 +2980,13 @@ int main(int argc, char** argv) {
 
         Threads have the specific synchronization mechanisms:
 
-    #semaphore
+    # semaphore
 
-    #mutex
+    # mutex
     */
     {
         /*
-        #sched_yield
+        # sched_yield
 
             excplicitly tell scheduler to schedule another process
         */
@@ -2983,14 +2996,14 @@ int main(int argc, char** argv) {
     }
 
     /*
-    #netdb.h
+    # netdb.h
 
         network information (NETwork DataBase)
 
     */
     {
         /*
-        #gethostname
+        # gethostname
 
             Copies name of current host on given string:
 
@@ -3006,13 +3019,13 @@ int main(int argc, char** argv) {
         }
 
         /*
-        #getaddrinfo #getnameinfo
+        # getaddrinfo # getnameinfo
 
             Make `gethostbyname` and `gethostbyaddr` obsolete.
         */
 
         /*
-        #gethostbyname
+        # gethostbyname
 
             Obsoleted by `getaddrinfo` and `getnameinfo`.
 
@@ -3033,7 +3046,7 @@ int main(int argc, char** argv) {
 
             `NULL` on error
 
-        #gethostbyaddr
+        # gethostbyaddr
 
             Obsoleted by `getaddrinfo` and `getnameinfo`.
 
@@ -3078,7 +3091,7 @@ int main(int argc, char** argv) {
                     addrs = hostent->h_addr_list;
                     while (*addrs) {
                         /*
-                        #inet_ntoa
+                        # inet_ntoa
 
                             Converts integer representation of ip (4 bytes) to a string.
 
@@ -3096,7 +3109,7 @@ int main(int argc, char** argv) {
         POSIX requires that systems must keep a database that given a protocol links:
         service name (strings) to their ports and vice versa.
 
-        #servent struct
+        # servent struct
 
             Represents a service.
 
@@ -3111,7 +3124,7 @@ int main(int argc, char** argv) {
                 char   *s_proto    The name of the protocol to use when
                                 contacting the service.
 
-        #getservbyport
+        # getservbyport
 
                 struct servent *getservbyport(int port, const char *proto);
 
@@ -3119,7 +3132,7 @@ int main(int argc, char** argv) {
 
                 If `NULL`, match the first service found on that port for any protocol.
 
-        #getservbyname
+        # getservbyname
 
             Same as getservbyport but using the service name itself
 
@@ -3158,7 +3171,7 @@ int main(int argc, char** argv) {
         }
 
         /*
-        #getprotobyname
+        # getprotobyname
 
             The system must implement a database that links protocol names to protocol identifier numbers.
 
@@ -3177,7 +3190,7 @@ int main(int argc, char** argv) {
     }
 
     /*
-    #sync
+    # sync
 
         Makes all cached writes to all filesystems.
 
@@ -3190,7 +3203,7 @@ int main(int argc, char** argv) {
 
         TODO what is an application for this, except before shutting down the system?
 
-    #fsync
+    # fsync
 
         Same as sync, but only for filesystem containing given fd.
     */
@@ -3203,7 +3216,7 @@ int main(int argc, char** argv) {
     }
 
     /*
-    #termios.h
+    # termios.h
 
         Terminal management
     */
@@ -3212,11 +3225,11 @@ int main(int argc, char** argv) {
     }
 
     /*
-    #terminal
+    # terminal
 
         Some POSIX functions deal with the controlling terminal which called the program if any.
 
-    #getlogin
+    # getlogin
 
         Get login name of controlling terminal
 
@@ -3232,5 +3245,6 @@ int main(int argc, char** argv) {
         }
     }
 
+    printf("ALL ASSERTS PASSED\n");
     return EXIT_SUCCESS;
 }
