@@ -10,159 +10,163 @@ To send arbitrary signals to a process from a terminal, consider using the `kill
 Also consider the convenient non POSIX stadardized VT100 control characters such as `<C-C>`
 which generate certain signals such as `SIGTERM`.
 
-#ANSI
+# ANSI signals
 
-ANSI C supports the concept of signals, and only POSIX specific features shall be discussed here.
+    ANSI C supports the concept of signals, and only POSIX specific features shall be discussed here.
 
-Please look for ANSI C info for any feature used but not explained here.
+    Please look for ANSI C info for any feature used but not explained here.
 
-Linux extends POSIX by adding new signals, Those shall not be discussed here.
+    Linux extends POSIX by adding new signals, Those shall not be discussed here.
 
-#POSIX
+# POSIX signals
 
-Docs here: <http://pubs.opengroup.org/onlinepubs/009696699/basedefs/signal.h.html>.
+    Docs here: http://pubs.opengroup.org/onlinepubs/009696699/basedefs/signal.h.html
 
-POSIX defines several signals in addition to the ANSI C signals.
+    POSIX defines several signals in addition to the ANSI C signals.
 
-As in ANSI C, each signal has the following attributes:
+    As in ANSI C, each signal has the following attributes:
 
--   general description of which conditions generate the signal
+    -   general description of which conditions generate the signal
 
--   the signal can or cannot be handled.
+    -   the signal can or cannot be handled.
 
-    Most signals can be handled, but there are a few exceptions such as:
+        Most signals can be handled, but there are a few exceptions such as:
 
-    - `SIGKILL`: always kill processes, cannot be handled.
-    - `SIGKSTOP` and `SIGCONT`
+        - `SIGKILL`: always kill processes, cannot be handled.
+        - `SIGKSTOP` and `SIGCONT`
 
--   default action to take
+    -   default action to take
 
-    For signals that can be handled, you can change those behavious by creating your own handlers.
+        For signals that can be handled, you can change those behavious by creating your own handlers.
 
-    The possible default behaviours are:
+        The possible default behaviours are:
 
-    -   T:
+        -   T:
 
-        Abnormal termination of the process.
+            Abnormal termination of the process.
 
-        The process is terminated with all the consequences of `_exit()` except that the status made available to
-        `wait()` and `waitpid()` indicates abnormal termination by the specified signal.
+            The process is terminated with all the consequences of `_exit()` except that the status made available to
+            `wait()` and `waitpid()` indicates abnormal termination by the specified signal.
 
-        Default action for most signals.
+            Default action for most signals.
 
-    -   A :Abnormal termination of the process.
+        -   A :Abnormal termination of the process.
 
-        [XSI] [Option Start] Additionally, implementation-defined abnormal termination actions,
-        such as creation of a core file, may occur. [Option End]
+            [XSI] [Option Start] Additionally, implementation-defined abnormal termination actions,
+            such as creation of a core file, may occur. [Option End]
 
-        Linux implements concept of core dumps on those cases.
-        Note however that those may be turned on or off depending on the system configuration.
+            Linux implements concept of core dumps on those cases.
+            Note however that those may be turned on or off depending on the system configuration.
 
-    -   I: Ignore the signal.
+        -   I: Ignore the signal.
 
-        An important example is `SIGCHLD`, which is generated when a child terminates,
-        but has no effect by default, since in general killing the parent is not what
-        should happen on most programs.
+            An important example is `SIGCHLD`, which is generated when a child terminates,
+            but has no effect by default, since in general killing the parent is not what
+            should happen on most programs.
 
-    -   S: Stop the process.
+        -   S: Stop the process.
 
-        Mainly `SIGSTOP`.
+            Mainly `SIGSTOP`.
 
-    -   C: Continue the process, if it is stopped; otherwise, ignore the signal.
+        -   C: Continue the process, if it is stopped; otherwise, ignore the signal.
 
-        Mainly `SIGCONT`.
+            Mainly `SIGCONT`.
 
-POSIX specific signals include:
+    POSIX specific signals include:
 
--   SIGKILL
+    # SIGKILL
 
-    Kills program.
+        Kills program.
 
-    Cannot be handled unlike to `SIGINT` and `SIGTERM`.
+        Cannot be handled unlike to `SIGINT` and `SIGTERM`.
 
--   SIGQUIT
+    # SIGQUIT
 
-    Quit program.
+        Quit program.
 
-    Used in case of abnormal termination (`A`), unlike `SIGINT` and `SIGTERM` which happen on normal temrination.
+        Used in case of abnormal termination (`A`), unlike `SIGINT` and `SIGTERM` which happen on normal temrination.
 
-    May generate a core dump <https://en.wikipedia.org/wiki/Core_dump> depending on system configurations.
+        May generate a core dump https://en.wikipedia.org/wiki/Core_dump depending on system configurations.
 
-    On Ubuntu, coredumps are disabled by default. You can enable them for the current session with:
+        On Ubuntu, coredumps are disabled by default. You can enable them for the current session with:
 
-        ulimit -c unlimited
+            ulimit -c unlimited
 
-    on the terminal where you will run the command to enable core dumps.
+        on the terminal where you will run the command to enable core dumps.
 
-    The setting can be permanently changed on the `/etc/security/limits.conf` file.
+        The setting can be permanently changed on the `/etc/security/limits.conf` file.
 
-    The core file is binary. To interpret it you must have compiled the program with debugging
-    information and then use GDB on the core file and the executable as:
+        The core file is binary. To interpret it you must have compiled the program with debugging
+        information and then use GDB on the core file and the executable as:
 
-        gcc -g -o myfile myfile.c
-        gdb myfile core
+            gcc -g -o myfile myfile.c
+            gdb myfile core
 
--   SIGSTOP
+    # SIGSTOP
 
-    Freezes program.
+        Freezes program.
 
-    `ctrl+z`, in linux terminals.
+        `ctrl+z`, in linux terminals.
 
-    Cannot be handle.
+        Cannot be handle.
 
--   SIGCONT
+    # SIGCONT
 
-    Continues a process that
+        Continues a process that
 
--   SIGHUP
+    # SIGHUP
 
-    Controlling terminal was killed.
+        Controlling terminal was killed.
 
-    This is why killing the terminal kills most process by default unless those process implement a handler.
+        This is why killing the terminal kills most process by default unless those process implement a handler.
 
--   SIGPIPE
+    # SIGPIPE
 
-    Process write to a pipe with no readers on other side
+        Process write to a pipe with no readers on other side
 
--   SIGCHLD
+    # SIGCHLD
 
-    Child terminated, stopped or continued.
+        Child terminated, stopped or continued.
 
-    Ignored by default.
+        Ignored by default.
 
--   SIGALRM
+    # SIGALRM
 
-    Received after the alarm call after given no of secs.
+        Received after the alarm call after given no of secs.
 
--   SIGUSR1 and SIGUSR2: left to users to do whatever they want with
+    # SIGUSR1
 
-#Parent death signal
+    # SIGUSR2
 
-    In POSIX, no signal needs to be sent to the child if the parent exits:
-    <http://stackoverflow.com/questions/284325/how-to-make-child-process-die-after-parent-exits>
-    In Linux, this can be achieved via the `prctl` syscall.
-    This may seem surprising considering that:
+        Left to users to do whatever they want with. Default to `term`.
 
-    -   parents can wait for children
+    # Parent death signal
 
-    -   children get a NOHUP when controling process is killed
-        This is mentioned at: <http://pubs.opengroup.org/onlinepubs/009695399/functions/exit.html>
+        In POSIX, no signal needs to be sent to the child if the parent exits:
+        http://stackoverflow.com/questions/284325/how-to-make-child-process-die-after-parent-exits
+        In Linux, this can be achieved via the `prctl` syscall.
+        This may seem surprising considering that:
 
-        TODO what is a controlling process?
+        -   parents can wait for children
 
-#sources
+        -   children get a NOHUP when controling process is killed
+            This is mentioned at: http://pubs.opengroup.org/onlinepubs/009695399/functions/exit.html
 
-- <http://www.alexonlinux.com/signal-handling-in-linux>
+            TODO what is a controlling process?
 
-    good intro
+    # Sources
 
-- man 7 signal
+    -   `man 7 signal`
 
-    man pages
+        man pages
 
-# TODO
+    -   http://www.alexonlinux.com/signal-handling-in-linux
 
-- determine where specification barriers betwwen ANSIC / POSIX / linux
+        good intro
+
+    # TODO
+
+    - determine where specification barriers betwwen ANSIC / POSIX / linux
 */
 
 #define _XOPEN_SOURCE 700
@@ -175,28 +179,36 @@ POSIX specific signals include:
 #include <unistd.h>
 
 void signal_handler(int sig) {
-    // The `sig` arg allows us to use a single function for several different signals:
-    // just look at it and decide which action to take based on the signal number.
+    /*
+    The `sig` arg allows us to use a single function for several different signals:
+    just look at it and decide which action to take based on the signal number.
+    */
 
         printf("sig: %d\n", sig);
 
-    // After the signal is dealt with, the handler is then changed to its default action
-    // If you want to continue using this handler for future signals, you have to reregister
-    // it here: TODO confirm. If I remove this it does not work.
+    /*
+    After the signal is dealt with, the handler is then changed to its default action
 
-        signal(sig, signal_handler);
+    If you want to continue using this handler for future signals, you have to reregister
+    it here: TODO confirm. If I remove this it does not work.
+    */
 
-    // You can change the action handler at any time
-    // For example, if you uncomment this line, only the first signal will be ignored
-    // and but the second will be dealt with the default action:
+        /*signal(sig, signal_handler);*/
 
-        //(void) signal( sig, SIG_DFL );
+    /*
+    You can change the action handler at any time
+
+    For example, if you uncomment this line, only the first signal will be ignored
+    and but the second will be dealt with the default action:
+    */
+
+        /*(void) signal( sig, SIG_DFL );*/
 }
 
 int main() {
 
     /*
-    #signal
+    # signal
 
         POSIX recommends `sigaction` instead of `signal`.
     */
@@ -204,7 +216,7 @@ int main() {
     signal(SIGALRM, signal_handler);
 
     /*
-    #Send signal
+    # Send signal
 
         This is done via the kill function:
 
@@ -217,7 +229,7 @@ int main() {
         TODO 0 which? same uid?
     */
 
-        //send a SIGINT to ourselves:
+        /* send a SIGINT to ourselves: */
         assert(kill(getpid(), SIGALRM) == 0);
 
     int i = 0;
@@ -234,7 +246,7 @@ int main() {
     }
 
     /*
-    #pause
+    # pause
 
         Stop program until it receives a signal.
     */

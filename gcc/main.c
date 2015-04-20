@@ -12,22 +12,20 @@ int nested() {
 
 /* Attribute */
 
-    /* # Function attributes */
-
         char not_aligned16 = 0;
         char aligned16 __attribute__ ((aligned (16))) = 0;
 
-        int sprintf_wrapper(char *s, int useless, const char *fmt, int useless2, ...) {
-            int ret;
-            va_list args;
-
-            va_start(args, useless2);
-            ret = vsprintf(s, fmt, args);
-            va_end(args);
-            return ret;
-        }
-
         /* Format */
+
+            int sprintf_wrapper(char *s, int useless, const char *fmt, int useless2, ...) {
+                int ret;
+                va_list args;
+
+                va_start(args, useless2);
+                ret = vsprintf(s, fmt, args);
+                va_end(args);
+                return ret;
+            }
 
             /*
             3 says: the 3rd argument is the format string
@@ -35,7 +33,8 @@ int nested() {
 
             Declaration and definition *must* be separated.
             */
-            int sprintf_wrapper_attr(char *s, int useless, const char *fmt, int useless2, ...) __attribute__((format(printf, 3, 5)));
+            int sprintf_wrapper_attr(char *s, int useless, const char *fmt, int useless2, ...)
+                __attribute__((format(printf, 3, 5)));
 
             int sprintf_wrapper_attr(char *s, int useless, const char *fmt, int useless2, ...) {
                 int ret;
@@ -61,7 +60,7 @@ int nested() {
 
             void func_not_used(){}
 
-        //warn_unused_result
+        /* warn_unused_result */
 
             int func_warn_unused_result() __attribute__((warn_unused_result));
             int func_warn_unused_result(){ return 0; }
@@ -84,7 +83,7 @@ int nested() {
                 exit(EXIT_SUCCESS);
             }
 
-            //WARNING: control reaches end of non void function
+            /* WARNING: control reaches end of non void function */
             /*
             int noreturn_possible(int n) {
                 if (n > 0)
@@ -288,10 +287,11 @@ int main() {
 
             /* This would cause a redefinition error: */
 
-                //int nested()
-                //{
-                //    return 2;
-                //}
+                /*
+                int nested() {
+                    return 2;
+                }
+                */
 
             /* Like variable redefinitions, the nested version overrides all external version */
             /* which have become completelly innacessible */
@@ -302,7 +302,7 @@ int main() {
     /*
     # Preprocessor defines
 
-        Full list: <http://gcc.gnu.org/onlinedocs/cpp/Common-Predefined-Macros.html#Common-Predefined-Macros>
+        Full list: http://gcc.gnu.org/onlinedocs/cpp/Common-Predefined-Macros.html#Common-Predefined-Macros
 
         View all macros that would be automatically defined:
 
@@ -318,7 +318,7 @@ int main() {
         `__GNUC_MINOR__`     : minor
         `__GNUC_PATCHLEVEL__`: patch
 
-        <http://stackoverflow.com/questions/259248/how-do-i-test-the-current-version-of-gcc>
+        http://stackoverflow.com/questions/259248/how-do-i-test-the-current-version-of-gcc
 
         There is also:
 
@@ -355,17 +355,27 @@ int main() {
 #endif
 
         /*
-        gcc defines architecture macros TODO where?
+        # Architecture detection macro
 
-        you can find a list of those macros: <http://sourceforge.net/p/predef/wiki/Architectures/>
+            http://stackoverflow.com/questions/152016/detecting-cpu-architecture-compile-time
+
+            GCC defines architecture macros TODO where?
+
+            Seems to use the list: http://sourceforge.net/p/predef/wiki/Architectures/
         */
 
 #ifdef __i386__
         puts("__i386__");
+#elif __x86_64__
+        puts("__x86_64__");
 #endif
 
         /*
-        gcc defines OS macros TODO where?
+        # OS detection macro
+
+            http://stackoverflow.com/questions/142508/how-do-i-check-os-with-a-preprocessor-directive
+
+            Same riddle as architecture detection.
         */
 
 #ifdef __linux__
@@ -375,6 +385,8 @@ int main() {
 
     /*
     # Attribute
+
+        https://gcc.gnu.org/onlinedocs/gcc/Attribute-Syntax.html#Attribute-Syntax
 
         Specifies special attributes of functions or data.
 
@@ -408,7 +420,7 @@ int main() {
                 [[vendor::attr5]] return i;
             }
 
-        and two attributes; noreturn and carries_dependency.
+        and two attributes; `noreturn` and `carries_dependency`.
 
     # Multiple attributes
 
@@ -427,7 +439,7 @@ int main() {
 
         See next section.
 
-    # Eliminating __attribute__ on non gnu projects
+    # Eliminating __attribute__ on non-GNU projects
 
         This is really easy:
 
@@ -445,110 +457,117 @@ int main() {
     */
     {
         /*
-        # format
+        # Function attributes
 
-            If this is used, gcc can check if printf format strings are correct because of the use of attributes,
-            and emmit errors otherwise.
+            https://gcc.gnu.org/onlinedocs/gcc/Function-Attributes.html
         */
         {
-            char s[32];
-            sprintf_wrapper(s, 0, "%c", 0, 'a');
-            assert(s[0] == 'a');
-
-            sprintf_wrapper_attr(s, 0, "%c", 0, 'b');
-            assert(s[0] == 'b');
-
             /*
-            With `__attribute__((format,X,Y))` the compile time error checking gets done.
+            # format
+
+                If this is used, gcc can check if printf format strings are correct because of the use of attributes,
+                and emmit errors otherwise.
             */
             {
-                //compile error check not done
-                //could segfault at runtime
-                if (0) {
-                    sprintf_wrapper(s, 0, "%s", 0);
-                }
+                char s[32];
+                sprintf_wrapper(s, 0, "%c", 0, 'a');
+                assert(s[0] == 'a');
 
-                //compile error check is done
+                sprintf_wrapper_attr(s, 0, "%c", 0, 'b');
+                assert(s[0] == 'b');
+
+                /*
+                With `__attribute__((format,X,Y))` the compile time error checking gets done.
+                */
                 {
-                    //sprintf_wrapper_attr(s, 0, "%s", 0);
+                    /* Compile error check not done. */
+                    /* Could segfault at runtime. */
+                    if (0) {
+                        sprintf_wrapper(s, 0, "%s", 0);
+                    }
+
+                    /* Compile error check is done. */
+                    {
+                        /*sprintf_wrapper_attr(s, 0, "%s", 0);*/
+                    }
                 }
             }
-        }
 
-        /*
-        # deprecated
+            /*
+            # deprecated
 
-            Using a function marked as deprecated will emmit warnings.
-        */
-        {
-            //func_deprecated();
-        }
+                Using a function marked as deprecated will emmit warnings.
+            */
+            {
+                /*func_deprecated();*/
+            }
 
-        /*
-        # used
+            /*
+            # used
 
-            Useful when the function may be called from assembly code, in which case GCC
-            may not be easily able to detect that it was called.
+                Useful when the function may be called from assembly code, in which case GCC
+                may not be easily able to detect that it was called.
 
-            TODO0 what is this for? If a func is not called, what does gcc do? Remove it from text?
-        */
-        {
-        }
+                TODO0 what is this for? If a func is not called, what does gcc do? Remove it from text?
+            */
+            {
+            }
 
-        /*
-        # warn_unused_result
+            /*
+            # warn_unused_result
 
-            Always emmit a warning if the return value is not used.
+                Always emmit a warning if the return value is not used.
 
-            Useful to enforce callers to do error checks when the return value signals the error.
-        */
-        {
-            /* No warning. */
-            func_not_warn_unused_result();
+                Useful to enforce callers to do error checks when the return value signals the error.
+            */
+            {
+                /* No warning. */
+                func_not_warn_unused_result();
 
-            assert(func_warn_unused_result() == 0);
+                assert(func_warn_unused_result() == 0);
 
-            //WARNING ignored return value
+                /* WARNING ignored return value */
 
-                //func_warn_unused_result();
-        }
+                    /*func_warn_unused_result();*/
+            }
 
-        /*
-        # const
+            /*
+            # const
 
-            A function marked const may be optimized in the sense that the compiler calculates its value at compile time,
-            or chaches its result of each calculation.
+                A function marked const may be optimized in the sense that the compiler calculates its value at compile time,
+                or chaches its result of each calculation.
 
-            A function can only be marked const if:
+                A function can only be marked const if:
 
-            - its return value is only a function of its arguments, and not of any global or static function variable
-            - the function has no desired side effect besides returning the value
+                - its return value is only a function of its arguments, and not of any global or static function variable
+                - the function has no desired side effect besides returning the value
 
-            Marking a function which does one of the above const will lead to serious hard to find bugs.
-        */
-        {
-            assert(next(0) == 1);
-            assert(next(0) == 1);
-            assert(next_const(0) == 1);
-            assert(next_const(0) == 1);
-        }
+                Marking a function which does one of the above const will lead to serious hard to find bugs.
+            */
+            {
+                assert(next(0) == 1);
+                assert(next(0) == 1);
+                assert(next_const(0) == 1);
+                assert(next_const(0) == 1);
+            }
 
-        /*
-        # always_inline
+            /*
+            # always_inline
 
-            Always inline the function.
+                Always inline the function.
 
-            ANSI C99 `inline` does not guarantee that, it only hints it to the compiler.
+                ANSI C99 `inline` does not guarantee that, it only hints it to the compiler.
 
-            Must see generated assembly code to notice this (except for the possible desired speedup effect).
+                Must see generated assembly code to notice this (except for the possible desired speedup effect).
 
-            On `gcc -O0 4.7`, only the `incr_always_inline` was inlined.
-        */
-        {
-             int i = 0;
-             i = incr(i);
-             i = incr_inline(i);
-             i = incr_always_inline(i);
+                On `gcc -O0 4.7`, only the `incr_always_inline` was inlined.
+            */
+            {
+                int i = 0;
+                i = incr(i);
+                i = incr_inline(i);
+                i = incr_always_inline(i);
+            }
         }
 
         /*
@@ -612,7 +631,7 @@ int main() {
 
                 GCC built-ins for vectorized SIMD operations.
 
-                <http://gcc.gnu.org/onlinedocs/gcc/Vector-Extensions.html>
+                http://gcc.gnu.org/onlinedocs/gcc/Vector-Extensions.html
 
                 Allowed operators: +, -, *, /, unary minus, ^, |, &, ~, %, ==, !=, <, <=, >, >=
 
@@ -658,7 +677,7 @@ int main() {
 
     # asm
 
-        Great intro: <http://www.ibm.com/developerworks/library/l-ia/index.html>
+        Great intro: http://www.ibm.com/developerworks/library/l-ia/index.html
 
         Can be used if you really, really want to optimize at the cost of:
 
@@ -682,10 +701,13 @@ int main() {
 
         where:
 
-        - commands: actual gas code into a single c string. Remember: each command has to end in newline or `;`.
-        - outputs: start with `=`. gcc has to enforce is that at the end of the `asm` block that those values are set.
-        - inputs:
-        - clobbered registers:
+        -   commands: actual gas code into a single c string. Remember: each command has to end in newline or `;`.
+
+        -   outputs: start with `=`. gcc has to enforce is that at the end of the `asm` block that those values are set.
+
+        -   inputs:
+
+        -   clobbered registers:
 
             Registers that may be modified explicitly in the assembly code.
 
@@ -728,7 +750,7 @@ int main() {
         {
             int in = 1;
             int out = 0;
-            //out = in
+            /*out = in*/
             asm volatile (
                 "movl %1, %%eax;"
                 "movl %%eax, %0"
@@ -742,7 +764,7 @@ int main() {
         /* No input. */
         {
             int out = 0;
-            //out = 1
+            /*out = 1*/
             asm volatile (
                 "movl $1, %0"
                 : "=m" (out)
@@ -754,7 +776,7 @@ int main() {
         {
             float in = 1.0;
             float out = 0.0;
-            //out = -in
+            /*out = -in*/
             asm volatile (
                 "flds %1;"
                 "fchs;"
@@ -768,7 +790,7 @@ int main() {
         /* Input and ouput can be the same memory location. */
         {
             float x = 1.0;
-            //x = -x
+            /*x = -x*/
             asm (
                 "flds %1;"
                 "fchs;"
@@ -810,7 +832,7 @@ int main() {
         {
             int in = 0;
             int out = 0;
-            //out = in + 2
+            /*out = in + 2*/
             asm (
                 "incl %1;"
                 "movl %1, %0;"
@@ -924,7 +946,7 @@ int main() {
             Get address that function will return to after return.
 
             It seems that it is not possible to jump to a location without assemby:
-            <http://stackoverflow.com/questions/8158007/how-to-jump-the-program-execution-to-a-specific-address-in-c>
+            http://stackoverflow.com/questions/8158007/how-to-jump-the-program-execution-to-a-specific-address-in-c
 
             This is most useful for debugging.
         */

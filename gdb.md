@@ -155,6 +155,12 @@ So here we see that:
 
 TODO understand everything
 
+## Step backwards in time
+
+## Omniscient debugging
+
+Considered a "high priority project" by the FSF as of January 2015 <http://www.fsf.org/campaigns/priority-projects/reversible-debugging-in-gdb>
+
 ---
 
 TODO format the rest of this section as md:

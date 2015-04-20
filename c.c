@@ -203,21 +203,15 @@ Small comments on comparing ANSI C with extensions are acceptable.
 */
 
 /*
-# Preprocessor
+# include
 
-    Loes simple stuff *before* compilation.
+    Look in standard dirs directly:
 
-    Ly simple understand non-turing complete.
+        #include <file.h>
 
-    # include
+    Looks in current dir first:
 
-        Look in standard dirs directly:
-
-            #include <file.h>
-
-        Looks in current dir first:
-
-            #include "file.h"
+        #include "file.h"
 */
 
 #include <assert.h>
@@ -233,7 +227,7 @@ Small comments on comparing ANSI C with extensions are acceptable.
 #include <stddef.h> /* offsetof, type_t */
 #include <stdlib.h> /* malloc, EXIT_SUCCESS, EXIT_FAILURE: */
 #include <stdio.h> /* printf, puts */
-#include <string.h> /* sprintf, strlen, strcpy, memset */
+#include <string.h> /* sprintf, strlen, strcpy, memset, memcmp */
 #include <math.h>
 #include <time.h> /* time() */
 
@@ -476,8 +470,8 @@ int setjmp_func(int jmp, jmp_buf env_buf) {
     # overload
 
         There is no function overloading in C to avoid name mangling:
-        C ABI simplifity is one of it's greatest strengths:
-        <http://stackoverflow.com/questions/8773992/c11-type-generic-expressions-why-not-just-add-function-overloading>
+        C ABI simplicity is one of it's greatest strengths:
+        http://stackoverflow.com/questions/8773992/c11-type-generic-expressions-why-not-just-add-function-overloading
 
         C11 introduces generics, which allow for a similar, albeit more limited effect.
     */
@@ -1556,11 +1550,13 @@ int main(int argc, char **argv) {
 
                     { char c = (char)130; }
 
-                /* Possible via escape seqs like in strings. */
+                /* Possible via escape sequences are like in strings. */
 
-                    { assert(((int)'\n') == 10); }
+                    assert(((int)'\n') == 0x0a);
+                    assert(((int)'\'') == 0x27);
 
                 /* TODO how to make a literal backslash char? */
+
             }
 
             /*
@@ -1793,7 +1789,8 @@ int main(int argc, char **argv) {
 
         Language keyword.
 
-        Gives the size of the RAM representation of types in bytes.
+        Gives the size of the RAM representation of types **in multiples of CHAR_BIT**,
+        which is the size of `char`. *Not* necessarily in bytes.
 
         The return type is `size_t.
 
@@ -1823,11 +1820,11 @@ int main(int argc, char **argv) {
 
     # Fixed size types
 
-        besides the base times with nonfixed sizes, c99 ANSI libc also furnishes
-        fixed sized types. See
+        Besides the base times with nonfixed sizes, c99 ANSI libc also furnishes
+        fixed sized types
 
-        you should only use those when having a fixed size is crucial,
-        otherwise just use the base c types which are optimized for speed
+        You should only use those when having a fixed size is crucial,
+        otherwise just use the base C types which are optimized for speed
         according to each architecture.
     */
     {
@@ -1835,33 +1832,37 @@ int main(int argc, char **argv) {
         size_t size = sizeof(int);
 
         puts("sizeof (bytes):");
-        printf("char        = %zu\n",  sizeof(char)         );
-        printf("int         = %zu\n",  sizeof(int)          );
-        printf("long int    = %zu\n",  sizeof(long int)     );
-        printf("long long   = %zu\n",  sizeof(long long)    );
-        printf("float       = %zu\n",  sizeof(float)        );
-        printf("double      = %zu\n",  sizeof(double)       );
-        printf("long double = %zu\n",  sizeof(long double)  );
-        printf("wchar_t     = %zu\n",  sizeof(wchar_t)      );
-        printf("size_t      = %zu\n",  sizeof(size_t)       );
+        printf("  char        = %zu\n",  sizeof(char)         );
+        printf("  int         = %zu\n",  sizeof(int)          );
+        printf("  long int    = %zu\n",  sizeof(long int)     );
+        printf("  long long   = %zu\n",  sizeof(long long)    );
+        printf("  float       = %zu\n",  sizeof(float)        );
+        printf("  double      = %zu\n",  sizeof(double)       );
+        printf("  long double = %zu\n",  sizeof(long double)  );
+        printf("  wchar_t     = %zu\n",  sizeof(wchar_t)      );
+        printf("  size_t      = %zu\n",  sizeof(size_t)       );
 
         /* char has fixed size: */
+        assert(sizeof(char)      == 1                       );
 
-            assert(sizeof(char)      == 1                       );
+        /* Size equality is always possible: */
+        assert(sizeof(short int  ) <= sizeof(int           ));
+        assert(sizeof(int        ) <= sizeof(long int      ));
+        assert(sizeof(long int   ) <= sizeof(long long int ));
+        assert(sizeof(float      ) <= sizeof(double        ));
+        assert(sizeof(double     ) <= sizeof(long double   ));
 
-        /* size equality is always possible: */
+        /*
+        The following lower bounds are guaranteed.
+        http://stackoverflow.com/questions/1738568/any-guaranteed-minimum-sizes-for-types-in-c
+        */
+        assert(sizeof(short int) >= 2);
+        assert(sizeof(long int) >= 4);
+        assert(sizeof(long long int) >= 8);
 
-            assert(sizeof(short int  ) <= sizeof(int           ));
-            assert(sizeof(int        ) <= sizeof(long int      ));
-            assert(sizeof(long int   ) <= sizeof(long long int ));
-
-            assert(sizeof(float      ) <= sizeof(double        ));
-            assert(sizeof(double     ) <= sizeof(long double   ));
-
-        /* unsigned does not change sizeof: */
-
-            assert(sizeof(unsigned int) == sizeof(int));
-            assert(sizeof(unsigned long int) == sizeof(long int));
+        /* Unsigned does not change sizeof: */
+        assert(sizeof(unsigned int) == sizeof(int));
+        assert(sizeof(unsigned long int) == sizeof(long int));
     }
 
     /*
@@ -3904,32 +3905,73 @@ int main(int argc, char **argv) {
                 assert((5 % 3) == 2);
                 assert((6 % 3) == 0);
             }
+
+            /* # Comparison operators */
+            {
+                assert((1 == 1) == 1);
+                assert((0 == 1) == 0);
+
+                assert((0 >  1) == 0);
+                assert((0 >  0) == 0);
+                assert((0 > -1) == 1);
+                assert((0 <  1) == 1);
+                assert((0 <  0) == 0);
+                assert((0 < -1) == 0);
+
+                assert((0 >=  1) == 0);
+                assert((0 >=  0) == 1);
+                assert((0 >= -1) == 1);
+                assert((0 <=  1) == 1);
+                assert((0 <=  0) == 1);
+                assert((0 <= -1) == 0);
+            }
         }
 
-        /* # Boolean operators */
+        /*
+        # Boolean operators
+
+            The boolean operators treat all integers as:
+
+            - 0: false
+            - != 0: true
+
+            The output of the boolean operators is always either 0 or 1.
+        */
         {
-            assert((1 == 1) == 1);
-            assert((0 == 1) == 0);
+            /*
+            # !
 
-            assert((0 >  1) == 0);
-            assert((0 >  0) == 0);
-            assert((0 > -1) == 1);
-            assert((0 <  1) == 1);
-            assert((0 <  0) == 0);
-            assert((0 < -1) == 0);
+            # Negation
+            */
+            {
+                assert((!0) == 1);
+                assert((!1) == 0);
+                assert((!2) == 0);
+                assert((!-1) == 0);
 
-            assert((0 >=  1) == 0);
-            assert((0 >=  0) == 1);
-            assert((0 >= -1) == 1);
-            assert((0 <=  1) == 1);
-            assert((0 <=  0) == 1);
-            assert((0 <= -1) == 0);
+                /*
+                `x == 0` is equivalent to `!x`.
 
+                But its likely more readable to use `== 0` when doing comparisons,
+                and to leave `!x` just for boolean operations.
+                */
+            }
+
+            /*
+            # ||
+
+            # or
+            */
             assert((0 || 0) == 0);
             assert((0 || 1) == 1);
             assert((1 || 0) == 1);
             assert((1 || 1) == 1);
 
+            /*
+            # &&
+
+            # and
+            */
             assert((0 && 0) == 0);
             assert((0 && 1) == 0);
             assert((1 && 0) == 0);
@@ -3958,20 +4000,28 @@ int main(int argc, char **argv) {
 
         /* # Bitwise operators */
         {
-            /* NOT */
+            /*
+            # ~
+
+            # NOT bitwise
+            */
             assert((~(char)0x00) == (char)0xFF);
             assert((~(char)0xFF) == (char)0x00);
 
-            /* AND bitwise */
+            /*
+            # &
+
+            AND bitwise
+            */
             {
                 assert(((char)0x00 & (char)0x00) == (char)0x00);
                 assert(((char)0xFF & (char)0x00) == (char)0x00);
                 assert(((char)0xFF & (char)0xFF) == (char)0xFF);
 
                 /*
-                # even
+                # Even
 
-                # odd
+                # Odd
 
                 # Find if number is even or odd
 
@@ -3987,12 +4037,20 @@ int main(int argc, char **argv) {
                 }
             }
 
-            /* OR */
+            /*
+            # ||
+
+            # OR bitwise
+            */
             assert(((char)0x00 | (char)0x00) == (char)0x00);
             assert(((char)0xFF | (char)0x00) == (char)0xFF);
             assert(((char)0xFF | (char)0xFF) == (char)0xFF);
 
-            /* XOR */
+            /*
+            # ^
+
+            # XOR bitwise
+            */
             assert(((char)0x00 ^ (char)0x00) == (char)0x00);
             assert(((char)0xFF ^ (char)0x00) == (char)0xFF);
             assert(((char)0xFF ^ (char)0xFF) == (char)0x00);
@@ -5196,28 +5254,84 @@ int main(int argc, char **argv) {
                 }
             }
 
-            /* # String literals */
+            /*
+            # String literals
+
+                http://en.cppreference.com/w/c/language/string_literal
+            */
             {
                 /* Escape chars in string conts */
                 {
-                    puts("Backslash escapes:");
-                    puts(">>>\"<<< double quotes");
-                    puts(">>>\\<<< backslash");
-                    puts(">>>\n<<< new line");
-                    puts(">>>\t<<< tab char");
-                    puts(">>>\f<<< feed char");
-                    puts(">>>\v<<< vertical tab");
-                    puts(">>>\r<<< carriage return");
-                    puts(">>>\a<<< alert (your terminal may interpret this as a sound beep or not)");
-                    puts(">>>\x61<<< a in hexadecimal");
-                    /* Chinese UTF-8. */
-                    puts(">>>\xe4\xb8\xad<<< zhong1, chinese for \"middle\" in utf8");
 
-                    /* \0 is the NUL char, but you can't insert is directly on the literal, */
-                    /* or else the string is interpreted to end there since C strigs are NUL terminated. */
+                    /* Octal bytes */
+                    assert(!strcmp("\141", "a"));
+
+                    /* Hexadecimal bytes */
+                    {
+                        assert(!strcmp("\x61", "a"));
+
+                        /*
+                        WARNING: Hex escape out of range.
+
+                        Happens because f can be part of a hex literal,
+                        and C tries to put it together.
+
+                        TODO what happens exactly according to ANSI C?
+                        Undefined behaviour?
+                        */
+                        /*{ "\xfff"; }*/
+
+                        /*
+                        The solution is to either concatenate strings, or use another escape:
+                        */
+                        assert(strcmp("\xff""f", "\xff\x66") == 0);
+
+                        /* Chinese UTF-8. */
+                        puts(">>>\xe4\xb8\xad<<< zhong1, chinese for \"middle\" in utf8");
+                    }
+
+                    /*
+                    \0 is the NUL char, but you can't insert is directly on the literal,
+                    or else the string is interpreted to end there since C strigs are NUL terminated.
+                    */
                     printf(">>>%c<<< NUL char\n", '\0');
 
-                    /* \e is a notable GNU extension for the ESC character. */
+                    /* Double quotes. */
+                    assert(strcmp("\"", "\x22") == 0);
+
+                    /* Single quote. Likely exists for symmetry with character literals. */
+                    assert(strcmp("\'", "\x27") == 0);
+
+                    /* Backslash. */
+                    assert(strcmp("\\", "\x5c") == 0);
+
+                    /*
+                    WARNING: Unknown escape sequence. TODO what ANSI C says can happen?
+                    */
+                    /*assert(strcmp("\c", "\x0b") == 0);*/
+
+                    /* Alert. Your terminal may interpret this as a sound beep or not. */
+                    assert(strcmp("\a", "\x07") == 0);
+
+                    /* Backspace. */
+                    assert(strcmp("\b", "\x08") == 0);
+
+                    /* Feed */
+                    assert(strcmp("\f", "\x0c") == 0);
+
+                    /* New line */
+                    assert(strcmp("\n", "\x0a") == 0);
+
+                    /* Carriage return */
+                    assert(strcmp("\r", "\x0d") == 0);
+
+                    /* Tab */
+                    assert(strcmp("\t", "\x09") == 0);
+
+                    /* Vertical tab */
+                    assert(strcmp("\v", "\x0b") == 0);
+
+                    /* Famous extensions: \e GNU for ESC */
                 }
 
                 /* String literals may be concatenated */
@@ -6159,7 +6273,13 @@ int main(int argc, char **argv) {
         assert(getenv("NOT_DEFINED") == NULL);
     }
 
-    /* # preprocessor */
+    /*
+    # preprocessor
+
+        Does simple operations before compilation.
+
+        Not Turing complete.
+    */
     {
         /*
         # #define
@@ -6170,6 +6290,16 @@ int main(int argc, char **argv) {
             Use defines with discretion: they make it much harder to debug!
         */
         {
+
+            /*
+            Syntax: the line must start with `#`,
+            but there can be spaces after it to give indentation.
+            */
+            {
+#             define SPACE_AFTER_HASH 1
+              assert(SPACE_AFTER_HASH == 1);
+            }
+
             /* Constants. */
             {
 #define A B
@@ -6337,7 +6467,11 @@ int main(int argc, char **argv) {
         }
 
 	/*
-    # #if ##else
+    # #if
+
+    # #else
+
+    # #elif
 
 	    The preprocessor can do certain integer arithmetic operations such as: +, -, ==, <.
     */
@@ -7011,39 +7145,33 @@ int main(int argc, char **argv) {
                         TODO what happens when a wrong type is passed? Typecast? Undefined?
                     */
                     {
-                            printf("u UINT_MAX = %u\n", UINT_MAX);
+                        printf("u UINT_MAX = %u\n", UINT_MAX);
 
-                            sprintf(s, "%d", UINT_MAX);
-                            assert(strcmp(s, "-1") == 0);
+                        sprintf(s, "%d", UINT_MAX);
+                        assert(strcmp(s, "-1") == 0);
                     }
 
-                    /* char: */
+                    /* char */
+                    sprintf(s, "%c", 'a');
+                    assert(strcmp(s, "a") == 0);
 
-                        sprintf(s, "%c", 'a');
-                        assert(strcmp(s, "a") == 0);
-
-                    /* int: */
-
-                        printf("d INT_MAX = %d\n", INT_MAX);
+                    /* int */
+                    printf("d INT_MAX = %d\n", INT_MAX);
 
                     /* long int: */
-
-                        printf("d LONG_MAX = %ld\n", LONG_MAX);
+                    printf("d LONG_MAX = %ld\n", LONG_MAX);
 
                     /* long long (int): */
-
-                        printf("lld LLONG_MAX = %lld\n", LLONG_MAX);
+                    printf("lld LLONG_MAX = %lld\n", LLONG_MAX);
 
                     /* # floating point numbers */
                     {
                         /* float and double both use the the same char `f` char: */
-
-                            printf("printf float = %f\n", 1.0f);
-                            printf("printf double = %f\n", 1.0);
+                        printf("printf float = %f\n", 1.0f);
+                        printf("printf double = %f\n", 1.0);
 
                         /* long double: */
-
-                            printf("f = %Lf\n", (long double)1.0);
+                        printf("f = %Lf\n", (long double)1.0);
 
                         /* # control number of zeros after dot */
                         {
@@ -7160,7 +7288,7 @@ int main(int argc, char **argv) {
 #endif
 
                     /*
-                    pointers
+                    # printf Pointers
 
                         prints the hexadeciamal linear address.
 
@@ -7230,7 +7358,7 @@ int main(int argc, char **argv) {
 #endif
 
                     /*
-                    # escape percentage.
+                    # Escape percentage.
 
                         Note that `%` is printf specific,
                         not string literal specific,
@@ -7497,7 +7625,9 @@ int main(int argc, char **argv) {
             }
 
             /*
-            # file streams #file io
+            # File streams
+
+            # File IO
 
                 To get streams that deal with files, use `fopen`.
 
@@ -7530,16 +7660,16 @@ int main(int argc, char **argv) {
 
                         Windows also does trailing \z magic for ultra backwards compatibility.
 
-                        Therefore for portability, always use this when you are going to do IO with binary IO functions 
-                        such as fwrite.
+                        Therefore for portability, always use this when you are going to do IO
+                        with binary IO functions such as fwrite.
 
                     In case of error:
 
                     - return `NULL` and set `errno`.
 
-                # text IO vs #binary IO
+                # Text IO vs # Binary IO
 
-                    # text vs binary for numerical types
+                    # Text vs binary for numerical types
 
                         Example: an int 123 can be written to a file in two ways:
 
@@ -7557,7 +7687,7 @@ int main(int argc, char **argv) {
                         - it much shorter for large integers
                         - inevitable for data that cannot be interpretred as text (images, executables)
 
-                    # newline vs carriage return newline
+                    # Newline vs carriage return newline
 
                         Newline carriage return realated TODO confirm
 
@@ -7592,13 +7722,16 @@ int main(int argc, char **argv) {
 
                     Returns number of elements written.
 
-                    If less elements are written than required an erro ocurred.
+                    If less elements are written than required an error ocurred.
 
                     Why take both bytes per item and items instead of just total bytes:
-                    <http://stackoverflow.com/questions/295994/what-is-the-rationale-for-fread-fwrite-taking-size-and-count-as-arguments>
+                    http://stackoverflow.com/questions/295994/what-is-the-rationale-for-fread-fwrite-taking-size-and-count-as-arguments
 
                     It seems that no less than size per item can be writen, so we are guaranteed
                     that some object will not be half writen.
+
+                    The byte order is implementation defined.
+                    This is therefore not a valid way to serialize data across machines.
                 */
                 {
                     fp = fopen(path, "wb");
@@ -7646,6 +7779,34 @@ int main(int argc, char **argv) {
                     }
                 }
                 assert(memcmp(elems_read, elems_write, nelems) == 0);
+
+                /*
+                # Endianess
+
+                # Byte order
+
+                    The C standard does not specify how bytes are ordered in memory.
+
+                    http://www.ibm.com/developerworks/aix/library/au-endianc/
+                */
+                {
+                    /*
+                    Check endianess.
+
+                    Works because `short int` is guaranteed to be at least of size 2.
+
+                    We must work with pointers, because doing `(char)i` directly is specified ot be 1.
+                    The compilers produces the assembly code required to do so taking endianess into consideration.
+                    */
+                    {
+                        const short int i = 1;
+                        if ((*(char*)&i) == 0) {
+                            printf("Endianess = big\n");
+                        } else {
+                            printf("Endianess = small\n");
+                        }
+                    }
+                }
             }
 
             /*
@@ -7658,7 +7819,7 @@ int main(int argc, char **argv) {
                 /*freopen("/dev/null", "r", stdin);*/
             }
 
-            /* # reposition read write */
+            /* # Reposition read write */
             {
                 /*
                 For new code, always use `fgetpos` and `fsetpos` unless you absolutely
@@ -9059,27 +9220,43 @@ int main(int argc, char **argv) {
             in the current architecure
         */
         {
-            /* # INT_MAX #UINT_MAX */
-            printf("CHAR_MAX = %d\n", CHAR_MAX);
-            assert(CHAR_MAX == 127);
-            printf("INT_MAX = %d\n", INT_MAX);
-            printf("INT_MIN = %d\n", INT_MIN);
-            printf("LONG_MAX = %ld\n", LONG_MAX);
-            printf("LLONG_MIN = %lld\n", LLONG_MIN);
+            puts("limits.h");
+
+            /*
+            # CHAR_BIT
+
+                Numbers of bits in a char.
+
+                POSIX fixes it to 8 TODO reference.
+                But it is very rare to finda a system where it will not be 8.
+
+                `sizeof` returns results in multiples of it.
+            */
+            printf("  CHAR_BIT = %d\n", CHAR_BIT);
+            /* Guaranteed. */
+            assert(CHAR_BIT >= 8);
+            /* TODO Not determined by CHAR_BIT? */
+            printf("  CHAR_MAX = %d\n", CHAR_MAX);
+
+            /* # INT_MAX */
+            printf("  INT_MAX = %d\n", INT_MAX);
+            printf("  INT_MIN = %d\n", INT_MIN);
+
+            printf("  LONG_MAX = %ld\n", LONG_MAX);
+            printf("  LLONG_MIN = %lld\n", LLONG_MIN);
 
             /*
             Unsigned versions are prefiexed by `U`.
 
             There is no MIN macro for unsigned versions since it is necessarily `0`.
             */
-
-            printf("UINT_MAX = %u\n", UINT_MAX);
+            printf("  UINT_MAX = %u\n", UINT_MAX);
         }
 
         /*
         # float.h
 
-            gives characteristics of floating point numbers and of base numerical operations
+            Gives characteristics of floating point numbers and of base numerical operations
             for the current architecture
 
             All macros that start with FLT have versions starting with:
@@ -9088,6 +9265,7 @@ int main(int argc, char **argv) {
             - LDBL  for `long double`
         */
         {
+            puts("float.h");
 
             /*
             # FLT_ROUNDS
@@ -9105,7 +9283,7 @@ int main(int argc, char **argv) {
                 TODO0 can it be changed?
             */
             {
-                printf("FLT_ROUNDS = %d\n", FLT_ROUNDS);
+                printf("  FLT_ROUNDS = %d\n", FLT_ROUNDS);
             }
 
             /*
@@ -9119,7 +9297,7 @@ int main(int argc, char **argv) {
                 TODO0 understand better
             */
             {
-                printf("FLT_EVAL_METHOD = %d\n", FLT_EVAL_METHOD);
+                printf("  FLT_EVAL_METHOD = %d\n", FLT_EVAL_METHOD);
             }
 
             /*
@@ -9131,9 +9309,9 @@ int main(int argc, char **argv) {
                 and support is optional.
             */
             {
-                printf("FLT_MIN  = %a\n",  FLT_MIN);
-                printf("DBL_MIN  = %a\n",  DBL_MIN);
-                printf("LDBL_MIN = %La\n", LDBL_MIN);
+                printf("  FLT_MIN  = %a\n",  FLT_MIN);
+                printf("  DBL_MIN  = %a\n",  DBL_MIN);
+                printf("  LDBL_MIN = %La\n", LDBL_MIN);
             }
 
             /*
@@ -9150,7 +9328,7 @@ int main(int argc, char **argv) {
                 TODO0 wow, there are non radix 2 representation implementations?!
             */
             {
-                printf("FLT_RADIX = %d\n", FLT_RADIX);
+                printf("  FLT_RADIX = %d\n", FLT_RADIX);
             }
 
 #if __STDC_VERSION__ >= 201112L
@@ -9196,15 +9374,15 @@ int main(int argc, char **argv) {
                 - 1: yes
             */
             {
-                printf("FLT_HAS_SUBNORM  = %d\n", FLT_HAS_SUBNORM);
-                printf("DBL_HAS_SUBNORM  = %d\n", DBL_HAS_SUBNORM);
-                printf("LDBL_HAS_SUBNORM = %d\n", LDBL_HAS_SUBNORM);
+                printf("  FLT_HAS_SUBNORM  = %d\n", FLT_HAS_SUBNORM);
+                printf("  DBL_HAS_SUBNORM  = %d\n", DBL_HAS_SUBNORM);
+                printf("  LDBL_HAS_SUBNORM = %d\n", LDBL_HAS_SUBNORM);
 
                 assert(isnormal(LDBL_MIN));
 
                 if (LDBL_HAS_SUBNORM) {
                     long double ldbl_min_2 = LDBL_MIN / 2.0;
-                    printf("LDBL_MIN / 2.0 = %La\n", ldbl_min_2);
+                    printf("  LDBL_MIN / 2.0 = %La\n", ldbl_min_2);
                     assert(ldbl_min_2 != 0);
                     assert(ldbl_min_2 != LDBL_MIN);
                     assert(! isnormal(ldbl_min_2));
@@ -9593,7 +9771,7 @@ int main(int argc, char **argv) {
     }
 
     /*
-    # main return #return
+    # main return
 
         Valid returns are:
 

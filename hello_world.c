@@ -2,4 +2,5 @@
 
 int main() {
     puts("Hello world C.");
+    return 0;
 }

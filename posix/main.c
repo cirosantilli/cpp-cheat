@@ -426,6 +426,8 @@ int main(int argc, char** argv) {
     }
 
     /*
+    # File IO
+
     # File descriptors
 
         `int` identifier to a data stream.
@@ -481,29 +483,30 @@ int main(int argc, char** argv) {
 
         Flags. Must specify one and only of the following:
 
-        - O_WRONLY: write only
-        - O_RDONLY: read only.
+        -   `O_WRONLY`: write only
+
+        -   `O_RDONLY`: read only.
 
             Undefined behaviour with O_TRUNC.
 
             TODO0 can be used with O_CREAT?
 
-        - O_RDWR:   read and write
+        -   `O_RDWR`: read and write
 
         Other important flags.
 
-        - O_APPEND: If the file exists, open fd at the end of the file.
+        -   `O_APPEND`: If the file exists, open fd at the end of the file.
 
-        - O_TRUNC: If the file exists, open fd at the end of the file,
+        -   `O_TRUNC`: If the file exists, open fd at the end of the file,
             set its length to zero, discarding existing contents.
 
             Undefined behaviour with O_RDONLY.
 
-        - O_CREAT: If the file does not exit, creat it, with permissions given in mode.
+        -   `O_CREAT`: If the file does not exit, creat it, with permissions given in mode.
 
             Mode must be specified when this flag is set, and is ignored if this is not set.
 
-        - O_EXCL: Used with O_CREAT, ensures that the caller creates the file.
+        -   `O_EXCL`: Used with O_CREAT, ensures that the caller creates the file.
 
             The open is atomic; that is, no two opens can open at the same time.
 
@@ -716,7 +719,7 @@ int main(int argc, char** argv) {
             }
         }
 
-        //read
+        /* read */
         {
             fd = open(fname, O_RDONLY);
             if (fd == -1) {
@@ -741,7 +744,7 @@ int main(int argc, char** argv) {
             }
         }
 
-        //BAD forget O_CREAT on non-existent file gives ENOENT
+        /* BAD forget O_CREAT on non-existent file gives ENOENT */
         {
             fd = open("/i/do/not/exist", O_RDONLY, S_IRWXU);
             if (fd == -1) {
@@ -751,7 +754,7 @@ int main(int argc, char** argv) {
             }
         }
 
-        //BAD write on a O_RDONLY fd gives errno EBADF
+        /* BAD write on a O_RDONLY fd gives errno EBADF */
         {
             int fd;
             char *fname = "write_rdonly.tmp";
@@ -785,13 +788,15 @@ int main(int argc, char** argv) {
         }
 
         /*
-        open and write without truncate
+        Open and write without truncate.
 
-        after write 1: abcd
-        after write 2: 01cd
+        Output:
+
+            after write 1: abcd
+            after write 2: 01cd
         */
         {
-            //set file to abc
+            /* Set file to `abc`. */
             {
                 fd = open(fname, O_WRONLY | O_CREAT | O_TRUNC, S_IRWXU);
                 if (fd == -1) {
@@ -809,7 +814,7 @@ int main(int argc, char** argv) {
                 }
             }
 
-            //open and write to it without truncating
+            /* Open and write to it without truncating. */
             {
                 fd = open(fname, O_RDWR);
                 if (fd == -1) {
@@ -823,7 +828,7 @@ int main(int argc, char** argv) {
                 }
             }
 
-            //check the new result
+            /* Check the new result. */
             {
                 if (lseek(fd, 0, SEEK_SET) != 0) {
                     perror("lseek");
@@ -833,7 +838,7 @@ int main(int argc, char** argv) {
                     perror("read");
                     exit(EXIT_FAILURE);
                 } else {
-                    //the first two bytes were overwriten
+                    /* The first two bytes were overwriten. */
                     assert(memcmp(out, "01cd", nbytes) == 0);
                 }
                 if (close(fd) == -1) {
@@ -864,7 +869,7 @@ int main(int argc, char** argv) {
                     perror("write");
                     exit(EXIT_FAILURE);
                 }
-                // Read after eof, return 0 and read nothing.
+                /* Read after eof, return 0 and read nothing. */
                 if (read(fd, out, 1) != 0) {
                     assert(false);
                 }
@@ -872,7 +877,7 @@ int main(int argc, char** argv) {
                     perror("lseek");
                     exit(EXIT_FAILURE);
                 }
-                // Byte 0 was never writen, so reading it returns `(int)0`.
+                /* Byte 0 was never writen, so reading it returns `(int)0`. */
                 if (read(fd, out, 2) != 2) {
                     perror("read");
                     exit(EXIT_FAILURE);
@@ -908,6 +913,39 @@ int main(int argc, char** argv) {
             printf("STDOUT_FILENO = %d\n", STDOUT_FILENO);
             printf("STDERR_FILENO = %d\n", STDERR_FILENO);
         }
+
+        /*
+        # aio family
+
+        # Asynchronous IO
+
+        # aio_cancel
+
+        # aio_error
+
+        # aio_fsync
+
+        # aio_read
+
+        # aio_return
+
+        # aio_suspend
+
+        # aio_write
+
+        Great soruce: <http://www.fsl.cs.sunysb.edu/~vass/linux-aio.txt>
+
+        In Linux, implemented with the system calls:
+
+            io_cancel(2)                2.6
+            io_destroy(2)               2.6
+            io_getevents(2)             2.6
+            io_setup(2)                 2.6
+            io_submit(2)                2.6
+        */
+        {
+            /* TODO */
+        }
     }
 
     /*
@@ -937,7 +975,7 @@ int main(int argc, char** argv) {
         char *oldpath = "link_old.tmp";
         char *newpath = "link_new.tmp";
 
-        // Create old.
+        /* Create old. */
         fd = open(oldpath, O_WRONLY | O_CREAT | O_TRUNC, S_IRWXU);
         if (fd == -1) {
             perror("open");
@@ -1034,16 +1072,17 @@ int main(int argc, char** argv) {
         TODO application?
     */
     {
-        char *filepath = "mmap.tmp";
+        char* filepath = "mmap.tmp";
         int numints = 4;
         int filesize = numints * sizeof(int);
 
         int i;
         int fd;
         int result;
-        int *map;  /* mmapped array of int's */
+        /* mmapped array of int's */
+        int* map;
 
-        // Write to file with mmap.
+        /* Write to file with mmap. */
         {
             /* `O_WRONLY` is not sufficient when mmaping, need `O_RDWR`.*/
             fd = open(filepath, O_RDWR | O_CREAT | O_TRUNC, (mode_t)0600);
@@ -1094,7 +1133,7 @@ int main(int argc, char** argv) {
             }
         }
 
-        // Read result back in.
+        /* Read result back in. */
         {
             fd = open(filepath, O_RDONLY, 0);
             if (fd == -1) {
@@ -1111,9 +1150,9 @@ int main(int argc, char** argv) {
 
             assert(map[1] == 1);
 
-            // Segmentation fault because no `PROT_WRITE`:
+            /* Segmentation fault because no `PROT_WRITE`: */
             {
-                //map[1] = 2;
+                /*map[1] = 2;*/
             }
 
             if (munmap(map, filesize) == -1) {
@@ -1137,7 +1176,7 @@ int main(int argc, char** argv) {
             TODO0 application?
         */
         {
-            // Private write
+            /* Private write */
             {
                 fd = open(filepath, O_RDONLY, 0);
                 if (fd == -1) {
@@ -1165,7 +1204,7 @@ int main(int argc, char** argv) {
                 }
             }
 
-            // Read
+            /* Read */
             {
                 fd = open(filepath, O_RDONLY, 0);
                 if (fd == -1) {
@@ -1180,7 +1219,7 @@ int main(int argc, char** argv) {
                     exit(EXIT_FAILURE);
                 }
 
-                //did not change!
+                /* Did not change! */
                 assert(map[0] == 0);
 
                 if (munmap(map, filesize) == -1) {
@@ -1196,7 +1235,7 @@ int main(int argc, char** argv) {
         }
     }
 
-    //#pathname operations
+    /* # Pathname operations */
     {
         /*
         # realpath
@@ -1285,7 +1324,6 @@ int main(int argc, char** argv) {
         - portable lightweight: dirent.h
     */
     {
-
         /*
         # stat family
 
@@ -1396,7 +1434,7 @@ int main(int argc, char** argv) {
             }
         }
 
-        //#mkdir
+        /* # mkdir */
         {
             struct stat s;
             char fname[] = "mkdir";
@@ -1410,7 +1448,7 @@ int main(int argc, char** argv) {
                 assert(false);
         }
 
-        //#rmdir
+        /* # rmdir */
         {
             mkdir("rmdir", 0777);
             if(rmdir("rmdir") == -1)
@@ -1556,11 +1594,10 @@ int main(int argc, char** argv) {
             }
         }
 
-        // OK, enough of error checking from now on.
-
+        /* OK, enough of error checking from now on. */
         printf("RLIM_INFINITY = %ju\n", (uintmax_t)RLIM_INFINITY);
 
-        // maximum total CPU usage in seconds.
+        /* maximum total CPU usage in seconds. */
         getrlimit(RLIMIT_CPU, &limit);
         printf(
             "RLIMIT_CPU\n  soft = %ju\n  hard = %ju\n",
@@ -1568,7 +1605,7 @@ int main(int argc, char** argv) {
             (uintmax_t)limit.rlim_max
         );
 
-        // Maximum file size in bytes.
+        /* Maximum file size in bytes. */
         getrlimit(RLIMIT_FSIZE, &limit);
         printf(
             "RLIMIT_FSIZE\n  soft = %ju\n  hard = %ju\n",
@@ -1576,7 +1613,7 @@ int main(int argc, char** argv) {
             (uintmax_t)limit.rlim_max
         );
 
-        // Number of file descriptors:
+        /* Number of file descriptors: */
         getrlimit(RLIMIT_NOFILE, &limit);
         printf(
             "RLIMIT_NOFILE\n  soft = %ju\n  hard = %ju\n",
@@ -1660,13 +1697,11 @@ int main(int argc, char** argv) {
             Similar to sysconf, but for parameters that depend on a path, such as maxium filename lengths.
         */
         {
-            // Max basename in given dir including trailling null:
+            /* Max basename in given dir including trailling null: */
+            printf("pathconf(\".\", _PC_NAME_MAX) = %ld\n", pathconf(".", _PC_NAME_MAX));
 
-                printf("pathconf(\".\", _PC_NAME_MAX) = %ld\n", pathconf(".", _PC_NAME_MAX));
-
-            // Max pathname in (TODO this is per device?)
-
-                printf("pathconf(\".\", _PC_PATH_MAX) = %ld\n", pathconf(".", _PC_PATH_MAX));
+            /* Max pathname in (TODO this is per device?) */
+            printf("pathconf(\".\", _PC_PATH_MAX) = %ld\n", pathconf(".", _PC_PATH_MAX));
         }
     }
 

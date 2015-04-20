@@ -6,113 +6,35 @@ C and C++ information, cheatsheets and mini-projects.
 
 Relies on <https://github.com/cirosantilli/cpp-boilerplate> to factor code out. See [its documentation](https://github.com/cirosantilli/cpp-boilerplate/blob/master/README.md) for information on how to use this project.
 
-## Most useful files
-
-- [c.c](c.c): C cheatsheet
-- [cpp.cpp](main_cpp.cpp): C++ cheatsheet
-- [POSIX](posix/): POSIX C API
-- [Multi-file](multifile/): `include`, `extern` vs `static`, dynamic libraries, cross language calls
-- [GCC](gcc/): GCC extensions
-- [OpenGL](opengl/)
-- [KDE](kde/)
-
-Other files:
-
-- [Boost](boost/)
-- [Flex and Bison](flex-bison/)
-- [GDB](gdb.md)
-- [glibc](glibc/)
-- [Implementations](implementations.md)
-- [Style guides](style-guides.md)
-- [CMake](cmake.md)
-- [hello_world.c](hello_world.c)
-- [hello_world_cpp.cpp](hello_world_cpp.cpp)
-
-GUI:
-
-- [GTK](gtk/)
-- [Qt](qt/)
-- [X11](x11)
-- [Open GL](opengl/)
-
-Scientific:
-
-- [Fortran](fortran/)
-- [GSL](gsl/)
-- [LAPACK](lapack/)
-- [OpenCV](opencv/)
-- [PLplot](plplot/)
-
-## Dependencies
-
-Most builds require:
-
-- `make` (POSIX)
-- `gcc` >= 4.7
-- `g++` >= 4.7
-
-Even though we use GNU tools by default, great attention is paid to portability of portable subjects like ANSI C, which should compile in any compiler.
-
-In addition, each directory may have their own extra dependencies as stated in their README.
-
-You can install dependencies on latest LTS Ubuntus with:
-
-    ./configure
-
-Other system install are not going to be supported as that would lead to too much maintenance overhead. If you don't have Ubuntu, consider using our [Vagrantfile](Vagrantfile).
-
-## Usage
-
-When there are multiple files compiled, e.g.:
-
-    c.c -> c
-    cpp.cpp -> cpp
-
-run a given file by specifying the basename without extension:
-
-    make run=c
-    make run=cpp
-
-The `=` sign is *not* optional!
-
-Doing just `make run` in those cases will run the default file: `main`.
-
-## Style
-
-Non-portable features shall be clearly separated from portable ones in either:
-
-- ifdef macro blocks
-- separate files
-- separate directories
-- separate repositories
-
-This includes features which were not present in the first standardized version of languages. E.g., C99 features must be put inside `#ifdf __STDC_VERSION__` blocks.
-
-Everything that can be checked in an assertion will be checked, and will not get printed.
-
-For example, a C addition operator `+` test should be done as:
-
-    assert(1 + 1 == 2);
-
-and *never*:
-
-    printf("%d\n", 1 + 1);
-
-so that all can be verified automatically.
-
-Features which yield unpredictable outputs can print results to stdout. For example, `time(NULL)`
-
-    printf("%d\n", 1 + 1);
-
-Features that:
-
-- require user input such as C `scanf`
-- make programs wait for perceptible amounts of time
-
-shall be put inside a block analogous to a `if (0){ ... }` to be turned on only when users want to test those specific features.
-
-Cheat source comments are written in markdown *indented by headers* and commented out.
-
-Every important keyword that one might search for in the feature has a hash before it, e.g. `#function`, `#include`, `#printf`, etc.
-
-##
+1.  [Getting started](getting-started.md)
+1.  Best content
+    1. [c.c](c.c): C cheatsheet
+    1. [cpp.cpp](main_cpp.cpp): C++ cheatsheet
+    1. [POSIX](posix/): POSIX C API
+    1. [Multi-file](multifile/): `include`, `extern` vs `static`, dynamic libraries, cross language calls
+    1. [GCC](gcc/): GCC extensions
+    1. [OpenGL](opengl/)
+    1. [KDE](kde/)
+1.  Other files
+    1. [Boost](boost/)
+    1. [Flex and Bison](flex-bison/)
+    1. [GDB](gdb.md)
+    1. [glibc](glibc/)
+    1. [Implementations](implementations.md)
+    1. [Style guides](style-guides.md)
+    1. [CMake](cmake.md)
+    1. [hello_world.c](hello_world.c)
+    1. [hello_world_cpp.cpp](hello_world_cpp.cpp)
+1.  GUI
+    1. [GTK](gtk/)
+    1. [Qt](qt/)
+    1. [X11](x11)
+    1. [Open GL](opengl/)
+1.  Scientific
+    1. [Fortran](fortran/)
+    1. [GSL](gsl/)
+    1. [LAPACK](lapack/)
+    1. [OpenCV](opencv/)
+    1. [PLplot](plplot/)
+1.  [CONTRIBUTING](CONTRIBUTING.md)
+1.  [Bibliography](bibliography.md)
