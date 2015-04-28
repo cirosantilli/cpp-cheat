@@ -1,158 +1,16 @@
 # GCC
 
-Cheat on the GNU Compile Collection (GCC) language extensions and compile options, and in for `gcc` and `g++`.
+Cheat on the GNU Compile Collection (GCC) language extensions and command line utilities.
 
-Most useful files:
+1. [main.c](main.c): main `gcc` cheat
+1. [Introduction](introduction.md)
+1. [Compilation steps](compilation-steps.md)
+1. [gcc utility](gcc-utility.md)
+1. [cpp](cpp.md)
 
-- [main.c](main.c): `gcc` cheat
-- [Compile options](compiler-options.md)
+## Scope
 
-## Introduction
-
-GCC is arguably the most popular C and C++ compiler.
-
-The Linux kernel uses GCC extensions so you need it to build it.
-
-`gcc` is the C compiler. It is a large frontend for other tools such as `as`, `cpp`.
-
-`gcc` and `g++` are the dominant compilers on Linux. Important alternatives include `clang` and Intel's `icc`.
-
-Only *language* extension are discussed: glibc extensions are not. Language extensions are documented at: <https://gcc.gnu.org/onlinedocs/gcc/C-Extensions.html>
-
-You can disable all non-GNU specific languages features with flags like `-ansi or -std=c99`, which you should always do. This will not however stop defining certain GNU specific preprocessor macros such as `__GNUC__`
-
-Obviously, it is always better if you avoid using extensions, but you may encounter them in Linux specific projects, such as the Linux kernel itself for example.
-
-GNU extensions have a large chance of being implemented in future ANSI C versions (but sometimes in a modified form) because of the large influence of GCC.
-
-GCC stands for GNU Compiler Collection: *not* C compiler, and currently compiles: C, C++, Objective-C, Fortran, Java, Ada, and Go.
-
-## g++ vs gcc
-
-`g++`: <http://stackoverflow.com/questions/172587/what-is-the-difference-between-g-and-gcc>
-
-Most important differences:
-
-- `g++` treats both `.c` and `.cpp` files as C++, since `.c` is backwards compatible with C++, it works
-- `g++` links to (but does not include) stdlib automatically, `gcc` does not!
-
-## Supported executable formats
-
-- elf (Linux)
-- mach-o (mac OS)
-- pe (windows)
-
-and more.
-
-## Compilation steps
-
-It is good to understand which steps are done towards compilation
-
-Only expanded macros with the C preprocessor:
-
-    cpp a.c > a.i
-    cpp b.c > b.i
-
-Different languages have different preprocessors
-
-Generate human readable assembly code:
-
-    gcc -S a.i -o a.s
-    gcc -S b.i -o b.s
-
-Specify format:
-
-    gcc -masm=att -S a.c -o a.s
-    gcc -masm=intel -S a.c -o a.s
-
-Default format: `att` which is historically what has larger gcc support
-
-Make machine code from assembly code:
-
-    as -o a.o a.s
-    as -o b.o b.s
-
-This transforms human readable formats into binary object files
-
-Make machine code from C directly:
-
-    gcc -c a.c -o a.o
-    gcc -c b.c -o b.o
-
-All above steps in one
-
-    ld -o ab.out a.o b.o
-
-Link object files into single executable
-
-    gcc a.c b.c -o ab.out
-
-Does all above steps in one
-
-If you use make, it is faster to generate `.o` and keep them, since if the source does not change, make will not recompile the corresponding `.o`
-
-## Preprocessor
-
-The executable is called `cpp`.
-
-GCC uses it as a backend.
-
-### -D option
-
-Make preprocessor defines command line.
-
-Defines can be made from command line arguments:
-
-    gcc -DDEBUG -DLINELENGTH=80 -o c c.c
-
-which is the same as adding:
-
-    #define DEBUG
-    #define LINELENGTH 80
-
-to the top of file.
-
-### -v option
-
-Output verbose information about the compilation.
-
-Great troubleshooting tool.
-
-#### Find include search path
-
-    echo '' | cpp -v
-
-Look at sections:
-
-- `include "..." search starts here`:
-- `include <...> search starts here`:
-
-#### -I option
-
-Append to the include search path:
-
-    gcc -I/new/include/location/ a.c
-
-The above will not get appended to the existing search path.
-For example, if `-Irel/` is used and `/usr/include/` is already on the search path, this does *not* mean that the file `/usr/include/rel/a.h`, can be included via `#include <a.h>`.
-
-#### CPATH
-
-Colon separated list of paths to append to the include search path to all languages like `-I`.
-
-### View preprocessed file
-
-This is mostly useful for learning purposes only.
-
-Using `cpp` directly:
-
-	cpp c.c
-
-Outputs the preprocessed file to stdout.
-
-Using `gcc` as a frontend:
-
-    gcc -E c.c
+This will only cover C specifics. Generic ELF manipulation tools like `ld` (which can work across any language) are not included.
 
 ## Cross compile
 
@@ -184,7 +42,7 @@ The generated assembly code is in the `gas` format. `gas` specific features shal
 - `.LBB`:
 - `.LBE`:
 
-## Sources
+## Bibliography
 
 -   <http://www.ibm.com/developerworks/library/l-gcc-hacks/>
 

@@ -50,18 +50,19 @@ ANSI C features shall not be discussed here.
 //#define _POSIX_C_SOURCE 200112L
 //#define POSIX_SOURCE
 
-// ANSI headers to which POSIX adds extensions.
+/* ANSI headers to which POSIX adds extensions. */
 
 #include <assert.h>
-#include <limits.h>         //NZERO
-#include <math.h>           //M_PI, M_PI_2, M_PI_4:
+#include <limits.h> /* NZERO */
+#include <math.h> /* M_PI, M_PI_2, M_PI_4 */
 #include <stdbool.h>
-#include <stdio.h>          //popen(), perror()
+#include <stdio.h> /* popen(), perror() */
 #include <stdint.h>
 #include <stdlib.h>
-#include <string.h>         //strerror
+#include <string.h> /* strerror */
+#include <strings.h> /* ffs */
 
-// POSIX only headers.
+/* POSIX only headers. */
 
 #include <arpa/inet.h>
 #include <dirent.h>
@@ -237,30 +238,6 @@ int main(int argc, char** argv) {
     }
 
     /*
-    # string functions
-
-        POSIX offers some extra convenience functions to common string operations which are not present in ANSI C.
-    */
-    {
-        /*
-        str
-        */
-
-        /*
-        # strfmon
-
-            Monetary string formatting.
-        */
-        {
-            const int size = 16;
-            char out[size];
-            strfmon(out, size, "%n", 1234.567);
-            printf("%s", out);
-            assert(strcmp(out, "1234.57") == 0);
-        }
-    }
-
-    /*
     # syslog
 
         Write error messages to standard system files.
@@ -383,6 +360,62 @@ int main(int argc, char** argv) {
             //double      j0(double);
             //double      j1(double);
             //double      jn(int, double);
+        }
+    }
+
+    /*
+    # string functions
+
+        POSIX offers some extra convenience functions to common string operations which are not present in ANSI C.
+    */
+    {
+        /*
+        # bzero
+
+        # bcopy
+
+            http://pubs.opengroup.org/onlinepubs/009695399/functions/bzero.html
+
+            http://stackoverflow.com/questions/17096990/why-use-bzero-over-memset
+
+            Same as memset, but deprecated and not ANSI.
+
+            Don't use it.
+
+        */
+
+        /*
+        # strfmon
+
+            Monetary string formatting.
+        */
+        {
+            const int size = 16;
+            char out[size];
+            strfmon(out, size, "%n", 1234.567);
+            printf("%s", out);
+            assert(strcmp(out, "1234.57") == 0);
+        }
+    }
+
+    /*
+    # strings.h
+    */
+    {
+        /*
+        # ffs
+
+            Find First bit Set.
+
+            Has assembly support in many processors, e.g. `bsf` in x86.
+
+            https://en.wikipedia.org/wiki/Find_first_set
+        */
+        {
+            assert(ffs(0) == 0);
+            assert(ffs(1) == 1);
+            assert(ffs(2) == 2);
+            assert(ffs(3) == 1);
         }
     }
 

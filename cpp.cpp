@@ -274,7 +274,7 @@ void printCallStack() {
     std::cout << "END callStack" << std::endl;
 }
 
-//exception
+// Exception
 
     void exception_func_int() {
         throw 1;
@@ -286,7 +286,7 @@ void printCallStack() {
         }
     };
 
-    //exception specifications
+    // Exception specifications
 
             // All exceptions are catchable (default):
             void exception_func_all() { throw 0; }
@@ -2843,6 +2843,28 @@ void printCallStack() {
             typedef int typedefPrivate;
     };
 
+/*
+# main
+
+    # main signature
+
+        - http://stackoverflow.com/questions/4207134/what-is-the-proper-declaration-of-main
+        - http://stackoverflow.com/questions/1621574/can-the-arguments-of-mains-signature-in-c-have-the-unsiged-and-const-qualifie
+
+        Much like in C, only:
+
+            int main();
+            int main(int, char*[]);
+
+        are required to work, but more likely work as well.
+
+    # Call main from the program
+
+        In C++, cannot be called from anywherelse in the program, including recursively:
+        http://stackoverflow.com/questions/2128321/can-main-function-call-itself-in-c
+
+        This restriction does not seem to exist in C.
+*/
 int main(int argc, char **argv) {
 
     // # Scope
@@ -9835,5 +9857,5 @@ int main(int argc, char **argv) {
         std::cout << "ALL ASSERTS PASSED" << std::endl;
         return EXIT_SUCCESS;
 
-    //global/static destructors happen at exit time
+    // global/static destructors happen at exit time.
 }

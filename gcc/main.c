@@ -582,6 +582,8 @@ int main() {
                 This may be required for certain processor specific functions.
 
                 The generated gas assembly code should mark this alignment with the `.align` directive.
+
+                http://stackoverflow.com/questions/381244/purpose-of-memory-alignment
             */
             {
                 assert(aligned16 == 0);

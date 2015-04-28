@@ -96,6 +96,17 @@ Small comments on comparing ANSI C with extensions are acceptable.
 
             Formal name: ISO/IEC 9899:1990
 
+        # C94
+
+        # C95
+
+        # Normative Addendum 1
+
+            Informal names for C89/C90 plus Normative Addendum (aka Amendment) 1,
+            whose primary addition was support for international character sets.
+
+            C99 extends this.
+
         # C99
 
             <http://en.wikipedia.org/wiki/C99>
@@ -1096,21 +1107,31 @@ void abort_func() {
 
 
 /*
-#main signature
+# main
 
-    <http://stackoverflow.com/questions/204476/what-should-main-return-in-c-and-c>
+    # Call main from the program
 
-    Valid signatures:
+        Seems legal:
+        http://stackoverflow.com/questions/13948562/recursion-using-main-function#comment19237980_13948579
 
-        int main()
+        Illegal in C++ however.
 
-    and
+    # main signature
 
-        int main(int argc, char* argv[])
+        - http://stackoverflow.com/questions/4207134/what-is-the-proper-declaration-of-main
+        - http://stackoverflow.com/questions/204476/what-should-main-return-in-c-and-c
 
-    which is the same as:
+        Valid signatures:
 
-        int main(int argc, char** argv)
+            int main()
+
+        and
+
+            int main(int argc, char* argv[])
+
+        which is the same as:
+
+            int main(int argc, char** argv)
 */
 int main(int argc, char **argv) {
     /*
@@ -1162,7 +1183,7 @@ int main(int argc, char **argv) {
 
 #if __STDC_VERSION__ >= 199901L
         /* Double slash comment like in C++ were only introduced in C99. */
-        //assert(false);
+        /*assert(false);*/
 #endif
     }
 
@@ -2644,13 +2665,11 @@ int main(int argc, char **argv) {
     */
     {
         /* SAME: */
-
-            int i;
-            auto int i2;
+        int i;
+        auto int i2;
 
         /* ERROR: */
-
-            /*auto i3;*/
+        /*auto i3;*/
     }
 
     /*
@@ -3195,6 +3214,8 @@ int main(int argc, char **argv) {
         */
         {
             /*
+            # struct that contains itself
+
             # Incomplete type cycles
 
                 It is impossible to do the following, because that would create an infinite loop:
@@ -3214,6 +3235,8 @@ int main(int argc, char **argv) {
                                               3
 
                 -   and so on
+
+                The solution is to store opaque pointers instead of the actual structs.
             */
             {
                 /* ERROR: s has incomplete type. */
@@ -3272,6 +3295,13 @@ int main(int argc, char **argv) {
                 so using them makes your code non-standard. TODO confirm.
             */
             {
+                {
+                    struct S1;
+                    /* storage size of s isn't known . */
+                    /*struct S1 s1;*/
+                    struct S1* s1;
+                }
+
                 {
                     struct S1;
                     struct S0 { struct S1* s1; };
@@ -5102,7 +5132,8 @@ int main(int argc, char **argv) {
             {
                 puts("\npass multidim to func:");
                 enum { mc = 2 };
-                int* mat[mc]; //two int pointers
+                /* Two int pointers. */
+                int* mat[mc];
                 int mat1[][3] = {
                     { 1, 2, 3 },
                     { 4, 5, 6 }
@@ -5127,27 +5158,33 @@ int main(int argc, char **argv) {
                     { { 1, 2, 3 }, { 4 , 5,  6 } },
                     { { 7, 8, 9 }, { 10, 11, 12} }
                 };
-                //allocates one extra for first dimension
+                /* Allocates one extra for first dimension */
 
-                //error: only first can be empty
-                    //int m4[][][2] = {
-                    /*    {{1,2},{3,4}}, */
-                    /*    {{5,6},{7,8}} */
-                    /*};*/
+                /* ERROR: only first can be empty: */
+                /*
+                 int m4[][][2] = {
+                    {{1,2},{3,4}},
+                    {{5,6},{7,8}}
+                };
+                */
 
-            enum { mc=2, nc=4 };
-            int m5[mc][nc];
+                enum { mc=2, nc=4 };
+                int m5[mc][nc];
 
-            //error: TODO ? why
-                //int m6[][nc] = {
-                /*    {1,2,3}, */
-                /*    {4,5,6} */
-                /*};*/
+                /* ERROR: TODO why? */
+                /*
+                int m6[][nc] = {
+                    {1,2,3},
+                    {4,5,6}
+                };
+                */
 
-                //int m7[mc][nc] = {
-                /*    {1,2,3}, */
-                /*    {4,5,6} */
-                /*};*/
+                /*
+                int m7[mc][nc] = {
+                    {1,2,3},
+                    {4,5,6}
+                };
+                */
             }
 
             /* Matrix pattern. */
@@ -6147,7 +6184,7 @@ int main(int argc, char **argv) {
             `return` is essentially a forward jump inside a function.
             */
 
-            // Basic example
+            /* Basic example. */
             {
                 goto basic_example;
                     assert(0);
@@ -6407,6 +6444,19 @@ int main(int argc, char **argv) {
         }
 
         /*
+        # #undef
+
+            Undo a previous define.
+        */
+        {
+#define UNDEF_TEST 1
+#undef UNDEF_TEST
+#ifdef UNDEF_TEST
+            assert(false);
+#endif
+        }
+
+        /*
         # double hash
 
         # ##
@@ -6421,7 +6471,7 @@ int main(int argc, char **argv) {
                 assert(c_d == 1);
             }
 
-            //preprocessor variable gotcha: <http://stackoverflow.com/questions/1489932/c-preprocessor-and-concatenation>
+            /* preprocessor variable gotcha: http://stackoverflow.com/questions/1489932/c-preprocessor-and-concatenation */
             {
                 {
 #define VAR 3
@@ -6430,7 +6480,7 @@ int main(int argc, char **argv) {
                     assert(b_VAR == 1);
                 }
 
-                //solution
+                /* solution */
                 {
 #define VAR 3
 #define PASTER(x,y) x ## _ ## y
@@ -6458,10 +6508,10 @@ int main(int argc, char **argv) {
         */
         {
 #ifdef COMMANDLINE
-            //gcc -DCOMMANDLINE c.c
+            /* gcc -DCOMMANDLINE c.c */
             puts("C");
 #else
-            //gcc c.c
+            /* gcc c.c */
             puts("no C");
 #endif
         }
@@ -6494,8 +6544,11 @@ int main(int argc, char **argv) {
             assert(false);
 #endif
 
-    //Cannot compare strings directly! http://stackoverflow.com/questions/2335888/how-to-compare-string-in-c-conditional-preprocessor-directives
-    //Always define to integers.
+    /*
+    Cannot compare strings directly!
+    http://stackoverflow.com/questions/2335888/how-to-compare-string-in-c-conditional-preprocessor-directives
+    Always define to integers.
+    */
 #define STR1 1
 #define STR2 2
 #define STR STR1
@@ -6585,12 +6638,17 @@ int main(int argc, char **argv) {
             printf("__cplusplus\n");
 #endif
 
-                //absolute or relative path of current file:
+            /*
+            # __FILE__
 
-            printf("__FILE__ = %s\n", __FILE__);
+                Absolute or relative path of current file.
+            */
+            {
+                printf("__FILE__ = %s\n", __FILE__);
+            }
 
             /*
-            # LINE
+            # __LINE__
 
                 Current source code line.
 
@@ -6604,7 +6662,7 @@ int main(int argc, char **argv) {
 
 #if __STDC_VERSION__ >= 199901L
             /*
-            # #__func__
+            # __func__
 
                 If inside a function, the name of that function.
 
@@ -6620,32 +6678,28 @@ int main(int argc, char **argv) {
 
             printf("__TIME__ = %s\n", __TIME__);
 
-        /* automatically defined by certain compilers on windows: */
-        /* TODO gcc specific or not? if yes move out of here. */
-
 #ifdef __WIN32__
+            /* Automatically defined by certain compilers on windows: */
+            /* TODO gcc specific or not? if yes move out of here. */
             puts("__WIN32__");
 #endif
 
-        //TODO what is this
-        //TODO gcc specific or not? if yes move out of here.
-
 #ifdef _LIBC
-        puts("_LIBC");
+            /* TODO what is this */
+            /* TODO gcc specific or not? if yes move out of here. */
+            puts("_LIBC");
 #endif
-
-    //TODO what is this
-    //TODO gcc specific or not? if yes move out of here.
 
 #ifdef __ILP32__
-        puts("__ILP32__");
+            /* TODO what is this */
+            /* TODO gcc specific or not? if yes move out of here. */
+            puts("__ILP32__");
 #endif
 
-    //TODO what is this
-    //TODO gcc specific or not? if yes move out of here.
-
 #ifdef ___X32_SYSCALL_BIT
-        puts("___X32_SYSCALL_BIT");
+            /* TODO what is this */
+            /* TODO gcc specific or not? if yes move out of here. */
+            puts("___X32_SYSCALL_BIT");
 #endif
 
         }
@@ -6665,20 +6719,22 @@ int main(int argc, char **argv) {
         gcc won't annoy us with warnings.
     */
     {
-            /*assert('??=' == '#');*/
-            /*assert('??(' == '[');*/
-            //assert('??/' == '\');   //TODO literal backslash?
-            /*assert('??)' == ']');*/
-            /*assert('??'' == '^');*/
-            /*assert('??<' == '{');*/
-            /*assert('??!' == '|');*/
-            /*assert('??>' == '}');*/
-            /*assert('??-' == '~');*/
+        /*assert('??=' == '#');*/
+        /*assert('??(' == '[');*/
+        /* TODO literal backslash? */
+        /*assert('??/' == '\');*/
+        /*assert('??)' == ']');*/
+        /*assert('??'' == '^');*/
+        /*assert('??<' == '{');*/
+        /*assert('??!' == '|');*/
+        /*assert('??>' == '}');*/
+        /*assert('??-' == '~');*/
 
-        //TODO0 how to escape a trigraph on a string literal, say: `??=` ?
-        //is it necessary to use `\x`?
-
-            //printf("??")
+        /*
+        TODO how to escape a trigraph on a string literal, say: `??=` ?
+        is it necessary to use `\x`?
+        */
+        /*printf("??")*/
     }
 
     /*
@@ -6748,9 +6804,8 @@ int main(int argc, char **argv) {
             {
                 int *ip = malloc(sizeof(int));
                 free(ip);
+                /* RUNTIME ERROR: segmentation fault. */
                 /*free(ip);*/
-                    //RUNTIME ERROR
-                    //segmentation fault
             }
         }
 
@@ -6774,14 +6829,14 @@ int main(int argc, char **argv) {
                 printf("malloc failed\n");
             } else {
                 is[1] = 1;
-                //you must use a second pointer here
+                /* You must use a second pointer here. */
                 int* is2 = realloc(is, sizeof(int) * 4);
                 if (is2 == NULL) {
                     printf("realloc failed\n");
                 } else {
                     is = is2;
                     is[3] = 1;
-                    //old values are untouched:
+                    /* Old values are untouched. */
                     assert(is[1] == 1);
                     assert(is[3] == 1);
                 }
@@ -6942,10 +6997,9 @@ int main(int argc, char **argv) {
                 or an error reserved value
             */
             {
-                //linux test:
-
-                    /*int r = system("echo a | grep b");*/
-                    /*assert(r == 1);*/
+                /* Linux test. */
+                /*int r = system("echo a | grep b");*/
+                /*assert(r == 1);*/
             }
         }
 
@@ -7259,7 +7313,7 @@ int main(int argc, char **argv) {
                         {
                             char s[] = "000";
                             sprintf(s, "%s", "a\0b");
-                            //TODO0 why does this fail?
+                            /* TODO why does this fail? */
                             /*assert(memcmp(s, "a\00", 3) == 0);*/
                         }
                     }
@@ -7295,7 +7349,8 @@ int main(int argc, char **argv) {
                         %p excpects a `void*`.
                     */
                     {
-                        char s[ PRIxPTR_WIDTH + 3 ]; //2 for "0x" and one for trailling '\0'
+                        /* 2 for "0x" and one for trailling '\0'. */
+                        char s[ PRIxPTR_WIDTH + 3 ];
 
                         /*
                         non null pointers are printed in a (bad?) notation starting with `0x`
@@ -7461,7 +7516,8 @@ int main(int argc, char **argv) {
                     memset(buf, 'z', bufsiz);
                     buf[bufsiz] = '\0';
                     buf[bufsiz/2] = '\n';
-                    //printf("%s\n", buf); //large amount of 'z's verywhere!
+                    /* large amount of 'z's verywhere!  */
+                    /*printf("%s\n", buf);*/
                 }
             }
 
@@ -7482,15 +7538,16 @@ int main(int argc, char **argv) {
                 */
                 if (0) {
 
-                    //echo a | c.out
-                        //a
-                    //sleep 3 | c.out
-                        //EOF after 3 secs
+                    /*
+                    echo a | c.out
+                        a
+                    sleep 3 | c.out
+                        EOF after 3 secs
+                    */
 
                     fputs("enter a char (on linux, ctrl+d EOF): ", stderr);
+                    /* BAD does not work. */
                     /*fputc('a', stdin);*/
-                        //BAD
-                        //does not work
                     char c = getchar();
                     if (c != EOF) {
                         fprintf(stderr, "you entered:\n%c|<<<\n", c);
@@ -7544,23 +7601,16 @@ int main(int argc, char **argv) {
                     char buff[buff_size];
                     fprintf(stderr, "enter a string and press enter (max %d bytes):\n", buff_size - 1);
                     if (fgets(buff, buff_size, fp) == NULL) {
-                        if (feof(fp)) {
-                            fprintf(stderr, "fgets was already at the end of the stream and read nothing");
-                        }
-                        else if (ferror(fp))
-                        {
+                        if (feof(fp)) { fprintf(stderr, "fgets was already at the end of the stream and read nothing");
+                        } else if (ferror(fp)) {
                             fprintf(stderr, "fgets error reading from stream");
                         }
                     }
-                    //some bytes are left in the buffer, may want to reread it.
-                    else if (! feof(fp))
-                    {
-                        //TODO why does this not work with stdin from a tty nor pipe?
-                        //why is eof not reached even if user inputs 1 single char?
-
-                            /*fprintf(stderr, "you entered more than the maximum number of bytes\n");*/
-
-                        //TODO why does this not work? why is eof not reached even if user inputs 1 single char?
+                    /* Some bytes are left in the buffer, may want to reread it. */
+                    else if (!feof(fp)) {
+                        /* TODO why does this not work with stdin from a tty nor pipe? */
+                        /* Why is EOF not reached even if user inputs 1 single char? */
+                        /*fprintf(stderr, "you entered more than the maximum number of bytes\n");*/
                     }
                     fprintf(stderr, "you entered:\n%s", buff);
                 }
@@ -7587,8 +7637,8 @@ int main(int argc, char **argv) {
                     printf("enter an integer in decimal and <enter> (max 32 bits signed):\n");
                     i = scanf("%d", &i);
                     printf("you entered: %d\n", i);
-                    //stuff is space separated
-                    //try 123 456 789 at once. 456 789 stay in the buffer, and are eaten by the second scanf
+                    /* stuff is space separated */
+                    /* try 123 456 789 at once. 456 789 stay in the buffer, and are eaten by the second scanf */
 
                     printf("enter an integer, a space, an integer and a <enter> (max 32 bits signed):\n");
                     i = scanf("%d %d", &i, &j);
@@ -7845,15 +7895,19 @@ int main(int argc, char **argv) {
                     This contrasts with POSIX lseek + write, in which the unwriten gap is 0.
                 */
                 {
-                    //long int curpos = ftell(pf)
-                    //if (curpos == -1L){
-                    /*  //ERROR */
-                    //}
+                    /*
+                    long int curpos = ftell(pf);
+                    if (curpos == -1L){
+                        ERROR
+                    }
+                    */
 
-                    /*FILE* fp;*/
-                    //if (fseek (fp, 0 , SEEK_SET) != 0) {
-                    /*  //ERROR */
-                    //}
+                    /*
+                    FILE* fp;
+                    if (fseek (fp, 0 , SEEK_SET) != 0) {
+                        ERROR;
+                    }
+                    */
                 }
 
                 /*
@@ -7895,9 +7949,11 @@ int main(int argc, char **argv) {
                 May be necessary as the data may be in a buffer.
             */
             {
-                /* if (flush(fp) == EOF) { */
-                /*        //error */
-                /* } */
+                /*
+                if (flush(fp) == EOF) {
+                    ERROR
+                }
+                */
 
                 /* debugging application: your program segfaults
 
@@ -8218,9 +8274,8 @@ int main(int argc, char **argv) {
                 strcpy(cs2, cs);
                 strcpy(cs2, "abc");
 
-                //BAD: no born checking as always
-
-                    /*strcpy(cs3, "abc");*/
+                /* BAD: no born checking as always */
+                /*strcpy(cs3, "abc");*/
             }
 
             /*
@@ -8278,8 +8333,19 @@ int main(int argc, char **argv) {
 
                 Compare arrays like strcmp.
 
+            # memcmp vs for loop
+
+            # strcmp vs for loop
+
                 memcmp may be is faster than for loop because
-                the compiler may optimize it better. TODO how, e.g. in x86?
+                the compiler may optimize it better.
+
+                On x86, the naive optimization is:
+
+                    repe cmpsb
+
+                but on GCC 4.8 for example it still uses the glibc as it is even faster!
+                TODO how?
 
                 One catch: float NaN.
             */
@@ -8315,14 +8381,14 @@ int main(int argc, char **argv) {
                 char cs2[] = "abc";
 
                 assert(strcmp(cs, cs2) == 0);
+                /* Equality. */
                 assert(strcmp(cs, "abc") == 0);
-                    //equality
                 cs[1] = 'a';
+                /* Smaller. */
                 assert(strcmp(cs, cs2) < 0);
-                    //smaller
                 cs[1] = 'd';
+                /* Larger. */
                 assert(strcmp(cs, cs2) > 0);
-                    //larget
             }
 
             /*
@@ -8397,6 +8463,8 @@ int main(int argc, char **argv) {
             # strstr
 
                 Find first match of string in string.
+
+                glibc has `strcasestr` which ignores the case.
             */
             {
                 char cs[] = "abcabcd";
@@ -8633,13 +8701,11 @@ int main(int argc, char **argv) {
 
             /* # abs */
             {
-                //absolute values, integer version:
+                /* Absolute values, integer version: */
+                assert(abs(-1.1) == 1);
 
-                    assert(abs(-1.1) == 1);
-
-                //absolute values, float version:
-
-                    assert(fabsl(-1.1) == 1.1);
+                /* Absolute values, float version: */
+                assert(fabsl(-1.1) == 1.1);
             }
 
             /*
@@ -8655,7 +8721,7 @@ int main(int argc, char **argv) {
             /*
             # rounding
 
-                //many more: rint, lrint
+               Many more: rint, lrint.
             */
             {
                 assert(fabs(floor(0.5) - 0.0 ) < err);
@@ -8741,7 +8807,7 @@ int main(int argc, char **argv) {
                 {
                     assert(fabs(sqrt(4.0) - 2.0) < err);
 
-                    //GCC 4.7 -O3 is smart enough to see that this is bad:
+                    /* GCC 4.7 -O3 is smart enough to see that this is bad: */
                     {
                         float f = -4.0;
                         /*printf("sqrt(-4.0) = %f\n", sqrt(f));*/
@@ -8868,11 +8934,15 @@ int main(int argc, char **argv) {
                 assert(fabs(lgamma(3.5) - log(tgamma(3.5))) < err);
             }
 
-            //floating point manipulation functions
+            /* Floating point manipulation functions. */
             {
-                /* # ldexp(x, y) = x * 2 ^ y */
+                /*
+                # ldexp
+
+                    ldexp(x, y) = x * (2^y)
+                */
                 {
-                    assert(fabs(ldexp(1.5, 2.0) - 6.0 ) < err);
+                    assert(fabs(ldexp(1.5, 2.0) - 6.0) < err);
                 }
 
                 /*
@@ -8927,7 +8997,7 @@ int main(int argc, char **argv) {
                     int i = rand() % 99;
                 }
 
-                //float between 0 and 1:
+                /* float between 0 and 1: */
                 float f = rand()/(float)RAND_MAX;
             }
 
@@ -9004,18 +9074,18 @@ int main(int argc, char **argv) {
                     which if we don't catch will kill us.
                 */
                 if (0) {
-                    //gcc 4.7 is smart enough to warn on literal division by 0:
+                    /* gcc 4.7 is smart enough to warn on literal division by 0: */
                     {
                         /*int i = 1 / 0;*/
                     }
 
-                    //gcc 4.7 is not smart enough to warn here:
+                    /* gcc 4.7 is not smart enough to warn here: */
                     {
                         volatile int i = 0;
                         printf("int 1/0 = %d\n", 1 / i);
 
-                        //on gcc 4.7 with `-O3` this may not generate an exception,
-                        //as the compiler replaces 0 / X by 0
+                        /* On gcc 4.7 with `-O3` this may not generate an exception, */
+                        /* as the compiler replaces 0 / X by 0. */
                         printf("int 0/0 = %d\n", 0 / i);
                     }
                 }
@@ -9028,9 +9098,12 @@ int main(int argc, char **argv) {
                     Can equal `INFINITY`.
                 */
                 {
-                    printf("HUGE_VAL = %f\n", HUGE_VAL);      //double
-                    printf("HUGE_VALF = %f\n", HUGE_VALF);    //float
-                    printf("HUGE_VALL = %Lf\n", HUGE_VALL);   //long double
+                    /* double */
+                    printf("HUGE_VAL = %f\n", HUGE_VAL);
+                    /* float */
+                    printf("HUGE_VALF = %f\n", HUGE_VALF);
+                    /* long double */
+                    printf("HUGE_VALL = %Lf\n", HUGE_VALL);
                 }
 
                 /*
@@ -9069,7 +9142,7 @@ int main(int argc, char **argv) {
                     assert(1.0 / INFINITY == 0.0);
                     assert(isnan(INFINITY / INFINITY));
 
-                    //compairisons with INFINITY all work as expected
+                    /* Comparisons with INFINITY all work as expected. */
                     assert(INFINITY == INFINITY);
                     assert(INFINITY != - INFINITY);
                     assert(-INFINITY < - 1e100);
@@ -9096,9 +9169,9 @@ int main(int argc, char **argv) {
                     printf("NAN = %f\n", NAN);
                     printf("-NAN = %f\n", -NAN);
 
-                    //TODO0 why do both fail
-                        /*assert(0 / f == -NAN);*/
-                        /*assert(0 / f == NAN);*/
+                    /* TODO why do both fail? */
+                    /*assert(0 / f == -NAN);*/
+                    /*assert(0 / f == NAN);*/
 
                     volatile float f = 0;
                     assert(isnan(0 / f));
@@ -9144,21 +9217,17 @@ int main(int argc, char **argv) {
         {
 #include <stdint.h>
 
-            //exactly 32 bits:
+            /* Exactly 32 bits. */
+            assert(sizeof(int32_t) == 4);
 
-                assert(sizeof(int32_t) == 4);
+            /* All have unsigned verions prefixed by 'u'. */
+            assert(sizeof(uint32_t) == 4);
 
-            //all have unsigned verions prefixed by 'u'
+            /* At least 32 bits. */
+            assert(sizeof(int_least32_t) >= 4);
 
-                assert(sizeof(uint32_t) == 4);
-
-            //at least 32 bits:
-
-                assert(sizeof(int_least32_t) >= 4);
-
-            //fastest operations with at least 32 bits:
-
-                assert(sizeof(int_least32_t) >= 4);
+            /* Fastest operations with at least 32 bits. */
+            assert(sizeof(int_least32_t) >= 4);
 
             /*
             # intptr_t
@@ -9178,7 +9247,7 @@ int main(int argc, char **argv) {
                 assert(sizeof(void*) == sizeof(uintptr_t));
             }
 
-            //uniquelly defined by machine address space
+            /* Uniquely defined by machine address space. */
 
             /*
             # intmax_t #uintmax_t
@@ -9193,7 +9262,7 @@ int main(int argc, char **argv) {
                 assert(sizeof(uintmax_t) >= sizeof(unsigned long long));
             }
 
-            //inttypes also includes limits for each of the defined types:
+            /* inttypes also includes limits for each of the defined types: */
             {
                 {
                     int32_t i = 0;
@@ -9207,8 +9276,8 @@ int main(int argc, char **argv) {
                     assert(INT_FAST32_MAX > i);
                 }
             }
-            //all have max/min ranges
-            //"_t" removed, "_max" or "_min" appended, all uppercased
+            /* All have max/min ranges. */
+            /* "_t" removed, "_max" or "_min" appended, all uppercased */
         }
 
 #endif
@@ -9526,11 +9595,11 @@ int main(int argc, char **argv) {
             assert(creal(zd / zd) == 1.0);
             assert(cimag(zd / zd) == 0.0);
 
-            //conjugation
+            /* Conjugation. */
             assert(creal(conj(zd)) ==  1.0);
             assert(cimag(conj(zd)) == -2.0);
 
-            //absolute value == norm == module
+            /* absolute value == norm == module */
             assert(abs(cabs(3.0 + 4.0 * I) - 5.0) < err);
 
             /*
@@ -9542,11 +9611,17 @@ int main(int argc, char **argv) {
                 assert(cabs(csqrt(-1.0) - I) < err);
             }
 
-            //cproj
-            //TODO
+            /*
+            # cproj
 
-            //csin
-            //TODO
+                TODO
+            */
+
+            /*
+            # csin
+
+                TODO
+            */
             /*assert(cabs(csin(I) - ) < err);*/
         }
 #endif
@@ -9599,44 +9674,46 @@ int main(int argc, char **argv) {
 #endif
 
 #ifdef PROFILE
+    /*
+    -   turn off optimization if you want results to make evident sense
+    -   even without optimization, cache access speed is hard to predict
+        so what you expect may be false
+    */
+    {
+        loop_only_prof(n_prof_runs);
+        while_only_prof(n_prof_runs);
 
-    //- turn off optimization if you want results to make evident sense
-    //- even without optimization, cache access speed is hard to predict
-    /*   so what you expect may be false */
+        int_assign_prof(n_prof_runs);
+        int_sum_prof(n_prof_runs);
+        int_sub_prof(n_prof_runs);
+        int_mult_prof(n_prof_runs);
+        int_div_prof(n_prof_runs);
 
-    loop_only_prof(n_prof_runs);
-    while_only_prof(n_prof_runs);
+        float_sum_prof(n_prof_runs);
+        float_sub_prof(n_prof_runs);
+        float_mult_prof(n_prof_runs);
+        float_div_prof(n_prof_runs);
 
-    int_assign_prof(n_prof_runs);
-    int_sum_prof(n_prof_runs);
-    int_sub_prof(n_prof_runs);
-    int_mult_prof(n_prof_runs);
-    int_div_prof(n_prof_runs);
+        func_all_prof(n_prof_runs);
+        inline_func_call_prof(n_prof_runs);
 
-    float_sum_prof(n_prof_runs);
-    float_sub_prof(n_prof_runs);
-    float_mult_prof(n_prof_runs);
-    float_div_prof(n_prof_runs);
+        stack1b_prof(n_prof_runs);
+        stack1kb_prof(n_prof_runs);
+        stack1mb_prof(n_prof_runs);
 
-    func_all_prof(n_prof_runs);
-    inline_func_call_prof(n_prof_runs);
+        heap1b_prof(n_prof_runs);
+        heap1kb_prof(n_prof_runs);
 
-    stack1b_prof(n_prof_runs);
-    stack1kb_prof(n_prof_runs);
-    stack1mb_prof(n_prof_runs);
-
-    heap1b_prof(n_prof_runs);
-    heap1kb_prof(n_prof_runs);
-
-    //by far the slowest
-
+        /* by far the slowest */
         /*heap1mbProf(n_prof_runs);*/
 
-    //BAD:
-    //don't do stdout on profiling
-    //system time is not counted anyways
-
+        /*
+        BAD:
+        Don't do stdout on profiling.
+        System time is not counted anyways.
+        */
         /*putsProf(n_prof_runs);*/
+    }
 #endif
 
     /*
@@ -9779,6 +9856,8 @@ int main(int argc, char **argv) {
         - `EXIT_FAILURE`        to indicate failure
 
         C99: return is optional. If omited a `return 0` is added to the program.
+
+        But just always return to be C89 compatible.
     */
     {
         return EXIT_SUCCESS;

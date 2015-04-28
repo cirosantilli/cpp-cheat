@@ -48,6 +48,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <fcntl.h>
 #include <sched.h>              /* SCHED_BATCH, SCHED_IDLE, sched_getaffinity, clone */
@@ -65,6 +66,25 @@ int main(int argc, char** argv) {
     printf("gnu_get_libc_version() = %s\n", gnu_get_libc_version());
 
     /*
+    # string.h
+    */
+    {
+        /*
+        # strfry
+
+            Create anagrams inplace.
+
+            Return the string itself.
+        */
+        {
+            char s[] = "abcd";
+            puts("strfry(\"abcd\")");
+            printf("  %s\n", strfry(s));
+            printf("  %s\n", strfry(s));
+        }
+    }
+
+    /*
     # sched.h
 
         More scheduling policies are defined.
@@ -72,12 +92,11 @@ int main(int argc, char** argv) {
         Those constants have the same meaning as in the kernel code versions.
     */
     {
-        printf("SCHED_BATCH    = %d\n",  SCHED_BATCH);
-        printf("SCHED_IDLE     = %d\n",  SCHED_IDLE );
+        printf("SCHED_BATCH = %d\n", SCHED_BATCH);
+        printf("SCHED_IDLE  = %d\n", SCHED_IDLE );
 
         /* Called SCHED_NORMAL in the kernel: */
-
-            printf("SCHED_OTHER = %d\n", SCHED_OTHER);
+        printf("SCHED_OTHER = %d\n", SCHED_OTHER);
 
         /*
         # sched_getaffinity

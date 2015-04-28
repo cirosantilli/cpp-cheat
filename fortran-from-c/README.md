@@ -44,8 +44,7 @@ How to call Fortran code from C.
 
         readelf -d executable.elf
 
-## Sources
+## Bibliography
 
-<http://owen.sj.ca.us/~rk/howto/FandC/FandC.call.html>
-
-<http://www.yolinux.com/TUTORIALS/LinuxTutorialMixingFortranAndC.html>
+- <http://owen.sj.ca.us/~rk/howto/FandC/FandC.call.html>
+- <http://www.yolinux.com/TUTORIALS/LinuxTutorialMixingFortranAndC.html>

@@ -1,4 +1,4 @@
-# Compiler options
+# gcc utility
 
 Useful GCC command line options.
 
@@ -99,6 +99,13 @@ There is currently no full compliance check in `gcc`.
 Give errors instead of warnings:
 
     gcc -std=c1x -pedantic-errors
+
+## m
+
+`-m32` to compile IA-32 output from a 64 bit host. This does two things mainly:
+
+- use IA-32 instructions
+- link to IA-32 libraries, in particular libc. You may need to install them.
 
 ## march
 

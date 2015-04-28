@@ -4,10 +4,12 @@
 
 C and C++ information, cheatsheets and mini-projects.
 
-Relies on <https://github.com/cirosantilli/cpp-boilerplate> to factor code out. See [its documentation](https://github.com/cirosantilli/cpp-boilerplate/blob/master/README.md) for information on how to use this project.
+Relies on [C++ boilerplate](https://github.com/cirosantilli/cpp-boilerplate) to factor code out. See [its documentation](https://github.com/cirosantilli/cpp-boilerplate/blob/master/README.md) for information on how to use this project.
+
+[Assembly Cheat](https://github.com/cirosantilli/assembly-cheat) contains lower level issues, like assembly and the ELF format.
 
 1.  [Getting started](getting-started.md)
-1.  Best content
+1.  Featured
     1. [c.c](c.c): C cheatsheet
     1. [cpp.cpp](main_cpp.cpp): C++ cheatsheet
     1. [POSIX](posix/): POSIX C API
@@ -15,16 +17,19 @@ Relies on <https://github.com/cirosantilli/cpp-boilerplate> to factor code out. 
     1. [GCC](gcc/): GCC extensions
     1. [OpenGL](opengl/)
     1. [KDE](kde/)
-1.  Other files
-    1. [Boost](boost/)
-    1. [Flex and Bison](flex-bison/)
-    1. [GDB](gdb.md)
-    1. [glibc](glibc/)
+1.  Introduction
     1. [Implementations](implementations.md)
     1. [Style guides](style-guides.md)
-    1. [CMake](cmake.md)
-    1. [hello_world.c](hello_world.c)
-    1. [hello_world_cpp.cpp](hello_world_cpp.cpp)
+    1. [Library](library.md)
+1. [C from C++](c-from-cpp/)
+1. [Fortran from C](c-from-cpp/)
+1. [Boost](boost/)
+1. [CMake](cmake.md)
+1. [Flex and Bison](flex-bison/)
+1. [GDB](gdb.md)
+1. [glibc](glibc/)
+1. [hello_world.c](hello_world.c)
+1. [hello_world_cpp.cpp](hello_world_cpp.cpp)
 1.  GUI
     1. [GTK](gtk/)
     1. [Qt](qt/)
