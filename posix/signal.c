@@ -154,19 +154,15 @@ which generate certain signals such as `SIGTERM`.
 
             TODO what is a controlling process?
 
-    # Sources
+    # Bibliography
 
-    -   `man 7 signal`
+        -   `man 7 signal`
 
-        man pages
+            man pages
 
-    -   http://www.alexonlinux.com/signal-handling-in-linux
+        -   http://www.alexonlinux.com/signal-handling-in-linux
 
-        good intro
-
-    # TODO
-
-    - determine where specification barriers betwwen ANSIC / POSIX / linux
+            good intro
 */
 
 #define _XOPEN_SOURCE 700

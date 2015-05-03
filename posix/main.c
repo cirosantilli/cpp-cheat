@@ -47,8 +47,8 @@ ANSI C features shall not be discussed here.
 */
 
 #define _XOPEN_SOURCE 700
-//#define _POSIX_C_SOURCE 200112L
-//#define POSIX_SOURCE
+/*#define _POSIX_C_SOURCE 200112L*/
+/*#define POSIX_SOURCE*/
 
 /* ANSI headers to which POSIX adds extensions. */
 

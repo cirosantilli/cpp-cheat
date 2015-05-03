@@ -127,62 +127,168 @@ int main(int argc, char** argv) {
                 printf("\n");
             }
         }
-    }
 
-    /*
-    # clone
-
-        Create a new thread.
-
-        C interface for the `clone` Linux system call.
-
-        Used to implement the POSIX `pthread` interface.
-
-            man 2 clone
-
-        TODO get working
-    */
-    {
         /*
-        int i = 0;
-        int status;
-        pid_t pid = clone(
-            clone_fn,
-            SIGCHLD,
-        );
-        if (pid < 0) {
-            perror("clone");
-            exit(EXIT_FAILURE);
-        }
-        if (pid == 0) {
-            i++;
-            return EXIT_SUCCESS;
-        }
-        wait(&status);
+        # clone
 
-        //no more child process
-        assert(status == EXIT_SUCCESS);
-        assert(i == 1);
-        */
-    }
+            Create a new thread.
 
-    /*
-    # sysconf
+            Interface for the `clone` Linux system call.
 
-        Sysconf extensions.
-    */
-    {
-        /*
-        Find the number of processors.
-        Seems not to be possible in POSIX: <http://stackoverflow.com/questions/2693948/how-do-i-retrieve-the-number-of-processors-on-c-linux>
+                man clone
 
-        - conf: configured on kernel.
-        - onln: online, that is currently running. Processors can be disabled.
+            glibc gives two wrappers: a raw system call wrapper:
 
+                long clone(unsigned long flags, void *child_stack,
+                            void *ptid, void *ctid,
+                            struct pt_regs *regs);
+
+            and a higher level one:
+
+                int clone(int (*fn)(void *), void *child_stack,
+                            int flags, void *arg, ...
+                            pid_t *ptid, struct user_desc *tls, pid_t *ctid);
+
+            Used to implement the POSIX `pthread` interface.
+
+                man 2 clone
+
+            TODO get working
         */
         {
-            printf("_SC_NPROCESSORS_ONLN = %ld\n", sysconf(_SC_NPROCESSORS_ONLN));
-            printf("_SC_NPROCESSORS_CONF = %ld\n", sysconf(_SC_NPROCESSORS_CONF));
+            /*
+            int i = 0;
+            int status;
+            pid_t pid = clone(
+                clone_fn,
+                SIGCHLD,
+            );
+            if (pid < 0) {
+                perror("clone");
+                exit(EXIT_FAILURE);
+            }
+            if (pid == 0) {
+                i++;
+                return EXIT_SUCCESS;
+            }
+            wait(&status);
+
+            //no more child process
+            assert(status == EXIT_SUCCESS);
+            assert(i == 1);
+            */
+        }
+
+    }
+
+    /*
+    # unistd.h
+    */
+    {
+        /*
+        # brk
+
+        # sbrk
+
+            You must have in your mind:
+
+                ---> brk
+                |
+                | Heap. Grows up ^^^
+                |
+                ---> brk_start
+                |
+                | brk random offset ASLR
+                |
+                ---> bss end
+
+            Get and set the break data segment (TODO is it really the data semgment? what about the brk offset?)
+            that the kernel assigns to the process.
+
+            Set it to an absolute value, and return -1 on failure, 0 on success:
+
+                int brk(void*)
+
+            Move it by the given delta, and return the *old* value on success, `-1` on failure:
+
+                void *sbrk(intptr_t increment);
+
+            This is where the heap lives: `malloc` may use those system calls to do its job,
+            although it can also use `mmap`.
+
+            Once the `brk` is changed,
+            the application can then use the newly allocated memory as it pleases,
+            and the Kernel must treat that zone as being used and preserve it.
+
+            The kernel may just say: you are taking up too much memory,
+            or "this would overlap with another memory regions", and deny the request.
+
+            Was in POSIX 2001, but was removed.
+
+        # Get heap size
+
+            - http://stackoverflow.com/questions/8367001/how-to-check-heap-size-for-a-process-on-linux
+            - http://stackoverflow.com/questions/2354507/how-to-find-size-of-heap-present-in-linux
+
+            More precisely, how to get the `brk_start`?
+        */
+        {
+            /* Get the top of the heap. */
+            {
+                /* TODO is the return value always `long`? What to convert to then? */
+                long s = (long)sbrk(0);
+                printf("sbrk(0) = %ld =~ %ld MiB\n", s, (((long)s)/(1<<20)));
+            }
+
+            /* Increase the heap by 2. */
+            {
+                long s = (long)sbrk(2);
+                if (s != -1) {
+                    /* Now we safely use s2 an s2 + 1 to store what we want. */
+                    char* p = (char*)s;
+                    *p = 1;
+                    *(p + 1) = 2;
+                    assert(*p == 1);
+                    assert(*(p + 1) == 2);
+                    /* Restore it back. */
+                    sbrk(-2);
+                } else {
+                    perror("sbrk");
+                }
+
+                /*
+                Attemtping this without changing brk is an almost sure segfault:
+                unlike the stack, you can't just increment the heap directly,
+                Linux prevents you.
+                */
+                {
+                    /*
+                        char* p = (char*)s;
+                        *p = 1;
+                    */
+                }
+            }
+        }
+
+        /*
+        # sysconf
+
+            Sysconf extensions.
+        */
+        {
+            /*
+            Find the number of processors.
+            Seems not to be possible in POSIX:
+            http://stackoverflow.com/questions/2693948/how-do-i-retrieve-the-number-of-processors-on-c-linux
+
+            - conf: configured on kernel.
+            - onln: online, that is currently running. Processors can be disabled.
+
+            */
+            {
+                printf("_SC_NPROCESSORS_ONLN = %ld\n", sysconf(_SC_NPROCESSORS_ONLN));
+                printf("_SC_NPROCESSORS_CONF = %ld\n", sysconf(_SC_NPROCESSORS_CONF));
+            }
         }
     }
 
@@ -213,7 +319,7 @@ int main(int argc, char** argv) {
             man 5 acct
     */
     {
-        char *fname = "_acct.tmp";
+        char *fname = "acct.tmp";
         if (creat(fname, S_IRWXU) == -1) {
             /* May fail because the file was owned by root. */
             perror("creat");

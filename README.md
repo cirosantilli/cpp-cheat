@@ -18,9 +18,13 @@ Relies on [C++ boilerplate](https://github.com/cirosantilli/cpp-boilerplate) to 
     1. [OpenGL](opengl/)
     1. [KDE](kde/)
 1.  Introduction
+    1. [C](c.md)
+    1. [C++](cpp.md)
+    1. [C vs C++](c-vs-cpp.md)
     1. [Implementations](implementations.md)
     1. [Style guides](style-guides.md)
     1. [Library](library.md)
+    1. [Undefined behaviour](undefined-behaviour.md)
 1. [C from C++](c-from-cpp/)
 1. [Fortran from C](c-from-cpp/)
 1. [Boost](boost/)

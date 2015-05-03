@@ -275,7 +275,7 @@ int main() {
          This is not a redefinition because it is inside a parenthesis block
          much like a variable definition inside a parenthesis block.
     */
-
+    {
         int nested() {
             return 1;
         }
@@ -298,6 +298,14 @@ int main() {
 
             assert(nested() == 2);
         }
+    }
+
+    /* # Empty struct */
+    {
+        struct s {};
+        struct s s0;
+        assert(sizeof(s0) == 0);
+    }
 
     /*
     # Preprocessor defines
@@ -675,6 +683,8 @@ int main() {
     }
 
     /*
+    # Assembly
+
     # Inline assembly
 
     # asm
@@ -741,7 +751,7 @@ int main() {
         if other archs are also exemplified
         */
 
-#ifdef __i386__
+#ifdef __i386__ || __x86_64__
         /*
         # m constraint
 

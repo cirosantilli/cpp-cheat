@@ -2,163 +2,6 @@
 C++ cheatsheat.
 
 Features which are identical to C will not be described.
-
-# C++ vs C
-
-    C and C++ are two completelly different standards.
-
-    C++ attempts to be as much as possible extension of C.
-
-    As such, when new C versions such as C99 come out, it is impossible that C++ will immediately
-    follow, but it is very likely that the new C features will be incorporated into C++ if possible
-    in the following versions.
-
-    Major differences include:
-
-    - classes. Adds enourmous complexity and capabilities to the language.
-    - templates
-    - stdlib containers
-    - function overloading
-    - namespaces
-
-    All of those features allow to:
-
-    - drastically reduce code duplicationa
-    - improve code structure
-
-    at the cost of:
-
-    -   adding huge complexity to the language (probably at least doubles the complexity).
-
-        The problem is that individual features sometimes interact in ways which are not obvious to understand,
-        so the complexity growth is exponential per feature.
-
-    -   making it harder to track what assembly code is generated thus:
-
-        -   making it harder to write very efficient code
-
-        -   generating executables that are very large
-
-            For exmple, at one point I had a 7k line C file whose assembly was 8k lines,
-            but a 7k C++ file generated 55k assembly code lines!!
-
-    All things considered, C++ offers huge productivity boosts over C *once you learn it*...
-    It should be used on any new project, except if code efficiency is absolutelly crucial, and even in those cases
-    it might be worth it to have a C++ project that use C only features for the 20% critical sections.
-
-# Standards
-
-    Like C, C++ is standardized by ISO under the id: ISO/IEC 14882.
-
-    The latest standard costs 30 dollars as of 2013, but free drafts are also available.
-
-    Links to several versions: <http://stackoverflow.com/questions/81656/where-do-i-find-the-current-c-or-c-standard-documents>
-
-    Drafts are freely available at: <http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2012/>.
-    N3337 seems to be very close to C++11.
-
-    Like any standard c++ has several versions noted by year.
-    There are also minor revisions knows as technical reports.
-
-    # C++89
-
-        First version.
-
-    # C++03
-
-        Bug fix release, not many new features.
-
-    # TR1 #Technical report 1
-
-        2005 draft for extending C++11.
-
-        Most of its propositions were accepted for C++11, and before that many compilers implemented
-        its propositions.
-
-    # TR2 #Technical report 2
-
-        TODO when was it made?
-
-        Not in C++11, maybe C++1Y.
-
-        It proposes many inclusions from Boost.
-
-    # C++11
-
-        <https://en.wikipedia.org/wiki/C%2B%2B11>
-
-        Previously known as C++0x, but took too long to come out.
-
-        Unlike C++03, *lots* of new features: standard passes from 800 to 1300 lines.
-
-        In gcc used to be enabled via `-std=c++0x` flag, now `-std=c++11`.
-        Still marked experimental, but good support for the basic features.
-
-    # C++14
-
-        Will come after C++11. Known as C++1Y as many have doubts it will come out in 2014.
-
-# STL vs stlib
-
-    The term `STL` is *not* mentioned in the C++ ISO standard.
-
-    It seems that it was once a separate library
-    which heavily influenced the C++ ISO standrad when it was created.
-
-    <http://stackoverflow.com/questions/5205491/whats-this-stl-vs-c-standard-library-fight-all-about>
-
-    Therefore: **never** use that word, unless you are really talking about
-    the non stdlib library which has had most of its functionality implemented on the stdlib.
-
-    Wrtie `stdlib` and say "Standard Library" instead.
-
-# Libraries
-
-    C++ has many major interesting non standard libs.
-
-    # unit testing
-
-        Google unit test framework:
-
-        <http://code.google.com/p/googletest/>
-
-    # linear algebra
-
-        # eigen
-
-            http://eigen.tuxfamily.org/index.php?title=Main_Page
-
-            Linear algebra, differential equations.
-
-        # blitz++
-
-            http://blitz.sourceforge.net/
-
-            Linear algebra.
-
-        # armadillo
-
-            http://arma.sourceforge.net/
-
-            Linear algebra.
-
-    # tokamak
-
-        Rigid body physical engine.
-
-# Funny
-
--   <https://groups.google.com/forum/#!msg/comp.lang.c++.moderated/VRhp2vEaheU/IN1YDXhz8TMJ>
-
-    Obscure language features.
-
--   <http://stackoverflow.com/questions/1642028/what-is-the-name-of-this-operator>
-
-    How can this have so many upvotes?
-
--   <http://stackoverflow.com/questions/6163683/cycles-in-family-tree-software>
-
-    Funny...
 */
 
 /*
@@ -9693,25 +9536,33 @@ int main(int argc, char **argv) {
 #endif
 
     /*
-    # standard preprocessor defines
+    # preprocessor
+
+        Almost the same as the C one:
+        http://stackoverflow.com/questions/5085533/is-a-c-preprocessor-identical-to-a-c-preprocessor
     */
     {
         /*
-        # __cplusplus
-
-            Defined only if using C++ compiler.
-
-            Its value is the actual C++ version in use in a similar way to __STDC_VERSION__
-
-            Values:
-
-            - C98: 199711L
-            - C11: 201103L
+        # standard preprocessor defines
         */
         {
+            /*
+            # __cplusplus
+
+                Defined only if using C++ compiler.
+
+                Its value is the actual C++ version in use in a similar way to __STDC_VERSION__
+
+                Values:
+
+                - C98: 199711L
+                - C11: 201103L
+            */
+            {
 #ifdef __cplusplus
-        printf("__cplusplus = %li\n", __cplusplus);
+            printf("__cplusplus = %li\n", __cplusplus);
 #endif
+            }
         }
     }
 

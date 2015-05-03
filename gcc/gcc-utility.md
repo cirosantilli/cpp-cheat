@@ -285,3 +285,23 @@ Example:
 ### inline
 
 Allow the compile to inline functions. Implied by `-O3`.
+
+### freestanding
+
+Compile in freestanding mode as defined by ANSI C.
+
+## l
+
+Linker options.
+
+### nostdlib
+
+Don't link to the stdlib.
+
+### nostartfiles
+
+TODO
+
+### nodefaultlibs
+
+TODO

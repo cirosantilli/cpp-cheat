@@ -2,216 +2,8 @@
 ANSI C cheat.
 
 Small comments on comparing ANSI C with extensions are acceptable.
-
-# Sources
-
-    # Free
-
-    -   <http://c-faq.com/index.html>
-
-        Good straight to the point faq, covers specially confusing points
-
-    -   <http://www.open-std.org/jtc1/sc22/wg14/www/standards>
-
-        Official directory containing the latest free draft versions of the ANSI c specs
-
-        The latest is: <http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1570.pdf>
-
-        The closest to the ANSI standard that you can get for free (it is a paid standard...)
-
-        This should be quite close to the actual speficications
-
-        Quite readable, and fun to find obscure features which you had never heard of before!
-
-    -   <http://locklessinc.com/articles/obscurec/>
-
-        Obscure stuff only. Cool.
-
-    # Non free
-
-# Motivation
-
-    C is amazingly important as it is used to implement:
-
-    - Linux kernel
-    - Windows kernel
-    - Python and Ruby reference implementations
-    - opengl
-
-    And the list goes on and on...
-
-    The reason for this is that C:
-
-    - is quite low level, so you can do low level things other languages can't
-    - is low level, so it can be very fast (if you program it correctly)
-    - is robust and easy to understand.
-
-# Standards
-
-    # ANSI C
-
-        Language and standard library (libc) are standardized by an organization named ANSI
-
-        ANSI is american, and it represents the USA for ISO and IEC
-
-        You must pay to have the latest standards, but C99 seems to be available for free
-        [here](http://www.open-std.org/jtc1/sc22/wg14/www/standards.html)
-        (unlike C90, which has larger library support).
-
-        Drafts are also available for free, and are very close to the actual standards.
-
-        A list of links to the standards can be found at:
-        <http://stackoverflow.com/questions/81656/where-do-i-find-the-current-c-or-c-standard-documents>
-        Interestinly, as of 2013, C90 costs 141 dollars, but C11 only 30.
-
-        However you can get for free:
-
-        -   drafts of the latest standard which are quite close to the actual specifications.
-
-            It is strongly recommended that you download this now
-            and try as much as you can to get familiar with it,
-            as it is *the* official source.
-
-        -   older standards
-
-        -   compiler documentations
-
-        ANSI only specifies language and the library interfaces:
-        what functions, variables etc. are contained in each file,
-        but it does not specify how that should be implemented.
-
-        Some features are even left for the implementors to decide such as
-        the behavoiur of [system][]
-
-        New features are often based on extension of
-        major implementations such as gnu's or microsoft's
-
-        # C89
-
-            ANSI ratified the standard in 89, and ISO in 90 only with formatting changes.
-
-        # C90
-
-            Sinonym for C89, because ISO adopted it in 90.
-
-            Formal name: ISO/IEC 9899:1990
-
-        # C94
-
-        # C95
-
-        # Normative Addendum 1
-
-            Informal names for C89/C90 plus Normative Addendum (aka Amendment) 1,
-            whose primary addition was support for international character sets.
-
-            C99 extends this.
-
-        # C99
-
-            <http://en.wikipedia.org/wiki/C99>
-
-            -   large support, but not 100% by many compilers
-
-            -   <http://en.wikipedia.org/wiki/C99>
-
-            -   support for // comments
-
-            -   long long, bool, complex numbers
-
-            -   gcc flag: add `-std=c99`
-
-            -   Microsoft stated that they will not update their compilers
-                to C99 and futher.
-
-                They use C as an inner language, and think
-                it would be too delicate/costly to change it.
-
-                They have decided to maintain only C++ and C# up to date.
-                for developpers to interface with Windows.
-
-                Therefore you will not get those working on MS compiler anytime soon.
-
-            Every C99 citation here will come from WG14/N1256, the best free draft available:
-            http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1256.pdf
-
-        # C11
-
-            <http://en.wikipedia.org/wiki/C11_%28C_standard_revision%29>
-
-            -   latest standard, but very limited support in most compilers as of 2013.
-
-            -   previously known as c1x
-
-            -   supported on gcc 4.6>. Flag: `-std=c1x`.
-                It is not recommended to use this yet as support is low.
-
-            -   threads
-
-    # ANSI extensions
-
-        Beside ANSI language and libraries, you should also know about the existense of other
-        standards which extend it:
-
-        -   POSIX c library. Offers many functions for posix compliant systems (linux, mac, not windows)
-
-        -   Compiler and libc extensions.
-
-            Every compiler has certain language extensions which may be fundamenta for certain project.
-
-            For example: gnu c is used on the linux kernel One major reason is support for inline assembly,
-            which lacks in ANSI c.
-
-        If possible you should avoid relying on those since they are less portable.
-
-    # glibc
-
-        Name for the GNU implementation of the c standard library, and possibly its extensions.
-
-    # K&R
-
-    # The C Programming Language
-
-        <http://en.wikipedia.org/wiki/The_C_Programming_Language>
-
-        First edition 1978.
-
-        De facto standard for the C language and style for many years.
-
-        You will still hear about it in discussions, or even to describe some ANSI C
-        concepts like K&R function declaration.
-
-# Libs
-
-    this section is a list of whose main interface is c or which have a good c interface
-
-    # petcs
-
-        <http://www.mcs.anl.gov/petsc/documentation/index.html>
-
-    # Multithreading
-
-    # IPC
-
-    # Concurrency
-
-        -   C11 supports it, C99 not.
-
-            glibc 2.x still does not have it.
-
-        -   C++11 supports it, C++03 not.
-
-        -   openMP is is a library supported on C, C++, Fortran, Windows, Linux Mac OS.
-
-# Funny
-
-    <http://www.ioccc.org/>
-
-    <http://www.ioccc.org/years.html>. Amazing.
-
-    IOCCC entry explained in detail:
-    <http://stackoverflow.com/questions/15393441/obfuscated-c-code-contest-2006-please-explain-sykes2-c>
 */
+
 
 /*
 # include
@@ -230,7 +22,7 @@ Small comments on comparing ANSI C with extensions are acceptable.
 #include <errno.h>
 #include <fenv.h>
 #include <float.h>
-#include <inttypes.h>  /* PRIxPTR */
+#include <inttypes.h> /* PRIxPTR */
 #include <limits.h> /* *_MAX, *_MIN for integer types */
 #include <locale.h>
 #include <setjmp.h> /* setjmp, longjmp */
@@ -250,7 +42,6 @@ Small comments on comparing ANSI C with extensions are acceptable.
 #endif
 #endif
 
-
 /*
 One way to define constant is with preprocessor directives.
 
@@ -258,7 +49,6 @@ However using a const may be a better idea because:
 
 - constants have scope
 - produce meaningful error messages
-
 */
 
 #define PI 3.14
@@ -388,55 +178,29 @@ int setjmp_func(int jmp, jmp_buf env_buf) {
 /* Functions */
 
     /*
-    #Declaration vs #definition
+    Declaration vs definition
     */
 
-        /*
-            Declaration can happen many times.
-
-            Definition no.
-
-            Rationale:
-
-            - declaratoin tells the compiler something exists. Its fine to say it exists many times.
-            - definition determines what code will be stored in programs. There can only be one such code.
-        */
-
             void decl_def();
             void decl_def();
-
             void decl_def() {}
             /* ERROR redefine */
             /*void decl_def() {}*/
 
-        /*
-        Declarations don't need argment names.
-
-        If those are used for documentation purposes, they don't need to match those of the definition.
-        This is highly confusing however.
-
-        Definitions need parameter names. This rule changes in C++.
-        */
-
-            void decl_def_args(int,   float,   char c);
-            void decl_def_args(int i, float f, char d) {}
-
+            void decl_def_no_arg_name(int i, float f, char d) {}
+            /* ERROR */
             /*void def_no_argname(int){}*/
 
-        /* One major application of forward declarations is to break loops */
-
-            int factorial2Funcs1(int);
-
-            int factorial2Funcs0(int n){
+            int factorial2funcs1(int);
+            int factorial2funcs0(int n){
                 if (n != 1) {
-                    return n*factorial2Funcs1(n - 1);
+                    return n*factorial2funcs1(n - 1);
                 }
                 return 1;
             }
-
-            int factorial2Funcs1(int n){
+            int factorial2funcs1(int n){
                 if (n != 1) {
-                    return n*factorial2Funcs0(n - 1);
+                    return n*factorial2funcs0(n - 1);
                 }
                 return 1;
             }
@@ -453,8 +217,8 @@ int setjmp_func(int jmp, jmp_buf env_buf) {
         /* Can declare a function that returns int and a int var with the same `int`. */
         /* Very confusing! */
 
-            int decl_and_int_func(), decl_and_int;
-            int decl_and_int_func(){ return 0; }
+            int decl_and_initialize_func(), decl_and_initialize;
+            int decl_and_initialize_func(){ return 0; }
 
         int k_and_r(a, p)
             int a;
@@ -605,6 +369,12 @@ int setjmp_func(int jmp, jmp_buf env_buf) {
             va_start(varname, last_argname)
 
         Initialize va_list variable varname. Indicates that varargs come after numargs.
+
+    # Get number of variadic arguments
+
+        TODO I think it is impossible except from another argument.
+
+        `printf` just deduces that form the format string, and reads the stack away.
     */
 
         int variadic_add(int numargs, ...) {
@@ -616,7 +386,7 @@ int setjmp_func(int jmp, jmp_buf env_buf) {
                 sum += arg;
             }
 
-            /* you MUST do this */
+            /* You MUST do this. TODO ehy? */
             va_end(args);
 
             return sum;
@@ -1135,42 +905,6 @@ void abort_func() {
 */
 int main(int argc, char **argv) {
     /*
-    # Undefined behaviour
-
-        http://stackoverflow.com/questions/2397984/undefined-unspecified-and-implementation-defined-behavior
-
-        Anything can happen while still complyig to the standard: the program continues to execute,
-        crashs, it deletes your hard disk, or make Deamons fly out of you nose
-        http://www.urbandictionary.com/define.php?term=nasal%20demons
-
-        Bad stuff.
-
-    # Implementation-defined behaviour
-
-        Each implementation must document what it does but setting a fixed parameter.
-
-        E.g.: `sizeof(int)`
-
-        The standard may put constraints on what is conforming.
-
-        E.g.,
-
-        - `sizeof(int)` does not change value in the middle of the program. :)
-        - `sizeof(int) >= sizeof(short)`
-
-    # Unspecified behaviour
-
-        What happens exactly is not specified by the standard.
-
-        The standard however may put constraints on what may happen.
-
-        E.g.: argument order of evaluation `f1() * f2()`.
-
-        Unlike undefined behaviour, we are sure that this will not produce nasal deamons:
-        there are only two valid outcomes: `f1()` runs before or after `f2()`.
-    */
-
-    /*
     Comments.
     */
     {
@@ -1223,11 +957,13 @@ int main(int argc, char **argv) {
                 }
 
                 /*
-                Undefined behavior: there is no guarantee that a variable declared in a scope outlives
-                that scope, even if there are pointers pointing to it. C does not track how many pointers
-                there are to a given variable.
+                # Dangling pointer from block scope
 
-                <http://stackoverflow.com/questions/2759371/in-c-do-braces-act-as-a-stack-frame>
+                    Undefined behavior: there is no guarantee that a variable declared in a scope outlives
+                    that scope, even if there are pointers pointing to it. C does not track how many pointers
+                    there are to a given variable.
+
+                    http://stackoverflow.com/questions/2759371/in-c-do-braces-act-as-a-stack-frame
                 */
                 {
                     int *ip;
@@ -3007,6 +2743,17 @@ int main(int argc, char **argv) {
             }
         }
 #endif
+
+        /*
+        # Empty struct
+
+            invalid, but possible as a GCC extension.
+
+            http://stackoverflow.com/questions/24685399/c-empty-struct-what-does-this-mean-do
+        */
+        {
+            /*struct s {};*/
+        }
 
         {
             /* Assignment only works for initialization, unless use a C99 compound literal. */
@@ -4910,7 +4657,9 @@ int main(int argc, char **argv) {
 
 #if __STDC_VERSION__ >= 199901L
             /*
-            # VLA #Variable length array
+            # VLA
+
+            # Variable length array
 
                 Implementation:
 
@@ -5981,21 +5730,161 @@ int main(int argc, char **argv) {
             /*
             # Declaration vs definition
 
-                Declaration can be done inside other functions.
+                http://stackoverflow.com/questions/1410563/what-is-the-difference-between-a-definition-and-a-declaration
 
-                Definitions not.
+                Declaration says some information about type, definition specifies it completely.
 
-                Functions definition inside functions (known as local functions to gcc)
-                exist only as extensions in certain compilers such as gcc if ANSI is not enforced.
+                Every definition is also a declaration.
             */
             {
-                void func();
+                /*
+                # extern
 
-                /* ERROR: no definition inside another function: */
-                /*void func(){}*/
+                    Variable declaration without definition.
 
-                decl_and_int = 0;
-                assert(decl_and_int_func() == 0);
+                    Needs extern, or else it is a definition.
+
+                    But there is one more step left: initialization.
+                */
+                {
+                    int i;
+                    {
+                        extern int i;
+
+                        /* ERROR: redeclaration */
+                        /* TODO why? In particular, why does it work if outside of a function? */
+                        /* i = 0; */
+
+                        /*
+                        TODO why? Possible outside function.
+
+                        http://stackoverflow.com/questions/17090354/why-does-initializing-of-an-extern-variable-locally-inside-a-function-give-an-er
+                        */
+                        {
+                            /*extern int i = 0;*/
+                        }
+                    }
+                }
+
+                /* Declaration and definition. */
+                {
+                    int i;
+                    /* Separate initialization. */
+                    i = 0;
+                    assert(i == 0);
+                }
+
+                /*
+                Variable declaration, definition and initialization in one statment.
+                */
+                {
+                    int i = 0;
+                    assert(i == 0);
+                }
+
+                /* struct declaration */
+                {
+
+                }
+
+                /* Function declaration vs definitions. */
+                {
+                    /* Function declaration. extern semantics by default. */
+                    void f();
+
+                    /*
+                    # Local functions
+
+                        Declaration can be done inside other functions.
+
+                        Definitions not.
+
+                        Functions definition inside functions exist only as extensions
+                        in certain compilers such as gcc if ANSI is not enforced.
+                    */
+                    {
+                        /* ERROR: no definition inside another function: */
+                        /*void func(){}*/
+
+                        /* The following as defined outside main. */
+                        decl_def();
+                    }
+
+                    /*
+                    Function declarations don't need argment names.
+
+                    If those are used for documentation purposes, they don't need to match those of the definition.
+                    This is highly confusing however.
+
+                    Definitions need parameter names.
+
+                    TODO check: This rule changed in C++.
+                    */
+                    {
+                        void decl_def_no_arg_name(int, float, char c);
+                        decl_def_no_arg_name(0, 0.0, 'a');
+                    }
+
+                    /*
+                    Like for structs, one major application of forward declarations
+                    is to break definition dependency loops.
+                    */
+                    {
+                        assert(factorial2funcs0(4) == 24);
+                        assert(factorial2funcs1(4) == 24);
+                    }
+                }
+
+                /*
+                Declarations can be done any number of times.
+
+                Definitions only once per scope (block or static in files).
+                */
+                {
+                    {
+                        extern int i;
+                        extern int i;
+                        struct s;
+                        struct s;
+                        void f();
+                        void f();
+                    }
+
+                    {
+                        int i;
+                        /* ERROR: redeclaration of i */
+                        /* TODO why is the message redeclaration instead of redefinition? */
+                        /*int i;*/
+
+                        struct s { int i; };
+                        /* ERROR: redefinition of s */
+                        /*struct s { int i; };*/
+                    }
+                }
+
+                /* Cannot redeclare a symbols as one of another type. */
+                {
+                    struct i;
+                    /* ERROR i redeclared as nother type */
+                    /*void i();*/
+                }
+
+                /*
+                Can redeclare functions with different signatures arguments.
+                */
+                {
+                    void f();
+                    /*
+                    TODO what happens?
+
+                    http://stackoverflow.com/questions/22076718/why-is-it-possible-redefine-functions-with-different-numbers-of-arguments-than-i
+                    */
+                    void f(int);
+
+                    /* But not with different return types. */
+                    /* ERROR conflicting types for `f` */
+                    /*int f();*/
+                }
             }
 
             /*
@@ -6313,9 +6202,16 @@ int main(int argc, char **argv) {
     /*
     # preprocessor
 
-        Does simple operations before compilation.
+    # macros
+
+    # cpp
+
+        Does simple operations before compilation:
+        it is a completely separate step that happens before compilation.
 
         Not Turing complete.
+
+        Executable name: cpp. GCC for example is just a front-end to it.
     */
     {
         /*
@@ -6457,7 +6353,7 @@ int main(int argc, char **argv) {
         }
 
         /*
-        # double hash
+        # Double hash preprocessor operator
 
         # ##
 
@@ -6471,7 +6367,10 @@ int main(int argc, char **argv) {
                 assert(c_d == 1);
             }
 
-            /* preprocessor variable gotcha: http://stackoverflow.com/questions/1489932/c-preprocessor-and-concatenation */
+            /*
+            Preprocessor variable gotcha:
+            http://stackoverflow.com/questions/1489932/c-preprocessor-and-concatenation
+            */
             {
                 {
 #define VAR 3
@@ -6480,7 +6379,7 @@ int main(int argc, char **argv) {
                     assert(b_VAR == 1);
                 }
 
-                /* solution */
+                /* Solution. */
                 {
 #define VAR 3
 #define PASTER(x,y) x ## _ ## y
@@ -6493,18 +6392,42 @@ int main(int argc, char **argv) {
         }
 
         /*
-        # #ifdef
+        # ifdef
 
             Check if preprocessor variable is defined.
 
-            Almost the same as `#if defined()`,
-            except you can use `#if defined()` with `&&` on a single line as:
+            # or and ifdef
 
-                # if defined(X) && X >= 1
+                http://stackoverflow.com/questions/965700/c-preprocessor-testing-definedness-of-multiple-macros
 
-        # #ifndef
+                Almost the same as `#if defined()`,
+                except you can use `#if defined()` with `|| on a single line as:
+
+                    #if defined(X) || defined(Y)
+
+                while
+
+                    #ifdef(X) || ifdef(Y)
+                    #ifdef X || Y
+
+                compiles but does not do what you expect:
+                TODO legal?
+
+                For `&&`, we could get away with:
+
+                    #ifdef(X)
+                    #ifdef(Y)
+
+                but there is no alternative for `||`.
+
+        # ifndef
 
             Negation of ifdef.
+
+        # defined
+
+            Like ifdef, but more flexible
+            as you can use it inside `#if` with boolean operators.
         */
         {
 #ifdef COMMANDLINE
@@ -6559,7 +6482,11 @@ int main(int argc, char **argv) {
 #endif
 	}
 
-        /* # && */
+        /*
+        # && preprocessor
+
+        # and preprocessor
+        */
 #define C 1
 #if defined(C) && C > 0
 #else
@@ -6607,16 +6534,18 @@ int main(int argc, char **argv) {
         */
 
         /*
-        # standard preprocessor defines
+        # Standard preprocessor defines
 
-            some preprocessor vars are automatically defined by certain compilers
+            Some preprocessor vars are automatically defined by certain compilers
             although they are not c standards. Those are not discussed here.
 
-            List of standard defines: <http://gcc.gnu.org/onlinedocs/cpp/Standard-Predefined-Macros.html>
+            List of standard defines: http://gcc.gnu.org/onlinedocs/cpp/Standard-Predefined-Macros.html
         */
         {
             /*
-            # __stdc_version__
+            # STDC_VERSION__
+
+            # __STDC_VERSION__
 
                 String representing version of the c std lib. Format: yyyymm (base 10).
 
@@ -6630,6 +6559,54 @@ int main(int argc, char **argv) {
             }
 
             /*
+            # __stdc__
+
+            # stdc
+
+                1 if the implementation is conforming, 0 otherwise.
+
+                TODO check: on GCC, 1 with `-std=cXX`, 0 with `-std=gnuXX`.
+            */
+            {
+                printf("__STDC__ = %d\n", __STDC__);
+            }
+
+            /*
+            # __STDC__
+
+            # STDC
+
+                1 if the implementation is conforming, 0 otherwise.
+
+                TODO check: on GCC, 1 with `-std=cXX`, 0 with `-std=gnuXX`.
+            */
+            {
+                printf("__STDC__ = %d\n", __STDC__);
+            }
+
+            /*
+            # __STDC_HOSTED__
+
+            # STDC
+
+                Indicate if the compilation is hosted or not.
+
+            # Hosted
+
+            # Freestanding
+
+                Concept defined in ANSI C.
+
+                Basically, a freestanding implementation does not need to provide an stdlib.
+
+                In GCC, controlled by the `-ffreestainding` option.
+            */
+            {
+                printf("__STDC_HOSTED__ = %d\n", __STDC_HOSTED__);
+            }
+
+
+            /*
             # __cplusplus
 
                 Defined only if using C++ compiler.
@@ -6637,6 +6614,16 @@ int main(int argc, char **argv) {
 #ifdef __cplusplus
             printf("__cplusplus\n");
 #endif
+
+            /*
+            # line
+
+            # #line
+
+                Set the line and optionally filename that is seen by `__FILE__` and `__LINE__`.
+            */
+/*#line 1*/
+
 
             /*
             # __FILE__
@@ -9717,6 +9704,8 @@ int main(int argc, char **argv) {
 #endif
 
     /*
+    # Virtual memory
+
     # Process address space
 
         Lets have some fun reverse engeneering the process memory space modeul used on your OS!
@@ -9736,24 +9725,24 @@ int main(int argc, char **argv) {
         printf("PRIxPTR usage = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)(void*)1);
 
 #if __STDC_VERSION__ >= 199901L
-        printf("processs address space\n");
-        printf("  &env    = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)getenv("HOME"));
-        printf("  &argv   = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)argv);
-        printf("  &argc   = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&argc);
-        printf("  &stack1 = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&stack1);
-        printf("  &stack2 = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&stack2);
+        printf("# Virtual memory\n");
+        printf("  &env        = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)getenv("HOME"));
+        printf("  &argv       = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)argv);
+        printf("  &argc       = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&argc);
+        printf("  &stack1     = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&stack1);
+        printf("  &stack2     = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&stack2);
         heap = malloc(1);
-        printf("  &heap   = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)heap);
+        printf("  &heap       = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)heap);
         free(heap);
-        printf("  &BSS    = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&BSS);
-        printf("  &DATA   = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&DATA);
+        printf("  &BSS        = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&BSS);
+        printf("  &DATA       = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&DATA);
 
         /* TODO why on linux this is not on the text segment, */
         /* even if modification gives segfault? */
-
-            printf("  &text   = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&text);
-            /*fflush(stdout);*/
-            /*text[0] = '0';*/
+        printf("  &text main  = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&main);
+        printf("  &text char* = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&text);
+        /*fflush(stdout);*/
+        /*text[0] = '0';*/
 #endif
     }
 

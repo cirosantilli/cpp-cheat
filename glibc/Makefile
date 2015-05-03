@@ -8,7 +8,7 @@ OUT := $(MAIN).$(OUT_EXT)
 .PROXY: clean run
 
 $(OUT): $(IN)
-	gcc --std=c89 -Wall -Wno-unused-variable -Wno-unused-but-set-variable -o '$(OUT)' '$(IN)'
+	gcc --std=c89 -Wall -Wno-unused-variable -Wno-unused-but-set-variable -o '$@' '$<'
 
 clean:
 	rm -f '$(OUT)' *.tmp

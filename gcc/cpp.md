@@ -62,3 +62,7 @@ Outputs the preprocessed file to stdout.
 Using `gcc` as a frontend:
 
     gcc -E c.c
+
+## nostdinc
+
+Don't look for standard includes, only those passed by `-I`.

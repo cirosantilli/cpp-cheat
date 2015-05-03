@@ -1,5 +1,9 @@
 # glibc
 
+1. [Source tree](source-tree.md)
+
+## Introduction
+
 glibc is GNU's implementation of:
 
 - libc. By far the most popular implementation on Linux.
@@ -25,19 +29,3 @@ In Ubuntu 14.04:
     - `/lib/x86_64-linux-gnu/libc.so.6` from `libc6` package, which is used by other packages. The packages does not contain headers.
     - `/usr/lib/x86_64-linux-gnu/libc.so` from the `libc6-dev` package, which is used by things you compile yourself. The package also contains headers.
 -   the Ubuntu package that contains it is called `libc6-dev`. See it with: `apt-file search `
-
-## Source tree
-
-    git clone git://sourceware.org/git/glibc.git
-    mkdir glibc-build
-    cd glibc-build
-    bash ../glibc/configure --disable-sanity-checks
-    make -j5
-
-Took 4 minutes on a 2012 machine for version 2.21.
-
-TODO every command I now run in the build directory tries to use the built libc in the current directory and segfaults. `echo $LD_LIBRARY_PATH` does not show the current directory, but doing `unset LD_LIBRARY_PATH` solves the problem. `mv libc.so.6 libc.so.6.bak` also works. TODO what to do?
-
--   `sysdeps`: contains multiple assembly and OS dependant optimized implementations of several functions, e.g. `sysdeps/x86_64/multiarch/memcmp-sse4.S`, `memcmp-ssse3.S`. Note the large specificity of the implementations.
-
-    Each method also has a pure C implementation, e.g. `string/memcmp.c`, but that is likely to be much less efficient.
