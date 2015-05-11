@@ -133,13 +133,21 @@ De facto standard for the C language and style for many years.
 
 You will still hear about it in discussions, or even to describe some ANSI C concepts like K&R function declaration.
 
-# Interesting libraries
+## Interesting libraries
 
-## PETCs
+### Linear algebra
+
+-   LAPACK: the classic.
+
+    - <https://github.com/xianyi/OpenBLAS>: BLAS with SMP and vectorization
+    - <http://icl.cs.utk.edu/magma/> MAGMA: GPU optimized  BLAS LAPACK
+    - <http://icl.cs.utk.edu/plasma/> PLASMA: SMP optimized BLAS LAPACK
+
+### PETCs
 
 <http://www.mcs.anl.gov/petsc/documentation/index.html>
 
-## Concurrency
+### Concurrency
 
 -   C11 supports it, C99 not.
 

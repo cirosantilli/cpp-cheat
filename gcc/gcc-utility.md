@@ -292,7 +292,7 @@ Compile in freestanding mode as defined by ANSI C.
 
 ## l
 
-Linker options.
+## Linker options
 
 ### nostdlib
 
@@ -305,3 +305,19 @@ TODO
 ### nodefaultlibs
 
 TODO
+
+### static
+
+Link statically to all libraries, not just glibc.
+
+    gcc -static main.c
+
+The resulting build has no dependencies:
+
+    ldd a.out
+
+TODO Link statically only to glibc: <http://stackoverflow.com/questions/13187499/static-linking-glibc>
+
+### static-libgcc
+
+Link statically to libgcc. This is *not* `libc`, but an internal GCC library.

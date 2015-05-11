@@ -46,23 +46,19 @@
 
 #include <assert.h>
 #include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <stdio.h> /* perror */
+#include <stdlib.h> /* EXIT_SUCCESS, EXIT_FAILURE */
 #include <string.h>
 
 #include <fcntl.h>
-#include <sched.h>              /* SCHED_BATCH, SCHED_IDLE, sched_getaffinity, clone */
-#include <unistd.h>             /* sysconf */
+#include <sched.h> /* SCHED_BATCH, SCHED_IDLE, sched_getaffinity */
+#include <unistd.h> /* sysconf */
 
-#include <sys/wait.h>           /* wait, sleep */
+#include <sys/wait.h> /* wait, sleep */
 
-#include <gnu/libc-version.h>   /* gnu_get_libc_version */
+#include <gnu/libc-version.h> /* gnu_get_libc_version */
 
-int clone_fn(void* args) {
-    return 0;
-}
-
-int main(int argc, char** argv) {
+int main() {
     printf("gnu_get_libc_version() = %s\n", gnu_get_libc_version());
 
     /*
@@ -127,58 +123,6 @@ int main(int argc, char** argv) {
                 printf("\n");
             }
         }
-
-        /*
-        # clone
-
-            Create a new thread.
-
-            Interface for the `clone` Linux system call.
-
-                man clone
-
-            glibc gives two wrappers: a raw system call wrapper:
-
-                long clone(unsigned long flags, void *child_stack,
-                            void *ptid, void *ctid,
-                            struct pt_regs *regs);
-
-            and a higher level one:
-
-                int clone(int (*fn)(void *), void *child_stack,
-                            int flags, void *arg, ...
-                            pid_t *ptid, struct user_desc *tls, pid_t *ctid);
-
-            Used to implement the POSIX `pthread` interface.
-
-                man 2 clone
-
-            TODO get working
-        */
-        {
-            /*
-            int i = 0;
-            int status;
-            pid_t pid = clone(
-                clone_fn,
-                SIGCHLD,
-            );
-            if (pid < 0) {
-                perror("clone");
-                exit(EXIT_FAILURE);
-            }
-            if (pid == 0) {
-                i++;
-                return EXIT_SUCCESS;
-            }
-            wait(&status);
-
-            //no more child process
-            assert(status == EXIT_SUCCESS);
-            assert(i == 1);
-            */
-        }
-
     }
 
     /*

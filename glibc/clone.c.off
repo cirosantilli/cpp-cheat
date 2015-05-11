@@ -1,0 +1,107 @@
+/*
+# clone
+
+    Create a new thread.
+
+    Interface for the `clone` Linux system call.
+
+        man clone
+
+    which allows you to:
+
+    - create threads
+    - create new processes. This is done with the POSIX `fork`. Linux also has a `fork` system call,
+        but it seems that it is a thin `clone` wrapper.
+
+    See also:
+
+    - http://stackoverflow.com/questions/4856255/the-difference-between-fork-vfork-exec-and-clone
+    - http://stackoverflow.com/questions/18904292/is-it-true-that-fork-calls-clone-internally
+
+    The difference is basically what is going to be shared between the two processes / threads.
+
+    glibc gives two wrappers:
+
+    - a raw system call wrapper
+    - a high level
+
+    # Raw wrapper
+
+            long clone(unsigned long flags,
+                        void *child_stack,
+                        void *ptid,
+                        void *ctid,
+                        struct pt_regs *regs);
+
+        TODO what is that pt_regs?
+        That struct contains register values... is it really arch dependent?
+        Also I don't see that anywhere on Linux source nor glibc... is it just an old API?
+
+    # High level wrapper
+
+            int clone(int (*fn)(void *), void *child_stack,
+                        int flags, void *arg, ...
+                        pid_t *ptid, struct user_desc *tls, pid_t *ctid);
+
+        The thread runs inside the given function.
+
+    Used to implement the POSIX `pthread` interface.
+
+        man 2 clone
+
+    TODO get working
+*/
+
+#define _GNU_SOURCE
+#include <assert.h>
+#include <sched.h> /* clone */
+#include <stdio.h> /* perror */
+#include <stdlib.h> /* EXIT_SUCCESS, EXIT_FAILURE, malloc, free */
+
+/* Linux headers. */
+#include <asm/ptrace.h>
+
+int main() {
+    int i = 0;
+    const int STACK_SIZE = 1024;
+    char *stack_bottom;
+    char *stack_top;
+    /*pid_t pid = clone(*/
+        /*clone_fn,*/
+        /*SIGCHLD,*/
+    /*);*/
+    struct pt_regs regs;
+
+
+    stack_bottom = malloc(STACK_SIZE);
+    if (stack_bottom == NULL) {
+        perror("malloc");
+        exit(EXIT_FAILURE);
+    }
+    stack_top = stack_bottom + STACK_SIZE;  /* Assume stack grows downward */
+
+    clone(
+        CLONE_VM, /* int flags */
+        stack_top, /* void* child_stack */
+        , /* void *ptid */
+        , /* void *ctid*/
+        , /* struct pt_regs *regs */
+    );
+
+    free(stack_bottom);
+
+    /*if (pid < 0) {*/
+        /*perror("clone");*/
+        /*exit(EXIT_FAILURE);*/
+    /*}*/
+    /*if (pid == 0) {*/
+        /*i++;*/
+        /*return EXIT_SUCCESS;*/
+    /*}*/
+    /*wait(&status);*/
+
+    //no more child process
+    /*assert(status == EXIT_SUCCESS);*/
+    assert(i == 1);
+    exit(EXIT_SUCCESS);
+}

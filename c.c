@@ -7454,13 +7454,13 @@ int main(int argc, char **argv) {
                         /*
                         If a typedef is not guaranteed to be either an integer type or a floating point type,
                         such as `clock_t`, there seems to be no decent solution as of C99
-                        <http://stackoverflow.com/questions/1083142/whats-the-correct-way-to-use-printf-to-print-a-clock-t/17190680#17190680>
+                        http://stackoverflow.com/questions/1083142/whats-the-correct-way-to-use-printf-to-print-a-clock-t/17190680#17190680
 
                         The best solution is to just cast it to the largest floating point type possible
 
                         Unfortunatelly, as of c11 there is no way to get the largets floating point type
                         as can be done for integers:
-                        <http://stackoverflow.com/questions/17189423/how-to-get-the-largest-precision-floating-point-data-type-of-implemenation-and-i/17189562>
+                        http://stackoverflow.com/questions/17189423/how-to-get-the-largest-precision-floating-point-data-type-of-implemenation-and-i/17189562
                         */
                         {
                             printf("printf clock_t = %Lf\n", (long double)(clock_t)1);

@@ -3018,17 +3018,15 @@ int main(int argc, char** argv) {
         int rc, i;
 
         /* create all threads */
-        for (i = 0; i < NUM_THREADS; ++i)
-        {
+        for (i = 0; i < NUM_THREADS; ++i) {
             thread_args[i] = i;
             rc = pthread_create(&threads[i], NULL, main_thread, (void *) &thread_args[i]);
             assert(rc == 0);
             printf("created thread: %ju\n", (uintmax_t)threads[i]);
         }
 
-        /* wait for all threads to complete */
-        for (i = 0; i < NUM_THREADS; ++i)
-        {
+        /* Wait for all threads to complete */
+        for (i = 0; i < NUM_THREADS; ++i) {
             rc = pthread_join(threads[i], NULL);
             if(rc != 0) {
                 printf("%s\n", strerror(rc));
