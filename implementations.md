@@ -8,7 +8,13 @@ Most of those compilers work for multiple related languages such as C, C++, etc.
 
 ### clang
 
-LLVM.
+LLVM based.
+
+Made by Apple in 2007 when GCC did not meet it's technical and licensing requirements, later merged into LLVM. It then had contributions by Google, Apple, Intel, etc.
+
+FreeBSD moved to it in 2012: <http://unix.stackexchange.com/questions/49906/why-is-freebsd-deprecating-gcc-in-favor-of-clang-llvm>
+
+Sony PS4 (2013 Q4, FreeBSD based) moved to it while PS3 used GCC.
 
 ### icc
 
@@ -27,6 +33,14 @@ Closed source...
 INRIA formally verified compiler to a very large subset of C99.
 
 Written and verified in Coq.
+
+### Portable C Compiler
+
+<https://en.wikipedia.org/wiki/Portable_C_Compiler>
+
+Very small.
+
+Popular in the 1980s, until GCC killed it.
 
 ## libc
 

@@ -1,21 +1,13 @@
 # C
 
-## Motivation
+1. [Pros and cons](pros-and-cons.md)
+1. [hello_world.c](hello_world.c)
+1. [min.c](min.c)
+1. [enum.c](enum.c)
 
-C is amazingly important as it is used to implement:
+## History
 
-- Linux kernel
-- Windows kernel
-- Python and Ruby reference implementations
-- OpenGL
-
-And the list goes on and on...
-
-The reason for this is that C:
-
-- is quite low level, so you can do low level things other languages can't
-- is low level, so it can be very fast (if you program it correctly)
-- is robust and easy to understand.
+C is called C because it came after B!
 
 ## Standards
 
@@ -45,52 +37,59 @@ ANSI only specifies language and the library interfaces: what functions, variabl
 
 Some features are even left for the implementors to decide such as the behavior.
 
-New features are often based on extension of major implementations such as gnu's or Microsoft's.
+New features are often based on extension of major implementations such as GNU's or Microsoft's.
 
-## C89
+## Versions
+
+Not all versions were backwards source compatible.
+
+### C89
 
 ANSI ratified the standard in 89, and ISO in 90 only with formatting changes.
 
-## C90
+### C90
 
 Synonym for C89, because ISO adopted it in 90.
 
 Formal name: ISO/IEC 9899:1990
 
-## C94
+### C94
 
-## C95
+### C95
 
-## Normative Addendum 1
+### Normative Addendum 1
 
 Informal names for C89/C90 plus Normative Addendum (aka Amendment) 1, whose primary addition was support for international character sets.
 
 C99 extends this.
 
-## C99
+### C99
 
 <http://en.wikipedia.org/wiki/C99>
 
--   large support, but not 100% by many compilers
+Highly, but not fully backwards compatible: <http://stackoverflow.com/a/30208133/895245>
+
+Major new features:
 
 -   support for `//` comments
 
 -   `long`, `long`, `bool`, complex numbers
 
--   gcc flag: add `-std=c99`
+-   `gcc` flag: add `-std=c99`
 
--   Microsoft stated that they will not update their compilers to C99 and further.
+WG14/N1256 is the best free draft available: <http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1256.pdf>
 
-    They use C as an inner language, and think it would be too delicate/costly to change it.
+#### Microsoft C99 support
 
-    They have decided to maintain only C++ and C# up to date. for developers to interface with Windows.
+Microsoft stated that they will not update their compilers to C99 and further.
 
-    Therefore you will not get those working on MS compiler anytime soon.
+They use C as an inner language, and think it would be too delicate/costly to change it.
 
-Every C99 citation here will come from WG14/N1256, the best free draft available:
-http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1256.pdf
+They have decided to maintain only C++ and C# up to date. for developers to interface with Windows.
 
-## C11
+Therefore you will not get those working on MS compiler anytime soon.
+
+### C11
 
 <http://en.wikipedia.org/wiki/C11_%28C_standard_revision%29>
 

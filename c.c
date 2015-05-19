@@ -2,8 +2,11 @@
 ANSI C cheat.
 
 Small comments on comparing ANSI C with extensions are acceptable.
+
+This cheatsheet is being split up into smaller parts to c/
 */
 
+#define UNDEFINED_BEHAVIOUR
 
 /*
 # include
@@ -181,29 +184,39 @@ int setjmp_func(int jmp, jmp_buf env_buf) {
     Declaration vs definition
     */
 
-            void decl_def();
-            void decl_def();
-            void decl_def() {}
-            /* ERROR redefine */
-            /*void decl_def() {}*/
+        void decl_def();
+        void decl_def();
+        void decl_def() {}
+        /* ERROR redefine */
+        /*void decl_def() {}*/
 
-            void decl_def_no_arg_name(int i, float f, char d) {}
-            /* ERROR */
-            /*void def_no_argname(int){}*/
+        void decl_def_no_arg_name(int i, float f, char d) {}
+        /* ERROR */
+        /*void def_no_argname(int){}*/
 
-            int factorial2funcs1(int);
-            int factorial2funcs0(int n){
-                if (n != 1) {
-                    return n*factorial2funcs1(n - 1);
-                }
-                return 1;
+        int factorial2funcs1(int);
+        int factorial2funcs0(int n){
+            if (n != 1) {
+                return n*factorial2funcs1(n - 1);
             }
-            int factorial2funcs1(int n){
-                if (n != 1) {
-                    return n*factorial2funcs0(n - 1);
-                }
-                return 1;
+            return 1;
+        }
+        int factorial2funcs1(int n){
+            if (n != 1) {
+                return n*factorial2funcs0(n - 1);
             }
+            return 1;
+        }
+
+#if __STDC_VERSION__ <= 199901L
+        default_return_type() {
+            return 1;
+        }
+#endif
+
+        int proto_empty_definition() {
+            return 1;
+        }
 
         /* Two decls on the same line, with same return type: */
 
@@ -328,22 +341,6 @@ int setjmp_func(int jmp, jmp_buf env_buf) {
     int int_func_func_int_int(int (*function_ptr)(int, int), int m, int n) {
         return (*function_ptr)(m, n);
     }
-
-    /*
-    # void argument vs no argument
-
-        `void f()` vs `void f(void)`
-
-        In C++, same.
-
-        In C, possibly different to suport archaic behavior, which you should never rely on.
-
-        So always use `f(void)` instead of `f()` on declarations and definitions.
-
-        <http://stackoverflow.com/questions/693788/c-void-arguments>
-
-        TODO example.
-    */
 
     /*
     function struct args
@@ -888,20 +885,30 @@ void abort_func() {
 
     # main signature
 
-        - http://stackoverflow.com/questions/4207134/what-is-the-proper-declaration-of-main
         - http://stackoverflow.com/questions/204476/what-should-main-return-in-c-and-c
+        - http://stackoverflow.com/questions/4207134/what-is-the-proper-declaration-of-main
 
-        Valid signatures:
+        Valid signatures: either:
 
             int main()
 
-        and
+        or
 
             int main(int argc, char* argv[])
 
-        which is the same as:
+        Or equivalent ones to the above:
+
+        TODO name of equivalend:
 
             int main(int argc, char** argv)
+
+        Default return type `int` (C89 only):
+
+            main()
+
+        Explicit `void` prototype:
+
+            int main(void)
 */
 int main(int argc, char **argv) {
     /*
@@ -1266,6 +1273,8 @@ int main(int argc, char **argv) {
         /*
         # Integer types
 
+        # Integer literals
+
             Types that represent integer numbers are called integer types.
 
             This classification is explicitly used on the C specification,
@@ -1325,6 +1334,7 @@ int main(int argc, char **argv) {
                 { short si = 1; }
                 { short si = (short int)1; }
                 { int i = 1; }
+                /* Lower case possible but bad, since l looks more like 1 than `L`.*/
                 { long li = (long)1l; }
                 { long li = (long)1L; }
             }
@@ -1962,9 +1972,6 @@ int main(int argc, char **argv) {
 
         /*
         # const qualifier
-
-            Can be overriden by pointer typecasts + relying undefined behaviour,
-            so it does not generate compile time constant expressions (C99 6.6).
         */
         {
             int i = 0;
@@ -1990,21 +1997,34 @@ int main(int argc, char **argv) {
             }
 
             /*
-            Casting a const to a non const through a pointer is legal.
-            Modifying he const with the pointer is undefined behavior (C99 6.7.3.5).
-            For this reason it does not generate compile time constant expressions (C99 6.6):
-            the undefined behavior could be to change the value of the const.
+            # Modify const through pointer cast
 
-            In particular, existing implementaions may or may not put `const` in read only memory,
-            so that the undefined behavior may be a page fault.
+                Casting a const to a non-const through a pointer is legal.
 
-            Many compilers raise warnings or prevent compilation of such constructs. 
+                Modifying he const with the pointer is undefined behavior (C99 6.7.3.5).
 
-            In C++, discarding const is illegal, and generates compile time constants.
+                For this reason it does not generate compile time constant expressions (C99 6.6):
+                the undefined behavior could be to change the value of the const.
+
+                In particular, existing implementaions may or may not put `const` in read only memory,
+                so that the undefined behavior may be a page fault.
+
+                `gcc` for examples puts global constants on the `.rodata` section of the elf output.
+
+                In practice It might work however for local function variables however,
+                which are just on the stack or registers.
+
+                Many compilers raise warnings or prevent compilation of such constructs. 
+
+                In C++, discarding const is illegal, and generates compile time constants.
             */
             {
                 const int ic = 0;
-                /* WARN: initialization discards const qualifier from pointer type. */
+                /*
+                WARN: initialization discards const qualifier from pointer type.
+
+                Likely to work since local variable.
+                */
                 /*
                 int* ip = &ic;
                 *ip = 1;
@@ -2554,113 +2574,6 @@ int main(int argc, char **argv) {
     }
 #endif
 #endif
-
-    /* # enum */
-    {
-        /* Basics. */
-        {
-            enum E
-            {
-                E1,
-                E2,
-                E3,
-                E4,
-            };
-
-            enum E e = E1;
-
-            /* ERROR */
-            /* redeclartion of a */
-            /*int E1 = 1;*/
-
-            /* ERROR */
-            /* can't change value of enums */
-            /* this is why you can use them for array sizes */
-            /*E1 = 2;*/
-
-            /* by default, values start from 0 and increase */
-
-                assert(E1 == 0);
-                assert(E2 == 1);
-                assert(E3 == 2);
-                assert(E4 == 3);
-        }
-
-        /* Typedef combo. No need to type enum everywhere. */
-        {
-            /* Multi line */
-            enum E { E1, E2};
-            typedef enum E E;
-            E e;
-
-            /* Single line */
-            typedef enum F {g1, g2} F;
-            F f;
-        }
-
-        /* You can choose the values explicitly */
-        {
-            enum E
-            {
-                E1 = 1,
-                E2 = 2,
-                E3,
-                E4 = 2, /* equal values compile */
-            };
-
-            assert(E1 == 1);
-            assert(E2 == 2);
-            assert(E4 == 2);
-
-            /* if you don't give a value */
-            /* it gets a value different from all others */
-
-                assert(E3 != E1);
-                assert(E3 != E2);
-                assert(E3 != E4);
-                printf("enum E3 = %d\n", E3);
-        }
-
-        /* ERROR: only const expressions allowed */
-        /* This is why enum values are a good choice for array sizes. */
-        {
-            const int i = 0;
-            /*enum Constexpr { N = i };*/
-            /*int is[N];*/
-        }
-
-        /*
-        It seems that it is not possible to control the size of an enum
-        without extensions.
-
-        Compilers could make them smaller than int if there are less than INT_MAX
-        values in the enum, but gcc 4.8 -O0 does not do that.
-
-        <http://stackoverflow.com/questions/4879286/specifying-size-of-enum-type-in-c>
-        */
-        {
-            {
-                enum E {E1, E2,};
-                printf("sizeof(enum E) = %zu\n", sizeof(enum E));
-            }
-
-            /* The largest value that can be portably stored is INT_MAX. */
-            /* <http://stackoverflow.com/questions/366017/what-is-the-size-of-an-enum-in-c> */
-            {
-                enum E {E1 = INT_MAX};
-                /*enum E_BAD { E1 = INT_MAX + 1};*/
-            }
-        }
-
-        /* Count elements of an ENUM. */
-        /* Does not seem possible: http://stackoverflow.com/questions/2102582/how-can-i-count-the-items-in-an-enum */
-        /* Possible workaround: add an extra element and rely on the increasing order. */
-        /* Obvious downside: remote name conflict possibility. */
-        {
-            enum E {E1, E2, E_SIZE};
-            assert(E_SIZE == 2);
-        }
-    }
 
     /*
     # struct
@@ -4968,6 +4881,7 @@ int main(int argc, char **argv) {
             array functions to manipulate it, and pass string lengths around.
         */
         {
+            /* Basic example. */
             {
                 char cs[] = "abc";
 
@@ -5006,37 +4920,48 @@ int main(int argc, char **argv) {
                 }
             }
 
-            /*
-            # Text segment
 
-                C allows you to point directly to the text segment.
-
-                In short, the text segment is the part of RAM memory reserved to a process
-                that contains the instructions of the process, and not, say, regular variables.
-
-                Process are not allows to modify those intructions at runtime,
-                and therefore you cannot modify strings that point to the text segment.
-
-                Using text segment pointers has the upside of being memory efficient as you
-                don't copy the text from.
-
-                Note however that you cannot modify that string.
-            */
+            /* Initialize strings */
             {
-                /* To create a pointer to text segment, initialize it as: */
+                /*
+                # Text segment
+
+                    C allows you to point directly to the text segment.
+
+                    In short, the text segment is the part of RAM memory reserved to a process
+                    that contains the instructions of the process, and not, say, regular variables.
+
+                    Process are not allows to modify those intructions at runtime,
+                    and therefore you cannot modify strings that point to the text segment.
+
+                    Using text segment pointers has the upside of being memory efficient as you
+                    don't copy the text from.
+
+                    Note however that you cannot modify that string.
+                */
                 {
-                    char* cs = "abc";
-                    assert(cs[0] == 'a');
+                    /* To create a pointer to text segment, initialize it as: */
+                    {
+                        char* cs = "abc";
+                        assert(cs[0] == 'a');
+                    }
+
+                    /* Segmentation fault: text segment cannot be modified */
+                    {
+                        /*cs[0] = '0';*/
+                    }
+
+                    /* TODO why can't you do the same thing with integers? ex: */
+                    {
+                        /*int * is = { 1, 3, 2 };*/
+                    }
                 }
 
-                /* Segmentation fault: text segment cannot be modified */
+                /*
+                Parenthesis. Legal but ugly. GCC 4.8 gives an error with `-pedantic`.
+                */
                 {
-                    /*cs[0] = '0';*/
-                }
-
-                /* TODO why can't you do the same thing with integers? ex: */
-                {
-                    /*int * is = { 1, 3, 2 };*/
+                    /*char s[] = ("abc");*/
                 }
             }
 
@@ -5833,6 +5758,16 @@ int main(int argc, char **argv) {
                         assert(factorial2funcs0(4) == 24);
                         assert(factorial2funcs1(4) == 24);
                     }
+
+                    /*
+                    In C89, some functions can be used without any declaration as long as they are defined in another file.
+
+                    They are called implicit functions.
+
+                    They are not allowed in C89.
+
+                    But you can use functions which have a declaration that is not a prototype (i.e. without argument checking).
+                    */
                 }
 
                 /*
@@ -5870,21 +5805,112 @@ int main(int argc, char **argv) {
                 }
 
                 /*
-                Can redeclare functions with different signatures arguments.
+                # Identifier list
+
+                # Parameter list
+
+                    TODO
+
+                    - http://stackoverflow.com/questions/18820751/identifier-list-vs-parameter-type-list-in-c
+
                 */
                 {
-                    void f();
                     /*
-                    TODO what happens?
+                    # Prototype vs declaration
 
-                    http://stackoverflow.com/questions/22076718/why-is-it-possible-redefine-functions-with-different-numbers-of-arguments-than-i
+                        http://stackoverflow.com/questions/5481579/whats-the-difference-between-function-prototype-and-declaration
+
+                        - Prototype is a declaration that specifies the arguments.
+                            Only a single prototype can exist.
+
+                        - a declaration can not be a prototype if it does not have any arguments.
+                            The arguments are left unspecified.
+
+                        - to specify a prototype that takes no arguments, use `f(void)`
+
+                        In C++ the insanity is reduced, and every declaration is a prototype,
+                        so `f()` is the same as `f(void)`.
+
+                        Save yourself some headache, and never write declarations that are not prototypes.
+
+                        TODO why would someone want to use a declaration that is not a prototype?
                     */
-                    void f(int);
+                    {
+                        /* Declaration that is not a prototype. */
+                        void proto_decl();
+
+                        /* Prototype. */
+                        void proto_decl(int);
+
+                        /* OK, same prototype as above. */
+                        void proto_decl(int i);
+
+                        /* ERROR: conflicting type for */
+                        /*void proto_decl(float);*/
+
+                        /* A definition without arguments however already implies `(void)`. */
+                        /* ERROR */
+                        /*int proto_empty_definition(int);*/
+                        assert(proto_empty_definition() == 1);
+
+                        /*
+                        # float on a prototype after a declaration
+
+                            You can't use `float`, `char`, etc.: only `int`, `double`
+                            on prototypes that follow declarations!
+
+                            http://stackoverflow.com/questions/5481579/whats-the-difference-between-function-prototype-and-declaration
+                        */
+                        {
+                            void proto_decl_float();
+                            /* ERROR: An argument that has default promotion can't match*/
+                            /*void proto_decl_float(float);*/
+
+                            void proto_decl_double();
+                            void proto_decl_double(double);
+                        }
+
+                        /*
+                        # void argument vs no argument
+
+                            http://stackoverflow.com/questions/693788/c-void-arguments
+                        */
+                        {
+                            /* Prototype that takes no arguments. */
+                            void void_arg(void);
+
+                            /* ERROR: void must be the only parameter */
+                            /*void void_int_arg(int, void);*/
+
+                            /* WARN: parameter has void type */
+                            /*void void_arg2(void v);*/
+                        }
+                    }
 
                     /* But not with different return types. */
                     /* ERROR conflicting types for `f` */
                     /*int f();*/
                 }
+            }
+
+            /*
+            # Implicit int
+
+            # Default return type
+
+                http://stackoverflow.com/questions/12373538/warning-return-type-defaults-to-int-wreturn-type
+
+                In C89, if not specified, the return type defaulted to `int`.
+
+                Appears to have been made illegal in C99.
+
+                `gnu99` allows it by default but gerenrates warnings, `-Wno-return-type` to turn off.
+            */
+            {
+#if __STDC_VERSION__ <= 199901L
+                static s;
+                assert(default_return_type() == 1);
+#endif
             }
 
             /*
@@ -6534,12 +6560,31 @@ int main(int argc, char **argv) {
         */
 
         /*
+        # Prefined preprocessor macros
+
         # Standard preprocessor defines
 
             Some preprocessor vars are automatically defined by certain compilers
             although they are not c standards. Those are not discussed here.
 
             List of standard defines: http://gcc.gnu.org/onlinedocs/cpp/Standard-Predefined-Macros.html
+
+            List all them on GCC:
+
+                gcc -dM -E - < /dev/null | sort
+
+            Sample output:
+
+                #define _LP64 1
+                #define _STDC_PREDEF_H 1
+                #define __ATOMIC_ACQUIRE 2
+                #define __ATOMIC_ACQ_REL 4
+                #define __ATOMIC_CONSUME 1
+                #define __ATOMIC_HLE_ACQUIRE 65536
+                #define __ATOMIC_HLE_RELEASE 131072
+                #define __ATOMIC_RELAXED 0
+                #define __ATOMIC_RELEASE 3
+                #define __ATOMIC_SEQ_CST 5
         */
         {
             /*
@@ -6553,6 +6598,10 @@ int main(int argc, char **argv) {
 
                 - C11: 201112L
                 - C99: 199901L
+
+                http://sourceforge.net/p/predef/wiki/Standards/
+
+                Apperas undefined in C99
             */
             {
                 printf("__STDC_VERSION__ = %li\n", __STDC_VERSION__);
@@ -6987,6 +7036,61 @@ int main(int argc, char **argv) {
                 /* Linux test. */
                 /*int r = system("echo a | grep b");*/
                 /*assert(r == 1);*/
+            }
+
+            /*
+            # atoi
+
+            # atol
+
+            # atoll
+
+                Convert string to integer.
+
+                `strtol` is better as it allows error checking, so use that instead.
+
+                C99 explicitly says that errno does not need to be set.
+            */
+            {
+                assert(atoi("123") == 123);
+
+                enum N { N = 256 };
+                char s[N];
+                snprintf(s, N, "%d", INT_MAX);
+                assert(atoi(s) == INT_MAX);
+                snprintf(s, N, "%d", INT_MIN);
+                assert(atoi(s) == INT_MIN);
+
+#ifdef UNDEFINED_BEHAVIOUR
+                snprintf(s, N, "%ld", INT_MAX + 1L);
+                printf("INT_MAX + 1 = %s\n", s);
+                printf("atoi(INT_MAX + 1) = %d\n", atoi(s));
+
+                printf("atoi(123abc) = %d\n", atoi("123abc"));
+#endif
+
+                /* No hex. use strtol */
+                /*assert(atoi("0xA") == 10);*/
+            }
+
+            /*
+            # itoa
+
+            # ltoa
+
+                Neither POSIX nor glibc?
+
+                http://stackoverflow.com/questions/190229/where-is-the-itoa-function-in-linux
+
+                The closes one gets is an internal `_itoa` in glibc.
+
+                `sprintf` is the way.
+            */
+
+            /*
+            # strtol
+            */
+            {
             }
         }
 

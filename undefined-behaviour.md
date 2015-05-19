@@ -6,6 +6,10 @@ Anything can happen while still complying to the standard: the program continues
 
 Bad stuff.
 
+Examples:
+
+- modify `const` variable with pointer cast that removes `const`
+
 ## Implementation-defined behaviour
 
 Each implementation must document what it does but setting a fixed parameter.

@@ -1,39 +1,19 @@
 #include <stdio.h>
 
-#include "a.h"
-
-/* ERROR already defined in main. */
+/* Link time error: already defined in main. */
 /*int i = 0;*/
 
-/* OK: only declared. */
+/* OK: only declared, not defined. Will use the one in main. */
 int i;
 
 /* OK: only visible to this file. */
-static int staticInt = 0;
-
-/* Define externInt. Will store this initial value on the executable. */
-int externInt = 0;
-
-/* WARN: extern initialized. */
-/* It does not make much sense to add extern to a definition: only to a declaration. */
-/*extern int externIntInt = 1;*/
-
-/* ERROR redefinition: */
-/*void func(){ puts("mainFunc"); }*/
-
-static void staticFunc() {
-    printf("a#staticFunc:\n");
-    printf("  staticInt   = %d\n", staticInt);
-    printf("  aHStaticInt = %d\n", aHStaticInt);
-    printf("  externInt   = %d\n", externInt);
-    puts("");
-}
+static int si = 0;
 
 void a() {
-    staticFunc();
-    staticInt++;
-    aHStaticInt++;
-    externInt++;
+    i++;
+    si++;
+    puts("a()");
+    printf("i = %d\n", i);
+    printf("si = %d\n", si);
+    puts("");
 }
-
-struct s {};

@@ -1,4 +1,4 @@
-CCC ?= gcc -pedantic-errors -std=c89 -Wall
+CC ?= gcc -pedantic-errors -std=c89 -Wall
 IN_EXT ?= .c
 OUT_EXT ?= .out
 RUN ?= main
@@ -12,10 +12,10 @@ RUN_BASENAME := $(RUN)$(OUT_EXT)
 .PHONY: clean run
 
 $(RUN_BASENAME): $(OUTS)
-	$(CCC) $+ -o '$@'
+	$(CC) $+ -o '$@'
 
 %$(TMP_EXT): %$(IN_EXT)
-	$(CCC) -c '$<' -o '$@'
+	$(CC) -c '$<' -o '$@'
 
 clean:
 	rm -f *'$(TMP_EXT)' '$(RUN_BASENAME)'

@@ -6,7 +6,7 @@ C and C++ information, cheatsheets and mini-projects.
 
 Relies on [C++ boilerplate](https://github.com/cirosantilli/cpp-boilerplate) to factor code out. See [its documentation](https://github.com/cirosantilli/cpp-boilerplate/blob/master/README.md) for information on how to use this project.
 
-[Assembly Cheat](https://github.com/cirosantilli/assembly-cheat) contains lower level issues, like assembly and the ELF format.
+[Assembly Cheat](https://github.com/cirosantilli/assembly-cheat) contains lower level issues, like assembly, ELF and Binutils.
 
 1.  [Getting started](getting-started.md)
 1.  Featured
@@ -18,12 +18,11 @@ Relies on [C++ boilerplate](https://github.com/cirosantilli/cpp-boilerplate) to 
     1. [OpenGL](opengl/)
     1. [KDE](kde/)
 1.  Introduction
-    1. [C](c.md)
+    1. [C](c/)
     1. [C++](cpp.md)
     1. [C vs C++](c-vs-cpp.md)
     1. [Implementations](implementations.md)
     1. [Style guides](style-guides.md)
-    1. [Library](library.md)
     1. [Undefined behaviour](undefined-behaviour.md)
 1. [C from C++](c-from-cpp/)
 1. [Fortran from C](c-from-cpp/)
@@ -32,7 +31,6 @@ Relies on [C++ boilerplate](https://github.com/cirosantilli/cpp-boilerplate) to 
 1. [CMake](cmake.md)
 1. [Flex and Bison](flex-bison/)
 1. [glibc](glibc/)
-1. [hello_world.c](hello_world.c)
 1. [hello_world_cpp.cpp](hello_world_cpp.cpp)
 1.  GUI
     1. [GTK](gtk/)

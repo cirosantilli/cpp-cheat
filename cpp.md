@@ -52,7 +52,9 @@ In `gcc` used to be enabled via `-std=c++0x` flag, now `-std=c++11`. Still marke
 
 Will come after C++11. Known as C++1Y as many have doubts it will come out in 2014.
 
-## STL vs stlib
+## stdlib
+
+### STL vs stlib
 
 The term `STL` is *not* mentioned in the C++ ISO standard.
 
@@ -63,6 +65,18 @@ It seems that it was once a separate library which heavily influenced the C++ IS
 Therefore: **never** use that word, unless you are really talking about the non stdlib library which has had most of its functionality implemented on the stdlib.
 
 Write `stdlib` and say "Standard Library" instead.
+
+### stdlib implementations
+
+#### GCC libstdc++
+
+GCC comes with an implementation of libstdc++.
+
+#### Apache C++ Standard Library
+
+Dead.
+
+<https://en.wikipedia.org/wiki/Apache_C%2B%2B_Standard_Library>
 
 ## Interesting libraries
 

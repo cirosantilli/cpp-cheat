@@ -1442,6 +1442,8 @@ int main(int argc, char** argv) {
         /*
         # access
 
+            http://pubs.opengroup.org/onlinepubs/9699919799/functions/access.html
+
             Check if file or directory exists and or has a given permission (rwx):
 
             - `R_OK`
@@ -1450,6 +1452,8 @@ int main(int argc, char** argv) {
             - `F_OK`: file exists
 
             If the access is not permitted, errno is still set even if this call did not give an error.
+
+            TODO vs stat?
         */
         {
             char *exist = realpath(".", NULL);

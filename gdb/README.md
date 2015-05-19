@@ -87,6 +87,7 @@ The following are useful:
 - `disassemble`
 - `stepi`
 - `nexti`
+- `layout asm`
 - <http://stackoverflow.com/questions/1902901/show-current-instruction-in-gdb>
 - <http://stackoverflow.com/questions/589653/switching-to-assembly-in-gdb>
 
@@ -445,6 +446,12 @@ Once you change the frame, it is as if you have moved to that point:
 - `l` will list the code around that point
 
 and so on.
+
+#### down
+
+#### up
+
+Move a stack frame up or down and print it.
 
 #### i
 

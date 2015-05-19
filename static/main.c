@@ -1,26 +1,23 @@
 #include <stdio.h>
 
-#include "a.h"
+void a();
 
 int i = 0;
-static int staticInt = 0;
+static int si = 0;
 
-static void staticFunc() {
-    printf( "main#staticFunc:\n"                );
-    printf( "  staticInt   = %d\n", staticInt   );
-    printf( "  aHStaticInt = %d\n", aHStaticInt );
-    printf( "  externInt   = %d\n", externInt   );
+void m() {
+    i++;
+    si++;
+    puts("m()");
+    printf("i = %d\n", i);
+    printf("si = %d\n", si);
     puts("");
 }
 
-struct s {
-    int i;
-};
-
-int main(int argc, char** argv) {
-    staticFunc();
+int main() {
+    m();
+    m();
     a();
-    staticFunc();
     a();
     return 0;
 }

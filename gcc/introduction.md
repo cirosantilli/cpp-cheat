@@ -2,6 +2,8 @@
 
 GCC is arguably the most popular C and C++ compiler.
 
+GCC stands for GNU Compiler Collection: *not* C compiler, and currently compiles: C, C++, Objective-C, Fortran, Java, Ada, and Go.
+
 The Linux kernel uses GCC extensions so you need it to build it.
 
 `gcc` is the C compiler. It is a large frontend for other tools such as `as`, `cpp`.
@@ -15,8 +17,6 @@ You can disable all non-GNU specific languages features with flags like `-ansi o
 Obviously, it is always better if you avoid using extensions, but you may encounter them in Linux specific projects, such as the Linux kernel itself for example.
 
 GNU extensions have a large chance of being implemented in future ANSI C versions (but sometimes in a modified form) because of the large influence of GCC.
-
-GCC stands for GNU Compiler Collection: *not* C compiler, and currently compiles: C, C++, Objective-C, Fortran, Java, Ada, and Go.
 
 ## g++ vs gcc
 
@@ -36,3 +36,22 @@ Major ones:
 - PE (Windows)
 
 but there are others.
+
+## What languages it compiles
+
+GCC has front-ends and back-ends:
+
+- front-ends: input languages
+- back-ends: output machine codes
+
+Infrastructure is reused across multiple languages.
+
+Front-ends for which GCC is the major Linux implementation: C, C++, Fortran, Ada.
+
+Other front-ends:
+
+- Java (deprecated), Oracle's `javac`
+- Go, Google's `gc`
+- Objective-C: TODO. What does Apple use? There is also a LLVM
+
+GCC also offers standard libraries for most languages it supports, except `libc`, which is in the separate project `glibc`, which is highly optimized, and has per-processor implementations.

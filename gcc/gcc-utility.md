@@ -2,6 +2,25 @@
 
 Useful GCC command line options.
 
+## What the gcc utility does
+
+Nothing. Almost.
+
+`gcc` is a driver: it orchestrates the build process, by calling other programs with the right options, notably:
+
+- `cpp`:  preprocessor
+- `cc1`: compiler. Generates `.s` file. Not in `PATH` by default.
+- `as`: assembler . Generates `.o` files.
+- `collect2`: linker. Generates executable files. Not in `PATH`, but almost identical to `ld`.
+
+Options you pass to GCC determine how it will call the other programs.
+
+Therefore, to understand GCC you should first understand the other programs separately, and then just see exactly how exactly GCC is calling them.
+
+The exact way in which GCC calls the other programs is determined by spec files.
+
+GCC does not contain bin-utils: they are maintained in separate git repositories. Binutils has not knowledge about programming languages, only assembly, and can be used separately from GCC. Binutils is a dependency of GCC.
+
 ## Recommended compilation flags
 
 Good discussion: <http://stackoverflow.com/questions/154630/recommended-gcc-warning-options-for-c>
@@ -282,6 +301,24 @@ Example:
 
 ## f
 
+Flags.
+
+These are regular options, most of which have value either true or false.
+
+For true:
+
+    gcc -ffoo
+
+and false:
+
+    gcc -fno-foo
+
+Does not have any other meaning.
+
+Not all `-f` flags are booleans however:
+
+    gcc -frandom-seed=1234
+
 ### inline
 
 Allow the compile to inline functions. Implied by `-O3`.
@@ -320,4 +357,73 @@ TODO Link statically only to glibc: <http://stackoverflow.com/questions/13187499
 
 ### static-libgcc
 
-Link statically to libgcc. This is *not* `libc`, but an internal GCC library.
+Link statically to `libgcc`. This is *not* `libc`, but an internal GCC library.
+
+## Informational commands
+
+### v
+
+Get build information.
+
+For version use `-version`.
+
+Sample output:
+
+    Using built-in specs.
+    COLLECT_GCC=gcc
+    COLLECT_LTO_WRAPPER=/usr/local/libexec/gcc/x86_64-unknown-linux-gnu/5.1.0/lto-wrapper
+    Target: x86_64-unknown-linux-gnu
+    Configured with: ../gcc/configure --enable-languages=c,c++
+    Thread model: posix
+    gcc version 5.1.0 (GCC)
+
+Non obvious lines:
+
+- `Using built-in specs.`. Means that the default specs files are being used, that is, `-specs` was not passed as an argument.
+- `Configured with`: how `configure` was called before building
+
+### print-search-dirs
+
+    gcc -print-search-dirs | tr ':' '\n'
+
+Sample output:
+
+    install
+     /usr/local/lib/gcc/x86_64-unknown-linux-gnu/5.1.0/
+    programs
+     =/usr/local/libexec/gcc/x86_64-unknown-linux-gnu/5.1.0/
+    /usr/local/libexec/gcc/x86_64-unknown-linux-gnu/5.1.0/
+    /usr/local/libexec/gcc/x86_64-unknown-linux-gnu/
+    [...]
+    libraries
+     =/usr/local/lib/gcc/x86_64-unknown-linux-gnu/5.1.0/
+    /usr/local/lib/gcc/x86_64-unknown-linux-gnu/5.1.0/../../../../x86_64-unknown-linux-gnu/lib/x86_64-unknown-linux-gnu/5.1.0/
+    /usr/local/lib/gcc/x86_64-unknown-linux-gnu/5.1.0/../../../../x86_64-unknown-linux-gnu/lib/x86_64-linux-gnu/
+    [...]
+
+The search paths are:
+
+- `install` TODO
+- `programs`: where GCC will look for its internal programs like `cc1` and `collect2`. GCC also uses the `PATH` for external programs, which are called even though they are not there.
+
+### print-file-name
+
+Find in the `libraries` section of `-print-search-dirs`.
+
+This horribly named option searches in the library path for a given library:
+
+    gcc -print-file-name=libc.so
+
+If the library is found it returns the full path:
+
+    /usr/lib/x86_64-linux-gnu/libc.so
+
+otherwise, it returns the input string:
+
+    libc.so
+
+which indicates that the program only checks if directories exist, not the actual file searched for.
+
+### print-prog-name
+
+Same as `-print-file-name`, but for the internal called programs instead.
