@@ -2575,10 +2575,10 @@ void printCallStack() {
             c.virtualMethod();
         }
     }
-
 #endif
 
-//constexpr
+#if __cplusplus >= 201103L
+// constexpr
 
     int not_constexpr_func() {
         return 1;
@@ -2588,13 +2588,13 @@ void printCallStack() {
         return i;
     }
 
-        /*
-        C++11 specifies that the body of a constexrp function must contain a single return statement.
+    /*
+    C++11 specifies that the body of a constexrp function must contain a single return statement.
 
-        Otherwise, it would be too much work for the compiler to do.
+    Otherwise, it would be too much work for the compiler to do.
 
-        <http://stackoverflow.com/questions/3226211/why-is-it-ill-formed-to-have-multi-line-constexpr-functions>
-        */
+    <http://stackoverflow.com/questions/3226211/why-is-it-ill-formed-to-have-multi-line-constexpr-functions>
+    */
     /*
     constexpr int constexpr_func_multi_statement(int i) {
         int j;
@@ -2607,17 +2607,18 @@ void printCallStack() {
     }
 
 
-        /**
-        ERROR: the compiler ensures that the function is constexpr,
-        so this does not compile.
-        */
+    /*
+    ERROR: the compiler ensures that the function return is constexpr,
+    so this does not compile.
+    */
     /*
     int constexpr constexpr_func_bad(){
         return std::time();
     }
     */
+#endif
 
-//string
+// string
 
     std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems) {
         std::stringstream ss(s);
@@ -2901,7 +2902,7 @@ int main(int argc, char **argv) {
 
         Also, in C++ const can be used to qualify methods.
 
-        <http://stackoverflow.com/questions/8908071/const-correctness-in-c-vs-c>
+        http://stackoverflow.com/questions/8908071/const-correctness-in-c-vs-c
     */
     {
         /*
@@ -2914,15 +2915,15 @@ int main(int argc, char **argv) {
             //int* ip = i;
         }
 
-        //unlike for constexpr, const does not need to have value define at compile time
+        // unlike for constexpr, const does not need to have value define at compile time
         {
             const int i = std::time(NULL);
         }
 
-        //consts must be initialized at declaration because they cannot be modified after.
+        // consts must be initialized at declaration because they cannot be modified after.
         {
-            //const int i;
             // ERROR i not initialized
+            //const int i;
 
             // ERROR uninitialized
             //int * const ipc;
@@ -2977,7 +2978,6 @@ int main(int argc, char **argv) {
     }
 
 #if __cplusplus >= 201103L
-
     /*
     # constexpr
 
@@ -2993,18 +2993,18 @@ int main(int argc, char **argv) {
 
         Two uses:
 
-        - variables
+        -   variables
 
             Means that the value of an expression is known at compile time.
 
-        - functions
+        -   functions
 
             The value returned by constexpr functions is known to be a compile time constant.
 
             The compiler enforces this by inspecting the function.
     */
     {
-        // OK: built-in operations that take constexprs return a constexpr
+        // OK: built-in operators that take constexprs return a constexpr
         {
             constexpr int i = 1 + 1;
         }
@@ -3073,11 +3073,9 @@ int main(int argc, char **argv) {
             //constexpr std::string s = "abc";
         }
     }
-
 #endif
 
 #if __cplusplus >= 201103L
-
     /*
     # nullptr
 
@@ -3123,7 +3121,6 @@ int main(int argc, char **argv) {
             assert(sizeof(std::nullptr_t) == sizeof(void*));
         }
     }
-
 #endif
 
     /*
@@ -3696,11 +3693,19 @@ int main(int argc, char **argv) {
 
     // # enum
     {
-        //unlike c, already does typedef
+        // Unlike C, already does typedef.
         {
-            enum TEXTURE {GRASS, WALL, SKY};
-            TEXTURE t = GRASS;
+            enum E {A, B, C};
+            E e = A;
         }
+
+#if __cplusplus >= 201103L
+        // Set storage size.
+        {
+            enum E : char {A, B, C};
+            assert(sizeof(E) == sizeof(char));
+        }
+#endif
     }
 
     // # typedef

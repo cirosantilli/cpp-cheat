@@ -1,9 +1,24 @@
-#include <assert.h> /* assert */
-#include <limits.h> /* INT_MAX */
-#include <stdlib.h> /* EXIT_SUCCESS */
+#include "common.h"
 
 int main() {
-    /* # Values */
+    /*
+    # Terminology
+
+        - `E`: enumeration tag
+        - `E0`, `E1`: enumeration constants or memebers
+    */
+    {
+        enum E {
+            E0,
+            E1
+        };
+    }
+
+    /*
+    # Values
+
+    # Enumeration constants
+    */
     {
         /*
         You can choose the values explicitly.
@@ -21,9 +36,9 @@ int main() {
                 E1,
                 E2 = 3,
                 E3,
-                E4 = INT_MAX,
+                E4 = INT_MAX
                 /* ERROR: Overflow in enumeration values */
-                /*E5*/
+                /*, E5*/
             };
 
             /* If unspecified, the first is 0. */
@@ -40,13 +55,13 @@ int main() {
 
         # Value type
 
-            Enum values are `int`.
-
-            It does not seem possible to change that:
+            The maximum size is `int`, the actual data storage is implementation defined:
 
             - http://stackoverflow.com/questions/366017/what-is-the-size-of-an-enum-in-c
             - http://stackoverflow.com/questions/4879286/specifying-size-of-enum-type-in-c
             - http://stackoverflow.com/questions/18090541/how-to-set-the-value-of-an-enumeration-constant-outside-the-range-of-int
+
+            In C++11, you can actually set the exact enum size.
         */
         {
             /* sizeof */
@@ -57,10 +72,24 @@ int main() {
             }
 
             /* The largest value that can be portably stored is INT_MAX. */
-            /* http://stackoverflow.com/questions/366017/what-is-the-size-of-an-enum-in-c */
             {
                 enum E {E1 = INT_MAX};
                 /*enum E_BAD { E1 = INT_MAX + 1};*/
+                /*enum E_BAD { E1 = INT_MAX, A};*/
+            }
+
+            /*
+            Because size is unknown, it is not possible to forward declare
+            and use an enum: it is an incomplete type.
+
+            The situation is similar to `struct`, except that for `struct`
+            we can have pointers to a forward declaration.
+
+            But enums are not lvalues, so pointers to enums are useless.
+            */
+            {
+                /* ERROR (pedantic): ISO C forbids forward references to enum types. */
+                /*enum Forward;*/
             }
         }
     }
@@ -88,7 +117,7 @@ int main() {
 
     /* Nomemclature. */
     {
-        enum E { E0 };
+        enum E {E0};
         /*
         # Enumerator
 
@@ -111,15 +140,33 @@ int main() {
 
         /* This is why enum values don't generate variable size arrays. */
         {
-            enum N { N =2 };
+            enum N { N = 2 };
             int is[N];
             assert(sizeof(is) == 2 * sizeof(int));
         }
     }
 
+    /*
+    # Pointer to enum
 
-    /* Enum constans are not lvalues. No const removal cast. */
-    /*int *pe = &E1;*/
+    # Address of enum
+
+        Enum values do not have address.
+
+        They are compile time constants, and cannot be modified.
+
+        GCC for example always inlines them: they never appear on object files.
+    */
+    {
+        enum E {E0};
+
+        /* ERROR: lvalue required */
+        /* Enum constans are not lvalues. */
+        /*int *pe = &E1;*/
+
+        /* TODO legal but useless? */
+        enum E *pe;
+    }
 
     /*
     # Count elements of an ENUM.

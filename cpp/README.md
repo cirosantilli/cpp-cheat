@@ -1,5 +1,7 @@
 # C++
 
+1. [Style guides](style-guides.md)
+
 ## Standards
 
 Like C, C++ is standardized by ISO under the id: ISO/IEC 14882.

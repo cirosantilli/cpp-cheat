@@ -41,7 +41,7 @@ or specific operating systems
         it may also happen on an integer operation.
 
         Floating point division by 0 `1.0 / 0.0` does not generate exceptoins since it is defined by IEEE:
-        <http://stackoverflow.com/questions/7267838/division-by-zero-does-not-throw-sigfpe>
+        http://stackoverflow.com/questions/7267838/division-by-zero-does-not-throw-sigfpe
 
         Integer division by 1 / 0 may generate a `SIGFPE`.
 
@@ -123,9 +123,7 @@ or specific operating systems
     but also has nice examples that help understand the ANSI C model.
 */
 
-#include <signal.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include "common.h"
 
 void signal_handler(int sig) {
     /*
@@ -175,7 +173,7 @@ int main() {
         signal(SIGTERM, signal_handler);
         signal(SIGFPE, signal_handler);
 
-    //# Floating point exception
+    /* # Floating point exception */
 
         /*
         {
@@ -188,37 +186,37 @@ int main() {
         }
         */
 
-    //int i = 0;
-    //while ( i < 10 )
-    //{
-    //    printf( "%d\n", i );
-    //    i++;
+    /*
+    int i = 0;
+    while (i < 10) {
+        printf( "%d\n", i );
+        i++;
 
-    //    /*
-    //    TODO how to wait here for say 1 sec, so that user can try signals out?
-    //    there is no simple ANSI way of doing that...
+        TODO how to wait here for say 1 sec, so that user can try signals out?
+        there is no simple ANSI way of doing that...
 
-    //    on posix we would:
-    //    */
+        on posix we would:
+        //sleep( 1 );
+    }
+    */
 
-    //        //sleep( 1 );
-    //}
+    /*
+    TODO why does this not work:
 
-    //TODO why does this not work:
+        puts( "press any key to exit" );
+        getchar();
 
-        //puts( "press any key to exit" );
-        //getchar();
+    nor does this:
 
-    //nor does this:
+        puts( "press any key to exit" );
+        const int bufsiz = 16;
+        char buf[bufsiz];
+        fgets( buf, bufsiz, stdin );
 
-        //puts( "press any key to exit" );
-        //const int bufsiz = 16;
-        //char buf[bufsiz];
-        //fgets( buf, bufsiz, stdin );
+    if the user enters a C-C, the program exits
 
-    //if the user enters a C-C, the program exits
-
-    //TODO is it because C-C also outputs chars to the stream, including a newline?
+    TODO is it because C-C also outputs chars to the stream, including a newline?
+    */
 
     return EXIT_SUCCESS;
 }

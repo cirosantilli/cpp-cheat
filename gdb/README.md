@@ -616,6 +616,36 @@ Current line every time the debugger stops:
 
     set disassemble-next-line on
 
+#### x
+
+Examine 4 bytes of memory:
+
+    x 0x00000000004000b0
+
+Sample output:
+
+    0x4000b0 <_start>:	0x000001b8
+
+where `_start` is a label that is there.
+
 ### set
 
 Configure GDB.
+
+## Invocation
+
+### batch
+
+Only run `-x` and `-ex` commands and exit.
+
+Sample application: disassemble a single function: <http://stackoverflow.com/questions/22769246/disassemble-one-function-using-objdump>
+
+    gdb -batch -ex 'file function_int_int_int.out' -ex 'disassemble main'
+
+### ex
+
+Run given command from string.
+
+### x
+
+Run commands in the given file.

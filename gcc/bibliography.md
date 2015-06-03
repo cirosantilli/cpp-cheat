@@ -13,3 +13,5 @@ Internals:
     Generated from `gcc/doc/gccint.texi`, so very official, yay!
 
 -   <https://en.wikibooks.org/wiki/GNU_C_Compiler_Internals/GNU_C_Compiler_Architecture>
+
+-   <https://gcc.gnu.org/wiki>

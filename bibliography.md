@@ -34,7 +34,7 @@
 
 -   <http://yosefk.com/c++fqa/>
 
-    Comments on the quirks of c++.
+    Comments on the quirks of C++.
 
     Fun and informative for those that know the language at intermediate level.
 

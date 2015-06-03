@@ -134,6 +134,8 @@ int main() {
 
         # sbrk
 
+            Was in POSIX 2001, but got removed.
+
             You must have in your mind:
 
                 ---> brk
@@ -166,8 +168,6 @@ int main() {
 
             The kernel may just say: you are taking up too much memory,
             or "this would overlap with another memory regions", and deny the request.
-
-            Was in POSIX 2001, but was removed.
 
         # Get heap size
 
@@ -294,6 +294,5 @@ int main() {
         /* TODO */
     }
 
-    printf("ALL ASSERTS PASSED\n");
     return EXIT_SUCCESS;
 }

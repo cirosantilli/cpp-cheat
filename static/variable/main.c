@@ -1,9 +1,9 @@
 #include <stdio.h>
 
-void a();
-
 int i = 0;
 static int si = 0;
+
+void a();
 
 void m() {
     i++;

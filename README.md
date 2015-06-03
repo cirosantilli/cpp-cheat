@@ -13,25 +13,27 @@ Relies on [C++ boilerplate](https://github.com/cirosantilli/cpp-boilerplate) to 
     1. [c.c](c.c): C cheatsheet
     1. [cpp.cpp](main_cpp.cpp): C++ cheatsheet
     1. [POSIX](posix/): POSIX C API
-    1. [Multi-file](multifile/): `include`, `extern` vs `static`, dynamic libraries, cross language calls
     1. [GCC](gcc/): GCC extensions
     1. [OpenGL](opengl/)
     1. [KDE](kde/)
 1.  Introduction
     1. [C](c/)
-    1. [C++](cpp.md)
+    1. [C++](cpp/)
     1. [C vs C++](c-vs-cpp.md)
-    1. [Implementations](implementations.md)
     1. [Style guides](style-guides.md)
-    1. [Undefined behaviour](undefined-behaviour.md)
-1. [C from C++](c-from-cpp/)
-1. [Fortran from C](c-from-cpp/)
-1. [GDB](gdb/)
-1. [Boost](boost/)
-1. [CMake](cmake.md)
-1. [Flex and Bison](flex-bison/)
-1. [glibc](glibc/)
-1. [hello_world_cpp.cpp](hello_world_cpp.cpp)
+1.  Multi-file
+    1.  [static](static.c)
+    1.  [extern](extern.c)
+    1.  Cross-language
+        1.  [C from C++](c-from-cpp/)
+        1.  [C++ from C](cpp-from-c/)
+        1.  [Fortran from C](fortran-from-c/)
+1.  [GDB](gdb/)
+1.  [Boost](boost/)
+1.  [CMake](cmake.md)
+1.  [Flex and Bison](flex-bison/)
+1.  [glibc](glibc/)
+1.  [hello_world_cpp.cpp](hello_world_cpp.cpp)
 1.  GUI
     1. [GTK](gtk/)
     1. [Qt](qt/)

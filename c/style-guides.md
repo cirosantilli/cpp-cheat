@@ -1,18 +1,12 @@
 # Style guides
 
--   <http://google-styleguide.googlecode.com/svn/trunk/cppguide.xml>
+-   <https://www.securecoding.cert.org/confluence/display/c/CERT+C+Coding+Standard>
 
-    Google C++ coding standards.
+    CERT C Coding Standard.
 
-    Interesting points:
+    Focus on security.
 
-    - a Boost subset is accepted
-    - a C++11 subset is accepted
-
--   <http://geosoft.no/development/cppstyle.html>
-
-    Coding guidelines, clearly exemplified.
-
+    By Carnegie Mellon University.
 
 ## MISRA C
 

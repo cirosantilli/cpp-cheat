@@ -25,6 +25,7 @@ In Ubuntu 14.04:
     - `/lib/x86_64-linux-gnu/libc.so.6` from `libc6` package, which is used by other packages. The packages does not contain headers.
     - `/usr/lib/x86_64-linux-gnu/libc.so` from the `libc6-dev` package, which is used by things you compile yourself. The package also contains headers.
 -   the Ubuntu package that contains it is called `libc6-dev`. See it with: `apt-file search `
+-   `libc-bin` contains some utilities present in the glibc source tree like `ldd` and `iconv`
 
 ## Find glibc version
 

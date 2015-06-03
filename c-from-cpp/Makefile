@@ -1,20 +1,17 @@
+.POSIX:
 .PHONY: run clean
 
 main.out: main.o c.o
-	g++ -o main.out main.o c.o
+	g++ -o '$@' $^
+
+c.o: c.c
+	gcc -c -o '$@' -std=c89 -Wextra -pedantic-errors '$<'
+
+main.o: main.cpp
+	g++ -c -o '$@' -std=c++98 -Wextra -pedantic-errors '$<'
 
 run: main.out
 	./main.out
-
-main.o: main.cpp
-	g++ -c "$<" -o "$@"
-
-c.o: c.c
-	g++ -c "$<" -o "$@"
-	# The following does not work:!!!
-		#gcc -c "$<" -o "$@"
-	# Because gcc gives plain names to function in the object file
-	# While g++ uses the more complex cpp naming conventions.
 
 clean:
 	rm -f *.o *.out

@@ -1,20 +1,23 @@
-# Build and install
+# Makefile
 
 Tested with: version 5.1.0 on Ubuntu 14.04 in a 2013 computer.
 
 Summary:
 
-    apt-get install flex bison
-    git clone git://gcc.gnu.org/git/gcc.git
+    sudo apt-get install flex bison autogen runtest
+    mkdir gcc
     cd gcc
+    git clone git://gcc.gnu.org/git/gcc.git src
+    cd src
     # No annotated tags... so no describe.
     git checkout gcc-5_1_0-release
     ./contrib/download_prerequisites
     cd ..
-    mkdir gcc-build
-    cd gcc-build
-    ../gcc/configure --enable-languages=c,c++
-    make
+    mkdir build
+    cd build
+    ../src/configure --enable-languages=c,c++
+    make -j5
+    make check
     sudo make install
 
 ## Configure
@@ -59,7 +62,7 @@ Took me 2 hours on a and 4GB of disk.
 
 To build only certain parts of GCC <http://stackoverflow.com/questions/14728652/how-to-make-a-light-build-of-gcc-with-language-supports-etc-pruned>:
 
-    ../gcc/configure --enable-languages=c,c++
+    ../src/configure --enable-languages=c,c++
 
 With `make -j5`, this took 1 hour.
 
@@ -79,11 +82,18 @@ By default, the build happens in 3 stages:
 
 Configure the build to disable bootstrap and compile only once:
 
-    ../gcc/configure --disable-bootstrap
+    ../src/configure --disable-bootstrap
 
 TODO does it work without? Is bootstrap really necessary? How can stage 3 ever be different from stage 2?
 
 ## Tests
+
+## check
+
+- <https://gcc.gnu.org/install/test.html>
+- <https://gcc.gnu.org/onlinedocs/gccint/C-Tests.html>
+
+Requires:
 
     sudo apt-get install autogen runtest
 
@@ -96,11 +106,50 @@ Run only certain tests:
     make -k check-gcc-c
     make -k check-gcc
 
+Restrict to tests under a single directory `gcc/testsuite/gcc.dg`:
+
+    make check-gcc RUNTESTFLAGS='dg.exp'
+
+where `dg.exp` is a test script in that directory.
+
+Run a single test:
+
+    make check-gcc RUNTESTFLAGS='dg.exp=cast-1.c'
+
+Where `cast-1.c` refers to `gcc/testsuite/gcc.dg/cast-1.c`
+
+Run tests matching glob:
+
+    make check-gcc RUNTESTFLAGS='dg.exp=cast-*.c'
+
+Test output is very noisy, and does not return non zero on failure.
+
+You should look for a line of type:
+
+            === gcc Summary ===
+
+    # of expected passes        16
+    # of unexpected failures    2
+
+for failures, or read the `.sum` file under `build/gcc/testsuite/gcc`.
+
+Known failures exist in all versions, and are summarized at: <https://gcc.gnu.org/gcc-5/buildstat.html>
+
+Executables are compiled under: `build/gcc/testsuite/gcc`. That also contains:
+
+- a `.log` file with detailed test information
+- a `.sum` file with summary pass / fail information
+
+Tests are run with `runtest`, which uses `expect`:
+
+- `runtest` is part of DejaGnu. Thus the `.dg` directories.
+- `.exp` files are expect scripts
+
 ## Install
 
 Generated files will be put under:
 
-- `/usr/local/bin` for font-end executables like `gcc`, `ld`
+- `/usr/local/bin` for front-end executables like `gcc`, `ld`
 - `/usr/local/lib64` for libraries like `libstdc++`
 - `/usr/local/libexec/gcc/x86_64-unknown-linux-gnu/5.1.0` for backend executables like `cc1` and `collect2`
 

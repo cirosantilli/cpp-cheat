@@ -16,14 +16,6 @@ FreeBSD moved to it in 2012: <http://unix.stackexchange.com/questions/49906/why-
 
 Sony PS4 (2013 Q4, FreeBSD based) moved to it while PS3 used GCC.
 
-### icc
-
-Intel.
-
-Has intrinsics for every Intel instruction, and optimizes assembly really well for Intel. 
-
-Closed source...
-
 ### CompCert C compiler
 
 <http://compcert.inria.fr/compcert-C.html>
@@ -42,6 +34,36 @@ Very small.
 
 Popular in the 1980s, until GCC killed it.
 
+### Tiny C Compiler
+
+<https://github.com/TinyCC/TinyCC>
+
+By Fabrice Bellard.
+
+Educational only.
+
+### Parsers
+
+Language parsers without built-in assembly output:
+
+- <https://github.com/eliben/pycparser>
+
+### Non-free
+
+#### icc
+
+Intel.
+
+Has intrinsics for every Intel instruction, and optimizes assembly really well for Intel. 
+
+Closed source...
+
+#### IBM XL C
+
+IBM proprietary: <https://en.wikipedia.org/wiki/IBM_XL_C%2B%2B>
+
+The Linux 2014 release uses clang as front-end.
+
 ## libc
 
 - glibc: GNU implementation, major on Linux
@@ -53,6 +75,7 @@ Then there are several implementations that target Linux-only embedded systems, 
 - musl libc. Comparison: <http://www.etalabs.net/compare_libcs.html>. Alpine Linux moved to it, as it is partially binary compatible with glibc.
 - Bionic (Android): <https://en.wikipedia.org/wiki/Bionic_%28software%29>
 - dietlibc <http://www.fefe.de/dietlibc/>
+- newlibc <https://en.wikipedia.org/wiki/Newlib>
 
 ### ulibc
 

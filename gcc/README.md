@@ -3,13 +3,14 @@
 Cheat on the GNU Compile Collection (GCC) language extensions and command line utilities.
 
 1.  [main.c](main.c): main `gcc` cheat
+    1. [weak](weak/)
 1.  [Introduction](introduction.md)
 1.  [Compilation steps](compilation-steps.md)
-1.  [gcc utility](gcc-utility.md)
+1.  [Invocation](invocation.md)
     1. [Spec files](spec-files.md)
 1.  [cpp](cpp.md)
 1.  Internals
-    1. [Build and install](build-and-install.md)
+    1. [Makefile](makefile.md)
     1. [Source tree](source-tree.md)
 
 ## Scope
