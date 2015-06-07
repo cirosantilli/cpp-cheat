@@ -2,20 +2,22 @@
 
 int main() {
     /*
-    C99 6.2.1.1 "Scope of identifiers".
+    # Identifiers
 
-    Identifiers are names either for:
+        C99 6.2.1.1 "Scope of identifiers".
 
-    - variables
-    - functions
-    - structs
-    - struct members
-    - enums
-    - unions
-    - macros
-    - labels (for goto)
+        Identifiers are names either for:
 
-    Most identifiers are use defined, but C99 has one that is predefined: `__func__`.
+        - variables
+        - functions
+        - structs
+        - struct members
+        - enums
+        - unions
+        - macros
+        - labels (for goto)
+
+        Most identifiers are use defined, but C99 has one that is predefined: `__func__`.
     */
     {
         /* TODO examples of each. */
@@ -57,6 +59,16 @@ int main() {
             assert(i == 0);
         }
     }
+
+    /*
+    # Linkage of identifiers
+
+        Three types:
+
+        - external: marked as external, with no previous non-external declaration
+        - internal: file scope or static
+        - none
+    */
 
     /*
     # Storage duration of objects

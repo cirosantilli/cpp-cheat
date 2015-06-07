@@ -1,13 +1,22 @@
 # Source tree
 
+## manual
+
+## Documentation
+
+Located under `manual/`.
+
 ## sysdeps
 
 Contains both assembly and OS dependant versions of several functions, which makes it one of the most interesting directories.
 
 It contains two kinds of specializations:
 
-- performance, e.g. `sysdeps/x86_64/multiarch/memcmp-sse4.S` which does `memcmp` really well for sse4
-- system call related, which is dependent on the OS used. Linuxers will come again and again to: `sysdeps/unix/sysv/linux`
+-   performance, e.g. `sysdeps/x86_64/multiarch/memcmp-sse4.S` which does `memcmp` really well for SSE-4
+
+-   system call related, which is dependent on the OS used. Linuxers will come again and again to: `sysdeps/unix/sysv/linux`
+
+    TODO: `sysdeps/posix` contains many files which are also present in `sysdeps/unix/sysv/linux`. Why is that? Linux seems to prefer those under `sysdeps/unix/sysv/linux`, which on the build go to the top-level, e.g. `time/clock.o`.
 
 Each method also has a pure C implementation when possible, e.g. `string/memcmp.c`, but that is likely to be much less efficient.
 

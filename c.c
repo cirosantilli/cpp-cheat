@@ -1,9 +1,7 @@
 /*
 ANSI C cheat.
 
-Small comments on comparing ANSI C with extensions are acceptable.
-
-This cheatsheet is being split up into smaller parts to c/
+This file is being split up into smaller parts to c/
 */
 
 #define IMPLEMENTATION_SIGNAL
@@ -589,7 +587,7 @@ int setjmp_func(int jmp, jmp_buf env_buf) {
     }
 
     void heap1b_prof(int n) {
-        char* cp;
+        char *cp;
         int i;
         for(i = 0; i < n; ++i) {
             cp = (char*) malloc(sizeof(char) * 1);
@@ -598,7 +596,7 @@ int setjmp_func(int jmp, jmp_buf env_buf) {
     }
 
     void heap1kb_prof(int n) {
-        char* cp;
+        char *cp;
         int i;
         for(i = 0; i < n; ++i) {
             cp = (char*) malloc(sizeof(char) * 0x800);
@@ -607,7 +605,7 @@ int setjmp_func(int jmp, jmp_buf env_buf) {
     }
 
     void heap1mbProf(int n) {
-        char* cp;
+        char *cp;
         int i;
         for(i = 0; i < n; ++i) {
             cp = (char*) malloc(sizeof(char) * 0xF0000);
@@ -646,62 +644,10 @@ int setjmp_func(int jmp, jmp_buf env_buf) {
         return res;
     }
 
-/* Process address space. */
-
-    int BSS;
-    int DATA = 1;
-
 int post_inc_global() {
     global++;
     return global - 1;
 }
-
-int asm_precalc(int i) {
-    return i + 1;
-}
-
-int asm_precalc_inline(int i) {
-    return i + 1;
-}
-
-/*
-#exit
-
-    Exit program at any point, including outside of the main function.
-
-    Gets return value as an argument.
-*/
-void exit_func() {
-    exit(EXIT_FAILURE);
-    exit(EXIT_SUCCESS);
-}
-
-void atexit_func() {
-    printf("atexit\n");
-    printf("ALL ASSERTS PASSED\n");
-}
-
-/*
-#abort
-
-    man abort
-
-    Sources:
-
-    - <http://stackoverflow.com/questions/397075/what-is-the-difference-between-exit-and-abort>
-    - <http://stackoverflow.com/questions/3676221/when-abort-is-preferred-over-exit>
-
-    Differences from exit:
-
-    - does not call `atexit` function.
-    - raises `SIGABRT`
-    - does not call C++ destructors
-*/
-
-void abort_func() {
-    abort();
-}
-
 
 /*
 # main
@@ -724,13 +670,13 @@ void abort_func() {
 
         or
 
-            int main(int argc, char* argv[])
+            int main(int argc, char *argv[])
 
         Or equivalent ones to the above:
 
         TODO name of equivalend:
 
-            int main(int argc, char** argv)
+            int main(int argc, char **argv)
 
         Default return type `int` (C89 only):
 
@@ -911,7 +857,7 @@ int main(int argc, char **argv) {
             Just like for normal variable declaration,
             compound literal memory can only be accessed in the scope in which it is declared.
 
-            <http://stackoverflow.com/questions/14955194/lifetime-of-referenced-compound-array-literals>
+            http://stackoverflow.com/questions/14955194/lifetime-of-referenced-compound-array-literals
             */
             {
                 int *p;
@@ -2243,62 +2189,6 @@ int main(int argc, char **argv) {
         }
     }
 
-    /*
-    # typedef
-
-        Create new types based on old ones
-
-        On libc, the convention append `_t` to typedefs is used
-        ex: `size_t`, `wchar_t`, etc.
-
-        Some of those macros are defined to be strcitly integer types (like size_t)
-        while others can be either integer or floating points according to the implementation.
-
-        To print integer typedefs such with `printf`, see `printf`.
-    */
-    {
-
-        {
-            typedef int Newint;
-            Newint i = 1;
-            assert(sizeof(Newint) == sizeof(int));
-        }
-
-
-        /* ERROR: unlike macros, typedef has scope just like that of variables: */
-
-            /*Newint i = 1;*/
-
-        /*
-        typedef position is very flexible.
-
-        Only use the first though if you want to be sane.
-        */
-        {
-            typedef unsigned int uint;
-            unsigned typedef int vint;
-            unsigned int typedef wint;
-
-            /* This is the only one that fails: */
-
-                /*unsigned int xint typedef;*/
-        }
-
-        /*
-        Repeated typedef:
-        <http://stackoverflow.com/questions/8594954/repeated-typedefs-invalid-in-c-but-valid-in-c>
-
-        Allowed in C++ and C11, forbidden in C99.
-        */
-        {
-#if __STDC_VERSION__ >= 201112L
-            typedef int i;
-            typedef int i;
-            i j = 0;
-#endif
-        }
-    }
-
 #if __STDC_VERSION__ >= 201112L
 #if defined(__GNUC__) && __GNUC__ >= 4 && __GNUC_MINOR__ >= 9
     /*
@@ -2321,745 +2211,6 @@ int main(int argc, char **argv) {
     }
 #endif
 #endif
-
-    /*
-    # struct
-
-        Application:
-
-        - declare lots of data in one go
-
-        - pass lots of data in one go to functions
-
-        - avoid changing function signatures if you add a new field
-            to your struct.
-    */
-    {
-        struct S {
-            int i;
-            float f;
-        };
-
-        /* Initialize by order. */
-        {
-            struct S s = { 1, 1.0 };
-            assert(s.i == 1);
-            assert(s.f == 1.0);
-
-            s.i = 2;
-            s.f = 2;
-            assert(s.i == 2);
-            assert(s.f == 2.0);
-        }
-
-        /* Define and initialize at the same time. */
-        {
-            struct S { int i; int j; } s0 = { 0, 1 }, s1 = { 2, 3 };
-            assert(s0.i == 0);
-            assert(s1.i == 2);
-
-            struct S s2 = { 4, 5 };
-        }
-
-#if __STDC_VERSION__ >= 199901L
-        /*
-        # Designated initializer for structs
-
-            Allows to struc values by their name instead of order.
-
-            Sources:
-
-            - oracle tutorial with examples: <http://docs.oracle.com/cd/E19205-01/819-5265/bjazo/index.html>
-        */
-        {
-            {
-                struct S s = {
-                    .f = 1.0,
-                    .i = 1
-                };
-                assert(s.i == 1);
-                assert(s.f == 1.0);
-            }
-
-            /* Can be mixed with array designated initializers. */
-            {
-                struct S { int a[2]; int i; };
-
-                struct S ss[] = {
-                    [0].a = {0, 1},
-                    [0].i = 2,
-                    [1].a[0] = 3,
-                    [1].a[1] = 4,
-                    [1].i = 5
-                };
-
-                assert(ss[0].a[0] == 0);
-                assert(ss[0].a[1] == 1);
-                assert(ss[0].i == 2);
-
-                assert(ss[1].a[0] == 3);
-                assert(ss[1].a[1] == 4);
-                assert(ss[1].i == 5);
-            }
-        }
-#endif
-
-        /*
-        # Empty struct
-
-            invalid, but possible as a GCC extension.
-
-            http://stackoverflow.com/questions/24685399/c-empty-struct-what-does-this-mean-do
-        */
-        {
-            /*struct s {};*/
-        }
-
-        {
-            /* Assignment only works for initialization, unless use a C99 compound literal. */
-            {
-                struct S { int i; };
-                struct S s;
-                /*s = { 1 };*/
-                /*s = { .i = 1 };*/
-            }
-
-            /*
-            # Compound literals for structs
-
-                C99 compound literals allow to assign structs to struct literals.
-            */
-            {
-                struct S { int i; int j; };
-
-                {
-                    struct S s;
-                    s = (struct S){ 1, 2 };
-                    assert(s.i == 1);
-                    assert(s.j == 2);
-                }
-
-                {
-                    struct S s;
-                    s = (struct S){ .j = 2, .i = 1 };
-                    assert(s.i == 1);
-                    assert(s.j == 2);
-                }
-            }
-        }
-
-        /* Pointer to struct. */
-        {
-            struct S s;
-            struct S* sp;
-
-            sp = &s;
-
-            /* equivalent `a->b` equals `(*a).b` */
-
-                sp->i = 1;
-                /*(*sp).i = 1;*/
-
-            assert(s.i == 1);
-        }
-
-        /* Array of structs initialization. */
-        {
-            struct S {
-                int i;
-                int j;
-            };
-
-            /* Non-designated. */
-            {
-                struct S ss[] = {
-                    { 0, 1 },
-                    { 2, 3 },
-                };
-
-                assert(ss[0].i == 0);
-                assert(ss[0].j == 1);
-                assert(ss[1].i == 2);
-                assert(ss[1].j == 3);
-            }
-
-#if __STDC_VERSION__ >= 199901L
-            /* Designated. */
-            {
-                struct S ss[] = {
-                    { .j = 1, .i = 0 },
-                    { .j = 3, .i = 2 },
-                };
-
-                assert(ss[0].i == 0);
-                assert(ss[0].j == 1);
-                assert(ss[1].i == 2);
-                assert(ss[1].j == 3);
-            }
-        }
-#endif
-
-        /*
-        Array fields
-
-            Array length must be specified.
-
-            Allocates that many objects of the given type.
-        */
-        {
-            {
-                struct S
-                {
-                    /* ERROR: */
-                    /*int is[];*/
-                    int is0[2];
-                    int is1[2];
-                };
-
-                struct S s = { { 0, 1 }, { 2, 3 } };
-                assert(s.is0[0] == 0);
-                assert(s.is0[1] == 1);
-                assert(s.is1[0] == 2);
-                assert(s.is1[1] == 3);
-
-                /* Non-designated init. */
-                {
-                    struct S ss[] = {
-                        { { 0, 1 }, { 2, 3 } },
-                        { { 4, 5 }, { 6, 7 } }
-                    };
-                    assert(ss[0].is0[0] == 0);
-                    assert(ss[0].is0[1] == 1);
-                    assert(ss[0].is1[0] == 2);
-                    assert(ss[0].is1[1] == 3);
-                    assert(ss[1].is0[0] == 4);
-                    assert(ss[1].is0[1] == 5);
-                    assert(ss[1].is1[0] == 6);
-                    assert(ss[1].is1[1] == 7);
-                }
-
-#if __STDC_VERSION__ >= 199901L
-
-                /* Designated init. */
-                {
-                    struct S ss[] = {
-                        { .is0 = { 0, 1 }, .is1 = { 2, 3 } },
-                        { .is0 = { 4, 5 }, .is1 = { 6, 7 } },
-                    };
-                    assert(ss[0].is0[0] == 0);
-                    assert(ss[0].is0[1] == 1);
-                    assert(ss[0].is1[0] == 2);
-                    assert(ss[0].is1[1] == 3);
-                    assert(ss[1].is0[0] == 4);
-                    assert(ss[1].is0[1] == 5);
-                    assert(ss[1].is1[0] == 6);
-                    assert(ss[1].is1[1] == 7);
-                }
-
-#endif
-
-            }
-
-            /* Works for strings. */
-            {
-                struct S
-                {
-                    char cs[3];
-                    int i;
-                };
-
-                {
-                    struct S s = { .cs = "ab", .i = 1 };
-                    assert(strcmp(s.cs, "ab") == 0);
-                    assert(s.i == 1);
-                }
-
-                {
-                    struct S s = { "ab", 1 };
-                    assert(strcmp(s.cs, "ab") == 0);
-                    assert(s.i == 1);
-                }
-
-                /*struct S s = { "ab" };*/
-            }
-        }
-
-        /* Substructure init: it all works as expected. */
-        {
-            struct S1 { int i; int j; };
-            struct S0 { struct S1 s; };
-
-            /* Non-designated init. */
-            {
-                struct S0 s = { { 1, 2 } };
-                assert(s.s.i == 1);
-                assert(s.s.j == 2);
-            }
-
-#if __STDC_VERSION__ >= 199901L
-
-            /* Designated init. */
-            {
-                struct S0 s = {
-                    .s = {
-                        .j = 2,
-                        .i = 1
-                    }
-                };
-                assert(s.s.i == 1);
-                assert(s.s.j == 2);
-            }
-
-#endif
-
-        }
-
-        /*
-        # Incomplete types
-
-            Incomplete types are types which only have a declaration but no definition.
-        */
-        {
-            /*
-            # struct that contains itself
-
-            # Incomplete type cycles
-
-                It is impossible to do the following, because that would create an infinite loop:
-
-                -   each S contains one S. and one i.
-
-                -   therefore the size of each S must be 2 ints:
-
-                    size of S + size of int =
-                            1 +           1 =
-                                            2
-
-                -   but then the size of S must be 3 ints:
-
-                        size of S + size of int =
-                                2 +           1 =
-                                              3
-
-                -   and so on
-
-                The solution is to store opaque pointers instead of the actual structs.
-            */
-            {
-                /* ERROR: s has incomplete type. */
-                {
-                    /*
-                    struct S {
-                        struct S s;
-                        int i;
-                    };
-                    */
-                }
-
-                /* ERROR: struct s1 undefined */
-                {
-                    /*
-                    struct S0 { struct S1 s1; };
-                    struct S1 { struct S0 s0; };
-                    */
-                }
-
-                /* ERROR: s1 has incomplete type */
-                {
-                    /*
-                    struct S1;
-                    struct S0 { struct S1 s1; };
-                    struct S1 { struct S0 s0; };
-                    */
-                }
-            }
-
-            /*
-            # Opaque pointers
-
-                You can have pointers to incomplete types.
-
-                Forward declaration of S1 makes it makes it alright.
-
-                Such pointers are called opaque pointers.
-                <http://stackoverflow.com/questions/3854113/what-is-an-opaque-value>
-
-                A common usage pattern is:
-
-                - declare the opaque type in the .h file
-                - declare functions that use the opaque pointer in the .h file
-                - defined the type and the functions in the .c file
-
-                Now clients can only pass around pointers,
-                and use the type through the functions you give them,
-                but not access the fields they choose.
-
-                This is a way to implement private member variables in C.
-
-                `FILE` is widely used as an example of an opaque pointer, but it is not strictly opaque:
-                ANSI does not say that you cannot instantiate it, and popular implementations
-                have allowed that: ANSI only says nothing about it's fields,
-                so using them makes your code non-standard. TODO confirm.
-            */
-            {
-                {
-                    struct S1;
-                    /* storage size of s isn't known . */
-                    /*struct S1 s1;*/
-                    struct S1* s1;
-                }
-
-                {
-                    struct S1;
-                    struct S0 { struct S1* s1; };
-                    struct S1 { struct S0* s0; };
-                }
-
-                /*
-                The type itself has already been defined inside the struct definition,
-                so the following is fine.
-                */
-                {
-                    struct S { struct S* s; };
-                }
-            }
-        }
-
-        /* = Assigns fields one by one. */
-        {
-            struct S s  = { 1, 1.0 };
-            struct S s2 = { 2, 2.0 };
-            s = s2;
-            assert(s.i == 2);
-            assert(s.f == 2.0);
-        }
-
-        /* equality `==` does not exist. There have been failed proposals. */
-        {
-            struct S { int i; };
-            struct S s  = { 1 };
-            struct S s2 = { 1 };
-            /*assert(s == s2);*/
-        }
-
-        /*
-        Inequalities do not exist either: `<` `>` `<=` `>=`
-
-        Possible rationale: if `s.a < s2.a` and `s.b > s2.b`, what does `s < s2` eval to?
-        */
-
-        /*
-        # struct size
-
-            The way data is packed in a struct is not specified in the standard
-
-            Common compiler strategy: align data to 32 bits
-            which makes acess faster, using slightly more memory.
-        */
-        {
-            struct S {
-                char c;
-                int i;
-            };
-
-            /* likelly to be 8 on a 2013 32 bit machine: */
-            printf("struct sizeof = %zu\n", sizeof(struct S));
-
-            assert(sizeof(char) + sizeof(float) <= sizeof(struct S));
-        }
-
-        /*
-        # Unnamed struct
-
-            This is a different concept than *anonymous structs*!!
-            <http://stackoverflow.com/questions/14248044/are-anonymous-structs-standard-and-really-what-are-they>
-
-            It is possible to create structs which don't have a name.
-
-            Only the structs declared immediatiely after definition can be used.
-
-            In theory only standardized in C11, but I am yet to be able to make GCC generate a warning.
-            even with `-std=89 -pedantic -Wall`.
-
-            <http://stackoverflow.com/questions/14248044/are-anonymous-structs-standard-and-really-what-are-they>
-        */
-        {
-            /* Basic. */
-            {
-                struct { int i; int j; } s;
-                s.i = 0;
-                assert(s.i == 0);
-            }
-
-            /* Initialize. */
-            {
-                struct { int i; int j; } s = {0, 1};
-                assert(s.i == 0);
-                assert(s.j == 1);
-            }
-
-            /* Initialize array good style. */
-            {
-                struct { int i; int j; } s[] = {{0, 1}, {2, 3}};
-                assert(s[0].i == 0);
-                assert(s[0].j == 1);
-                assert(s[1].i == 2);
-                assert(s[1].j == 3);
-            }
-
-            /*
-            Initialize array bad style.
-
-            Generates a warning on GCC 4.7 and is horrible to read.
-            */
-            {
-                /*struct { int i; int j; } s[] = { 0, 1, 2, 3 };*/
-                /*assert(s[0].i == 0);*/
-                /*assert(s[0].j == 1);*/
-                /*assert(s[1].i == 2);*/
-                /*assert(s[1].j == 3);*/
-            }
-
-#if __STDC_VERSION__ >= 201112L
-            /*
-            # Anonymous substructure and union
-
-                Different from unnamed struct!
-                <http://stackoverflow.com/questions/14248044/are-anonymous-structs-standard-and-really-what-are-they>
-
-                Is an unnamed struct inside another struct.
-
-                Is / was also the non-standard name given to some concept.
-
-                TODO application?
-            */
-            {
-                struct S {
-                    int i;
-                    struct {
-                        int j;
-                        int k;
-                    };
-                };
-                /* ERROR: missing braces */
-                /*struct S s = {1, 2, 3};*/
-                struct S s = {1, {2, 3}};
-                assert(s.i == 1);
-                assert(s.j == 2);
-                assert(s.k == 3);
-            }
-#endif
-        }
-
-        /*
-        # typedef struct combo
-
-            Advantages:
-
-            -   avoid typing struct all over
-
-            -   if in the future you decide to change a struct
-                with many boolean flags for an integer, you can do it.
-
-            -   write the identifier only 2 times instead of 3
-
-            -   put all declaration information into one single place.
-                No more: should the typedef be before or after doubts.
-
-            TL;DR best practice: whenever possible use:
-
-                typedef struct {} S;
-
-            Unfortunately this cannot be done if you need to declare the struct elsewhere to:
-
-            -   you use a pointer to a struct of the same type inside it.
-                E.g.: linked lists.
-
-                In that case, use:
-
-            -   use the declaration across many files. The typedef declaration would go into a `types.h`,
-                and the definition on a `precise-topic.h`.
-        */
-        {
-            /*
-            The typedef can come before the struct.
-            */
-            {
-                typedef struct S T;
-                struct S {
-                    int i;
-                };
-
-                struct S s = {1};
-                T t = {1};
-                assert(s.i == t.i);
-            }
-
-            /*
-            You can typedef and declare the struct in a single statement.
-            */
-            {
-                typedef struct S {
-                    int i;
-                } T;
-
-                /* Same as: */
-                /*
-                typedef struct S T;
-                struct S {
-                    int i;
-                };
-                */
-
-                T t = {1};
-                T* tp = &t;
-                assert(tp->i == 1);
-
-                struct S s = {1};
-                struct S* sp = &s;
-                assert(sp->i == 1);
-            }
-
-            /*
-            The typedef and the struct can have the same name.
-
-            So the common C89 pattern is `typedef struct S {...} S`.
-
-            C11 adds anonymous structs which is even better.
-            */
-            {
-                typedef struct S {
-                    int i;
-                } S;
-
-                struct S ss = {1};
-                S s = {1};
-                assert(ss.i == s.i);
-            }
-
-            /*
-            # typedef to an unamed struct
-
-                - type even less than for typedef struct
-                - prevent anyone from using the useless `struct S`
-                - DRYer
-            */
-            {
-                {
-                    typedef struct {
-                        int i;
-                    } TypedefUnnamed;
-                    TypedefUnnamed s = {1};
-                    TypedefUnnamed* sp = &s;
-                    assert(sp->i == 1);
-
-                    /* ERROR: storage size of `t` isn't known. */
-                    /* Same error as when the struct is not defined. */
-                    /* Awesome, users cannot shoot themselves on the foot! */
-
-                        /*struct TypedefUnnamed t;*/
-                }
-
-                /* Does not work either if the typedef is needed inside the definition. */
-                {
-                    /*
-                    typedef struct {
-                        TypedefUnnamed* other;
-                    } TypedefUnnamed;
-                    */
-
-                    /* In that case you need: */
-                    {
-                        typedef struct TypedefUnnamed TypedefUnnamed;
-                        struct TypedefUnnamed {
-                            TypedefUnnamed* other;
-                        };
-                    }
-
-                    /* Or: */
-                    {
-                        typedef struct TypedefUnnamed {
-                            struct TypedefUnnamed* other;
-                        } TypedefUnnamed;
-                    }
-
-                    /*
-                    TODO possible to make it work such that it is impossible to say `struct s`,
-                    like with unnamed structs?
-                    */
-                }
-            }
-        }
-
-        /*
-        # bitfields
-
-            Gives support for fields which contain a single bit in the language.
-        */
-        {
-            struct S {
-                unsigned b1 : 1;
-                unsigned b2 : 2;
-                unsigned b3 : 3;
-
-                /* padding untill next int is added automatically because */
-                /* next data is not a bitfield and accesses is faster if it is aligned */
-
-                    int i;
-
-                unsigned b4 : 1;
-
-                /* manually adds padding untill next field */
-                /* even if it is a bitfield */
-
-                    unsigned : 0;
-
-                unsigned b5 : 1;
-            } s ;
-
-            assert(sizeof(struct S) == 16);
-
-            s.b1 = 1;
-            assert(s.b1 == 1);
-
-            /* WARN */
-            /* overflow */
-            /* truncate */
-            /*s.b1 = 2;*/
-
-            int i = 2;
-            s.b1 = i;
-            assert(s.b1 == 0);
-
-            /* Only takes lsb. */
-            i = 3;
-            s.b1 = i;
-            assert(s.b1 == 1);
-        }
-
-        /*
-        # offsetof
-
-            get distance of member variable from the start of the struct
-
-            appliction: get the struct that corresponds to a given pointer to a field.
-            this is used in the kernel via `container_of`, and can be used to implement
-            linked lists in ANSI c: <http://stackoverflow.com/questions/10269685/kernels-container-of-any-way-to-make-it-iso-conforming>
-        */
-        {
-            struct foo {
-                char a;
-                char b[2];
-                int c;
-                char d;
-            };
-
-            printf("offsetof(struct foo, a) = %zu\n", offsetof(struct foo, a));
-            printf("offsetof(struct foo, b) = %zu\n", offsetof(struct foo, b));
-            printf("offsetof(struct foo, c) = %zu\n", offsetof(struct foo, c));
-            printf("offsetof(struct foo, d) = %zu\n", offsetof(struct foo, d));
-        }
-    }
 
     /*
     # union
@@ -3753,7 +2904,7 @@ int main(int argc, char **argv) {
 
             It seems that the only use for the ternary operator is writing less,
             so it is completely redundant with and if else:
-            <http://stackoverflow.com/questions/758849/the-ternary-conditional-operator-in-c>
+            http://stackoverflow.com/questions/758849/the-ternary-conditional-operator-in-c
         */
         {
             assert((1 < 2 ? 3 : 4) == 3);
@@ -3832,9 +2983,9 @@ int main(int argc, char **argv) {
     /*
     # pointer
 
-        pointers contain addresses of variables instead of the value
+        Pointers contain addresses of variables instead of the value.
 
-        using the dereference operator `*`, you can get the value from the address
+        Using the dereference operator `*`, you can get the value from the address.
     */
     {
         int i;
@@ -4125,6 +3276,8 @@ int main(int argc, char **argv) {
         # Designated initializer for arrays
 
             Allows to initialize array elements in any order.
+
+            There is also a struct version.
         */
         {
             {
@@ -4136,7 +3289,7 @@ int main(int argc, char **argv) {
                 assert(is[1] == 1);
             }
 
-            /* missing elements are zeroed */
+            /* Missing elements are zeroed. */
             {
                 int is[2] = {
                     [1] = 1,
@@ -4654,7 +3807,7 @@ int main(int argc, char **argv) {
                 {
                     char s[] = "abc";
                     char s2[] = "ABC";
-                    char* cPtr;
+                    char *cPtr;
                     for (cPtr = s; *cPtr != '\0'; cPtr++){
                         *cPtr = toupper(*cPtr);
                     }
@@ -4663,39 +3816,35 @@ int main(int argc, char **argv) {
             }
 
 
-            /* Initialize strings */
+            /* String initialization */
             {
                 /*
-                # Text segment
+                char * vs char[] initialization
 
-                    C allows you to point directly to the text segment.
+                http://stackoverflow.com/questions/1704407/what-is-the-difference-between-char-s-and-char-s-in-c
 
-                    In short, the text segment is the part of RAM memory reserved to a process
-                    that contains the instructions of the process, and not, say, regular variables.
+                With *, it cannot be modified later. Implementations may store it in readonly memory.
 
-                    Process are not allows to modify those intructions at runtime,
-                    and therefore you cannot modify strings that point to the text segment.
-
-                    Using text segment pointers has the upside of being memory efficient as you
-                    don't copy the text from.
-
-                    Note however that you cannot modify that string.
+                In Linux, this is either `.rodata` or directly on the `.text` segment.
                 */
                 {
-                    /* To create a pointer to text segment, initialize it as: */
                     {
-                        char* cs = "abc";
-                        assert(cs[0] == 'a');
-                    }
-
-                    /* Segmentation fault: text segment cannot be modified */
-                    {
+                        char *s = "abc";
+                        assert(s[0] == 'a');
+                        /* Unefined behaviour. On Linux, segfault. */
                         /*cs[0] = '0';*/
                     }
 
-                    /* TODO why can't you do the same thing with integers? ex: */
                     {
-                        /*int * is = { 1, 3, 2 };*/
+                        char s[] = "abc";
+                        assert(s[0] == 'a');
+                        /* OK */
+                        s[0] = '0';
+                    }
+
+                    /* TODO why can't we do the same thing with integers? E.g.: */
+                    {
+                        /*int * is = {1, 3, 2};*/
                     }
                 }
 
@@ -4719,7 +3868,7 @@ int main(int argc, char **argv) {
                     /* Octal bytes */
                     assert(!strcmp("\141", "a"));
 
-                    /* Hexadecimal bytes */
+                    /* Hexadecimal bytes. */
                     {
                         assert(!strcmp("\x61", "a"));
 
@@ -5716,7 +4865,7 @@ int main(int argc, char **argv) {
                 /*
                 There are multiple ways to initialize and use function pointers because of implicit conversions.
 
-                <http://stackoverflow.com/questions/6893285/why-do-all-these-crazy-function-pointer-definitions-all-work-what-is-really-goi>
+                http://stackoverflow.com/questions/6893285/why-do-function-pointer-definitions-work-with-any-number-of-ampersands-or-as
                 */
                 {
                     /* Alternative initialization methods. */
@@ -6028,23 +5177,6 @@ int main(int argc, char **argv) {
     */
     {
         /*
-        # assert.h
-
-            Defines the assert *macro*, which exits 1 and prints out the expression that caused the error.
-
-            Do not forget that `assert` is a *macro*, or this may lead to unexpected effects, such as:
-
-            - unused variable warning because asserts got removed
-
-        # NDEBUG
-
-            If defined *before assert.h* is included, asserts do nothing.
-        */
-        {
-            /*assert(1 + 1 == 2);*/
-        }
-
-        /*
         # errno.h
 
             Used for error handling.
@@ -6150,435 +5282,12 @@ int main(int argc, char **argv) {
             }
         }
 
-        /* # time.h */
-        {
-            /*
-            # time()
-
-                A representation of absolute time.
-
-                Returns a time_t type.
-
-                The interpretation of the return is implementation defined,
-                and therefore cannot be relied directly upon.
-
-                Traditionally, implementations use the number of seconds since 1970.
-
-            # time_t
-
-                All that is required is that `time_t` be an arithmetic type, either integer or floating point.
-
-                See printf for a discussion of how to print time_t.
-            */
-            {
-                time_t t = time(NULL);
-            }
-
-            /* # CLOCKS_PER_SEC */
-
-                printf("CLOCKS_PER_SEC = %ld\n", CLOCKS_PER_SEC);
-
-            /*
-            # clock()
-
-                Program virtual time in number of processor clock clicks
-
-                Precision is quite limited, and if too few clicks pass, it may return 0.
-
-            # clock_t
-
-                Type returned by `clock()`.
-
-                Like `time_t`, all that is required is that `time_t` be an arithmetic type,
-                either integer or floating point.
-
-                See printf for a discussion of how to print a `clock_t`.
-            */
-            if (0) {
-                clock_t t;
-                int i = 0;
-                t = clock();
-
-                /*
-                Busy waiting.
-
-                WARN: optimizer may simply skip your useless test operations
-                and very little time will have passed.
-                */
-                    int j = 0;
-                    for (int i = 0; i < CLOCKS_PER_SEC * 10; i++) { j++; }
-
-                t = clock() - t;
-                printf("clicks = %Lf\n", (long double)t);
-                printf("seconds = %f\n", ((float)t) / CLOCKS_PER_SEC);
-            }
-
-            /*
-            # strftime
-
-                Convert time to a formatted string.
-            */
-            {
-            }
-        }
-
-        /*
-        # string.h
-
-            String and array operations.
-
-            The `str` prefixed functions use '\0' to see ther string ends
-            so callers don't need to give lengths.
-
-            Many of the functions exist both on `str` and `mem` forms,
-            where the `mem` form also takes a size.
-        */
-        {
-            /*
-            # memcpy
-
-                Copy one array into another.
-
-                Potentially faster than a for loop like:
-
-                    for(i=0; i<3; i++){
-                        is2[i] = is[i];
-                    }
-
-                Since in some architectures this can be implemented with more efficient instructions
-                than a naive for, and your compiler may not be smart enough to optimize this if you use a for.
-
-                If overlap, undefined behavior. Use memmove in that case.
-            */
-            {
-                {
-                    int is[] = { 0, 1, 2 };
-                    int is2[sizeof(is)/sizeof(is[0])];
-                    memcpy(is2, is, sizeof(is));
-                    assert(memcmp(is, is2, sizeof(is)) == 0);
-                }
-
-#if __STDC_VERSION__ >= 199901L
-                /* Compound literal copy. */
-                {
-                    int is[3];
-                    memcpy(&is, &(int []){ 0, 1, 2 }, sizeof(is));
-                    assert(memcmp(is, &(int []){ 0, 1, 2 }, sizeof(is)) == 0);
-                }
-#endif
-            }
-
-            /*
-            # memmove
-
-                Same as memcpy, but overlap may happen, thus slower.
-            */
-            {
-                int is[]  = { 0, 1, 2, 3, 4, 5 };
-                int is2[] = { 0, 1, 0, 1, 2, 5 };
-                memmove(is + 2, is, 3 * sizeof(int));
-                assert(memcmp(is, is2, sizeof(is)) == 0);
-            }
-
-            /*
-            # strcpy
-
-                Copy one string (up to first '\0') into another location.
-
-                If they overlap, undefined behaviour.
-
-                Could be more efficient than a for loop since it could
-                tell the compiler to use a better specialized instruction.
-            */
-            {
-                char cs[] = "abc";
-                char cs2[4];
-                char cs3[1];
-
-                strcpy(cs2, cs);
-                strcpy(cs2, "abc");
-
-                /* BAD: no born checking as always */
-                /*strcpy(cs3, "abc");*/
-            }
-
-            /*
-            # strlen
-
-                Get string length (up to first '\0').
-            */
-            {
-                char cs[] = "abc";
-                assert(strlen(cs) == 3);
-            }
-
-            /*
-            # strncpy
-
-                strcpy with maximum chars to copy.
-            */
-
-            /*
-            # memcmp
-
-                Compare arrays like strcmp.
-
-            # memcmp vs for loop
-
-            # strcmp vs for loop
-
-                memcmp may be is faster than for loop because
-                the compiler may optimize it better.
-
-                On x86, the naive optimization is:
-
-                    repe cmpsb
-
-                but on GCC 4.8 for example it still uses the glibc as it is even faster!
-                TODO how?
-
-                One catch: float NaN.
-            */
-            {
-                int is[]  = { 0, 1, 2 };
-                int is2[] = { 0, 1, 2 };
-
-                /* Compares addresses, not data! */
-                assert(is != is2);
-
-                assert(memcmp(is, is2, 3 * sizeof(int)) == 0);
-                is[1] = 0;
-                assert(memcmp(is, is2, 3 * sizeof(int)) < 0);
-                is[1] = 2;
-                assert(memcmp(is, is2, 3 * sizeof(int)) > 0);
-
-#if __STDC_VERSION__ >= 199901L
-                /* memcmp with compound literals. */
-                {
-                    int is[] = { 2, 0, 1 };
-                    assert(memcmp(is, &(int [3]){ 2, 0, 1 }, 3 * sizeof(int)) == 0);
-                }
-#endif
-            }
-
-            /*
-            # strcmp
-
-                Compare two strings
-            */
-            {
-                char cs[] = "abc";
-                char cs2[] = "abc";
-
-                assert(strcmp(cs, cs2) == 0);
-                /* Equality. */
-                assert(strcmp(cs, "abc") == 0);
-                cs[1] = 'a';
-                /* Smaller. */
-                assert(strcmp(cs, cs2) < 0);
-                cs[1] = 'd';
-                /* Larger. */
-                assert(strcmp(cs, cs2) > 0);
-            }
-
-            /*
-            # strcat
-
-                Concatenate two strings.
-            */
-            {
-
-                char s1[5];
-                strcpy(s1, "ab");
-                char s2[] = "cd";
-                strcat(s1, s2);
-                assert(strcmp(s1, "abcd") == 0);
-                assert(strcmp(s2, "cd"  ) == 0);
-            }
-
-            /*
-            # memchr
-
-                mem version of strchr.
-            */
-
-            /*
-            # strchr
-
-                Search for char in string.
-
-                Return pointer to that char if found.
-
-                Return NULL if not found.
-            */
-            {
-                {
-                    char cs[] = "abcb";
-                    assert(strchr(cs, 'b') == cs + 1);
-                    assert(strchr(cs, 'd') == NULL);
-                }
-
-                /*
-                Find all occurences of c in cs:
-                there is no direct libc function for this.
-                */
-                {
-                    char cs[] = "abcb";
-                    char* cp;
-                    char c = 'b';
-                    int is[] = { 1, 3 };
-
-                    int i = 0;
-                    cp = strchr(cs, c);
-                    while(cp != NULL) {
-                        assert(cp - cs == is[i]);
-                        cp = strchr(cp + 1, c);
-                        ++i;
-                    }
-                }
-            }
-
-            /*
-            # strrchr
-
-                Find last match of character in string.
-            */
-            {
-                char cs[] = "abcb";
-                assert(strrchr(cs, 'b') == cs + 3);
-                assert(strrchr(cs, 'd') == NULL);
-            }
-
-            /*
-            # strstr
-
-                Find first match of string in string.
-
-                glibc has `strcasestr` which ignores the case.
-            */
-            {
-                char cs[] = "abcabcd";
-                assert(strstr(cs, "bc") == cs + 1);
-                assert(strstr(cs, "bd") == NULL);
-            }
-
-            /*
-            # split
-
-                See strtok
-
-            # strtok
-
-                Split string at a given character sequence.
-
-                <http://en.cppreference.com/w/c/string/byte/strtok>
-            */
-
-            /*
-            # strerror
-
-                Returns a readonly pointer to the description of the error with the given number:
-
-                    char *strerror(int errnum);
-
-                Also consider perror if you want to print those error messages to stderr.
-            */
-            {
-                printf("strerror(EDOM) = \"%s\"\n", strerror(EDOM));
-            }
-
-            /*
-            # strcoll
-            */
-            {
-                /* TODO example */
-            }
-
-            /*
-            # strcspn
-
-                How many characters in s1 are there before the first character present in s2.
-            */
-            {
-                assert(strcspn("ab01", "10") == 2);
-                assert(strcspn("a0b1", "10") == 1);
-            }
-
-            /*
-            # strpbrk
-
-                Point to the first character in s1 that is in s2.
-            */
-            {
-                char *s1 = "ab01";
-                assert(strpbrk(s1, "10") - s1 == 2);
-            }
-
-            /*
-            # memset
-
-                Set memory block to a single value.
-
-                Like memcpy, potentially more efficient than a for loop.
-            */
-            {
-                char cs[] = "abcdef";
-                memset(cs + 2, '0', 3);
-                assert(strcmp(cs, "ab000f") == 0);
-            }
-
-        }
-
-        /*
-        # ctype.h
-
-            Character classficiation functions.
-        */
-        {
-            /* # isspace */
-            {
-                assert(isspace(' '));
-                assert(isspace('\n'));
-                assert(!isspace('a'));
-            }
-
-            /* # isdigit */
-            {
-                assert(isdigit('0'));
-                assert(!isdigit('a'));
-            }
-
-            /* # ispunct */
-            {
-                assert(ispunct('"'));
-                assert(ispunct('('));
-                assert(ispunct('.'));
-                assert(!ispunct('a'));
-                assert(!ispunct('0'));
-            }
-
-            /*
-            # toupper
-
-            # tolower
-
-                Work on characters.
-
-                There is no built-in string version:
-                http://stackoverflow.com/questions/2661766/c-convert-a-mixed-case-string-to-all-lower-case
-            */
-            {
-                assert(tolower('A') == 'a');
-                assert(toupper('a') == 'A');
-            }
-        }
-
         /*
         # unicode
 
             Use wchar.
 
-        # wchar
+        # wchar.h
         */
         {
 #include <wchar.h>
@@ -6616,33 +5325,6 @@ int main(int argc, char **argv) {
 
             TODO get some interesting and basic samples working
         */
-
-#if __STDC_VERSION__ >= 199901L
-        /*
-        # stdbool.h
-
-        # bool
-
-            Macro to `_Bool`.
-
-            Same rationale as `_Complex` vs `complex`.
-
-        # true
-
-            Macro to `1`.
-
-        # false
-
-            Macro to `0`.
-        */
-        {
-#include <stdbool.h>
-            bool b = true;
-            bool b2 = false;
-            assert(false == 0);
-            assert(true  == 1);
-        }
-#endif
 
 #if __STDC_VERSION__ >= 199901L
 #ifndef __STDC_NO_COMPLEX__
@@ -6774,7 +5456,7 @@ int main(int argc, char **argv) {
         */
         {
 #include <iso646.h>
-            assert(true and true);
+            assert(1 and 1);
         }
 
 #if __STDC_VERSION__ >= 199901L
@@ -6836,79 +5518,11 @@ int main(int argc, char **argv) {
 #endif
 
     /*
-    # Virtual memory
-
-    # Process address space
-
-        Lets have some fun reverse engeneering the process memory space modeul used on your OS!
-
-        This is all undefined behaviour on ANSI C, but the test code is the same on all OS.
-
-        All of this reflects how the process is represented in main memory.
-
-        Check cheats on each OS to understand the results.
-    */
-    {
-        int stack1;
-        int stack2;
-        void *heap;
-        char *text = "abc";
-
-        printf("PRIxPTR usage = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)(void*)1);
-
-#if __STDC_VERSION__ >= 199901L
-        printf("# Virtual memory\n");
-        printf("  &env        = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)getenv("HOME"));
-        printf("  &argv       = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)argv);
-        printf("  &argc       = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&argc);
-        printf("  &stack1     = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&stack1);
-        printf("  &stack2     = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&stack2);
-        heap = malloc(1);
-        printf("  &heap       = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)heap);
-        free(heap);
-        printf("  &BSS        = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&BSS);
-        printf("  &DATA       = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&DATA);
-
-        /* TODO why on linux this is not on the text segment, */
-        /* even if modification gives segfault? */
-        printf("  &text main  = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&main);
-        printf("  &text char* = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&text);
-        /*fflush(stdout);*/
-        /*text[0] = '0';*/
-#endif
-    }
-
-    /*
-    # Generated assembly
-
-        The following tests are only interesting to interpret
-        the generated assembly code to see how you compiler does things.
-    */
-    {
-        /*
-        Does the compiler precalculate values at compile time or not?
-
-        gcc 4.7, O0:
-
-        - asm_precalc:        no
-        - asm_precalc_inline: no
-        - sin:                yes TODO why, but not for my funcs?
-        */
-        {
-            int i;
-            float f;
-            i = asm_precalc(0);
-            i = asm_precalc_inline(0);
-            f = sin(0.2);
-        }
-    }
-
-    /*
     # Design patterns
 
         A good way to learn is to look at existing libraries:
 
-        - <https://github.com/libgit2/libgit2>
+        - https://github.com/libgit2/libgit2
     */
     {
         /*
@@ -6958,17 +5572,6 @@ int main(int argc, char **argv) {
     }
 
     /*
-    # atexit
-
-        Function gets called when process ends via `exit` or a `return` on the `main` function.
-    */
-    {
-        atexit(atexit_func);
-        if (0) exit_func();
-        if (0) abort_func();
-    }
-
-    /*
     # main return
 
         Valid returns are:
@@ -6981,6 +5584,7 @@ int main(int argc, char **argv) {
         But just always return to be C89 compatible.
     */
     {
+        printf("ALL ASSERTS PASSED\n");
         return EXIT_SUCCESS;
         return EXIT_FAILURE;
     }

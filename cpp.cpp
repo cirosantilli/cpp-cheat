@@ -2822,7 +2822,7 @@ int main(int argc, char **argv) {
     /*
     # constant expressions at compile time
 
-        <http://en.cppreference.com/w/cpp/language/constant_expression>
+        http://en.cppreference.com/w/cpp/language/constant_expression
 
         Constant expressions at compile time can be used in contexts where non constants cannont:
 
@@ -6191,7 +6191,7 @@ int main(int argc, char **argv) {
     /*
     # typeid
 
-        Get type of variables
+        Get type of variables.
 
         Can be done for both types and variables of the type.
 
@@ -6202,10 +6202,12 @@ int main(int argc, char **argv) {
         Type returned by `typeid`.
     */
     {
-        // typeid returns `type_info`.
-        //
-        // However copy and assign for type_info are private,
-        // so the following fails.
+        /*
+        typeid returns `type_info`.
+
+        However copy and assign for type_info are private,
+        so the following fails.
+        */
         {
             //std::type_info t = typeid(int);
             //std::type_info t(typeid(int));
@@ -6225,9 +6227,16 @@ int main(int argc, char **argv) {
             assert(typeid(i)  != typeid(c)   );
         }
 
-        // name: returns a string representation of the type.
-        //
-        // The exact string is implementation defined.
+        /*
+        `name`: return a string representation of the type.
+
+        The exact string is implementation defined.
+
+        `name()` is implementation defined.
+
+        On GCC, you can demangle with `__cxa_demangle`:
+        http://stackoverflow.com/questions/4465872/why-typeid-name-returns-weird-characters-using-gcc
+        */
         {
             std::cout << "typeid(int).name() = " << typeid(int).name() << std::endl;
         }

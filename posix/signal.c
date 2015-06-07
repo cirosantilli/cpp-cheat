@@ -158,8 +158,6 @@ which generate certain signals such as `SIGTERM`.
 
         -   `man 7 signal`
 
-            man pages
-
         -   http://www.alexonlinux.com/signal-handling-in-linux
 
             good intro

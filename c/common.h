@@ -1,5 +1,5 @@
 #include <assert.h>
-#include <ctype.h> /* isspace, isdigit, ispunct, tolower, toupper */
+#include <ctype.h>
 #include <errno.h>
 #include <fenv.h>
 #include <float.h>
@@ -8,6 +8,7 @@
 #include <locale.h>
 #include <setjmp.h> /* setjmp, longjmp */
 #include <signal.h>
+#include <stdbool.h> /* false, true */
 #include <stdarg.h> /* ..., va_list, va_start, va_arg, va_end */
 #include <stddef.h> /* offsetof, type_t */
 #include <stdlib.h> /* malloc, EXIT_SUCCESS, EXIT_FAILURE: */
@@ -16,8 +17,11 @@
 #include <math.h>
 #include <time.h> /* time() */
 #if __STDC_VERSION__ >= 199901L
- /* Not yet implemented in GCC 4.8. */
- /*#include <thread.h>*/
+  /* Not yet implemented in GCC 4.8. */
+  /*#include <thread.h>*/
+# ifndef __STDC_NO_COMPLEX__
+#  include <complex.h>
+# endif
 # if __STDC_VERSION__ >= 201112L
 #  include <stdnoreturn.h>
 # endif

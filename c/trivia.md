@@ -1,4 +1,8 @@
-# Funny
+# Trivia
+
+C is called C because it came after B. B is called B because of Bell Labs.
+
+## IOCCC
 
 <http://www.ioccc.org/>
 
