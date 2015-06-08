@@ -1,0 +1,62 @@
+/*
+# reboot TODO
+
+    TODO: convert and move to glibc cheat as it has wrappers.
+
+    Reboots or enables/disables ctrl+alt+del reboot.
+
+        man 2 reboot
+
+    No POSIX wrapper available.
+
+    The man is serious: power off and restart are immediate.
+    Programs are killed immediately, so any on RAM changes that should me made are not made.
+
+    Also as the man says filsystem writes are not synced by this call,
+    so there may be data loss because of cached writes which were never made.
+
+    This system call can only be done with elevated priviledges (sudo).
+
+    # Magic numbers
+
+        The magic numbers are numbers chosen to a rare value (not 0, 1 or -1 for example!).
+
+        Their purpose is so that developpers won't accidentally reboot the system when testing system calls in assembler
+        if they get a single number wrong.
+
+        Their actual values are the dates of Linus and his three daughters birthdays when vied in hexa:
+        http://stackoverflow.com/questions/4808748/magic-numbers-of-the-linux-reboot-system-call
+
+        TODO how to shut the system down nicely, asking processes to terminate?
+        Is it necessary to loop over pids via proc filesystem and send terminate signals explicitly?
+
+        TODO restart2 message is printed where?
+
+        TODO what is halt?
+
+        TODO why CAD on did nothing (c-a-del still does nothing)? how do i get my cad key?
+*/
+
+#include <linux/reboot.h>       /* LINUX_REBOOT_XXX */
+
+    if (0) {
+        if (syscall(__NR_sync) != 0) {
+            perror("sync");
+        }
+
+        if (
+            syscall(
+                __NR_reboot,
+                LINUX_REBOOT_MAGIC1,
+                LINUX_REBOOT_MAGIC2,
+                LINUX_REBOOT_CMD_POWER_OFF,     NULL
+                //LINUX_REBOOT_CMD_RESTART,     NULL
+                //LINUX_REBOOT_CMD_RESTART2,    "BYE BYE"
+                //LINUX_REBOOT_CMD_HALT,        NULL
+                //LINUX_REBOOT_CMD_CAD_OFF,     NULL
+                //LINUX_REBOOT_CMD_CAD_ON,      NULL
+            ) != 0
+        ) {
+            perror("reboot");
+        }
+    }
