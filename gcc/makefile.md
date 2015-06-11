@@ -16,9 +16,61 @@ Summary:
     mkdir build
     cd build
     ../src/configure --enable-languages=c,c++
+    # Wait hours.
     make -j5
+    # Wait hours.
     make check
+    # Install executables to /usr/local/bin
+    # There are also many other installed files under /usr/local.
     sudo make install
+    gcc -v
+
+Or install locally for interactive testing:
+
+    make install DESTDIR="$(pwd)/../install"
+    cd ../install/usr/local/bin/
+    ./gcc -v
+
+Or configure to always install locally:
+
+    ./configure --prefix="$(pwd)/../install"
+    # ...
+    make install
+    cd ../install/usr/local/bin/
+    ./gcc -v
+
+If you modify just the `gcc/` directory, you can `cd gcc; make; make install` to touch only that directory.
+
+## Modify, rebuild and rerun
+
+    cat <<'EOS' | git apply -
+    diff --git a/gcc/gcc-main.c b/gcc/gcc-main.c
+    index 230ba48..01f87ef 100644
+    --- a/gcc/gcc-main.c
+    +++ b/gcc/gcc-main.c
+    @@ -37,9 +37,12 @@ along with GCC; see the file COPYING3.  If not see
+     
+     extern int main (int, char **);
+     
+    +#include <stdlib.h>
+    +
+     int
+     main (int argc, char **argv)
+     {
+    +  system("date > /tmp/gcc");
+       driver d;
+     
+       return d.main (argc, argv);
+    EOS
+
+    cd build/gcc
+    make -j5
+    make -j5 install
+    cd ../install/usr/local/bin/
+    ./gcc -v
+    cat /tmp/gcc
+
+You *cannot* modify the *stdout* output with at `puts("hacked)`, or else the build will fail! This probably happens because `dumpspecs` is used on some part of the bootstrap process.
 
 ## Configure
 
@@ -54,11 +106,17 @@ When you build GCC, you have to configure 3 systems:
 
 <https://gcc.gnu.org/onlinedocs/gcc-5.1.0/gccint/Configure-Terms.html#Configure-Terms>
 
+### Compilation options
+
+    ../src/configure CFLAGS='-O0 -g' CXXFLAGS='-O0 -g'
+
+The default compilation uses `-O2`, so you might want to reduce that for better debugging in development.
+
 ## Build
 
 Making a separate build directory is mandatory.
 
-Took me 2 hours on a and 4GB of disk.
+Took me 2 hours and a half on a and 4GB of disk.
 
 To build only certain parts of GCC <http://stackoverflow.com/questions/14728652/how-to-make-a-light-build-of-gcc-with-language-supports-etc-pruned>:
 
@@ -166,28 +224,13 @@ On Ubuntu 14.04, GCC 5.1, C++ programs needed `$LD_LIBRARY_PATH` to find the sta
 
     LD_LIBRARY_PATH="/usr/local/lib64:$LD_LIBRARY_PATH" ./cpp
 
-## Modify, rebuild and rerun
-
-Modify a single line under on the `gcc` entry point `gcc/gcc-main.c`:
-
-    #include <stdio.h>
-
-    fputs("hacked\n", stderr);
-
-You *cannot* modify the *stdout* output, or else the build will fail! This probably happens because `dumpspecs` is used on some part of the bootstrap process.
-
-In general, even writing to stderr could make tests fail however: the safest thing possible would be to write any outputs to a file, or use a debugger.
-
-Then on the build directory:
-
-    make -j5
-    sudo make install
-
-And now any invocation of `gcc` should output `hacked` before anything else:
-
-    gcc -v
-
 ## Uninstall
+
+There is not top-level uninstall target that removes everything, but some subtrees do have the target.
+
+- <http://stackoverflow.com/questions/25303928/how-to-uninstall-gcc-installed-from-source>
+
+Remove installations from the `gcc/` tree:
 
     cd gcc
     sudo make uninstall

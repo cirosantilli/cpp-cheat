@@ -63,12 +63,66 @@ int main() {
     }
 
     /*
+    # localtime
+
+    # tm
+    */
+    {
+        time_t t = time(NULL);
+        struct tm *tm = localtime(&t);
+        printf("tm->tm_hour = %d\n", tm->tm_hour);
+        printf("tm->tm_min = %d\n", tm->tm_min);
+        printf("tm->tm_sec = %d\n", tm->tm_sec);
+    }
+
+    /*
+    # Time to string
+
+    - ctime
+    - stftime
+    */
+
+    /*
     # strftime
 
         Convert time to a formatted string.
+
+        The return value is stored in a statically allocated location:
+        a second call to `localtime` may overwrite existing data.
+
+        So make sure to copy if if you need to reuse it later.
     */
     {
-        /* TODO */
+        time_t t = time(NULL);
+        struct tm *tm = localtime(&t);
+        char s[64];
+        strftime(s, sizeof(s), "%c", tm);
+        printf("strftime = %s\n", s);
+    }
+
+    /*
+    # asctime
+
+        `struct tm` to fixed format.
+
+        POSIX 7 deprecates it in favor of `strftime`.
+    */
+    {
+        time_t t = time(NULL);
+        struct tm *tm = localtime(&t);
+        printf("asctime = %s\n", asctime(tm));
+    }
+
+    /*
+    # ctime
+
+        C99 says it is the same as:
+
+            asctime(localtime(timer))
+    */
+    {
+        time_t t = time(NULL);
+        printf("ctime = %s\n", ctime(&t));
     }
 
     return EXIT_SUCCESS;

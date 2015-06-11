@@ -76,6 +76,12 @@ int main() {
     # Lifetime of objects
 
         C99 6.2.4 "Storage duration of objects"
+
+        There are 3 types:
+
+        - `static`: initilized only once, and live for the entire program. Like static local variables.
+        - `automatic`: local variables, live until the end of blocks: functions or `{}`.
+        - `allocated`: `malloc`. Lives until you `free` it.
     */
     {
         /*
@@ -211,7 +217,6 @@ s:
                                                     while
         */
 
-
         /*
         # Reserved identifiers for future use
 
@@ -258,13 +263,17 @@ s:
         }
 
         /*
-        Standard seems to say nothing of this edge case, since `_` is not followed by any letter TODO confirm
+        Standard seems to say nothing of this edge case,
+        since `_` is not followed by any letter TODO confirm
 
-        Still, it would be very cryptic to use such an identifier
-        (although it is used it is used in Django internationalization and the Underscore Javascript library...)
+        Even though it is quite cryptic, it does get some usage as `gettext` call in GNU projects,
+        which inspired Django internationalization.
+
+        The Underscore Javascript library is another notable usage.
         */
         {
-            int _;
+            int _ = 1;
+            assert(_ == 1);
         }
     }
 

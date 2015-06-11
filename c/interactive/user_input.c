@@ -7,10 +7,10 @@ void flush_stdin_to_newline() {
 
     char junk[16];
     do {
-        if ( fgets( junk, 16, stdin ) == NULL ) {
+        if (fgets(junk, sizeof(junk), stdin) == NULL) {
             /* TODO deal with error proprely */
         }
-    } while ( junk[strlen( junk ) -1 ] != '\n' );
+    } while (junk[strlen( junk ) -1 ] != '\n');
 
 }
 
@@ -26,7 +26,7 @@ void flush_stdin_to_newline() {
 void ugstr(char* out, int max) {
     bool done=false;
     while(!done) {
-        if ( fgets( out, max, stdin ) == NULL ) {
+        if (fgets(out, max, stdin) == NULL) {
             /* TODO deal with error proprely */
         }
 

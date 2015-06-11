@@ -12,6 +12,11 @@ Cheat on the GNU Compile Collection (GCC) language extensions and command line u
 1.  Internals
     1. [Makefile](makefile.md)
     1. [Source tree](source-tree.md)
+    1. [libgcc](libgcc.md)
+
+WIP
+
+1. [IDE](ide.md)
 
 ## Scope
 

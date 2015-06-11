@@ -160,3 +160,9 @@ One of the hardest compiler problems, as it comes down to an NP complete graph c
 Used to be done by the reload system, which was present from day 1, <https://gcc.gnu.org/wiki/reload>, but got replaced in 2012 by LRA by Red Hat: <ftp://gcc.gnu.org/pub/gcc/summit/2003/Graph%20Coloring%20Register%20Allocation.pdf> because reload was very unmaintainable.
 
 On 5.1, `lra.c` is the main entry point, and has a nice block diagram documentation. The graph coloring algorithm is Chaitin-Briggs <http://stackoverflow.com/questions/14399608/chaitin-briggs-algorithm-explanation>
+
+## include
+
+Shared includes.
+
+Many used in GCC and `libiberty`.

@@ -2,14 +2,24 @@
 
 Useful GCC command line options.
 
+Most important flags:
+
+- `-std`
+- `-o`
+- `-c`
+- `-Wall`
+- `-pedantic` and `-pedantic-errors`
+- `-L`, `-l` and `-I`
+- `-O`
+- `-g`
+
 ## What the gcc utility does
 
 Nothing. Almost.
 
 `gcc` is a driver: it orchestrates the build process, by calling other programs with the right options, notably:
 
-- `cpp`:  preprocessor
-- `cc1`: compiler. Generates `.s` file. Not in `PATH` by default.
+- `cc1`: preprocessor + compiler. Generates `.s` file. Not in `PATH` by default. The external `cpp` may be called if `-save-temps` is used.
 - `as`: assembler . Generates `.o` files.
 - `collect2`: linker. Generates executable files. Not in `PATH`, but almost identical to `ld`.
 
@@ -76,6 +86,10 @@ Enables even more useful warnings than wall.
     `gcc -Wextra`
 
 ### Not warnings
+
+#### Wp
+
+Pass options to the preprocessor.
 
 #### Wa
 
@@ -339,6 +353,40 @@ or:
     gcc -ggdb3 -o a.o a.c
     objdump -S a.o
 
+## Preprocessor options
+
+### I
+
+Add directory to the include search path:
+
+    gcc -I/some/dir main.c
+
+### CPATH
+
+### C_INCLUDE_PATH
+
+Add to the search path after `-I`:
+
+- `CPATH`: all languages
+- `C_INCLUDE_PATH`: only C
+- `CPLUS_INCLUDE_PATH`: only C++
+
+Trailing or leading `:` implies current directory:
+
+    :/some/dir
+    /some/dir:
+    /some/dir::/another/dir
+
+### nostdinc
+
+Don't use the standard include path.
+
+Allows you to set up a custom path with:
+
+    gcc -nostdinc -I/my/custom/path/
+
+<http://stackoverflow.com/questions/2988779/gcc-how-to-ignore-standard-include-paths>
+
 ## l
 
 ## Linker options
@@ -349,11 +397,13 @@ Don't link to the stdlib.
 
 ### nostartfiles
 
-TODO
+Don't pass `crt1.o`, `crti.o`, and other `crt` files to the linker, as normally done by default.
+
+If you use this, you must provide your own, or else the linker will not find the `_start` symbol which is present in those files.
 
 ### nodefaultlibs
 
-TODO
+TODO: vs `nostdlib`?
 
 ### static
 

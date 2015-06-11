@@ -802,7 +802,7 @@ int main() {
         /*
         # fgets
 
-            reads up to whichever comes first:
+            Reads up to whichever comes first:
 
             - a newline char
             - buff_size - 1 chars have been read
@@ -989,7 +989,7 @@ int main() {
         int elems_write[] = {1, 2, 3};
         enum constexpr {nelems = sizeof(elems_write) / sizeof(elems_write[0])};
         int elems_read[nelems];
-        FILE* fp;
+        FILE *fp;
         char path[] = "fwrite.tmp";
 
         /*

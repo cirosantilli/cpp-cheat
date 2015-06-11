@@ -1,6 +1,10 @@
+/*
+To break interactively in the infinite loop, enter Ctrl + C.
+*/
+
 #include <stdio.h>
 
-const static int PERIOD = 100000000;
+static const int PERIOD = 100000000;
 
 int main() {
     int i = 0;
