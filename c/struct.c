@@ -64,7 +64,7 @@ int main() {
         {
             struct S { int a[2]; int i; };
 
-            /* TODO GCC 4.8 warns mssing i for [0]. Bug? */
+            /* TODO GCC 4.8 warns missing i for [0]. Bug? */
             struct S ss[] = {
                 [0].a = {0, 1},
                 [0].i = 2,
@@ -87,11 +87,12 @@ int main() {
     /*
     # Empty struct
 
-        invalid, but possible as a GCC extension.
+        Invalid, but possible as a GCC extension.
 
         http://stackoverflow.com/questions/24685399/c-empty-struct-what-does-this-mean-do
     */
     {
+        /* ERROR */
         /*struct s {};*/
     }
 
@@ -188,8 +189,7 @@ int main() {
     */
     {
         {
-            struct S
-            {
+            struct S {
                 /* ERROR: */
                 /*int is[];*/
                 int is0[2];
@@ -461,7 +461,7 @@ int main() {
         In theory only standardized in C11, but I am yet to be able to make GCC generate a warning.
         even with `-std=89 -pedantic -Wall`.
 
-        <http://stackoverflow.com/questions/14248044/are-anonymous-structs-standard-and-really-what-are-they>
+        http://stackoverflow.com/questions/14248044/are-anonymous-structs-standard-and-really-what-are-they
     */
     {
         /* Basic. */
@@ -718,30 +718,6 @@ int main() {
         i = 3;
         s.b1 = i;
         assert(s.b1 == 1);
-    }
-
-    /*
-    # offsetof
-
-        get distance of member variable from the start of the struct
-
-        Appliction: get the struct that corresponds to a given pointer to a field.
-        this is used in the kernel via `container_of`, and can be used to implement
-        linked lists in ANSI C:
-        http://stackoverflow.com/questions/10269685/kernels-container-of-any-way-to-make-it-iso-conforming
-    */
-    {
-        struct foo {
-            char a;
-            char b[2];
-            int c;
-            char d;
-        };
-
-        printf("offsetof(struct foo, a) = %zu\n", offsetof(struct foo, a));
-        printf("offsetof(struct foo, b) = %zu\n", offsetof(struct foo, b));
-        printf("offsetof(struct foo, c) = %zu\n", offsetof(struct foo, c));
-        printf("offsetof(struct foo, d) = %zu\n", offsetof(struct foo, d));
     }
 
     return EXIT_SUCCESS;

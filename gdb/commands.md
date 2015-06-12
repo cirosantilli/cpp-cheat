@@ -675,3 +675,20 @@ Once focus falls on the code window, you can scroll it with the up and down arro
 <http://stackoverflow.com/questions/209534/how-to-highlight-and-color-gdb-output-during-interactive-debugging>
 
 Can be achieved with options.
+
+## Expressions
+
+GDB says that any expression in the language being debugged can be evaluated. TODO how?! In particular, how can it be sure that it has the same compiler version available as the program?
+
+Furthermore, it magically understands the type of the expression and prints it nicely, e.g.:
+
+    print 1
+    print "asdf"
+
+TODO what is the expression evaluator for expressions like `print` ?
+
+## Comments
+
+Any line starting with `#` is ignored:
+
+    # asdf

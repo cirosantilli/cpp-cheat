@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+for t in c cpp gcc glibc posix; do
+  if ! make -C "$t" test; then
+    echo "TEST FAILED: $t"
+    exit 1
+  fi
+done
+
+echo "ALL TESTS PASSED"
+exit 0

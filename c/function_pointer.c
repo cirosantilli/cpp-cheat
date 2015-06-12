@@ -29,11 +29,16 @@ int main() {
     and return one int.
     */
     {
-        int (*f)(int n, int m);
+        int (*f)(int, int);
         f = add_int;
         assert((*f)(1, 2) == 3);
         f = sub_int;
         assert((*f)(1, 2) == -1);
+    }
+
+    /* We can also add argument names if we are ona verbose mood. */
+    {
+        int (*f)(int asdf, int qwer);
     }
 
     assert(add_int != sub_int);
@@ -50,7 +55,7 @@ int main() {
     The array indication goes after the name of the array!
     */
     {
-        int (*fs[])(int n, int m) = {add_int, sub_int};
+        int (*fs[])(int, int) = {add_int, sub_int};
         assert((*fs[0])(1, 2) ==  3);
         assert((*fs[1])(1, 2) == -1);
     }
@@ -62,7 +67,7 @@ int main() {
     */
     {
         /* Alternative initialization methods. */
-        int (*fs[])(int n, int m) = {
+        int (*fs[])(int, int) = {
             &add_int,
             add_int,
             *add_int,

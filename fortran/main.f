@@ -367,7 +367,6 @@
 
           !0 exit status:
 
-            write(*,*) 'ALL ASSERTS PASSED'
             stop
 
           !other exit status:

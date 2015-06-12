@@ -8,7 +8,7 @@
 
     The return type is `size_t.
 
-    Calculated at compile time.
+    Calculated at compile time except for VLA.
 */
 
 #include "common.h"

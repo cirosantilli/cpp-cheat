@@ -47,7 +47,7 @@ test: all
 	    echo "ASSERT FAILED: $$t";\
 	    exit 1;\
 	  else\
-	    echo 'ALL ASSERTS PASSED';\
+	    echo 'ALL TESTS PASSED';\
 	    exit 0;\
 	  fi;\
 	fi;\

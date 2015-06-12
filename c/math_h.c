@@ -396,6 +396,14 @@ int main() {
 
         /* float between 0 and 1: */
         float f = rand()/(float)RAND_MAX;
+
+        /* float in given range. */
+        {
+            float min = 1.0;
+            float max = 3.0;
+            float res = (max - min) * ((float)rand() / RAND_MAX) + min;
+            printf("float in range = %f\n", res);
+        }
     }
 
     /*

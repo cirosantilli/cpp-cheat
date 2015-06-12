@@ -1,6 +1,7 @@
 # `make help` for documentation.
 
 -include Makefile_params
+-include Makefile_params
 
 # C/CPP
 # Don't use the standard names like `CC` and `CXX` to avoid `?=` getting overridden.
@@ -8,13 +9,14 @@
 MYCC            ?= gcc
 MYCXX           ?= g++
 DEFINES         ?= #-D_XOPEN_SOURCE 700
+INCLUDE_DIRS    ?= #-I/usr/include
 O               ?= 0
 STD             ?= c11
 PEDANTIC        ?= -pedantic-errors
 CFLAGS          ?= $(DEFINES) -O$(O) -std=$(STD) -Wextra $(PEDANTIC) $(CFLAGS_EXTRA)
 MYCXXFLAGS      ?= $(DEFINES) -O$(O) -std=c++11 -Wextra $(PEDANTIC) $(CXXFLAGS_EXTRA)
+
 LIBS            ?= -lm #-lGL -lGLU -lglut
-INCLUDE_DIRS    ?= #-I/usr/include
 
 # Fortran
 FF      ?= gfortran
@@ -35,8 +37,6 @@ RUN         ?= main
 # If exists, will be symlinked into the same directory from which the executable will be run.
 # This way, the executable can suppose that this file or directory is in the current directory.
 RUN_INPUT   ?= input
-# Allow users to write `make run=name`.
-run ?=
 TEST ?= test
 
 ASSEMBLER_NOEXT     ?= $(IN_DIR)$(RUN)
@@ -44,9 +44,6 @@ DEBUG_DEFINE        ?=
 DEBUG_FLAGS         ?=
 PROFILE_DEFINE      ?= #-DDEBUG
 PROFILE_FLAGS       ?= #
-
-# Extra phony targets
-PHONY               ?=
 
 RUN_BNAME   := $(RUN)$(OUT_EXT)
 
@@ -103,7 +100,7 @@ clean:
 	if [ ! '$(OUT_DIR)' = './'  ]; then \
 		rm -rf '$(OUT_DIR)' ;\
 	else \
-		rm -f *'$(OBJECT_EXT)' *'$(OUT_EXT)' *'$(TMP_EXT)' ;\
+		rm -rf *'$(OBJECT_EXT)' *'$(OUT_EXT)' *'$(TMP_EXT)' ;\
 	fi
 
 debug: clean set_debug_flags all

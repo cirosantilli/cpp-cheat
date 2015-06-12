@@ -51,7 +51,7 @@ This can also be achieved with the `attach` command.
 
 ## batch
 
-Only run `-x` and `-ex` commands and exit.
+Only run `-x` and `-ex` commands and exit immediately when the program finishes or a breakpoint is reached.
 
 Sample application: disassemble a single function: <http://stackoverflow.com/questions/22769246/disassemble-one-function-using-objdump>
 

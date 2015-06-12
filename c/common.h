@@ -4,6 +4,7 @@
 #include <fenv.h>
 #include <float.h>
 #include <inttypes.h> /* PRIxPTR */
+#include <iso646.h>
 #include <limits.h> /* *_MAX, *_MIN for integer types */
 #include <locale.h>
 #include <setjmp.h> /* setjmp, longjmp */
@@ -16,6 +17,7 @@
 #include <string.h> /* sprintf, strlen, strcpy, memset, memcmp */
 #include <math.h>
 #include <time.h> /* time() */
+#include <wchar.h>
 #if __STDC_VERSION__ >= 199901L
   /* Not yet implemented in GCC 4.8. */
   /*#include <thread.h>*/

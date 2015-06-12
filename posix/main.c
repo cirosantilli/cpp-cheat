@@ -90,9 +90,11 @@ ANSI C features shall not be discussed here.
 
 extern char **environ;
 
+#define TMPFILE(x) __FILE__ "__" x ".tmp"
+
 /* pthreads related */
 
-#define NUM_THREADS 5
+#   define NUM_THREADS 5
 
     pthread_mutex_t main_thread_mutex = PTHREAD_MUTEX_INITIALIZER;
 
@@ -722,7 +724,7 @@ int main(int argc, char** argv) {
         int nbytes = strlen(in);
         int nbytes_total, nbytes_last;
         char *out = malloc (nbytes + 1);
-        char *fname = "open.tmp";
+        char *fname = TMPFILE("open");
 
         /*
         write
@@ -790,7 +792,7 @@ int main(int argc, char** argv) {
         /* BAD write on a O_RDONLY fd gives errno EBADF */
         {
             int fd;
-            char *fname = "write_rdonly.tmp";
+            char *fname = TMPFILE("write_rdonly");
 
             fd = open(fname, O_WRONLY | O_CREAT | O_TRUNC, S_IRWXU);
             if (fd == -1) {
@@ -889,7 +891,7 @@ int main(int argc, char** argv) {
             int fd;
             char out[2];
 
-            fd = open("lseek.tmp", O_RDWR | O_CREAT | O_TRUNC, S_IRWXU);
+            fd = open(TMPFILE("lseek"), O_RDWR | O_CREAT | O_TRUNC, S_IRWXU);
             if (fd == -1) {
                 perror("open");
                 exit(EXIT_FAILURE);
@@ -1005,8 +1007,8 @@ int main(int argc, char** argv) {
         char in_new[] = "b";
         int nbytes = strlen(in);
         char *out = malloc(nbytes);
-        char *oldpath = "link_old.tmp";
-        char *newpath = "link_new.tmp";
+        char *oldpath = TMPFILE("link_old");
+        char *newpath = TMPFILE("link_new");
 
         /* Create old. */
         fd = open(oldpath, O_WRONLY | O_CREAT | O_TRUNC, S_IRWXU);
@@ -1105,7 +1107,7 @@ int main(int argc, char** argv) {
         TODO application?
     */
     {
-        char* filepath = "mmap.tmp";
+        char* filepath = TMPFILE("mmap");
         int numints = 4;
         int filesize = numints * sizeof(int);
 
@@ -1418,7 +1420,7 @@ int main(int argc, char** argv) {
         */
         {
             char in[] = "123\n";
-            char fname[] = "stat.tmp";
+            char fname[] = TMPFILE("stat");
             struct stat s;
 
             // Create the file.
@@ -1474,7 +1476,7 @@ int main(int argc, char** argv) {
         /* # mkdir */
         {
             struct stat s;
-            char fname[] = "mkdir";
+            char fname[] = TMPFILE("mkdir");
 
             // Remove the file if it exists.
             if(stat(fname, &s) == 0)
@@ -3315,6 +3317,5 @@ int main(int argc, char** argv) {
         }
     }
 
-    printf("ALL ASSERTS PASSED\n");
     return EXIT_SUCCESS;
 }

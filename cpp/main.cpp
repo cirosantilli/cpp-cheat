@@ -9723,7 +9723,6 @@ int main(int argc, char **argv) {
         Like in C99, C++ return can omit the return, in which case it returns 0.
     */
 
-        std::cout << "ALL ASSERTS PASSED" << std::endl;
         return EXIT_SUCCESS;
 
     // global/static destructors happen at exit time.
