@@ -21,13 +21,10 @@ Relies on [C++ boilerplate](https://github.com/cirosantilli/cpp-boilerplate) to 
     1. [C++](cpp/)
     1. [C vs C++](c-vs-cpp.md)
     1. [Style guides](style-guides.md)
-1.  Multi-file
-    1.  [static](static.c)
-    1.  [extern](extern.c)
-    1.  Cross-language
-        1.  [C from C++](c-from-cpp/)
-        1.  [C++ from C](cpp-from-c/)
-        1.  [Fortran from C](fortran-from-c/)
+1.  Cross-language
+    1.  [C from C++](c-from-cpp/)
+    1.  [C++ from C](cpp-from-c/)
+    1.  [Fortran from C](fortran-from-c/)
 1.  [GDB](gdb/)
 1.  [Boost](boost/)
 1.  [CMake](cmake.md)
@@ -46,4 +43,5 @@ Relies on [C++ boilerplate](https://github.com/cirosantilli/cpp-boilerplate) to 
     1. [OpenCV](opencv/)
     1. [PLplot](plplot/)
 1.  [CONTRIBUTING](CONTRIBUTING.md)
+1.  [TODO](TODO.md)
 1.  [Bibliography](bibliography.md)

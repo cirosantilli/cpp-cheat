@@ -1,1 +1,34 @@
-boilerplate/.gitignore
+# Final output files: executables, .so, .a
+_build/
+
+# Cmake style generated files
+build/
+
+# Executable generated on current directory.
+main
+
+# Compiled Object files
+*.slo
+*.lo
+*.out
+*.o
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+
+# Temporary files
+*.tmp
+
+core
+core.*
+
+.vagrant
+
+# Python tests runners.
+*.pyc

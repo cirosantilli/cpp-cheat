@@ -2,11 +2,17 @@
 
 -include params.makefile
 
-CCC ?= gcc -pedantic-errors -std=c89 -Wextra
+G ?= gdb3
+O ?= 0
+STD ?= c11
+CCC ?= gcc
+CCFLAGS ?= -DIMPLEMENTATION_SIGNAL -DUNDEFINED_BEHAVIOUR -g$(G) -pedantic-errors -std=$(STD) -O$(O) -Wextra -Wno-ignored-qualifiers -Wno-sign-compare -Wno-unused-variable -Wno-unused-label -Wno-unused-but-set-variable
 IN_EXT ?= .c
+LIBS ?= -lm
 OUT_EXT ?= .out
 RUN ?= main
-TMP_EXT ?= .o
+TEST ?= test
+TMP_EXT ?= .tmp
 
 INS := $(wildcard *$(IN_EXT))
 OUTS_NOEXT := $(basename $(INS))
@@ -16,10 +22,10 @@ RUN_BASENAME := $(RUN)$(OUT_EXT)
 .PHONY: clean run
 
 $(RUN_BASENAME): $(OUTS)
-	$(CCC) $+ -o '$@'
+	$(CCC) $(CCFLAGS) -o '$@' $+ $(LIBS)
 
 %$(TMP_EXT): %$(IN_EXT)
-	$(CCC) -c '$<' -o '$@'
+	$(CCC) $(CCFLAGS) -c '$<' -o '$@' $(LIBS)
 
 clean:
 	rm -f *'$(TMP_EXT)' '$(RUN_BASENAME)'

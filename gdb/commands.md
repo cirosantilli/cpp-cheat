@@ -83,6 +83,8 @@ The program will run until it reaches:
 
     which says that it happened at line 33 of file `quick.cpp`.
 
+### quit
+
 ### set args
 
 Set command line arguments and stdin:
@@ -215,6 +217,31 @@ Two lines after and before the current line:
 Set breakpoint at address:
 
     b *0x400440
+
+### watch
+
+### rwatch
+
+### awatch
+
+Break when variable is:
+
+- `watch`: written
+- `rwatch`: read
+- `awatch`: written or read (all)
+
+Sample usage:
+
+    watch var
+    run
+
+#### watch local variable
+
+<http://stackoverflow.com/questions/1354637/how-do-i-set-persistent-and-conditional-watchpoints-on-locally-scoped-variables>
+
+Does not seem possible from outside of the function frame. And when it goes out of scope, the watch point is lost: <https://sourceware.org/gdb/onlinedocs/gdb/Set-Watchpoints.html>
+
+The best solutions seems to be to script it.
 
 ### dis
 
@@ -608,7 +635,7 @@ Sample output:
     0x400080:   0x38    0x02    0x00    0x00    0x00    0x00    0x00    0x00
     0x400088:   0x38    0x02    0x40    0x00    0x00    0x00    0x00    0x00
     0x400090:   0x38    0x02    0x40    0x00    0x00    0x00    0x00    0x00
-    0x400098:   0x1c    0x00    0x00    0x00    0x00    0x00    0x00    0x0
+    0x400098:   0x1c    0x00    0x00    0x00    0x00    0x00    0x00    0x00
 
 ## set
 
@@ -616,15 +643,35 @@ Configure GDB.
 
 ### layout
 
+### tui modes
+
 Enter very useful curses split windows views:
 
     layout src
     layout asm
     layout register
 
-From the command line with the `-tui` option.
+`layout src` can be set at invocation time with the `-tui` option.
 
-Close it:
+Leave `layout modes`:
 
 - <http://stackoverflow.com/questions/8409540/how-to-close-layout-src-windows-in-gdb>
 - <http://stackoverflow.com/questions/8953720/multiple-problems-with-gdbs-tui-mode>
+
+`Ctrl-x` keyboard shortcuts can be used to enter and leave those modes, but they do not work with `vi` `.inputrc` settings.
+
+Once you enter one of the `tui` modes, a few specific commands are possible: <https://sourceware.org/gdb/onlinedocs/gdb/TUI-Commands.html>
+
+#### focus
+
+Change focus to another split:
+
+    focus next
+
+Once focus falls on the code window, you can scroll it with the up and down arrow keys.
+
+## Colors
+
+<http://stackoverflow.com/questions/209534/how-to-highlight-and-color-gdb-output-during-interactive-debugging>
+
+Can be achieved with options.

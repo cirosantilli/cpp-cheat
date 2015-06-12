@@ -15,6 +15,18 @@
     Executable name: cpp. GCC for example is just a front-end to it.
 */
 
+/*
+# include
+
+    Look in standard dirs directly:
+
+        #include <file.h>
+
+    Looks in current directory first:
+
+        #include "file.h"
+*/
+
 #include "common.h"
 
 int int_int_int_func(int m, int n) {

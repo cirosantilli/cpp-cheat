@@ -166,3 +166,44 @@ On 5.1, `lra.c` is the main entry point, and has a nice block diagram documentat
 Shared includes.
 
 Many used in GCC and `libiberty`.
+
+## libiberty
+
+Shared GNU utilities.
+
+Used by both GCC and Binutils, although it does not have it's own versioning.
+
+## boehm-gc
+
+<http://en.wikipedia.org/wiki/Boehm_garbage_collector>
+
+## libcilkrts
+
+<http://en.wikipedia.org/wiki/Cilk>
+
+## libsanitizer
+
+Find memory errors, originally by Google:
+
+- AddressSanitizer http://code.google.com/p/address-sanitizer
+- ThreadSanitizer http://code.google.com/p/thread-sanitizer/
+
+TODO at runtime? Or static analysis?
+
+## libssp
+
+Stack Smashing Protection:
+
+- <http://aconole.brad-x.com/papers/exploits/ssp/intro>
+- <http://en.wikipedia.org/wiki/Buffer_overflow_protection>
+
+Security feature.
+
+## libvtv
+
+Virtual table verification:
+
+- <https://gcc.gnu.org/wiki/vtv>
+- <https://sunglint.wordpress.com/2013/06/13/vtv/>
+
+Security feature.

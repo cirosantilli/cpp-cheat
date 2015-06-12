@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
-sudo aptitude update
-sudo aptitude install -y libgsl0-dev
-sudo apt-get install -y libplplot-dev plplot11-driver-xwin
+sudo apt-get update
+sudo apt-get install -y libgsl0-dev
+sudo apt-get install -y libplplot-dev plplot12-driver-xwin

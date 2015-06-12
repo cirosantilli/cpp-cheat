@@ -19,6 +19,22 @@ It is also possible to debug without debugging information, but it is much harde
 
 There are a few standards for debugging information format. DWARF is the most popular on ELF.
 
+### libc debugging symbols
+
+In Ubuntu 14.04, the libc does not come with debugging symbols, so you cannot for example get any information out of `l` if you enter one of those functions.
+
+How to install one: <http://stackoverflow.com/questions/10000335/how-to-use-debug-version-of-libc>
+
+You can still to assembly level operations of course.
+
+## Configuration files
+
+### .gdbinit
+
+GDB script run at startup.
+
+Hardcore things can be done with it: <https://github.com/gdbinit/Gdbinit>
+
 ## Basic usage
 
 Run executable and debug it with GDB:
@@ -58,3 +74,9 @@ Run commands in the given file.
 You can also pass command line arguments at invocation time with:
 
     gdb --args executable arg0 arg1
+
+## tui
+
+Start debugging in `tui` mode.
+
+Same as the `layout src` command.

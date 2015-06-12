@@ -22,8 +22,9 @@ FFLAGS 	?= -std=f2003 -Wall -pedantic-errors -march=native $(FFLAGS_EXTRA)
 IN_DIR 		?= ./
 IN_EXTS 	?= .c .cpp .f
 # Unlike in Makefile_one, there is no TMP_DIR because there are no .o files generated.
-OUT_DIR 	?= _build/
-OUT_EXT 	?= #.elf
+OUT_DIR 	?= ./
+OUT_EXT 	?= .out
+TMP_EXT 	?= .tmp
 
 # Basename without extension of file to run on run target.
 RUN 		?= main
@@ -65,7 +66,7 @@ ifneq ($(strip $(run)),)
 endif
 
 $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.c
-	$(MYCC) $(CFLAGS)    $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) $(INCLUDE_DIRS) -o "$@" "$<" $(LIBS)
+	$(MYCC) $(CFLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) $(INCLUDE_DIRS) -o "$@" "$<" $(LIBS)
 
 $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.cpp
 	$(MYCXX) $(MYCXXFLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) $(INCLUDE_DIRS) -o "$@" "$<" $(LIBS)
@@ -98,7 +99,11 @@ set_asm_flags:
 	$(eval DEBUG_FLAGS := -ggdb3)
 
 clean:
-	rm -rf "$(OUT_DIR)"
+	if [ ! '$(OUT_DIR)' = './'  ]; then \
+		rm -rf '$(OUT_DIR)' ;\
+	else \
+		rm -f *'$(OUT_EXT)' *'$(TMP_EXT)' ;\
+	fi
 
 debug: clean set_debug_flags all
 	cd $(OUT_DIR) && gdb "$(RUN_BNAME)"

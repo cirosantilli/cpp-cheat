@@ -4,8 +4,9 @@
 
 O ?= 0
 STD ?= c11
-CCC ?= gcc -DIMPLEMENTATION_SIGNAL -DUNDEFINED_BEHAVIOUR -ggdb3 -pedantic-errors -std=$(STD) -O$(O) -Wextra -Wno-sign-compare -Wno-unused-variable -Wno-unused-label -Wno-unused-but-set-variable
+CCC ?= gcc -DIMPLEMENTATION_SIGNAL -DUNDEFINED_BEHAVIOUR -ggdb3 -pedantic-errors -std=$(STD) -O$(O) -Wextra -Wno-ignored-qualifiers -Wno-sign-compare -Wno-unused-variable -Wno-unused-label -Wno-unused-but-set-variable
 IN_EXT ?= .c
+LIBS ?= -lm
 OUT_EXT ?= .out
 RUN ?= main
 TEST ?= test
@@ -20,7 +21,7 @@ OUTS := $(addsuffix $(OUT_EXT), $(OUTS_NOEXT))
 all: $(OUTS)
 
 %$(OUT_EXT): %$(IN_EXT)
-	$(CCC) -o '$@' '$<' -lm
+	$(CCC) -o '$@' '$<' $(LIBS)
 
 clean:
 	rm -f *'$(OUT_EXT)' *'$(TMP_EXT)'

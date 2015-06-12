@@ -1,7 +1,7 @@
 /*
-   this file shows how to use blas and lapack with the standard
-   interfaces provided by their respective projects, repectively through
-   `cblas.h` and `lapacke.h`
+How to use blas and lapack with the standard
+interfaces provided by their respective projects, repectively through
+`cblas.h` and `lapacke.h`
 */
 
 #include <assert.h>

@@ -250,6 +250,13 @@ s:
 
             so the tendency of the standard is to use `_Upper_case` for new conflicts.
 
+            For convience, C99 also defines simpler macros to some new identifiers and adds them to headers, e.g.:
+
+            - `_Complex` and `complex` from `complex.h`
+            - `_Noreturn` and `noreturn` from `stdnoreturn.h`
+
+            This allows includers to override the macro with `#undef complex` if necessary.
+
             POSIX adds many further per header reserved names which it would be wise to follow even on ANSI C:
             http://pubs.opengroup.org/onlinepubs/9699919799/functions/V2_chap02.html section "The Name Space".
         */
