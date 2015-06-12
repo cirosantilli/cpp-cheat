@@ -1,2 +1,16 @@
-# Cannot be a symlink.
 language: cpp
+
+install: |
+  cd "$TRAVIS_BUILD_DIR"
+  ./configure
+
+script: |
+  cd "$TRAVIS_BUILD_DIR"
+  cd c
+  make test
+  cd ../cpp
+  make test
+  cd ../glibc
+  make test
+  cd ../gcc
+  make test

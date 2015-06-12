@@ -5,54 +5,56 @@
 # C/CPP
 # Don't use the standard names like `CC` and `CXX` to avoid `?=` getting overridden.
 # by the Makefile default values.
-MYCC			?= gcc
-MYCXX			?= g++
-CFLAGS			?= -std=c11   -Wall -pedantic-errors -march=native $(CFLAGS_EXTRA)
-MYCXXFLAGS		?= -std=c++11 -Wall -pedantic-errors -march=native $(CXXFLAGS_EXTRA)
-LIBS			?= -lm #-lGL -lGLU -lglut
-INCLUDE_DIRS 	?= #-I/usr/include
-DEFINES 		?= #-D_XOPEN_SOURCE 700
+MYCC            ?= gcc
+MYCXX           ?= g++
+DEFINES         ?= #-D_XOPEN_SOURCE 700
+O               ?= 0
+STD             ?= c11
+PEDANTIC        ?= -pedantic-errors
+CFLAGS          ?= $(DEFINES) -O$(O) -std=$(STD) -Wextra $(PEDANTIC) $(CFLAGS_EXTRA)
+MYCXXFLAGS      ?= $(DEFINES) -O$(O) -std=c++11 -Wextra $(PEDANTIC) $(CXXFLAGS_EXTRA)
+LIBS            ?= -lm #-lGL -lGLU -lglut
+INCLUDE_DIRS    ?= #-I/usr/include
 
 # Fortran
-FF 		?= gfortran
-FFLIBS 	?= #-l:lapack/liblapack.so
-FFLAGS 	?= -std=f2003 -Wall -pedantic-errors -march=native $(FFLAGS_EXTRA)
+FF      ?= gfortran
+FFLIBS  ?= #-l:lapack/liblapack.so
+FFLAGS  ?= -O$(O) -std=f2003 -Wextra $(PEDANTIC) $(FFLAGS_EXTRA)
 
 # Paths
-IN_DIR 		?= ./
-IN_EXTS 	?= .c .cpp .f
+IN_DIR      ?= ./
+IN_EXTS     ?= .c .cpp .f
 # Unlike in Makefile_one, there is no TMP_DIR because there are no .o files generated.
-OUT_DIR 	?= ./
-OUT_EXT 	?= .out
-TMP_EXT 	?= .tmp
+OUT_DIR     ?= ./
+OUT_EXT     ?= .out
+OBJECT_EXT  ?= .o
+TMP_EXT     ?= .tmp
 
 # Basename without extension of file to run on run target.
-RUN 		?= main
+RUN         ?= main
 # If exists, will be symlinked into the same directory from which the executable will be run.
 # This way, the executable can suppose that this file or directory is in the current directory.
-RUN_INPUT	?= input
+RUN_INPUT   ?= input
 # Allow users to write `make run=name`.
 run ?=
+TEST ?= test
 
-ASSEMBLER_NOEXT		?= $(IN_DIR)$(RUN)
-DEBUG_DEFINE 		?=
-DEBUG_FLAGS  		?=
-PROFILE_DEFINE 		?= #-DDEBUG
-PROFILE_FLAGS  		?= #
-# Should be turned on for production.
-# For development leave off to compile faster and produce more predictable assembly code.
-OPTIMIZE_FLAGS		?= #-O3
+ASSEMBLER_NOEXT     ?= $(IN_DIR)$(RUN)
+DEBUG_DEFINE        ?=
+DEBUG_FLAGS         ?=
+PROFILE_DEFINE      ?= #-DDEBUG
+PROFILE_FLAGS       ?= #
 
 # Extra phony targets
-PHONY				?=
+PHONY               ?=
 
-RUN_BNAME 	:= $(RUN)$(OUT_EXT)
+RUN_BNAME   := $(RUN)$(OUT_EXT)
 
-INS			:= $(foreach IN_EXT, $(IN_EXTS), $(wildcard $(IN_DIR)*$(IN_EXT)))
-INS_NODIR 	:= $(notdir $(INS))
-OUTS_NODIR	:= $(basename $(INS_NODIR))
-OUTS_NODIR	:= $(addsuffix $(OUT_EXT), $(OUTS_NODIR))
-OUTS		:= $(addprefix $(OUT_DIR), $(OUTS_NODIR))
+INS         := $(foreach IN_EXT, $(IN_EXTS), $(wildcard $(IN_DIR)*$(IN_EXT)))
+INS_NODIR   := $(notdir $(INS))
+OUTS_NODIR  := $(basename $(INS_NODIR))
+OUTS_NODIR  := $(addsuffix $(OUT_EXT), $(OUTS_NODIR))
+OUTS        := $(addprefix $(OUT_DIR), $(OUTS_NODIR))
 
 .PHONY: all asm set_asm_flags clean debug set_debug_flags help mkdir objdump set_objdump_flags profile set_profile_flags test $(PHONY)
 
@@ -66,26 +68,26 @@ ifneq ($(strip $(run)),)
 endif
 
 $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.c
-	$(MYCC) $(CFLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) $(INCLUDE_DIRS) -o "$@" "$<" $(LIBS)
+	$(MYCC) $(CFLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(INCLUDE_DIRS) -o "$@" "$<" $(LIBS)
 
 $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.cpp
-	$(MYCXX) $(MYCXXFLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) $(INCLUDE_DIRS) -o "$@" "$<" $(LIBS)
+	$(MYCXX) $(MYCXXFLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(INCLUDE_DIRS) -o "$@" "$<" $(LIBS)
 
 $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.f
-	$(FF) $(FFLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) -o "$@" "$<" $(FFLIBS)
+	$(FF) $(FFLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) -o "$@" "$<" $(FFLIBS)
 
 # Make assembly intermingled with original C code to stdout>
 # TODO0: how not to rewrite the make rules?
-# For bare asm: $(MYCC) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) $(CFLAGS) -fverbose-asm -S "$(ASSEMBLER_NOEXT)$$EXT"
+# For bare asm: $(MYCC) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(CFLAGS) -fverbose-asm -S "$(ASSEMBLER_NOEXT)$$EXT"
 asm: mkdir set_asm_flags
 	for EXT in $(IN_EXTS); do \
 		if [ -f "$(ASSEMBLER_NOEXT)$$EXT" ]; then \
 			case "$$EXT" in \
 				.c)\
-					$(MYCC) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) $(CFLAGS) -c -fverbose-asm -Wa,-adhln "$(ASSEMBLER_NOEXT)$$EXT" $(LIBS) -o $(OUT_DIR)asm.o\
+					$(MYCC) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(CFLAGS) -c -fverbose-asm -Wa,-adhln "$(ASSEMBLER_NOEXT)$$EXT" $(LIBS) -o $(OUT_DIR)asm.o\
 					;;\
 				.cpp)\
-					$(MYCXX) $(MYCXXFLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) -c -fverbose-asm -Wa,-adhln "$(ASSEMBLER_NOEXT)$$EXT" $(LIBS)\
+					$(MYCXX) $(MYCXXFLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) -c -fverbose-asm -Wa,-adhln "$(ASSEMBLER_NOEXT)$$EXT" $(LIBS)\
 					;;\
 				.f)\
 					;;\
@@ -95,14 +97,13 @@ asm: mkdir set_asm_flags
 	done
 
 set_asm_flags:
-	$(eval OPTIMIZE_FLAGS :=)
 	$(eval DEBUG_FLAGS := -ggdb3)
 
 clean:
 	if [ ! '$(OUT_DIR)' = './'  ]; then \
 		rm -rf '$(OUT_DIR)' ;\
 	else \
-		rm -f *'$(OUT_EXT)' *'$(TMP_EXT)' ;\
+		rm -f *'$(OBJECT_EXT)' *'$(OUT_EXT)' *'$(TMP_EXT)' ;\
 	fi
 
 debug: clean set_debug_flags all
@@ -111,7 +112,6 @@ debug: clean set_debug_flags all
 set_debug_flags:
 	$(eval DEBUG_FLAGS := -ggdb3)
 	$(eval DEBUG_DEFINE := -DDEBUG)
-	$(eval OPTIMIZE_FLAGS := -O0)
 
 mkdir:
 	@mkdir -p "$(OUT_DIR)"
@@ -120,7 +120,6 @@ objdump: mkdir set_objdump_flags all
 	cd $(OUT_DIR) && objdump -S $(RUN_BNAME)
 
 set_objdump_flags:
-	$(eval OPTIMIZE_FLAGS := -O0)
 	$(eval DEBUG_FLAGS := -ggdb3)
 
 profile: clean set_profile_flags all run
@@ -133,11 +132,27 @@ run: all
 set_profile_flags:
 	$(eval PROFILE_FLAGS := -p -pg)
 	$(eval PROFILE_DEFINE := -DPROFILE)
-	#$(eval OPTIMIZE_FLAGS := -O0)
 
 test: all
-	@echo
-	./test $(OUT_DIR) $(OUTS_NODIR)
+	@\
+	if [ -x $(TEST)  ]; then \
+	  ./$(TEST) '$(OUT_EXT)' ;\
+	else\
+	  fail=false ;\
+	  for t in *"$(OUT_EXT)"; do\
+	    if ! ./"$$t"; then \
+	      fail=true ;\
+	      break ;\
+	    fi ;\
+	  done ;\
+	  if $$fail; then \
+	    echo "TEST FAILED: $$t" ;\
+	    exit 1 ;\
+	  else \
+	    echo 'ALL TESTS PASSED' ;\
+	    exit 0 ;\
+	  fi ;\
+	fi ;\
 
 -include Makefile_targets
 

@@ -4,32 +4,7 @@ ANSI C cheat.
 This file is being split up into smaller parts to c/
 */
 
-#define IMPLEMENTATION_SIGNAL
-#define UNDEFINED_BEHAVIOUR
-
-#include <assert.h>
-#include <ctype.h> /* isspace, isdigit, ispunct, tolower, toupper */
-#include <errno.h>
-#include <fenv.h>
-#include <float.h>
-#include <inttypes.h> /* PRIxPTR */
-#include <limits.h> /* *_MAX, *_MIN for integer types */
-#include <locale.h>
-#include <setjmp.h> /* setjmp, longjmp */
-#include <stdarg.h> /* ..., va_list, va_start, va_arg, va_end */
-#include <stddef.h> /* offsetof, type_t */
-#include <stdlib.h> /* malloc, EXIT_SUCCESS, EXIT_FAILURE: */
-#include <stdio.h> /* printf, puts */
-#include <string.h> /* sprintf, strlen, strcpy, memset, memcmp */
-#include <math.h>
-#include <time.h> /* time() */
-#if __STDC_VERSION__ >= 199901L
-/* Not yet implemented in GCC 4.8. */
-/* #include <thread.h>*/
-# if __STDC_VERSION__ >= 201112L
-#  include <stdnoreturn.h>
-# endif
-#endif
+#include "common.h"
 
 /* +1 for the null char */
 #define PRIxPTR_WIDTH ((int)(sizeof(void*)*2))
@@ -329,6 +304,8 @@ int main(int argc, char **argv) {
             /*
             Undefined behaviour for local variables:
             http://stackoverflow.com/questions/11962457/why-is-using-an-uninitialized-variable-undefined-behavior-in-c
+
+            WARN -Wuninitialized
             */
             {
                 int uninitializedLocal;
@@ -2762,9 +2739,9 @@ int main(int argc, char **argv) {
             /*
             Multiple assignments for a single int.
 
-            BAD but possible.x
-
             Only last takes effect.
+
+            WARN -Woverride-init
             */
             {
                 int is[1] = {

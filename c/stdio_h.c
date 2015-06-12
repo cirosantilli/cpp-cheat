@@ -32,6 +32,8 @@
 
 #include "common.h"
 
+#define TMPFILE(x) __FILE__ "__" x ".tmp"
+
 /*
 Standard action to take in case of an IO error.
 */
@@ -99,7 +101,7 @@ char *file_read(char *path) {
     char *buffer;
     long fsize;
 
-    fp = fopen (path , "rb");
+    fp = fopen(path , "rb");
     if (fp==NULL) {
         return NULL;
     }
@@ -990,7 +992,7 @@ int main() {
         enum constexpr {nelems = sizeof(elems_write) / sizeof(elems_write[0])};
         int elems_read[nelems];
         FILE *fp;
-        char path[] = "fwrite.tmp";
+        char path[] = TMPFILE("fwrite");
 
         /*
         # fwrite
@@ -1194,7 +1196,7 @@ int main() {
     /* # applications */
     {
         {
-            char path[] = "str_file.tmp";
+            char path[] = TMPFILE("str_file");
             char input[] = "asdf\nqwer";
 
             /* Write entire string to file at once. */
@@ -1243,7 +1245,7 @@ int main() {
             long file_size;
             long nbytes_read;
 
-            char path[] = "cat.tmp";
+            char path[] = TMPFILE("cat");
             char file_data[] = "abc\nde\nfgh";
             size_t file_data_size = strlen(file_data);
             char lines[3][4] = {"abc\n", "de\n", "fgh\n"};
@@ -1294,15 +1296,15 @@ int main() {
         /* Simple write arrays to file */
         {
             FILE* fp;
-            char path[16];
+            char path[256];
 
             int arri[] = { 0, 1, -1, 12873453 };
             float arrf[] = { 1.1f, 1.001f, -1.1f, 1.23456e2 };
 
-            strcpy(path, "arri.tmp");
+            strcpy(path, TMPFILE("arri"));
             write_int_arr_file(path, arri, 4);
 
-            strcpy(path, "arrf.tmp");
+            strcpy(path, TMPFILE("arrf"));
             write_float_arr_file(path, arrf, 4, 2);
         }
     }

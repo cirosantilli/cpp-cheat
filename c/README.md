@@ -9,6 +9,7 @@
     1. [Pros and cons](pros-and-cons.md)
     1. [Trivia](trivia.md)
     1. [Bibliography](bibliography.md)
+1.  [main.c](main.c): huge dump that is being split up into smaller sections
 1.  Sanity
     1. [hello_world.c](hello_world.c)
     1. [min.c](min.c)

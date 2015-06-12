@@ -16,16 +16,18 @@ FF                      ?= gfortran
 INCLUDE_DIRS            ?= #-L/usr/include/GL
 LIBS                    ?= #-lglut -lGLU -lGL
 MYCC                    ?= gcc
-MYCFLAGS                ?= -std=c11   -Wall -pedantic-errors -march=native $(CFLAGS_EXTRA)
+STD						?= c11
+MYCFLAGS                ?= -std=$(STD) -Wall -pedantic-errors -march=native $(CFLAGS_EXTRA)
 MYCXX                   ?= g++
 MYCXXFLAGS              ?= -std=c++11 -Wall -pedantic-errors -march=native $(CXXFLAGS_EXTRA)
 # Should be turned on for production.
 # For development leave off to compile faster and produce more predictable assembly code.
+OBJ_EXT                 ?= .o
 OPTIMIZE_FLAGS          ?= #-O3
 # Directory where compiled outputs will be put.
 OUT_DIR                 ?= ./
 OUT_BASENAME_NOEXT      ?= main
-OUT_EXT                 ?=
+OUT_EXT                 ?= .out
 RUN                     ?= $(OUT_BASENAME_NOEXT)
 # If this file or directory exists, it will be symlinked into the same directory
 # from which the executable will be run. This way, the executable can suppose this is in the current directory.
@@ -36,7 +38,7 @@ PREDEF                  ?= #-DDEBUG -DPROFILE -DWINDOWS
 # Passed as command line args to bin on run.
 RUN_ARGS                ?= #0 1
 TMP_DIR                 ?= _build/
-TMP_EXT                 ?= .o
+TMP_EXT                 ?= .tmp
 
 INS                     := $(wildcard $(IN_DIR)*$(IN_EXT))
 INS_NODIR               := $(notdir $(INS))
@@ -69,7 +71,11 @@ asm: mkdir
 	$(MYCC) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(OPTIMIZE_FLAGS) $(CFLAGS) -fverbose-asm -Wa,-adhln "$(IN_DIR)$(RUN)$(IN_EXT)" $(LIBS) -o $(TMP_DIR)asm$(TMP_EXT)
 
 clean:
-	rm -rf "$(TMP_DIR)" "$(OUT)"
+	if [ ! '$(OUT_DIR)' = './'  ]; then \
+		rm -rf '$(OUT_DIR)' ;\
+	else \
+		rm -f *'$(OBJECT_EXT)' *'$(OUT_EXT)' *'$(TMP_EXT)' ;\
+	fi
 
 debug: clean set_debug_flags all
 	gdb $(OUT)

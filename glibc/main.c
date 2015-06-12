@@ -116,7 +116,7 @@ int main() {
                 exit(EXIT_FAILURE);
             } else {
                 printf("sched_getaffinity = ");
-                int i;
+                unsigned int i;
                 for (i = 0; i < sizeof(cpu_set_t); i++) {
                     printf("%d", CPU_ISSET(0, &mask));
                 }

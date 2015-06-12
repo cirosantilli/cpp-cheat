@@ -12,7 +12,7 @@ Relies on [C++ boilerplate](https://github.com/cirosantilli/cpp-boilerplate) to 
 1.  Featured
     1. [c.c](c.c): C cheatsheet, now being split into `c/`
     1. [C](c/)
-    1. [cpp.cpp](main_cpp.cpp): C++ cheatsheet
+    1. [C++](cpp/)
     1. [POSIX](posix/): POSIX C API
     1. [GCC](gcc/): GCC extensions
     1. [OpenGL](opengl/)

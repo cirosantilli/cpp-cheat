@@ -145,7 +145,7 @@ function struct args
 
 /* # return const from func */
 
-    /* -Wno-ignored-qualifiers */
+    /* -Wignored-qualifiers */
     const int const_int_func() {
         return 0;
     }

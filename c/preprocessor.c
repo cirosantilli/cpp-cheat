@@ -160,7 +160,7 @@ int main() {
         */
         {
             int i = 0;
-#include "i_plus_one"
+#include "preprocessor.inc"
             assert(i == 1);
         }
     }

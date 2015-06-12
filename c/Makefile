@@ -1,1 +1,1 @@
-../c_many.makefile
+../Makefile_many

@@ -1,1 +1,0 @@
-RUN := hello_world
