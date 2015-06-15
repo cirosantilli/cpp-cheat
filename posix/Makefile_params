@@ -1,1 +1,2 @@
-LIBS	:= -lm -pthread
+LIBS := -lm -pthread
+D := #-DFAIL

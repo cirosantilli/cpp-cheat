@@ -11,7 +11,7 @@
 #include <signal.h>
 #include <stdbool.h> /* false, true */
 #include <stdarg.h> /* ..., va_list, va_start, va_arg, va_end */
-#include <stddef.h> /* offsetof, type_t */
+#include <stddef.h> /* offsetof, size_t, type_t */
 #include <stdlib.h> /* malloc, EXIT_SUCCESS, EXIT_FAILURE: */
 #include <stdio.h> /* printf, puts */
 #include <string.h> /* sprintf, strlen, strcpy, memset, memcmp */

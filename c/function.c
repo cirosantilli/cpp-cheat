@@ -242,7 +242,7 @@ int main() {
                 allocated data on caller and pass a pointer to the struct,
                 and let the callee modify that pointer to return it.
 
-            Smaple: definition
+            Sample: definition
 
                 struct struct_func_struct struct_func() {
                     struct struct_func_struct s = { 0, 1 };

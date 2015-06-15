@@ -399,62 +399,15 @@ int main() {
 
         /* float in given range. */
         {
-            float min = 1.0;
-            float max = 3.0;
+            float min = 1.0f;
+            float max = 3.0f;
             float res = (max - min) * ((float)rand() / RAND_MAX) + min;
             printf("float in range = %f\n", res);
         }
     }
 
     /*
-    # IEEE-754
-
-        IEC 60559 has the same contents as the IEEE 754-2008,
-        Outside of the C standard it is commonly known by the IEEE name, or simply as IEEE floating point.
-
-        IEEE dates from 1985.
-
-    # __STDC_IEC_559__
-
-    # IEC 60599
-
-        Standard on which floating point formats and operations should be available
-        on an implementation, and how they should work.
-
-        Good overview wiki article: <http://en.wikipedia.org/wiki/IEEE_floating_point>
-
-        Many CUPs implement large parts of IEC 60599, which C implementations can use if available.
-
-        The C standard specifies that implementing the IEC 60599 is not mandatory.
-
-        If the macro `__STDC_IEC_559__` is defined this means that the implementation is compliant
-        to the interface specified in Annex F of the C11 standard.
-
-        C99 introduced many features which allow greater conformance to IEC 60599.
-    */
-    {
-#ifdef __STDC_IEC_559__
-    puts("__STDC_IEC_559__");
-
-    /*
-    C float is 32 bits, double 64 bits.
-
-    long double extende precision, and could be one of the format not spceified by IEC.
-
-    IEC explicitly allows for extended formats, and makes basic restrictions such that
-    its exponent should have more bits than the preceding type.
-
-    This is probably the case to accomodate x86's 80 bit representation.
-    */
-    {
-        assert(sizeof(float) == 4);
-        assert(sizeof(double) == 8);
-    }
-#endif
-    }
-
-    /*
-    # division by 0
+    # Division by 0
 
         Time to have some fun and do naughty things.
 
@@ -605,6 +558,17 @@ int main() {
                 assert(!(0.0 == NAN));
             }
         }
+    }
+
+    /*
+    # FLT_EVAL_METHOD
+
+    # float_t
+
+    # double_t
+    */
+    {
+        printf("FLT_EVAL_METHOD = %d\n", FLT_EVAL_METHOD);
     }
 
     return EXIT_SUCCESS;

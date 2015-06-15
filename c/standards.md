@@ -66,7 +66,7 @@ Major new features:
 
 -   `gcc` flag: add `-std=c99`
 
-WG14/N1256 is the best free draft available: <http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1256.pdf>
+WG14/N1256 is the best free draft available: <http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1256.pdf> Does not seem to exist in HTML: <http://stackoverflow.com/questions/4883212/html-version-of-c-standard-draft-n1256-pdf>
 
 #### Microsoft C99 support
 

@@ -69,6 +69,25 @@ Must pass as single command per `-ex` argument.
 
 Run commands in the given file.
 
+TODO: file.gdb:
+
+    watch i
+    commands
+      continue
+    end
+
+with `gdb -x file.gdb -ex run main.out` stops at the first watch point, then I `c` and it does not stop anymore.
+
+But:
+
+    watch i
+    commands
+      continue
+    end
+    run
+
+with: `gdb -x file.gdb main.out` does not stop as expected. What is the difference?
+
 ## args
 
 You can also pass command line arguments at invocation time with:

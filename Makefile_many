@@ -8,13 +8,13 @@
 # by the Makefile default values.
 MYCC            ?= gcc
 MYCXX           ?= g++
-DEFINES         ?= #-D_XOPEN_SOURCE 700
-INCLUDE_DIRS    ?= #-I/usr/include
+D               ?= #-D_XOPEN_SOURCE 700
+I               ?= #-I/usr/include
 O               ?= 0
 STD             ?= c11
 PEDANTIC        ?= -pedantic-errors
-CFLAGS          ?= $(DEFINES) -O$(O) -std=$(STD) -Wextra $(PEDANTIC) $(CFLAGS_EXTRA)
-MYCXXFLAGS      ?= $(DEFINES) -O$(O) -std=c++11 -Wextra $(PEDANTIC) $(CXXFLAGS_EXTRA)
+CFLAGS          ?= $(D) -O$(O) -std=$(STD) -Wextra $(PEDANTIC) $(CFLAGS_EXTRA)
+MYCXXFLAGS      ?= $(D) -O$(O) -std=c++11 -Wextra $(PEDANTIC) $(CXXFLAGS_EXTRA)
 
 LIBS            ?= -lm #-lGL -lGLU -lglut
 
@@ -65,10 +65,10 @@ ifneq ($(strip $(run)),)
 endif
 
 $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.c
-	$(MYCC) $(CFLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(INCLUDE_DIRS) -o "$@" "$<" $(LIBS)
+	$(MYCC) $(CFLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(I) -o "$@" "$<" $(LIBS)
 
 $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.cpp
-	$(MYCXX) $(MYCXXFLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(INCLUDE_DIRS) -o "$@" "$<" $(LIBS)
+	$(MYCXX) $(MYCXXFLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(I) -o "$@" "$<" $(LIBS)
 
 $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.f
 	$(FF) $(FFLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) -o "$@" "$<" $(FFLIBS)

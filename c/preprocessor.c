@@ -362,7 +362,7 @@ assert(false);
     */
 
     /*
-    # Prefined preprocessor macros
+    # Predefined preprocessor macros
 
     # Standard preprocessor defines
 
@@ -526,6 +526,48 @@ assert(false);
         puts("___X32_SYSCALL_BIT");
 #endif
 
+    /*
+    # IEEE-754
+
+        IEC 60559 has the same contents as the IEEE 754-2008,
+        Outside of the C standard it is commonly known by the IEEE name, or simply as IEEE floating point.
+
+        IEEE dates from 1985.
+
+    # __STDC_IEC_559__
+
+    # IEC 60599
+
+        Standard on which floating point formats and operations should be available
+        on an implementation, and how they should work.
+
+        Good overview wiki article: <http://en.wikipedia.org/wiki/IEEE_floating_point>
+
+        Many CUPs implement large parts of IEC 60599, which C implementations can use if available.
+
+        The C standard specifies that implementing the IEC 60599 is not mandatory.
+
+        If the macro `__STDC_IEC_559__` is defined this means that the implementation is compliant
+        to the interface specified in Annex F of the C11 standard.
+
+        C99 introduced many features which allow greater conformance to IEC 60599.
+    */
+        {
+#ifdef __STDC_IEC_559__
+            puts("__STDC_IEC_559__");
+
+            /*
+            I think it guaranteed by the standard on annex F:
+
+            - The float type matches the IEC 60559 single format.
+            - The double type matches the IEC 60559 double format.
+            - The long double type matches an IEC 60559 extended format,307) else a
+              non-IEC 60559 extended format, else the IEC 60559 double format.
+            */
+            assert(sizeof(float) == 4);
+            assert(sizeof(double) == 8);
+#endif
+        }
     }
 
     return EXIT_SUCCESS;

@@ -1,6 +1,8 @@
 /*
 # register
 
+    Storage class specifier.
+
     Hint to compiler that ri be stored in register
     instead of in RAM.
 
@@ -10,6 +12,12 @@
 */
 
 #include "common.h"
+
+/* Can appear in arguments. */
+void f(register int i) {}
+
+/* -pedantic: File scope declaration. */
+/*register int i;*/
 
 int main() {
     {

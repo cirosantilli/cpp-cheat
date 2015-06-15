@@ -15,110 +15,18 @@ ANSI C features shall not be discussed here.
     # windows
 
         TODO Is there a Windows implementation for the POSIX C API? Official?
-
-# Headers
-
-    List of all headers: <http://en.wikipedia.org/wiki/C_POSIX_library>
-
-    POSIX defines certain things *inside*
-    headers with the same name as the ANSI stdlib ones
-    which are only activated if you add the defines *before
-    including those files*!
-
-    GCC: if you want to access them with the `-ansi -c99` flags,
-    you need to define `XXX_XOPEN_SOURCE`
-
-    There are other preprocessor defines which may expose posix functions such as `_POSIX_C_SOURCE` and `POSIX_SOURCE`
-    For the GNU C library, see `man feature_test_macros` for an explanaition.
-
-    The actual value of the preprocessor refers to the POSIX version. For example:
-
-    - 500: issue 5, 1995
-    - 600: issue 6, 2004
-    - 700: issue 7, 2008
-
-# TODO
-
-    # ptrace
-
-        one process (tracer) observes another process' (tracee) memory directly
-
-        <http://mikecvet.wordpress.com/2010/08/14/ptrace-tutorial/>
 */
 
-#define _XOPEN_SOURCE 700
-/*#define _POSIX_C_SOURCE 200112L*/
-/*#define POSIX_SOURCE*/
-
-/* ANSI headers to which POSIX adds extensions. */
-
-#include <assert.h>
-#include <limits.h> /* NZERO */
-#include <math.h> /* M_PI, M_PI_2, M_PI_4 */
-#include <stdbool.h>
-#include <stdio.h> /* popen(), perror() */
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h> /* strerror */
-#include <strings.h> /* ffs */
-
-/* POSIX only headers. */
-
-#include <arpa/inet.h>
-#include <dirent.h>
-#include <errno.h>
-#include <fcntl.h>          // creat, O_CREAT
-#include <libgen.h>
-#include <monetary.h>       // strfmon
-#include <netdb.h>          // gethostbyname
-#include <netinet/in.h>
-#include <pthread.h>
-#include <pwd.h>            // getpwuid, getpwnam, getpwent
-#include <regex.h>
-#include <sched.h>
-#include <sys/mman.h>       // mmap, munmap
-#include <sys/resource.h>   // rusage, getrusage, rlimit, getrlimit
-#include <sys/select.h>     // select, FD_ZERO, FD_SET
-#include <sys/shm.h>        // shmget, shmat, etc.
-#include <sys/socket.h>
-#include <sys/stat.h>       // S_IRUSR and family,
-#include <sys/types.h>      // lots of posix realted typedef types
-#include <sys/utsname.h>    // uname, struct utsname
-#include <sys/wait.h>       // wait, sleep
-#include <syslog.h>         // syslog
-#include <unistd.h>         // major posix header. Anything that is not elsewhere is here.
+#include "common.h"
 
 extern char **environ;
 
-#define TMPFILE(x) __FILE__ "__" x ".tmp"
-
-/* pthreads related */
-
-#   define NUM_THREADS 5
-
-    pthread_mutex_t main_thread_mutex = PTHREAD_MUTEX_INITIALIZER;
-
-    void* main_thread(void* vargument) {
-        int argument;
-
-        argument = *((int*)vargument);
-
-        pthread_mutex_lock(&main_thread_mutex);
-        printf("tid = %d\n", argument);
-        //all threads of a process have the same PID
-        printf("  getpid() = %ju\n", (uintmax_t)getpid());
-        printf("  pthread_self() = %ju\n", (uintmax_t)pthread_self());
-        pthread_mutex_unlock(&main_thread_mutex);
-
-        return NULL;
-    }
-
-int main(int argc, char** argv) {
+int main() {
     /*
     # Namespace
 
         POSIX adds many further per header reserved names which it would be wise to follow even on ANSI C:
-        <http://pubs.opengroup.org/onlinepubs/9699919799/functions/V2_chap02.html> section "The Name Space".
+        http://pubs.opengroup.org/onlinepubs/9699919799/functions/V2_chap02.html> section "The Name Space"
     */
 
     /*
@@ -196,7 +104,7 @@ int main(int argc, char** argv) {
         {
             char *dirname = "i_dont_exist";
 
-            // Assure that dirname does not exist.
+            /* Assure that dirname does not exist. */
             if(access(dirname, F_OK) == 0)
                 assert(rmdir(dirname) != -1);
             errno = 0;
@@ -204,7 +112,7 @@ int main(int argc, char** argv) {
             rmdir(dirname);
             assert(errno != 0);
 
-            // Sucessful calls do *not* set errno to 0.
+            /* Successful calls do *not* set errno to 0. */
             mkdir(dirname, 0777);
             rmdir(dirname);
             assert(errno != 0);
@@ -233,9 +141,11 @@ int main(int argc, char** argv) {
                 you will have to correct this
         */
         {
-            //char buf[256];
-            //sprintf(buf, "%2$d %d %d", 0, 1);
-            //assert(strcmp(buf, "1 0 1") == 0);
+            /*
+            char buf[256];
+            sprintf(buf, "%2$d %d %d", 0, 1);
+            assert(strcmp(buf, "1 0 1") == 0);
+            */
         }
     }
 
@@ -269,9 +179,8 @@ int main(int argc, char** argv) {
         - %m: errno message string
     */
     {
-        // TODO this breaks my poor program, why? needs root?
-
-            //syslog(LOG_ERR | LOG_USER, "syslog test: %m\n");
+        /* TODO this breaks my poor program, why? needs root? */
+        /*syslog(LOG_ERR | LOG_USER, "syslog test: %m\n");*/
     }
 
     /*
@@ -302,11 +211,10 @@ int main(int argc, char** argv) {
             assert(setenv("HOME", "asdf", true) != -1);
             assert(strcmp(getenv("HOME"), "asdf") == 0);
 
-            //with overwrite false, if existing is not overwritten
-            //but error is not returned:
-
-                assert(setenv("HOME", "qwer", false) != -1);
-                assert(strcmp(getenv("HOME"), "asdf") == 0);
+            /* With overwrite false, if existing is not overwritten */
+            /* but error is not returned. */
+            assert(setenv("HOME", "qwer", false) != -1);
+            assert(strcmp(getenv("HOME"), "asdf") == 0);
         }
 
         /*
@@ -2213,167 +2121,6 @@ int main(int argc, char** argv) {
     }
 
     /*
-    # fork
-
-        Makes a copy of this process.
-
-        This includes open file descriptors.
-
-        Global memory space (`.DATA` and `.BSD`) is copied to current value but separated
-        (unlike threads, which share memory space).
-
-        # fork and buffering
-
-            <http://stackoverflow.com/questions/3513242/working-of-fork-in-linux-gcc>
-
-            There are three buffering methods:
-
-            - unbuffered
-            - fully buffered
-            - line buffered
-
-            When you fork, the streams get forked too,
-            with unflushed data still inside
-
-            stdout and stderr flush at newlines
-            if you don't put newlines, if does not flush,
-            and fork copies the buffers
-
-            This will print everything twice.
-
-    # vfork
-
-        Fork but keep same address space. POSIX 7 discourages it's use,
-        and says that it may be deprecated in the future
-
-        Somewhat similar to threads.
-
-    # posix_spawn
-
-        TODO
-
-    # wait
-
-        Wait for any child to terminate and then wake up.
-
-        Same as:
-
-            waitpid(-1, &status, 0);
-
-    # waitpid
-
-        Wait for child with given PID to terminate.
-
-    # copy on write # COW
-
-        Often the fork is followed by an operation which does not use the old memory
-        such as `exec`, making copying the data useless.
-
-        Some operating systems may at first not copy memory from old process,
-        but wait util memory is written to do that.
-
-        This has page granularity (physical RAM parameter, larger than most variables)
-    */
-    {
-        // This variable will be duplicated on the parent and on the child.
-        int i = 0;
-        int ppid; /* parent pid */
-
-        ppid = getpid();
-        if (ppid == -1) {
-            perror("getpid");
-            exit(EXIT_FAILURE);
-        }
-
-        // This variable is visible only by the parent
-        // TODO0 is the compiler smart enough not to duplicate this to the child?
-        {
-            //int i = 0;
-        }
-
-        puts("fork parent only before child");
-
-        // Flush before fork so that existing output won't be repeated twice.
-        fflush(stdout);
-
-        // In case of success, pid is set differently on parent and child
-        // so you can distinguish between them. For the child, `pid = 0`.
-        pid_t pid = fork();
-        if (pid == -1) {
-            perror("fork");
-            assert(false);
-        } else {
-            puts("fork child and parent");
-
-            // Happens on child only.
-            if (pid == 0) {
-                /*
-                This puts is assynchonous with the process stdout.
-
-                So it might not be in the line program order.
-
-                But they both go to the same terminal.
-                */
-                puts("fork child only");
-
-                //child has a different pid from its parent
-                int pid = getpid();
-                if (pid == -1) {
-                    perror("getpid");
-                    exit(EXIT_FAILURE);
-                }
-                assert(pid != ppid);
-
-                /* This shall only change the child's `i` because memory was cloned (unlike threads) */
-                i++;
-
-                /* The child exits here. */
-                exit(EXIT_SUCCESS);
-            }
-
-            /* Happens on parent only, before or after child. */
-            puts("fork parent only");
-
-            //parent waits for the child to end.
-            //only the parent reaches this point because of the exit call
-            //done on the child above
-            int status;
-            wait(&status);
-            assert(status == EXIT_SUCCESS);
-
-            //happens on parent and only after child:
-            puts("fork parent only after child");
-
-            //memory was cloned, parent i was only modified in child memory
-            assert(i == 0);
-        }
-
-        /*
-        # Fork bomb
-
-            Time to have some destructive fun and test the limits
-            of how many processes the system can have.
-
-            This will try generate an infinite number of processes.
-            Each one will sleep and terminate.
-
-            **SAVE ALL DATA BEFORE DOING THIS!!!**
-
-            My computer bogged down and I could do nothing about it
-            except turn off the power.
-        */
-        if (0) {
-            while (1) {
-                pid_t pid = fork();
-                if (pid == -1) {
-                    perror("fork");
-                    assert(false);
-                }
-            }
-        }
-    }
-
-    /*
     # IPC
 
         inter process communication
@@ -2646,9 +2393,13 @@ int main(int argc, char** argv) {
                     exit(EXIT_FAILURE);
                 } else {
                     nbytes = write(pipes[1], data, strlen(data));
-                    assert(nbytes == strlen(data));
+                    assert(nbytes != -1);
+                    assert((unsigned int)nbytes == strlen(data));
+
                     nbytes = read(pipes[0], buf, BUFSIZ);
-                    assert(nbytes == strlen(data));
+                    assert(nbytes != -1);
+                    assert((unsigned int)nbytes == strlen(data));
+
                     buf[nbytes] = '\0';
                     assert(strcmp(buf, data) == 0);
                 }
@@ -2926,117 +2677,6 @@ int main(int argc, char** argv) {
                         assert(shmctl(shmid, IPC_RMID, NULL) == 0);
                     }
                 }
-            }
-        }
-    }
-
-    /*
-    # threads
-
-        See pthread.
-
-    # pthread
-
-        Sources:
-
-        - <https://computing.llnl.gov/tutorials/pthreads/>
-
-        Posix threads.
-
-        Complex model with around 100 functions prefixed by `pthread`.
-
-        c11 will introduce a standard threading model,
-        so in time this may become less important
-
-        Each thread has its own stack, but unlike process, global memory is shared.
-
-        Quicker to start than a process because less resource copy is needed.
-
-        In Linux, based on the `clone` system call.
-
-        In GCC you must compile with `-pthread`.
-
-    # thread synchronization mechanisms
-
-        - mutexes - Mutual exclusion lock: Block access to variables by other threads.
-            This enforces exclusive access by a thread to a variable or set of variables.
-
-        - joins - Make a thread wait till others are complete (terminated).
-
-        - condition variables - data type pthread_cond_t
-
-        Good tutorial: <http://www.yolinux.com/TUTORIALS/LinuxTutorialPosixThreads.html#SYNCHRONIZATION>
-
-    # pthread_create
-
-        Create a new thread.
-
-            int pthread_create(
-                pthread_t *restrict thread,
-                const pthread_attr_t *restrict attr,
-                void *(*start_routine)(void*),
-                void *restrict arg
-            )
-
-            - thread:
-
-                unique id of the created thread
-
-                can be retreived from the thread with `pthread_self()`
-
-                In POSIX all threads of a process have the same PID. TODO confirm with reference
-
-            - attr:
-            - start_routine:    function that runs the thread code
-            - arg:              argument to start_routine
-
-    # pthread_join
-
-        Wait for a given thread to terminated.
-
-        If it has already terminated, does not wait.
-
-    # pthread_self
-
-        Get thread id of current running thread.
-
-        vs linux gettid: <http://stackoverflow.com/questions/6372102/what-is-the-difference-between-pthread-self-and-gettid-which-one-should-i-u>
-
-    # pthread_mutex methods
-
-        Allows a single thread to enter some code region.
-
-        # PTHREAD_MUTEX_INITIALIZER
-
-            New pthread_mutex_t should be initialized to it.
-
-        # pthread_mutex_lock
-
-            Acquire mutex: from now one no one else can enter.
-
-        # pthread_mutex_unlock
-
-            Release mutex: from now one others can enter.
-    */
-    {
-        pthread_t threads[NUM_THREADS];
-        int thread_args[NUM_THREADS];
-        int rc, i;
-
-        /* create all threads */
-        for (i = 0; i < NUM_THREADS; ++i) {
-            thread_args[i] = i;
-            rc = pthread_create(&threads[i], NULL, main_thread, (void *) &thread_args[i]);
-            assert(rc == 0);
-            printf("created thread: %ju\n", (uintmax_t)threads[i]);
-        }
-
-        /* Wait for all threads to complete */
-        for (i = 0; i < NUM_THREADS; ++i) {
-            rc = pthread_join(threads[i], NULL);
-            if(rc != 0) {
-                printf("%s\n", strerror(rc));
-                exit(EXIT_FAILURE);
             }
         }
     }

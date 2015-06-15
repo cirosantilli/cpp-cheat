@@ -13,8 +13,6 @@
 #include "common.h"
 
 int main() {
-    puts("float.h");
-
     /*
     # Rounding method
 
@@ -33,21 +31,7 @@ int main() {
         TODO can it be changed?
     */
     {
-        printf("  FLT_ROUNDS = %d\n", FLT_ROUNDS);
-    }
-
-    /*
-    # FLT_EVAL_METHOD
-
-        Precision to which floating point operations are evaluated
-
-        it seems that floating operations on, say, floats can be evaluated
-        as long doubles always.
-
-        TODO understand better
-    */
-    {
-        printf("  FLT_EVAL_METHOD = %d\n", FLT_EVAL_METHOD);
+        printf("FLT_ROUNDS = %d\n", FLT_ROUNDS);
     }
 
     /*
@@ -59,9 +43,9 @@ int main() {
         and support is optional.
     */
     {
-        printf("  FLT_MIN  = %a\n",  FLT_MIN);
-        printf("  DBL_MIN  = %a\n",  DBL_MIN);
-        printf("  LDBL_MIN = %La\n", LDBL_MIN);
+        printf("FLT_MIN  = %a\n",  FLT_MIN);
+        printf("DBL_MIN  = %a\n",  DBL_MIN);
+        printf("LDBL_MIN = %La\n", LDBL_MIN);
     }
 
     /*
@@ -78,7 +62,7 @@ int main() {
         TODO wow, there are non radix 2 representation implementations?!
     */
     {
-        printf("  FLT_RADIX = %d\n", FLT_RADIX);
+        printf("FLT_RADIX = %d\n", FLT_RADIX);
     }
 
 #if __STDC_VERSION__ >= 201112L
@@ -124,9 +108,9 @@ int main() {
         - 1: yes
     */
     {
-        printf("  FLT_HAS_SUBNORM  = %d\n", FLT_HAS_SUBNORM);
-        printf("  DBL_HAS_SUBNORM  = %d\n", DBL_HAS_SUBNORM);
-        printf("  LDBL_HAS_SUBNORM = %d\n", LDBL_HAS_SUBNORM);
+        printf("FLT_HAS_SUBNORM  = %d\n", FLT_HAS_SUBNORM);
+        printf("DBL_HAS_SUBNORM  = %d\n", DBL_HAS_SUBNORM);
+        printf("LDBL_HAS_SUBNORM = %d\n", LDBL_HAS_SUBNORM);
 
         assert(isnormal(LDBL_MIN));
 

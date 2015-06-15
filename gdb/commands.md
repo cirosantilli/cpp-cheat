@@ -83,7 +83,11 @@ The program will run until it reaches:
 
     which says that it happened at line 33 of file `quick.cpp`.
 
+### q
+
 ### quit
+
+Quit!
 
 ### set args
 
@@ -287,7 +291,41 @@ Delete all breakpoints in the given function:
     cl func
     cl file.c:func
 
-## Information
+### commands
+
+Run given commands whenever the last breakpoint or watchpoint is hit:
+
+    break f
+    commands
+      printf "We entered f!"
+      continue
+    end
+
+### display
+
+Print out given expression whenever the debugger stops.
+
+This includes `n` and `s`.
+
+Multiple `disp` are shown sequentially.
+
+The format `/FMT` is the same as `x`.
+
+Print `"hello disp"` and the three instructions after the current one:
+
+    disp "hello disp"
+    disp/3i $pc
+
+Sample output:
+
+    10      i += 1;
+    2: x/3i $pc
+    => 0x400531 <main+4>:   mov    0x200b0d(%rip),%eax        # 0x601044 <i>
+       0x400537 <main+10>:  add    $0x1,%eax
+       0x40053a <main+13>:  mov    %eax,0x200b04(%rip)        # 0x601044 <i>
+    1: "hello disp" = "hello disp"
+
+## Examine state
 
 ## Status
 
@@ -637,9 +675,27 @@ Sample output:
     0x400090:   0x38    0x02    0x40    0x00    0x00    0x00    0x00    0x00
     0x400098:   0x1c    0x00    0x00    0x00    0x00    0x00    0x00    0x00
 
-## set
+### x i format
 
-Configure GDB.
+Disassemble 3 instructions starting at given address:
+
+    x/3i $pc
+
+Sample output:
+
+    => 0x400531 <main+4>:   mov    0x200b0d(%rip),%eax        # 0x601044 <i>
+       0x400537 <main+10>:  add    $0x1,%eax
+       0x40053a <main+13>:  mov    %eax,0x200b04(%rip)        # 0x601044 <i>
+
+## Configuration
+
+### set
+
+`set` has many unrelated functions. Here we document setting related.
+
+Don't ask for that annoying enter to continue pagination messages:
+
+    set pagination off
 
 ### layout
 
@@ -687,8 +743,45 @@ Furthermore, it magically understands the type of the expression and prints it n
 
 TODO what is the expression evaluator for expressions like `print` ?
 
-## Comments
+## Scripting features
+
+Be warned: you will soon run into impossible to overcome limitations and start using the python API.
+
+### Comments
 
 Any line starting with `#` is ignored:
 
     # asdf
+
+### set variable
+
+    set $a = 1
+    print $a
+
+Each expression that gets evaluated gets an integer variable value:
+
+    (gdb) print 1 + 1
+    $1 = 2
+    (gdb) print $1
+    $1 = 2
+
+Trying to reset it is an error:
+
+    (gdb) set $1 = 2
+    Left operand of assignment is not a modifiable lvalue.
+
+### while
+
+    while 1
+      print 1
+    end
+
+### define
+
+TODO
+
+### Continue despite error
+
+<http://stackoverflow.com/questions/17923865/gdb-stops-in-a-command-file-if-there-is-an-error-how-to-continue-despite-the-er>
+
+Not possible?

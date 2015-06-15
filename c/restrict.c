@@ -13,7 +13,7 @@
     No behaviour change, but allows for further compiler optimization,
     so it should be used whenever possible. See generated assembly to spot the difference.
 
-    Great example showing how restrict could help optimize things: <http://en.wikipedia.org/wiki/Restrict>
+    Great example showing how restrict could help optimize things: http://en.wikipedia.org/wiki/Restrict
 */
 
 #include "common.h"
