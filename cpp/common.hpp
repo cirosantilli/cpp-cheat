@@ -27,7 +27,6 @@
 #include <new> //
 #include <numeric> // partial sums, differences on std::vectors of numbers
 #include <ostream> // ostream
-#include <regex> //
 #include <set> // multiset, set
 #include <string> // getline, string
 #include <sstream> // stringstream
@@ -35,13 +34,14 @@
 #include <tuple> // tuple
 #include <unordered_map> // unordered_map, unordered_multimap
 #include <utility> // forward, get, pair, size_t, type_info
-#include <vector>
+#include <vector> // vector
 #include <valarray>
 
 #if __cplusplus >= 201103L
 #include <array> // array
 #include <chrono> // nanoseconds
 #include <mutex> // mutex
+#include <regex> // regex
 #include <thread> // thread
 #include <typeindex> // type_index
 #endif
@@ -76,9 +76,17 @@
 
 // Keeps a list of functions that called it for testing purposes.
 static std::vector<std::string> callStack;
-void printCallStack() {
+static void printCallStack() {
     std::cout << "callStack:" << std::endl;
     for (auto& s : callStack)
         std::cout << s << std::endl;
     std::cout << "END callStack" << std::endl;
 }
+
+// Global thread parameters.
+static const int NUM_THREADS = 1000;
+static const int NUM_ITERS = 1000;
+static const int NUM_OPS = NUM_THREADS * NUM_ITERS;
+
+// Misc.
+static bool odd(int i){ return (i % 2) == 1; }

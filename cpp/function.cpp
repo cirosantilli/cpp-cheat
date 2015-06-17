@@ -90,7 +90,7 @@ int def_no_argname(int, int) { return 2; }
     */
 
 int main() {
-    // # overload
+    // # Overload
     {
         overload(1);
         assert(callStack.back() == "overload(int)");
@@ -137,6 +137,15 @@ int main() {
 
             <http://stackoverflow.com/questions/2816293/passing-optional-parameter-by-reference-in-c>
         */
+
+        /*
+        # volatile overload
+
+            Functions that differ by `volatile` can be overloaded:
+
+            - http://stackoverflow.com/questions/10242578/volatile-overloading
+        */
+        {}
     }
 
     /*
@@ -145,7 +154,7 @@ int main() {
     This probably exists for method overridding.
     */
     {
-        assert(def_no_argname(0)     == 1);
-        assert(def_no_argname(0, 0)  == 2);
+        assert(def_no_argname(0)    == 1);
+        assert(def_no_argname(0, 0) == 2);
     }
 }

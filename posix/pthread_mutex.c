@@ -58,16 +58,10 @@ void* main_thread(void *arg) {
 int main() {
     pthread_t threads[NUM_THREADS];
     int i;
-
-    for (i = 0; i < NUM_THREADS; ++i) {
+    for (i = 0; i < NUM_THREADS; ++i)
         pthread_create(&threads[i], NULL, main_thread, NULL);
-    }
-
-    for (i = 0; i < NUM_THREADS; ++i) {
+    for (i = 0; i < NUM_THREADS; ++i)
         pthread_join(threads[i], NULL);
-    }
-
     assert(global == NUM_THREADS * NUM_ITERS);
-
     return EXIT_SUCCESS;
 }

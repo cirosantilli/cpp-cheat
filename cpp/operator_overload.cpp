@@ -105,11 +105,17 @@ class OperatorOverload {
         /*
         operator++
 
-            Post and pre increment are both impemented via this operator.
-
-            <http://stackoverflow.com/questions/6375697/overloading-pre-increment-operator>
+            - http://stackoverflow.com/questions/3846296/how-to-overload-the-operator-in-two-different-ways-for-postfix-a-and-prefix
+            - http://stackoverflow.com/questions/6375697/do-i-have-to-return-a-reference-to-the-object-when-overloading-a-pre-increment-o
+            - http://stackoverflow.com/questions/3574831/why-does-the-postfix-increment-operator-take-a-dummy-parameter
         */
         const OperatorOverload& operator++() {
+            this->i++;
+            return *this;
+        }
+
+        // TODO this is wrong.
+        const OperatorOverload& operator++(int) {
             this->i++;
             return *this;
         }
@@ -291,45 +297,48 @@ Operator overload and templates
     T operator/(const T& i, const T& j) {return i + j;}
 
 int main() {
-    //OperatorOverload overload `+`
+    // OperatorOverload overload `+`
     {
-        //==
+        // ==
         assert(OperatorOverload(3) == OperatorOverload(3));
 
-        //<
+        // <
         assert(OperatorOverload(1) < OperatorOverload(2));
 
-        //=
+        // =
         {
             OperatorOverload i(1);
             assert(i == OperatorOverload(1));
         }
 
-        //+=
+        // +=
         {
             OperatorOverload i(1);
             i += OperatorOverload(2);
             assert(i == OperatorOverload(3));
         }
 
-        //+
+        // +
         assert(OperatorOverload(1) + OperatorOverload(2) == OperatorOverload(3));
 
-        //++
+        // ++
         {
-            OperatorOverload i(1);
-            assert(++i == OperatorOverload(2));
-            assert(i == OperatorOverload(2));
+            // Prefix
+            {
+                OperatorOverload i(1);
+                assert(++i == OperatorOverload(2));
+                assert(i == OperatorOverload(2));
+            }
 
-            /* TODO understand and get working */
-            /*
-            i = OperatorOverload(1);
-            assert(i++ == OperatorOverload(1));
-            assert(i == OperatorOverload(2));
-            */
+            // Postfix. TODO
+            {
+                OperatorOverload i(1);
+                //assert(i++ == OperatorOverload(1));
+                //assert(i == OperatorOverload(2));
+            }
         }
 
-        //-
+        // -
         {
             // Unary
             assert(-OperatorOverload(1) == OperatorOverload(-1));
@@ -338,7 +347,7 @@ int main() {
             assert(OperatorOverload(2) - OperatorOverload(1) == OperatorOverload(1));
         }
 
-        //*
+        // *
         {
             // Dereference
             assert(*(OperatorOverload(1)) == 1);

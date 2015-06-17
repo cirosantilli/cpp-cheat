@@ -11,8 +11,6 @@
 #include "common.hpp"
 
 #if __cplusplus >= 201103L
-const int NUM_THREADS = 1000;
-const int NUM_ITERS = 1000;
 
 long int global = 0;
 std::mutex mutex;
@@ -34,15 +32,13 @@ int main() {
 #if __cplusplus >= 201103L
     std::thread threads[NUM_THREADS];
     int i;
-
-    for (i = 0; i < NUM_THREADS; ++i) {
+    for (i = 0; i < NUM_THREADS; ++i)
         threads[i] = std::thread(threadMain);
-    }
-
-    for (i = 0; i < NUM_THREADS; ++i) {
+    for (i = 0; i < NUM_THREADS; ++i)
         threads[i].join();
+    if (global != NUM_OPS) {
+        printf("fraction of errors = %f\n", (1.0 - (double)global/NUM_OPS));
+        assert(false);
     }
-
-    assert(global == NUM_THREADS * NUM_ITERS);
 #endif
 }

@@ -30,8 +30,14 @@ int main() {
         */
         {
 #ifdef __cplusplus
-        printf("__cplusplus = %li\n", __cplusplus);
+            std::cout << "__cplusplus = " << __cplusplus << std::endl;
 #endif
         }
+
+#ifdef __STDCPP_THREADS__
+        // TODO why not defined even though I do have multithreading?
+        std::cout << "__STDCPP_THREADS__" << __cplusplus << std::endl;
+        assert(__STDCPP_THREADS__ == 1);
+#endif
     }
 }

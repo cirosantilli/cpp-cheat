@@ -1,0 +1,24 @@
+/*
+# atomic<bool>
+
+    bool is not considered as integral in C++11
+
+    You have to use other alternatives for the operations.
+
+    http://stackoverflow.com/questions/30254582/c-stdatomicboolfetch-or-not-implemented
+*/
+
+#include "common.hpp"
+
+class myclass {
+    volatile std::atomic<int> flag;
+    public:
+    myclass(): flag(false) {}
+    bool get_flag() { return flag; }
+    bool try_set() {
+        return !flag.fetch_or(1);
+    }
+    void reset() {
+        flag = false;
+    }
+};

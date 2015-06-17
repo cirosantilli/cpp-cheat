@@ -18,6 +18,36 @@ Write `stdlib` and say "Standard Library" instead.
 
 GCC comes with an implementation of libstdc++.
 
+It is the main Linux implementation.
+
+Shared object name: `libstdc++.so`.
+
+Website: <http://gcc.gnu.org/libstdc++/>
+
+Get source code: seems to be on the same tree as gcc?
+
+    git clone git://gcc.gnu.org/git/gcc.git
+
+Find the shared library:
+
+    locate libstdc++
+
+Common location on Linux:
+
+    /usr/lib/ARCH-linux-gnu/libstdc++.so.X
+
+Locate the headers
+
+    locate /iostream
+
+Common location:
+
+    /usr/include/c++/4.X/`.
+
+The Ubuntu package is called `libstdc++6.X`. `dpkg -l | grep libstd`.
+
+With `g++` the C++ standard library is linked against automatically. This does not happen when compiling with `gcc`, and is one of the many reasons why you should use `g++` whenever compiling C++ instead of `gcc`.
+
 ### Apache C++ Standard Library
 
 Dead.

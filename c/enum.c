@@ -41,6 +41,7 @@ int main() {
                 /*, E5*/
             };
 
+            /* Enum types can then be cast to int. */
             /* If unspecified, the first is 0. */
             assert(E0 == 0);
             assert(E1 == 1);
@@ -48,6 +49,19 @@ int main() {
             /* Continue from the last one. */
             assert(E3 == 4);
             assert(E4 == INT_MAX);
+
+            // int can also be cast to enum?
+            {
+                {
+                    enum E e = 0;
+                    assert(e == E0);
+                }
+
+                {
+                    enum E e = -1;
+                    assert(e == -1);
+                }
+            }
         }
 
         /*

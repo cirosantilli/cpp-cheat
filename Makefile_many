@@ -9,14 +9,15 @@
 MYCC            ?= gcc
 MYCXX           ?= g++
 D               ?= #-D_XOPEN_SOURCE 700
+G               ?= gdb3
 I               ?= #-I/usr/include
 O               ?= 0
 STD             ?= c11
 PEDANTIC        ?= -pedantic-errors
-CFLAGS          ?= $(D) -O$(O) -std=$(STD) -Wextra $(PEDANTIC) $(CFLAGS_EXTRA)
-MYCXXFLAGS      ?= $(D) -O$(O) -std=c++11 -Wextra $(PEDANTIC) $(CXXFLAGS_EXTRA)
+CFLAGS          ?= $(D) -g$(G) -O$(O) -std=$(STD) -Wextra $(PEDANTIC) $(CFLAGS_EXTRA)
+MYCXXFLAGS      ?= $(D) -g$(G) -O$(O) -std=c++11  -Wextra $(PEDANTIC) $(CXXFLAGS_EXTRA)
 
-LIBS            ?= -lm #-lGL -lGLU -lglut
+LIBS            ?= -lm -pthread #-lGL -lGLU -lglut
 
 # Fortran
 FF      ?= gfortran
@@ -40,10 +41,6 @@ RUN_INPUT   ?= input
 TEST ?= test
 
 ASSEMBLER_NOEXT     ?= $(IN_DIR)$(RUN)
-DEBUG_DEFINE        ?=
-DEBUG_FLAGS         ?=
-PROFILE_DEFINE      ?= #-DDEBUG
-PROFILE_FLAGS       ?= #
 
 RUN_BNAME   := $(RUN)$(OUT_EXT)
 
@@ -53,7 +50,7 @@ OUTS_NODIR  := $(basename $(INS_NODIR))
 OUTS_NODIR  := $(addsuffix $(OUT_EXT), $(OUTS_NODIR))
 OUTS        := $(addprefix $(OUT_DIR), $(OUTS_NODIR))
 
-.PHONY: all asm set_asm_flags clean debug set_debug_flags help mkdir objdump set_objdump_flags profile set_profile_flags test $(PHONY)
+.PHONY: all asm clean debug help mkdir objdump set_objdump_flags profile set_profile_flags test $(PHONY)
 
 all: mkdir $(OUTS)
 	@#TODO ignore errors if not present
@@ -65,26 +62,26 @@ ifneq ($(strip $(run)),)
 endif
 
 $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.c
-	$(MYCC) $(CFLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(I) -o "$@" "$<" $(LIBS)
+	$(MYCC) $(CFLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(I) -o "$@" "$<" $(LIBS)
 
 $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.cpp
-	$(MYCXX) $(MYCXXFLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(I) -o "$@" "$<" $(LIBS)
+	$(MYCXX) $(MYCXXFLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(I) -o "$@" "$<" $(LIBS)
 
 $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.f
-	$(FF) $(FFLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) -o "$@" "$<" $(FFLIBS)
+	$(FF) $(FFLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) -o "$@" "$<" $(FFLIBS)
 
 # Make assembly intermingled with original C code to stdout>
 # TODO0: how not to rewrite the make rules?
-# For bare asm: $(MYCC) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(CFLAGS) -fverbose-asm -S "$(ASSEMBLER_NOEXT)$$EXT"
+# For bare asm: $(MYCC) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(CFLAGS) -fverbose-asm -S "$(ASSEMBLER_NOEXT)$$EXT"
 asm: mkdir set_asm_flags
 	for EXT in $(IN_EXTS); do \
 		if [ -f "$(ASSEMBLER_NOEXT)$$EXT" ]; then \
 			case "$$EXT" in \
 				.c)\
-					$(MYCC) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) $(CFLAGS) -c -fverbose-asm -Wa,-adhln "$(ASSEMBLER_NOEXT)$$EXT" $(LIBS) -o $(OUT_DIR)asm.o\
+					$(MYCC) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(CFLAGS) -c -fverbose-asm -Wa,-adhln "$(ASSEMBLER_NOEXT)$$EXT" $(LIBS) -o $(OUT_DIR)asm.o\
 					;;\
 				.cpp)\
-					$(MYCXX) $(MYCXXFLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(DEBUG_DEFINE) $(DEBUG_FLAGS) -c -fverbose-asm -Wa,-adhln "$(ASSEMBLER_NOEXT)$$EXT" $(LIBS)\
+					$(MYCXX) $(MYCXXFLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) -c -fverbose-asm -Wa,-adhln "$(ASSEMBLER_NOEXT)$$EXT" $(LIBS)\
 					;;\
 				.f)\
 					;;\
@@ -92,9 +89,6 @@ asm: mkdir set_asm_flags
 			break;\
 		fi;\
 	done
-
-set_asm_flags:
-	$(eval DEBUG_FLAGS := -ggdb3)
 
 clean:
 	if [ ! '$(OUT_DIR)' = './'  ]; then \
@@ -106,21 +100,14 @@ clean:
 debug: clean set_debug_flags all
 	cd $(OUT_DIR) && gdb "$(RUN_BNAME)"
 
-set_debug_flags:
-	$(eval DEBUG_FLAGS := -ggdb3)
-	$(eval DEBUG_DEFINE := -DDEBUG)
-
 mkdir:
 	@mkdir -p "$(OUT_DIR)"
 
 objdump: mkdir set_objdump_flags all
-	cd $(OUT_DIR) && objdump -S $(RUN_BNAME)
-
-set_objdump_flags:
-	$(eval DEBUG_FLAGS := -ggdb3)
+	cd '$(OUT_DIR)' && objdump -CSr '$(RUN_BNAME)'
 
 profile: clean set_profile_flags all run
-	cd $(OUT_DIR) && gprof -b $(RUN_BNAME) gmon.out | tee "$(RUN_BNAME).profile_out" | less
+	cd '$(OUT_DIR)' && gprof -b '$(RUN_BNAME)' gmon.out | tee "$(RUN_BNAME).profile_out" | less
 
 run: all
 	@echo

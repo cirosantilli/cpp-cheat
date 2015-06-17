@@ -568,6 +568,14 @@ assert(false);
             assert(sizeof(double) == 8);
 #endif
         }
+
+#ifndef __STDC_NO_ATOMICS__
+        /* Indicates no C11 support for `_Atomic` and `<stdatomic.h>`. */
+        puts("__STDC_NO_ATOMICS__");
+#else
+#include <stdatomic.h>
+        _Atomic int i;
+#endif
     }
 
     return EXIT_SUCCESS;
