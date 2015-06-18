@@ -25,6 +25,12 @@
         1.  [Lambda](lambda.cpp)
     1.  [explicit](explicit.cpp)
     1.  [class](class.cpp)
+        1.  [virtual](virtual.cpp)
+            1. [Pure virtual](pure_virtual.cpp)
+            1. [Pure virtual from constructor](pure_virtual_from_constructor.cpp)
+            1. [Covariant return](covariant_return.cpp)
+        1.  [Inheriting constructor](inheriting_constructor.cpp)
+        1.  [Inherit overload_hide](inherit_overload_hide.cpp)
     1.  [namespace](namespace.cpp)
     1.  [template](template.cpp)
     1.  [exception](exception.cpp)
@@ -56,3 +62,7 @@
     1.  [utility](utility.cpp)
 1.  Applications
     1. [Design patterns](design_patterns.cpp)
+
+WIP:
+
+- [CRTP](crtp.cpp)

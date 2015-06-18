@@ -290,7 +290,7 @@ int main() {
     }
 
     /*
-    # size_t for slt containers
+    # size_t for containers
 
         See size_type.
 

@@ -109,16 +109,20 @@ class OperatorOverload {
             - http://stackoverflow.com/questions/6375697/do-i-have-to-return-a-reference-to-the-object-when-overloading-a-pre-increment-o
             - http://stackoverflow.com/questions/3574831/why-does-the-postfix-increment-operator-take-a-dummy-parameter
         */
-        const OperatorOverload& operator++() {
-            this->i++;
-            return *this;
-        }
 
-        // TODO this is wrong.
-        const OperatorOverload& operator++(int) {
-            this->i++;
-            return *this;
-        }
+
+            // Prefix. Should return reference to match primitives.
+            const OperatorOverload& operator++() {
+                ++(this->i);
+                return *this;
+            }
+
+            // Postfix. Should not return reference to match primitives.
+            const OperatorOverload operator++(int) {
+                OperatorOverload old(*this);
+                ++(*this);
+                return old;
+            }
 
         /*
         Ambiguous call.
@@ -321,7 +325,7 @@ int main() {
         // +
         assert(OperatorOverload(1) + OperatorOverload(2) == OperatorOverload(3));
 
-        // ++
+        // # operator++
         {
             // Prefix
             {
@@ -333,8 +337,8 @@ int main() {
             // Postfix. TODO
             {
                 OperatorOverload i(1);
-                //assert(i++ == OperatorOverload(1));
-                //assert(i == OperatorOverload(2));
+                assert(i++ == OperatorOverload(1));
+                assert(i == OperatorOverload(2));
             }
         }
 

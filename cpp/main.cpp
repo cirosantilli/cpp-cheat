@@ -113,24 +113,6 @@ int main() {
     }
 
     /*
-    # Assign operator
-
-        Unlike in C, the C++ assign operator returns lvalues.
-
-        TODO rationale. Related to return refs from functions?
-    */
-    {
-        int i = 0, j = 1, k = 2;
-        (i = j) = k;
-        assert(i == 2);
-        assert(j == 1);
-        assert(k == 2);
-
-        // ERROR: as in C, most other operators do not return lvalues
-        //(i + j) = k;
-    }
-
-    /*
     # constant expressions at compile time
 
         http://en.cppreference.com/w/cpp/language/constant_expression

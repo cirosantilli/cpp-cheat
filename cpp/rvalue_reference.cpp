@@ -81,7 +81,7 @@ int main() {
         std::cout << "&iff = " << &irr << std::endl;
     }
 
-    // Can function overload based on rvalue or lvalue.
+    // Function overload can distinguish rvalues from lvalues.
     // This is essential for move semantics.
     {
         int i;

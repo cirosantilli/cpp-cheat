@@ -20,10 +20,10 @@ class BaseProtected {};
 
 // Function overloading
 
-    void overload(int i){callStack.push_back("overload(int)");}
-    void overload(int i, int j){callStack.push_back("overload(int,int)");}
-    void overload(float i){callStack.push_back("overload(float)");}
-    void overload(float i, float j, float k=0.f){callStack.push_back("overload(float,float,float=)");}
+    std::string overload(int i) { return "i"; }
+    std::string overload(float i) { return "f"; }
+    std::string overload(int i, int j) { return "ii"; }
+    std::string overload(float i, float j, float k = 0.f) { return "iff"; }
 
     // OK even if return type is different all is decided at compile time.
 
@@ -92,24 +92,19 @@ int def_no_argname(int, int) { return 2; }
 int main() {
     // # Overload
     {
-        overload(1);
-        assert(callStack.back() == "overload(int)");
-        callStack.clear();
+        assert(overload(1) == "i");
 
         //base type conversions
         {
-            overload(1.0f);
+            assert(overload(1.0f) == "f");
 
             /*
-            ERROR
-            ambiguous overload(int) overload(float)
-            compiler does not know wether convert double to float or int
+            ERROR: ambiguous overload(int) overload(float)
+
+            Compiler does not know wether convert double to float or int.
             */
             //overload(1.0);
         }
-
-        assert(callStack.back() == "overload(float)");
-        callStack.clear();
 
         /*
         ERROR: ambiguous
@@ -131,11 +126,11 @@ int main() {
         }
 
         /*
-        # default arguments for references
+        # Default arguments for references
 
             There seems to be no standard way of doing that without using extra memory / verbosity.
 
-            <http://stackoverflow.com/questions/2816293/passing-optional-parameter-by-reference-in-c>
+            http://stackoverflow.com/questions/2816293/passing-optional-parameter-by-reference-in-c
         */
 
         /*
@@ -146,10 +141,23 @@ int main() {
             - http://stackoverflow.com/questions/10242578/volatile-overloading
         */
         {}
+
+        /*
+        Function pointer: decided by the typecast.
+
+        http://stackoverflow.com/questions/2942426/how-to-specify-a-pointer-to-an-overloaded-function
+        */
+        {
+            // Variable.
+            {
+                std::string (*fi)(int) = overload;
+                std::string (*ff)(float) = overload;
+            }
+        }
     }
 
     /*
-    In C++, unlike in C, definitions can ommit argument names if they don't use those arguments!
+    In C++, unlike in C, definitions can omit argument names if they don't use those arguments!
 
     This probably exists for method overridding.
     */
