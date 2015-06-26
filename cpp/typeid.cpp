@@ -1,7 +1,7 @@
 /*
 # typeid
 
-    Get type of variables.
+    Get runtime type of variables.
 
     Can be done for both types and variables of the type.
 
@@ -19,16 +19,18 @@ int main() {
     typeid returns `type_info`.
 
     However copy and assign for type_info are private,
-    so the following fails.
+    so the following fail.
     */
     {
         //std::type_info t = typeid(int);
         //std::type_info t(typeid(int));
     }
 
-    // type_info implements `==` and `!=`.
-    //
-    // typeid's of different types are always different.
+    /*
+    type_info implements `==` and `!=`.
+
+    typeid's of different types are always different.
+    */
     {
         int i, i1;
         int& ia = i;
@@ -42,20 +44,42 @@ int main() {
     }
 
     /*
-    `name`: return a string representation of the type.
+    # name
 
-    The exact string is implementation defined.
+        `name`: return a string representation of the type.
 
-    `name()` is implementation defined.
+        The exact string is implementation defined.
 
-    On GCC, you can demangle with `__cxa_demangle`:
-    http://stackoverflow.com/questions/4465872/why-typeid-name-returns-weird-characters-using-gcc
+        `name()` is implementation defined.
+
+        On GCC, you can demangle with `__cxa_demangle`:
+        http://stackoverflow.com/questions/4465872/why-typeid-name-returns-weird-characters-using-gcc
     */
     {
         std::cout << "typeid(int).name() = " << typeid(int).name() << std::endl;
     }
 
-    // before: <http://stackoverflow.com/questions/8682582/what-is-type-infobefore-useful-for>
+    /* The return value is calculated at runtime. */
+    {
+        class Base {
+            public:
+                virtual void f() {}
+        };
+
+        class Derived : public Base {
+            public:
+                virtual void f() {}
+        };
+
+        Derived d;
+        Base *bp = &d;
+        // The mangled Derived ID is output.
+        assert(typeid(*bp).name() == typeid(Derived).name());
+    }
+
+
+    // before: http://stackoverflow.com/questions/8682582/what-is-type-infobefore-useful-for
+
     // hash_code: return a size_t hash of the type
 
     /*

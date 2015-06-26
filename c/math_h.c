@@ -84,14 +84,13 @@ int main() {
     printf("math_errhandling & MATH_ERRNO = %d\n", math_errhandling & MATH_ERRNO);
 
     /*
-    # abs
-
     # fabs
+
+        Floating point abs.
+
+        Integer version is in stdlib
     */
     {
-        /* Absolute values, integer version: */
-        assert(abs(-1.1) == 1);
-
         /* Absolute values, float version: */
         assert(fabsl(-1.1) == 1.1);
     }

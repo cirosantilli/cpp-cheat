@@ -1,4 +1,4 @@
-# cpp
+# cpp invocation
 
 GNU pre-processor: <https://gcc.gnu.org/onlinedocs/gcc-4.9.2/cpp/>
 

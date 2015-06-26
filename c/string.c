@@ -109,8 +109,24 @@ int main() {
         /* Escape chars in string conts */
         {
 
-            /* Octal bytes */
-            assert(!strcmp("\141", "a"));
+            /*
+            Octal byte string literals
+
+            `\` followed by any digit.
+
+            Remember that 3 octal digits can encode a byte,
+            but that 400 is out of byte range.
+
+            1 or 2 digits are also OK, although it is less readable and more error prone.
+            */
+            {
+                assert(!strcmp("\1", "\x1"));
+                assert(!strcmp("\11", "\x9"));
+                assert(!strcmp("\141", "a"));
+                assert(!strcmp("\200", "\x80"));
+                /* Warning: out of range. TODO legal? */
+                /*assert(!strcmp("\400", "\x80"));*/
+            }
 
             /* Hexadecimal bytes. */
             {

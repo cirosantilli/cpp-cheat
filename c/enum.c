@@ -62,6 +62,19 @@ int main() {
                     assert(e == -1);
                 }
             }
+
+            /*
+            Repeat values.
+
+            Seems legal: http://stackoverflow.com/questions/5561142/duplicate-enum-values-in-c
+            */
+            {
+                enum E {
+                    E0 = 0,
+                    E0_2 = 0
+                };
+                assert(E0 == E0_2);
+            }
         }
 
         /*
@@ -176,7 +189,7 @@ int main() {
 
         /* ERROR: lvalue required */
         /* Enum constans are not lvalues. */
-        /*int *pe = &E1;*/
+        /*int *pe = &E0;*/
 
         /* TODO legal but useless? */
         enum E *pe;

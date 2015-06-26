@@ -8,9 +8,12 @@ Cheat on the GNU Compile Collection (GCC) language extensions and command line u
 1.  [Compilation steps](compilation-steps.md)
 1.  [Invocation](invocation.md)
     1. [Spec files](spec-files.md)
-1.  [cpp](cpp.md)
+1.  cpp
+    [cpp invocation](cpp_invocation.md)
+    1. [cpp](cpp.c)
 1.  Internals
     1. [Makefile](makefile.md)
+    1. [Compilation passes](compilation-passes.md)
     1. [Source tree](source-tree.md)
     1. [libgcc](libgcc.md)
 

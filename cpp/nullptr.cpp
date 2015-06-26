@@ -5,7 +5,7 @@
 
     Better alternative to `0` and `NULL` ugliness:
 
-    <http://stackoverflow.com/questions/1282295/what-exactly-is-nullptr>
+    http://stackoverflow.com/questions/1282295/what-exactly-is-nullptr
 
 # nullptr_t
 

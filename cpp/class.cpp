@@ -1022,27 +1022,27 @@ int main() {
         }
 
         /*
-        Value initialization and zero initialization are both a bit subtle, so it is best not to rely on them.
+        Value initialization and zero initialization are both a bit subtle,
+        so it is best not to rely on them.
 
-        # value initialization
+        # Value initialization
 
-            <http://en.cppreference.com/w/cpp/language/value_initialization>
+            http://en.cppreference.com/w/cpp/language/value_initialization
 
-        # aggregate initialization
+        # Aggregate initialization
 
-            <http://en.cppreference.com/w/cpp/language/aggregate_initialization>
+            http://en.cppreference.com/w/cpp/language/aggregate_initialization
 
         # POD
 
             Plain old data:
 
-            <http://stackoverflow.com/questions/4178175/what-are-aggregates-and-pods-and-how-why-are-they-special>
+            http://stackoverflow.com/questions/4178175/what-are-aggregates-and-pods-and-how-why-are-they-special
 
-        # zero initialization
+        # Zero initialization
 
-            <http://en.cppreference.com/w/cpp/language/zero_initialization>
-
-            <http://stackoverflow.com/questions/1613341/what-do-the-following-phrases-mean-in-c-zero-default-and-value-initializat>
+            - http://en.cppreference.com/w/cpp/language/zero_initialization
+            - http://stackoverflow.com/questions/1613341/what-do-the-following-phrases-mean-in-c-zero-default-and-value-initializat
         */
         {
             // Syntax with new.

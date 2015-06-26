@@ -20,6 +20,10 @@
 
     Many behaviour examples.
 
+-   Design and Evolution of C++ <http://www.stroustrup.com/dne.html>
+
+    Ultimate source for "Why is the language designed like that" questions.
+
 -   <http://www.parashift.com/c++-faq/index.html>
 
     C++ FAQ.
@@ -51,6 +55,10 @@
 -   <http://www.agner.org/optimize/>
 
     Hardcore optimization tutorials for C++ and assembly.
+
+-   <http://www.open-std.org/jtc1/sc22/wg21/docs/cwg_active.html>
+
+    C++ specification official bug tracker.
 
 ## Non-free
 

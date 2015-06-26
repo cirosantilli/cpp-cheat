@@ -1,3 +1,7 @@
+/*
+# clock
+*/
+
 #include "common.h"
 
 int main() {

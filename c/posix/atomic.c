@@ -71,7 +71,7 @@ int main() {
         thrd_join(thr[i], NULL);
     */
 
-    /* If we still had many threads here, I think we would need to use `atomic_load`. */
+    /* Loads and stores are atomic. */
     assert(global == NUM_THREADS * NUM_ITERS);
 #endif
     return EXIT_SUCCESS;

@@ -1,5 +1,17 @@
 # Compilation steps
 
+To observe exactly what is one on each step, use:
+
+    gcc -v main.c
+
+The exact steps are determined by the spec file, <https://gcc.gnu.org/onlinedocs/gcc-4.8.1/gcc/Spec-Files.html> You can view the default with:
+
+    gcc -dumpspecs
+
+You can add your own specs after the default with:
+
+    gcc -specs=file
+
 `gcc` is a high level wrapper to multiple compilation steps which are done by different programs.
 
 Only expanded macros with the C preprocessor:

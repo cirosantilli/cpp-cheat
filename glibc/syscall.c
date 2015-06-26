@@ -54,13 +54,7 @@ How to make a system call from C.
     is this exactly how those are exposed? Or is there a way that does not require POSIX headers?
 */
 
-#define _GNU_SOURCE
-
-#include <assert.h>
-#include <stdio.h>
-
-#include <unistd.h>  /* syscall */
-#include <sys/syscall.h> /*  __NR_XXX, SYS_XXX */
+#include "common.h"
 
 int main() {
 #ifdef __linux__

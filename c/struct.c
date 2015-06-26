@@ -442,7 +442,7 @@ int main() {
             int i;
         };
 
-        /* likelly to be 8 on a 2013 32 bit machine: */
+        /* Likelly to be 8 on a 2013 32 bit machine. */
         printf("struct sizeof = %zu\n", sizeof(struct S));
 
         assert(sizeof(char) + sizeof(float) <= sizeof(struct S));

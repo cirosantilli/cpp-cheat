@@ -1,4 +1,7 @@
 CFLAGS_EXTRA := \
+  -DIMPLEMENTATION_SIGNAL \
+  -DUNDEFINED_BEHAVIOUR \
+  -trigraphs \
   -Wno-comment \
   -Wno-ignored-qualifiers \
   -Wno-missing-field-initializers \
@@ -6,10 +9,9 @@ CFLAGS_EXTRA := \
   -Wno-override-init \
   -Wno-sequence-point \
   -Wno-sign-compare \
-  -Wno-uninitialized
+  -Wno-uninitialized \
   -Wno-unused-but-set-variable \
   -Wno-unused-label \
   -Wno-unused-local-typedefs \
   -Wno-unused-value \
-  -Wno-unused-variable \
-DEFINES := -DIMPLEMENTATION_SIGNAL -DUNDEFINED_BEHAVIOUR
+  -Wno-unused-variable

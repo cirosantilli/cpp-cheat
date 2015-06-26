@@ -103,6 +103,13 @@ int main() {
         /* Unsigned does not change sizeof: */
         assert(sizeof(unsigned int) == sizeof(int));
         assert(sizeof(unsigned long int) == sizeof(long int));
+
+        /*
+        Pointers
+
+        - can vary between data types: http://stackoverflow.com/questions/916051/are-there-are-any-platforms-where-pointers-to-different-types-have-different-size
+        - can vary between data and function types: http://stackoverflow.com/questions/1473935/can-the-size-of-pointers-vary-depending-on-whats-pointed-to
+        */
     }
 
     return EXIT_SUCCESS;

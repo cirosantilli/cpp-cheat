@@ -203,13 +203,23 @@ The options:
 - `O3`: more than `O2`
 - `Og`: optimize for debugging
 - `Os`: optimize for size
-- `Ofast`: optimize for speed more than `O3`, *even if it breaks standards*
+- `Ofast`: optimize for speed more than `O3`, *even if it breaks standards*. In 5.1, the only thing it does for C if adding `-ffast-math`.
 
 Best general code optimization method:
 
     gcc -O3 a.c -o a.out
 
 Always use this for production code.
+
+### ffast-math
+
+Drop strict IEEE to further optimize.
+
+<http://stackoverflow.com/questions/6430448/why-doesnt-gcc-optimize-aaaaaa-to-aaaaaa>
+
+### fexpensive-optimizations
+
+Even more than `-O3`.
 
 ## debugging
 

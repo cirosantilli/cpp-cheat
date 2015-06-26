@@ -14,6 +14,8 @@
 
     -   only constant expressions can be used in `_Static_assert`
 
+    -   only constant expressions can be used in `case` expressions
+
     C++ does not allow const pointer typecasts, so `const` variables generate constant expressions.
     There is an even more explicit language feature in C++11 via the `constexpr` keyword.
 */

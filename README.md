@@ -25,6 +25,7 @@ Relies on [C++ boilerplate](https://github.com/cirosantilli/cpp-boilerplate) to 
     1.  [C from C++](c-from-cpp/)
     1.  [C++ from C](cpp-from-c/)
     1.  [Fortran from C](fortran-from-c/)
+1.  [gprof](gprof.md)
 1.  [GDB](gdb/)
 1.  [Boost](boost/)
 1.  [CMake](cmake.md)

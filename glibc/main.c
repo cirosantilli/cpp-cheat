@@ -42,21 +42,7 @@
     <http://stackoverflow.com/questions/2240120/glibc-glib-and-gnulib>
 */
 
-#define _GNU_SOURCE
-
-#include <assert.h>
-#include <stdint.h>
-#include <stdio.h> /* perror */
-#include <stdlib.h> /* EXIT_SUCCESS, EXIT_FAILURE */
-#include <string.h>
-
-#include <fcntl.h>
-#include <sched.h> /* SCHED_BATCH, SCHED_IDLE, sched_getaffinity */
-#include <unistd.h> /* sysconf */
-
-#include <sys/wait.h> /* wait, sleep */
-
-#include <gnu/libc-version.h> /* gnu_get_libc_version */
+#include "common.h"
 
 int main() {
     printf("gnu_get_libc_version() = %s\n", gnu_get_libc_version());
@@ -129,91 +115,6 @@ int main() {
     # unistd.h
     */
     {
-        /*
-        # brk
-
-        # sbrk
-
-            Was in POSIX 2001, but got removed.
-
-            You must have in your mind:
-
-                ---> brk
-                |
-                | Heap. Grows up ^^^
-                |
-                ---> brk_start
-                |
-                | brk random offset ASLR
-                |
-                ---> bss end
-
-            Get and set the break data segment (TODO is it really the data semgment? what about the brk offset?)
-            that the kernel assigns to the process.
-
-            Set it to an absolute value, and return -1 on failure, 0 on success:
-
-                int brk(void*)
-
-            Move it by the given delta, and return the *old* value on success, `-1` on failure:
-
-                void *sbrk(intptr_t increment);
-
-            This is where the heap lives: `malloc` may use those system calls to do its job,
-            although it can also use `mmap`.
-
-            Once the `brk` is changed,
-            the application can then use the newly allocated memory as it pleases,
-            and the Kernel must treat that zone as being used and preserve it.
-
-            The kernel may just say: you are taking up too much memory,
-            or "this would overlap with another memory regions", and deny the request.
-
-        # Get heap size
-
-            - http://stackoverflow.com/questions/8367001/how-to-check-heap-size-for-a-process-on-linux
-            - http://stackoverflow.com/questions/2354507/how-to-find-size-of-heap-present-in-linux
-
-            More precisely, how to get the `brk_start`?
-        */
-        {
-            /* Get the top of the heap. */
-            {
-                /* TODO is the return value always `long`? What to convert to then? */
-                long s = (long)sbrk(0);
-                printf("sbrk(0) = %ld =~ %ld MiB\n", s, (((long)s)/(1<<20)));
-            }
-
-            /* Increase the heap by 2. */
-            {
-                long s = (long)sbrk(2);
-                if (s != -1) {
-                    /* Now we safely use s2 an s2 + 1 to store what we want. */
-                    char* p = (char*)s;
-                    *p = 1;
-                    *(p + 1) = 2;
-                    assert(*p == 1);
-                    assert(*(p + 1) == 2);
-                    /* Restore it back. */
-                    sbrk(-2);
-                } else {
-                    perror("sbrk");
-                }
-
-                /*
-                Attemtping this without changing brk is an almost sure segfault:
-                unlike the stack, you can't just increment the heap directly,
-                Linux prevents you.
-                */
-                {
-                    /*
-                        char* p = (char*)s;
-                        *p = 1;
-                    */
-                }
-            }
-        }
-
         /*
         # sysconf
 

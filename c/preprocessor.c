@@ -16,7 +16,7 @@
 */
 
 /*
-# include
+# #include
 
     Look in standard dirs directly:
 
@@ -26,7 +26,6 @@
 
         #include "file.h"
 */
-
 #include "common.h"
 
 int int_int_int_func(int m, int n) {
@@ -34,6 +33,21 @@ int int_int_int_func(int m, int n) {
 }
 
 int main() {
+
+    /*
+    # Comments are replaced by spaces.
+    */
+    {
+        int/* */a = 1;
+        assert(a == 1);
+    }
+
+    /*
+    # Newline in macro
+
+        Impossible.
+    */
+
     /*
     # #define
 
@@ -49,30 +63,64 @@ int main() {
         but there can be spaces after it to give indentation.
         */
         {
-#           define SPACE_AFTER_HASH 1
+#define SPACE_AFTER_HASH 1
             assert(SPACE_AFTER_HASH == 1);
         }
 
-        /* Constants. */
+        /*
+        # Constants
+
+            Use sparringly.
+
+            - constants have scope
+            - produce meaningful error messages
+        */
         {
-#define A B
-#define B 1
-            assert(A == 1);
+            {
+#define CTE 1
+                assert(CTE == 1);
+            }
+
+            /*
+            Don't forget to protect arithmetic operations
+            or associativity may get you.
+            */
+            {
+/* Use parenthesis or order of operation might destroy you: */
+#define PROTECT_FAIL 1 + 1
+                assert(PROTECT_FAIL * 2 == 3);
+#define PROTECT (1 + 1)
+                assert(PROTECT * 2 == 4);
+            }
+
+            /*
+            Expansion is lazy: macros do not expand in `#define`
+            but only when the macro is used.
+            */
+            {
+#define LAZY0 LAZY1
+#define LAZY1 LAZY2
+#define LAZY2 2
+                assert(LAZY2 == 2);
+            }
         }
 
-        /* Cannot redefine macros. */
+        /* # Redefine macros */
         {
-/* # define A 1 */
-/* # define A 2 */
-            /*assert(A == 2);*/
-        }
+            /* Cannot redefine macros directly. */
+            {
+#define REDEFINE_FAIL 1
+                /* ERROR */
+/*#define REDEFINE_FAIL 2*/
+            }
 
-        /* Undefined evaluate equal. */
-        {
-#if NOT_DEFINED == NOT_DEFINED2
-#else
-        assert(false);
-#endif
+            /* Must first undef. */
+            {
+#define REDEFINE 1
+#undef REDEFINE
+#define REDEFINE 2
+                assert(REDEFINE == 2);
+            }
         }
 
         /* # Functions (preprocessor) */
@@ -92,7 +140,7 @@ int main() {
             }
 
             /*
-            # macro comma protection
+            # Comma protection
 
                 The macro engine has to do some kind of parsing to determine that
                 the comma of the function (1) is not the comma of the macro (2).
@@ -105,12 +153,13 @@ int main() {
                 and if yes ignore it.
 
                 This does not however cover C++ template parameters, and `assert` + template is a common break case
-                <http://stackoverflow.com/questions/4496842/pass-method-with-template-arguments-to-a-macro>
+                http://stackoverflow.com/questions/4496842/pass-method-with-template-arguments-to-a-macro
 
-                Pure C also has cases in which it is necessary to use parenthesis, for exapmle when the comma operator is used.
+                Pure C also has cases in which it is necessary to use parenthesis,
+                for example when the comma operator is used.
 
                 A more complicated case in which protecting parenthesis break:
-                <http://stackoverflow.com/questions/9187614/how-do-i-have-a-comma-inside-braces-inside-a-macro-argument-when-parentheses-cau>
+                http://stackoverflow.com/questions/9187614/how-do-i-have-a-comma-inside-braces-inside-a-macro-argument-when-parentheses-cau
             */
             {
                 assert(SUM(int_int_int_func(1, 1), 1) == 3);
@@ -134,8 +183,6 @@ int main() {
 
             assert(SUM(int_int_int_func(1, 1), 1) == 3);
 
-#if __STDC_VERSION__ >= 199901L
-
             /* # variadic macro functions */
             {
                 char s[4];
@@ -144,10 +191,21 @@ int main() {
                 assert(strcmp(s, "ab") == 0);
             }
 
+#if __STDC_VERSION__ >= 199901L
             /*
-            # Stringfication
+            # Empty macro arguments
+
+                http://stackoverflow.com/questions/7666344/are-empty-macro-arguments-legal-in-c11
             */
             {
+#define EMPTY(x) x ## 2 ==
+                assert(EMPTY(1) 12);
+
+                /*
+                TODO if the argument is empty,
+                does it still count for concatenation?
+                */
+                assert(EMPTY() 2);
             }
 #endif
         }
@@ -174,7 +232,7 @@ int main() {
 #define UNDEF_TEST 1
 #undef UNDEF_TEST
 #ifdef UNDEF_TEST
-        assert(false);
+# error
 #endif
     }
 
@@ -185,42 +243,42 @@ int main() {
 
     # ##
 
-        `##` allows to concatenate two preprocessor function arguments without spaces between them.
+        `##` allows to concatenate a preprocessor function arguments without spaces between them.
     */
     {
         /* Basic. */
         {
-#define CAT_NO_SPACE(x, y) x ## y
-            int CAT_NO_SPACE(c_, d) = 1;
+#define CAT_NO_SPACE(x) x ## d
+            int CAT_NO_SPACE(c_) = 1;
             assert(c_d == 1);
         }
 
         /*
-        Preprocessor variable gotcha:
+        Multiple concatenation insanity:
         http://stackoverflow.com/questions/1489932/c-preprocessor-and-concatenation
         */
         {
             {
-#define VAR 3
-#define CAT_VAR_FAIL(x) x ## _ ## VAR
-                int CAT_VAR_FAIL(b) = 1;
-                assert(b_VAR == 1);
+#define CAT_FAIL_VAR 0
+#define CAT_FAIL x ## CAT_FAIL_VAR
+                int CAT_FAIL = 1;
+                assert(xCAT_FAIL_VAR == 1);
             }
 
             /* Solution. */
             {
-#define VAR 3
-#define PASTER(x,y) x ## _ ## y
+#define CAT_VAR 0
+#define PASTER(x,y) x ## y
 #define EVALUATOR(x,y) PASTER(x,y)
-#define CAT_VAR(x) EVALUATOR(x, VAR)
-                int CAT_VAR(b) = 1;
-                assert(b_3 == 1);
+#define CAT_OK EVALUATOR(x, CAT_VAR)
+                int CAT_OK = 1;
+                assert(x0 == 1);
             }
         }
     }
 
     /*
-    # ifdef
+    # #ifdef
 
         Check if preprocessor variable is defined.
 
@@ -248,11 +306,11 @@ int main() {
 
             but there is no alternative for `||`.
 
-    # ifndef
+    # #ifndef
 
         Negation of ifdef.
 
-    # defined
+    # #defined
 
         Like ifdef, but more flexible
         as you can use it inside `#if` with boolean operators.
@@ -267,48 +325,57 @@ int main() {
 #endif
     }
 
-/*
-# #if
+    /*
+    # #if
 
-# #else
+    # #else
 
-# #elif
+    # #elif
 
-    The preprocessor can do certain integer arithmetic operations such as: +, -, ==, <.
-*/
-{
+        The preprocessor can do certain integer arithmetic operations such as: +, -, ==, <.
+    */
+    {
 #if 1 == 0
-assert(false);
+# error
 #elif 1 == 1
 #else
-assert(false);
+# error
 #endif
 
 #define INIF 1
 #if INIF + 1 == 2
 #else
-        assert(false);
+# error
 #endif
 
 #if 16 == 0x10
 #else
-        assert(false);
+# error
 #endif
 
-/*
-Cannot compare strings directly!
-http://stackoverflow.com/questions/2335888/how-to-compare-string-in-c-conditional-preprocessor-directives
-Always define to integers.
-*/
+        /* Undefined evaluate equal. */
+        {
+#if NOT_DEFINED == NOT_DEFINED2
+#else
+# error
+#endif
+        }
+
+
+    /*
+    Cannot compare strings directly!
+    http://stackoverflow.com/questions/2335888/how-to-compare-string-in-c-conditional-preprocessor-directives
+    Always define to integers.
+    */
 #define STR1 1
 #define STR2 2
 #define STR STR1
 
 #if STR == STR1
 #elif STR == STR2
-        assert(false);
+# error
 #endif
-}
+    }
 
     /*
     # && preprocessor
@@ -318,7 +385,7 @@ Always define to integers.
 #define C 1
 #if defined(C) && C > 0
 #else
-assert(false);
+# error
 #endif
 
     /*
@@ -329,7 +396,7 @@ assert(false);
         Useful to enforce preprocessor conditions.
     */
     {
-/* # error "the error message" */
+/* #error "the error message" */
     }
 
     /*
@@ -342,7 +409,7 @@ assert(false);
     }
 
     /*
-    # pragma
+    # #pragma
 
         C99 specifies that:
 
@@ -360,6 +427,17 @@ assert(false);
 
             all of which are portable.
     */
+
+    /*
+    # #line
+
+    # #line
+
+        Set the line and optionally filename that is seen by `__FILE__` and `__LINE__`.
+    */
+    {
+/*#line 1*/
+    }
 
     /*
     # Predefined preprocessor macros
@@ -390,7 +468,7 @@ assert(false);
     */
     {
         /*
-        # STDC_VERSION__
+        # STDC_VERSION
 
         # __STDC_VERSION__
 
@@ -407,19 +485,6 @@ assert(false);
         */
         {
             printf("__STDC_VERSION__ = %li\n", __STDC_VERSION__);
-        }
-
-        /*
-        # __stdc__
-
-        # stdc
-
-            1 if the implementation is conforming, 0 otherwise.
-
-            TODO check: on GCC, 1 with `-std=cXX`, 0 with `-std=gnuXX`.
-        */
-        {
-            printf("__STDC__ = %d\n", __STDC__);
         }
 
         /*
@@ -461,20 +526,12 @@ assert(false);
         # __cplusplus
 
             Defined only if using C++ compiler.
+
+            C99 says that C must not define it.
         */
 #ifdef __cplusplus
         printf("__cplusplus\n");
 #endif
-
-        /*
-        # line
-
-        # #line
-
-            Set the line and optionally filename that is seen by `__FILE__` and `__LINE__`.
-        */
-/*#line 1*/
-
 
         /*
         # __FILE__

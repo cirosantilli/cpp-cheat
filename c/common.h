@@ -3,7 +3,7 @@
 #include <errno.h>
 #include <fenv.h>
 #include <float.h>
-#include <inttypes.h> /* PRIxPTR */
+#include <inttypes.h> /* PRIxPTR,  */
 #include <iso646.h>
 #include <limits.h> /* *_MAX, *_MIN for integer types */
 #include <locale.h>

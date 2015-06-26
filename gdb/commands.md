@@ -693,9 +693,19 @@ Sample output:
 
 `set` has many unrelated functions. Here we document setting related.
 
+#### set pagination
+
 Don't ask for that annoying enter to continue pagination messages:
 
     set pagination off
+
+#### set prompt
+
+Print given strings before and after the prompt line.
+
+Make the prompt bold and red:
+
+    set prompt \033[1;31m(gdb) \033[m
 
 ### layout
 
