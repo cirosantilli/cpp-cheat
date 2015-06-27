@@ -33,7 +33,7 @@ int main() {
         The following scopes exist:
 
         - file scope: global stuff outside any function
-        - function scope: only for labels. They are not constrained by non-function blocks like variables.
+        - function scope: only for labels. They are not constrained by non-function blocks like braces {}.
         - block scope: surrounding braces, either of functions, if, or alone
         */
         {

@@ -223,7 +223,6 @@ int main() {
         }
 
 #if __STDC_VERSION__ >= 199901L
-
         /*
         # hypot
 
@@ -413,9 +412,15 @@ int main() {
         The outcome of a division by zero depends on wether it is an integer of floating operation.
 
     # isfinite
+
     # isinf
+
     # isnan
+
     # isnormal
+
+        TODO
+
     # fpclassify
 
         FP_INFINITE, FP_NAN, FP_NORMAL, FP_SUBNORMAL, FP_ZERO
@@ -450,7 +455,7 @@ int main() {
         /*
         # HUGE_VAL
 
-            Returned on overflow.
+            Returned on overflow. TODO example.
 
             Can equal `INFINITY`.
         */
@@ -477,13 +482,14 @@ int main() {
             It is possible that `INFINITY == HUGE_VALF`.
         */
         {
+            /* [-]inf or [-]infinity implementation defined. */
             printf("INFINITY = %f\n", INFINITY);
             printf("-INFINITY = %f\n", -INFINITY);
 
             volatile float f = 0;
             assert(1 / f == INFINITY);
             assert(isinf(INFINITY));
-            assert(! isnan(INFINITY));
+            assert(!isnan(INFINITY));
 
             assert(INFINITY + INFINITY == INFINITY);
             assert(INFINITY + 1.0      == INFINITY);
@@ -523,6 +529,7 @@ int main() {
             The sign of NAN has no meaning.
         */
         {
+            /* [-]NAN or [-]NAN<more characters> implementation defined. */
             printf("NAN = %f\n", NAN);
             printf("-NAN = %f\n", -NAN);
 
@@ -557,6 +564,29 @@ int main() {
                 assert(!(0.0 == NAN));
             }
         }
+
+#if __STDC_VERSION__ >= 199901L
+        /*
+        # isunordered
+
+            Macro.
+
+                isunordered(x, y)
+
+            Equals:
+
+                isnan(x) || isnan(y)
+
+            Likely exists because it is possible to optimize it in x86:
+            http://stackoverflow.com/questions/26053934/is-it-feasible-to-add-this-optimization-to-gcc?rq=1
+        */
+        {
+            assert(!isunordered(1.0, 1.0));
+            assert(isunordered(NAN, 1.0));
+            assert(isunordered(1.0, NAN));
+            assert(isunordered(NAN, NAN));
+        }
+#endif
     }
 
     /*

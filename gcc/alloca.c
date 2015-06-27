@@ -10,11 +10,7 @@ Thus automatically deallocated when the function returns.
 http://stackoverflow.com/questions/1018853/why-is-alloca-not-considered-good-practice
 */
 
-#include <assert.h> /* assert */
-#include <stdlib.h> /* EXIT_SUCCESS */
-#include <time.h> /* time() */
-
-#include <alloca.h> /* alloca */
+#include "common.h"
 
 int f() {
     size_t size = 1 + (time(NULL) % 3);

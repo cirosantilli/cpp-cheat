@@ -1,6 +1,10 @@
-#include <assert.h>
-#include <pthread.h>
-#include <stdlib.h>
+/*
+# __atomic_fetch_add
+
+# atomic_fetch_add
+*/
+
+#include "common.h"
 
 enum CONSTANTS {
     NUM_THREADS = 1000,
