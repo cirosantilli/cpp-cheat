@@ -83,6 +83,10 @@ The program will run until it reaches:
 
     which says that it happened at line 33 of file `quick.cpp`.
 
+### start
+
+Like run, but also add a temporary (only for the current run) breakpoint at `main` and stop there.
+
 ### q
 
 ### quit
@@ -142,7 +146,7 @@ You can later restart from that point with:
 
 ### c
 
-### Continue
+### continue
 
 Continue running from current location until:
 
@@ -151,7 +155,7 @@ Continue running from current location until:
 
 ### s
 
-### Step into
+### step
 
 Step into.
 
@@ -163,6 +167,8 @@ If function call, go into the first line of the function.
 
 ### n
 
+### next
+
 ### Step over
 
 Next.
@@ -171,9 +177,15 @@ Run current line and go to next.
 
 If function call, run the entire function now.
 
+If there is no debugging information with attached source code, run until this function returns.
+
 ### fin
 
-Go to the return of the current function.
+### finish
+
+Go to the return of the current frame: function or loop.
+
+Does not work on the top frame.
 
 ### si
 
@@ -181,9 +193,39 @@ Go to the return of the current function.
 
 Step one assembly instruction instead of code line.
 
-The code line gets printed every time.
+The source code line gets printed every time.
 
 Show the instruction instead: <http://stackoverflow.com/questions/1902901/show-current-instruction-in-gdb>
+
+If there is no debugging information with attached source code, run until another function is entered: usually either a function call or return.
+
+Sample output if there are multiple instructions for the current line:
+
+    0x0000000000400593	24	    printf("%d\n", f3(0));
+
+Which contains the:
+
+- address
+- source line number
+- source line
+
+If there is no source code:
+
+    0x0000000000400535 in main ()
+
+If each instruction corresponds to a single line:
+
+    9	    i += 1;
+
+the address number is not shown.
+
+### until
+
+TODO. Vs `next`?
+
+### skip
+
+Skip functions or entire files when stepping.
 
 ### ni
 
@@ -205,10 +247,12 @@ Show breakpoints:
 
 Set breakpoint.
 
+    # Line 10 of current file.
     b 10
 
     b func
 
+    # Line 10 of given file.
     b c.c:10
 
     b c.c:func
@@ -301,6 +345,8 @@ Run given commands whenever the last breakpoint or watchpoint is hit:
       continue
     end
 
+### dis
+
 ### display
 
 Print out given expression whenever the debugger stops.
@@ -313,8 +359,8 @@ The format `/FMT` is the same as `x`.
 
 Print `"hello disp"` and the three instructions after the current one:
 
-    disp "hello disp"
-    disp/3i $pc
+    display "hello disp"
+    display/3i $pc
 
 Sample output:
 
@@ -472,6 +518,8 @@ Sample output:
 Global and static variable names:
 
     i variables
+
+Tends to produce a very large output.
 
 a minimal glibc hello world has lots of them, so it is not very useful. Filter by regular expression:
 
@@ -677,7 +725,7 @@ Sample output:
 
 ### x i format
 
-Disassemble 3 instructions starting at given address:
+Disassemble 3 instructions starting at given address. Current address:
 
     x/3i $pc
 
@@ -763,7 +811,7 @@ Any line starting with `#` is ignored:
 
     # asdf
 
-### set variable
+### Convenience variable
 
     set $a = 1
     print $a
@@ -795,3 +843,5 @@ TODO
 <http://stackoverflow.com/questions/17923865/gdb-stops-in-a-command-file-if-there-is-an-error-how-to-continue-despite-the-er>
 
 Not possible?
+
+### Python

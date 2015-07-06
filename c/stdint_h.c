@@ -18,7 +18,7 @@ int main() {
         /* Exactly 32 bits. */
         assert(sizeof(int32_t) == 4);
 
-        /* All have unsigned verions prefixed by 'u'. */
+        /* All have unsigned versions prefixed by 'u'. */
         assert(sizeof(uint32_t) == 4);
 
         /* At least 32 bits. */
@@ -39,7 +39,6 @@ int main() {
         {
             int_fast32_t i = 0;
         }
-
     }
 
     /*
@@ -75,21 +74,36 @@ int main() {
 
         Unsigned version.
 
-    TOD0 example of real life application?
+    TODO example of real life application?
     */
     {
         assert(sizeof(void*) == sizeof(intptr_t));
         assert(sizeof(void*) == sizeof(uintptr_t));
     }
 
-    /* Bounds for the fixed size integers.. */
+    /*
+    # Bound for types
+
+    # INT32_MAX
+
+    # INT32_MIN
+
+        Bounds for the fixed size integers.
+    */
     {
         {
             int32_t i;
             assert(INT32_MIN <= i);
             assert(INT32_MAX >= i);
+            assert(INT32_MIN == 0x80000000);
+            assert(INT32_MAX == 0x7FFFFFFF);
         }
 
+        /*
+        # fast types
+
+            TODO
+        */
         {
             int_fast32_t i;
             assert(INT_FAST32_MIN <= i);

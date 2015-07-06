@@ -2,7 +2,7 @@
 #define C_H
 
 #ifdef __cplusplus
-// This is required otherwise he C includer will look
+// This is required otherwise he C++ includer will look
 // for the undefined mangled name.
 extern "C" {
 #endif

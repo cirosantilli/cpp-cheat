@@ -145,21 +145,38 @@ int main() {
     /*
     # strcmp
 
-        Compare two strings
+        Compare two strings.
     */
     {
-        char cs[] = "abc";
-        char cs2[] = "abc";
-
-        assert(strcmp(cs, cs2) == 0);
         /* Equality. */
-        assert(strcmp(cs, "abc") == 0);
-        cs[1] = 'a';
+        assert(strcmp("abc", "abc") == 0);
+
         /* Smaller. */
-        assert(strcmp(cs, cs2) < 0);
-        cs[1] = 'd';
+        assert(strcmp("abc", "dbc") < 0);
+
         /* Larger. */
-        assert(strcmp(cs, cs2) > 0);
+        assert(strcmp("abc", "aac") > 0);
+
+        /*
+        TODO Different lengths. Works or UB? '\0' < 'c'?
+        */
+        assert(strcmp("abc", "a") > 0);
+    }
+
+    /*
+    # strncmp
+
+        Like strcmp, but only check at most n bytes.
+    */
+    {
+        assert(strncmp("abc", "abd", 2) == 0);
+
+        /*
+        Different lengths: I think this is guaranteed as C99 says:
+
+        > characters that follow a null character are not compared
+        */
+        assert(strncmp("abc", "a", 5) == 1);
     }
 
     /*

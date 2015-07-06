@@ -19,8 +19,6 @@ ANSI C features shall not be discussed here.
 
 #include "common.h"
 
-extern char **environ;
-
 int main() {
     /*
     # Namespace
@@ -216,23 +214,6 @@ int main() {
             assert(setenv("HOME", "qwer", false) != -1);
             assert(strcmp(getenv("HOME"), "asdf") == 0);
         }
-
-        /*
-        # environ
-
-            Automatically set by POSIX libraries linked to.
-
-            List of strings of type `VAR=val`.
-        */
-        if (0) {
-            // Print entire environment.
-            char **env = environ;
-            puts("environ:");
-            while (*env) {
-                printf("  %s\n", *env);
-                env++;
-            }
-        }
     }
 
     /*
@@ -241,19 +222,17 @@ int main() {
         The `M_PI` constants are defined by POSIX inside of `math.h`.
     */
     {
-        //#constants
+        /* # constants */
         {
-            // ANSI C way of calculating some constants.
+            /* ANSI C way of calculating some constants. */
+            const float PI = acos(-1);
+            const float E = exp(1);
 
-                const float PI = acos(-1);
-                const float E = exp(1);
-
-            // POSIX provides macros that expand to those constants.
-
-                assert(fabs(M_E      - E     ) < 1e-6);
-                assert(fabs(M_PI     - PI    ) < 1e-6);
-                assert(fabs(M_PI/2.0 - M_PI_2) < 1e-6);
-                assert(fabs(M_PI/4.0 - M_PI_4) < 1e-6);
+            /* POSIX provides macros that expand to those constants. */
+            assert(fabs(M_E      - E     ) < 1e-6);
+            assert(fabs(M_PI     - PI    ) < 1e-6);
+            assert(fabs(M_PI/2.0 - M_PI_2) < 1e-6);
+            assert(fabs(M_PI/4.0 - M_PI_4) < 1e-6);
         }
 
         /*
@@ -264,12 +243,14 @@ int main() {
 
             TODO understand, specially why is it so important to be here?
 
-            <http://en.wikipedia.org/wiki/Bessel_function>
+            http://en.wikipedia.org/wiki/Bessel_function
         */
         {
-            //double      j0(double);
-            //double      j1(double);
-            //double      jn(int, double);
+            /*
+            double j0(double);
+            double j1(double);
+            double jn(int, double);
+            */
         }
     }
 

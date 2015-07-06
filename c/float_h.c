@@ -51,19 +51,25 @@ int main() {
     /*
     # FLT_RADIX
 
-        Several other macros expand to the lengths of the representation
-
-        Useful terms:
-
-            1.01_b * b ^ (10)_b
-
-        - radix:
+        Radix of the mantissa.
 
         TODO wow, there are non radix 2 representation implementations?!
+        IEEE 754 specifies the 2015-hardware-lowly-implemented radix 10,
+        maybe that is the major motivation?
+
+    # FLT_MANT_DIG
+
+        Number of digits bits for the mantissa:
+
+        - 24 on 32-bit float
+
+    # FLT_MANT_DIG
     */
     {
         printf("FLT_RADIX = %d\n", FLT_RADIX);
+        printf("FLT_MANT_DIG = %d\n", FLT_MANT_DIG);
     }
+
 
 #if __STDC_VERSION__ >= 201112L
     /*
@@ -116,7 +122,7 @@ int main() {
 
         if (LDBL_HAS_SUBNORM) {
             long double ldbl_min_2 = LDBL_MIN / 2.0;
-            printf("  LDBL_MIN / 2.0 = %La\n", ldbl_min_2);
+            printf("LDBL_MIN / 2.0 = %La\n", ldbl_min_2);
             assert(ldbl_min_2 != 0);
             assert(ldbl_min_2 != LDBL_MIN);
             assert(! isnormal(ldbl_min_2));

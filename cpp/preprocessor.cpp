@@ -29,8 +29,10 @@ int main() {
             C99 says that the C compiler must not define it.
         */
         {
-#ifdef __cplusplus
             std::cout << "__cplusplus = " << __cplusplus << std::endl;
+
+#if __cplusplus >= 201103L
+            std::cout << "C++11 code" << std::endl;
 #endif
         }
 

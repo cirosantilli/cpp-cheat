@@ -259,7 +259,7 @@ int main() {
 
             Remove last element from std::vector.
 
-            No return val. Rationale: <http://stackoverflow.com/questions/12600330/pop-back-return-value>
+            No return val. Rationale: http://stackoverflow.com/questions/12600330/pop-back-return-value
         */
         {
             std::vector<int> v{0, 1};

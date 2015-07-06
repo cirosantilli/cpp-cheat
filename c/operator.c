@@ -154,15 +154,46 @@ int main() {
         }
 
         /*
-        # Modulus
+        # Remainder
 
         # %
+
+            a%b = a - (a/b)*b
+
+        # Modulus
+
+            It is *not* the mathematical modulus, as it gives different results for negative values.
+
+            It is the mathematical remainder.
+
+            http://stackoverflow.com/questions/11720656/modulo-operation-with-negative-numbers
         */
         {
-            assert((3 % 3) == 0);
-            assert((4 % 3) == 1);
-            assert((5 % 3) == 2);
-            assert((6 % 3) == 0);
+            assert((-4 % 3) == -1);
+            assert((-3 % 3) ==  0);
+            assert((-2 % 3) == -2);
+            assert((-1 % 3) == -1);
+            assert(( 0 % 3) ==  0);
+            assert(( 1 % 3) ==  1);
+            assert(( 2 % 3) ==  2);
+            assert(( 3 % 3) ==  0);
+            assert(( 3 % 3) ==  0);
+            assert(( 4 % 3) ==  1);
+            assert(( 5 % 3) ==  2);
+            assert(( 6 % 3) ==  0);
+
+            assert((-3 % -3) ==  0);
+            assert((-2 % -3) == -2);
+            assert((-1 % -3) == -1);
+            assert(( 0 % -3) ==  0);
+            assert(( 1 % -3) ==  1);
+            assert(( 2 % -3) ==  2);
+            assert(( 3 % -3) ==  0);
+            assert(( 4 % -3) ==  1);
+
+#ifdef UNDEFINED_BEHAVIOUR
+            /*assert((1 % 0) == 0);*/
+#endif
         }
 
         /* # Comparison operators */

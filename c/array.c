@@ -21,6 +21,7 @@ void print_array(int **mat, int m, int n) {
 }
 
 int main() {
+    /* Basic example. */
     {
         int is[3];
         is[0] = 0;
@@ -31,170 +32,301 @@ int main() {
         assert(is[2] == 2);
     }
 
+    /*
+    # Create arrays
+
+    # Initialize arrays
+    */
     {
-        int is[] = { 0, 1, 2 };
-        assert(is[0] == 0);
-        assert(is[1] == 1);
-        /* Allocates exact size. */
-        assert(is[2] == 2);
-        /* ERROR */
-        /*is = {3,4,5};*/
+        /*
+        Size only.
+        */
+        {
+            int is[2];
+            assert(sizeof(is) == 2 * sizeof(int));
+            /* Values undetermined since auto storage. */
+            /*assert(is[0] == 0);*/
+            /*assert(is[1] == 0);*/
+        }
+
+        /* With static storage however, initialization is guaranteed. */
+        {
+            static int is[2];
+            assert(is[0] == 0);
+            assert(is[1] == 0);
+        }
+
+        /* No size, only elements. */
+        {
+            int is[] = {0, 1, 2};
+            assert(sizeof(is) == 3 * sizeof(int));
+        }
+
+        /*
+        Both size and elements, less elements than size.
+
+        TODO check remaining are guaranteed to be 0.
+        */
+        {
+            int is[4] = {1, 2};
+            assert(is[0] == 1);
+            assert(is[1] == 2);
+            assert(is[2] == 0);
+            assert(is[3] == 0);
+
+            /*
+            But empty initializers are illegal. TODO rationale?
+
+            http://stackoverflow.com/questions/17589533/is-an-empty-initializer-list-valid-c-code
+
+            C++ allows them.
+            */
+            {
+                /*int is[2] = {};*/
+            }
+
+            /*
+            So to initialize to 0 you need this.
+
+            http://stackoverflow.com/questions/2589749/initialize-array-to-0-in-c
+            */
+            {
+                int is[2] = {0};
+                assert(is[0] == 0);
+                assert(is[1] == 0);
+            }
+        }
+
+        /*
+        More elements than size.
+
+        WARN: array too small.
+
+        TODO: what does the standard say should happen?
+        */
+        {
+            /*int is[2] = { 1, 3, 2 };*/
+        }
+
+        /*
+        ERROR no 0 size array
+
+        Exists as a GCC extension.
+        */
+        {
+            /*int is[0];*/
+        }
+
+        /* ERROR no negative sized array! */
+        {
+            /*int is[-1];*/
+        }
+
+        /*
+        # Maximum array size possible
+
+           http://stackoverflow.com/questions/9386979/the-maximum-size-of-an-array-in-c 
+
+           It is unclear in the standard what happens if:
+
+           - if you break `size_t`, as `sizeof` would fail.
+           - `sizeof(void *)`
+
+           As of 2015, no implementation can do this, since `size_t` is 2^64 which is too much memory.
+        */
+
+#if __STDC_VERSION__ >= 199901L
+        /*
+        # Designated initializer for arrays
+
+            Allows to initialize array elements in any order.
+
+            There is also a struct version.
+        */
+        {
+            {
+                int is[] = {
+                    [1] = 1,
+                    [0] = 0,
+                };
+                assert(is[0] == 0);
+                assert(is[1] == 1);
+            }
+
+            /* Missing elements are zeroed. */
+            {
+                int is[2] = {
+                    [1] = 1,
+                };
+                assert(is[0] == 0);
+                assert(is[1] == 1);
+            }
+
+            /*
+            Multiple assignments for a single int.
+
+            Only last takes effect.
+
+            WARN -Woverride-init
+            */
+            {
+                int is[1] = {
+                    [0] = 0,
+                    [0] = 1,
+                };
+                assert(is[0] == 1);
+            }
+
+            /* arrays of structs can refer multiple times to the same struct */
+            {
+                struct S { int i; int j; };
+
+                struct S ss[] = {
+                    [0].i = 0,
+                    [0].j = 1,
+                    [1].i = 2,
+                    [1].j = 3,
+                };
+
+                assert(ss[0].i == 0);
+                assert(ss[0].j == 1);
+                assert(ss[1].i == 2);
+                assert(ss[1].j == 3);
+            }
+
+            /*
+            Mix designated and non designated initialization.
+
+            Non designated pick off where the last designated left.
+
+            Non specified ones are zero.
+            */
+            {
+                {
+                    int is[4] = {
+                        -1,             /* [0] */
+                                        /* [1] was not specified, so it is 0. */
+                        [2] = 1,
+                        2,              /* [3], because it comes after [2] */
+                    };
+                    assert(is[0] == -1);
+                    assert(is[1] == 0);
+                    assert(is[2] == 1);
+                    assert(is[3] == 2);
+                }
+
+                /* possible to overwrite values */
+                {
+                    int is[2] = {
+                        0,          /* [0] first assign */
+                        1,          /* [1] first assign */
+                        [0] = 2,    /* [0] second assign, overwrites first */
+                        3,          /* [1] because comes after [0], second assign, overwrites first */
+                    };
+                    assert(is[0] == 2);
+                    assert(is[1] == 3);
+                }
+            }
+        }
+#endif
     }
 
+    /*
+    Access elements
+
+        There is only one rule:
+
+            a[b]
+
+        is *exactly the same as:
+
+            *(a + b).
+
+        All the rest follows.
+    */
     {
-        int is[4] = { 1, 2 };
-        assert(is[0] == 1);
-        assert(is[1] == 2);
-        assert(is[2] == 0);
-        assert(is[3] == 0);
+        /*
+        TODO What type to use for indexes?
+
+        http://stackoverflow.com/questions/3174850/type-for-array-index-in-c99
+
+        - I think size_t is always enough
+        - ptrdiff_t is not
+        - uintptr_T I cannot say
+        */
+
+        /*
+        # Negative index
+
+            http://stackoverflow.com/questions/3473675/negative-array-indexes-in-c
+
+            Perfectly legal, since:
+
+                a[b] = *(a + b).
+
+            and pointer arithmetic accepts negative values.
+        */
+        {
+            int is[] = {1, 2};
+            int *ip = &is[1];
+            assert(ip[-1] == 1);
+        }
+
+        /*
+        # Swap array name and index
+
+        # 1[is]
+
+            http://stackoverflow.com/questions/381542/in-c-arrays-why-is-this-true-a5-5a
+
+            Obscure and confusing access syntax that you should
+            never use except to surprise your friends.
+
+            Perfectly legal because all we know is that:
+
+                a[b] = *(a + b).
+
+            If a is the int and b the pointer or the contrary
+            does not matter: all that matters is that one is an int and the other a pointer.
+
+        */
+        {
+            int is[] = {1};
+            assert(0[is] == 1);
+        }
     }
 
+    /*
+    Assign arrays.
+
+    TODO why does it not work?
+    */
     {
         int is[4]  = { 1, 2 };
         int is2[4] = { 1, 2 };
-        /* ERROR incompatible pointer types */
+        /* ERROR incompatible pointer types. */
         /*is = is2;*/
-    }
-
-    /*WARN array too small*/
-    {
-        /*int is[2] = { 1, 3, 2 };*/
-    }
-
-    /* ERROR no negative sized array! */
-    {
-        /*int is[-1];*/
-    }
-
-    /*
-    ERROR no 0 size array
-
-    Possible as a gcc extension.
-    */
-    {
-        /*int is[0];*/
-    }
-
-#if __STDC_VERSION__ >= 199901L
-    /*
-    # Designated initializer for arrays
-
-        Allows to initialize array elements in any order.
-
-        There is also a struct version.
-    */
-    {
-        {
-            int is[] = {
-                [1] = 1,
-                [0] = 0,
-            };
-            assert(is[0] == 0);
-            assert(is[1] == 1);
-        }
-
-        /* Missing elements are zeroed. */
-        {
-            int is[2] = {
-                [1] = 1,
-            };
-            assert(is[0] == 0);
-            assert(is[1] == 1);
-        }
-
-        /*
-        Multiple assignments for a single int.
-
-        Only last takes effect.
-
-        WARN -Woverride-init
-        */
-        {
-            int is[1] = {
-                [0] = 0,
-                [0] = 1,
-            };
-            assert(is[0] == 1);
-        }
-
-        /* arrays of structs can refer multiple times to the same struct */
-        {
-            struct S { int i; int j; };
-
-            struct S ss[] = {
-                [0].i = 0,
-                [0].j = 1,
-                [1].i = 2,
-                [1].j = 3,
-            };
-
-            assert(ss[0].i == 0);
-            assert(ss[0].j == 1);
-            assert(ss[1].i == 2);
-            assert(ss[1].j == 3);
-        }
-
-        /*
-        Mix designated and non designated initialization.
-
-        Non designated pick off where the last designated left.
-
-        Non specified ones are zero.
-        */
-        {
-            {
-                int is[4] = {
-                    -1,             /* [0] */
-                                    /* [1] was not specified, so it is 0. */
-                    [2] = 1,
-                    2,              /* [3], because it comes after [2] */
-                };
-                assert(is[0] == -1);
-                assert(is[1] == 0);
-                assert(is[2] == 1);
-                assert(is[3] == 2);
-            }
-
-            /* possible to overwrite values */
-            {
-                int is[2] = {
-                    0,          /* [0] first assign */
-                    1,          /* [1] first assign */
-                    [0] = 2,    /* [0] second assign, overwrites first */
-                    3,          /* [1] because comes after [0], second assign, overwrites first */
-                };
-                assert(is[0] == 2);
-                assert(is[1] == 3);
-            }
-        }
-    }
-#endif
-
-    /*
-    # 1[is]
-
-        Obscure and confusing access syntax that you should
-        never use except to surprise your friends.
-
-        All that the standard says is that: a[b] = *(a + b).
-        If a is the int and b the pointer or the contrary
-        does not matter: all that matters is that one is an int and the other a pointer.
-
-        This seems to have been left like this since it is easier to compile.
-
-        http://stackoverflow.com/questions/381542/in-c-arrays-why-is-this-true-a5-5a
-    */
-    {
-        int is[] = { 1, 3, 2 };
-        assert(is[1] == 1[is]);
     }
 
     /*
     # Get array length on compile time
     */
     {
-        int is[] = {0, 1, 2};
-        assert(sizeof(is)/sizeof(is[0]) == 3);
+        /* Only possible from the array, not from the pointer. */
+        {
+            /* From the array. */
+            {
+                int is[2];
+                assert(sizeof(is) / sizeof(is[0]) == 2);
+            }
+
+            /* From the pointer: not possible. */
+            {
+                int is[2];
+                int *p = is;
+                assert(sizeof(p) == sizeof(int *));
+            }
+        }
     }
 
     /*
@@ -309,21 +441,17 @@ int main() {
         }
     }
 
-    /* Locations in memory of an array. */
-    {
-        int is[3];
-        puts("locations of array:");
-        printf("(void*)is = %p\n",(void*)is);
-        printf("(void*)&is[0] = %p\n",(void*)&is[0]);
-        printf("(void*)&is[1] = %p\n",(void*)&is[1]);
-        printf("(void*)&is[2] = %p\n",(void*)&is[2]);
-    }
+    /*
+    # Iterate array
 
-    /* Loop array. The only way is with the good and old for loop. */
+        The only way is with the good and old for loop.
+
+        No iterator magic, since no objects.
+    */
     {
         int is[] = { 0, 1, 2 };
         int i;
-        for (i=0; i < sizeof(is)/sizeof(is[0]); i++) {
+        for (i = 0; i < sizeof(is)/sizeof(is[0]); i++) {
             printf("%d ",is[i]);
         }
     }

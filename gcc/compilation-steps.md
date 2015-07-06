@@ -12,6 +12,10 @@ You can add your own specs after the default with:
 
     gcc -specs=file
 
+Generate all external intermediate steps (`.i`, `.s`, `.o`) in the current directory:
+
+    gcc -save-temps a.c
+
 `gcc` is a high level wrapper to multiple compilation steps which are done by different programs.
 
 Only expanded macros with the C preprocessor:

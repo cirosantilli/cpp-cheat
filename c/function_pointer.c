@@ -3,7 +3,7 @@
 
     Functions can be stored in pointers and used through them.
 
-    This is spcially useful to many related lots of functions inside a single
+    This is specially useful to many related lots of functions inside a single
     struct to achieve a similar effect to that found on object oriented programming.
 */
 
@@ -36,7 +36,7 @@ int main() {
         assert((*f)(1, 2) == -1);
     }
 
-    /* We can also add argument names if we are ona verbose mood. */
+    /* We can also add argument names if we are on a verbose mood. */
     {
         int (*f)(int asdf, int qwer);
     }

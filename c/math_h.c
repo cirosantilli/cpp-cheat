@@ -152,8 +152,32 @@ int main() {
         */
         {
             double d;
-            assert(fabs(modf(3.25, &d) - 0.25) < ERR);
-            assert(fabs(d              - 3.00) < ERR);
+            assert(fabs(modf(12.34, &d) -  0.34) < ERR);
+            assert(fabs(d               - 12.0 ) < ERR);
+        }
+
+        /*
+        # frexp
+
+            Decompose into:
+
+            - integer exponent
+            - normalized mantissa, a fraction between 0.5 (inclusive) and 1.0 (exclusive)
+
+            Guaranteed to power of 2 representation,
+            even though this is not true for floating point?
+            E.g. FLT_RADIX macros indicate it.
+        */
+        {
+            int i;
+
+            /* 1.5 = 0.75 * 2^1 */
+            assert(frexp(1.5, &i) == 0.75);
+            assert(i == 1);
+
+            /* 3.0 = 0.75 * 2^2 */
+            assert(frexp(3.0, &i) == 0.75);
+            assert(i == 2);
         }
     }
 
@@ -349,58 +373,12 @@ int main() {
 
         # nexttowards
 
-            TODO0 diff from nextafter
+            TODO diff from nextafter
         */
         {
             printf("nexttowards(0.0, 1.0) = %a\n", nexttoward(0.0, 1.0));
             assert(nexttoward(0.0, 0.0) == 0.0);
             printf("nextafter  (0.0, 1.0) = %a\n", nextafter(0.0, 1.0));
-        }
-    }
-
-    /*
-    # random
-
-    # srand
-
-        Seed the random number generator.
-
-        It is very common to seed with `time(NULL)` for simple applications.
-
-    # rand
-
-        Get a uniformly random `int` between 0 and RAND_MAX.
-
-        For cryptographic applications, use a library:
-        http://crypto.stackexchange.com/questions/15662/how-vulnerable-is-the-c-rand-in-public-cryptography-protocols
-
-        On Linux, `/dev/random` is the way to go.
-
-        Intel introduced a RdRand in 2011, but as of 2015 it is not widely used,
-        and at some point was used as part of the entropy of `/dev/random`.
-    */
-    {
-        srand(time(NULL));
-
-        /* Integer between 0 and RAND_MAX: */
-        {
-            int i = rand();
-        }
-
-        /* int between 0 and 99: */
-        {
-            int i = rand() % 99;
-        }
-
-        /* float between 0 and 1: */
-        float f = rand()/(float)RAND_MAX;
-
-        /* float in given range. */
-        {
-            float min = 1.0f;
-            float max = 3.0f;
-            float res = (max - min) * ((float)rand() / RAND_MAX) + min;
-            printf("float in range = %f\n", res);
         }
     }
 

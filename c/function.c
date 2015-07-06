@@ -67,10 +67,6 @@ Declaration vs definition
     /* ERROR redefine */
     /*void decl_def() {}*/
 
-    void decl_def_no_arg_name(int i, float f, char d) {}
-    /* ERROR */
-    /*void def_no_argname(int){}*/
-
     int factorial2funcs1(int);
     int factorial2funcs0(int n){
         if (n != 1) {
@@ -213,14 +209,6 @@ int main() {
 
     /* # return */
     {
-        /*
-        Functions without return values.
-
-        Typecast return value to void.
-        */
-        {
-        }
-
         /* Return value is not an lval, so one cannot get its address */
         {
             int *ip;
@@ -368,21 +356,6 @@ int main() {
             }
 
             /*
-            Function declarations don't need argment names.
-
-            If those are used for documentation purposes, they don't need to match those of the definition.
-            This is highly confusing however.
-
-            Definitions need parameter names.
-
-            TODO check: This rule changed in C++.
-            */
-            {
-                void decl_def_no_arg_name(int, float, char c);
-                decl_def_no_arg_name(0, 0.0, 'a');
-            }
-
-            /*
             Like for structs, one major application of forward declarations
             is to break definition dependency loops.
             */
@@ -500,22 +473,6 @@ int main() {
 
                     void proto_decl_double();
                     void proto_decl_double(double);
-                }
-
-                /*
-                # void argument vs no argument
-
-                    http://stackoverflow.com/questions/693788/c-void-arguments
-                */
-                {
-                    /* Prototype that takes no arguments. */
-                    void void_arg(void);
-
-                    /* ERROR: void must be the only parameter */
-                    /*void void_int_arg(int, void);*/
-
-                    /* WARN: parameter has void type */
-                    /*void void_arg2(void v);*/
                 }
             }
 

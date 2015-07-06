@@ -7,15 +7,7 @@ class Class {};
 class Base {};
 class BaseProtected {};
 
-// Default args. C++ only.
-// Creates several name mungled functions on the assembly code.
-
-    int DefaultArgs(int i, int j=0)      { return i + j; }
-
-    // ERROR: Cannot use one argument as the default for the other.
-    //int DefaultArgs(float f, float f2=f) { return f + f2; }
-
-// ERROR: no compound literals in c++
+// ERROR: no compound literals in C++
 //void foo (int bar[] = (int[2]){0 ,1});
 
 // Function overloading
@@ -118,20 +110,6 @@ int main() {
         // ERROR: ambiguous
         //i=4;
         //overloadValAddr(i);
-
-        // # Default arguments
-        {
-            assert(DefaultArgs(1)    == 1);
-            assert(DefaultArgs(1, 1) == 2);
-        }
-
-        /*
-        # Default arguments for references
-
-            There seems to be no standard way of doing that without using extra memory / verbosity.
-
-            http://stackoverflow.com/questions/2816293/passing-optional-parameter-by-reference-in-c
-        */
 
         /*
         # volatile overload

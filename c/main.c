@@ -155,7 +155,7 @@ int main(int argc, char **argv) {
             int i = 5, j = 7;
         }
 
-        /* # Uninitilized variables. */
+        /* # Uninitialized variables. */
         {
 #ifdef UNDEFINED_BEHAVIOUR
             /*
@@ -326,7 +326,7 @@ int main(int argc, char **argv) {
                     char c = 'a';
 
                     /*
-                    Actually, char literals are integers which happen to fit into char.
+                    char literals are integers which happen to fit into char.
 
                     This has been changed in C++.
 
@@ -335,15 +335,19 @@ int main(int argc, char **argv) {
                     assert(sizeof('a') == sizeof(int));
 
                     /*
-                    Char literals can be cast to integers by replacing them with
-                    their corresponding ASCII integer value for example, 'a' == 97
-                    TODO check. Guaranteed?
+                    TODO is ASCII guaranteed:
+
+                    - `assert('\0' == 0);`
+                    - for the soures?
+
+                    Seems not:
+                    http://stackoverflow.com/questions/15251049/does-the-underlying-character-set-depend-only-on-the-c-implementation
 
                     > The value of an integer character constant containing more than one character (e.g.,
                     'ab'), or containing a character or escape sequence that does not map to a single-byte
                     execution character, is implementation-defined.
                     */
-                    assert('a' == 97);
+                    assert('\0' == 0);
 
                     /*
                     WARN: multi-character character literals are obscure valid code, but the
@@ -353,7 +357,7 @@ int main(int argc, char **argv) {
                     */
                     /* assert('ab' == 'ab'); */
 
-                    /* Possible via escape sequences are like in strings. */
+                    /* Can use the same backslash escapes as in strings. */
                     assert('\'' == 0x27);
                     assert('\n' == 0x0a);
                 }

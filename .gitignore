@@ -32,3 +32,9 @@ core.*
 
 # Python tests runners.
 *.pyc
+
+# Valgrind
+callgrind.out*
+
+# perf
+perf.data*

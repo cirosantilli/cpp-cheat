@@ -433,11 +433,26 @@ Link statically to `libgcc`. This is *not* `libc`, but an internal GCC library.
 
 ## Informational commands
 
+### verbose
+
+Get basic GCC version information:
+
+    gcc --version
+
+Sample output:
+
+    gcc (Ubuntu 4.8.2-19ubuntu1) 4.8.2
+    Copyright (C) 2013 Free Software Foundation, Inc.
+    This is free software; see the source for copying conditions.  There is NO
+    warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+This is only a general indication of version, since there are many configuration options. To see that, use `-v`.
+
 ### v
 
-Get build information.
+Get verbose build information.
 
-For version use `-version`.
+For shorter version information use `--version`.
 
 Sample output:
 

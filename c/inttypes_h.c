@@ -12,7 +12,7 @@ int main() {
         0 pad pointers.
 
         To print pointers and line them up nicely,
-        one must take into account that trailling zeroes are ommited.
+        one must take into account that trailing zeroes are omitted.
 
         One option is to space pad:
 

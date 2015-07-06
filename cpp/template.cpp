@@ -10,7 +10,7 @@
 
     - code bloat.
 
-        Final exectutable gets larger.
+        Final executable gets larger.
 
     - Implementation must be put in `.h` files and compiled by includers,
         since only used templates generate code for the corresponding definitions.
@@ -24,30 +24,29 @@
 
     - types
     - integers values
-    - other templates (see template teamplate)
+    - other templates (see template template)
 
 # extends
 
     No equivalent to Javas "T extends Drawable"... sad.
 
     But wait, there seems to be something coming on C++14: template restrictions to the rescue?
-    <http://stackoverflow.com/questions/15669592/what-are-the-differences-between-concepts-and-template-constraints>
+    http://stackoverflow.com/questions/15669592/what-are-the-differences-between-concepts-and-template-constraints
 
-# disambiguating dependent qualified type names
+# Disambiguating dependent qualified type names
 
     Syntax:
 
         template <class T>
-        std::string foo(vector<T> vec, ... other args)
-        {
+        std::string foo(vector<T> vec, ... other args) {
             typename std::vector<T>::iterator it = vec.begin();
         }
 
-    source:
+    Source:
 
-        <http://eli.thegreenplace.net/2011/04/22/c-template-syntax-patterns/>
+        http://eli.thegreenplace.net/2011/04/22/c-template-syntax-patterns/
 
-    TODO0
+    TODO
 
 # Disambiguating explicitly qualified template member usage
 

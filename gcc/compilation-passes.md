@@ -28,6 +28,11 @@ where each one represents one pass.
 
 - `<dump>` is one letter that depends on the dump type: `t` for `tree` and `r` for `rtl`
 
+The most interesting stages are:
+
+- `.gimple`:
+- `.s.gkd`: `-fdump-final-insns`: the very last representation before conversion to assembly
+
 Non obvious ones:
 
 - `.tu`, from `-fdump-translation-unit`. The output is huge as it contains all includes.

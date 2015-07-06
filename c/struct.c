@@ -14,10 +14,23 @@
 #include "common.h"
 
 int main() {
+    /* Basic struct definition. */
     struct S {
         int i;
         float f;
     };
+
+    /*
+    # Empty struct
+
+        Invalid, but possible as a GCC extension.
+
+        http://stackoverflow.com/questions/24685399/c-empty-struct-what-does-this-mean-do
+    */
+    {
+        /* ERROR */
+        /*struct S {};*/
+    }
 
     /* Initialize by order. */
     {
@@ -38,95 +51,6 @@ int main() {
         assert(s1.i == 2);
 
         struct S s2 = {4, 5};
-    }
-
-#if __STDC_VERSION__ >= 199901L
-    /*
-    # Designated initializer for structs
-
-        Allows to struc values by their name instead of order.
-
-        Sources:
-
-        - oracle tutorial with examples: <http://docs.oracle.com/cd/E19205-01/819-5265/bjazo/index.html>
-    */
-    {
-        {
-            struct S s = {
-                .f = 1.0,
-                .i = 1
-            };
-            assert(s.i == 1);
-            assert(s.f == 1.0);
-        }
-
-        /* Can be mixed with array designated initializers. */
-        {
-            struct S { int a[2]; int i; };
-
-            /* TODO GCC 4.8 warns missing i for [0]. Bug? */
-            struct S ss[] = {
-                [0].a = {0, 1},
-                [0].i = 2,
-                [1].a[0] = 3,
-                [1].a[1] = 4,
-                [1].i = 5
-            };
-
-            assert(ss[0].a[0] == 0);
-            assert(ss[0].a[1] == 1);
-            assert(ss[0].i == 2);
-
-            assert(ss[1].a[0] == 3);
-            assert(ss[1].a[1] == 4);
-            assert(ss[1].i == 5);
-        }
-    }
-#endif
-
-    /*
-    # Empty struct
-
-        Invalid, but possible as a GCC extension.
-
-        http://stackoverflow.com/questions/24685399/c-empty-struct-what-does-this-mean-do
-    */
-    {
-        /* ERROR */
-        /*struct s {};*/
-    }
-
-    {
-        /* Assignment only works for initialization, unless use a C99 compound literal. */
-        {
-            struct S { int i; };
-            struct S s;
-            /*s = { 1 };*/
-            /*s = { .i = 1 };*/
-        }
-
-        /*
-        # Compound literals for structs
-
-            C99 compound literals allow to assign structs to struct literals.
-        */
-        {
-            struct S { int i; int j; };
-
-            {
-                struct S s;
-                s = (struct S){ 1, 2 };
-                assert(s.i == 1);
-                assert(s.j == 2);
-            }
-
-            {
-                struct S s;
-                s = (struct S){ .j = 2, .i = 1 };
-                assert(s.i == 1);
-                assert(s.j == 2);
-            }
-        }
     }
 
     /* Pointer to struct. */
@@ -405,49 +329,6 @@ int main() {
         }
     }
 
-    /* = Assigns fields one by one. */
-    {
-        struct S s  = { 1, 1.0 };
-        struct S s2 = { 2, 2.0 };
-        s = s2;
-        assert(s.i == 2);
-        assert(s.f == 2.0);
-    }
-
-    /* equality `==` does not exist. There have been failed proposals. */
-    {
-        struct S { int i; };
-        struct S s  = { 1 };
-        struct S s2 = { 1 };
-        /*assert(s == s2);*/
-    }
-
-    /*
-    Inequalities do not exist either: `<` `>` `<=` `>=`
-
-    Possible rationale: if `s.a < s2.a` and `s.b > s2.b`, what does `s < s2` eval to?
-    */
-
-    /*
-    # struct size
-
-        The way data is packed in a struct is not specified in the standard
-
-        Common compiler strategy: align data to 32 bits
-        which makes acess faster, using slightly more memory.
-    */
-    {
-        struct S {
-            char c;
-            int i;
-        };
-
-        /* Likelly to be 8 on a 2013 32 bit machine. */
-        printf("struct sizeof = %zu\n", sizeof(struct S));
-
-        assert(sizeof(char) + sizeof(float) <= sizeof(struct S));
-    }
-
     /*
     # Unnamed struct
 
@@ -568,10 +449,10 @@ int main() {
         The typedef can come before the struct.
         */
         {
+            typedef struct S T;
             struct S {
                 int i;
             };
-            typedef struct S T;
 
             struct S s = {1};
             T t = {1};

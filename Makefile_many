@@ -93,7 +93,7 @@ clean:
 	if [ ! '$(OUT_DIR)' = './'  ]; then \
 		rm -rf '$(OUT_DIR)' ;\
 	else \
-		rm -rf *'$(OBJECT_EXT)' *'$(OUT_EXT)' *'$(TMP_EXT)' ;\
+		rm -rf *'$(OBJECT_EXT)' *'$(OUT_EXT)' *'$(TMP_EXT)' callgrind.out.* ;\
 	fi
 
 debug: clean set_debug_flags all

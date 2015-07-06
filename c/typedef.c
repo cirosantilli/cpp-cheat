@@ -64,5 +64,19 @@ int main() {
         k = l;
     }
 
+    /*
+    # typdef pointer
+
+        The pointer sticks to the typedef.
+    */
+    {
+        typedef int * ip_t;
+        /* Both are pointer types. */
+        ip_t ip, jp;
+        int i, j;
+        ip = &i;
+        jp = &j;
+    }
+
     return EXIT_SUCCESS;
 }

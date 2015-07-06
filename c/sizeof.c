@@ -1,7 +1,7 @@
 /*
 # sizeof
 
-    Language keyword.
+    Language keyword and operator.
 
     Gives the size of the RAM representation of types **in multiples of CHAR_BIT**,
     which is the size of `char`. *Not* necessarily in bytes.
@@ -19,7 +19,8 @@ int main() {
 
         Typedef `size_t` to the data type that specifies data sizes in libc.
 
-        `size_t` is large enough to represent any array index.
+        `size_t` is returned by malloc, so it should large enough to represent any array index.
+        TODO check: http://stackoverflow.com/questions/3174850/type-for-array-index-in-c99
 
         Always use it in your code instead of `int` to have greater portability.
 
@@ -62,7 +63,6 @@ int main() {
         /* Print the actual values. */
 #if __STDC_VERSION__ >= 199901L
         puts("sizeof");
-        printf("  char        = %zu\n", sizeof(char)       );
         printf("  int         = %zu\n", sizeof(int)        );
         printf("  long int    = %zu\n", sizeof(long int)   );
         printf("  long long   = %zu\n", sizeof(long long)  );
@@ -74,8 +74,21 @@ int main() {
 #endif
 
         /*
-        char is an exception: we know it is always 1 since `sizeof`
-        is defined in multiples of `sizeof(char)`.
+        # sizeof char
+
+            Fixed to 1.
+
+            It does not mean however that it is one byte wide!
+
+            > When applied to an operand that has type char, unsigned char, or signed char,
+            (or a qualified version thereof) the result is 1. When applied to an operand that has array
+            type, the result is the total number of bytes in the array.8
+
+        # byte
+
+            TODO byte is not 8 bits in C!!!!
+
+            It is only whatever char can store.
         */
         assert(sizeof(char) == 1);
 
@@ -105,10 +118,18 @@ int main() {
         assert(sizeof(unsigned long int) == sizeof(long int));
 
         /*
-        Pointers
+        Pointers: sizeof can vary between:
 
-        - can vary between data types: http://stackoverflow.com/questions/916051/are-there-are-any-platforms-where-pointers-to-different-types-have-different-size
-        - can vary between data and function types: http://stackoverflow.com/questions/1473935/can-the-size-of-pointers-vary-depending-on-whats-pointed-to
+        - data types: http://stackoverflow.com/questions/916051/are-there-are-any-platforms-where-pointers-to-different-types-have-different-size
+        - data and function types: http://stackoverflow.com/questions/1473935/can-the-size-of-pointers-vary-depending-on-whats-pointed-to
+        */
+
+        /*
+        # sizeof vs number of values
+
+                sizeof(unsigned int) == 32
+
+            does not imply that it can store 2^32 values.
         */
     }
 

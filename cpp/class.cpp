@@ -277,6 +277,7 @@ class Base {
             // BAD: compiles but infinite loop!
             //Base b;
         }
+
         /*
         # Initialization list
 
@@ -286,11 +287,7 @@ class Base {
             2) initializing base classes with non default constructors
             3) initializing const elements
             4) initializing member references &
-
-        # Delegating constructors
-
-            C++11 also makes it possible to call a different constructor of the current
-            class on the initialization list. This feature is called delegating constructors.
+            5) C++11 delegating constructors: call another constructor of the current class
         */
 
         Base(int i, int j) : i(i), j(j) {
@@ -300,7 +297,6 @@ class Base {
         // ERROR: constructor cannot be virtual:
 
             //virtual Base(float f){}
-
 
 #if __cplusplus >= 201103L
 
@@ -652,7 +648,7 @@ class Class :
     public:
 
         /*
-        calls base constructors first
+        Call base constructors first.
         */
         Class() : i(0), z(1) {
             callStack.push_back("Class::Class()");
@@ -978,56 +974,20 @@ int main() {
         }
 
         /*
-        # Most vexing parse
-
-            Default constructor vs function declaration syntax gotcha!
-
-            http://stackoverflow.com/questions/180172/default-constructor-with-empty-brackets
-        */
-        {
-            /*
-            BAD
-
-            Declares *FUNCTION* called `c` that returns `Class` inside function main.
-
-            This is the same as in C, where it is possible to declare a function from inside another function,
-            but not define it.
-
-            Therefore there would be not way for C++ to distinguish between the two,
-            and still be backwards compatible with C.
-            */
-            {
-                Class c();
-
-                // ERROR: function definition is not possible inside another function.
-                //Class c() {return Class();}
-
-                //c.i;
-            }
-
-            // If you want to call a default constructor, use:
-            {
-                Class c;
-                assert(c.i == 0);
-            }
-
-            /*
-            For non-default constructors, things work as expected,
-            as this syntax could not possibly be a function declaration.
-            */
-            {
-                Class c(1);
-                assert(c.i == 1);
-            }
-        }
-
-        /*
         Value initialization and zero initialization are both a bit subtle,
         so it is best not to rely on them.
 
+        C++ has 3 types of init
+
+        # Default initialization
+
         # Value initialization
 
-            http://en.cppreference.com/w/cpp/language/value_initialization
+        # Zero initialization
+
+            - http://en.cppreference.com/w/cpp/language/value_initialization
+            - http://en.cppreference.com/w/cpp/language/zero_initialization
+            - http://stackoverflow.com/questions/1613341/what-do-the-following-phrases-mean-in-c-zero-default-and-value-initializat
 
         # Aggregate initialization
 
@@ -1038,11 +998,6 @@ int main() {
             Plain old data:
 
             http://stackoverflow.com/questions/4178175/what-are-aggregates-and-pods-and-how-why-are-they-special
-
-        # Zero initialization
-
-            - http://en.cppreference.com/w/cpp/language/zero_initialization
-            - http://stackoverflow.com/questions/1613341/what-do-the-following-phrases-mean-in-c-zero-default-and-value-initializat
         */
         {
             // Syntax with new.
@@ -1338,7 +1293,7 @@ int main() {
 #endif
 
     /*
-    # destructor
+    # Destructor
 
         Called when:
 
@@ -1357,7 +1312,8 @@ int main() {
 
         {
             NoBaseNoMember b;
-        } //destructor is called now!
+        }
+        // Destructor is called now!
 
         std::vector<std::string> expectedCallStack = {
             "NoBaseNoMember::NoBaseNoMember()",
@@ -1366,7 +1322,7 @@ int main() {
         assert(callStack == expectedCallStack);
     }
 
-    // # array of objects
+    // # Array of objects
     {
         // Default constructor is called when array is created.
         {

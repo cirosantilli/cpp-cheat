@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+doc="
+Pass parameters to python script.
+
+Usage:
+
+  argv-wrapper 0 argv.py 1 2 3
+
+Where scrpit.py uses the arguments like:
+
+  print(arg0)
+  print(arg1)
+
+http://stackoverflow.com/questions/29992153/how-to-pass-arguments-to-a-python-gdb-script-launched-from-command-line/31227632#31227632
+"
+
+py="$1"
+shift
+cli=''
+i=0
+for arg in $*; do
+  cli="$cli -ex 'py arg$i = $arg'"
+  i=$(($i+1))
+done
+eval gdb --batch $cli -x "$py"
