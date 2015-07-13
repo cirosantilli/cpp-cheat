@@ -4,7 +4,12 @@
 
 Stands for C runtime.
 
-`crt1.o` contains the `_start`, which then calls `main`.
+Major functions:
+
+- contains the `_start` symbol, which is the conventional symbol entry point (can be customized on ELF header)
+- prepares the values of `argc`, `argv` and `environ`
+- calls `main`
+- passes the return value of main back to an `exit` system call
 
 Present in:
 

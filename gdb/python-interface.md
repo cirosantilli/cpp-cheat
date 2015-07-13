@@ -4,6 +4,8 @@ Python API for GDB. Whenever your script starts getting a little more complex, y
 
 ## Usage
 
+All scripts are in Python 3.
+
 Each Python file in this directory can be run with:
 
     gdb --batch -x name.py

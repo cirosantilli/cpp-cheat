@@ -592,7 +592,14 @@ int main() {
         assert((i &= (char)0x00) == (char)0x00);
         assert((char)i == (char)0x00);
 
-        /* same others bitwise, except ~= */
+        /* Same for others bitwise, except ~= which does not exist. */
+        {
+            unsigned char i = 0xFF;
+            i = ~i;
+            /* ? */
+            /*i~=;*/
+            assert((i & 0xFF) == 0);
+        }
     }
 
     /*

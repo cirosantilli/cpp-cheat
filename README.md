@@ -28,7 +28,9 @@ Relies on [C++ boilerplate](https://github.com/cirosantilli/cpp-boilerplate) to 
     1.  [gprof](gprof.md)
     1.  [Valgrind](valgrind.md)
     1.  [perf](perf.md)
-1.  [GDB](gdb/)
+1.  Analysis tools
+    1.  [GDB](gdb/)
+    1.  [cflow](cflow.md)
 1.  [Boost](boost/)
 1.  [CMake](cmake.md)
 1.  [Flex and Bison](flex-bison/)

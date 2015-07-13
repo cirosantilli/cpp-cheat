@@ -47,7 +47,7 @@ for line in linetable:
 
 # Dump all executed lines.
 thread = gdb.inferiors()[0].threads()[0]
-while (thread.is_valid()):
+while thread.is_valid():
     sal = gdb.decode_line()[1][0]
     print(sal.line)
     linetable = sal.symtab.linetable()

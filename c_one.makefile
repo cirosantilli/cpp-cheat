@@ -12,7 +12,7 @@ LIBS ?= -lm
 OUT_EXT ?= .out
 RUN ?= main
 TEST ?= test
-TMP_EXT ?= .tmp
+TMP_EXT ?= .o
 
 INS := $(wildcard *$(IN_EXT))
 OUTS_NOEXT := $(basename $(INS))

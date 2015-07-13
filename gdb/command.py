@@ -1,21 +1,26 @@
 """
 Define a new GDB command with Python.
+
+https://sourceware.org/gdb/onlinedocs/gdb/Commands-In-Python.html
 """
 
-class NewCmd (gdb.Command):
-    "newcmd docstring."
-    def __init__ (self):
+class NewCmd(gdb.Command):
+    # Will appear on help newcmd.
+    "docstring"
+    def __init__(self):
         super().__init__(
-            'newcmd',
-            gdb.COMMAND_SUPPORT,
-            gdb.COMPLETE_NONE,
-            True
+            'newcmd',          # Name.
+            gdb.COMMAND_NONE,  # Category when `help` is entered.
+            gdb.COMPLETE_NONE, # No autocomplete.
+            False              # Take subcommand?
         )
     def invoke(self, arg, from_tty):
         print('newcmd')
-        print('arg = ' + str(arg))
+        assert type(arg) is str
+        print('arg = ' + arg)
         print('from_tty = ' + str(from_tty))
+# This already registers it.
 NewCmd()
 gdb.execute('help newcmd')
-gdb.execute('newcmd')
+print()
 gdb.execute('newcmd a b')

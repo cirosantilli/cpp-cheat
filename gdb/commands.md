@@ -85,7 +85,7 @@ The program will run until it reaches:
 
 ### start
 
-Like run, but also add a temporary (only for the current run) breakpoint at `main` and stop there.
+Like run, but also add a temporary (deleted once hit) breakpoint at `main` and stop there.
 
 ### q
 
@@ -186,6 +186,8 @@ If there is no debugging information with attached source code, run until this f
 Go to the return of the current frame: function or loop.
 
 Does not work on the top frame.
+
+Stopping at the return is way harder: http://stackoverflow.com/questions/3649468/setting-breakpoint-in-gdb-where-the-function-returns
 
 ### si
 
@@ -291,6 +293,17 @@ Does not seem possible from outside of the function frame. And when it goes out 
 
 The best solutions seems to be to script it.
 
+### rbreak
+
+Regexp break: set a breakpoint at all functions that match the given regular expression.
+
+Break at all function calls:
+
+    set confirm off
+    rbreak .
+
+If you do this after running `start`, it will add hundreds of breaks and take a noticeable amount (e.g. 30 seconds) of time for a hello world because of the dynamic library functions. If done before `start`, those will not be seen.
+
 ### dis
 
 ### disable
@@ -370,6 +383,47 @@ Sample output:
        0x400537 <main+10>:  add    $0x1,%eax
        0x40053a <main+13>:  mov    %eax,0x200b04(%rip)        # 0x601044 <i>
     1: "hello disp" = "hello disp"
+
+#### undisplay
+
+Stop all `display` commands:
+
+    undisplay
+
+To stop a given `display`, first get its id with:
+
+    info display
+    i di
+
+Sample output:
+
+    Auto-display expressions now in effect:
+    Num Enb Expression
+    1:   y  /16bi $pc
+
+Then:
+
+    undisplay 1
+
+#### disable display
+
+#### enable display
+
+Temporarily disable or enable `display` commands.
+
+They are not forgotten, and can be reactivated later.
+
+### info breakpoints
+
+List breakpoints:
+
+    info breakpoints
+
+Sample output:
+
+    Num     Type           Disp Enb Address            What
+    1       breakpoint     keep y   0x0000000000400535 in main at big_function.c:8
+    2       breakpoint     keep y   0x0000000000400535 in main at big_function.c:8
 
 ## Examine state
 
@@ -505,7 +559,7 @@ All CPU registers, including stuff like YMM:
 
     i al
 
-Single CPU register:
+Single CPU register: <http://stackoverflow.com/questions/5429137/how-to-print-register-values-in-gdb>
 
     i r rax
 
@@ -514,6 +568,10 @@ Sample output:
     rax            0x40057d 4195709
 
 `0x40057d` equals `4195709` in hex.
+
+Can also be observed with:
+
+    p $rax
 
 Global and static variable names:
 
@@ -767,7 +825,7 @@ Enter very useful curses split windows views:
 
 `layout src` can be set at invocation time with the `-tui` option.
 
-Leave `layout modes`:
+Leave `layout` modes:
 
 - <http://stackoverflow.com/questions/8409540/how-to-close-layout-src-windows-in-gdb>
 - <http://stackoverflow.com/questions/8953720/multiple-problems-with-gdbs-tui-mode>
@@ -775,6 +833,10 @@ Leave `layout modes`:
 `Ctrl-x` keyboard shortcuts can be used to enter and leave those modes, but they do not work with `vi` `.inputrc` settings.
 
 Once you enter one of the `tui` modes, a few specific commands are possible: <https://sourceware.org/gdb/onlinedocs/gdb/TUI-Commands.html>
+
+ANSI colors don't work on TUI mode: <https://github.com/longld/peda/issues/23>
+
+Stdout breaks TUI mode. TODO find an issue.
 
 #### focus
 
@@ -800,6 +862,25 @@ Furthermore, it magically understands the type of the expression and prints it n
     print "asdf"
 
 TODO what is the expression evaluator for expressions like `print` ?
+
+## alias
+
+Alias for a command:
+
+    alias ir info registers
+
+Unlike bash aliases, cannot include the arguments, only subcommands. E.g., the following fails:
+
+    alias ir info registers eax
+
+## define
+
+Define commands.
+
+    define irab
+      info registers eax
+      info registers ebx
+    end
 
 ## Scripting features
 
@@ -834,14 +915,46 @@ Trying to reset it is an error:
       print 1
     end
 
-### define
-
-TODO
-
 ### Continue despite error
 
 <http://stackoverflow.com/questions/17923865/gdb-stops-in-a-command-file-if-there-is-an-error-how-to-continue-despite-the-er>
 
 Not possible?
 
-### Python
+## Reverse debugging
+
+### checkpoint
+
+### restart
+
+Save program state, and go back to it later: <https://sourceware.org/gdb/onlinedocs/gdb/Checkpoint_002fRestart.html>
+
+Not sure how this works if system resources are being used, e.g. open files.
+
+https://sourceware.org/gdb/onlinedocs/gdb/Checkpoint_002fRestart.html
+
+### reverse commands
+
+<https://sourceware.org/gdb/onlinedocs/gdb/Reverse-Execution.html#Reverse-Execution>
+
+TODO how does it work?
+
+## Modify program state
+
+## Fiddle with program
+
+### Set registers values
+
+Same syntax for convenience variables, very insane:
+
+    set $eax = 1
+    info registers eax
+
+### Set memory value
+
+- <http://stackoverflow.com/questions/3305164/how-to-modify-memory-contents-using-gdb>
+- <http://stackoverflow.com/questions/19503057/in-gdb-how-can-i-write-a-string-to-memory>
+
+### Run arbitrary assembly code
+
+Nope: <http://stackoverflow.com/questions/5480868/how-to-call-assembly-in-gdb>

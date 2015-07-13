@@ -75,7 +75,7 @@ Then there are several implementations that target Linux-only embedded systems, 
 - musl libc. Comparison: <http://www.etalabs.net/compare_libcs.html>. Alpine Linux moved to it, as it is partially binary compatible with glibc.
 - Bionic (Android): <https://en.wikipedia.org/wiki/Bionic_%28software%29>
 - dietlibc <http://www.fefe.de/dietlibc/>
-- newlibc <https://en.wikipedia.org/wiki/Newlib>
+- newlibc <https://en.wikipedia.org/wiki/Newlib>. GNU.
 
 ### ulibc
 
