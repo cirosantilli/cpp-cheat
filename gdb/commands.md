@@ -87,6 +87,8 @@ The program will run until it reaches:
 
 Like run, but also add a temporary (deleted once hit) breakpoint at `main` and stop there.
 
+`main` this is not the actual executable entry point, see also: <http://stackoverflow.com/questions/10483544/stopping-at-the-first-machine-code-instruction-in-gdb>
+
 ### q
 
 ### quit
@@ -268,6 +270,32 @@ Set breakpoint at address:
 
     b *0x400440
 
+If you set a breakpoint in the middle of an instruction, segfault. E.g., supposing `0x400440` is 2 bytes long, then:
+
+    b *0x400441
+    c
+    c
+
+may segfault. TODO why? Linked to hardware breakpoints I imagine.
+
+`break function` does not break on the very first instruction of the function, but rather further after the prologue: <http://stackoverflow.com/questions/25545994/how-does-gdb-determine-function-entry-points> GDB guesses prologues even without debug information. TODO can debug information contain prologue information?
+
+#### Dynamically loaded library breakpoints
+
+When you do:
+
+    break printf
+
+before running the program, what happens depends on the value of:
+
+    show breakpoint pending
+
+which can be set with:
+
+    set breakpoint pending on|off|auto
+
+The default is auto, which is not `auto`, but rather asks for confirmation...
+
 ### watch
 
 ### rwatch
@@ -303,6 +331,8 @@ Break at all function calls:
     rbreak .
 
 If you do this after running `start`, it will add hundreds of breaks and take a noticeable amount (e.g. 30 seconds) of time for a hello world because of the dynamic library functions. If done before `start`, those will not be seen.
+
+This will also pick up the execution of the loader which the kernel points to before `_start`: <http://stackoverflow.com/questions/31379422/why-is-init-from-glibcs-csu-init-first-c-called-before-start-even-if-start-i/31387656#31387656>
 
 ### dis
 
@@ -741,6 +771,13 @@ Current line once:
 Current line every time the debugger stops:
 
     set disassemble-next-line on
+
+Without debug information in an unstripped ELF:
+
+- uses the `st_size` of the symbol to dissemble to determine where to stop
+- without arguments, finds the current function by searching for the closest symbol that contains `$pc` and has `st_size` set
+
+Being a `STT_FUNC` does not seem required.
 
 ### x
 

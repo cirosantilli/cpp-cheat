@@ -20,6 +20,7 @@ class BreakReturn(gdb.Command):
         while block:
             if block.function:
                 break
+            block = block.superblock
         start = block.start
         end = block.end
         arch = frame.architecture()

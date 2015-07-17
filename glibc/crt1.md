@@ -70,3 +70,13 @@ Come from `libgcc/crtstuff.c`.
 ## Scrt1
 
 <http://stackoverflow.com/questions/16436035/whats-the-usage-of-mcrt1-o-and-scrt1-o>
+
+## init-first
+
+TODO. This actually seems to be the actual initial code that is run, *not* `_start`, even though `_start` is set at the ELF header as the entry point. What is going on?
+
+Just try to do `b _init` on `gdb`.
+
+## Bibliography
+
+- <http://dbp-consulting.com/tutorials/debugging/linuxProgramStartup.html>

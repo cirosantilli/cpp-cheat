@@ -16,6 +16,20 @@ FreeBSD moved to it in 2012: <http://unix.stackexchange.com/questions/49906/why-
 
 Sony PS4 (2013 Q4, FreeBSD based) moved to it while PS3 used GCC.
 
+The great advantages of this are:
+
+- better tooling than GNU: Python for scripting, CMake and Doxygen doc instead of `.exp`, Autotools and Texinfo
+- clearer design, since it was made 20 years later and it used what was learned
+- can be used as a library. This is a classic problem of bug CLI utilities: they were not designed to be used programmatically as a library, and it is hard to modify them to do so. GCC is pushing forward in that direction as well now.
+
+### Small Device C Compiler
+
+<https://en.wikipedia.org/wiki/Small_Device_C_Compiler>
+
+Targets mostly microcontrollers, which GCC does not target as well: <http://sourceforge.net/p/sdcc/mailman/message/31601719/>
+
+GPL.
+
 ### CompCert C compiler
 
 <http://compcert.inria.fr/compcert-C.html>

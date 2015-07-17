@@ -4,6 +4,8 @@ Make static call graphs.
 
 GNU.
 
+Not perfect nor ultra-powerful, but comes in handy when reading code.
+
 <https://en.wikipedia.org/wiki/GNU_cflow>
 
 <http://www.gnu.org/software/cflow/>

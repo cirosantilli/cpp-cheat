@@ -12,12 +12,11 @@ but typically faster as we move locally.
 """
 
 gdb.execute('file call_graph_py.out', to_string=True)
-# rbreak before start to ignore dynamically linked stdlib functions.
-gdb.execute('set confirm off')
 gdb.execute('start', to_string=True)
 depth_string = 4 * ' '
 thread = gdb.inferiors()[0].threads()[0]
-while thread.is_valid():
+disassembled_functions = set()
+while True:
     frame = gdb.selected_frame()
     symtab = frame.find_sal().symtab
 
@@ -30,7 +29,6 @@ while thread.is_valid():
     # Not present for files without debug symbols.
     source_path = '???'
     if symtab:
-        #source_path = symtab.fullname()
         source_path = symtab.filename
 
     # Not present for files without debug symbols.
@@ -46,17 +44,21 @@ while thread.is_valid():
             if symbol.is_argument:
                 args += '{} = {}, '.format(symbol.name, symbol.value(frame))
 
-        # Mark new breakpoints.
-        while block:
-            if block.function:
-                break
+        # Put a breakpoint on the address of every funtion called from this function.
+        # Only do that the first time we enter a function (TODO implement.)
         start = block.start
-        end = block.end
-        arch = frame.architecture()
-        pc = gdb.selected_frame().pc()
-        instructions = arch.disassemble(start, end - 1)
-        for instruction in instructions:
-            print('{:x} {}'.format(instruction['addr'], instruction['asm']))
+        if not start in disassembled_functions:
+            disassembled_functions.add(start)
+            end = block.end
+            arch = frame.architecture()
+            pc = gdb.selected_frame().pc()
+            instructions = arch.disassemble(start, end - 1)
+            for instruction in instructions:
+                # This is UGLY. I wish there was a disassembly Python interface to GDB,
+                # like https://github.com/aquynh/capstone which allows me to extract
+                # the opcode without parsing.
+                if instruction['asm'].split()[0] == 'callq':
+                    gdb.Breakpoint('*{}'.format(instruction['addr']), internal=True)
 
     print('{}{} : {} : {}'.format(
         stack_depth * depth_string,
@@ -64,4 +66,10 @@ while thread.is_valid():
         frame.name(),
         args
     ))
+    # We are at the call instruction.
     gdb.execute('continue', to_string=True)
+    if thread.is_valid():
+        # We are at the first instruction of the called function.
+        gdb.execute('stepi', to_string=True)
+    else:
+        break

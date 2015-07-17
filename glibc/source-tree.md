@@ -18,6 +18,8 @@ It contains two kinds of specializations:
 
     TODO: `sysdeps/posix` contains many files which are also present in `sysdeps/unix/sysv/linux`. Why is that? Linux seems to prefer those under `sysdeps/unix/sysv/linux`, which on the build go to the top-level, e.g. `time/clock.o`.
 
+-   `sysdeps/x86_64/dl-machine.h`: true entry point, even before `_start`
+
 Each method also has a pure C implementation when possible, e.g. `string/memcmp.c`, but that is likely to be much less efficient.
 
 ### Stub implementations
@@ -80,5 +82,3 @@ Some things which are in each:
 - `io`: `read`
 - `libio`: `puts`
 - `stdio-common`: `printf`
-
-# Makeconfig

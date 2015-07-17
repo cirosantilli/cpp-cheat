@@ -10,3 +10,7 @@ Hardware vs software breakpoints: <http://stackoverflow.com/questions/8878716/wh
 ## Vocabulary
 
 - `sal`: symtable and line. Both are often passed around together. TODO why.
+
+## Source tree
+
+- `cli/cli-cmds.c`: defines the built-in commands. Good place to start probing. Not *all* commands are there however. Grep for strings, e.g. `"break"`.

@@ -207,3 +207,7 @@ Virtual table verification:
 - <https://sunglint.wordpress.com/2013/06/13/vtv/>
 
 Security feature.
+
+## Vocabulary
+
+- leaf function: function that does not call any other. Optimizations are possible for those functions, like not decrementing `rsp`: http://stackoverflow.com/questions/13201644/why-does-the-x86-64-gcc-function-prologue-allocate-less-stack-than-the-local-var and in x86-64 not saving function parameters passed as registers to stack.

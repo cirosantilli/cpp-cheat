@@ -2,6 +2,8 @@
 
 GNU debugger.
 
+Tested on 7.7.1 unless mentioned otherwise.
+
 1.  [Getting started](getting-started.md)
 1.  [Introduction](introduction.md)
 1.  [Invocation](invocation.md)
@@ -30,7 +32,8 @@ GNU debugger.
     1.  [read_var()](read_var.py)
     1.  [Command](command)
     1.  [argv-wrapper](argv-wrapper)
-    1.  [Call graph](call_graph_rbreak.py)
+    1.  [Call graph](call_graph.py)
+        1.  [Call graph rbreak](call_graph_rbreak.py)
     1.  [Continue until instruction](continue_instruction.py)
         1.  [Continue until return](continue_return.py)
     1.  [Break on return](break_return.py)

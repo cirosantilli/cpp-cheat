@@ -69,6 +69,10 @@ Exit with Ctrl + D.
 
 ## Bibliography
 
-2008 tutorial: <https://sourceware.org/gdb/wiki/PythonGdbTutorial>
+- `help gdb` from the python shell. Great way to see what the API contains. Then read the `.texi` docs for the details.
 
-Library that uses it a lot: <https://github.com/longld/peda/>
+- <https://sourceware.org/gdb/wiki/PythonGdbTutorial> 2008 tutorial by the API author. Somewhat outdated.
+
+- <https://github.com/longld/peda/> famous library that uses it a lot
+
+- <https://github.com/stephenbradshaw/pygdbdis/blob/master/pygdbdis.py> small library that also uses it
