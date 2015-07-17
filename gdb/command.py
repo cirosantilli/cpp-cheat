@@ -15,12 +15,16 @@ class NewCmd(gdb.Command):
             False              # Take subcommand?
         )
     def invoke(self, arg, from_tty):
+        """
+        Everything printed here to stdout is captured by `execute to_string=True`.
+        """
         print('newcmd')
         assert type(arg) is str
         print('arg = ' + arg)
         print('from_tty = ' + str(from_tty))
 # This already registers it.
 NewCmd()
+
 gdb.execute('help newcmd')
 print()
 gdb.execute('newcmd a b')

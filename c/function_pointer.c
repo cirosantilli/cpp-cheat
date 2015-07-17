@@ -31,9 +31,9 @@ int main() {
     {
         int (*f)(int, int);
         f = add_int;
-        assert((*f)(1, 2) == 3);
+        assert(f(1, 2) == 3);
         f = sub_int;
-        assert((*f)(1, 2) == -1);
+        assert(f(1, 2) == -1);
     }
 
     /* We can also add argument names if we are on a verbose mood. */
@@ -56,14 +56,15 @@ int main() {
     */
     {
         int (*fs[])(int, int) = {add_int, sub_int};
-        assert((*fs[0])(1, 2) ==  3);
-        assert((*fs[1])(1, 2) == -1);
+        assert(fs[0](1, 2) ==  3);
+        assert(fs[1](1, 2) == -1);
     }
 
     /*
     There are multiple ways to initialize and use function pointers because of implicit conversions.
 
-    http://stackoverflow.com/questions/6893285/why-do-function-pointer-definitions-work-with-any-number-of-ampersands-or-as
+    - http://stackoverflow.com/questions/6893285/why-do-function-pointer-definitions-work-with-any-number-of-ampersands-or-as
+    - http://stackoverflow.com/questions/23960436/is-the-asterisk-optional-when-calling-a-function-pointer
     */
     {
         /* Alternative initialization methods. */
@@ -84,7 +85,7 @@ int main() {
 
         /* ERROR no alternative for the declaration. */
         {
-            /*int (f)(int n, int m) = add_int;*/
+            /*int f(int n, int m) = add_int;*/
         }
     }
 

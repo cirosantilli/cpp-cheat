@@ -338,11 +338,6 @@ int main() {
         It is possible to create structs which don't have a name.
 
         Only the structs declared immediatiely after definition can be used.
-
-        In theory only standardized in C11, but I am yet to be able to make GCC generate a warning.
-        even with `-std=89 -pedantic -Wall`.
-
-        http://stackoverflow.com/questions/14248044/are-anonymous-structs-standard-and-really-what-are-they
     */
     {
         /* Basic. */
@@ -415,6 +410,13 @@ int main() {
     /*
     # typedef struct combo
 
+        TL;DR best practice: whenever possible use:
+
+            typedef struct {} S;
+
+        Some people, notably the Linux kernel, disagree:
+        http://stackoverflow.com/questions/252780/why-should-we-typedef-a-struct-so-often-in-c
+
         Advantages:
 
         -   avoid typing struct all over
@@ -429,10 +431,6 @@ int main() {
 
         -   put all declaration information into one single place.
             No more "Should the typedef be before or after?" doubts.
-
-        TL;DR best practice: whenever possible use:
-
-            typedef struct {} S;
 
         Unfortunately this cannot be done if you need to declare the struct elsewhere to:
 
@@ -487,9 +485,7 @@ int main() {
         /*
         The typedef and the struct can have the same name.
 
-        So the common C89 pattern is `typedef struct S {...} S`.
-
-        C11 adds anonymous structs which is even better.
+        A common C89 pattern is `typedef struct S {...} S`.
         */
         {
             typedef struct S {

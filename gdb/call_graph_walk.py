@@ -5,7 +5,7 @@ This implementation disassembles every function it stops at,
 and adds a breakpoint at the functions it calls.
 
 This is slower runtime than initial `rbreak .`,
-but typically faster as we move locally.
+but typically faster for large code bases as it avoids the huge initial rbreak overhead.
 
 - http://stackoverflow.com/questions/9549693/gdb-list-of-all-function-calls-made-in-an-application
 - http://stackoverflow.com/questions/311948/make-gdb-print-control-flow-of-functions-as-they-are-called
