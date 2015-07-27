@@ -2068,40 +2068,6 @@ int main() {
     }
 
     /*
-    # execl # execlp # execsle # execv # execvp # execvpe
-
-        Interfaces for ``execve`` system call.
-
-        Execute and *leave*, ends current process!
-
-        Common combo: fork + execl.
-
-        This is effective because of COW implemented on some systems:
-        memory will only be copied to new process if needed, and in this case it is no needed.
-
-        Takes variable number or args.
-
-        Must end null terminated.
-
-        Versions:
-
-        - char 'p': path, uses PATH var to find executable
-        - TODO: char 'v', char 'e'? what's the difference?
-
-        Sample calls:
-
-            execl("/bin/ls", "-l", "-h", NULL);
-
-            execlp("ls", "-l", "-h", NULL);
-
-            execlp("cprogram", "cprogram", "arg0", NULL);
-
-        Don't forget that in a c program the first arg is the program name.
-    */
-    {
-    }
-
-    /*
     # IPC
 
         inter process communication

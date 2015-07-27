@@ -52,33 +52,43 @@ int main() {
             char s[] = "abc";
             char s2[] = "ABC";
             char *cPtr;
-            for (cPtr = s; *cPtr != '\0'; cPtr++){
+            for (cPtr = s; *cPtr != '\0'; cPtr++)
                 *cPtr = toupper(*cPtr);
-            }
             assert(strcmp(s, s2) == 0);
         }
     }
 
-
     /* String initialization */
     {
         /*
-        char * vs char[] initialization
+        # char * vs char[] initialization
 
-        http://stackoverflow.com/questions/1704407/what-is-the-difference-between-char-s-and-char-s-in-c
+            http://stackoverflow.com/questions/1704407/what-is-the-difference-between-char-s-and-char-s-in-c
 
-        With *, it cannot be modified later. Implementations may store it in readonly memory.
+            When `""` appears on an array initialization, it is magic:
 
-        In Linux, this is either `.rodata` or directly on the `.text` segment.
+                char c[] = "abc";
+
+            `"abc"` initializes `c` and end of story.
+
+            Everywhere else, the string literal is an:
+
+            - unamed
+            - array of char TODO const or not? http://stackoverflow.com/questions/2245664/what-is-the-type-of-string-literals-in-c-c
+            - that gives UB if modified
+
+            E.g.:
+
+                char *c = "abc";
+
+            Here `"abc"` is of type `char[4]`. Array types can be converted to pointers, so `c` points to it.
+
+            Therefore with `*,` it cannot be modified later, if we modify the contents of `c`, UB.
+
+            In Linux, this is either `.rodata` or directly on the `.text` segment.
         */
         {
-            {
-                char *s = "abc";
-                assert(s[0] == 'a');
-                /* Unefined behaviour. On Linux, segfault. */
-                /*cs[0] = '0';*/
-            }
-
+            /* Array initialization magic. */
             {
                 char s[] = "abc";
                 assert(s[0] == 'a');
@@ -86,9 +96,22 @@ int main() {
                 s[0] = '0';
             }
 
-            /* TODO why can't we do the same thing with integers? E.g.: */
+            /* Everywhere else case. */
             {
-                /*int * is = {1, 3, 2};*/
+                char *s = "abc";
+                assert(s[0] == 'a');
+                /* Unefined behaviour. On Linux, segfault. */
+                /*cs[0] = '0';*/
+            }
+
+            /*
+            Arrays and structs have the analogous compound literals, except that those:
+
+            - are modifiable, not UB const
+            - have block scope, not static
+            */
+            {
+                int *is = (int[]){1, 3, 2};
             }
         }
 
@@ -108,7 +131,6 @@ int main() {
     {
         /* Escape chars in string conts */
         {
-
             /*
             Octal byte string literals
 
@@ -196,29 +218,69 @@ int main() {
             /* Famous extensions: \e GNU for ESC */
         }
 
-        /* String literals may be concatenated */
-        /* no spaces are implied. */
-        {
-            char cs[] = "ab" "cd";
-            assert(strcmp(cs, "abcd") == 0);
+        /*
+        # What are string literals
 
-            /* This cannot be done with variables, */
-            /* but can be useful if you have a string that is defined in a macro: */
+            Arrays that give UB if you modify them.
+        */
+        {
+            assert("abc"[0] == 'a');
+
+            /* Must be an array: a pointer could not have size 3. */
+            assert(sizeof("ab") == 3);
+
+            /* Array to pointer decays like for any array. */
             {
-#define STRING_AB "ab"
-                char cs[] = STRING_AB "cd";
-                assert(strcmp(cs, "abcd") == 0);
+                char *c = "abc";
+                c = "def";
+                assert(c[0] == 'd');
             }
 
-            /* Another application is to break a long string literal over severl lines */
-            /* no newline is implied: */
+            /* lvalue */
+            {
+                char (*c)[] = &"abc";
+                assert((*c)[0] == 'a');
+            }
+        }
+
+        /*
+        # Concatenate strings at compile time
+
+            Adjacent string literals are concatenated at compile time.
+
+            No spaces are implied.
+
+            Runtime concatenation can be achieved with `strcat`.
+        */
+        {
+            assert(strcmp("ab" "cd", "abcd") == 0);
+
+            /*
+            This cannot be done with variables,
+            but can be useful if you have a string that is defined in a macro:
+            */
+            {
+                char var[] = "ab";
+                /* ERROR */
+                /*assert(strcmp(cs var, "abcd") == 0);*/
+
+                /* OK. */
+#define STRING_AB "ab"
+                assert(strcmp(STRING_AB "cd", "abcd") == 0);
+            }
+
+            /*
+            Another application is to break a long string literal over severl lines.
+
+            No newline is implied.
+            */
             {
                 char cs[] = "ab"
                             "cd";
                 assert(strcmp(cs, "abcd") == 0);
             }
 
-            /* It is not possible to break a string literal on multiple lines. */
+            /* It is not possible to break a string literal over on multiple lines. */
             /*
             {
                 char cs[] = "ab

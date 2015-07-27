@@ -17,7 +17,12 @@ For `gcc`:
 
 It is also possible to debug without debugging information, but it is much harder. In particular, you will have to rely much more on assembly level debugging, and reverse engineering the functions of variables without their name.
 
-There are a few standards for debugging information format. DWARF is the most popular on ELF.
+There are a few standards for debugging information format:
+
+- DWARF, dominates Linux.
+- <https://en.wikipedia.org/wiki/Stabs>, dominated `a.out`, but now dead.
+- COFF: <https://en.wikipedia.org/wiki/COFF>, dominates Windows.
+- XCOFF: <https://en.wikipedia.org/wiki/XCOFF>, dominates AIX.
 
 ### libc debugging symbols
 
@@ -99,3 +104,22 @@ You can also pass command line arguments at invocation time with:
 Start debugging in `tui` mode.
 
 Same as the `layout src` command.
+
+## Core files
+
+For the program to generate the core file do:
+
+    ulimit -c unlimited
+    ./a.out
+
+This generates a `core` file. Now:
+
+    gcc ./a.out core
+
+will put you in the state just before what created the core, often a segfault.
+
+But if the error is easily reproducible, you can just run:
+
+    gcc ./a.out
+
+and `run` inside GCC. It will also stop at the segfault, without the need to generate and load core files.

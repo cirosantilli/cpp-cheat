@@ -7,7 +7,7 @@ Python implementation of the `disas` command.
 def disas():
     frame = gdb.selected_frame()
     # TODO: make this work for files without debugging info.
-    # block() is only available with debug information.
+    # block() is only available with it.
     #
     # What we need is to use symbol information instead.
     # ELF symboltable symbols have the initial address

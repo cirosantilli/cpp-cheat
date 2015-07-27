@@ -73,6 +73,8 @@ Exit with Ctrl + D.
 
 - <https://sourceware.org/gdb/wiki/PythonGdbTutorial> 2008 tutorial by the API author. Somewhat outdated.
 
-- <https://github.com/longld/peda/> famous library that uses it a lot
+Libraries that use it:
 
-- <https://github.com/stephenbradshaw/pygdbdis/blob/master/pygdbdis.py> small library that also uses it
+- <https://github.com/longld/peda/>
+- <https://github.com/stephenbradshaw/pygdbdis/blob/master/pygdbdis.py>
+- <https://github.com/jfoote/exploitable>

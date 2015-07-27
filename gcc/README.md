@@ -21,7 +21,10 @@ Cheat on the GNU Compile Collection (GCC) language extensions and command line u
         1.  [Array range initializer](array_range_initializer.c)
         1.  [Local label](local_label.c)
     1.  [Attribute](attribute.c)
-        1. [weak](weak/)
+        1.  Variable
+            1.  [weak](weak/)
+        1.  Function
+            1.  [sentinel](sentinel.c)
     1.  [asm](asm.c)
     1.  [Built-in functions]()
         1. [alloca()](alloca.c)

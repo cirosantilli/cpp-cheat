@@ -32,8 +32,11 @@ Tested on 7.7.1 unless mentioned otherwise.
     1.  [read_var()](read_var.py)
     1.  [Command](command)
     1.  [argv-wrapper](argv-wrapper)
-    1.  [Call graph](call_graph.py)
+    1.  Call graph
         1.  [Call graph rbreak](call_graph_rbreak.py)
+        1.  [Call graph rbreak directory](call_graph_rbreak_directory.py)
+        1.  [Call graph return](call_graph_return.py)
+        1.  [Call graph walk](call_graph_walk.py)
         1.  [Call graph walk filter](call_graph_walk_filter.py)
     1.  [Continue until instruction](continue_instruction.py)
         1.  [Continue until return](continue_return.py)
@@ -41,4 +44,5 @@ Tested on 7.7.1 unless mentioned otherwise.
     1.  [Disassemble minimal example](disassemble.py)
         1.  [disas](disas.py)
     1.  [rbreak_directory.py](rbreak_directory.py)
+    1.  [event](event.py)
 1.  [Internals](internals.md)

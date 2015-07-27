@@ -49,6 +49,14 @@
 
     Wait for child with given PID to terminate.
 
+    # WIFEXITED
+
+    # WEXITSTATUS
+
+        `status` is not set to the exact exit status, but contains multiple fields.
+
+        We need to use those macros to extract individual fields.
+
 # Copy on write
 
 # COW
@@ -65,6 +73,7 @@
 #include "common.h"
 
 int main() {
+    int status;
     /* This variable will be duplicated on the parent and on the child. */
     int i;
     /* Parent PID */
@@ -118,18 +127,19 @@ int main() {
             exit(EXIT_SUCCESS);
         }
 
-        /* Happens on parent only, before or after child. */
+        /*
+        Only the parent reaches this point because of the exit call
+        done on the child.
+        */
         puts("parent only");
 
-        /*
-        Parent waits for the child to end.
-
-        Only the parent reaches this point because of the exit call
-        done on the child above.
-        */
-        int status;
         wait(&status);
-        assert(status == EXIT_SUCCESS);
+        if (WIFEXITED(status)) {
+            assert(status == WEXITSTATUS(EXIT_SUCCESS));
+        } else {
+            perror("execl abnormal exit");
+            assert(false);
+        }
 
         puts("parent only after child");
 

@@ -19,7 +19,7 @@ class RbreakDir(gdb.Command):
     def invoke(self, arg, from_tty):
         for root, dirs, files in os.walk(arg):
             for basename in files:
-                path = os.path.join(root, basename)
+                path = os.path.abspath(os.path.join(root, basename))
                 gdb.execute('rbreak {}:.'.format(path), to_string=True)
 RbreakDir()
 

@@ -769,7 +769,7 @@ int main() {
             - SEEK_END: relative to end of file
 
             It seems that seeking after the eof is undefined behaviour in ANSI C:
-            <http://bytes.com/topic/c/answers/219508-fseek-past-eof>
+            http://bytes.com/topic/c/answers/219508-fseek-past-eof
 
             This contrasts with POSIX lseek + write, in which the unwriten gap is 0.
         */

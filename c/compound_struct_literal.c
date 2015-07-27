@@ -38,6 +38,12 @@ int main() {
         assert(sp->i == 1);
         assert(sp->j == 2);
 
+        /* Unlike string literals, they can be modified. */
+        sp->i = 3;
+        sp->j = 4;
+        assert(sp->i == 3);
+        assert(sp->j == 4);
+
         /*
         # Lifetime of compound struct literals
 

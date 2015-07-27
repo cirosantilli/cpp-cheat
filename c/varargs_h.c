@@ -4,47 +4,60 @@
     Header that contains helpers necessary
     to deal with the variadic function language feature.
 
-# variadic functions
+# Variadic functions
 
     Language feature that allows functions with variable number of arguments.
+
+    They are the functions that contain three dots as an argument `...`
 
 # va_start
 
         va_start(varname, last_argname)
 
-    Initialize `va_list` variable varname. Indicates that varargs come after numargs.
+    Initialize `va_list` variable varname. Indicates that varargs come after `last_argname`.
 
-# Get number of variadic arguments
+    `last_argment` is the last non-variadic argument. It's value is not important: only it's address.
+    This is only possible because `va_list` is a macro, which enables it to the the address of `last_argname`.
 
-    TODO I think it is impossible except from another argument.
+    Mandatory.
 
-    `printf` just deduces that form the format string, and reads the stack away.
+    TODO: what does it really do in assembly?
+
+# va_end
+
+    Analogous to va_start after usage. Mandatory.
 */
 
 #include "common.h"
 
 int variadic_add(int numargs, ...) {
     va_list args;
+    /* numargs is just the first argument, not necessarily the length! */
     va_start(args, numargs);
     int sum = 0;
-    for(int i = 0 ; i < numargs; i++) {
-        int arg = va_arg(args, int);
-        sum += arg;
-    }
-
-    /* You MUST do this. TODO why? */
+    for (int i = 0 ; i < numargs; i++)
+        sum += va_arg(args, int);
     va_end(args);
-
     return sum;
 }
 
-/*
-This function illustrates how to va args from one function to another.
+int variadic_add_null(int dummy, ...) {
+    int arg;
+    int sum;
+    va_list args;
+    va_start(args, dummy);
+    sum = 0;
+    while (1) {
+        arg = va_arg(args, int);
+        if (!arg)
+            break;
+        sum += arg;
+    }
+    va_end(args);
+    return sum;
+}
 
-# vprintf
 
-    This is the raison d'etre for the `vprintf` family, which takes a va_list argument.
-*/
 int sprintf_wrapper(char *s, const char *fmt, ...) {
     int ret;
     va_list args;
@@ -55,28 +68,74 @@ int sprintf_wrapper(char *s, const char *fmt, ...) {
 }
 
 int main() {
+
+    /* Basic examples */
     assert(variadic_add(3, 1, 2, 3)       == 6);
     assert(variadic_add(5, 1, 2, 3, 4, 5) == 15);
 
-    char s[32];
-    sprintf_wrapper(s, "%c", 'a');
-    assert(s[0] == 'a');
+    /*
+    # Variadic function without non variadic arguments
+
+        Not possible:
+        http://stackoverflow.com/questions/2622147/is-it-possible-to-have-a-variadic-function-in-c-with-no-non-variadic-parameter
+
+        `va_start` takes the first argument.
+    */
 
     /*
-    The only problem with the wrapper is that compile time error checking is not done.
+    # Get number of variadic arguments
 
-    This could be achieved via the gcc `__attribute__((format,X,Y))` extension
+        It is impossible except from other arguments.
+
+        http://stackoverflow.com/questions/5272703/how-do-vararg-functions-find-out-the-number-of-arguments-in-machine-code
+
+        `printf` just deduces that form the format string, and reads the stack away
     */
     {
-        /* Error checking is not done for the wrapper. */
-        /* Might segfault at runtime. */
-        if (0) {
-            sprintf_wrapper(s, "%s" /*missing arg*/);
-            printf("sprintf_wrapper wrong = %s\n", s);
-        }
+        /* Extra integer argument technique. */
+        assert(variadic_add(3, 1, 2, 3) == 6);
 
-        /* WARN type error checking is done for `sprintf`. */
-        /*sprintf(s, "wrong %s");*/
+        /*
+        Trailing null pointer technique `(void *)NULL`.
+
+        TODO: how to distinguish 0 and (void *)0?
+
+        C standard says they should compare equal, so impossible?
+
+        But then why not use `0` instead of `NULL`?
+        */
+        /*assert(variadic_add_null(3, 1, 2, 0, 3, (void *)0) == 6);*/
+    }
+
+    /*
+    # vprintf
+
+        This is the raison d'etre for the `vprintf` family, which takes a va_list argument.
+
+        It allows you to forward `va_list` easily.
+    */
+    {
+        char s[32];
+        sprintf_wrapper(s, "%c", 'a');
+        assert(s[0] == 'a');
+
+        /*
+        The only problem with the wrapper is that compile time error checking is not done.
+
+        This could be achieved via the gcc `__attribute__((format,X,Y))` extension
+        */
+        {
+            /* Error checking is not done for the wrapper. */
+            /* Might segfault at runtime. */
+            char s[32];
+            if (0) {
+                sprintf_wrapper(s, "%s" /*missing arg*/);
+                printf("sprintf_wrapper wrong = %s\n", s);
+            }
+
+            /* WARN type error checking is done for `sprintf`. */
+            /*sprintf(s, "wrong %s");*/
+        }
     }
 
     return EXIT_SUCCESS;

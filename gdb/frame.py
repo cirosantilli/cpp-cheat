@@ -1,4 +1,7 @@
 """
+## Frame
+
+Exploring the frame class.
 """
 
 gdb.execute('file call_graph_py.out', to_string=True)

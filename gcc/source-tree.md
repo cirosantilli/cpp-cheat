@@ -211,3 +211,10 @@ Security feature.
 ## Vocabulary
 
 - leaf function: function that does not call any other. Optimizations are possible for those functions, like not decrementing `rsp`: http://stackoverflow.com/questions/13201644/why-does-the-x86-64-gcc-function-prologue-allocate-less-stack-than-the-local-var and in x86-64 not saving function parameters passed as registers to stack.
+
+## Dependencies
+
+- ISL: <http://isl.gforge.inria.fr/> TODO what for?
+- GMP: <https://gmplib.org/> Multiple precision library. TODO what for?
+- MPC: <http://www.multiprecision.org/index.php?prog=mpc> Complex multi precision.
+- MPFR: <http://www.mpfr.org/> Multiple precision floating point Reliably.

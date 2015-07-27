@@ -6,6 +6,7 @@ static int si = 0;
 void a();
 
 void m() {
+    j = i;
     i++;
     si++;
     puts("m()");

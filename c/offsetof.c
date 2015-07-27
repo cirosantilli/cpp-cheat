@@ -12,17 +12,30 @@
 #include "common.h"
 
 int main() {
-    struct foo {
-        char a;
-        char b[2];
-        int c;
-        char d;
-    };
+    /* Basic example. */
+    {
+        struct S {
+            char a;
+            char b[2];
+            int c;
+            char d;
+        };
 
-    printf("offsetof(struct foo, a) = %zu\n", offsetof(struct foo, a));
-    printf("offsetof(struct foo, b) = %zu\n", offsetof(struct foo, b));
-    printf("offsetof(struct foo, c) = %zu\n", offsetof(struct foo, c));
-    printf("offsetof(struct foo, d) = %zu\n", offsetof(struct foo, d));
+        printf("a = %zu\n", offsetof(struct S, a));
+        printf("b = %zu\n", offsetof(struct S, b));
+        printf("c = %zu\n", offsetof(struct S, c));
+        printf("d = %zu\n", offsetof(struct S, d));
+    }
+
+    /* Does not work with bitfields. */
+    {
+        struct S {
+            int a:1;
+        };
+
+        /* ERROR: attempt to take the address of a bitfield struct member. */
+        /*printf("a = %zu\n", offsetof(struct S, a));*/
+    }
 
     return EXIT_SUCCESS;
 }

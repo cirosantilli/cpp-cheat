@@ -225,7 +225,13 @@ the address number is not shown.
 
 ### until
 
-TODO. Vs `next`?
+Continue until given line or any following line of the same frame is reached, or if the frame returns.
+
+TODO example.
+
+### advance
+
+TODO vs until.
 
 ### skip
 
@@ -334,6 +340,12 @@ If you do this after running `start`, it will add hundreds of breaks and take a 
 
 This will also pick up the execution of the loader which the kernel points to before `_start`: <http://stackoverflow.com/questions/31379422/why-is-init-from-glibcs-csu-init-first-c-called-before-start-even-if-start-i/31387656#31387656>
 
+A file can be set to narrow down matches:
+
+    rbreak a.c:.
+
+Directories are not accepted: <http://stackoverflow.com/questions/29437138/can-gdb-set-break-at-every-function-inside-a-directory/31484890#31484890>
+
 ### dis
 
 ### disable
@@ -387,6 +399,15 @@ Run given commands whenever the last breakpoint or watchpoint is hit:
       printf "We entered f!"
       continue
     end
+
+### dprintf
+
+Sample usage:
+
+    dprintf main,"hello\n"
+    run
+
+TODO. Vs `commands`? Faster? <http://stackoverflow.com/questions/31653903/what-is-the-difference-between-dprintf-vs-break-commands-continue>
 
 ### dis
 
@@ -454,6 +475,12 @@ Sample output:
     Num     Type           Disp Enb Address            What
     1       breakpoint     keep y   0x0000000000400535 in main at big_function.c:8
     2       breakpoint     keep y   0x0000000000400535 in main at big_function.c:8
+
+### trace
+
+### Tracepoint
+
+TODO. Vs breakpoint?
 
 ## Examine state
 

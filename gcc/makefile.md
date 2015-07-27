@@ -49,9 +49,9 @@ If you modify just the `gcc/` directory, you can `cd gcc; make; make install` to
     --- a/gcc/gcc-main.c
     +++ b/gcc/gcc-main.c
     @@ -37,9 +37,12 @@ along with GCC; see the file COPYING3.  If not see
-     
+
      extern int main (int, char **);
-     
+
     +#include <stdlib.h>
     +
      int
@@ -59,7 +59,7 @@ If you modify just the `gcc/` directory, you can `cd gcc; make; make install` to
      {
     +  system("date > /tmp/gcc");
        driver d;
-     
+
        return d.main (argc, argv);
     EOS
 

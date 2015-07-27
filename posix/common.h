@@ -39,7 +39,7 @@
 #include <stdio.h> /* popen(), perror() */
 #include <stdint.h>
 #include <stdlib.h>
-#include <string.h> /* strerror */
+#include <string.h> /* strerror, strdup */
 #include <strings.h> /* ffs */
 
 /* POSIX only headers. */

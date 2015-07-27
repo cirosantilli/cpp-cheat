@@ -8,3 +8,5 @@
 #include <stdlib.h> /* EXIT_SUCCESS */
 #include <string.h>
 #include <time.h> /* time() */
+
+#include <unistd.h> /* execl for sentinel attribute */

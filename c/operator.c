@@ -301,12 +301,27 @@ int main() {
         /*
         # &
 
-        AND bitwise
+            AND bitwise
+
+        # |
+
+            OR bitwise
         */
         {
             assert(((char)0x00 & (char)0x00) == (char)0x00);
             assert(((char)0xFF & (char)0x00) == (char)0x00);
             assert(((char)0xFF & (char)0xFF) == (char)0xFF);
+
+            /*
+            `&` and `|` have lower precedence than `==`!
+
+            Notorious design choice, since they are analogous to + and * ...
+            */
+            {
+                assert(!(2 &  0  == 0 ));
+                assert(!(2 & (0  == 0)));
+                assert( (2 &  0) == 0  );
+            }
 
             /*
             # Even
