@@ -177,18 +177,28 @@ Used by both GCC and Binutils, although it does not have it's own versioning.
 
 <http://en.wikipedia.org/wiki/Boehm_garbage_collector>
 
+Made available in the `gc.h` header through functions and macros of form `GC_malloc`
+
+Doc: <http://linux.die.net/man/3/gc>
+
 ## libcilkrts
 
 <http://en.wikipedia.org/wiki/Cilk>
 
+## libsan
+
 ## libsanitizer
 
-Find memory errors, originally by Google:
+Static analysis, originally by Google:
 
-- AddressSanitizer http://code.google.com/p/address-sanitizer
-- ThreadSanitizer http://code.google.com/p/thread-sanitizer/
+- `asan`: address <http://code.google.com/p/address-sanitizer>
+- `lsan`: leak
+- `tsan` thread <http://code.google.com/p/thread-sanitizer/>
+- `ubsan`: undefined behaviour
 
-TODO at runtime? Or static analysis?
+Activated by the `-fsanitize=` options.
+
+Built as a dynamic library.
 
 ## libssp
 
@@ -199,6 +209,8 @@ Stack Smashing Protection:
 
 Security feature.
 
+Built as a dynamic library.
+
 ## libvtv
 
 Virtual table verification:
@@ -208,13 +220,70 @@ Virtual table verification:
 
 Security feature.
 
+Built as a dynamic library.
+
+## libcc1
+
+TODO?
+
+Exposes GCC compilation internals as a library?
+
+Used by GDB's `compile` command.
+
+Is a GCC plugin, that is how it accesses GCC.
+
+## libmpx
+
+Memory Protection Extensions. TODO?
+
+## liboffloadmic
+
+Intel MIC (many integrated cores architecture) offloading architecture support.
+
+Looks a lot like a GPU, notably implemented on the Xeon Phi co-processor (4k USD) which was used for the fastest 2014 supercomputer Tianhe-2. The US government rejected Intel's export license when China wanted to increase it's capabilities further.
+
+To offload means to pass work to it, and Itel claims this can be done intelligently from standard C code without developer effort?
+
+- <https://en.wikipedia.org/wiki/Xeon_Phi>
+- <https://software.intel.com/en-us/articles/effective-use-of-the-intel-compilers-offload-features>
+- <http://www.intel.com/content/www/us/en/architecture-and-technology/many-integrated-core/intel-many-integrated-core-architecture.html>
+- <http://goparallel.sourceforge.net/xeon-phi-vs-gpu-programming-better/>
+
+## libitm
+
+Transaction memory: <https://gcc.gnu.org/wiki/TransactionalMemory>
+
+TODO why `i`?
+
+## intl
+
+Internationalization, taken from `gettext`, and upstreamed there.
+
+## libffi
+
+Foreign Function Interface.
+
+<https://sourceware.org/libffi/>
+
+<https://en.wikipedia.org/wiki/Foreign_function_interface>
+
+Offers calling convention portability. Also used by CPython and OpenJDK, likely for C bindings.
+
 ## Vocabulary
 
-- leaf function: function that does not call any other. Optimizations are possible for those functions, like not decrementing `rsp`: http://stackoverflow.com/questions/13201644/why-does-the-x86-64-gcc-function-prologue-allocate-less-stack-than-the-local-var and in x86-64 not saving function parameters passed as registers to stack.
+### Leaf function
+
+Function that does not call any other. Optimizations are possible for those functions, like not decrementing `rsp`: <http://stackoverflow.com/questions/13201644/why-does-the-x86-64-gcc-function-prologue-allocate-less-stack-than-the-local-var> and in x86-64 not saving function parameters passed as registers to stack.
 
 ## Dependencies
 
-- ISL: <http://isl.gforge.inria.fr/> TODO what for?
+These are downloaded by:
+
+    ./contrib/download_prerequisites
+
+so not a part of the source tree.
+
+- ISL: <http://isl.gforge.inria.fr/> Integer Set Library. TODO what for? Smells like optimization problems.
 - GMP: <https://gmplib.org/> Multiple precision library. TODO what for?
 - MPC: <http://www.multiprecision.org/index.php?prog=mpc> Complex multi precision.
 - MPFR: <http://www.mpfr.org/> Multiple precision floating point Reliably.

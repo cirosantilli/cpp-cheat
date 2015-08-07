@@ -76,8 +76,9 @@ int main() {
     int status;
     /* This variable will be duplicated on the parent and on the child. */
     int i;
+    pid_t pid;
     /* Parent PID */
-    int ppid;
+    pid_t ppid;
 
     i = 0;
     ppid = getpid();
@@ -94,7 +95,7 @@ int main() {
 
     /* In case of success, PID is set differently on parent and child */
     /* so you can distinguish between them. For the child, `pid = 0`. */
-    pid_t pid = fork();
+    pid = fork();
     if (pid == -1) {
         perror("fork");
         assert(false);
@@ -113,12 +114,13 @@ int main() {
             puts("child only");
 
             /* Child has a different PID than its parent */
-            int pid = getpid();
+            pid = getpid();
             if (pid == -1) {
                 perror("getpid");
                 exit(EXIT_FAILURE);
             }
             assert(pid != ppid);
+            printf("child PID getpid() = %jd\n", (intmax_t)pid);
 
             /* This only change the child's `i` because memory was cloned (unlike threads). */
             i++;
@@ -132,6 +134,16 @@ int main() {
         done on the child.
         */
         puts("parent only");
+
+        /*
+        fork returns the child pid to the parent.
+
+        This could be asserted with the getpid in the child,
+        but would require the child to communicate that back to the parent,
+        which would need a `mmap` + `semaphore`,
+        and we don't want to complicate the example too much.
+        */
+        printf("child PID fork() = %jd\n", (intmax_t)pid);
 
         wait(&status);
         if (WIFEXITED(status)) {

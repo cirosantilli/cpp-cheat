@@ -21,3 +21,13 @@
 -   <http://locklessinc.com/articles/obscurec/>
 
     Obscure stuff only. Cool.
+
+## Package managers
+
+-   <https://github.com/iauns/cpm>
+
+-   <https://github.com/clibs/clib>
+
+-   <http://programmers.stackexchange.com/questions/170679/why-are-there-no-package-management-systems-for-c-and-c>
+
+-   <http://ccodearchive.net/>

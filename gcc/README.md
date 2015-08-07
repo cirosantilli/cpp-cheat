@@ -12,6 +12,7 @@ Cheat on the GNU Compile Collection (GCC) language extensions and command line u
         1. [Zero length array](zero_length_array.c)
         1. [128-bit int](128_bit_int.c)
         1. [Complex integer](complex_integer.c)
+        1. [__auto_type](auto_type.c)
     1.  Language
         1.  [Literals](literals.c)
         1.  [Identifiers](identifiers.c)
@@ -20,6 +21,7 @@ Cheat on the GNU Compile Collection (GCC) language extensions and command line u
         1.  [Case range](case_range.c)
         1.  [Array range initializer](array_range_initializer.c)
         1.  [Local label](local_label.c)
+        1.  [Statment expression](statment_expression.c)
     1.  [Attribute](attribute.c)
         1.  Variable
             1.  [weak](weak/)

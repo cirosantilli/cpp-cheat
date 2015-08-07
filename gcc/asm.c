@@ -53,7 +53,7 @@
         Note that certain instructions clobber registers
         even if they are not explicitly written in the code.
 
-    Both inputs and outputs are constrats. `X` will indicate the constraint type
+    Both inputs and outputs are constraints. `X` will indicate the constraint type
 
     TODO: # __asm__ vs asm
     TODO: # asmlinkage
@@ -65,6 +65,21 @@
 int main() {
 #if defined(__i386__) || defined(__x86_64__)
     puts("__i386__ || __x86_64__");
+
+    /*
+    # Basic asm
+
+    # No colon
+
+        There are two types of asm: basic and extended.
+
+        The basic one does not have a colon after the string.
+
+        Basic is strictly less powerful: 
+    */
+    {
+        asm volatile ("push %eax; mov $1, %eax; pop %eax;");
+    }
 
     /*
     # m constraint
@@ -147,7 +162,7 @@ int main() {
     /*
     # r register constraint
 
-        gcc will automatically put the value of `in` from ram into a register for us
+        gcc will automatically put the value of `in` from RAM into a register for us
         and `out` from a register into ram at the end
 
         note how we can do an `inc` operation directly on `%1` and `%0`
@@ -170,7 +185,9 @@ int main() {
     }
 
     /*
-    # matching constraint
+    # Matching constraint
+
+    # 0 constraint
 
         Represented by digits.
 
@@ -191,10 +208,9 @@ int main() {
     }
 
     /*
-    # specific register constraints
+    # Specific register constraints
 
-        If you look at the generated assembly code,
-        you will see that x was put into `eax`.
+        `a` forces it to be put into eax.
     */
     {
         volatile int x = 0;

@@ -252,11 +252,29 @@ int main() {
         Find first match of string in string.
 
         glibc has `strcasestr` which ignores the case.
+
+        There seems to be no general array analogue: glibc has a `memmem` extension.
     */
     {
         char cs[] = "abcabcd";
         assert(strstr(cs, "bc") == cs + 1);
         assert(strstr(cs, "bd") == NULL);
+    }
+
+    /*
+    # strspn
+
+        Return the length of initial string that only contains bytes in the second argument.
+
+        Mnemonic: SPaN of character set.
+
+    # strcspn
+
+        Complement (negation) of strspn: find bytes not there.
+    */
+    {
+        /* '0' is not in the accept set, so the length is 5 for "abcba". */
+        assert(strspn("abcba0abc", "abc") == 5);
     }
 
     /*

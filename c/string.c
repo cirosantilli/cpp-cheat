@@ -215,7 +215,10 @@ int main() {
             /* Vertical tab */
             assert(strcmp("\v", "\x0b") == 0);
 
-            /* Famous extensions: \e GNU for ESC */
+            /* Notable extensions: \e GNU for ESC */
+
+            /* Percent % is not magic for string literals, only for printf. */
+            assert(strlen("%%") == 2);
         }
 
         /*

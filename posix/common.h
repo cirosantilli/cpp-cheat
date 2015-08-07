@@ -46,25 +46,35 @@
 #include <arpa/inet.h>
 #include <dirent.h>
 #include <errno.h>
-#include <fcntl.h> /* creat, O_CREAT*/
+#include <fcntl.h> /* creat, O_CREAT */
 #include <libgen.h>
-#include <monetary.h> /* strfmon*/
-#include <netdb.h> /* gethostbyname*/
+#include <monetary.h> /* strfmon */
+#include <netdb.h> /* gethostbyname */
 #include <netinet/in.h>
 #include <pthread.h>
-#include <pwd.h> /* getpwuid, getpwnam, getpwent*/
+#include <pwd.h> /* getpwuid, getpwnam, getpwent */
 #include <regex.h>
 #include <sched.h>
-#include <sys/mman.h> /* mmap, munmap*/
-#include <sys/resource.h> /* rusage, getrusage, rlimit, getrlimit*/
-#include <sys/select.h> /* select, FD_ZERO, FD_SET*/
-#include <sys/shm.h> /* shmget, shmat, etc.*/
+#include <sys/mman.h> /* mmap, munmap */
+#include <sys/ipc.h>
+#include <sys/resource.h> /* rusage, getrusage, rlimit, getrlimit */
+#include <sys/select.h> /* select, FD_ZERO, FD_SET */
+#include <sys/sem.h> /* semget, semop, semctl */
+#include <sys/shm.h> /* shmget, shmat, etc. */
 #include <sys/socket.h>
-#include <sys/stat.h> /* S_IRUSR and family,*/
+#include <sys/stat.h> /* S_IRUSR and family, */
 #include <sys/types.h> /* pid_t */
-#include <sys/utsname.h> /* uname, struct utsname*/
-#include <sys/wait.h> /* wait, sleep*/
-#include <syslog.h> /* syslog*/
-#include <unistd.h> /* fork */
+#include <sys/utsname.h> /* uname, struct utsname */
+#include <sys/wait.h> /* wait, sleep */
+#include <syslog.h> /* syslog */
+#include <unistd.h> /* fork, ftruncate */
 
 #define TMPFILE(x) __FILE__ "__" x ".tmp"
+
+union semun {
+    int              val;    /* Value for SETVAL */
+    struct semid_ds *buf;    /* Buffer for IPC_STAT, IPC_SET */
+    unsigned short  *array;  /* Array for GETALL, SETALL */
+    struct seminfo  *__buf;  /* Buffer for IPC_INFO
+                                (Linux-specific) */
+};

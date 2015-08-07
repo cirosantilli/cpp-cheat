@@ -1,0 +1,55 @@
+Script started on Fri 31 Jul 2015 04:26:51 PM CEST
+]0;ciro@ciro: ~/bak/git/cpp/cheat/gdb[01;31m~/bak/git/cpp/cheat/gdb[00m
+[01;34mciro[01;32m@[01;34mciro[00m$ (git::master) m script
+[?1049h[?1h=SCRIPT(1)                                                                                 User Commands                                                                                 SCRIPT(1)[m
+[m
+[1mNAME[0m[m
+     [1mscript[0m — make typescript of terminal session[m
+[m
+[1mSYNOPSIS[0m[m
+     [1mscript[0m [[1m-a[0m] [[1m-c[0m [4mcommand[24m] [[1m-e[0m] [[1m-f[0m] [[1m-q[0m] [[1m-t[0m[=[4mfile[24m]] [[1m-V[0m] [[1m-h[0m] [[4mfile[24m][m
+[m
+[1mDESCRIPTION[0m[m
+     [1mscript[0m makes a typescript of everything printed on your terminal.  It is useful for students who need a hardcopy record of an interactive session as proof of an assignment, as the type‐[m
+     script file can be printed out later with lpr(1).[m
+[m
+     If the argument [4mfile[24m is given, [1mscript[0m saves all dialogue in [4mfile[24m.  If no file name is given, the typescript is saved in the file [4mtypescript[24m.[m
+[m
+     Options:[m
+[m
+     [1m-a,[0m [1m--append[0m[m
+             Append the output to [4mfile[24m or [4mtypescript[24m, retaining the prior contents.[m
+[m
+     [1m-c,[0m [1m--command[0m [4mcommand[24m[m
+             Run the [4mcommand[24m rather than an interactive shell.  This makes it easy for a script to capture the output of a program that behaves differently when its stdout is not a tty.[m
+[m
+     [1m-e,[0m [1m--return[0m[m
+             Return the exit code of the child process.  Uses the same format as bash termination on signal termination exit code is 128+n.[m
+[m
+     [1m-f,[0m [1m--flush[0m[m
+             Flush output after each write.  This is nice for telecooperation: one person does `mkfifo foo; script -f foo', and another can supervise real-time what is being done using `cat[m
+             foo'.[m
+[m
+     [1m--force[0m[m
+             Allow the default output destination, i.e. the typescript file, to be a hard or symbolic link.  The command will follow a symbolic link.[m
+[m
+     [1m-q,[0m [1m--quiet[0m[m
+             Be quiet.[m
+[m
+     [1m-t,[0m [1m--timing[0m[=[4mfile[24m][m
+             Output timing data to standard error, or to [4mfile[24m when given.  This data contains two fields, separated by a space.  The first field indicates how much time elapsed since the previ‐[m
+             ous output.  The second field indicates how many characters were output this time.  This information can be used to replay typescripts with realistic typing and output delays.[m
+[m
+     [1m-V,[0m [1m--version[0m[m
+             Output version information and exit.[m
+[m
+     [1m-h,[0m [1m--help[0m[m
+             Output help and exit.[m
+[m
+     The script ends when the forked shell exits (a [4mcontrol-D[24m to exit the Bourne shell (sh(1)), and [4mexit[24m, [4mlogout[24m or [4mcontrol-d[24m (if [4mignoreeof[24m is not set) for the C-shell, csh(1)).[m
+[m
+     Certain interactive commands, such as vi(1), create garbage in the typescript file.  [1mScript[0m works best with commands that do not manipulate the screen, the results are meant to emulate a[m
+[7m Manual page script(1) line 1 (press h for help or q to quit)[27m[K[K[?1l>[?1049l]0;ciro@ciro: ~/bak/git/cpp/cheat/gdb[01;31m~/bak/git/cpp/cheat/gdb[00m
+[01;34mciro[01;32m@[01;34mciro[00m$ (git::master) exit
+
+Script done on Fri 31 Jul 2015 04:27:09 PM CEST

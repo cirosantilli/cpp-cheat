@@ -4,7 +4,9 @@ Tested with: version 5.1.0 on Ubuntu 14.04 in a 2013 computer.
 
 Summary:
 
-    sudo apt-get install flex bison autogen runtest
+    sudo apt-get build-dep gcc
+    # Required to compile gnat.
+    sudo apt-get install gnat-4.8
     mkdir gcc
     cd gcc
     git clone git://gcc.gnu.org/git/gcc.git src
@@ -15,7 +17,10 @@ Summary:
     cd ..
     mkdir build
     cd build
-    ../src/configure --enable-languages=c,c++
+    # C and C++ only.
+    ../src/configure --enable-languages=c,c++ --prefix="$(pwd)/../install"
+    # All languages.
+    # ../src/configure --enable-languages=all --prefix="$(pwd)/../install"
     # Wait hours.
     make -j5
     # Wait hours.
@@ -74,6 +79,8 @@ You *cannot* modify the *stdout* output with at `puts("hacked)`, or else the bui
 
 ## Configure
 
+<https://gcc.gnu.org/install/configure.html>
+
 ### download_prerequisites
 
 In Ubuntu 14.04, missing dependencies GMP and others did not go away for me even though they were installed with `apt-get build-dep gcc` and `dpkg` says they are present. I needed `download_prerequisites`
@@ -112,11 +119,41 @@ When you build GCC, you have to configure 3 systems:
 
 The default compilation uses `-O2`, so you might want to reduce that for better debugging in development.
 
+### enable-languages
+
+<https://gcc.gnu.org/install/configure.html>
+
+By default, only some languages are built.
+
+If you want to enable all languages, use:
+
+    --enable-languages=all
+
+### Gnat
+
+### ADA
+
+### gnat1
+
+I am unable to to build and install it! <http://www.linuxfromscratch.org/blfs/view/svn/general/gcc-ada.html>
+
+Apparently you need a super recent built GNAT as circular dependency, and that of Ubuntu 14.04 is not recent enough?
+
+### gccgo
+
+### Go
+
+### go1
+
+I am unable to to build and install it!
+
+<https://golang.org/doc/install/gccgo>
+
 ## Build
 
 Making a separate build directory is mandatory.
 
-Took me 2 hours and a half on a and 4GB of disk.
+Took me 2 hours and a half on a and 5GB of disk.
 
 To build only certain parts of GCC <http://stackoverflow.com/questions/14728652/how-to-make-a-light-build-of-gcc-with-language-supports-etc-pruned>:
 
@@ -205,11 +242,13 @@ Tests are run with `runtest`, which uses `expect`:
 
 ## Install
 
-Generated files will be put under:
+By default, generated files will be put under:
 
-- `/usr/local/bin` for front-end executables like `gcc`, `ld`
-- `/usr/local/lib64` for libraries like `libstdc++`
-- `/usr/local/libexec/gcc/x86_64-unknown-linux-gnu/5.1.0` for backend executables like `cc1` and `collect2`
+- `/usr/local/bin`: for front-end executables like `gcc`, `ld`
+- `/usr/local/lib64`: for libraries like `libstdc++`
+- `/usr/local/libexec/gcc/x86_64-unknown-linux-gnu/5.1.0`: for backend executables like `cc1` and `collect2`
+
+GCC knows how to find the correct internal executables like `cc1` even if they are not in your path. Configure path information must be hard-coded into it.
 
 ## Run what you've built
 

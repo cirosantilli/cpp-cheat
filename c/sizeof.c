@@ -1,7 +1,7 @@
 /*
 # sizeof
 
-    Language keyword and operator.
+    Language keyword and an operator like +.
 
     Gives the size of the RAM representation of types **in multiples of CHAR_BIT**,
     which is the size of `char`. *Not* necessarily in bytes.

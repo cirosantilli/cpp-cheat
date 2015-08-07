@@ -237,6 +237,12 @@ Options:
 - `ggdb`: adds more info
 - `ggdb3`: adds max info. Default if 2 when ggdb is used.
 
+### fsanitize
+
+Enable different types of static analysis to detect potential errors like undefined behaviour, memory leaks and illegal accesses.
+
+Implemented by the in-source `libsanitize`.
+
 ## M
 
 Don't compile, but generate a list of dependencies for the given source code in a format suitable for a makefile rule, and output it to stdout.

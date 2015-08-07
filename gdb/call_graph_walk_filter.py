@@ -1,13 +1,13 @@
 """
-## Call graph walk
+## Call graph walk filter
+
+This implementation disassembles every function it stops at,
+and adds a breakpoint at the functions callq commands.
 
 TODO this is currenty broken. I half gave up on it when I noticed that
 the bottleneck was filtering functions by directory, which is harder on this walk implementation
 because we have to break at the callq instructions.
 I'm keeping this file as some of the walking code might be reused.
-
-This implementation disassembles every function it stops at,
-and adds a breakpoint at the functions callq commands.
 
 This is slower runtime than initial `rbreak .`,
 but typically faster as we move locally.

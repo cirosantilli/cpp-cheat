@@ -286,6 +286,8 @@ may segfault. TODO why? Linked to hardware breakpoints I imagine.
 
 `break function` does not break on the very first instruction of the function, but rather further after the prologue: <http://stackoverflow.com/questions/25545994/how-does-gdb-determine-function-entry-points> GDB guesses prologues even without debug information. TODO can debug information contain prologue information?
 
+Break on nth line of function: <http://stackoverflow.com/questions/3013189/in-gdb-how-to-set-conditional-breakpoint-to-a-functions-3rd-line>
+
 #### Dynamically loaded library breakpoints
 
 When you do:
@@ -301,6 +303,24 @@ which can be set with:
     set breakpoint pending on|off|auto
 
 The default is auto, which is not `auto`, but rather asks for confirmation...
+
+### condition
+
+https://sourceware.org/gdb/onlinedocs/gdb/Conditions.html
+
+Make breakpoint number 2 only break if `a == 1`:
+
+    condition 2 a == 1
+
+For `break`, can also be specified with `if`:
+
+    break 2 if a == 1
+
+Which is much better as you don't need to specify the breakpoint number again.
+
+Unfortunately `condition` must be used for certain commands, e.g. `catchpoint`, which does not support `if`.
+
+It is necessary to specify the breakpoint explicitly, you cannot specify the last set breakpoint automatically...
 
 ### watch
 
@@ -318,6 +338,10 @@ Sample usage:
 
     watch var
     run
+
+Watch a memory range: <http://stackoverflow.com/questions/11004374/watch-a-memory-range-in-gdb>
+
+Watch every member of a given structure type: <http://stackoverflow.com/questions/5557590/how-to-watch-a-member-of-a-struct-for-every-struct-variable-that-has-that-type>
 
 #### watch local variable
 
@@ -476,12 +500,6 @@ Sample output:
     1       breakpoint     keep y   0x0000000000400535 in main at big_function.c:8
     2       breakpoint     keep y   0x0000000000400535 in main at big_function.c:8
 
-### trace
-
-### Tracepoint
-
-TODO. Vs breakpoint?
-
 ## Examine state
 
 ## Status
@@ -489,6 +507,8 @@ TODO. Vs breakpoint?
 Get information about the running process.
 
 ### l
+
+### list
 
 List 10 lines of code around the current line:
 
@@ -538,7 +558,40 @@ Change the default list size:
 
 <http://stackoverflow.com/questions/16734783/in-gdb-i-can-call-some-class-functions-but-others-cannot-be-resolved-why>
 
+### search
+
+### forward-search
+
+### fo
+
+Search for line in current source that matches a regular expression:
+
+    fo ret.rn
+
+Sample output:
+
+    39          return 0;
+
+Search starts at the first line after the current one, and goes until the end of the current source file.
+
+If you search multiple times, searches start from the last match, much like multiple `list` commands.
+
+`$_` is set to the line number, so you can do things like:
+
+    fo ret.rn
+    break $_
+
+This is great to have tests that don't depend on the exact line numbers to set breakpoint.
+
+The GDB test suite uses a similar technique, but it does not use GDB for it, but rather the Tcl function `gdb_get_line_number`.
+
+### rev
+
+Like `fo`, but search backwards.
+
 ### whe
+
+### where
 
 Sample output:
 
@@ -1001,11 +1054,66 @@ https://sourceware.org/gdb/onlinedocs/gdb/Checkpoint_002fRestart.html
 
 <https://sourceware.org/gdb/onlinedocs/gdb/Reverse-Execution.html#Reverse-Execution>
 
-TODO how does it work?
+Tutorial: <https://www.sourceware.org/gdb/wiki/ProcessRecord/Tutorial>
+
+Can only be run on a target that supports reverse debugging.
+
+TODO the only such I know is `record`, which can be entered with `record`.
+
+#### record
+
+Enter the `record` target, which records everything that needs to be recorded to reverse debug.
+
+Must be run when the program is running.
+
+There are two main types of record:
+
+-   `record full`, which is the default for `record`: software recording
+
+-   `record btrace`, which uses hardware support.
+
+    Can only be used if you have hardware support.
+
+    There is hardware support for tracing in some processors! E.g. Intel:
+
+    - <https://software.intel.com/en-us/blogs/2013/09/18/processor-tracing>
+    - <http://blog.asset-intertech.com/test_data_out/2013/11/what-are-intel-lbr-bts-and-aet.html>
+
+    Note however that there is very little processor and VM support as of 2015:
+
+    - <http://stackoverflow.com/questions/16991582/extract-execution-log-from-gdb-record-in-a-virtualbox-vm>
+    - <http://stackoverflow.com/questions/22507169/how-to-run-record-instruction-history-and-function-call-history-in-gdb>
+
+## target
+
+Target is a name for where GDB got it's data from, and what type of run this is.
+
+TODO: get current target
+
+List all targets:
+
+    help target
+
+TODO `child` vs `exec`?
+
+### target sim
+
+Run on a simulator.
+
+Example usage: <http://draskovblog.blogspot.fr/2008/12/about-gdb-target-sim.html>
+
+TODO:
+
+- needs the `--target` configure flag to work?
+- what simulator is used? Does GDB have built-in simulators??
+
+## Alter program state
 
 ## Modify program state
 
 ## Fiddle with program
+
+<https://sourceware.org/gdb/onlinedocs/gdb/Altering.html#Altering>
 
 ### Set registers values
 

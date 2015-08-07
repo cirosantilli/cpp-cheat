@@ -18,6 +18,8 @@
 
     C++ does not allow const pointer typecasts, so `const` variables generate constant expressions.
     There is an even more explicit language feature in C++11 via the `constexpr` keyword.
+
+    GCC has `__builtin_constant_p` to explicitly check if a variable is a compile time constant or not.
 */
 #include "common.h"
 

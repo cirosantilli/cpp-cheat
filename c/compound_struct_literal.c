@@ -24,14 +24,12 @@ int main() {
     /* With designated initializer syntax. */
     {
         struct S s;
-        s = (struct S){ .j = 2, .i = 1 };
+        s = (struct S){.j = 2, .i = 1};
         assert(s.i == 1);
         assert(s.j == 2);
     }
 
-    /*
-    Unlike built-in type literals, they do generate lvalues.
-    */
+    /* They do generate lvalues. */
     {
         struct S *sp;
         sp = &(struct S){1, 2};
@@ -43,16 +41,19 @@ int main() {
         sp->j = 4;
         assert(sp->i == 3);
         assert(sp->j == 4);
-
-        /*
-        # Lifetime of compound struct literals
-
-            - if inside a function, automatic associated with current block.
-            - otherwise, static
-
-            http://stackoverflow.com/questions/14955194/lifetime-of-referenced-compound-array-literals
-        */
     }
+
+    /*
+    # Lifetime of compound struct literals
+
+        - if inside a function, automatic associated with current block.
+        - otherwise, static
+
+        http://stackoverflow.com/questions/14955194/lifetime-of-referenced-compound-array-literals
+    */
+
+    /* Can also be used to initialize variables, although that is useless. */
+    struct S s = (struct S){1, 2};
 
     return EXIT_SUCCESS;
 }

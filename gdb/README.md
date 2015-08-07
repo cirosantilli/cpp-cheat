@@ -14,9 +14,11 @@ Tested on 7.7.1 unless mentioned otherwise.
     1.  [count_infinite.c](count_infinite.c)
     1.  [big_function.c](big_function.c)
     1.  [String](string.c)
+    1.  [Array](array.c)
     1.  [C++ function overload](overload.cpp)
     1.  [Segmentation Fault](segv.c)
     1.  [Multifile](multifile/)
+    1.  [define](define.c)
 1.  GDB scripts
     1.  [step_all](step_all.gdb)
     1.  [si_all](si_all.gdb)
@@ -32,7 +34,7 @@ Tested on 7.7.1 unless mentioned otherwise.
     1.  [read_var()](read_var.py)
     1.  [Command](command)
     1.  [argv-wrapper](argv-wrapper)
-    1.  Call graph
+    1.  [Call graph](call_graph.md)
         1.  [Call graph rbreak](call_graph_rbreak.py)
         1.  [Call graph rbreak directory](call_graph_rbreak_directory.py)
         1.  [Call graph return](call_graph_return.py)

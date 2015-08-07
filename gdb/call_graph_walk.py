@@ -1,11 +1,17 @@
 """
 ## Call graph
 
-This implementation disassembles every function it stops at,
-and adds a breakpoint at the functions it calls.
+This implementation disassembles every function it stops at once,
+and adds a breakpoint at the callq instructions.
+
+We cannot break on the functions themselves, which would be good as it would lead to less breakpoints,
+because otherwise we would need to disassemble functions every time looking for
+polymorphic `callq *rax`.
 
 This is slower runtime than initial `rbreak .`,
 but typically faster for large code bases as it avoids the huge initial rbreak overhead.
+
+The runtime of this method is still too slow for huge executables like GCC's `cc1`.
 
 - http://stackoverflow.com/questions/9549693/gdb-list-of-all-function-calls-made-in-an-application
 - http://stackoverflow.com/questions/311948/make-gdb-print-control-flow-of-functions-as-they-are-called
@@ -66,10 +72,10 @@ while True:
         frame.name(),
         args
     ))
-    # We are at the call instruction.
     gdb.execute('continue', to_string=True)
+    # We are at the call instruction.
     if thread.is_valid():
-        # We are at the first instruction of the called function.
         gdb.execute('stepi', to_string=True)
+        # We are at the first instruction of the called function.
     else:
         break

@@ -19,6 +19,7 @@
         1.  [Identifier](identifier.c)
         1.  [void](void.c)
         1.  [Array](array.c)
+            1. [Array designated initializer](array_designated_initializer.c)
             1. [String](string.c)
             1. [VLA](vla.c)
         1.  [Type qualifier](type_qualifier.c)
@@ -37,7 +38,6 @@
                 1.  [Compound struct literal](compound_struct_literal.c)
             1.  [union](union.c)
         1.  Compile time operations
-            1.  [sizeof()](sizeof.c)
             1.  [_Generic](generic.c)
             1.  [Constant expression](constant_expression.c)
                 1. [_Static_assert](static_assert.c)
@@ -58,6 +58,7 @@
         1. [Static array argument](static_array_argument.c)
         1. [_Noreturn](noreturn.c)
     1.  [Operator](operator.c)
+        1. [sizeof()](sizeof.c)
     1.  [Sequence point](sequence_point.c)
     1.  Preprocessor
         [Preprocessor inside C](preprocessor.c)
