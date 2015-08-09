@@ -18,12 +18,10 @@
     General syntax:
 
         asm (
-            "movl %1, %%eax;"   //commands string
-            "movl %%eax, %0;"
+            "mov $1, %%eax;"   //commands string
             : "=X" (y),   //outputs
                 "=X" (z)
             : "X" (x)    //inputs
-            : "X" (x)
             : "%eax"     //clobbered registers
         );
 
@@ -75,10 +73,14 @@ int main() {
 
         The basic one does not have a colon after the string.
 
-        Basic is strictly less powerful: 
+        Basic is strictly less powerful: it can only deal with literal commands.
     */
     {
+#ifdef __i386__
         asm volatile ("push %eax; mov $1, %eax; pop %eax;");
+#else
+        asm volatile ("push %rax; mov $1, %rax; pop %rax;");
+#endif
     }
 
     /*
@@ -214,12 +216,27 @@ int main() {
     */
     {
         volatile int x = 0;
-        asm (
+        asm volatile (
             "incl %0"
             : "=a" (x)
             : "0" (x)
         );
         assert(x == 1);
+    }
+
+    /*
+    # Register variables
+
+        http://stackoverflow.com/questions/2114163/reading-a-register-value-into-a-c-variable
+
+        https://gcc.gnu.org/onlinedocs/gcc-4.4.2/gcc/Explicit-Reg-Vars.html
+    */
+    {
+        register int eax asm ("eax");
+        asm volatile ("mov $1, %%eax;" : : : "%eax");
+        assert(eax == 1);
+        asm volatile ("mov $2, %%eax;" : : : "%eax");
+        assert(eax == 2);
     }
 #endif
     return EXIT_SUCCESS;

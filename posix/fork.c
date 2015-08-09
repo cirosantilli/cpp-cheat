@@ -51,6 +51,13 @@
 
     # WIFEXITED
 
+        True is the process exited normally.
+
+        This is false in the following cases:
+
+        - singals
+        - ptrace
+
     # WEXITSTATUS
 
         `status` is not set to the exact exit status, but contains multiple fields.

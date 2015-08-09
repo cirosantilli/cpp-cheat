@@ -829,7 +829,7 @@ int main() {
     */
     {
         /*
-        if (flush(fp) == EOF) {
+        if (fflush(fp) == EOF) {
             ERROR
         }
         */
