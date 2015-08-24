@@ -56,6 +56,14 @@ By Fabrice Bellard.
 
 Educational only.
 
+### lcc
+
+<https://en.wikipedia.org/wiki/LCC_%28compiler%29>
+
+<https://github.com/drh/lcc>
+
+Not even free to use...
+
 ### Parsers
 
 Language parsers without built-in assembly output:

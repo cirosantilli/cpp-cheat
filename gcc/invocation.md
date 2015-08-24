@@ -369,6 +369,14 @@ or:
     gcc -ggdb3 -o a.o a.c
     objdump -S a.o
 
+### profile-generate
+
+### Profile guided optimization
+
+<https://en.wikipedia.org/wiki/Profile-guided_optimization>
+
+<http://stackoverflow.com/questions/4365980/how-to-use-profile-guided-optimizations-in-g>
+
 ## Preprocessor options
 
 ### I

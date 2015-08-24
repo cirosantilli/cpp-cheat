@@ -5,7 +5,6 @@
     1. [Implementations](implementations.md)
     1. [Undefined behaviour](undefined-behaviour.md)
     1. [Style guides](style-guides.md)
-    1. [Linting tools](linting-tools.md)
     1. [Pros and cons](pros-and-cons.md)
     1. [Trivia](trivia.md)
     1. [Bibliography](bibliography.md)

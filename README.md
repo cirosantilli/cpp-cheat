@@ -47,6 +47,9 @@ Relies on [C++ boilerplate](https://github.com/cirosantilli/cpp-boilerplate) to 
     1. [LAPACK](lapack/)
     1. [OpenCV](opencv/)
     1. [PLplot](plplot/)
+1.  Tools
+    1.  [Linting tools](linting-tools.md)
+        [Frama-C](frama-c/)
 1.  [CONTRIBUTING](CONTRIBUTING.md)
 1.  [TODO](TODO.md)
 1.  [Bibliography](bibliography.md)

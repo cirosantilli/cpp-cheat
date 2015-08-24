@@ -282,7 +282,7 @@ If you set a breakpoint in the middle of an instruction, segfault. E.g., supposi
     c
     c
 
-may segfault. TODO why? Linked to hardware breakpoints I imagine.
+may segfault. TODO why?
 
 `break function` does not break on the very first instruction of the function, but rather further after the prologue: <http://stackoverflow.com/questions/25545994/how-does-gdb-determine-function-entry-points> GDB guesses prologues even without debug information. TODO can debug information contain prologue information?
 
@@ -303,6 +303,18 @@ which can be set with:
     set breakpoint pending on|off|auto
 
 The default is auto, which is not `auto`, but rather asks for confirmation...
+
+### Hardware breakpoints
+
+### hbreak
+
+Create a hardware breakpoint.
+
+You should not use this unless you really need to, because x86 only has 4 hardware breakpoints, and software execution breakpoints are quite efficient.
+
+So you should leave hardware breakpoints for watchpoints instead, for which the software implementation requires single stepping, which is very slow.
+
+x86 hardware breakpoint description: <https://en.wikipedia.org/wiki/X86_debug_register> The `/proc/cpuid` flag is `de`.
 
 ### condition
 
@@ -334,12 +346,14 @@ Break when variable is:
 - `rwatch`: read
 - `awatch`: written or read (all)
 
+Uses hardware support by default, because the only way to software implement this is single stepping it.
+
 Sample usage:
 
     watch var
     run
 
-Watch a memory range: <http://stackoverflow.com/questions/11004374/watch-a-memory-range-in-gdb>
+Watch a memory range: <http://stackoverflow.com/questions/11004374/watch-a-memory-range-in-gdb> x86 supports small watch ranges up to 8 bytes: <https://en.wikipedia.org/wiki/X86_debug_register>
 
 Watch every member of a given structure type: <http://stackoverflow.com/questions/5557590/how-to-watch-a-member-of-a-struct-for-every-struct-variable-that-has-that-type>
 
@@ -1002,6 +1016,24 @@ Define commands.
 ## Scripting features
 
 Be warned: you will soon run into impossible to overcome limitations and start using the python API.
+
+### source
+
+Source a given GDB, Python or Guile file:
+
+    source a.gdb
+    source a.py
+
+It is recognized by it's extension.
+
+Can be done at invocation time with `-x`.
+
+GDB also has auto-sourcing capabilities for script files with a given naming convention:
+
+- `.gdbinit` on the current directory
+- `objfile-gdb.ext` on the same directory as an object / executable file gets sourced when you do `file` <https://sourceware.org/gdb/onlinedocs/gdb/objfile_002dgdbdotext-file.html#objfile_002dgdbdotext-file>
+
+You have to auto-list paths from which auto-loading will be allowed for security: <https://sourceware.org/gdb/onlinedocs/gdb/Auto_002dloading-safe-path.html>
 
 ### Comments
 

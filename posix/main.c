@@ -1303,6 +1303,8 @@ int main() {
 
         Returns the maximum value for a given resource.
 
+        Linux has a system call with that name.
+
         There are two types of limits:
 
         - soft: can be increased by any process to any value lower than the hard maximum
