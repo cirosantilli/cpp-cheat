@@ -1,7 +1,6 @@
 # `make help` for documentation.
 
 -include Makefile_params
--include Makefile_params
 
 # C/CPP
 # Don't use the standard names like `CC` and `CXX` to avoid `?=` getting overridden.

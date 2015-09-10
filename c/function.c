@@ -14,27 +14,39 @@ void func_int(int i) {}
 void func_float(float f) {}
 void func_double(double d) {}
 
-/* Array arguments */
+int array_arg(int i[]) {
+    return i[0] + i[1];
+}
 
-    void func_string_abc(char s[]) {
-        assert(strcmp(s, "abc") == 0);
-    }
+int array_size_arg(int i[2]) {
+    return i[0] + i[1];
+}
 
-    void func_string_const_abc(char const s[]) {
-        assert(strcmp(s, "abc") == 0);
-    }
 
-    void func_string_modify(char s[]) {
-        s[0] = '0';
-    }
+int pointer_arg(int *i) {
+    return i[0] + i[1];
+}
 
-    void func_array(int a[]){
-        assert(a[0] == 1);
-    }
 
-    void func_array_modify(int a[]) {
-        a[0] = -1;
-    }
+void func_string_abc(char s[]) {
+    assert(strcmp(s, "abc") == 0);
+}
+
+void func_string_const_abc(char const s[]) {
+    assert(strcmp(s, "abc") == 0);
+}
+
+void func_string_modify(char s[]) {
+    s[0] = '0';
+}
+
+void func_array(int a[]){
+    assert(a[0] == 1);
+}
+
+void func_array_modify(int a[]) {
+    a[0] = -1;
+}
 
 /* Struct arguments and return */
 
@@ -161,51 +173,73 @@ int main() {
         func_float(1);
     }
 
-    /*
-    # Pass string literals to functions
-
-        The following works.
-
-        It initializes the string on stack and then passes a pointer to it.
-
-        String literals should only be passed to `const char *` arguments,
-        since string literals cannot be modified, possibly leading to segfaults.
-
-        Ideally, all calling functions that can receive such strings should be const.
-
-        This is not however enforced by the compiler.
-    */
-    {
-        func_string_abc("abc");
-        func_string_const_abc("abc");
-
-        /*func_string_modify("abc");*/
-    }
-
     /* Two decls on the same line. */
     {
         assert(decl_1() == 1);
         assert(decl_2() == 2);
     }
 
-#if __STDC_VERSION__ >= 199901L
     /*
-    Pass struct and array literals to function using C99 compound literals.
-
-    Unlike string literals, array and struct literals can be modified on the function.
+    Array arguments
     */
     {
-        func_array((int[]){1});
+        /*
+        # Array argument vs pointer argument
 
-        func_array_modify((int[]){1});
+            http://stackoverflow.com/questions/5573310/difference-between-passing-array-and-array-pointer-into-function-in-c
 
-        int is[] = {1};
-        func_array_modify(is);
-        assert(is[0] == -1);
+            Function declaration with array arguments are exactly equivalent
+            to corresponding pointer declarations.
 
-        func_struct_1((struct func_struct){.i = 1});
-    }
+            This is analogous to array to pointer decay in expressions.
+
+            Therefore, always use pointers which is the more direct approach.
+        */
+        {
+            int i[] = {1, 2};
+            assert(array_arg(i)      == 3);
+            assert(array_size_arg(i) == 3);
+            assert(pointer_arg(i)    == 3);
+        }
+
+        /*
+        # Pass string literals to functions
+
+            It initializes the string on stack and then passes a pointer to it.
+
+            String literals should only be passed to `const char *` arguments,
+            since string literals cannot be modified, possibly leading to segfaults.
+
+            Ideally, all calling functions that can receive such strings should be const.
+
+            This is not however enforced by the compiler.
+        */
+        {
+            func_string_abc("abc");
+            func_string_const_abc("abc");
+            /* Segfault. */
+            /*func_string_modify("abc");*/
+        }
+
+#if __STDC_VERSION__ >= 199901L
+        /*
+        Pass struct and array literals to function using C99 compound literals.
+
+        Unlike string literals, array and struct literals can be modified.
+        */
+        {
+            func_array((int[]){1});
+
+            func_array_modify((int[]){1});
+
+            int is[] = {1};
+            func_array_modify(is);
+            assert(is[0] == -1);
+
+            func_struct_1((struct func_struct){.i = 1});
+        }
 #endif
+    }
 
     /* # return */
     {

@@ -15,19 +15,20 @@
 Simple server that takes one char per connection,
 increases it, and returns it to the client.
 */
-int main( int argc, char** argv )
+int main(int argc, char** argv)
 {
-    //name of the socket file
-    //server and client must agree on it
+    /*
+    Name of the socket file server and client must agree on it.
+    */
     char ch;
-    char name[] = "server_socket";
-    size_t client_len;
+    char name[] = "socket.tmp";
+    socklen_t client_len;
     int server_sockfd, client_sockfd;
     struct sockaddr_un client_address, server_address;
 
     //remove any existing socket file and create a new one
-    if ( unlink( name ) == -1 && errno != ENOENT ) {
-        perror( "unlink" );
+    if (unlink(name) == -1 && errno != ENOENT) {
+        perror("unlink");
         exit(EXIT_FAILURE);
     }
 
@@ -46,20 +47,20 @@ int main( int argc, char** argv )
      */
 
         /*
-            if ( setsockopt(
+            if (setsockopt(
                 int sockfd,
                 int level,
                 int optname,
                 const void *optval,
                 socklen_t optlen
-            ) == -1 )
+           ) == -1)
             {
             }
         */
 
-    server_sockfd = socket( AF_UNIX, SOCK_STREAM, 0 );
-    if ( server_sockfd == -1 ) {
-        perror( "socket" );
+    server_sockfd = socket(AF_UNIX, SOCK_STREAM, 0);
+    if (server_sockfd == -1) {
+        perror("socket");
         exit(EXIT_FAILURE);
     }
 
@@ -90,14 +91,14 @@ int main( int argc, char** argv )
             The four bytes of an IP address constitute a single 32-bit value
     */
         server_address.sun_family = AF_UNIX;
-        strcpy( server_address.sun_path, name );
-        if ( bind(
+        strcpy(server_address.sun_path, name);
+        if (bind(
                 server_sockfd,
                 (struct sockaddr*)&server_address,
-                sizeof( server_address )
-            ) == -1 )
+                sizeof(server_address)
+            ) == -1)
         {
-            perror( "bind" );
+            perror("bind");
             exit(EXIT_FAILURE);
         }
 
@@ -113,14 +114,13 @@ int main( int argc, char** argv )
         If overflows TODO.
     */
 
-        if ( listen( server_sockfd, 5 ) == -1 ) {
-            perror( "listen" );
+        if (listen(server_sockfd, 5) == -1) {
+            perror("listen");
             exit(EXIT_FAILURE);
         }
 
-    //run server
-    while ( 1 )
-    {
+    /* Run server. */
+    while (1) {
         /*
         #accept
 
@@ -130,26 +130,26 @@ int main( int argc, char** argv )
 
             Blocks until a connexion is requested by a client via `connect`
         */
-        client_len = sizeof( client_address );
+        client_len = sizeof(client_address);
         client_sockfd = accept(
             server_sockfd,
             (struct sockaddr*)&client_address,
             &client_len
         );
-        if ( client_sockfd == -1 ) {
-            perror( "accept" );
+        if (client_sockfd == -1) {
+            perror("accept");
             exit(EXIT_FAILURE);
         }
 
-        if ( read( client_sockfd, &ch, 1 ) == -1 ) {
-            perror( "read" );
+        if (read(client_sockfd, &ch, 1) == -1) {
+            perror("read");
             exit(EXIT_FAILURE);
         }
 
         ch++;
 
-        if ( write( client_sockfd, &ch, 1 ) == -1 ) {
-            perror( "write" );
+        if (write(client_sockfd, &ch, 1) == -1) {
+            perror("write");
             exit(EXIT_FAILURE);
         }
 
@@ -161,9 +161,8 @@ int main( int argc, char** argv )
             `write` is the same as a send without flags, so send has more options.
         */
 
-        //you should close the connection on both client and server
-
-            close( client_sockfd );
+        /* You should close the connection on both client and server. */
+        close(client_sockfd);
     }
 
     return EXIT_SUCCESS;

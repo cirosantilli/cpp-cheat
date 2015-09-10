@@ -3,16 +3,14 @@
 Sockets are similar to pipes but:
 
 - allow communication across different systems and are thus a base for networks local sockets also exist.
-
 - allow bidirectional communication
-
 - allow multiple clients to connect to a single server (the concepts of client and server are clearly defined)
 
 ## What POSIX sockets can do
 
 POSIX sockets allows to implement any Application layer program, and thus to implement things like web browsers, crawlers or `wget` like utilities.
 
-It seems however that POSIX does not support lower level layer control, for exapmle making an ICMP echo <http://www.microhowto.info/howto/send_an_arbitrary_ipv4_datagram_using_a_raw_socket_in_c.html>
+It seems however that POSIX does not support lower level layer control, for example making an ICMP echo <http://www.microhowto.info/howto/send_an_arbitrary_ipv4_datagram_using_a_raw_socket_in_c.html>
 
 For those functionalities it seems that Linux specific functionalities must be used for example raw sockets: <http://www.pdbuchan.com/rawsock/rawsock.html>
 

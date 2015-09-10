@@ -1,7 +1,5 @@
-/**
-@file
-
-Minimalistic error checked program that fetches a web page and prints it to stdout.
+/*
+Fetches a web page and print it to stdout.
 */
 
 #define _XOPEN_SOURCE 700
@@ -13,7 +11,7 @@ Minimalistic error checked program that fetches a web page and prints it to stdo
 #include "string.h"
 
 #include <arpa/inet.h>
-#include <netdb.h>          //getprotobyname
+#include <netdb.h> /* getprotobyname */
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include "unistd.h"
@@ -32,7 +30,7 @@ int main(int argc, char** argv) {
     struct hostent* hostent;
     int nbytes_total, nbytes_last;
 
-    // Build the socket.
+    /* Build the socket. */
     protoent = getprotobyname(protoname);
     if (protoent == NULL) {
         perror("getprotobyname");
@@ -45,7 +43,7 @@ int main(int argc, char** argv) {
         exit(EXIT_FAILURE);
     }
 
-    // Build the address.
+    /* Build the address. */
     hostent = gethostbyname(hostname);
     if (hostent == NULL) {
         fprintf(stderr, "error: gethostbyname(\"%s\")\n", hostname);

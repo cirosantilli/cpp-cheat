@@ -6,7 +6,7 @@
 #include "string.h"
 
 #include <arpa/inet.h>
-#include <netdb.h>          //getprotobyname
+#include <netdb.h>          /* getprotobyname */
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include "unistd.h"
@@ -14,12 +14,12 @@
 int main(int argc, char** argv) {
     unsigned short server_port = 12345;
     char ch;
-    size_t client_len;
+    socklen_t client_len;
     int server_sockfd, client_sockfd;
     struct sockaddr_in client_address, server_address;
 	struct protoent *protoent;
 	char protoname[] = "tcp";
-	//char protoname[] = "udp";
+    /*char protoname[] = "udp";*/
 
 	protoent = getprotobyname(protoname);
 	if (protoent == NULL) {
@@ -31,8 +31,8 @@ int main(int argc, char** argv) {
         AF_INET,
         SOCK_STREAM,
         protoent->p_proto
-        //0
-   );
+        /* 0 */
+    );
     if (server_sockfd == -1) {
         perror("socket");
         exit(EXIT_FAILURE);

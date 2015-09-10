@@ -17,6 +17,10 @@
     here we can give names to patterns to make things clearer
 */
 
+/*
+TODO: this is wrong. Add failing test, and use the right one.
+http://stackoverflow.com/questions/4755956/unix-flex-regex-for-multi-line-comments/15926440?noredirect=1#comment52516261_15926440
+*/
 mcom        \/\*([^*]|\*[^/])*\*+\/
 digit       [0-9]
 letter      [A-Za-z_]
@@ -34,7 +38,7 @@ identifier  {letter}({letter}|{digit})*
 
     /*
         #fileno warning
-        
+
         i have tried everything to get rid of the fileno warning, but nothing works!
 
         TODO
@@ -60,7 +64,7 @@ identifier  {letter}({letter}|{digit})*
 
     /*
         #rule
-        
+
         regex, very perl like, followed by action
 
         first match eats up. TODO confirm
@@ -72,11 +76,11 @@ identifier  {letter}({letter}|{digit})*
 
     /*
         #ECHO
-        
+
         predefined a macro. Well, it echoes as:
 
             #define ECHO fwrite(yytext, yyleng, 1, yyout)
-        
+
         default action for non-matching strings.
 
         #yytex
@@ -92,7 +96,7 @@ identifier  {letter}({letter}|{digit})*
         output file (FILE*)
 
         default: stdout.
-        
+
         can be set at beginning.
     */
 
@@ -137,7 +141,7 @@ identifier  {letter}({letter}|{digit})*
         fprintf(yyout, "MULT: %s\n", yytext );
         yyntokens++;
     }
-    
+
     /* c string! */
     /*\"(\\\"|\\\\|[^\n"\\])*\" {*/
 \"(\\.|[^\n"\\])*\" {
@@ -152,10 +156,10 @@ identifier  {letter}({letter}|{digit})*
     /*\" { fprintf(yyout, "%s\n", yytext ); yyntokens++; }
 
     /* literal backslash */
-    /*\\ { fprintf(yyout, "%s\n", yytext ); yyntokens++; }*/ 
+    /*\\ { fprintf(yyout, "%s\n", yytext ); yyntokens++; }*/
 
     /* anything except &, *even a newline!* */
-    /*[^&] { fprintf(yyout, "%s\n", yytext ); yyntokens++; }*/ 
+    /*[^&] { fprintf(yyout, "%s\n", yytext ); yyntokens++; }*/
 
     /* ignore space */
 {space} {}
@@ -169,7 +173,7 @@ identifier  {letter}({letter}|{digit})*
 
     /* match newline and echo */
 \n {
-        fputs("\n",yyout); 
+        fputs("\n",yyout);
         yylineno++;
     }
 
@@ -184,15 +188,15 @@ identifier  {letter}({letter}|{digit})*
 
 %%
 /*
-    #main section
+    # Main section
 
-    we are back to the normal c world here
+        We are back to the normal C world here.
 
-    this section is optional
+        This section is optional.
 */
 
 /*
-    this function
+    This function
 */
 int yywrap(void)
 {
@@ -202,25 +206,24 @@ int yywrap(void)
 int main(int argc, char *argv[])
 {
     /*
-        #yyin
-        
-        the input FILE*
-        
-        in here, if there is no argv[1], opens stdin,
-        if there is argv[1], opens the given file
+        # yyin
+
+            The input FILE.
+
+            In here, if there is no argv[1], opens stdin,
+            if there is argv[1], opens the given file
     */
     yyin = fopen(argv[1], "r");
 
     /*
-        #yylex
-        
-        yylex is the main function created by lex
-        
-        it reads input line by line, matches tokens,
+        # yylex
 
-        and takes the actions.
+            yylex is the main function created by lex
 
-        it exits when file is over.
+            It reads input line by line, matches tokens,
+            and takes the actions.
+
+            It exits when file is over.
     */
     yylex();
 

@@ -152,6 +152,7 @@ int main() {
 
             /* Hexadecimal bytes. */
             {
+                /* TODO: guaranteed? */
                 assert(!strcmp("\x61", "a"));
 
                 /*
