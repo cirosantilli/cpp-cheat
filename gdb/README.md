@@ -8,6 +8,7 @@ Tested on 7.7.1 unless mentioned otherwise.
 1.  [Introduction](introduction.md)
 1.  [Invocation](invocation.md)
 1.  [Commands](commands.md)
+    1. [layout](layout.md)
 1.  Examples
     1.  [run](run)
     1.  [nested.c](nested.c)

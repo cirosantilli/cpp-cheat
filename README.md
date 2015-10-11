@@ -17,7 +17,6 @@ Relies on [C++ boilerplate](https://github.com/cirosantilli/cpp-boilerplate) to 
     1. [OpenGL](opengl/)
     1. [KDE](kde/)
 1.  Introduction
-    1. [C++](cpp/)
     1. [C vs C++](c-vs-cpp.md)
     1. [Style guides](style-guides.md)
 1.  Cross-language
@@ -31,6 +30,8 @@ Relies on [C++ boilerplate](https://github.com/cirosantilli/cpp-boilerplate) to 
 1.  Analysis tools
     1.  [GDB](gdb/)
     1.  [cflow](cflow.md)
+1.  [Linting tools](linting-tools.md)
+    1. [Frama-C](frama-c/)
 1.  [Boost](boost/)
 1.  [CMake](cmake.md)
 1.  [Flex and Bison](flex-bison/)
@@ -47,9 +48,6 @@ Relies on [C++ boilerplate](https://github.com/cirosantilli/cpp-boilerplate) to 
     1. [LAPACK](lapack/)
     1. [OpenCV](opencv/)
     1. [PLplot](plplot/)
-1.  Tools
-    1.  [Linting tools](linting-tools.md)
-        [Frama-C](frama-c/)
 1.  [CONTRIBUTING](CONTRIBUTING.md)
 1.  [TODO](TODO.md)
 1.  [Bibliography](bibliography.md)

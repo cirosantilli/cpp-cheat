@@ -2,6 +2,15 @@
 
 Commands you can run from inside GDB
 
+## Empty line
+
+If you hit enter without typing anything, it redoes the last command.
+
+E.g.:
+
+    step
+    <enter>
+
 ## h
 
 Show command categories:
@@ -223,11 +232,25 @@ If each instruction corresponds to a single line:
 
 the address number is not shown.
 
+### ni
+
+### nexti
+
+### Step over
+
+Like `si` by for `next`.
+
+Don't enter `call`.
+
+Does enter `int` in 16-bit code. In that case, you can use instead:
+
 ### until
 
 Continue until given line or any following line of the same frame is reached, or if the frame returns.
 
 TODO example.
+
+TODO vs break + continue?
 
 ### advance
 
@@ -235,15 +258,9 @@ TODO vs until.
 
 ### skip
 
-Skip functions or entire files when stepping.
+Prevent `step` from entering given functions: it is as if `next` had been used instead:
 
-### ni
-
-### nexti
-
-Like `si` by for `next`.
-
-### Step over
+<http://stackoverflow.com/questions/1133365/preventing-gdb-from-stepping-into-a-function-or-file>
 
 ## Breakpoints
 
@@ -944,31 +961,6 @@ Make the prompt bold and red:
 
     set prompt \033[1;31m(gdb) \033[m
 
-### layout
-
-### tui modes
-
-Enter very useful curses split windows views:
-
-    layout src
-    layout asm
-    layout register
-
-`layout src` can be set at invocation time with the `-tui` option.
-
-Leave `layout` modes:
-
-- <http://stackoverflow.com/questions/8409540/how-to-close-layout-src-windows-in-gdb>
-- <http://stackoverflow.com/questions/8953720/multiple-problems-with-gdbs-tui-mode>
-
-`Ctrl-x` keyboard shortcuts can be used to enter and leave those modes, but they do not work with `vi` `.inputrc` settings.
-
-Once you enter one of the `tui` modes, a few specific commands are possible: <https://sourceware.org/gdb/onlinedocs/gdb/TUI-Commands.html>
-
-ANSI colors don't work on TUI mode: <https://github.com/longld/peda/issues/23>
-
-Stdout breaks TUI mode. TODO find an issue.
-
 #### focus
 
 Change focus to another split:
@@ -1003,6 +995,8 @@ Alias for a command:
 Unlike bash aliases, cannot include the arguments, only subcommands. E.g., the following fails:
 
     alias ir info registers eax
+
+use `define` instead for that.
 
 ## define
 

@@ -101,7 +101,11 @@ Example:
 
 #### Wl
 
-Pass options to the linker.
+Pass options to the linker. Multiple options can be separated by commas.
+
+##### Xlinker
+
+Pass options to the linker. Multiple options require multiple `-Xlinker` arguments.
 
 ## std
 

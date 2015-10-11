@@ -2,7 +2,7 @@
 # limits.h
 
     Gives the maximum and minimum values that fit into base integer types
-    in the current architecure
+    in the current architecture.
 */
 
 #include "common.h"
@@ -48,7 +48,7 @@ int main() {
     printf("LLONG_MIN = %lld\n", LLONG_MIN);
 
     /*
-    Unsigned versions are prefiexed by `U`.
+    Unsigned versions are prefixed by `U`.
 
     There is no MIN macro for unsigned versions since it is necessarily `0`.
     */

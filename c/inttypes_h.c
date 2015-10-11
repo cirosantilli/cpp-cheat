@@ -1,5 +1,4 @@
-/*
-# PRIxPTR
+/*# PRIxPTR
 */
 
 #include "common.h"
@@ -44,7 +43,7 @@ int main() {
 
     */
     {
-        /* 2 for "0x" and one for trailling '\0'. */
+        /* 2 for "0x" and one for trailing '\0'. */
         char s[PRIxPTR_WIDTH + 3];
         printf("PRIxPTR = %s\n", PRIxPTR);
         printf("PRIxPTR usage = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)(void*)1);

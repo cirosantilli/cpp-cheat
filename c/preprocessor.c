@@ -45,7 +45,12 @@ int main() {
     /*
     # Newline in macro
 
-        Impossible.
+    # Multiline macro
+
+        Impossible:
+
+        - http://stackoverflow.com/questions/10419530/multi-line-preprocessor-macros
+        - http://stackoverflow.com/questions/98944/how-to-generate-a-newline-in-a-cpp-macro
     */
 
     /*
@@ -70,7 +75,7 @@ int main() {
         /*
         # Constants
 
-            Use sparringly.
+            Use sparingly.
 
             - constants have scope
             - produce meaningful error messages
@@ -175,13 +180,47 @@ int main() {
                 /*assert(SUM(i++, i, 1) == 3);*/
 
 #define CAT(x, y) x y
-                /* Strings are treated as a sigle token, so commas inside strings are fine. */
+                /* Strings are treated as a single token, so commas inside strings are fine. */
                 assert(strcmp(CAT("1,", "2"), "1,2") == 0);
-                /*                     ^ ^ */
-                /*                     1 2 */
             }
 
-            assert(SUM(int_int_int_func(1, 1), 1) == 3);
+            /*
+            # Argument inside string
+
+            # #
+            */
+            {
+                /* Strings are treated as single tokens, so arguments don't expand by default. */
+#define ARG_IN_STRING_BAD(x) "x"
+                assert(strcmp(ARG_IN_STRING_BAD("a"), "x") == 0);
+
+                /*
+                Solution: use # stringification.
+
+                It simply adds "" around the argument and expands it.
+                */
+#define STRINGIFY(x) #x
+                assert(strcmp(STRINGIFY(a), "a") == 0);
+                assert(strcmp(STRINGIFY(""), "\"\"") == 0);
+                /* ERROR: parsing fails because of unbalanced `"`. */
+                /*assert(strcmp(STRINGIFY("), "\"") == 0);*/
+
+#define STRINGIFY_CAT(x) "a" STRINGIFY(x) "c"
+                assert(strcmp(STRINGIFY_CAT(b), "abc") == 0);
+
+                /*
+                This fails however for macro arguments, which don't expand when `# arg` is used!
+
+                Solution Use a two step expansion process...
+
+                - http://stackoverflow.com/questions/8283596/whats-the-difference-between-these-two-macros?lq=1
+                - http://stackoverflow.com/questions/6742501/whats-the-exact-step-of-macro-expanding
+
+                TODO what is the rationale for that exception of not expanding upon `#`?
+                */
+#define STRINGIFY_ARG a
+                assert(strcmp(STRINGIFY(STRINGIFY_ARG), "STRINGIFY_ARG") == 0);
+            }
 
             /* # variadic macro functions */
             {
@@ -361,7 +400,6 @@ int main() {
 #endif
         }
 
-
     /*
     Cannot compare strings directly!
     http://stackoverflow.com/questions/2335888/how-to-compare-string-in-c-conditional-preprocessor-directives
@@ -429,8 +467,6 @@ int main() {
     */
 
     /*
-    # #line
-
     # #line
 
         Set the line and optionally filename that is seen by `__FILE__` and `__LINE__`.

@@ -43,11 +43,11 @@ int main(int argc, char** argv) {
     }
 
     /*
-    #inet_addr
+    # inet_addr
 
         converts the text representation to a representation that can be used on the network
 
-    #s_addr
+    # s_addr
 
         server address
     */
@@ -61,7 +61,7 @@ int main(int argc, char** argv) {
     address.sin_family = AF_INET;
 
     /*
-    #htons
+    # htons
 
         Host TO Network Short
 
@@ -76,7 +76,7 @@ int main(int argc, char** argv) {
         - ntohs (inverse)
         - ntohl
 
-    #sin_port
+    # sin_port
 
         port at which to contact server
     */

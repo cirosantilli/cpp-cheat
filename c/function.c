@@ -18,15 +18,14 @@ int array_arg(int i[]) {
     return i[0] + i[1];
 }
 
-int array_size_arg(int i[2]) {
+int array_size_arg(int i[3]) {
+    assert(sizeof(i) == sizeof(int *));
     return i[0] + i[1];
 }
-
 
 int pointer_arg(int *i) {
     return i[0] + i[1];
 }
-
 
 void func_string_abc(char s[]) {
     assert(strcmp(s, "abc") == 0);
@@ -194,10 +193,14 @@ int main() {
             This is analogous to array to pointer decay in expressions.
 
             Therefore, always use pointers which is the more direct approach.
+            Linux crucifying people because of that: https://lkml.org/lkml/2015/9/3/428
+
+            The following are all the same.
         */
         {
             int i[] = {1, 2};
             assert(array_arg(i)      == 3);
+            /* Sizes are simply ignored. */
             assert(array_size_arg(i) == 3);
             assert(pointer_arg(i)    == 3);
         }

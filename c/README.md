@@ -98,6 +98,7 @@
     1.  [iso646.h](iso646_h.c)
     1.  [setjmp.h](setjmp_h.c)
 1.  Applications
+    1. [String to int](string-to-int.c)
     1. [User input](interactive/user_input.c.off)
     1. [Design patterns](design_patterns.c)
     1. [Virtual memory](virtual_memory.c)

@@ -64,6 +64,10 @@ Educational only.
 
 Not even free to use...
 
+### bcc
+
+16-bit output: <https://stackoverflow.com/questions/227762/looking-for-16-bit-x86-compiler>
+
 ### Parsers
 
 Language parsers without built-in assembly output:

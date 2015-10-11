@@ -149,10 +149,6 @@ I am unable to to build and install it!
 
 <https://golang.org/doc/install/gccgo>
 
-### Cross compiler
-
-
-
 ## Build
 
 Making a separate build directory is mandatory.
