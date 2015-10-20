@@ -1,7 +1,7 @@
 """
 Disassemble some instructions.
 
-https://sourceware.org/gdb/onlinedocs/gdb/Architectures-In-Python.html#Architectures-In-Python
+https://sourceware.org/gdb/onlinedocs/gdb/Architectures-In-Python.html
 """
 
 gdb.execute('file big_function.out', to_string=True)
@@ -13,5 +13,4 @@ print(arch.name())
 
 pc = gdb.selected_frame().pc()
 
-# 1 instruction.
-print(arch.disassemble(pc)[0]['asm'])
+print(arch.disassemble(pc)[0])

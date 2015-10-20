@@ -242,7 +242,7 @@ Like `si` by for `next`.
 
 Don't enter `call`.
 
-Does enter `int` in 16-bit code. In that case, you can use instead:
+Does enter `int` in 16-bit code. In that case, you can use instead: TODO <http://stackoverflow.com/questions/24491516/how-to-step-over-interrupt-calls-when-debugging-a-bootloader-bios-with-gdb-and-q> If only we could get the size of the current instruction automatically.
 
 ### until
 
@@ -794,6 +794,21 @@ Like the C function.
 Useful for batch mode scripts that automatically check executables.
 
     printf "rax = %d\n", $rax
+
+### echo
+
+Like `printf`, but:
+
+- does not take `"`
+- does not take format strings
+
+Backslash escapes are considered.
+
+E.g.:
+
+    echo asdf\n
+
+Just use the saner `printf` instead.
 
 ### disas
 

@@ -18,11 +18,11 @@
     General syntax:
 
         asm (
-            "mov $1, %%eax;"   //commands string
-            : "=X" (y),   //outputs
+            "mov $1, %%eax;"   // commands string
+            : "=X" (y),   // outputs
                 "=X" (z)
-            : "X" (x)    //inputs
-            : "%eax"     //clobbered registers
+            : "X" (x)    // inputs
+            : "%eax"     // clobbered registers
         );
 
     where:
@@ -86,9 +86,9 @@ int main() {
     /*
     # m constraint
 
-        Instructs gcc to store keep value of given expressions into RAM.
+        Instructs GCC to keep value of given expressions into RAM.
 
-        This is the most basic way to get/set values of c variables in assembly code.
+        This is the most basic way to get/set values of C variables in assembly code.
     */
     {
         int in = 1;
@@ -99,7 +99,7 @@ int main() {
             "movl %%eax, %0"
             : "=m" (out)
             : "m" (in)
-            : "%eax"      /* eax will be modified, so we have to list it in the clobber list */
+            : "%eax"
         );
         assert(out == 1);
     }
@@ -130,7 +130,7 @@ int main() {
         assert(out == -1.0);
     }
 
-    /* Input and ouput can be the same memory location. */
+    /* Input and output can be the same memory location. */
     {
         float x = 1.0;
         /*x = -x*/
@@ -145,11 +145,13 @@ int main() {
     }
 
     /*
-    # register constraints
+    # Register constraints
 
-        tell gcc to automatically read memory into registers or write registers into memory
+        https://gcc.gnu.org/onlinedocs/gcc/Simple-Constraints.html
 
-        this is more precise and complicated than using `m`
+        Tell GCC to automatically read memory into registers or write registers into memory
+
+        This is more precise and complicated than using `m`:
 
         - r: gcc chooses any free register
         - a: %eax
@@ -170,7 +172,7 @@ int main() {
         note how we can do an `inc` operation directly on `%1` and `%0`
         so they must both already be inside a registers as expected
 
-        gcc just makes sure they are writen from/to memory before/after the operations
+        GCC just makes sure they are written from/to memory before/after the operations.
     */
     {
         int in = 0;

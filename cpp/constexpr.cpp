@@ -122,6 +122,11 @@ int main() {
         //i = 1;
     }
 
+    {
+        constexpr int i = 0;
+        &i;
+    }
+
     // WARN: unitialized constexpr
     {
         //constexpr int i;
