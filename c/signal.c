@@ -45,7 +45,8 @@ or specific operating systems
 
         Integer division by 1 / 0 may generate a `SIGFPE`.
 
-        TODO is 1 / 0 guaranteed to generate a `SIGFPE`?
+        1 / 0 is undefined behaviour. On x86, it generates a Divide Error,
+        which Linux delivers as a SIGFPE.
 
         TODO how to deal with it? it just keeps coming back time after time.
 

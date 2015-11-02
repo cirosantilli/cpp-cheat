@@ -33,6 +33,8 @@ Examples that explain both:
 
 Each implementation must document what it does but setting a fixed parameter.
 
+GCC has a list of its choices at: <https://gcc.gnu.org/onlinedocs/gcc/C-Implementation.html>
+
 E.g.: `sizeof(int)`
 
 The standard may put constraints on what is conforming.

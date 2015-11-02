@@ -7,10 +7,10 @@
 
     https://gcc.gnu.org/onlinedocs/gcc-5.1.0/gcc/_005f_005fint128.html
 
-    Where it is supported:
-
     - http://stackoverflow.com/questions/3329541/does-gcc-support-128-bit-int-on-amd64
     - http://stackoverflow.com/questions/21886985/what-gcc-versions-support-the-int128-intrinsic-type
+
+    No hardware support it seems.
 */
 
 #include "common.h"

@@ -1,0 +1,9 @@
+.POSIX:
+
+.PHONY: all clean
+
+all:
+	gcc -std=c89 -o main.out main.c -lOpenCL
+
+clean:
+	rm hello

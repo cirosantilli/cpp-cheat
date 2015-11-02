@@ -1,4 +1,5 @@
-/*# PRIxPTR
+/*
+# PRIxPTR
 */
 
 #include "common.h"
@@ -53,7 +54,25 @@ int main() {
     # Fixed size integer printf format
 
     # PRId16
+
+    # PRId32
+
+    # PRId64
+
+        Why not modify printf instead of adding those new macros?
+        http://stackoverflow.com/questions/1183679/why-werent-new-bit-width-specific-printf-format-option-strings-adoped-as-pa
+
+    # PRIu32
+
+        Unsigned versions.
     */
+    {
         printf("PRId16 = %s\n", PRId16);
+        printf("PRId32 = %s\n", PRId32);
+        printf("PRId64 = %s\n", PRId64);
+
+        /* Samplel usage:*/
+        printf("%" PRIx32 "\n", (uint32_t)0xFFFFFFFF);
+    }
 #endif
 }

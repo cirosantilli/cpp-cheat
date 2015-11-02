@@ -42,6 +42,7 @@
                 1. [_Static_assert](static_assert.c)
         1.  [Pointer](pointer.c)
             1. [void pointer](void_pointer.c)
+            1. [Pointer to int typecast](pointer_to_int.c)
             1. [NULL](null.c)
     1.  Branching
         1. [if](if.c)

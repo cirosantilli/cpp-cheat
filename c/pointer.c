@@ -1,5 +1,5 @@
 /*
-# pointer
+# Pointer
 
     Pointers contain addresses of variables instead of the value.
 
@@ -38,7 +38,7 @@ int main() {
     float *fp = (float *)&i;
 
     /*
-    # single line multiple pointer declaration
+    # Single line multiple pointer declaration
 
         You must put an asterisk for each pointer, or they are not taken to be pointers!
 

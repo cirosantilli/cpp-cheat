@@ -1,5 +1,7 @@
 /*
 To break interactively in the infinite loop, enter Ctrl + C.
+
+- http://stackoverflow.com/questions/8702658/gdb-how-do-i-pause-during-loop-execution
 */
 
 #include <stdio.h>

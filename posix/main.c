@@ -311,23 +311,6 @@ int main() {
     }
 
     /*
-    # sleep
-
-        Non busy sleep, that is, stop program execution for a given time,
-        and let other programs run in the meantime.
-
-        There is ANSI way of doing this.
-    */
-    if (0) {
-        printf("sleep:\n");
-        for(int i=0; i<3; i++) {
-            printf("%d\n", i);
-            sleep(1);
-        }
-        printf("\n");
-    }
-
-    /*
     # times
 
         Get real time, user time and system time.

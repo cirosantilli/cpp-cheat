@@ -95,8 +95,8 @@ int main() {
             C first casts the integer type to a floating point type, then does
             the floating point operation.
 
-            Division by `0` leads to different problems, which are also different
-            on the floating point and integer cases.
+            Division by `0` is undefined behaviour. On Linux it raises SIGFPE. 
+            But note that handling the SIGFPE returns to just before the division. TODO check + example.
 
         # INT_MIN / -1
 

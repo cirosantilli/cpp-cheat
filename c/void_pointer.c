@@ -51,27 +51,22 @@ int main() {
     This means that `sizeof(void)` is not possible, nor are pointer arithmetic operations.
     */
     {
-        /* it is however possible to get the size of a `void*` */
+        /* It is however possible to get the size of a `void*`. */
+        printf("sizeof (void*) = %zu\n", sizeof(void*));
 
-            printf("sizeof (void*) = %zu\n", sizeof(void*));
-
-        /* ERROR: invalid application of sizeof to void type */
-
-            /*vp = vp + 1;*/
+        /* ERROR: invalid application of sizeof to void type. */
+        /*vp = vp + 1;*/
     }
 
     /* int* to void*: */
-
-        vp = (void*)&i;
+    vp = (void*)&i;
 
     /* void* to int*: */
+    ip = (int*)vp;
 
-        ip = (int*)vp;
-
-    /* void* to int. GCC 4.8: cast from pointer to int of different size: */
-    /* `-Wpointer-to-int-cast */
-
-        /*i = (int)vp;*/
+    /* void* to int. */
+    /* WARN GCC 4.8: cast from pointer to int of different size: -Wpointer-to-int-cast */
+    /*i = (int)vp;*/
 
     /*
     Typecast to the bad type.

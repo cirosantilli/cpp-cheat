@@ -74,7 +74,7 @@ clean:
 	if [ ! '$(OUT_DIR)' = './'  ]; then \
 		rm -rf '$(OUT_DIR)' ;\
 	else \
-		rm -f *'$(OBJECT_EXT)' *'$(OUT_EXT)' *'$(TMP_EXT)' ;\
+		rm -f *'$(OBJ_EXT)' *'$(OUT_EXT)' *'$(TMP_EXT)' ;\
 	fi
 
 debug: clean set_debug_flags all

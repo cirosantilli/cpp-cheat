@@ -95,6 +95,8 @@ Returns a pointer to the start of that array.
 In case of any error, returns NULL.
 
 The entire file must fit into the memory avilable to the program.
+
+http://stackoverflow.com/questions/174531/easiest-way-to-get-files-contents-in-c
 */
 char *file_read(char *path) {
     FILE *fp;
@@ -596,7 +598,7 @@ int main() {
 
             - return `NULL` and set `errno`.
 
-        # Text IO vs # Binary IO
+        # Text IO vs Binary IO
 
             # Text vs binary for numerical types
 
@@ -845,7 +847,7 @@ int main() {
         */
     }
 
-    /* # applications */
+    /* # Applications */
     {
         {
             char path[] = TMPFILE("str_file");
@@ -879,13 +881,15 @@ int main() {
         }
 
         /*
-        Process a file #linewise.
+        # Linewise file processing
 
-        Allows one to read files larger than RAM, suppposing that each line is smaller than RAM.
+            Process a file linewise.
 
-        glibc and C++ stdlib offer the `getline` function which does it.
+            Allows one to read files larger than RAM, suppposing that each line is smaller than RAM.
 
-        There does not seem to be such a function in C! <http://stackoverflow.com/questions/3501338/c-read-file-line-by-line>
+            glibc and C++ stdlib offer the `getline` function which does it.
+
+            There does not seem to be such a function in C! http://stackoverflow.com/questions/3501338/c-read-file-line-by-line
         */
         {
             FILE* fp;
