@@ -1,3 +1,7 @@
+/*
+TODO split this up into many smaller files.
+*/
+
 #include <cstdio>
 #include <iostream>
 #include <stdlib.h>
@@ -10,11 +14,11 @@
 // Required to open extension prototypes on the glext.h.
 #define GL_GLEXT_PROTOTYPES 1
 
-#include <GL/glut.h>  // Also includes gl.h and glu.h.
+// Also includes gl.h and glu.h.
+#include <GL/glut.h>
 #include <GL/glext.h>
 
 #include "vec3.h"
-#include "glInfo.h"
 
 using namespace std;
 
@@ -1076,21 +1080,17 @@ int main(int argc, char** argv) {
             //glutMotionFunc(mouseMotion); //mouse motion
             atexit(exitCB);
 
-    //Get and print OpenGL info. This class was define by us, not OpenGL standard.
-    glInfo glInfo;
-    glInfo.getInfo();
-    //glInfo.printSelf();
-
     //#MainLoop
 
         // Start the main loop which calls all the callbacks at the right time.
 
-        // TODO how to leave the main loop from a program? <http://www.opengl.org/discussion_boards/showthread.php/142428-How-to-exit-MainLoop-WITHOUT-killing-the-app>
+        // TODO how to leave the main loop from a program?
+        // http://www.opengl.org/discussion_boards/showthread.php/142428-How-to-exit-MainLoop-WITHOUT-killing-the-app
         // The most common way is a simple exit.
 
             glutMainLoop();
 
     // This point is only reached when the program window is closed by the user.
 
-    return 0;
+    return EXIT_SUCCESS;
 }

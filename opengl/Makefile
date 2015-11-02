@@ -1,1 +1,1 @@
-../Makefile_one
+../Makefile_many
