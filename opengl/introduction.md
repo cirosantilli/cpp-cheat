@@ -10,7 +10,7 @@ OpenGL is only the interface, but there can be several implementations, open and
 
 <https://en.wikipedia.org/wiki/Mesa_%28computer_graphics%29>
 
-Most common Linux OpenGL implementation. Open source.
+Most common Linux OpenGL implementation. Open source. Not certified by Khronos.
 
 Used by the X server.
 
@@ -39,6 +39,10 @@ Often used together with the mesa implementation of GL.
 Installation Ubuntu on 12.04:
 
     sudo aptitude install freeglut3-dev
+
+## GLEW
+
+<https://en.wikipedia.org/wiki/OpenGL_Extension_Wrangler_Library>
 
 ## glxinfo
 

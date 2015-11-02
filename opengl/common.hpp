@@ -1,3 +1,7 @@
+/*
+We should also look into: https://github.com/g-truc/glm
+*/
+
 #ifndef COMMON
 #define COMMON
 
