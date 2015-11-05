@@ -125,7 +125,6 @@ int main() {
 
             // Increase size
             {
-
                 // Using default constructor objects.
                 {
                     std::vector<int> v{1};

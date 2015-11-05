@@ -3,7 +3,7 @@
 
 # &
 
-    Basically aliases, similar to `int* const` poinsters or java objects.
+    Basically aliases, similar to `int* const` pointers or Java objects.
 
     Useful only for function arguments or / return values. In that case the pros are:
 
@@ -15,13 +15,20 @@
     The cons are:
 
     - callers don't know without looking at the signature if they are passing references or copies,
-        and wether they should expect that it is possible that the functio modifies their object.
+        and whether they should expect that it is possible that the function modifies their object.
 
-    Just like for pointers, you have to watch scope. If the original object dies,
-    you get a dangling reference
-
-    - http://stackoverflow.com/questions/752658/is-the-practice-of-returning-a-c-reference-variable-evil
     - http://stackoverflow.com/questions/7058339/c-when-to-use-references-vs-pointers
+
+    # Return reference from function
+
+        Just like for pointers, you have to watch scope. If the original object dies,
+        you get a dangling reference
+
+        - http://stackoverflow.com/questions/752658/is-the-practice-of-returning-a-c-reference-variable-evil
+
+        There is also some rule about const local references:
+
+        - http://stackoverflow.com/questions/2784262/does-a-const-reference-prolong-the-life-of-a-temporary
 */
 
 #include "common.hpp"

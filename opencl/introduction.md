@@ -26,8 +26,20 @@ Looks like the major open source implementation.
 
 ### pocl
 
+Portable OpenCL implementation.
+
 <https://github.com/pocl/pocl>
 
 <http://portablecl.org/>
 
 MIT and LLVM based.
+
+## Tools
+
+- <http://repo.or.cz/w/ppcg.git> C99 to OpenCL.
+
+## Alternatives
+
+- OpenMP: <http://stackoverflow.com/questions/7263193/opencl-performance-vs-openmp>
+- <https://en.wikipedia.org/wiki/Unified_Parallel_C>
+- <https://en.wikipedia.org/wiki/Cilk>
