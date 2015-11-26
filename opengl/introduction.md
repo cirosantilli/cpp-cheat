@@ -51,3 +51,7 @@ Good way to get information on OpenGL in Linux:
     glxinfo | grep -i opengl
 
 Made for the X Window System, but also shows OpenGL information.
+
+## Users
+
+- <https://en.wikipedia.org/wiki/OGRE> OpenGL rendering front-end that supports multiple backends, including Direct3D as well. Not a full game engine.

@@ -6,3 +6,7 @@
 
     - <https://www.opengl.org/registry/doc/glspec21.20061201.pdf> 2.1 spec
     - <https://www.opengl.org/sdk/docs/man2/> 2.1 online reference
+
+-   Demos:
+
+    - <https://github.com/prideout/recipes>

@@ -40,6 +40,13 @@ MIT and LLVM based.
 
 ## Alternatives
 
-- OpenMP: <http://stackoverflow.com/questions/7263193/opencl-performance-vs-openmp>
+- <https://en.wikipedia.org/wiki/CUDA> NVIDIA's
+- OpenMP <http://stackoverflow.com/questions/7263193/opencl-performance-vs-openmp>
+- <https://en.wikipedia.org/wiki/Cilk> Intel's
+- <https://en.wikipedia.org/wiki/DirectCompute> Microsoft's
 - <https://en.wikipedia.org/wiki/Unified_Parallel_C>
-- <https://en.wikipedia.org/wiki/Cilk>
+
+## OpenCL + OpenGL for real time rendering of complex calculations
+
+- <http://stackoverflow.com/questions/4005935/mix-opencl-with-opengl>
+- <http://enja.org/2010/08/27/adventures-in-opencl-part-2-particles-with-opengl/>
