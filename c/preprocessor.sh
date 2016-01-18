@@ -23,6 +23,9 @@ function cpp_opts { cpp -P -pedantic-errors -std=c11 -Wall; }
   # Remove lines added by default:
   # http://stackoverflow.com/questions/2946898/how-to-remove-lines-added-by-default-by-the-c-preprocessor-to-the-top-of-the-out?lq=1
 
+  # What the default lines mean:
+  # http://stackoverflow.com/questions/5370539/what-is-the-meaning-of-lines-starting-with-a-hash-sign-and-number-like-1-a-c
+
 ## # Operator
 
 ## Stringify

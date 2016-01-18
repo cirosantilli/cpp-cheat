@@ -14,6 +14,18 @@
 #include "common.h"
 
 int main() {
+    /* Can only be applied to object types, not function or incomplete. */
+    {
+        sizeof(int);
+
+        /* Function type void f(); GCC*/
+        /* ERROR. GCC allows it with certain flags. */
+        /*sizeof(void());*/
+
+        struct Incomplete;
+        /*sizeof(struct Incomplete);*/
+    }
+
     /*
     # size_t
 
