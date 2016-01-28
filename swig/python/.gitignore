@@ -1,5 +1,0 @@
-*.pyc
-*.so
-build
-example.py
-example_wrap.c

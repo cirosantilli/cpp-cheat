@@ -1,0 +1,8 @@
+*.class
+*.pyc
+*.so
+build/
+example.py
+example.java
+exampleJNI.java
+example_wrap_*.c
