@@ -10,6 +10,7 @@
     1.  [mmap](mmap.c)
     1.  [shm_open](shm_open.c)
     1.  [mmap private](mmap_private.c)
+1.  [syslog](syslog.c)
 1.  [dlopen](dlopen.c)
 1.  [pthread](pthread.c)
     1. [pthread_mutex](pthread_mutex.c)

@@ -37,6 +37,7 @@
             1. [Pure virtual](pure_virtual.cpp)
             1. [Pure virtual from constructor](pure_virtual_from_constructor.cpp)
             1. [Covariant return](covariant_return.cpp)
+            1. Virtual base class: TODO <http://stackoverflow.com/questions/21558/in-c-what-is-a-virtual-base-class>
         1.  [Inheriting constructor](inheriting_constructor.cpp)
         1.  [Inherit overload_hide](inherit_overload_hide.cpp)
     1.  [namespace](namespace.cpp)
@@ -46,6 +47,8 @@
     1.  [typecast](typecast.cpp)
     1.  [new](new.cpp)
     1.  [Preprocessor](preprocessor.cpp)
+    1.  using
+        using type alias. TODO http://en.cppreference.com/w/cpp/language/type_alias
 1.  [Standard library](standard_library.md)
     1.  [Headers](common.hpp)
     1.  [Containers](containers.md)

@@ -92,6 +92,10 @@ The program will run until it reaches:
 
     which says that it happened at line 33 of file `quick.cpp`.
 
+Ignore program stdout and stderr: <http://stackoverflow.com/questions/2388561/block-output-of-debugged-program-gdb>:
+
+    run >/dev/null
+
 ### start
 
 Like run, but also add a temporary (deleted once hit) breakpoint at `main` and stop there.

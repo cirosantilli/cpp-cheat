@@ -12,7 +12,14 @@ int main() {
     int i = 0;
     while (1) {
         i++;
-        if (i % PERIOD == 0)
+        if (i % PERIOD == 0) {
             printf("%d\n", i / PERIOD);
+            /*
+            So that we can redirect to a file and observie it with `fail -f file`,
+            and then attach GDB while it runs, without cluttering the GDB interface.
+            http://superuser.com/questions/361474/how-to-redirect-output-from-an-infinite-loop-program
+            */
+            fflush(NULL);
+        }
     }
 }

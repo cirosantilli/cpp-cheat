@@ -27,3 +27,9 @@ Google unit test framework: <http://code.google.com/p/googletest/>
 ### tokamak
 
 Rigid body physical engine.
+
+## IO
+
+Mouse, keyboard:
+
+- <http://stackoverflow.com/questions/2617359/cross-platform-keyboard-mouse-input-recommendation>

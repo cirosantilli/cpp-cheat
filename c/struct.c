@@ -44,6 +44,25 @@ int main() {
         assert(s.f == 2.0);
     }
 
+    /*
+    Initialization with less members than the total.
+    http://stackoverflow.com/questions/11152160/initializing-a-struct-to-0
+
+    Fine: missing fields get the same value as they would have
+    if they were static storage duration objects, thus 0 for int.
+    */
+    {
+        struct S {int i; int j;};
+        struct S s0 = {1};
+        assert(s0.i == 1);
+        assert(s0.j == 0);
+
+        /* empty braces for initialization: GNU extension. */
+        {
+            /*struct S s0 = {};*/
+        }
+    }
+
     /* Define and initialize at the same time. */
     {
         struct S {int i; int j;} s0 = {0, 1}, s1 = {2, 3};
@@ -438,52 +457,6 @@ int main() {
                 */
             }
         }
-    }
-
-    /*
-    # bitfields
-
-        Gives support for fields which contain a single bit in the language.
-    */
-    {
-        struct S {
-            unsigned b1 : 1;
-            unsigned b2 : 2;
-            unsigned b3 : 3;
-
-            /* padding untill next int is added automatically because */
-            /* next data is not a bitfield and accesses is faster if it is aligned */
-
-                int i;
-
-            unsigned b4 : 1;
-
-            /* manually adds padding untill next field */
-            /* even if it is a bitfield */
-
-                unsigned : 0;
-
-            unsigned b5 : 1;
-        } s ;
-
-        assert(sizeof(struct S) == 16);
-
-        s.b1 = 1;
-        assert(s.b1 == 1);
-
-        /* WARN */
-        /* overflow */
-        /* truncate */
-        /*s.b1 = 2;*/
-
-        int i = 2;
-        s.b1 = i;
-        assert(s.b1 == 0);
-
-        /* Only takes lsb. */
-        i = 3;
-        s.b1 = i;
-        assert(s.b1 == 1);
     }
 
     return EXIT_SUCCESS;

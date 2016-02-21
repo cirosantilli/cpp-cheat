@@ -42,17 +42,35 @@ Hardcore things can be done with it: <https://github.com/gdbinit/Gdbinit>
 
 ## Basic usage
 
-Run executable and debug it with GDB:
+Start GDB with a given executable:
 
     gdb a.out
 
-Attach to a running instance of `a.out` after it was started:
+Same as using the `file` command from inside GDB.
 
-    gdb -p "$pid"
+You then have to start running the program with a command like `run` or `start`.
 
-the process stops at the instruction it was executing at the time.
+## Attach
 
-This can also be achieved with the `attach` command.
+Attach a running process with given process ID:
+
+    a.out &
+    gdb a.out $!
+
+This pauses the process by default. The solution seems to be `-ex cont` <http://stackoverflow.com/questions/9746018/gdb-attach-to-a-process-without-stop>:
+
+## p
+
+Allows to attach to a PID without the executable:
+
+    a.out &
+    gdb -p $!
+
+Can also be achieved with the `attach` command.
+
+Attach with PID but without executable: <http://stackoverflow.com/questions/9974254/gdb-attaching-to-a-process-where-executable-is-deleted>
+
+TODO: do we lose anything by not passing the executable along? Maybe not because of the `/proc/<pid>/exe` symlink which allows a process to find the path to it's executable.
 
 ## batch
 

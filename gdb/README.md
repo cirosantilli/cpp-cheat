@@ -16,10 +16,13 @@ Tested on 7.7.1 unless mentioned otherwise.
     1.  [big_function.c](big_function.c)
     1.  [String](string.c)
     1.  [Array](array.c)
-    1.  [C++ function overload](overload.cpp)
     1.  [Segmentation Fault](segv.c)
     1.  [Multifile](multifile/)
     1.  [define](define.c)
+    1.  [stderr ignore](stderr_ignore.c)
+    1.  C++ features
+        1.  [Overload](overload.cpp)
+        1.  [Method](method.cpp)
 1.  GDB scripts
     1.  [step_all](step_all.gdb)
     1.  [si_all](si_all.gdb)

@@ -38,6 +38,7 @@
                 1.  [struct](struct.c)
                     1.  [struct operators](struct_operators.c)
                     1.  [struct designated initializer](struct_designated_initializer.c)
+                    1.  [Bitfield](bitfield.c)
                 1.  [union](union.c)
         1.  [Literals](literals.c)
             1.  [Compound struct literal](compound_struct_literal.c)

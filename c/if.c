@@ -24,6 +24,9 @@ int main() {
         assert(0);
     }
 
+    if (1.1) {
+    }
+
     /* Can ommit braces for single statements. */
     {
         {

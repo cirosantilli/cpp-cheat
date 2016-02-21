@@ -132,7 +132,7 @@ int main() {
     */
 
     /*
-    Get array length, find array length: <http://stackoverflow.com/questions/4108313/how-do-i-find-the-length-of-an-array>
+    Get array length, find array length: http://stackoverflow.com/questions/4108313/how-do-i-find-the-length-of-an-array
 
     Besides the C sizeof method which does not work for pointers and has lots of duplication, C++ offers:
     */
