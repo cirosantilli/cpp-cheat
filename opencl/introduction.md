@@ -1,8 +1,10 @@
 # Introduction
 
-<https://en.wikipedia.org/wiki/OpenCL#Timeline_of_vendor_implementations>
+<https://en.wikipedia.org/wiki/OpenCL>
 
 OpenCL is an open standard language which models CPU GPU computing.
+
+Initially created by Apple, then transferred to Khronos (thus bound to failure LOL).
 
 It is similar to C, containing some extra keywords to model the CPU GPU world, and leaving out a few C features which GPUs cannot yet do very well.
 

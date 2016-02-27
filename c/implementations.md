@@ -99,7 +99,6 @@ The Linux 2014 release uses clang as front-end.
 Then there are several implementations that target Linux-only embedded systems, and can therefore be smaller or more efficient:
 
 - musl libc. Comparison: <http://www.etalabs.net/compare_libcs.html>. Alpine Linux moved to it, as it is partially binary compatible with glibc.
-- Bionic (Android): <https://en.wikipedia.org/wiki/Bionic_%28software%29>
 - dietlibc <http://www.fefe.de/dietlibc/>
 - newlibc <https://en.wikipedia.org/wiki/Newlib>. GNU.
 
@@ -114,3 +113,11 @@ Attempts to be very small for embedded systems.
 One of the ways in which it is smaller is that it is Linux-only.
 
 Was used in Alpine, but replaced with musl, which is partially binary compatible with glibc.
+
+### Bionic
+
+<https://en.wikipedia.org/wiki/Bionic_%28software%29>
+
+Made for Android.
+
+TODO check: does not fully support POSIX, but a large part of it: <http://stackoverflow.com/a/27604696/895245>

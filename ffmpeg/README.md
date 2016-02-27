@@ -1,8 +1,12 @@
 # FFmpeg
 
+1. [Bibliography](bibliography.md)
+
+## Introduction
+
 <https://en.wikipedia.org/wiki/FFmpeg>
 
-Offers a high level API to abstract multiple codecs.
+Offers a high level API to abstract multiple audio and video codecs.
 
 Codecs are algorithms that compress audio and video.
 
@@ -14,7 +18,11 @@ You want to compress them to:
 
     FFmpeg also takes care of breaking up the decoding into packages and sending / receiving it.
 
+The trade-off is that you spend some CPU-time encoding/decoding, but given the huge cost of the network and storage, it is worth it.
+
 Video / audio compression is different form that of images since multiple images can be compressed together as they differ very little between them.
+
+FFmpeg also deals with subtitles, e.g. with `avcodec_decode_subtitle2`.
 
 ## libav
 
@@ -22,4 +30,8 @@ Fork because of war. Still highly compatible.
 
 History of the fork: https://en.wikipedia.org/wiki/Libav#History
 
-libav is going to die now that Debian switched back to FFmpeg.
+libav is going to die now that Debian switched back to FFmpeg in 2015?
+
+`libav***` are libraries present inside of FFmpeg.
+
+Each of those libraries can be versioned separately through the `version.h` header.
