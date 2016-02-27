@@ -23,3 +23,20 @@ Interface:
                         alternative protocol names, terminated by
                         a null pointer.
     int     p_proto    The protocol number.
+
+## htons
+
+Host TO Network Short.
+
+Takes a short (2 bytes), and converts it to the correct byte ordering expected by the network.
+
+You must do this, or else e.g. the network won't look at the right port.
+
+Versions:
+
+- `htons`
+- `htonl` (long, 4 bytes)
+- `ntohs` (inverse)
+- `ntohl`
+
+TODO example.

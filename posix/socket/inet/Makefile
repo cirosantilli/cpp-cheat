@@ -1,1 +1,1 @@
-../client_server.makefile
+../Makefile

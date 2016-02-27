@@ -100,9 +100,12 @@ int main(int argc, char** argv) {
     and close it then?
     curl example.com does not lag at all.
     */
+    fprintf(stderr, "debug: before first read\n");
     while ((nbytes_total = read(socket_file_descriptor, buffer, BUFSIZ)) > 0) {
+        fprintf(stderr, "debug: after a read\n");
         write(STDOUT_FILENO, buffer, nbytes_total);
     }
+    fprintf(stderr, "debug: after last read\n");
     if (nbytes_total == -1) {
         perror("read");
         exit(EXIT_FAILURE);

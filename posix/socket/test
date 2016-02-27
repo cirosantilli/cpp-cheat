@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+./server.out &
+./client.out &
+./client.out &
+./client.out &

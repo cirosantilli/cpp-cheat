@@ -1,7 +1,17 @@
-/**
-@file
+/*
+Send a single character to the server, then read a single character as reply, and exit.
 
-Inet server example
+Usage:
+
+    ./client [[<ip>] <character>]
+
+Default ip: localhost.
+
+Default character: 'a'
+
+Sample:
+
+    ./client 192.168.0.2 b
 */
 
 #define _XOPEN_SOURCE 700
@@ -17,77 +27,65 @@ Inet server example
 #include <sys/socket.h>
 #include "unistd.h"
 
-int main(int argc, char** argv) {
-    char server_ip[] = "127.0.0.1";
+#define DEBUG(msg) fprintf(stderr, "debug: " msg "\n")
+
+int main(int argc, char **argv) {
+    char *server_hostname = "127.0.0.1";
     unsigned short server_port = 12345;
     in_addr_t server_addr;
     int sockfd;
-    //this is the struct used by INet addresses:
-    struct sockaddr_in address;
+    /* This is the struct used by INet addresses. */
+    struct sockaddr_in sockaddr_in;
     char ch_init = 'a';
-    char ch = ch_init;
+    char ch;
 	struct protoent *protoent;
 	char protoname[] = "tcp";
-	//char protoname[] = "udp";
+    /*char protoname[] = "udp";*/
+    struct hostent *hostent;
+    in_addr_t in_addr;
 
+    if (argc > 1) {
+        server_hostname = argv[1];
+        if (argc > 2) {
+            ch_init = argv[2][0];
+        }
+    }
+    ch = ch_init;
+
+    /* Get socket. */
 	protoent = getprotobyname(protoname);
 	if (protoent == NULL) {
         perror("getprotobyname");
         exit(EXIT_FAILURE);
 	}
-
     sockfd = socket(AF_INET, SOCK_STREAM, protoent->p_proto);
     if (sockfd == -1) {
         perror("socket");
         exit(EXIT_FAILURE);
     }
 
-    /*
-    # inet_addr
+    /* Prepare sockaddr_in. */
+    hostent = gethostbyname(server_hostname);
+    if (hostent == NULL) {
+        fprintf(stderr, "error: gethostbyname(\"%s\")\n", server_hostname);
+        exit(EXIT_FAILURE);
+    }
+    in_addr = inet_addr(inet_ntoa(*(struct in_addr*)*(hostent->h_addr_list)));
+    if (in_addr == (in_addr_t)-1) {
+        fprintf(stderr, "error: inet_addr(\"%s\")\n", *(hostent->h_addr_list));
+        exit(EXIT_FAILURE);
+    }
+    sockaddr_in.sin_addr.s_addr = in_addr;
+    sockaddr_in.sin_family = AF_INET;
+    sockaddr_in.sin_port = htons(server_port);
 
-        converts the text representation to a representation that can be used on the network
-
-    # s_addr
-
-        server address
-    */
-        server_addr = inet_addr(server_ip);
-        if (server_addr == (in_addr_t)-1) {
-            fprintf(stderr, "inet_addr(\"%s\") failed\n", server_ip);
-            return EXIT_FAILURE;
-        }
-        address.sin_addr.s_addr = server_addr;
-
-    address.sin_family = AF_INET;
-
-    /*
-    # htons
-
-        Host TO Network Short
-
-        takes a short (2 bytes), and converts it to the correct byte ordering expected by the network
-
-        you must do this, or else the network won't look at the right port
-
-        versions:
-
-        - htons
-        - htonl (long, 4 bytes)
-        - ntohs (inverse)
-        - ntohl
-
-    # sin_port
-
-        port at which to contact server
-    */
-
-        address.sin_port = htons(server_port);
-
-    if (connect(sockfd, (struct sockaddr*)&address, sizeof(address)) == -1) {
+    /* Do the actual connection. */
+    DEBUG("connect");
+    if (connect(sockfd, (struct sockaddr*)&sockaddr_in, sizeof(sockaddr_in)) == -1) {
         perror("connect");
         return EXIT_FAILURE;
     }
-
+    DEBUG("write");
     if (write(sockfd, &ch, 1) == -1) {
         perror("write");
         exit(EXIT_FAILURE);
@@ -97,11 +95,13 @@ int main(int argc, char** argv) {
     According to wireshark, the response is received
     from some random port that the OS assigns to us.
     */
-
+    DEBUG("read");
     if (read(sockfd, &ch, 1) == -1) {
         perror("read");
         exit(EXIT_FAILURE);
     }
+    printf("received: %c\n", ch);
+    DEBUG("close");
     close(sockfd);
     assert(ch == ch_init + 1);
     exit(EXIT_SUCCESS);
