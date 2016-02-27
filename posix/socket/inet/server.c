@@ -1,37 +1,52 @@
 /*
-Run a simple server that:
+Server that reads a message up to a newline from a client.
 
-- reads one character from a client
-- increments it
-- returns the incremented value
-- closes the conection
+Reply by incrementing each byte by one (ROT-1 cypher), newline terminated.
+
+Close connection.
+
+Loop.
+
+Usage:
+
+    ./server [<port>]
+
+Default port: 12345
+
+If a second client comes while the first one is talking, it hangs until the first one stops.
+
+A forking server is the way to solve this.
 */
 
 #define _XOPEN_SOURCE 700
 
-#include "stdbool.h"
-#include "stdio.h"
-#include "stdlib.h"
-#include "string.h"
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include <arpa/inet.h>
 #include <netdb.h> /* getprotobyname */
 #include <netinet/in.h>
 #include <sys/socket.h>
-#include "unistd.h"
-
-#define DEBUG(msg) fprintf(stderr, "debug: " msg "\n")
+#include <unistd.h>
 
 int main(int argc, char **argv) {
-    unsigned short server_port = 12345u;
-    char ch;
-    socklen_t client_len;
-    int server_sockfd, client_sockfd;
-    int enable = 1;
-    struct sockaddr_in client_address, server_address;
-	struct protoent *protoent;
+	char buffer[BUFSIZ];
 	char protoname[] = "tcp";
-    /*char protoname[] = "udp";*/
+	struct protoent *protoent;
+    int enable = 1;
+    int i;
+    int newline_found = 0;
+    int server_sockfd, client_sockfd;
+    socklen_t client_len;
+    ssize_t nbytes_read;
+    struct sockaddr_in client_address, server_address;
+    unsigned short server_port = 12345u;
+
+    if (argc > 1) {
+        server_port = strtol(argv[1], NULL, 10);
+    }
 
 	protoent = getprotobyname(protoname);
 	if (protoent == NULL) {
@@ -50,39 +65,11 @@ int main(int argc, char **argv) {
         exit(EXIT_FAILURE);
     }
 
-    /*
-    # SO_REUSEADDR
-
-        If we dind't use this, then:
-
-        - bind here on the server,
-        - connect once with a client
-        - kill server
-        - try to restart server
-        - bind fails, because the connection still exists on TIME-WAIT
-
-        This allows the bind to happen even it TIME-WAIT is going on.
-
-        See also:
-
-        - http://stackoverflow.com/questions/24194961/how-do-i-use-setsockoptso-reuseaddr
-        - http://serverfault.com/questions/329845/how-to-forcibly-close-a-socket-in-time-wait
-        - http://stackoverflow.com/questions/10619952/how-to-completely-destroy-a-socket-connection-in-c
-    */
     if (setsockopt(server_sockfd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(enable)) < 0) {
         perror("setsockopt(SO_REUSEADDR) failed");
         exit(EXIT_FAILURE);
     }
 
-    /*
-    #s_addr server
-
-        on server, this is which addresses it will accept connections from
-
-    #INADDR_ANY
-
-        special ch that tells server to accept connections from anyone
-    */
     server_address.sin_family = AF_INET;
     server_address.sin_addr.s_addr = htonl(INADDR_ANY);
     server_address.sin_port = htons(server_port);
@@ -100,22 +87,26 @@ int main(int argc, char **argv) {
         perror("listen");
         exit(EXIT_FAILURE);
     }
+    fprintf(stderr, "listening on port %d\n", server_port);
 
     while (1) {
         client_len = sizeof(client_address);
-        DEBUG("accept");
         client_sockfd = accept(
             server_sockfd,
             (struct sockaddr*)&client_address,
             &client_len
         );
-        DEBUG("read");
-        read(client_sockfd, &ch, 1);
-        printf("received: %c\n", ch);
-        ch++;
-        DEBUG("write");
-        write(client_sockfd, &ch, 1);
-        DEBUG("close");
+        while ((nbytes_read = read(client_sockfd, buffer, BUFSIZ)) > 0) {
+            printf("received:\n");
+            write(STDOUT_FILENO, buffer, nbytes_read);
+            if (buffer[nbytes_read - 1] == '\n')
+                newline_found;
+            for (i = 0; i < nbytes_read - 1; i++)
+                buffer[i]++;
+            write(client_sockfd, buffer, nbytes_read);
+            if (newline_found)
+                break;
+        }
         close(client_sockfd);
     }
     return EXIT_SUCCESS;

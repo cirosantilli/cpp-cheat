@@ -1,56 +1,55 @@
 /*
-Send a single character to the server, then read a single character as reply, and exit.
+Send a message up to a newline to the server.
+
+Read a reply up to a newline and print it to stdout.
+
+Loop.
 
 Usage:
 
-    ./client [[<ip>] <character>]
+    ./client [<server-address> [<port>]]
 
 Default ip: localhost.
 
-Default character: 'a'
-
-Sample:
-
-    ./client 192.168.0.2 b
+Default port: 12345
 */
 
 #define _XOPEN_SOURCE 700
 
-#include "assert.h"
-#include "stdbool.h"
-#include "stdio.h"
-#include "stdlib.h"
+#include <assert.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include <arpa/inet.h>
 #include <netdb.h> /* getprotobyname */
 #include <netinet/in.h>
 #include <sys/socket.h>
-#include "unistd.h"
-
-#define DEBUG(msg) fprintf(stderr, "debug: " msg "\n")
+#include <unistd.h>
 
 int main(int argc, char **argv) {
+	char buffer[BUFSIZ];
+	char protoname[] = "tcp";
+	struct protoent *protoent;
     char *server_hostname = "127.0.0.1";
-    unsigned short server_port = 12345;
+    char *user_input = NULL;
+    in_addr_t in_addr;
     in_addr_t server_addr;
     int sockfd;
+    size_t getline_buffer = 0;
+    ssize_t nbytes_read, i, user_input_len;
+    struct hostent *hostent;
     /* This is the struct used by INet addresses. */
     struct sockaddr_in sockaddr_in;
-    char ch_init = 'a';
-    char ch;
-	struct protoent *protoent;
-	char protoname[] = "tcp";
-    /*char protoname[] = "udp";*/
-    struct hostent *hostent;
-    in_addr_t in_addr;
+    unsigned short server_port = 12345;
 
     if (argc > 1) {
         server_hostname = argv[1];
         if (argc > 2) {
-            ch_init = argv[2][0];
+            server_port = strtol(argv[2], NULL, 10);
         }
     }
-    ch = ch_init;
 
     /* Get socket. */
 	protoent = getprotobyname(protoname);
@@ -80,29 +79,34 @@ int main(int argc, char **argv) {
     sockaddr_in.sin_port = htons(server_port);
 
     /* Do the actual connection. */
-    DEBUG("connect");
     if (connect(sockfd, (struct sockaddr*)&sockaddr_in, sizeof(sockaddr_in)) == -1) {
         perror("connect");
         return EXIT_FAILURE;
     }
-    DEBUG("write");
-    if (write(sockfd, &ch, 1) == -1) {
-        perror("write");
-        exit(EXIT_FAILURE);
+    while (1) {
+        fprintf(stderr, "enter string (empty to quit):\n");
+        user_input_len = getline(&user_input, &getline_buffer, stdin);
+        if (user_input_len == -1) {
+            perror("getline");
+            exit(EXIT_FAILURE);
+        }
+        if (user_input_len == 1) {
+            close(sockfd);
+            break;
+        }
+        if (write(sockfd, user_input, user_input_len) == -1) {
+            perror("write");
+            exit(EXIT_FAILURE);
+        }
+        while ((nbytes_read = read(sockfd, buffer, BUFSIZ)) > 0) {
+            write(STDOUT_FILENO, buffer, nbytes_read);
+            if (buffer[nbytes_read - 1] == '\n') {
+                fflush(stdout);
+                break;
+            }
+        }
     }
+    free(user_input);
 
-    /*
-    According to wireshark, the response is received
-    from some random port that the OS assigns to us.
-    */
-    DEBUG("read");
-    if (read(sockfd, &ch, 1) == -1) {
-        perror("read");
-        exit(EXIT_FAILURE);
-    }
-    printf("received: %c\n", ch);
-    DEBUG("close");
-    close(sockfd);
-    assert(ch == ch_init + 1);
     exit(EXIT_SUCCESS);
 }

@@ -3,43 +3,45 @@ Fetches a web page and print it to stdout.
 
 example.com:
 
-    wget
+    ./wget
 
 Given page:
 
-    wget google.com
+    ./wget google.com
 
-IP: TODO
+IP:
+
+    ./wget 104.16.118.182
 */
 
 #define _XOPEN_SOURCE 700
 
-#include "assert.h"
-#include "stdbool.h"
-#include "stdio.h"
-#include "stdlib.h"
-#include "string.h"
+#include <assert.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include <arpa/inet.h>
 #include <netdb.h> /* getprotobyname */
 #include <netinet/in.h>
 #include <sys/socket.h>
-#include "unistd.h"
+#include <unistd.h>
 
 int main(int argc, char** argv) {
-    enum CONSTEXPR { MAX_REQUEST_LEN = 1024};
-    char *hostname = "example.com";
-    unsigned short server_port = 80;
-	char request_template[] = "GET / HTTP/1.1\r\nHost: %s\r\n\r\n";
-	char request[MAX_REQUEST_LEN];
-    int request_len;
-    in_addr_t in_addr;
-    int socket_file_descriptor;
-    struct sockaddr_in sockaddr_in;
-	struct protoent *protoent;
 	char buffer[BUFSIZ];
-    struct hostent *hostent;
+    enum CONSTEXPR { MAX_REQUEST_LEN = 1024};
+	char request[MAX_REQUEST_LEN];
+	char request_template[] = "GET / HTTP/1.1\r\nHost: %s\r\n\r\n";
+	struct protoent *protoent;
+    char *hostname = "example.com";
+    in_addr_t in_addr;
+    int request_len;
+    int socket_file_descriptor;
     ssize_t nbytes_total, nbytes_last;
+    struct hostent *hostent;
+    struct sockaddr_in sockaddr_in;
+    unsigned short server_port = 80;
 
     if (argc > 1)
         hostname = argv[1];
@@ -96,8 +98,10 @@ int main(int argc, char** argv) {
 
     /*
     Read the response. TODO: for example.com, the second read hangs for a few seconds.
-    Why? Does the connection keep open until I close it? Must I parse the returned string to see if the HTTP response is over,
-    and close it then?
+    Why? Does the connection keep open until I close it?
+    Must I parse the returned string for Content-Length to see if the HTTP response is over,
+    and close it then? http://stackoverflow.com/a/25586633/895245 says that if Content-Length
+    is not sent, the server can just close to determine length.
     curl example.com does not lag at all.
     */
     fprintf(stderr, "debug: before first read\n");
