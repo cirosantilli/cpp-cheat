@@ -28,23 +28,18 @@ Default port: 12345
 #include <sys/socket.h>
 #include <unistd.h>
 
+#include "common.h"
+
 int main(int argc, char **argv) {
-    FILE *sockf;
 	char protoname[] = "tcp";
-	struct protoent *protoent;
+    FILE *sockf;
     char *server_hostname = "127.0.0.1";
-    char *user_input = NULL;
     char *server_reply = NULL;
-    in_addr_t in_addr;
-    in_addr_t server_addr;
+    char *user_input = NULL;
     int sockfd;
-    size_t user_input_getline_size = 0;
     size_t server_reply_getline_size = 0;
-    ssize_t i;
+    size_t user_input_getline_size = 0;
     ssize_t user_input_len;
-    struct hostent *hostent;
-    /* This is the struct used by INet addresses. */
-    struct sockaddr_in sockaddr_in;
     unsigned short server_port = 12345;
 
     if (argc > 1) {
@@ -53,40 +48,8 @@ int main(int argc, char **argv) {
             server_port = strtol(argv[2], NULL, 10);
         }
     }
-
-    /* Get socket. */
-	protoent = getprotobyname(protoname);
-	if (protoent == NULL) {
-        perror("getprotobyname");
-        exit(EXIT_FAILURE);
-	}
-    sockfd = socket(AF_INET, SOCK_STREAM, protoent->p_proto);
-    if (sockfd == -1) {
-        perror("socket");
-        exit(EXIT_FAILURE);
-    }
+    sockfd = connect_server(protoname, server_hostname, server_port);
     sockf = fdopen(sockfd, "r");
-
-    /* Prepare sockaddr_in. */
-    hostent = gethostbyname(server_hostname);
-    if (hostent == NULL) {
-        fprintf(stderr, "error: gethostbyname(\"%s\")\n", server_hostname);
-        exit(EXIT_FAILURE);
-    }
-    in_addr = inet_addr(inet_ntoa(*(struct in_addr*)*(hostent->h_addr_list)));
-    if (in_addr == (in_addr_t)-1) {
-        fprintf(stderr, "error: inet_addr(\"%s\")\n", *(hostent->h_addr_list));
-        exit(EXIT_FAILURE);
-    }
-    sockaddr_in.sin_addr.s_addr = in_addr;
-    sockaddr_in.sin_family = AF_INET;
-    sockaddr_in.sin_port = htons(server_port);
-
-    /* Do the actual connection. */
-    if (connect(sockfd, (struct sockaddr*)&sockaddr_in, sizeof(sockaddr_in)) == -1) {
-        perror("connect");
-        return EXIT_FAILURE;
-    }
     while (1) {
         fprintf(stderr, "enter string (empty to quit):\n");
         user_input_len = getline(&user_input, &user_input_getline_size, stdin);
@@ -112,6 +75,5 @@ int main(int argc, char **argv) {
     }
     free(user_input);
     free(server_reply);
-
-    exit(EXIT_SUCCESS);
+    return EXIT_SUCCESS;
 }

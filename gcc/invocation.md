@@ -79,6 +79,12 @@ Enables many useful warnings:
 
 Understanding each warning and being able to write warning free code is a good way to improve language skills.
 
+#### Enable all warnings
+
+- <http://stackoverflow.com/questions/5088460/flags-to-enable-thorough-and-verbose-g-warnings>
+- <http://stackoverflow.com/questions/11714827/how-to-turn-on-literally-all-of-gccs-warnings>
+- <https://gcc.gnu.org/bugzilla/show_bug.cgi?id=31573>
+
 ### Wextra
 
 Enables even more useful warnings than wall.
