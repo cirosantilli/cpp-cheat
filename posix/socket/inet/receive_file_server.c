@@ -5,9 +5,12 @@ Saves it to output.tmp by default.
 
 Interface:
 
-    ./executable [<output-file> [<port>]]
+    ./executable [<output_file> [<port>]]
 
-TODO factor out with other servers.
+Defaults:
+
+- output_file: output.tmp
+- port: 12345
 */
 
 #define _XOPEN_SOURCE 700

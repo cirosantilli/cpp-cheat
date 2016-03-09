@@ -3,26 +3,21 @@ Send a file over a socket.
 
 Interface:
 
-    ./executable [<file_path> [<sever> [<port>]]]
+    ./executable [<input_path> [<sever_hostname> [<port>]]]
 
-TODO factor out with `send_lines_client.c`.
+Defaults:
+
+- input_path: input.tmp
+- server_hostname: 127.0.0.1
+- port: 12345
 */
 
 #define _XOPEN_SOURCE 700
 
-#include <assert.h>
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
-#include <arpa/inet.h>
 #include <fcntl.h>
-#include <netdb.h> /* getprotobyname */
-#include <netinet/in.h>
-#include <sys/stat.h>
-#include <sys/socket.h>
-#include <unistd.h>
 
 #include "common.h"
 
