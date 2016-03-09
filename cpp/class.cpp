@@ -858,6 +858,9 @@ int main() {
             - the most vexing parse only happens for default constructors.
             - the default constructor can be is implicitly declared and defiend by the compiler.
 
+            There are other functions which are also defined by default:
+            https://en.wikipedia.org/wiki/Special_member_functions
+
         # Implicily declared constructors
 
             If no explicit constructor is declared,
@@ -1203,17 +1206,16 @@ int main() {
     }
 
 #if __cplusplus >= 201103L
-
     /*
-    # brace enclosed initializer list
+    # Brace enclosed initializer list
 
         See inializer list
 
-    # list initialization
+    # List initialization
 
         See initializer list constructor.
 
-    # initializer list contructor
+    # Initializer list contructor
 
         Useful in cases where you don't know beforehand how many arguments
         a constructor should receive.
@@ -1221,14 +1223,14 @@ int main() {
         For example, the stdlib std::vector class gets an initializer list constructor on C++11,
         which allows one to initialize it to any constant.
 
-        TODO0 could this not be achieved via cstdarg?
+        TODO could this not be achieved via cstdarg?
     */
     {
         //STL std::vector usage example
         {
             std::vector<int> v{0, 1};
+            // SAME.
             //std::vector<int> v = std::vector<int>({0, 1});
-                //SAME
             assert(v[0] == 0);
             assert(v[1] == 1);
             assert(v == std::vector<int>({0, 1}));
@@ -1680,55 +1682,6 @@ int main() {
             //assign
             //CopyAndSwap c2(c0);
         }
-
-#if __cplusplus >= 201103L
-        /*
-        # xvalue
-
-        # glvalue
-
-        # prvalue
-
-            In addition to the C99 rvalues and lvalues,
-            the C++11 standard defines new concepts:
-
-            - xvalue
-            - glvalue
-            - prvalue
-
-            <http://stackoverflow.com/questions/3601602/what-are-rvalues-lvalues-xvalues-glvalues-and-prvalues>
-
-            This is probably a consequence of move semantincs.
-
-        */
-
-        /*
-        # move constructor
-
-            Constructor that takes rvalues instead of lvalues.
-
-            Used to implement move semantics.
-
-        # move semantics
-
-            Useful in situtations where a class manages dynamic data.
-
-            Basic idea: when copying from an rvalue, it is not necessary to make an expensive copy of it:
-            it suffices to acquire its data via swap, and leave it on a valid state (via a default constructor for example).
-
-            This is true because the rvalue passed to a copy constructor cannot be seen.
-
-            Value reference allows to overload the copy constructor based not on type,
-            but on the fact that a value is an rvalue or an lvalue!
-
-            No change must be done to the copy and swap idiom for move semantics to work for the assigment operator,
-            since in C++11 `int i = rvale` calls a move consttuctor on `i` while `int i = lvalue` calls a copy constructor.
-
-            <http://stackoverflow.com/questions/3106110/what-is-move-semantics>
-        */
-        {
-        }
-#endif
 
         /*
         # as-if rule

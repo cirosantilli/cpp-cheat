@@ -9,7 +9,7 @@ Loop.
 
 Usage:
 
-    ./server [<port>]
+    ./executable [<port>]
 
 Default port: 12345
 
@@ -31,16 +31,42 @@ A forking server is the way to solve this.
 #include <sys/socket.h>
 #include <unistd.h>
 
+/* http://stackoverflow.com/questions/2064636/getting-the-source-address-of-an-incoming-socket-connection */
+void print_client_address(int sockfd) {
+    socklen_t len;
+    struct sockaddr_storage addr;
+    char ipstr[INET6_ADDRSTRLEN];
+    int port;
+
+    len = sizeof addr;
+    getpeername(sockfd, (struct sockaddr*)&addr, &len);
+    if (addr.ss_family == AF_INET) {
+        struct sockaddr_in *s = (struct sockaddr_in *)&addr;
+        port = ntohs(s->sin_port);
+        inet_ntop(AF_INET, &s->sin_addr, ipstr, sizeof ipstr);
+    } else {
+        /* AF_INET6 */
+        struct sockaddr_in6 *s = (struct sockaddr_in6 *)&addr;
+        port = ntohs(s->sin6_port);
+        inet_ntop(AF_INET6, &s->sin6_addr, ipstr, sizeof ipstr);
+    }
+    printf("client connected from: %s:%d\n", ipstr, port);
+    return;
+}
+
 int main(int argc, char **argv) {
-	char buffer[BUFSIZ];
-	char protoname[] = "tcp";
-	struct protoent *protoent;
+    FILE *client_sockf;
+    char *client_input;
+    char protoname[] = "tcp";
+    struct protoent *protoent;
     int enable = 1;
     int i;
-    int newline_found = 0;
-    int server_sockfd, client_sockfd;
+    int client_sockfd;
+    int client_input_len;
+    int server_sockfd;
     socklen_t client_len;
     ssize_t nbytes_read;
+    size_t client_input_getline_size;
     struct sockaddr_in client_address, server_address;
     unsigned short server_port = 12345u;
 
@@ -48,11 +74,11 @@ int main(int argc, char **argv) {
         server_port = strtol(argv[1], NULL, 10);
     }
 
-	protoent = getprotobyname(protoname);
-	if (protoent == NULL) {
+    protoent = getprotobyname(protoname);
+    if (protoent == NULL) {
         perror("getprotobyname");
         exit(EXIT_FAILURE);
-	}
+    }
 
     server_sockfd = socket(
         AF_INET,
@@ -91,22 +117,24 @@ int main(int argc, char **argv) {
 
     while (1) {
         client_len = sizeof(client_address);
+        puts("waiting for client");
         client_sockfd = accept(
             server_sockfd,
             (struct sockaddr*)&client_address,
             &client_len
         );
-        while ((nbytes_read = read(client_sockfd, buffer, BUFSIZ)) > 0) {
-            printf("received:\n");
-            write(STDOUT_FILENO, buffer, nbytes_read);
-            if (buffer[nbytes_read - 1] == '\n')
-                newline_found;
-            for (i = 0; i < nbytes_read - 1; i++)
-                buffer[i]++;
-            write(client_sockfd, buffer, nbytes_read);
-            if (newline_found)
-                break;
-        }
+        print_client_address(client_sockfd);
+        client_sockf = fdopen(client_sockfd, "r");
+        do {
+            client_input_len = getline(&client_input, &client_input_getline_size, client_sockf);
+            puts("received:");
+            printf("%s", client_input);
+            for (i = 0; i < client_input_len - 1; i++)
+                client_input[i]++;
+            printf("%s", client_input);
+            write(client_sockfd, client_input, client_input_len);
+            puts("");
+        } while (client_input_len != -1);
         close(client_sockfd);
     }
     return EXIT_SUCCESS;

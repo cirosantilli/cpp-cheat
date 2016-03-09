@@ -362,7 +362,7 @@ int main() {
 
             Undefined behaviour with O_TRUNC.
 
-            TODO0 can be used with O_CREAT?
+            TODO can be used with O_CREAT?
 
         -   `O_RDWR`: read and write
 
@@ -464,7 +464,7 @@ int main() {
 
     # read
 
-        POSIX 7 docs: <http://pubs.opengroup.org/onlinepubs/9699919799/functions/read.html>
+        POSIX 7 docs: http://pubs.opengroup.org/onlinepubs/9699919799/functions/read.html
 
         Read bytes from a file descriptor.
 

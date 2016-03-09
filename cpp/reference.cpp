@@ -38,24 +38,15 @@ int getInt() { return 0; }
 std::string getString() { return "abc"; }
 
 /*
+// WARN: reference to local var returned
 int& getIntRef() {
     int i = 0;
     return i;
 }
 */
-// WARN: reference to local var returned
-
-/*
-OK the returned i reference is not local
-*/
-int& getIntRef(int& i) {
-    i++;
-    return i;
-}
 
 /*
 The returned i reference cannot be modified.
-
 TODO use
 */
 const int& getIntConstRef(int& i) {
@@ -199,8 +190,7 @@ int main() {
         References that do not allow one to modify the value of the variable.
     */
     {
-
-        //it is possible to make a const reference from a non-const object
+        // It is possible to make a const reference from a non-const object.
         {
             int i = 1;
             const int& cia = i;
@@ -209,7 +199,7 @@ int main() {
             //cia = 2;
         }
 
-        //it is possible to make a const reference form a const object
+        // It is possible to make a const reference form a const object.
         {
             const int ci = 1;
             const int& cia = ci;
@@ -218,9 +208,8 @@ int main() {
             //cia = 2;
         }
 
-        /*
-        The rules imposed by the compiler make sure that it is hard or impossible to cheat references by mistake.
-        */
+        // The rules imposed by the compiler make sure that it is hard
+        // or impossible to cheat references by mistake.
         {
             int i = 1;
             const int& cia = i;
@@ -265,7 +254,7 @@ int main() {
         is ok, since it is impossible to change i in the function if it is const
         */
         {
-            //initialization from a literal
+            // Initialization from a literal.
             {
                 const int& i = 1;
                 assert(i == 1);
@@ -281,13 +270,35 @@ int main() {
                 const int& i = getInt();
                 assert(i == 0);
             }
+
+            /*
+            # Lifetime extension
+
+                If you assign a const reference to the return of a function,
+                it extends the lifetime of the returned object.
+
+                Note that not every const reference extends lifetime, e.g. arguments don't.
+
+                - http://herbsutter.com/2008/01/01/gotw-88-a-candidate-for-the-most-important-const/
+                - http://stackoverflow.com/questions/2784262/does-a-const-reference-prolong-the-life-of-a-temporary
+                - http://stackoverflow.com/questions/2615162/return-value-not-a-reference-from-the-function-bound-to-a-const-reference-in
+            */
+            {
+                struct C {
+                    static std::string f() {
+                        return "abc";
+                    }
+                };
+                const std::string& s = C::f();
+                assert(s == "abc");
+            }
         }
     }
 
     /*
-    # reference to pointer
+    # Reference to pointer
 
-        like for other variable, references can be made to pointer variables.
+        Like for other variable, references can be made to pointer variables.
     */
     {
         {
@@ -313,7 +324,7 @@ int main() {
         }
 
         /*
-        # reference to pointer and const
+        # Reference to pointer and const
 
             Just like for pointers to pointers in C, the rules prevent `const` variables
             from being modified.
@@ -366,48 +377,48 @@ int main() {
         /*
         What to do if:
 
-        - a function modifies what pointers point to but not the object pointed to.
+        -   a function modifies what pointers point to but not the object pointed to.
 
             It therefore takes
 
-        - we want to pass pointers to that function, modify what they point to,
+        -   we want to pass pointers to that function, modify what they point to,
             and then outside of the function modify the object being pointed to?
 
         Is this a valid use case for `const_cast`?
         */
         {
-            //the motivation: functions
+            // The motivation: functions.
             {
                 int i = 0;
                 int j = 1;
                 int *ip = &i;
                 int *jp = &j;
 
+                // If those were const, the function call would work,
+                // but not the `*ip = 2`;
                 //const int *ip = &i;
                 //const int *jp = &j;
-                    //if those were const, the function call would work,
-                    //but not the `*ip = 2`;
 
+                // Cannot initialize `const int*&` with `int*&`.
                 //bypointerConst(ip, jp);
-                    //cannot initialize `const int*&` with `int*&`.
 
                 *ip = 2;
                 //assert(j == 2);
             }
 
-            //same problem simplified without functions
+            // Same problem simplified without functions.
             {
                 int i = 0;
                 int *ip = &i;
 
+                // Possible.
                 //int*& ipa = ip;
-                    //possible
 
+                // TODO why is this not possible.
                 //const int*& ipa = ip;
-                    //TODO why is this not possible
             }
 
-            //but this is possible?
+            // But this is possible?
             {
                 int i = 0;
                 const int& ia = i;
@@ -421,7 +432,7 @@ int main() {
     Like the pointer symbol `*`, the reference symbol `&` needs to be duplicated for each new reference variable.
     */
     {
-        //ok: both ia and ja are references
+        // OK: both ia and ja are references
         {
             int i = 1;
             int j = 2;
@@ -434,7 +445,7 @@ int main() {
             assert(j == -2);
         }
 
-        //ko: ja is a new int, not a reference
+        // Bad: ja is a new int, not a reference
         {
             int i = 1;
             int j = 2;
@@ -447,7 +458,7 @@ int main() {
             assert(j ==  2);
         }
 
-        //with references to pointers it looks like this
+        // With references to pointers it looks like this.
         {
             int i = 0;
             int j = 1;
@@ -482,7 +493,7 @@ int main() {
             assert(c.iPublic == 1);
         }
 
-        // You can modify a private if you non const reference to it
+        // You can modify a private if you non-const reference to it
         {
             Class c;
             int& ia = c.getPrivateRef();
@@ -508,8 +519,8 @@ int main() {
         }
 
         /*
-        In C, all functions return rvalues,
-        although if a function returns a pointer and that pointer is dereferenced it becomes an lvalue,
+        In C, all functions return rvalues, although if a function returns a pointer
+        and that pointer is dereferenced it becomes an lvalue,
         so the following works:
 
             (*ret_int_ptr()) = 1;
@@ -517,8 +528,15 @@ int main() {
         In C++, there is an exception: all functions that return references return lvalues directly.
         */
         {
+            // OK the returned i reference is not local
+            struct C {
+                static int& f(int& i) {
+                    i++;
+                    return i;
+                }
+            };
             int i = 0;
-            (getIntRef(i)) = 2;
+            (C::f(i)) = 2;
             assert(i == 2);
         }
     }

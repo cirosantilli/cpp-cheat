@@ -35,3 +35,30 @@ libav is going to die now that Debian switched back to FFmpeg in 2015?
 `libav***` are libraries present inside of FFmpeg.
 
 Each of those libraries can be versioned separately through the `version.h` header.
+
+## Trivia
+
+File stealing vulnerability January 2016: <http://news.softpedia.com/news/zero-day-ffmpeg-vulnerability-lets-anyone-steal-files-from-remote-machines-498880.shtml>
+
+Does YouTube use it or not?
+
+-   <http://www.streaminglearningcenter.com/blogs/youtube-uses-ffmpeg-for-encoding.html>
+-   <http://multimedia.cx/eggs/googles-youtube-uses-ffmpeg/>
+
+## Source tree
+
+-   `AVPicture` <https://ffmpeg.org/doxygen/2.7/group__lavc__picture.html#gac1b22e9b246cb8b0928cca8f5fa524d4>
+
+-   `AVFrame` TODO: what is meant by frame exactly in each codec type?
+
+    Stores each plane separately, as the format is more manageable.
+
+    You can get a raw byte array with:
+
+        avpicture_layout
+
+## Architecture
+
+FFmpeg has CPU-specific acceleration optimizations on the source tree, see e.g.: `ls libavcodec`. TODO: how much is this faster?
+
+TODO: what about GPU? `git grep -i GPU` gives some hits.

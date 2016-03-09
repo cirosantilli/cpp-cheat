@@ -1,5 +1,12 @@
 # Inet sockets
 
+1. [ROT1 server](rot1_server.c)
+1. [send lines client](send_lines_client.c)
+1. [send file client](send_file_client.c)
+1. [receive file client](receive_file_client.c)
+
+## Usage
+
 Inet sockets, can be used across different computers for networking.
 
 Get two computers in a LAN.
@@ -14,15 +21,23 @@ Then on the other computer, run:
 
     ./client.out 192.168.0.1
 
+Or use some existing client like:
+
+    netcat localhost 12345
+
+and then type your messages.
+
+Also try `netcat -4` and `netcat -6` to exercise different IP versions.
+
 ## Message length
 
 The `read` calls on both client and server run inside while loops.
 
 Like when reading from files, the OS may split up messages arbitrarily to make things faster, e.g. one packet may arrive much earlier than the other.
 
-So it is necessary to have a convention of where messages stop, which is either:
+So the protocol must specify a convention of where messages stop. Common methods include:
 
-- a header with a length indicator
+- a header with a length indicator (e.g. HTTP `Content-Length`)
 - an unique string that terminates messages. Here we use `\n`.
 - the server closes connection: HTTP allows that <http://stackoverflow.com/a/25586633/895245>. Limited of course since the next message requires a reconnect.
 

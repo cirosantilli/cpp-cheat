@@ -17,7 +17,7 @@
 #include "common.hpp"
 
 int main() {
-    //initializer list constructor
+    // Initializer list constructor
     {
         std::list<int> l{0, 1};
     }

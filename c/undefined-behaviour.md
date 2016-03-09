@@ -12,6 +12,11 @@ Examples:
 - negative shift `1 << -1`: <http://stackoverflow.com/questions/4945703/left-shifting-with-a-negative-shift-count>
 - access object after its lifetime: `int *ip = 0; {int i = 1; ip = &i;} *ip++;`
 - modify `const` variable with pointer cast that removes `const`
+- strict aliasing rule: <http://stackoverflow.com/questions/98650/what-is-the-strict-aliasing-rule>, this example is great <http://stackoverflow.com/a/16534243/895245> as it shows an optimization that can be legally done upon undefined behaviour
+
+Lists of examples:
+
+- <http://stackoverflow.com/questions/98340/what-are-the-common-undefined-unspecified-behavior-for-c-that-you-run-into>
 
 ### Why the spec ever use undefined behaviour instead of implementation defined behaviour?
 

@@ -1,4 +1,6 @@
-# Makefile
+# Build
+
+How to build GCC from source.
 
 Tested with: version 5.1.0 on Ubuntu 14.04 in a 2013 computer.
 
@@ -93,7 +95,7 @@ Also `configure` does not detect a missing `flex`, but it seems required or else
 
 Binutils a requirement of GCC. For instance, Linux From Scratch first installs Binutils, then GCC, then recompiles both to bootstrap.
 
-It appears that you can build both GCC and Binutils the same time: <http://stackoverflow.com/questions/1726042/recipe-for-compiling-binutils-gcc-together>
+It appears that you can build both GCC and Binutils the same time: <http://stackoverflow.com/questions/1726042/recipe-for-compiling-binutils-gcc-together> This is called a combined build.
 
 A compatibility matrix between GCC and Binutils can be found at: <http://wiki.osdev.org/Cross-Compiler_Successful_Builds>
 

@@ -39,10 +39,11 @@ Cheat on the GNU Compile Collection (GCC) language extensions and command line u
     1. [cpp invocation](cpp-invocation.md)
     1. [cpp](cpp.c)
 1.  Internals
-    1. [Makefile](makefile.md)
-    1. [Compilation passes](compilation-passes.md)
-    1. [Source tree](source-tree.md)
-    1. [libgcc](libgcc.md)
+    1.  [Build](build.md)
+        1. [Cross compiler](cross-compiler.md)
+    1.  [Compilation passes](compilation-passes.md)
+    1.  [Source tree](source-tree.md)
+    1.  [libgcc](libgcc.md)
 
 WIP
 

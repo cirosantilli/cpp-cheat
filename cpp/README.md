@@ -7,6 +7,7 @@
 1.  Language
     1.  [main.cpp](main.cpp)
     1.  [Hello world](hello_world.cpp)
+    1.  [goto crosses initialization of](goto-cross-initialization.cpp)
     1.  [const](const.cpp)
     1.  [RTTI](rtti.md)
     1.  Compile time magic
@@ -32,6 +33,7 @@
             1. [Most vexing parse](most_vexing_parse.cpp)
             1. [Inheritance and constructors](inheritance_and_constructors.cpp)
             1. [Delegating constructor](delegating_constructor.cpp)
+            1. [Implicitly deleted constructor](implicitly_deleted_constructor.cpp)
         1.  [virtual](virtual.cpp)
             1. [Method pointer, operator .* and operator ->*](method_pointer.cpp)
             1. [Pure virtual](pure_virtual.cpp)
@@ -71,6 +73,8 @@
     1.  [memory](memory.cpp)
     1.  [regex](regex.cpp)
     1.  [utility](utility.cpp)
+    1.  Smart pointers
+        1. [unique_ptr](unique_ptr.cpp)
 1.  Applications
     1. [Design patterns](design_patterns.cpp)
 

@@ -1,17 +1,11 @@
 /*
-Send a message up to a newline to the server.
+Send a file over a socket.
 
-Read a reply up to a newline and print it to stdout.
+Interface:
 
-Loop.
+    ./executable [<file_path> [<sever> [<port>]]]
 
-Usage:
-
-    ./client [<server-address> [<port>]]
-
-Default ip: localhost.
-
-Default port: 12345
+TODO factor out with `send_lines_client.c`.
 */
 
 #define _XOPEN_SOURCE 700
@@ -23,32 +17,46 @@ Default port: 12345
 #include <string.h>
 
 #include <arpa/inet.h>
+#include <fcntl.h>
 #include <netdb.h> /* getprotobyname */
 #include <netinet/in.h>
+#include <sys/stat.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
 int main(int argc, char **argv) {
-	char buffer[BUFSIZ];
 	char protoname[] = "tcp";
 	struct protoent *protoent;
+    /* This is the struct used by INet addresses. */
+    char *file_path = "input.tmp";
     char *server_hostname = "127.0.0.1";
+    char *server_reply = NULL;
     char *user_input = NULL;
+    char buffer[BUFSIZ];
     in_addr_t in_addr;
     in_addr_t server_addr;
+    int filefd;
     int sockfd;
-    size_t getline_buffer = 0;
-    ssize_t nbytes_read, i, user_input_len;
+    ssize_t i;
+    ssize_t read_return;
     struct hostent *hostent;
-    /* This is the struct used by INet addresses. */
     struct sockaddr_in sockaddr_in;
     unsigned short server_port = 12345;
 
     if (argc > 1) {
-        server_hostname = argv[1];
+        file_path = argv[1];
         if (argc > 2) {
-            server_port = strtol(argv[2], NULL, 10);
+            server_hostname = argv[2];
+            if (argc > 3) {
+                server_port = strtol(argv[3], NULL, 10);
+            }
         }
+    }
+
+    filefd = open(file_path, O_RDONLY);
+    if (filefd == -1) {
+        perror("open");
+        exit(EXIT_FAILURE);
     }
 
     /* Get socket. */
@@ -62,7 +70,6 @@ int main(int argc, char **argv) {
         perror("socket");
         exit(EXIT_FAILURE);
     }
-
     /* Prepare sockaddr_in. */
     hostent = gethostbyname(server_hostname);
     if (hostent == NULL) {
@@ -77,36 +84,25 @@ int main(int argc, char **argv) {
     sockaddr_in.sin_addr.s_addr = in_addr;
     sockaddr_in.sin_family = AF_INET;
     sockaddr_in.sin_port = htons(server_port);
-
     /* Do the actual connection. */
     if (connect(sockfd, (struct sockaddr*)&sockaddr_in, sizeof(sockaddr_in)) == -1) {
         perror("connect");
         return EXIT_FAILURE;
     }
-    while (1) {
-        fprintf(stderr, "enter string (empty to quit):\n");
-        user_input_len = getline(&user_input, &getline_buffer, stdin);
-        if (user_input_len == -1) {
-            perror("getline");
+
+    do {
+        read_return = read(filefd, buffer, BUFSIZ);
+        if (read_return == -1) {
+            perror("read");
             exit(EXIT_FAILURE);
         }
-        if (user_input_len == 1) {
-            close(sockfd);
-            break;
-        }
-        if (write(sockfd, user_input, user_input_len) == -1) {
+        if (write(sockfd, buffer, read_return) == -1) {
             perror("write");
             exit(EXIT_FAILURE);
         }
-        while ((nbytes_read = read(sockfd, buffer, BUFSIZ)) > 0) {
-            write(STDOUT_FILENO, buffer, nbytes_read);
-            if (buffer[nbytes_read - 1] == '\n') {
-                fflush(stdout);
-                break;
-            }
-        }
-    }
+    } while (read_return > 0);
     free(user_input);
-
+    free(server_reply);
+    close(filefd);
     exit(EXIT_SUCCESS);
 }

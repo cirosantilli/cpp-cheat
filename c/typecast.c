@@ -268,5 +268,14 @@ int main() {
             */
     }
 
+    /*
+    # Typecast between two struct types
+
+    - http://stackoverflow.com/questions/3766229/casting-one-struct-pointer-to-other-c
+    - http://stackoverflow.com/questions/27127914/why-is-this-implicit-conversion-between-different-pointer-types-valid?lq=1
+    - http://stackoverflow.com/questions/10998639/is-it-possible-to-cast-struct-to-another
+    - http://stackoverflow.com/questions/8416417/nested-structs-and-strict-aliasing-in-c
+    */
+
     return EXIT_SUCCESS;
 }

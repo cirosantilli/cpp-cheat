@@ -9,7 +9,8 @@
 
     New type of reference.
 
-    Old references are referred to as lvalue references, since they must be initialized by lvaues.
+    Old references are referred to as lvalue references,
+    since they must be initialized by lvaues.
 
     Denoted by double ampersand `&&`.
 
@@ -33,17 +34,17 @@ std::string overloadRLvalue(int&& i) {
     return "rval";
 }
 
-    /*
-    ERROR: ambiguous with both of the above, because in C++:
+/*
+ERROR: ambiguous with both of the above, because in C++:
 
-        int i = lvalue;
+    int i = lvalue;
 
-    Leads to copy construction (ambiguous with the `&` overload).
+Leads to copy construction (ambiguous with the `&` overload).
 
-        int i = rvalue;
+    int i = rvalue;
 
-    Leads to move construction (ambiguous with the `&&` overload).
-    */
+Leads to move construction (ambiguous with the `&&` overload).
+*/
 /*
 std::string overloadRLvalue(int i) {
     return "val";

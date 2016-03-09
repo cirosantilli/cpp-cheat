@@ -452,18 +452,15 @@ int main() {
         std::vector<int> v{0, 1, 2};
 
         // First element:
-
-            assert(v.front() == 0);
-            assert(v.front() == v[0]);
+        assert(v.front() == 0);
+        assert(v.front() == v[0]);
 
         // Last element:
-
-            assert(v.back() == 2);
+        assert(v.back() == 2);
 
         // Nth element:
-
-            v[0] = 1;
-            assert(v[0] == 1);
+        v[0] = 1;
+        assert(v[0] == 1);
 
         /*
         BAD: just like array overflow will not change std::vector size,
@@ -473,9 +470,13 @@ int main() {
             //v1[2] = 2;
         }
 
-        // #back  Get reference to last  element in vector.
-        // #front Get reference to first element in vector.
-        // #at    Like `[]`, but does bound checking and throws `out_of_range` in case of overflow.
+        /*
+        #back  Get reference to last  element in vector.
+
+        #front Get reference to first element in vector.
+
+        #at    Like `[]`, but does bound checking and throws `out_of_range` in case of overflow.
+        */
         {
             std::vector<int> v{0, 1, 2};
             assert(v.front() == 0);
@@ -486,6 +487,13 @@ int main() {
             } catch (std::out_of_range& e) {
             } catch (...) {
                 assert(false);
+            }
+
+            /* Undefined on empty. */
+            {
+                std::vector<int> v;
+                //v.front();
+                //v.back();
             }
         }
     }
