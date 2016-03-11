@@ -444,9 +444,8 @@ int main() {
 
             Deprecated, removed in C11.
 
-            dangerous:
-            no size checking possible
-            if too much input, just seg faults
+            Dangerous: no size checking possible
+            if too much input, just seg faults.
         */
         if (0) {
             /*printf("enter a string terminated by newline: (max %d chars, newline will be included in the string)\n", sn);*/

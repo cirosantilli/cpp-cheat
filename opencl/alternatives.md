@@ -4,6 +4,8 @@
 
 NVIDIA's. More closed since controlled by NVIDIA. Also more popular for the same reason as they are the Top Dog now.
 
+<https://www.reddit.com/r/programming/comments/49uw97/cuda_reverse_engineered_to_run_on_nonnvidia/>
+
 ## RenderScript
 
 Google's choice for Android: <http://stackoverflow.com/questions/14385843/why-did-google-choose-renderscript-instead-of-opencl>
