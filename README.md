@@ -44,6 +44,7 @@ C and C++ minimal examples. Asserts used wherever possible. Cheatsheets, tutoria
     1. [Qt](qt/)
     1. [X11](x11)
     1. [Open GL](opengl/)
+    1. [SDL](sdl/)
 1.  Scientific
     1. [Fortran](fortran/)
     1. [GSL](gsl/)
