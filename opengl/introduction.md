@@ -6,43 +6,58 @@ It only contains basic primitives, and is often used together with other higher 
 
 OpenGL is only the interface, but there can be several implementations, open and closed source.
 
+OpenGL is a C API with bindings to every language. So will will use C for the examples to minimize things.
+
 ## Mesa
 
 <https://en.wikipedia.org/wiki/Mesa_%28computer_graphics%29>
 
-Most common Linux OpenGL implementation. Open source. Not certified by Khronos.
+Dominant Linux desktop OpenGL implementation.
+
+Contains a software implementation, but can also forward to hardware acceleration.
+
+Open source.
+
+Not certified by Khronos.
 
 Used by the X server.
 
 Requirement of freeglut.
 
-## GLUT
+OpenGL functions are prefixed with `gl`. Those are the lowest level functions of the API.
 
-GLUT is a higher level interface built on top of GL, and adds things like:
+## Libraries built on top of OpenGL
 
--   mouse/keyboard input.
+GLUT.
 
-    This requires callback functions to be called from an event loop.
+### GLU
 
--   higher level geometric objects like spheres, cubes and teapots.
+<https://en.wikipedia.org/wiki/OpenGL_Utility_Library>
 
-The original GLUT implementation is proprietary, but open source implementations exist such as Freeglut.
+Functions prefixed with `glu`
 
-It is basically a super simple game engine.
+Mesa implements it apparently, e.g. `dpkg` shows `libglu1-mesa`.
 
-### Freeglut
-
-Open source implementation of GLUT.
-
-Often used together with the mesa implementation of GL.
-
-Installation Ubuntu on 12.04:
-
-    sudo aptitude install freeglut3-dev
-
-## GLEW
+### GLEW
 
 <https://en.wikipedia.org/wiki/OpenGL_Extension_Wrangler_Library>
+
+### GLFW
+
+GLUT alternative. More features, more modern, thus recommended by some people.
+
+<http://stackoverflow.com/questions/25708688/what-is-the-difference-between-freeglut-vs-glfw>
+
+<https://en.wikipedia.org/wiki/GLFW>
+
+One advantage over GLUT seems to be that it allows for more control over the event loop:
+<http://gamedev.stackexchange.com/questions/8623/a-good-way-to-build-a-game-loop-in-opengl?lq=1>
+
+### GLM
+
+Mathematics useful for OpenGL.
+
+<https://github.com/g-truc/glm>
 
 ## glxinfo
 

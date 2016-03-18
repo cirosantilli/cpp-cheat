@@ -1,5 +1,7 @@
 /*
-Get information about OpenGL.
+Get lots of information about OpenGL.
+
+THis is a subset of the `glxinfo` command of the mesa-utils package.
 */
 
 #include <GL/glut.h>
@@ -19,10 +21,10 @@ int main(int argc, char **argv) {
     glutCreateWindow(argv[0]);
 
     /* TODO print types properly. */
+    printf("VERSION                    = %s\n", (char*)glGetString(GL_VERSION));
     printf("VENDOR                     = %s\n", (char*)glGetString(GL_VENDOR));
     printf("RENDERER                   = %s\n", (char*)glGetString(GL_RENDERER));
     printf("SHADING_LANGUAGE_VERSIONG  = %s\n", (char*)glGetString(0x8B8C));
-    printf("EXTENSIONS                 = %s\n", (char*)glGetString(GL_EXTENSIONS));
 
     glGetIntegerv(GL_RED_BITS, &output);
     printf("RED_BITS                   = %d\n", output);
@@ -50,6 +52,8 @@ int main(int argc, char **argv) {
     printf("MAX_ATTRIB_STACK_DEPTH     = %d\n", output);
     glGetIntegerv(GL_MAX_TEXTURE_STACK_DEPTH, &output);
     printf("MAX_TEXTURE_STACK_DEPTH    = %d\n", output);
+
+    printf("EXTENSIONS                 = %s\n", (char*)glGetString(GL_EXTENSIONS));
 
     return EXIT_SUCCESS;
 }

@@ -2,7 +2,10 @@
 Many spheres bouncing inside a cube with gravity,
 energy dissipation on impact, and impact between the spheres.
 
-TODO: DRY up with bouncing_balls_one.cpp
+TODO: DRY
+
+- up with bouncing_balls_one.cpp
+- balls flicker a lot. Why?
 */
 
 #include <cstdio>
@@ -171,9 +174,6 @@ void calc_new_scene(void){
 }
 
 void draw_cube(){
-
-    glPushMatrix();
-
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glColor3fv(DARK_GRAY);
 
@@ -213,8 +213,6 @@ void draw_cube(){
     glColor3fv(WHITE);
     glLineWidth(2.0);
     glutWireCube(2.0);
-
-    glPopMatrix();
 
 }
 

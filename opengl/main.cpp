@@ -437,7 +437,7 @@ void init(int argc, char** argv) {
     // Color to clear screen after each image.
     glClearColor(0.0, 0.0, 0.0, 0.0);
 
-    glEnable(GL_DEPTH_TEST); //TODO ?
+    glEnable(GL_DEPTH_TEST);
 
     //glEnable(GL_BLEND);  //use those alphas TODO ?
 
@@ -478,63 +478,14 @@ void init(int argc, char** argv) {
 
             //glEnable(GL_LIGHT0);
 
-            // 4 vector. if [3]==0, x,y,z is the position.
-            // Otherwise, light is at infinity and x,y,z is the incoming direction.
             glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
 
             // All of the following are distance attenuated.
+            glLightfv(GL_LIGHT0, GL_AMBIENT,  gray ); //if this is white and close, you see no shadow
+            glLightfv(GL_LIGHT0, GL_DIFFUSE,  white);
+            glLightfv(GL_LIGHT0, GL_SPECULAR, white);
 
-                glLightfv(GL_LIGHT0, GL_AMBIENT,  gray ); //if this is white and close, you see no shadow
-                glLightfv(GL_LIGHT0, GL_DIFFUSE,  white);
-                glLightfv(GL_LIGHT0, GL_SPECULAR, white);
-
-            // Attenuation.
-
-                //\frac{1}{k+ld+qd^2}
-                //glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, 2.0);
-                //glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 1.0);
-                //glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.5);
-
-        // Up to 8 lights.
-        //glEnable(GL_LIGHT1);
-
-    // Two ways to define material: gl_color_material and glmaterialfv.
-
-        //#GL_COLOR_MATERIAL
-
-            // glColor has no effect if lightning is on and you dont enable this.
-
-                //glEnable(GL_COLOR_MATERIAL);
-
-            // Now glColor* changes diffuse reflection
-
-                //glColorMaterial(GL_FRONT, GL_DIFFUSE);
-
-            // Draw some objects here:
-
-                //glColor3f(0.2, 0.5, 0.8);
-
-            // glColor* no longer changes diffuse reflection
-
-                //glColorMaterial(GL_FRONT, GL_SPECULAR);
-
-            // Now glColor* changes specular reflection.
-
-                //glColor3f(0.9, 0.0, 0.2);
-
-            // Draw other objects here.
-
-                //glDisable(GL_COLOR_MATERIAL);
-
-        //#glMaterialfv
-
-            //glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, white);
-            //glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, white);
-            //glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, white);
-            // If this is white and close to the scene, no shadows!
-            //glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, white);
-            // Specular exponent.
-            glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
+        glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
 
     // Camera
 

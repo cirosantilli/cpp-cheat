@@ -47,12 +47,11 @@ TMPS                    := $(addprefix $(TMP_DIR),$(TMPS_NODIR))
 OUT_BASENAME            := $(OUT_BASENAME_NOEXT)$(OUT_EXT)
 OUT                     := $(OUT_DIR)$(OUT_BASENAME)
 
-.PHONY: all all-post assembler clean debug set_debug_flags help mkdir profile set_profile_flags test
+.PHONY: all assembler clean debug set_debug_flags help mkdir profile set_profile_flags test
 
 all: mkdir $(OUT)
 	@#TODO ignore errors if not present
 	@if [ -e "$(RUN_INPUT)" ] && [ ! -e "$(OUT_DIR)$(RUN_INPUT)" ]; then ln -s ../$(RUN_INPUT) "$(OUT_DIR)$(RUN_INPUT)"; fi
-	@-$(MAKE) all-post
 
 $(OUT): $(TMPS)
 	$(MYCXX) $(PROFILE_FLAGS) $^ -o "$@" $(LIBS)

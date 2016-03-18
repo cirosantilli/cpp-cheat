@@ -20,7 +20,7 @@ Demo video: http://youtu.be/wAQxIla7F68
 
 using namespace std;
 
-class Vector3D{
+class Vector3D {
 
     public:
 
@@ -28,56 +28,56 @@ class Vector3D{
         GLfloat y;
         GLfloat z;
 
-        Vector3D(){
+        Vector3D() {
             this->x = 0.0;
             this->y = 0.0;
             this->z = 0.0;
         }
 
-        Vector3D(GLfloat x, GLfloat y, GLfloat z){
+        Vector3D(GLfloat x, GLfloat y, GLfloat z) {
             this->x = x;
             this->y = y;
             this->z = z;
         }
 
         //vector sum
-        Vector3D operator+(Vector3D otherv){
-            return Vector3D( this->x + otherv.x, this->y + otherv.y, this->z + otherv.z);
+        Vector3D operator+(Vector3D otherv) {
+            return Vector3D(this->x + otherv.x, this->y + otherv.y, this->z + otherv.z);
         }
 
         //vector subtraction
-        Vector3D operator-(Vector3D otherv){
-            return Vector3D( this->x - otherv.x, this->y - otherv.y, this->z - otherv.z);
+        Vector3D operator-(Vector3D otherv) {
+            return Vector3D(this->x - otherv.x, this->y - otherv.y, this->z - otherv.z);
         }
 
         //multiplication by constant
-        Vector3D operator*(GLfloat a){
-            return Vector3D( this->x * a, this->y * a, this->z * a);
+        Vector3D operator*(GLfloat a) {
+            return Vector3D(this->x * a, this->y * a, this->z * a);
         }
 
         //division by constant
-        Vector3D operator/(GLfloat a){
-            return Vector3D( this->x / a, this->y / a, this->z / a);
+        Vector3D operator/(GLfloat a) {
+            return Vector3D(this->x / a, this->y / a, this->z / a);
         }
 
         //dot product
-        GLfloat dot(Vector3D otherv){
+        GLfloat dot(Vector3D otherv) {
             return this->x * otherv.x + this->y * otherv.y + this->z * otherv.z;
         }
 
         //returns the euclidean norm of this vector
-        GLfloat norm(){
-            return sqrt( this->dot(*this) );
+        GLfloat norm() {
+            return sqrt(this->dot(*this));
         }
 
         //returns the taxi norm of this vector (largest absolute value of a corrdinate)
-        GLfloat taxi_norm(){
+        GLfloat taxi_norm() {
             //return max(abs(x), abs(y), abs(z));
             return 0.0;
         }
 
         //returns a unit vector in the same direction as this vector
-        Vector3D unit(){
+        Vector3D unit() {
             return (*this) / this->norm();
         }
 
@@ -85,7 +85,7 @@ class Vector3D{
          *
          * operates inline
          * */
-        void rotY(GLfloat angle){
+        void rotY(GLfloat angle) {
             GLfloat oldx = x;
             GLfloat oldz = z;
             GLfloat sina = sin(angle);
@@ -95,32 +95,30 @@ class Vector3D{
         }
 
         //euclidean distance
-        GLfloat eucl(Vector3D other){
+        GLfloat eucl(Vector3D other) {
             return (*this - other).norm();
         }
 
         /* To a string, with given precision p */
-        string str(int precision){
+        string str(int precision) {
             char out[64];
             char format[64];
-            sprintf(format, "%%4.%df\n%%4.%df\n%%4.%df\n", precision, precision, precision );
+            sprintf(format, "%%4.%df\n%%4.%df\n%%4.%df\n", precision, precision, precision);
             sprintf(out, format, x, y, z);
             return std::string(out);
         }
 
 };
 
-GLuint loadTextureJpg( string filename, int wrap )
-{
+GLuint loadTextureJpg(string filename, int wrap) {
     GLuint texture;
     cv::Mat I;
     int nRows, nCols, channels;
     uchar* p;
     uchar r, g, b;
 
-    I = cv::imread( filename, 1 );
-    if( !I.data )
-    {
+    I = cv::imread(filename, 1);
+    if (!I.data) {
         cerr << "no data\n" << filename << endl;
         return 2;
     }
@@ -139,16 +137,13 @@ GLuint loadTextureJpg( string filename, int wrap )
     channels = I.channels();
     nRows = I.rows;
     nCols = I.cols * channels;
-    if (I.isContinuous())
-    {
+    if (I.isContinuous()) {
         nCols *= nRows;
         nRows = 1;
     }
-    for(int i = 0; i < nRows; ++i)
-    {
+    for (int i = 0; i < nRows; ++i) {
         p = I.ptr<uchar>(i);
-        for (int j = 0; j < nCols; j=j+channels)
-        {
+        for (int j = 0; j < nCols; j=j+channels) {
             b = p[j]  ;
             g = p[j+1];
             r = p[j+2];
@@ -159,32 +154,32 @@ GLuint loadTextureJpg( string filename, int wrap )
     }
 
     // allocate a texture name
-    glGenTextures( 1, &texture );
+    glGenTextures(1, &texture);
 
     // select our current texture
-    glBindTexture( GL_TEXTURE_2D, texture );
+    glBindTexture(GL_TEXTURE_2D, texture);
 
-    //glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
+    //glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
     //modulate: mix texture with color for shading. only makes sense with lights present.
     //decal: texture color directly
 
     // when texture area is small, bilinear filter the closest mipmap
-    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-            GL_LINEAR_MIPMAP_NEAREST );
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+            GL_LINEAR_MIPMAP_NEAREST);
     // when texture area is large, bilinear filter the first mipmap
-    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     // if wrap is true, the texture wraps over at the edges (repeat)
     //       ... false, the texture ends at the edges (clamp)
-    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
-            wrap ? GL_REPEAT : GL_CLAMP );
-    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
-            wrap ? GL_REPEAT : GL_CLAMP );
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
+            wrap ? GL_REPEAT : GL_CLAMP);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
+            wrap ? GL_REPEAT : GL_CLAMP);
 
     // build our texture mipmaps because we set mipmap option
-    gluBuild2DMipmaps( GL_TEXTURE_2D, 3, I.rows, I.cols,
-            GL_RGB, GL_UNSIGNED_BYTE, I.data );
+    gluBuild2DMipmaps(GL_TEXTURE_2D, 3, I.rows, I.cols,
+            GL_RGB, GL_UNSIGNED_BYTE, I.data);
 
     return texture;
 }
@@ -267,7 +262,7 @@ void init(int argc, char** argv) {
     glEnable(GL_DEPTH_TEST);
     glPolygonOffset(1.0, 1.0);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    for(int i=0; i<NTEXTURES; i++){
+    for (int i = 0; i < NTEXTURES; i++) {
         textures[i] = loadTextureJpg(texture_files[i], 1);
     }
 }
@@ -289,12 +284,12 @@ void calc_new_scene(void) {
     dt = fast_forward*(t - old_t)/1000.0f;
     old_t = t;
 
-    eye.rotY( rot_speed*dt );
+    eye.rotY(rot_speed*dt);
     new_center = center + eye*speed*dt;
 
-    if( fabs(new_center.x) > WALL_HL-PERSON_R){
+    if (fabs(new_center.x) > WALL_HL-PERSON_R) {
         //dont move
-    } else if( fabs(new_center.z) > WALL_HL-PERSON_R){
+    } else if (fabs(new_center.z) > WALL_HL-PERSON_R) {
         //dont move
     } else{//move and normal update
         center = new_center;
@@ -308,20 +303,20 @@ void draw_cube() {
     GLfloat TEX_COORD = 10.;
 
     glPushMatrix();
-    glEnable( GL_TEXTURE_2D );
+    glEnable(GL_TEXTURE_2D);
 
     //bottom
-    glBindTexture( GL_TEXTURE_2D, textures[0] );
+    glBindTexture(GL_TEXTURE_2D, textures[0]);
     glBegin(GL_QUADS);
-    glTexCoord2f(0.0,       0.0      ); glVertex3fv(vs[0]);
+    glTexCoord2f(0.0,       0.0     ); glVertex3fv(vs[0]);
     //1.0 means put 1 time the texture in that dimension
     //2.0 means put 2 times the texture in that dimension: it becomes smaller thus.
     glTexCoord2f(0.0,       TEX_COORD); glVertex3fv(vs[1]);
     glTexCoord2f(TEX_COORD, TEX_COORD); glVertex3fv(vs[5]);
-    glTexCoord2f(TEX_COORD, 0.0      ); glVertex3fv(vs[4]);
+    glTexCoord2f(TEX_COORD, 0.0     ); glVertex3fv(vs[4]);
     glEnd();
 
-    glBindTexture( GL_TEXTURE_2D, textures[1] );
+    glBindTexture(GL_TEXTURE_2D, textures[1]);
 
     glBegin(GL_QUADS);
     //back
@@ -350,19 +345,19 @@ void draw_cube() {
     glEnd();
 
     //sky
-    glBindTexture( GL_TEXTURE_2D, textures[2] );
+    glBindTexture(GL_TEXTURE_2D, textures[2]);
     glBegin(GL_QUADS);
-    glTexCoord2f(0.0,       0.0      ); glVertex3f(-SKY_HL,SKY_H,-SKY_HL);
+    glTexCoord2f(0.0,       0.0     ); glVertex3f(-SKY_HL,SKY_H,-SKY_HL);
     glTexCoord2f(0.0,       SKY_TEX_COORD); glVertex3f(-SKY_HL,SKY_H,SKY_HL);
     glTexCoord2f(SKY_TEX_COORD, SKY_TEX_COORD); glVertex3f(SKY_HL,SKY_H,SKY_HL);
-    glTexCoord2f(SKY_TEX_COORD, 0.0      ); glVertex3f(SKY_HL,SKY_H,-SKY_HL);
+    glTexCoord2f(SKY_TEX_COORD, 0.0     ); glVertex3f(SKY_HL,SKY_H,-SKY_HL);
     glEnd();
 
-    glDisable( GL_TEXTURE_2D );
+    glDisable(GL_TEXTURE_2D);
     glPopMatrix();
 }
 
-void draw_scene(void){
+void draw_scene(void) {
     glLoadIdentity();
     lookat = center+eye;
     gluLookAt(center.x, center.y, center.z, lookat.x, lookat.y + PERSON_LOOK_DOWN, lookat.z, upx, upy, upz);
@@ -385,7 +380,7 @@ void reshape(int w, int h) {
 }
 
 void keyDown(unsigned char key, int x, int y) {
-    switch(key){
+    switch(key) {
         case 's':
             rot_speed = ROT_SPEED_MAX;
             break;
@@ -405,7 +400,7 @@ void keyDown(unsigned char key, int x, int y) {
 }
 
 void keyUp(unsigned char key, int x, int y) {
-    switch(key){
+    switch(key) {
         case 's':
             rot_speed = 0.;
             break;

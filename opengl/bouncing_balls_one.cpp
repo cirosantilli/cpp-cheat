@@ -63,7 +63,7 @@ void calc_new_scene(void) {
     old_t = t;
 
     // Calculate new scene based on dt (ms).
-    for (int i = 0; i<total_spheres; i++){
+    for (int i = 0; i < total_spheres; ++i){
 
         //cout << "\n---------------------------\n";
         //cout << "center\n" << spheres[i].center.str() << "\n";
@@ -83,14 +83,10 @@ void calc_new_scene(void) {
             spheres[i].speed = spheres[i].speed + GRAVITY*dt;
         }
     }
-
     glutPostRedisplay();
 }
 
 void draw_cube(){
-
-    glPushMatrix();
-
     glColor3fv(DARK_GRAY);
 
     // back
@@ -129,33 +125,25 @@ void draw_cube(){
     glColor3fv(WHITE);
     glLineWidth(2.0);
     glutWireCube(2.0);
-
-    glPopMatrix();
-
 }
 
 void draw_spheres() {
     for (int i=0; i<total_spheres; i++){
         spheres[i].draw();
     }
-
 }
 
 void draw_scene(void) {
-
     glLoadIdentity();
     gluLookAt(eyex, eyey, eyez, centerx, centery, centerz, upx, upy, upz);
-
     draw_cube();
     draw_spheres();
-
 }
 
 void display(void) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     draw_scene();
     glutSwapBuffers();
-
 }
 
 void reshape(int w, int h) {
@@ -180,7 +168,7 @@ int main(int argc, char** argv) {
     glutInitWindowSize(500, 500);
     glutInitWindowPosition(100, 100);
     glutCreateWindow(argv[0]);
-    glClearColor(clear_color_r,clear_color_g,clear_color_b,1.0);
+    glClearColor(clear_color_r, clear_color_g, clear_color_b, 1.0);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glEnable(GL_POLYGON_OFFSET_FILL);
     glEnable(GL_POLYGON_OFFSET_LINE);

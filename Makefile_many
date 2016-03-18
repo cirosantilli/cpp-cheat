@@ -53,7 +53,6 @@ OUTS        := $(addprefix $(OUT_DIR), $(OUTS_NODIR))
 all: mkdir $(OUTS)
 	@#TODO ignore errors if not present
 	@if [ -e "$(RUN_INPUT)" ] && [ ! -e "$(OUT_DIR)$(RUN_INPUT)" ]; then ln -s ../$(RUN_INPUT) "$(OUT_DIR)$(RUN_INPUT)"; fi
-	@-$(MAKE) all-post
 ifneq ($(strip $(run)),)
 	@echo
 	cd $(OUT_DIR) && ./"$(run)"
