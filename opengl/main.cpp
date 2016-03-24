@@ -445,7 +445,7 @@ void init(int argc, char** argv) {
     //glEnable(GL_POLYGON_OFFSET_LINE);
     glPolygonOffset(1.0, 1.0);
 
-    // Which side of objcts to take into account.
+    // Which side of objects to take into account.
 
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         //glPolygonMode(GL_FRONT, GL_FILL);
@@ -524,10 +524,9 @@ void idle(void) {
     int t;
 
     // Keep animation real time consistent.
-
-        t = glutGet(GLUT_ELAPSED_TIME);
-        dt = fast_forward*(t - oldT)/1000.0;
-        oldT = t;
+    t = glutGet(GLUT_ELAPSED_TIME);
+    dt = fast_forward*(t - oldT)/1000.0;
+    oldT = t;
 
     //cout << "===============================================" << endl;
     //cout << "pos" << endl << camera.pos.str();

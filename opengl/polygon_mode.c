@@ -1,7 +1,7 @@
 /*
-http://www.glprogramming.com/red/chapter03.html
+Draw an unfilled red triangle with lines only.
 
-Draw a red triangle on a black background.
+https://www.opengl.org/sdk/docs/man/html/glPolygonMode.xhtml
 */
 
 #include <stdlib.h>
@@ -13,6 +13,7 @@ Draw a red triangle on a black background.
 static void init(void) {
     glClearColor(0.0, 0.0, 0.0, 0.0);
     glShadeModel(GL_FLAT);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 }
 
 static void display(void) {

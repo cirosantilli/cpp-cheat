@@ -1,7 +1,13 @@
 /*
-http://www.glprogramming.com/red/chapter03.html
+# gluLookAt
 
-Draw a red triangle on a black background.
+    Controls where you are looking from.
+
+# glFrustrum
+
+    Controls the view box and how it projects into the screen.
+
+    Can make objects further away look smaller, unlike ortho.
 */
 
 #include <stdlib.h>
@@ -10,19 +16,15 @@ Draw a red triangle on a black background.
 #include <GL/glu.h>
 #include <GL/glut.h>
 
-static void init(void) {
-    glClearColor(0.0, 0.0, 0.0, 0.0);
-    glShadeModel(GL_FLAT);
-}
-
 static void display(void) {
     glClear(GL_COLOR_BUFFER_BIT);
     glLoadIdentity();
+    gluLookAt(0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
     glBegin(GL_TRIANGLES);
     glColor3f(1.0f, 0.0f, 0.0f);
-    glVertex3f( 0.0f,  0.5f, 0.0f);
-    glVertex3f(-0.5f, -0.5f, 0.0f);
-    glVertex3f( 0.5f, -0.5f, 0.0f);
+    glVertex3f( 0.0f, 1.0f, 0.0f);
+    glVertex3f(-1.0f, -1.0f, 0.0f);
+    glVertex3f( 1.0f, -1.0f, 0.0f);
     glEnd();
     glFlush();
 }
@@ -31,6 +33,7 @@ static void reshape(int w, int h) {
     glViewport(0, 0, w, h);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
+    glFrustum(-1.0, 1.0, -1.0, 1.0, 1.5, 20.0);
     glMatrixMode(GL_MODELVIEW);
 }
 
@@ -40,7 +43,8 @@ int main(int argc, char** argv) {
     glutInitWindowSize(500, 500);
     glutInitWindowPosition(100, 100);
     glutCreateWindow(argv[0]);
-    init();
+    glClearColor(0.0, 0.0, 0.0, 0.0);
+    glShadeModel(GL_FLAT);
     glutDisplayFunc(display);
     glutReshapeFunc(reshape);
     glutMainLoop();

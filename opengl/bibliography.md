@@ -6,18 +6,48 @@ Standards:
 
     From there you can reach for example:
 
-    - <https://www.opengl.org/registry/doc/glspec21.20061201.pdf> 2.1 spec
-    - <https://www.opengl.org/sdk/docs/man2/> 2.1 online reference
+    2.1 docs:
 
-Tutorials with code:
+    - <https://www.opengl.org/registry/doc/glspec21.20061201.pdf> official spec
+    - <https://www.opengl.org/sdk/docs/man2/> online reference
 
-- <https://github.com/JoeyDeVries/LearnOpenGL> <http://learnopengl.com/>
-- <https://github.com/opengl-tutorials/ogl>
-- <https://github.com/capnramses/antons_opengl_tutorials_book> Some hardcore examples. Uses GLFW.
-- <https://github.com/Overv/Open.GL/tree/master/content/code>
+    Latest docs: (4.5 as of 2016):
+
+    - <https://www.opengl.org/sdk/docs/man/>
+
+    4.X docs:
+
+    - <https://www.opengl.org/registry/doc/glspec45.compatibility.pdf>
+    - <https://www.opengl.org/registry/doc/glspec45.core.pdf>
+    - <https://www.opengl.org/sdk/docs/man4/>
+
+    There is also a "compatibility profile", which includes deprecated functions like `glBegin`: <https://www.opengl.org/registry/doc/glspec45.compatibility.pdf> Deprecated parts are in red.
+
+    -   Vulkan: <https://www.khronos.org/vulkan/>
+
+Tutorials with runnable version tracked code:
+
+- <https://github.com/JoeyDeVries/LearnOpenGL> <http://learnopengl.com/> GLFW, retained, tutorial source also on GitHub, C++.
+- <https://github.com/opengl-tutorials/ogl> <http://www.opengl-tutorial.org/> GLFW, retained
+- <https://github.com/capnramses/antons_opengl_tutorials_book> GLFW, retained, C.
+- <https://github.com/Overv/Open.GL/tree/master/content/code> <https://open.gl/> GLFW, retained
+- <https://github.com/tomdalling/opengl-series> <http://www.tomdalling.com/blog/category/modern-opengl/> GLFW, retained
+
+Tutorials with runnable code that is not version tracked:
+
+- <http://ogldev.atspace.co.uk/>
+
+Tutorials without runnable source code:
+
+- <https://www.opengl.org/wiki> official wiki, contains some useful insights.
+- <http://www.lighthouse3d.com/>
+- <http://nehe.gamedev.net>
+- Jamie King's video tutorials: <https://www.youtube.com/playlist?list=PLRwVmtr-pp06qT6ckboaOhnm9FxmzHpbY> Some good info on minimal examples, but would benefit from a GitHub. Visual Studio, retained.
+
+Old:
+
+- <http://www.videotutorialsrock.com/>
 - <http://www.glprogramming.com/red/>
-- <https://github.com/tomdalling/opengl-series> <http://www.tomdalling.com/blog/category/modern-opengl/> Modern, no immediate rendering.
-- <http://www.videotutorialsrock.com/opengl_tutorial/normalize/video.php>
 
 Java:
 

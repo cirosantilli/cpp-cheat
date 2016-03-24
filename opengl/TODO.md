@@ -26,11 +26,40 @@
     - http://gamedev.stackexchange.com/questions/53333/how-to-implement-a-basic-arcball-camera-in-opengl-with-glm
 -   VAO, VBO http://stackoverflow.com/questions/11821336/what-are-vertex-array-objects
     -   Immediate mode vs retained mode:
+        - https://en.wikipedia.org/wiki/Retained_mode
+        - https://en.wikipedia.org/wiki/Immediate_mode_(computer_graphics)
         - immediate mode is deprecated. So like, glBegin, glEnd and glVertex which we use in every test program are deprecated. Lol.
         - http://gamedev.stackexchange.com/questions/21733/why-does-opengl-3-only-allow-vbos
         - http://stackoverflow.com/questions/6733934/what-does-immediate-mode-mean-in-opengl Hello world requested but not provided, too long, lol. Opportunity!
         - http://gamedev.stackexchange.com/questions/21733/why-does-opengl-3-only-allow-vbos
 -   https://en.wikipedia.org/wiki/Stencil_buffer
--   shading
+    - http://www.learnopengl.com/#!Advanced-OpenGL/Stencil-testing
+-   shading, glsl
+    - pipeline https://www.opengl.org/wiki/Rendering_Pipeline_Overview , great diagram
+        - rasterization: determines which pixels are covered by a triangle
+    - name is wrong nowadays: shaders can do more things than just shading, including positioning vertexes (e.g. for tesselation) and arbitrary computaiton!
     - vertex shader
+        - gets run for each vertes
+        - comes before the fragment shader
+        - first pipeline stage
     - fragment shader
+        - TODO more precisly, how many times is this called? Once per pixel (for each triangle it appears in)? Seems so:
+            - http://gamedev.stackexchange.com/questions/8977/what-is-a-fragment
+            - http://gamedev.stackexchange.com/questions/63992/how-many-times-fragment-shader-is-executed
+            - http://stackoverflow.com/questions/4421261/vertex-shader-vs-fragment-shader
+            - some of those pixels can then be discarded because they are hidden
+        - inputs:
+            - interpolated colors of vertices of triangles
+            - depth
+        - a fragment is a piece(s) of a triangle that was behind another one! Thus the name fragment. View: https://youtu.be/uH1ES8LOrlM?t=276
+        - comes after rasterization. TODO what is that?
+        - <https://www.youtube.com/watch?v=uH1ES8LOrlM>
+    - answer http://stackoverflow.com/questions/4421261/vertex-shader-vs-fragment-shader
+        - duplicate http://stackoverflow.com/questions/832545/what-are-vertex-and-pixel-shaders
+    - http://nehe.gamedev.net/article/glsl_an_introduction/25007/
+    - https://www.opengl.org/wiki/Layout_Qualifier_(GLSL)
+    - `in`, `out`: http://gamedev.stackexchange.com/questions/29672/in-out-keywords-in-glsl
+    - https://www.opengl.org/wiki/Shader
+        - there are many types of shaders besides vertex and fragment
+-   motion blur:
+    -   http://john-chapman-graphics.blogspot.fr/2013/01/what-is-motion-blur-motion-pictures-are.html

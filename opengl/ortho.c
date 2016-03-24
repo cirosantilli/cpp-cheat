@@ -26,7 +26,16 @@ static void display(void) {
         gluLookAt(0.0, 0.0, -3.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
     }
     glColor3f(1.0f, 1.0f, 1.0f);
+#if 1
     glutWireCube(2);
+#else
+    /* To test for depth. */
+    glBegin(GL_TRIANGLES);
+    glVertex3f( 0.0f,  0.5f, -1.1f);
+    glVertex3f(-0.5f, -0.5f, -1.1f);
+    glVertex3f( 0.5f, -0.5f, -1.1f);
+    glEnd();
+#endif
     glFlush();
 }
 
@@ -35,6 +44,7 @@ static void reshape(int w, int h) {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     if (ortho) {
+        /* The default viewport is the cube of length 2, double that. */
         glOrtho(-2.0, 2.0, -2.0, 2.0, -2.0, 2.0);
     } else {
         glFrustum(-1.0, 1.0, -1.0, 1.0, 1.5, 20.0);

@@ -125,5 +125,17 @@ int main() {
         printf("ctime = %s\n", ctime(&t));
     }
 
+    /*
+    # milliseconds
+
+    # microseconds
+
+    # nanoseconds
+
+        Added in C11 with timespec_get: http://stackoverflow.com/questions/361363/how-to-measure-time-in-milliseconds-using-ansi-c
+
+        C++11 added one too: http://stackoverflow.com/questions/1487695/c-cross-platform-high-resolution-timer
+    */
+
     return EXIT_SUCCESS;
 }

@@ -249,6 +249,7 @@ static GLfloat vs[][3] = {
 int old_t = 0;
 
 void init(int argc, char** argv) {
+    int i;
     glutInit(&argc, argv);
     glShadeModel(GL_FLAT);
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
@@ -262,7 +263,7 @@ void init(int argc, char** argv) {
     glEnable(GL_DEPTH_TEST);
     glPolygonOffset(1.0, 1.0);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    for (int i = 0; i < NTEXTURES; i++) {
+    for (i = 0; i < NTEXTURES; i++) {
         textures[i] = loadTextureJpg(texture_files[i], 1);
     }
 }
