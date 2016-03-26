@@ -29,12 +29,16 @@
         1. [glutBitmapCharacter](bitmap_character.c)
         1. [Animation](animation.c)
     1.  GLFW
-        1. [hello world](glfw_hello_world.c)
-        1. [triangle](glfw_triangle.c)
-        1. [triangles](glfw_triangles.c)
-        1. [shader](glfw_shader.c)
-        1. [transform](glfw_transform.c)
-        1. [animation](glfw_animation.c)
+        1.  [hello world](glfw_hello_world.c)
+        1.  [animation](glfw_animation.c)
+    1.  Retained mode + shaders
+        1.  [triangle](glfw_triangle.c)
+        1.  [color](glfw_color.c)
+        1.  [triangles](glfw_triangles.c)
+        1.  [transform](glfw_transform.c)
+        1.  Naughty
+            1.  [Infinite loop shader](glfw_infinite_loop_shader.c.off)
+            1.  [Memory overflow shader](glfw_memory_overflow_shader.c.off)
     1.  [GLX](glx.c)
     1.  Performance
         1.  [Many triangles](many_triangles.c)

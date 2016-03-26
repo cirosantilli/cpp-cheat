@@ -45,6 +45,7 @@
 -   https://en.wikipedia.org/wiki/Stencil_buffer
     - http://www.learnopengl.com/#!Advanced-OpenGL/Stencil-testing
 -   shading, glsl
+    - what is the basis for GLSL implementations? GCC, clang, others?
     - pipeline https://www.opengl.org/wiki/Rendering_Pipeline_Overview , great diagram
         - rasterization: determines which pixels are covered by a triangle
     - name is wrong nowadays: shaders can do more things than just shading, including positioning vertexes (e.g. for tesselation) and arbitrary computaiton!
@@ -71,6 +72,10 @@
     - `in`, `out`: http://gamedev.stackexchange.com/questions/29672/in-out-keywords-in-glsl
     - https://www.opengl.org/wiki/Shader
         - there are many types of shaders besides vertex and fragment
+    - get output out of glsl
+        - http://stackoverflow.com/questions/2508818/how-to-debug-a-glsl-shader
+        - http://stackoverflow.com/questions/14086926/get-results-of-gpu-calculations-back-to-the-cpu-program-in-opengl
+        - http://stackoverflow.com/questions/19123239/is-it-possible-to-read-data-from-vertex-shader
 -   motion blur:
     -   http://john-chapman-graphics.blogspot.fr/2013/01/what-is-motion-blur-motion-pictures-are.html
 
