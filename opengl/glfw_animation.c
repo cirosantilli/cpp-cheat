@@ -1,7 +1,10 @@
 /*
 From: http://www.glfw.org/docs/latest/quick.html
 
-TODO: convert to delayed mode.
+TODO:
+
+- convert to delayed mode
+- use time deltas and some user input
 */
 
 #include <GLFW/glfw3.h>

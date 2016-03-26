@@ -16,7 +16,17 @@
     1) Why use matrices at all? Answer: to pre-calculate multiple combined operations.
     2) Why 4D for 3D objects? Let's see 3D for 2D and then we're done.
 
-    TODO: world, view and projection transforms?
+    TODO: world vs view  vs projection transforms?
+
+    - http://stackoverflow.com/questions/5550620/the-purpose-of-model-view-projection-matrix
+    - http://gamedev.stackexchange.com/questions/56201/opengl-understanding-the-relationship-between-model-view-and-world-matrix
+
+    Possible answer:
+
+    - World: puts objects into place if we were looking from origin. Applied only to objects that need moving.
+    - View: `gluLookAt`, places the camera. Applied to all objects.
+    - Projection: `glOrtho` and `glFrustum`, prepare the image to project into a 2D plane
+
 -   Make image spin with mouse drag:
     - http://stackoverflow.com/questions/19884182/moving-a-drawing-around-in-opengl-with-mouse
     - http://stackoverflow.com/questions/16342442/drag-and-drop-of-images-using-opengl-c
@@ -63,3 +73,8 @@
         - there are many types of shaders besides vertex and fragment
 -   motion blur:
     -   http://john-chapman-graphics.blogspot.fr/2013/01/what-is-motion-blur-motion-pictures-are.html
+
+    | 1 0  0 0 |   | x |   |  x |               | x / -z |
+    | 0 1  0 0 | * | y | = |  y | identified to | y / -z |
+    | 0 0  1 0 |   | z |   |  z |               |     -2 |
+    | 0 0 -1 0 |   | w |   | -z |               |      0 |

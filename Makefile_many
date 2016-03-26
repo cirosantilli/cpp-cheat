@@ -93,6 +93,7 @@ clean:
 	else \
 		rm -rf *'$(OBJECT_EXT)' *'$(OUT_EXT)' *'$(TMP_EXT)' callgrind.out.* ;\
 	fi
+	if [ -x 'clean' ]; then ./clean; fi
 
 debug: clean set_debug_flags all
 	cd $(OUT_DIR) && gdb "$(RUN_BNAME)"

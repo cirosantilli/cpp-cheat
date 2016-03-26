@@ -52,6 +52,10 @@ int main(int argc, char **argv) {
     printf("MAX_ATTRIB_STACK_DEPTH     = %d\n", output);
     glGetIntegerv(GL_MAX_TEXTURE_STACK_DEPTH, &output);
     printf("MAX_TEXTURE_STACK_DEPTH    = %d\n", output);
+    glGetIntegerv(GL_MAX_VIEWPORT_DIMS, &output);
+    printf("GL_MAX_VIEWPORT_DIMS       = %d\n", output);
+    glGetIntegerv(GL_MAX_RENDERBUFFER_SIZE, &output);
+    printf("GL_MAX_RENDERBUFFER_SIZE   = %d\n", output);
 
     printf("EXTENSIONS                 = %s\n", (char*)glGetString(GL_EXTENSIONS));
 

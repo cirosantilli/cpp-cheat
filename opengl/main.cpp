@@ -431,16 +431,14 @@ void init(int argc, char** argv) {
             }
             exit(EXIT_FAILURE);
         }
-        glutHideWindow();  //TEST COMMENT
+        glutHideWindow();
     }
 
     // Color to clear screen after each image.
     glClearColor(0.0, 0.0, 0.0, 0.0);
 
     glEnable(GL_DEPTH_TEST);
-
     //glEnable(GL_BLEND);  //use those alphas TODO ?
-
     glEnable(GL_POLYGON_OFFSET_FILL); //TODO ?
     //glEnable(GL_POLYGON_OFFSET_LINE);
     glPolygonOffset(1.0, 1.0);

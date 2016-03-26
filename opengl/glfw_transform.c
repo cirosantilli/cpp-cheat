@@ -1,9 +1,8 @@
 /*
-One color per vertex.
-
-http://stackoverflow.com/questions/6733934/what-does-immediate-mode-mean-in-opengl
+Transformation matrices.
 */
 
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -22,8 +21,9 @@ static const GLchar* vertex_shader_source =
     "layout (location = 0) in vec3 position;\n"
     "layout (location = 1) in vec3 color;\n"
     "out vec3 ourColor;\n"
+    "uniform mat4 transform;\n"
     "void main() {\n"
-    "    gl_Position = vec4(position, 1.0f);\n"
+    "    gl_Position = transform * vec4(position, 1.0f);\n"
     "    ourColor = color;\n"
     "}\n";
 static const GLchar* fragment_shader_source =
@@ -42,9 +42,14 @@ static GLfloat vertices[] = {
 
 int main(void) {
     GLint shader_program;
+    GLint transform_location;
+    GLuint vbo;
+    GLuint vao;
+    GLFWwindow* window;
+    double time;
 
     glfwInit();
-    GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, __FILE__, NULL, NULL);
+    window = glfwCreateWindow(WIDTH, HEIGHT, __FILE__, NULL, NULL);
     glfwMakeContextCurrent(window);
     glewExperimental = GL_TRUE;
     glewInit();
@@ -53,7 +58,6 @@ int main(void) {
 
     shader_program = common_get_shader_program(vertex_shader_source, fragment_shader_source);
 
-    GLuint vbo, vao;
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo);
     glBindVertexArray(vao);
@@ -70,7 +74,21 @@ int main(void) {
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
         glClear(GL_COLOR_BUFFER_BIT);
+
         glUseProgram(shader_program);
+        transform_location = glGetUniformLocation(shader_program, "transform");
+        /* To do serious things, we'd need a math library like glm here. */
+        GLfloat transform[] = {
+            0.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 1.0f, 0.0f,
+            0.0f, 0.0f, 0.0f, 1.0f,
+        };
+        time = glfwGetTime();
+        transform[0] = 2.0f * sin(time);
+        transform[5] = 2.0f * cos(time);
+        glUniformMatrix4fv(transform_location, 1, GL_FALSE, transform);
+
         glBindVertexArray(vao);
         glDrawArrays(GL_TRIANGLES, 0, 3);
         glBindVertexArray(0);

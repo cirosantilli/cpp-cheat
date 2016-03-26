@@ -55,9 +55,13 @@ One advantage over GLUT seems to be that it allows for more control over the eve
 
 ### GLM
 
-Mathematics useful for OpenGL.
+C++ Mathematics useful for OpenGL.
 
 <https://github.com/g-truc/glm>
+
+C alternatives?
+
+- <https://www.reddit.com/r/gamedev/comments/1uhnlg/good_glm_alternatives_for_c/>
 
 ## glxinfo
 
