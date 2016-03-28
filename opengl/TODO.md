@@ -76,6 +76,8 @@
         - http://stackoverflow.com/questions/2508818/how-to-debug-a-glsl-shader
         - http://stackoverflow.com/questions/14086926/get-results-of-gpu-calculations-back-to-the-cpu-program-in-opengl
         - http://stackoverflow.com/questions/19123239/is-it-possible-to-read-data-from-vertex-shader
+    - https://www.shadertoy.com/ the jsfiddle of shaders
+    - HLSL: DirectX version of GLSL
 -   motion blur:
     -   http://john-chapman-graphics.blogspot.fr/2013/01/what-is-motion-blur-motion-pictures-are.html
 

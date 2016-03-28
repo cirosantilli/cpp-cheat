@@ -1,9 +1,8 @@
 # Bibliography
 
-- Khronos standards: <https://www.khronos.org/registry/cl/>
-- <http://developer.amd.com/tools-and-sdks/opencl-zone/opencl-resources/>
-- <http://www.fixstars.com/en/opencl/book/OpenCLProgrammingBook>
-- The specifications of your hardware, e.g. <http://www.nvidia.com/object/nvs_techspecs.html>
+Khronos standards:
+
+- <https://www.khronos.org/registry/cl/>
 
 Tutorials with sample code:
 
@@ -12,10 +11,17 @@ Tutorials with sample code:
 - <https://github.com/enjalot/adventures_in_opencl> Worked after `sudo apt-get install libxmu-dev libxi-dev`.
 - <https://github.com/bgaster/opencl-book-samples> The book is commercial.
 - <https://github.com/vpeurala/openclhelloworld> Simple hello world.
+- <https://github.com/HandsOnOpenCL/Exercises-Solutions> Vector addition, matrix multiplication, Conway's game of life. On Ubuntu 15.10, I had to comment out some constants on `err.h`, but it worked fine.
 
 Demos:
 
 - <https://bitbucket.org/sirbrialliance/raytrace> <https://www.youtube.com/watch?v=-5PubFKdV_w>
+
+Resources:
+
+- <http://developer.amd.com/tools-and-sdks/opencl-zone/opencl-resources/>
+- <http://www.fixstars.com/en/opencl/book/OpenCLProgrammingBook>
+- The specifications of your hardware, e.g. <http://www.nvidia.com/object/nvs_techspecs.html>
 
 Big programs:
 

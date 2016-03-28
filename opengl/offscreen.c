@@ -1,26 +1,5 @@
 /*
-- http://stackoverflow.com/questions/3191978/how-to-use-glut-opengl-to-render-to-a-file/14324292#14324292
-- http://stackoverflow.com/questions/5844858/how-to-take-screenshot-in-opengl/36236839#36236839
-- http://stackoverflow.com/questions/12157646/how-to-render-offscreen-on-opengl
-- http://stackoverflow.com/questions/8841422/glreadpixels-data-argument-usage
-- http://stackoverflow.com/questions/16509531/render-opengl-es-2-0-to-image
-- http://www.songho.ca/opengl/gl_fbo.html
-- http://www.mesa3d.org/brianp/sig97/offscrn.htm
-- http://stackoverflow.com/questions/17711673/render-off-screen-with-fbo-and-renderbuffer-and-pixel-transfer-of-color-depth
-- http://gamedev.stackexchange.com/questions/59204/opengl-fbo-render-off-screen-and-texture
-
-FBO larger than window
-
-- http://stackoverflow.com/questions/29598007/opengl-how-to-create-and-render-to-a-framebuffer-thats-larger-than-the-window
-- http://stackoverflow.com/questions/28393664/fbo-lwjgl-bigger-than-screen-size-what-im-doing-wrong
-- http://stackoverflow.com/questions/16826750/renderbuffers-larger-than-window-size-opengl
-- http://stackoverflow.com/questions/682517/problem-saving-opengl-fbo-larger-than-window
-
-Apparently OpenGL is not made for that,
-and it is provided by the interface between OpenGL and the windowing system, e.g. GLX.
-
-glPixelStorei might be needed https://www.opengl.org/sdk/docs/man/html/glPixelStore.xhtml
-glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+http://stackoverflow.com/questions/3191978/how-to-use-glut-opengl-to-render-to-a-file/14324292#14324292
 */
 
 #include <assert.h>
@@ -47,8 +26,18 @@ static unsigned int max_nframes = 100;
 static unsigned int nframes = 0;
 
 /* Model. */
-static double angle = 0;
-static double delta_angle = 1;
+static double angle;
+static double delta_angle;
+
+static int init_model(void) {
+    angle = 0;
+    delta_angle = 1;
+}
+
+static int update_model(void) {
+    angle += delta_angle;
+    return 0;
+}
 
 static void init(void)  {
     int glget;
@@ -92,6 +81,7 @@ static void init(void)  {
 
     pixels = malloc(FORMAT_NBYTES * WIDTH * HEIGHT);
     time0 = glutGet(GLUT_ELAPSED_TIME);
+    init_model();
 }
 
 static void deinit(void)  {
@@ -150,11 +140,6 @@ static void display(void) {
         exit(EXIT_SUCCESS);
 }
 
-static int update_model() {
-    angle += delta_angle;
-    return 0;
-}
-
 static void idle(void) {
     while (update_model());
     glutPostRedisplay();
@@ -167,7 +152,7 @@ int main(int argc, char **argv) {
         offscreen = 0;
     if (offscreen) {
         /* TODO: if we use anything smaller than the window, it only renders a smaller version of things. */
-        glutInitWindowSize(50, 50);
+        /*glutInitWindowSize(50, 50);*/
         glutInitWindowSize(WIDTH, HEIGHT);
         glut_display = GLUT_SINGLE;
     } else {

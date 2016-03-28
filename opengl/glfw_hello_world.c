@@ -8,6 +8,7 @@ int main(void) {
     GLFWwindow* window;
     if (!glfwInit())
         return -1;
+    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
     window = glfwCreateWindow(640, 480, __FILE__, NULL, NULL);
     if (!window) {
         glfwTerminate();
