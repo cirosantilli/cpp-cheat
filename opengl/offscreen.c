@@ -13,7 +13,6 @@ http://stackoverflow.com/questions/3191978/how-to-use-glut-opengl-to-render-to-a
 #include <GL/glext.h>
 
 enum Constants { SCREENSHOT_MAX_FILENAME = 256 };
-static const char *SCREENSHOT_FILENAME_PREFIX = "tmp";
 static GLubyte *pixels = NULL;
 static GLuint fbo;
 static GLuint rbo_color;
@@ -23,25 +22,37 @@ static const GLuint FORMAT_NBYTES = 4;
 static const unsigned int HEIGHT = 100;
 static const unsigned int WIDTH = 100;
 static int offscreen = 1;
-static unsigned int time0;
 static unsigned int max_nframes = 100;
 static unsigned int nframes = 0;
+static unsigned int time0;
 
 /* Model. */
 static double angle;
 static double delta_angle;
 
+/*
+Take screenshot with glReadPixels and save to a file in PPM format.
+-   filename: file path to save to, without extension
+-   width: screen width in pixels
+-   height: screen height in pixels
+-   format: glReadPixelsFormat
+-   format_nbytes: number of bytes per pixel. This is implied by format,
+    but we haven't found a built-in way to get this information automatically.
+-   pixels: intermediate buffer to avoid repeated mallocs across multiple calls.
+    Contents of this buffer do not matter.
+    May be NULL, in which case it is initialized.
+    You must `free` it when you won't be calling this function anymore.
+*/
 static void screenshot_ppm(const char *filename, unsigned int width, unsigned int height,
-        GLenum format, unsigned int pixel_nbytes, GLubyte **pixels) {
+         GLenum format, unsigned int format_nbytes, GLubyte **pixels) {
     size_t i, j, k, cur;
-    if (*pixels == NULL)
-        (*pixels) = malloc(pixel_nbytes * width * height);
-    glReadPixels(0, 0, width, height, format, GL_UNSIGNED_BYTE, pixels);
     FILE *f = fopen(filename, "w");
     fprintf(f, "P3\n%d %d\n%d\n", width, height, 255);
+    *pixels = realloc(*pixels, format_nbytes * width * height);
+    glReadPixels(0, 0, width, height, format, GL_UNSIGNED_BYTE, *pixels);
     for (i = 0; i < height; i++) {
         for (j = 0; j < width; j++) {
-            cur = pixel_nbytes * (((height - i - 1) * width + j);
+            cur = format_nbytes * ((height - i - 1) * width + j);
             fprintf(f, "%3d %3d %3d ", (*pixels)[cur], (*pixels)[cur + 1], (*pixels)[cur + 2]);
         }
         fprintf(f, "\n");
@@ -113,7 +124,7 @@ static void deinit(void)  {
     }
 }
 
-static void draw_scene() {
+static void draw_scene(void) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
     glRotatef(angle, 0.0f, 0.0f, -1.0f);
@@ -135,14 +146,10 @@ static void display(void) {
     } else {
         glutSwapBuffers();
     }
-    assert(
-        snprintf(filename, SCREENSHOT_MAX_FILENAME, "%s%d.ppm",
-            SCREENSHOT_FILENAME_PREFIX, nframes)
-        < SCREENSHOT_MAX_FILENAME
-    );
+    snprintf(filename, SCREENSHOT_MAX_FILENAME, "tmp%d.ppm", nframes);
     screenshot_ppm(filename, WIDTH, HEIGHT, FORMAT, FORMAT_NBYTES, &pixels);
     nframes++;
-    if (nframes >= max_nframes)
+    if (nframes > max_nframes)
         exit(EXIT_SUCCESS);
 }
 
