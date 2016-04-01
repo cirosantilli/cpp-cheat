@@ -12,6 +12,8 @@ http://stackoverflow.com/questions/3191978/how-to-use-glut-opengl-to-render-to-a
 #include <GL/glut.h>
 #include <GL/glext.h>
 
+enum Constants { SCREENSHOT_MAX_FILENAME = 256 };
+static const char *SCREENSHOT_FILENAME_PREFIX = "tmp";
 static GLubyte *pixels = NULL;
 static GLuint fbo;
 static GLuint rbo_color;
@@ -28,6 +30,24 @@ static unsigned int nframes = 0;
 /* Model. */
 static double angle;
 static double delta_angle;
+
+static void screenshot_ppm(const char *filename, unsigned int width, unsigned int height,
+        GLenum format, unsigned int pixel_nbytes, GLubyte **pixels) {
+    size_t i, j, k, cur;
+    if (*pixels == NULL)
+        (*pixels) = malloc(pixel_nbytes * width * height);
+    glReadPixels(0, 0, width, height, format, GL_UNSIGNED_BYTE, pixels);
+    FILE *f = fopen(filename, "w");
+    fprintf(f, "P3\n%d %d\n%d\n", width, height, 255);
+    for (i = 0; i < height; i++) {
+        for (j = 0; j < width; j++) {
+            cur = pixel_nbytes * (((height - i - 1) * width + j);
+            fprintf(f, "%3d %3d %3d ", (*pixels)[cur], (*pixels)[cur + 1], (*pixels)[cur + 2]);
+        }
+        fprintf(f, "\n");
+    }
+    fclose(f);
+}
 
 static int init_model(void) {
     angle = 0;
@@ -79,7 +99,6 @@ static void init(void)  {
     glLoadIdentity();
     glMatrixMode(GL_MODELVIEW);
 
-    pixels = malloc(FORMAT_NBYTES * WIDTH * HEIGHT);
     time0 = glutGet(GLUT_ELAPSED_TIME);
     init_model();
 }
@@ -92,24 +111,6 @@ static void deinit(void)  {
         glDeleteRenderbuffers(1, &rbo_color);
         glDeleteRenderbuffers(1, &rbo_depth);
     }
-}
-
-static void create_ppm(char *prefix, int frame_id, unsigned int width, unsigned int height,
-        unsigned int color_max, unsigned int pixel_nbytes, GLubyte *pixels) {
-    size_t i, j, k, cur;
-    enum Constants { max_filename = 256 };
-    char filename[max_filename];
-    snprintf(filename, max_filename, "%s%d.ppm", prefix, frame_id);
-    FILE *f = fopen(filename, "w");
-    fprintf(f, "P3\n%d %d\n%d\n", width, HEIGHT, 255);
-    for (i = 0; i < height; i++) {
-        for (j = 0; j < width; j++) {
-            cur = pixel_nbytes * ((height - i - 1) * width + j);
-            fprintf(f, "%3d %3d %3d ", pixels[cur], pixels[cur + 1], pixels[cur + 2]);
-        }
-        fprintf(f, "\n");
-    }
-    fclose(f);
 }
 
 static void draw_scene() {
@@ -127,16 +128,21 @@ static void draw_scene() {
 }
 
 static void display(void) {
+    char filename[SCREENSHOT_MAX_FILENAME];
     draw_scene();
     if (offscreen) {
         glFlush();
     } else {
         glutSwapBuffers();
     }
-    glReadPixels(0, 0, WIDTH, HEIGHT, FORMAT, GL_UNSIGNED_BYTE, pixels);
+    assert(
+        snprintf(filename, SCREENSHOT_MAX_FILENAME, "%s%d.ppm",
+            SCREENSHOT_FILENAME_PREFIX, nframes)
+        < SCREENSHOT_MAX_FILENAME
+    );
+    screenshot_ppm(filename, WIDTH, HEIGHT, FORMAT, FORMAT_NBYTES, &pixels);
     nframes++;
-    create_ppm("tmp", nframes, WIDTH, HEIGHT, 255, FORMAT_NBYTES, pixels);
-    if (nframes > max_nframes)
+    if (nframes >= max_nframes)
         exit(EXIT_SUCCESS);
 }
 
