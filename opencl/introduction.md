@@ -14,41 +14,16 @@ The OpenCL standard in maintained by the Khronos Group, the same guys who mainta
 
 OpenCL, like any other language has versions. As of 2013 the latest version is OpenCL 2.0 released in preview (unstable) as of Jul 2013.
 
-## Implementations
+## Versions
 
-<https://en.wikipedia.org/wiki/OpenCL#Implementations>
+1.0: 2009, Apple.
+1.1: 2010.
+1.2: 2011.
+2.0: 2013. AMD support: 2015. <http://developer.amd.com/community/blog/2015/08/26/introducing-app-sdk-30-opencl-2/>
 
-There is a certain "installable client driver loader (ICD loader)" which forwards calls to the proprietary implementation.
-
-### Gallium Compute
-
-<http://www.x.org/wiki/XorgEVoC/GalliumCompute/>
-
-Looks like the major open source implementation.
-
-### pocl
-
-Portable OpenCL implementation.
-
-<https://github.com/pocl/pocl>
-
-<http://portablecl.org/>
-
-MIT and LLVM based.
-
-## Tools
-
-- <http://repo.or.cz/w/ppcg.git> C99 to OpenCL.
-
-## Alternatives
-
-- <https://en.wikipedia.org/wiki/CUDA> NVIDIA's
-- OpenMP <http://stackoverflow.com/questions/7263193/opencl-performance-vs-openmp>
-- <https://en.wikipedia.org/wiki/Cilk> Intel's
-- <https://en.wikipedia.org/wiki/DirectCompute> Microsoft's
-- <https://en.wikipedia.org/wiki/Unified_Parallel_C>
-
-## OpenCL + OpenGL for real time rendering of complex calculations
+## OpenCL and OpenGL integration
 
 - <http://stackoverflow.com/questions/4005935/mix-opencl-with-opengl>
 - <http://enja.org/2010/08/27/adventures-in-opencl-part-2-particles-with-opengl/>
+
+Also see compute shaders for OpenGL, they seem to integrate better.

@@ -1,5 +1,4 @@
-/*
-# function
+/*# function
 
     A function is basically a branch, but in which you have to:
 
@@ -462,13 +461,13 @@ int main() {
 
                 http://stackoverflow.com/questions/5481579/whats-the-difference-between-function-prototype-and-declaration
 
-                - Prototype is a declaration that specifies the arguments.
+                -   Prototype is a declaration that specifies the arguments.
                     Only a single prototype can exist.
 
-                - a declaration can not be a prototype if it does not have any arguments.
+                -   a declaration can not be a prototype if it does not have any arguments.
                     The arguments are left unspecified.
 
-                - to specify a prototype that takes no arguments, use `f(void)`
+                -   to specify a prototype that takes no arguments, use `f(void)`
 
                 In C++ the insanity is reduced, and every declaration is a prototype,
                 so `f()` is the same as `f(void)`.
@@ -543,7 +542,7 @@ int main() {
     /*
     # K&R function declaration
 
-        This form of funciton declaration, while standard,
+        This form of function declaration, while standard,
         is almost completely obsolete and forgotten today.
 
         It is however still ANSI C.

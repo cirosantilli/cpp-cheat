@@ -6,23 +6,17 @@ NVIDIA's. More closed since controlled by NVIDIA. Also more popular for the same
 
 <https://www.reddit.com/r/programming/comments/49uw97/cuda_reverse_engineered_to_run_on_nonnvidia/>
 
+<https://en.wikipedia.org/wiki/CUDA> NVIDIA's, only runs in NVIDIA hardware. TODO could AMD implement it legally without paying royalties to NVIDIA?
+
+## OpenMP
+
+<http://stackoverflow.com/questions/7263193/opencl-performance-vs-openmp>
+
 ## RenderScript
 
 Google's choice for Android: <http://stackoverflow.com/questions/14385843/why-did-google-choose-renderscript-instead-of-opencl>
 
 Google somewhat opposes OpenCL, maybe because it was created by Apple?
-
-## Vulkan
-
-<https://en.wikipedia.org/wiki/Vulkan_%28API%29>
-
-Also by Khronos.
-
-TODO why another?
-
-- <http://gamedev.stackexchange.com/questions/96014/what-is-vulkan-and-how-does-it-differ-from-opengl>
-
-Derived from <https://en.wikipedia.org/wiki/Mantle_%28API%29> by AMD, now abandoned in favor of Vulkan, and will somewhat be the new OpenGL.
 
 ## Metal
 
@@ -33,3 +27,20 @@ Apple's response to Google's RenderScript.
 ## DirectX
 
 Microsoft, Windows, Xbox.
+
+## Cilk
+
+<https://en.wikipedia.org/wiki/Cilk>
+
+Intel's
+
+## DirectCompute
+
+<https://en.wikipedia.org/wiki/DirectCompute>
+
+Microsoft's
+
+## Unified parallel C
+
+- <https://en.wikipedia.org/wiki/Unified_Parallel_C>
+- OpenGL compute shaders <http://stackoverflow.com/questions/15868498/what-is-the-difference-between-opencl-and-opengls-compute-shader>

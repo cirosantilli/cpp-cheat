@@ -64,6 +64,7 @@
             1. [Parameter without name](parameter_without_name.c)
             1. [Static array argument](static_array_argument.c)
             1. [_Noreturn](noreturn.c)
+            1. [Identifier list](identifier_list.c)
     1.  [Operator](operator.c)
         1. [sizeof()](sizeof.c)
     1.  [Sequence point](sequence_point.c)
