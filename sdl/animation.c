@@ -30,7 +30,7 @@ int main(void) {
         rect.x = ((int)(
                 SCREENS_PER_SECOND
                 * (MAX_RECT_POS)
-                * ((SDL_GetTicks() - initial_time)) / 1000.0))
+                * (SDL_GetTicks() - initial_time) / 1000.0))
                 % (MAX_RECT_POS);
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
         SDL_RenderClear(renderer);

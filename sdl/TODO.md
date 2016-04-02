@@ -1,3 +1,3 @@
 # TODO
 
-- Synthesise audio: <http://stackoverflow.com/questions/10110905/simple-wave-generator-with-sdl-in-c> not working
+- take screenshots <http://stackoverflow.com/questions/20233469/how-do-i-take-and-save-a-bmp-screenshot-in-sdl-2>

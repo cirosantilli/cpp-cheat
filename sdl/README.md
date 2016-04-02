@@ -6,5 +6,6 @@
     1.  [SDL_RenderDrawPoint](render_draw_point.c)
     1.  [Error handling](error_handling.c)
     1.  [Animation](animation.c)
-    1.  [Animation random walk](animation_random_walk.c)
+        1.  [Animation random walk](animation_random_walk.c)
+        1.  [Plane wave](plane_wave.c)
     1.  [Sound frequency](sound_frequency.c)

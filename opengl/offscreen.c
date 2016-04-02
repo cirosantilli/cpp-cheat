@@ -2,9 +2,12 @@
 http://stackoverflow.com/questions/3191978/how-to-use-glut-opengl-to-render-to-a-file/14324292#14324292
 */
 
+#define LIBPNG 1
+
 #include <assert.h>
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #define GL_GLEXT_PROTOTYPES 1
 #include <GL/gl.h>
@@ -12,13 +15,16 @@ http://stackoverflow.com/questions/3191978/how-to-use-glut-opengl-to-render-to-a
 #include <GL/glut.h>
 #include <GL/glext.h>
 
+#if LIBPNG
+#include <png.h>
+#endif
+
 enum Constants { SCREENSHOT_MAX_FILENAME = 256 };
-static GLubyte *pixels = NULL;
 static GLuint fbo;
 static GLuint rbo_color;
 static GLuint rbo_depth;
 static const GLenum FORMAT = GL_RGBA;
-static const GLuint FORMAT_NBYTES = 4;
+static const GLuint format_nchannels = 4;
 static const unsigned int HEIGHT = 100;
 static const unsigned int WIDTH = 100;
 static int offscreen = 1;
@@ -36,23 +42,24 @@ Take screenshot with glReadPixels and save to a file in PPM format.
 -   width: screen width in pixels
 -   height: screen height in pixels
 -   format: glReadPixelsFormat
--   format_nbytes: number of bytes per pixel. This is implied by format,
-    but we haven't found a built-in way to get this information automatically.
+-   format_nchannels: number of channels per pixel (e.g. R, G, B, A)
+    This is implied by format, but we haven't found a built-in way to get this
+    information automatically without hard-coding a large switch.
 -   pixels: intermediate buffer to avoid repeated mallocs across multiple calls.
-    Contents of this buffer do not matter.
-    May be NULL, in which case it is initialized.
+    Contents of this buffer do not matter. May be NULL, in which case it is initialized.
     You must `free` it when you won't be calling this function anymore.
 */
+static GLubyte *pixels = NULL;
 static void screenshot_ppm(const char *filename, unsigned int width, unsigned int height,
-         GLenum format, unsigned int format_nbytes, GLubyte **pixels) {
+         GLenum format, unsigned int format_nchannels, GLubyte **pixels) {
     size_t i, j, k, cur;
     FILE *f = fopen(filename, "w");
     fprintf(f, "P3\n%d %d\n%d\n", width, height, 255);
-    *pixels = realloc(*pixels, format_nbytes * width * height);
+    *pixels = realloc(*pixels, format_nchannels * sizeof(GLubyte) * width * height);
     glReadPixels(0, 0, width, height, format, GL_UNSIGNED_BYTE, *pixels);
     for (i = 0; i < height; i++) {
         for (j = 0; j < width; j++) {
-            cur = format_nbytes * ((height - i - 1) * width + j);
+            cur = format_nchannels * ((height - i - 1) * width + j);
             fprintf(f, "%3d %3d %3d ", (*pixels)[cur], (*pixels)[cur + 1], (*pixels)[cur + 2]);
         }
         fprintf(f, "\n");
@@ -60,14 +67,59 @@ static void screenshot_ppm(const char *filename, unsigned int width, unsigned in
     fclose(f);
 }
 
-static int init_model(void) {
+#if LIBPNG
+static png_byte *png_bytes = NULL;
+static png_byte **png_rows = NULL;
+static void screenshot_png(const char *filename, unsigned int width,
+        unsigned int height, GLenum format, unsigned int format_nchannels,
+        GLubyte **pixels, png_byte **png_bytes, png_byte ***png_rows) {
+    size_t i, j, cur, cur_png, nvals;
+    FILE *f = fopen(filename, "wb");
+    nvals = format_nchannels * width * height;
+    *pixels = realloc(*pixels, nvals * sizeof(GLubyte));
+    *png_bytes = realloc(*png_bytes, nvals * sizeof(png_byte));
+    *png_rows = realloc(*png_rows, height * sizeof(png_byte*));
+    glReadPixels(0, 0, width, height, format, GL_UNSIGNED_BYTE, *pixels);
+    for (i = 0; i < nvals; i++)
+        (*png_bytes)[i] = (*pixels)[i];
+    for (i = 0; i < height; i++)
+        (*png_rows)[height - i - 1] = &(*png_bytes)[i * width * format_nchannels];
+    png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+    if (!png) abort();
+    png_infop info = png_create_info_struct(png);
+    if (!info) abort();
+    if (setjmp(png_jmpbuf(png))) abort();
+    png_init_io(png, f);
+    png_set_IHDR(
+        png,
+        info,
+        width,
+        height,
+        8,
+        PNG_COLOR_TYPE_RGBA,
+        PNG_INTERLACE_NONE,
+        PNG_COMPRESSION_TYPE_DEFAULT,
+        PNG_FILTER_TYPE_DEFAULT
+    );
+    png_write_info(png, info);
+    png_write_image(png, *png_rows);
+    png_write_end(png, NULL);
+    fclose(f);
+}
+#endif
+
+static int model_init(void) {
     angle = 0;
     delta_angle = 1;
 }
 
-static int update_model(void) {
+static int model_update(void) {
     angle += delta_angle;
     return 0;
+}
+
+static int model_finished(void) {
+    return nframes > max_nframes;
 }
 
 static void init(void)  {
@@ -111,12 +163,16 @@ static void init(void)  {
     glMatrixMode(GL_MODELVIEW);
 
     time0 = glutGet(GLUT_ELAPSED_TIME);
-    init_model();
+    model_init();
 }
 
 static void deinit(void)  {
     printf("FPS = %f\n", 1000.0 * nframes / (double)(glutGet(GLUT_ELAPSED_TIME) - time0));
     free(pixels);
+#if LIBPNG
+    free(png_bytes);
+    free(png_rows);
+#endif
     if (offscreen) {
         glDeleteFramebuffers(1, &fbo);
         glDeleteRenderbuffers(1, &rbo_color);
@@ -139,6 +195,7 @@ static void draw_scene(void) {
 }
 
 static void display(void) {
+    char extension[SCREENSHOT_MAX_FILENAME];
     char filename[SCREENSHOT_MAX_FILENAME];
     draw_scene();
     if (offscreen) {
@@ -146,15 +203,24 @@ static void display(void) {
     } else {
         glutSwapBuffers();
     }
-    snprintf(filename, SCREENSHOT_MAX_FILENAME, "tmp%d.ppm", nframes);
-    screenshot_ppm(filename, WIDTH, HEIGHT, FORMAT, FORMAT_NBYTES, &pixels);
+#if LIBPNG
+    strcpy(extension, ".png");
+#else
+    strcpy(extension, ".ppm");
+#endif
+    snprintf(filename, SCREENSHOT_MAX_FILENAME, "tmp%d%s", nframes, extension);
+#if LIBPNG
+    screenshot_png(filename, WIDTH, HEIGHT, FORMAT, format_nchannels, &pixels, &png_bytes, &png_rows);
+#else
+    screenshot_ppm(filename, WIDTH, HEIGHT, FORMAT, format_nchannels, &pixels);
+#endif
     nframes++;
-    if (nframes > max_nframes)
+    if (model_finished())
         exit(EXIT_SUCCESS);
 }
 
 static void idle(void) {
-    while (update_model());
+    while (model_update());
     glutPostRedisplay();
 }
 

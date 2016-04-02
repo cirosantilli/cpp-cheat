@@ -293,7 +293,7 @@ int main() {
             are calculated at compile time and stored in the program text.
         */
         {
-            assert(fabs(acos(-1.0) - 3.14)    < 0.01);
+            assert(fabs(acos(-1.0) - 3.14) < 0.01);
         }
     }
 

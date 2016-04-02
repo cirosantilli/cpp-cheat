@@ -32,6 +32,7 @@ C and C++ minimal examples. Asserts used wherever possible. Cheatsheets, tutoria
 1.  Media
     1.  [FFmpeg](ffmpeg/)
     1.  [v4l2](v4l2/)
+    1.  [libpng](png/)
 1.  [Linting tools](linting-tools.md)
     1.  [Frama-C](frama-c/)
 1.  [Boost](boost/)

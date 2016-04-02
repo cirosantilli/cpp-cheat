@@ -28,3 +28,14 @@ Those examples seem to use files from other places of the build tree, in particu
 
 - `build-scripts/` is needed for `./configure` before `make`
 - some examples (`testgl`) still fail because they include headers directly from the tree... Remove those from the `Makefile`
+
+## Build
+
+    hg clone http://hg.libsdl.org/SDL
+    mkdir -p build && cd build && cmake .. && cmake --build .
+
+Run examples: you must first install it (or checkout to the same version as that installed by your package manager). Then:
+
+    cd test
+    ./configure
+    make
