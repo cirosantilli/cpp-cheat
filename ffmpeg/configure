@@ -7,4 +7,6 @@ sudo aptitude install -y
   libavfilter-dev \
   libavformat-dev \
   libavresample-dev \
-  libavutil-dev
+  libavutil-dev \
+  libx264-dev \
+  libvpx-dev

@@ -2,7 +2,8 @@
 http://stackoverflow.com/questions/3191978/how-to-use-glut-opengl-to-render-to-a-file/14324292#14324292
 */
 
-#define LIBPNG 1
+#define LIBPNG 0
+#define FFMPEG 1
 
 #include <assert.h>
 #include <stdio.h>
@@ -17,6 +18,12 @@ http://stackoverflow.com/questions/3191978/how-to-use-glut-opengl-to-render-to-a
 
 #if LIBPNG
 #include <png.h>
+#endif
+
+#if FFMPEG
+#include <libavutil/opt.h> /* av_opt_set */
+#include <libavcodec/avcodec.h>
+#include <libavutil/imgutils.h> /* av_image_alloc */
 #endif
 
 enum Constants { SCREENSHOT_MAX_FILENAME = 256 };
@@ -108,6 +115,133 @@ static void screenshot_png(const char *filename, unsigned int width,
 }
 #endif
 
+#if FFMPEG
+static AVCodecContext *c = NULL;
+static AVFrame *frame;
+static FILE *f;
+int64_t pts = 0;
+
+static void screenshot_mpg_init(const char *filename, int width, int height) {
+    AVCodec *codec;
+    int codec_id = AV_CODEC_ID_MPEG1VIDEO;
+    int ret;
+
+    avcodec_register_all();
+    codec = avcodec_find_encoder(codec_id);
+    if (!codec) {
+        fprintf(stderr, "Codec not found\n");
+        exit(1);
+    }
+    c = avcodec_alloc_context3(codec);
+    if (!c) {
+        fprintf(stderr, "Could not allocate video codec context\n");
+        exit(1);
+    }
+    c->bit_rate = 400000;
+    c->width = width;
+    c->height = height;
+    c->time_base = (AVRational){1, 25};
+    c->gop_size = 10;
+    c->max_b_frames = 1;
+    c->pix_fmt = AV_PIX_FMT_YUV420P;
+    if (codec_id == AV_CODEC_ID_H264)
+        av_opt_set(c->priv_data, "preset", "slow", 0);
+    if (avcodec_open2(c, codec, NULL) < 0) {
+        fprintf(stderr, "Could not open codec\n");
+        exit(1);
+    }
+    f = fopen(filename, "wb");
+    if (!f) {
+        fprintf(stderr, "Could not open %s\n", filename);
+        exit(1);
+    }
+    frame = av_frame_alloc();
+    if (!frame) {
+        fprintf(stderr, "Could not allocate video frame\n");
+        exit(1);
+    }
+    frame->format = c->pix_fmt;
+    frame->width  = c->width;
+    frame->height = c->height;
+    ret = av_image_alloc(frame->data, frame->linesize, c->width, c->height, c->pix_fmt, 32);
+    if (ret < 0) {
+        fprintf(stderr, "Could not allocate raw picture buffer\n");
+        exit(1);
+    }
+}
+
+static void screenshot_mpg_deinit(void) {
+    AVPacket pkt;
+    int ret, x, y, got_output;
+    uint8_t endcode[] = { 0, 0, 1, 0xb7 };
+
+    av_init_packet(&pkt);
+    pkt.data = NULL;
+    pkt.size = 0;
+    for (got_output = 1; got_output; pts++) {
+        fflush(stdout);
+        ret = avcodec_encode_video2(c, &pkt, NULL, &got_output);
+        if (ret < 0) {
+            fprintf(stderr, "Error encoding frame\n");
+            exit(1);
+        }
+        if (got_output) {
+            fwrite(pkt.data, 1, pkt.size, f);
+            av_packet_unref(&pkt);
+        }
+    }
+    fwrite(endcode, 1, sizeof(endcode), f);
+    fclose(f);
+    avcodec_close(c);
+    av_free(c);
+    av_freep(&frame->data[0]);
+    av_frame_free(&frame);
+}
+
+/*
+Compress one frame.
+screenshot_mpg_init must have been called previously,
+and screenshot_mpg_deinit must be called to clean this afterwards.
+Adapted from https://github.com/FFmpeg/FFmpeg/blob/4b150fbe1f3905f8245f63d74ff72f2ef92d9717/doc/examples/decoding_encoding.c
+*/
+static void screenshot_mpg(unsigned int width, unsigned int height, GLenum format,
+        unsigned int format_nchannels, GLubyte **pixels) {
+    AVPacket pkt;
+    int ret, x, y, got_output;
+    size_t nvals;
+
+    nvals = format_nchannels * width * height;
+    *pixels = realloc(*pixels, nvals * sizeof(GLubyte));
+    glReadPixels(0, 0, width, height, format, GL_UNSIGNED_BYTE, *pixels);
+
+    av_init_packet(&pkt);
+    pkt.data = NULL;
+    pkt.size = 0;
+    frame->pts = pts;
+    for (y = 0; y < c->height; y++) {
+        for (x = 0; x < c->width; x++) {
+            frame->data[0][y * frame->linesize[0] + x] = x + y + pts * 3;
+        }
+    }
+    for (y = 0; y < c->height / 2; y++) {
+        for (x = 0; x < c->width / 2; x++) {
+            frame->data[1][y * frame->linesize[1] + x] = 128 + y + pts * 2;
+            frame->data[2][y * frame->linesize[2] + x] =  64 + x + pts * 5;
+        }
+    }
+    ret = avcodec_encode_video2(c, &pkt, frame, &got_output);
+    if (ret < 0) {
+        fprintf(stderr, "Error encoding frame\n");
+        exit(1);
+    }
+    if (got_output) {
+        fwrite(pkt.data, 1, pkt.size, f);
+        av_packet_unref(&pkt);
+    }
+    pts++;
+}
+#endif
+
 static int model_init(void) {
     angle = 0;
     delta_angle = 1;
@@ -119,7 +253,7 @@ static int model_update(void) {
 }
 
 static int model_finished(void) {
-    return nframes > max_nframes;
+    return nframes >= max_nframes;
 }
 
 static void init(void)  {
@@ -164,6 +298,9 @@ static void init(void)  {
 
     time0 = glutGet(GLUT_ELAPSED_TIME);
     model_init();
+#if FFMPEG
+    screenshot_mpg_init("tmp.mpg", WIDTH, HEIGHT);
+#endif
 }
 
 static void deinit(void)  {
@@ -172,6 +309,9 @@ static void deinit(void)  {
 #if LIBPNG
     free(png_bytes);
     free(png_rows);
+#endif
+#if FFMPEG
+    screenshot_mpg_deinit();
 #endif
     if (offscreen) {
         glDeleteFramebuffers(1, &fbo);
@@ -212,7 +352,11 @@ static void display(void) {
 #if LIBPNG
     screenshot_png(filename, WIDTH, HEIGHT, FORMAT, format_nchannels, &pixels, &png_bytes, &png_rows);
 #else
+# if FFMPEG
+    screenshot_mpg(WIDTH, HEIGHT, FORMAT, format_nchannels, &pixels);
+# else
     screenshot_ppm(filename, WIDTH, HEIGHT, FORMAT, format_nchannels, &pixels);
+# endif
 #endif
     nframes++;
     if (model_finished())

@@ -1,0 +1,1 @@
+LIBS := -lavdevice -lavfilter -lavformat -lavcodec -lpostproc -lswresample -lswscale -lavutil -lXv -lX11 -lXext -lxcb -lxcb-shm -lxcb -lxcb-xfixes -lxcb-render -lxcb-shape -lxcb -lxcb-shape -lxcb -lX11 -ljack -lasound -lx264 -lm -llzma -lz -pthread

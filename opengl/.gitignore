@@ -1,3 +1,4 @@
-tmp*.png
-tmp*.ppm
-tmp.c
+/tmp.*
+/tmp*.png
+/tmp*.ppm
+/tmp.c

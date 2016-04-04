@@ -1,9 +1,12 @@
 /*
 Adapted from: https://gist.github.com/niw/5963798
+
+http://stackoverflow.com/questions/1362945/how-to-decode-a-png-image-to-raw-bytes/36399711#36399711
 */
 
 #include <stdlib.h>
 #include <stdio.h>
+
 #include <png.h>
 
 unsigned int width;
