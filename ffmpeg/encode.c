@@ -1,5 +1,6 @@
 /*
 http://stackoverflow.com/questions/16667687/how-to-convert-rgb-from-yuv420p-for-ffmpeg-encoder
+http://stackoverflow.com/questions/2940671/how-does-one-encode-a-series-of-images-into-h264-using-the-x264-c-api/36405714#36405714
 
 Transform a bunch of raw pixels into compressed video formats.
 
@@ -28,6 +29,10 @@ static AVPacket pkt;
 static FILE *file;
 struct SwsContext *sws_context = NULL;
 
+/*
+Convert RGB24 array to YUV. Save directly to the `frame`,
+modifying its `data` and `linesize` fields
+*/
 static void ffmpeg_encoder_set_frame_yuv_from_rgb(uint8_t *rgb) {
     const int in_linesize[1] = { 3 * c->width };
     sws_context = sws_getCachedContext(sws_context,
@@ -38,6 +43,21 @@ static void ffmpeg_encoder_set_frame_yuv_from_rgb(uint8_t *rgb) {
             c->height, frame->data, frame->linesize);
 }
 
+/*
+Generate 2 different images with four colored rectangles, each 25 frames long:
+
+Image 1:
+
+    black | red
+    ------+-----
+    green | blue
+
+Image 2:
+
+    yellow | red
+    -------+-----
+    green  | white
+*/
 uint8_t* generate_rgb(int width, int height, int pts, uint8_t *rgb) {
     int x, y, cur;
     rgb = realloc(rgb, 3 * sizeof(uint8_t) * height * width);
@@ -89,7 +109,6 @@ uint8_t* generate_rgb(int width, int height, int pts, uint8_t *rgb) {
 void ffmpeg_encoder_start(const char *filename, int codec_id, int fps, int width, int height) {
     AVCodec *codec;
     int ret;
-
     codec = avcodec_find_encoder(codec_id);
     if (!codec) {
         fprintf(stderr, "Codec not found\n");
