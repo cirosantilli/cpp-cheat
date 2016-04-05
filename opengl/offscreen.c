@@ -2,7 +2,9 @@
 http://stackoverflow.com/questions/3191978/how-to-use-glut-opengl-to-render-to-a-file/14324292#14324292
 */
 
-#define LIBPNG 0
+/* Turn output methods on and off. */
+#define PPM 1
+#define LIBPNG 1
 #define FFMPEG 1
 
 #include <assert.h>
@@ -21,17 +23,17 @@ http://stackoverflow.com/questions/3191978/how-to-use-glut-opengl-to-render-to-a
 #endif
 
 #if FFMPEG
-#include <libavutil/opt.h> /* av_opt_set */
 #include <libavcodec/avcodec.h>
-#include <libavutil/imgutils.h> /* av_image_alloc */
+#include <libavutil/imgutils.h>
+#include <libavutil/opt.h>
+#include <libswscale/swscale.h>
 #endif
 
 enum Constants { SCREENSHOT_MAX_FILENAME = 256 };
+static GLubyte *pixels = NULL;
 static GLuint fbo;
 static GLuint rbo_color;
 static GLuint rbo_depth;
-static const GLenum FORMAT = GL_RGBA;
-static const GLuint format_nchannels = 4;
 static const unsigned int HEIGHT = 100;
 static const unsigned int WIDTH = 100;
 static int offscreen = 1;
@@ -43,27 +45,24 @@ static unsigned int time0;
 static double angle;
 static double delta_angle;
 
+#if PPM
 /*
 Take screenshot with glReadPixels and save to a file in PPM format.
 -   filename: file path to save to, without extension
 -   width: screen width in pixels
 -   height: screen height in pixels
--   format: glReadPixelsFormat
--   format_nchannels: number of channels per pixel (e.g. R, G, B, A)
-    This is implied by format, but we haven't found a built-in way to get this
-    information automatically without hard-coding a large switch.
 -   pixels: intermediate buffer to avoid repeated mallocs across multiple calls.
     Contents of this buffer do not matter. May be NULL, in which case it is initialized.
     You must `free` it when you won't be calling this function anymore.
 */
-static GLubyte *pixels = NULL;
-static void screenshot_ppm(const char *filename, unsigned int width, unsigned int height,
-         GLenum format, unsigned int format_nchannels, GLubyte **pixels) {
+static void screenshot_ppm(const char *filename, unsigned int width,
+        unsigned int height, GLubyte **pixels) {
     size_t i, j, k, cur;
+    const size_t format_nchannels = 3;
     FILE *f = fopen(filename, "w");
     fprintf(f, "P3\n%d %d\n%d\n", width, height, 255);
     *pixels = realloc(*pixels, format_nchannels * sizeof(GLubyte) * width * height);
-    glReadPixels(0, 0, width, height, format, GL_UNSIGNED_BYTE, *pixels);
+    glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, *pixels);
     for (i = 0; i < height; i++) {
         for (j = 0; j < width; j++) {
             cur = format_nchannels * ((height - i - 1) * width + j);
@@ -73,20 +72,22 @@ static void screenshot_ppm(const char *filename, unsigned int width, unsigned in
     }
     fclose(f);
 }
+#endif
 
 #if LIBPNG
+/* Adapted from https://github.com/cirosantilli/cpp-cheat/blob/19044698f91fefa9cb75328c44f7a487d336b541/png/open_manipulate_write.c */
 static png_byte *png_bytes = NULL;
 static png_byte **png_rows = NULL;
-static void screenshot_png(const char *filename, unsigned int width,
-        unsigned int height, GLenum format, unsigned int format_nchannels,
+static void screenshot_png(const char *filename, unsigned int width, unsigned int height,
         GLubyte **pixels, png_byte **png_bytes, png_byte ***png_rows) {
-    size_t i, j, cur, cur_png, nvals;
+    size_t i, nvals;
+    const size_t format_nchannels = 4;
     FILE *f = fopen(filename, "wb");
     nvals = format_nchannels * width * height;
     *pixels = realloc(*pixels, nvals * sizeof(GLubyte));
     *png_bytes = realloc(*png_bytes, nvals * sizeof(png_byte));
     *png_rows = realloc(*png_rows, height * sizeof(png_byte*));
-    glReadPixels(0, 0, width, height, format, GL_UNSIGNED_BYTE, *pixels);
+    glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, *pixels);
     for (i = 0; i < nvals; i++)
         (*png_bytes)[i] = (*pixels)[i];
     for (i = 0; i < height; i++)
@@ -116,16 +117,28 @@ static void screenshot_png(const char *filename, unsigned int width,
 #endif
 
 #if FFMPEG
+/* Adapted from: https://github.com/cirosantilli/cpp-cheat/blob/19044698f91fefa9cb75328c44f7a487d336b541/ffmpeg/encode.c */
+
 static AVCodecContext *c = NULL;
 static AVFrame *frame;
-static FILE *f;
-int64_t pts = 0;
+static AVPacket pkt;
+static FILE *file;
+static struct SwsContext *sws_context = NULL;
+static uint8_t *rgb = NULL;
 
-static void screenshot_mpg_init(const char *filename, int width, int height) {
+static void ffmpeg_encoder_set_frame_yuv_from_rgb(uint8_t *rgb) {
+    const int in_linesize[1] = { 3 * c->width };
+    sws_context = sws_getCachedContext(sws_context,
+            c->width, c->height, AV_PIX_FMT_RGB24,
+            c->width, c->height, AV_PIX_FMT_YUV420P,
+            0, 0, 0, 0);
+    sws_scale(sws_context, (const uint8_t * const *)&rgb, in_linesize, 0,
+            c->height, frame->data, frame->linesize);
+}
+
+void ffmpeg_encoder_start(const char *filename, int codec_id, int fps, int width, int height) {
     AVCodec *codec;
-    int codec_id = AV_CODEC_ID_MPEG1VIDEO;
     int ret;
-
     avcodec_register_all();
     codec = avcodec_find_encoder(codec_id);
     if (!codec) {
@@ -140,7 +153,8 @@ static void screenshot_mpg_init(const char *filename, int width, int height) {
     c->bit_rate = 400000;
     c->width = width;
     c->height = height;
-    c->time_base = (AVRational){1, 25};
+    c->time_base.num = 1;
+    c->time_base.den = fps;
     c->gop_size = 10;
     c->max_b_frames = 1;
     c->pix_fmt = AV_PIX_FMT_YUV420P;
@@ -150,8 +164,8 @@ static void screenshot_mpg_init(const char *filename, int width, int height) {
         fprintf(stderr, "Could not open codec\n");
         exit(1);
     }
-    f = fopen(filename, "wb");
-    if (!f) {
+    file = fopen(filename, "wb");
+    if (!file) {
         fprintf(stderr, "Could not open %s\n", filename);
         exit(1);
     }
@@ -170,15 +184,10 @@ static void screenshot_mpg_init(const char *filename, int width, int height) {
     }
 }
 
-static void screenshot_mpg_deinit(void) {
-    AVPacket pkt;
-    int ret, x, y, got_output;
+void ffmpeg_encoder_finish(void) {
     uint8_t endcode[] = { 0, 0, 1, 0xb7 };
-
-    av_init_packet(&pkt);
-    pkt.data = NULL;
-    pkt.size = 0;
-    for (got_output = 1; got_output; pts++) {
+    int got_output, ret;
+    do {
         fflush(stdout);
         ret = avcodec_encode_video2(c, &pkt, NULL, &got_output);
         if (ret < 0) {
@@ -186,59 +195,50 @@ static void screenshot_mpg_deinit(void) {
             exit(1);
         }
         if (got_output) {
-            fwrite(pkt.data, 1, pkt.size, f);
+            fwrite(pkt.data, 1, pkt.size, file);
             av_packet_unref(&pkt);
         }
-    }
-    fwrite(endcode, 1, sizeof(endcode), f);
-    fclose(f);
+    } while (got_output);
+    fwrite(endcode, 1, sizeof(endcode), file);
+    fclose(file);
     avcodec_close(c);
     av_free(c);
     av_freep(&frame->data[0]);
     av_frame_free(&frame);
 }
 
-/*
-Compress one frame.
-screenshot_mpg_init must have been called previously,
-and screenshot_mpg_deinit must be called to clean this afterwards.
-Adapted from https://github.com/FFmpeg/FFmpeg/blob/4b150fbe1f3905f8245f63d74ff72f2ef92d9717/doc/examples/decoding_encoding.c
-*/
-static void screenshot_mpg(unsigned int width, unsigned int height, GLenum format,
-        unsigned int format_nchannels, GLubyte **pixels) {
-    AVPacket pkt;
-    int ret, x, y, got_output;
-    size_t nvals;
-
-    nvals = format_nchannels * width * height;
-    *pixels = realloc(*pixels, nvals * sizeof(GLubyte));
-    glReadPixels(0, 0, width, height, format, GL_UNSIGNED_BYTE, *pixels);
-
+void ffmpeg_encoder_encode_frame(uint8_t *rgb) {
+    int ret, got_output;
+    ffmpeg_encoder_set_frame_yuv_from_rgb(rgb);
     av_init_packet(&pkt);
     pkt.data = NULL;
     pkt.size = 0;
-    frame->pts = pts;
-    for (y = 0; y < c->height; y++) {
-        for (x = 0; x < c->width; x++) {
-            frame->data[0][y * frame->linesize[0] + x] = x + y + pts * 3;
-        }
-    }
-    for (y = 0; y < c->height / 2; y++) {
-        for (x = 0; x < c->width / 2; x++) {
-            frame->data[1][y * frame->linesize[1] + x] = 128 + y + pts * 2;
-            frame->data[2][y * frame->linesize[2] + x] =  64 + x + pts * 5;
-        }
-    }
     ret = avcodec_encode_video2(c, &pkt, frame, &got_output);
     if (ret < 0) {
         fprintf(stderr, "Error encoding frame\n");
         exit(1);
     }
     if (got_output) {
-        fwrite(pkt.data, 1, pkt.size, f);
+        fwrite(pkt.data, 1, pkt.size, file);
         av_packet_unref(&pkt);
     }
-    pts++;
+}
+
+void ffmpeg_encoder_glread_rgb(uint8_t **rgb, GLubyte **pixels, unsigned int width, unsigned int height) {
+    size_t i, j, k, cur_gl, cur_rgb, nvals;
+    const size_t format_nchannels = 3;
+    nvals = format_nchannels * width * height;
+    *pixels = realloc(*pixels, nvals * sizeof(GLubyte));
+    *rgb = realloc(*rgb, nvals * sizeof(uint8_t));
+    glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, *pixels);
+    for (i = 0; i < height; i++) {
+        for (j = 0; j < width; j++) {
+            cur_gl  = format_nchannels * (width * (height - i - 1) + j);
+            cur_rgb = format_nchannels * (width * i + j);
+            for (k = 0; k < format_nchannels; k++)
+                (*rgb)[cur_rgb + k] = (*pixels)[cur_gl + k];
+        }
+    }
 }
 #endif
 
@@ -299,7 +299,7 @@ static void init(void)  {
     time0 = glutGet(GLUT_ELAPSED_TIME);
     model_init();
 #if FFMPEG
-    screenshot_mpg_init("tmp.mpg", WIDTH, HEIGHT);
+    ffmpeg_encoder_start("tmp.mpg", AV_CODEC_ID_MPEG1VIDEO, 25, WIDTH, HEIGHT);
 #endif
 }
 
@@ -311,7 +311,8 @@ static void deinit(void)  {
     free(png_rows);
 #endif
 #if FFMPEG
-    screenshot_mpg_deinit();
+    ffmpeg_encoder_finish();
+    free(rgb);
 #endif
     if (offscreen) {
         glDeleteFramebuffers(1, &fbo);
@@ -343,20 +344,18 @@ static void display(void) {
     } else {
         glutSwapBuffers();
     }
-#if LIBPNG
-    strcpy(extension, ".png");
-#else
-    strcpy(extension, ".ppm");
+#if PPM
+    snprintf(filename, SCREENSHOT_MAX_FILENAME, "tmp%d.ppm", nframes);
+    screenshot_ppm(filename, WIDTH, HEIGHT, &pixels);
 #endif
-    snprintf(filename, SCREENSHOT_MAX_FILENAME, "tmp%d%s", nframes, extension);
 #if LIBPNG
-    screenshot_png(filename, WIDTH, HEIGHT, FORMAT, format_nchannels, &pixels, &png_bytes, &png_rows);
-#else
+    snprintf(filename, SCREENSHOT_MAX_FILENAME, "tmp%d.png", nframes);
+    screenshot_png(filename, WIDTH, HEIGHT, &pixels, &png_bytes, &png_rows);
+#endif
 # if FFMPEG
-    screenshot_mpg(WIDTH, HEIGHT, FORMAT, format_nchannels, &pixels);
-# else
-    screenshot_ppm(filename, WIDTH, HEIGHT, FORMAT, format_nchannels, &pixels);
-# endif
+    frame->pts = nframes;
+    ffmpeg_encoder_glread_rgb(&rgb, &pixels, WIDTH, HEIGHT);
+    ffmpeg_encoder_encode_frame(rgb);
 #endif
     nframes++;
     if (model_finished())

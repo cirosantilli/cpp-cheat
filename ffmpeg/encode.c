@@ -1,6 +1,9 @@
 /*
+Basis for:
+
 http://stackoverflow.com/questions/16667687/how-to-convert-rgb-from-yuv420p-for-ffmpeg-encoder
 http://stackoverflow.com/questions/2940671/how-does-one-encode-a-series-of-images-into-h264-using-the-x264-c-api/36405714#36405714
+http://stackoverflow.com/questions/16667687/how-to-convert-rgb-from-yuv420p-for-ffmpeg-encoder
 
 Transform a bunch of raw pixels into compressed video formats.
 
@@ -27,7 +30,7 @@ static AVCodecContext *c = NULL;
 static AVFrame *frame;
 static AVPacket pkt;
 static FILE *file;
-struct SwsContext *sws_context = NULL;
+static struct SwsContext *sws_context = NULL;
 
 /*
 Convert RGB24 array to YUV. Save directly to the `frame`,
@@ -58,8 +61,9 @@ Image 2:
     -------+-----
     green  | white
 */
-uint8_t* generate_rgb(int width, int height, int pts, uint8_t *rgb) {
+void generate_rgb(int width, int height, int pts, uint8_t **rgbp) {
     int x, y, cur;
+    uint8_t *rgb = *rgbp;
     rgb = realloc(rgb, 3 * sizeof(uint8_t) * height * width);
     for (y = 0; y < height; y++) {
         for (x = 0; x < width; x++) {
@@ -102,13 +106,14 @@ uint8_t* generate_rgb(int width, int height, int pts, uint8_t *rgb) {
             }
         }
     }
-    return rgb;
+    *rgbp = rgb;
 }
 
 /* Allocate resources and write header data to the output file. */
 void ffmpeg_encoder_start(const char *filename, int codec_id, int fps, int width, int height) {
     AVCodec *codec;
     int ret;
+    avcodec_register_all();
     codec = avcodec_find_encoder(codec_id);
     if (!codec) {
         fprintf(stderr, "Codec not found\n");
@@ -211,14 +216,14 @@ static void encode_example(const char *filename, int codec_id) {
     ffmpeg_encoder_start(filename, codec_id, 25, width, height);
     for (pts = 0; pts < 100; pts++) {
         frame->pts = pts;
-        rgb = generate_rgb(width, height, pts, rgb);
+        generate_rgb(width, height, pts, &rgb);
         ffmpeg_encoder_encode_frame(rgb);
     }
     ffmpeg_encoder_finish();
+    free(rgb);
 }
 
 int main(void) {
-    avcodec_register_all();
     encode_example("tmp.h264", AV_CODEC_ID_H264);
     encode_example("tmp.mpg", AV_CODEC_ID_MPEG1VIDEO);
     /* TODO: is this encoded correctly? Possible to view it without container? */
