@@ -1,16 +1,28 @@
 # Alternatives
 
-## CUDA
-
-NVIDIA's. More closed since controlled by NVIDIA. Also more popular for the same reason as they are the Top Dog now.
-
-<https://www.reddit.com/r/programming/comments/49uw97/cuda_reverse_engineered_to_run_on_nonnvidia/>
-
-<https://en.wikipedia.org/wiki/CUDA> NVIDIA's, only runs in NVIDIA hardware. TODO could AMD implement it legally without paying royalties to NVIDIA?
+As of 2016, CUDA is the top cat.
 
 ## OpenMP
 
 <http://stackoverflow.com/questions/7263193/opencl-performance-vs-openmp>
+
+Directive based: you write stuff like:
+
+http://stackoverflow.com/questions/19494786/openacc-vs-openmp-mpi-differences
+
+    /* Fork a team of threads giving them their own copies of variables */
+    #pragma omp parallel private(nthreads, tid)
+    {
+        /* Obtain thread number */
+        tid = omp_get_thread_num();
+
+instead of compiling a kernel.
+
+## OpenACC
+
+<https://en.wikipedia.org/wiki/OpenACC>
+
+NVIDIA's OpenMP, similar to OpenMP: <http://stackoverflow.com/questions/19494786/openacc-vs-openmp-mpi-differences>
 
 ## RenderScript
 
@@ -42,5 +54,10 @@ Microsoft's
 
 ## Unified parallel C
 
-- <https://en.wikipedia.org/wiki/Unified_Parallel_C>
-- OpenGL compute shaders <http://stackoverflow.com/questions/15868498/what-is-the-difference-between-opencl-and-opengls-compute-shader>
+<https://en.wikipedia.org/wiki/Unified_Parallel_C>
+
+## Compute shaders
+
+OpenGL compute shaders <http://stackoverflow.com/questions/15868498/what-is-the-difference-between-opencl-and-opengls-compute-shader>
+
+Easier to integrate with graphics stuff.

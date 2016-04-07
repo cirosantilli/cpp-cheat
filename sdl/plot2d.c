@@ -1,6 +1,15 @@
 /*
 Plot 2D function of time.
 
+TODO possible to do it faster? Just the loop without anything inside
+and only FPS calculation and no optimization max out at 70 FPS already.
+Look into surfaces, textures.
+
+- http://stackoverflow.com/questions/20753726/rendering-pixels-from-array-of-rgb-values-in-sdl-1-2
+- http://stackoverflow.com/questions/28279242/how-to-render-a-pixel-array-most-efficiently-to-a-window-in-c
+- http://stackoverflow.com/questions/20348616/how-to-create-a-color-gradient-in-sdl
+- http://stackoverflow.com/questions/21392755/difference-between-surface-and-texture-sdl-general
+
 TODO: get vsync right.
 */
 

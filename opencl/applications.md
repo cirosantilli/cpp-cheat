@@ -23,7 +23,7 @@ Not surprising, since rendering is just a bunch of matrix multiplications, with 
 
 Sparse: <http://stackoverflow.com/questions/3438826/sparse-matrix-multiplication-on-gpu-or-cpu>
 
-Bolt: C++ STL GPU powered implementation by AMD: <http://developer.amd.com/tools-and-sdks/opencl-zone/bolt-c-template-library/>
+Bolt: C++ STL GPU powered implementation by AMD: <http://developer.amd.com/tools-and-sdks/opencl-zone/bolt-c-template-library/> Other suggestions: <http://stackoverflow.com/questions/16438099/high-level-gpu-programming-in-c>
 
 ## Non-applications
 

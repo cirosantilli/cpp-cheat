@@ -1,7 +1,8 @@
 # FFmpeg
 
 1.  Examples
-    1. []   
+    1. [encode](encode.c)
+    1. [resize](resize.c)
 1.  Theory
     1. [Introduction](introduction.md)
     1. [libav](libav.md)

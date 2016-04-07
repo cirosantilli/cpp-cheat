@@ -14,6 +14,7 @@
     1.  [Introduction](introduction.md)
     1.  [Implementations](implementations.md)
     1.  [Alternatives](alternatives.md)
+        1.  [CUDA](cuda.md)
     1.  [Architecture](architecture.md)
     1.  [C](c.md)
     1.  [Host API](host-api.md)
