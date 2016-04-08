@@ -5,7 +5,7 @@ Up to 3 plots at once: one per color.
 */
 
 #include <math.h>
-#include <stdlib.h>
+#include <stdio.h>
 
 #include <SDL2/SDL.h>
 
@@ -38,12 +38,10 @@ int main(void) {
     fps_last_time = initial_time;
     nframes = 0;
     while (1) {
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
-        SDL_RenderClear(renderer);
+        t = SDL_GetTicks() / 1000.0;
+        dt = t - initial_time;
         for (x = 0; x < WINDOW_WIDTH; x++) {
             rect.x = x;
-            t = SDL_GetTicks() / 1000.0;
-            dt = t - initial_time;
             SDL_SetRenderDrawColor(
                     renderer,
                     COLOR_MAX * 0.5 * (1.0 + (sin(PI2 * (x + SPEED * dt) / PERIOD))),
