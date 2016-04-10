@@ -16,7 +16,7 @@ Bibliography:
 - http://stackoverflow.com/questions/28279242/how-to-render-a-pixel-array-most-efficiently-to-a-window-in-c
 - http://stackoverflow.com/questions/20348616/how-to-create-a-color-gradient-in-sdl
 - http://stackoverflow.com/questions/21392755/difference-between-surface-and-texture-sdl-general
-- http://stackoverflow.com/questions/503816/linux-fastest-way-to-draws
+- http://stackoverflow.com/questions/503816/what-is-the-fastest-way-to-draw-a-2d-array-of-color-triplets-on-screen
 
 TODO: why do I see some tearing. vsync problem?
 */

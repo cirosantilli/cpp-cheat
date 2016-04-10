@@ -32,7 +32,7 @@
 
 const double ERR = 10e-6;
 
-int main() {
+int main(void) {
     /*
     # Math errors
 
@@ -284,7 +284,7 @@ int main() {
         /*
         # PI
 
-            There is no predefined macro for PI. TODO0 why not? so convenient...
+            There is no predefined macro for PI. TODO why not? so convenient...
 
             This is a standard way to get PI.
 

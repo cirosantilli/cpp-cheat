@@ -11,3 +11,4 @@ Programs in this directory should be run manually one by one because they do thi
 1. [abort](abort.c)
 1. [clock](clock.c)
 1. [Ugly grammar](ugly_grammar.c)
+1. [Audio generation](audio_gen)

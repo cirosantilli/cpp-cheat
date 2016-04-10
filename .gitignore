@@ -24,6 +24,7 @@ main
 
 # Temporary files
 *.tmp
+tmp.*
 
 core
 core.*

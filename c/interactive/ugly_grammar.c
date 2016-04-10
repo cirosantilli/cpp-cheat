@@ -9,7 +9,7 @@
 #include "common.h"
 
 /* After you've removed -pedantic-errors. */
-#define ON 1
+#define ON 0
 
 #if ON
 /* Empty declaration. */

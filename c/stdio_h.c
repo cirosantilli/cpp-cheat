@@ -625,7 +625,7 @@ int main() {
 
                 In linux the difference between text methods and binary methods is only conceptual:
                 some methods output human readable text (`fprintf`) and can be classified as text,
-                while others output binary, no difference is made at file opening time
+                while others output binary, no difference is made at file opening time.
 
         # fclose
 
@@ -652,13 +652,13 @@ int main() {
 
             Returns number of elements written.
 
-            If less elements are written than required an error ocurred.
+            If less elements are written than required an error occurred.
 
             Why take both bytes per item and items instead of just total bytes:
             http://stackoverflow.com/questions/295994/what-is-the-rationale-for-fread-fwrite-taking-size-and-count-as-arguments
 
-            It seems that no less than size per item can be writen, so we are guaranteed
-            that some object will not be half writen.
+            It seems that no less than size per item can be written, so we are guaranteed
+            that some object will not be half written.
 
             The byte order is implementation defined.
             This is therefore not a valid way to serialize data across machines.
@@ -692,6 +692,7 @@ int main() {
             the `feof` and `ferror` functions.
 
         # ferror
+
         # feof
         */
         {
@@ -720,6 +721,24 @@ int main() {
             http://www.ibm.com/developerworks/aix/library/au-endianc/
         */
         {
+            /*
+            # Fix endianess
+
+                You need this when you want to export data to some format.
+
+                - http://stackoverflow.com/questions/105252/how-do-i-convert-between-big-endian-and-little-endian-values-in-c
+                - http://stackoverflow.com/questions/13994674/how-to-write-endian-agnostic-c-c-code
+                - http://stackoverflow.com/questions/2182002/convert-big-endian-to-little-endian-in-c-without-using-provided-func
+                - http://stackoverflow.com/questions/19275955/convert-little-endian-to-big-endian
+
+                Methods:
+
+                -   binary operations just work, use them
+
+                -   POSIX has the htons family, but I could not find a POSIX quote
+                    that says network order is big endian (which seems the default.)
+            */
+
             /*
             Check endianess.
 
@@ -971,7 +990,9 @@ int main() {
 
         They are present in <stdio.h> mainly to support file IO.
 
-    # remove #delete file
+    # remove
+
+    # delete file
 
         Remove a file.
 
