@@ -30,6 +30,7 @@ OUT_DIR     ?= ./
 OUT_EXT     ?= .out
 OBJECT_EXT  ?= .o
 TMP_EXT     ?= .tmp
+TMP_PREF    ?= tmp.
 
 # Basename without extension of file to run on run target.
 RUN         ?= main
@@ -91,7 +92,7 @@ clean:
 	if [ ! '$(OUT_DIR)' = './'  ]; then \
 		rm -rf '$(OUT_DIR)' ;\
 	else \
-		rm -rf *'$(OBJECT_EXT)' *'$(OUT_EXT)' *'$(TMP_EXT)' callgrind.out.* ;\
+		rm -rf *'$(OBJECT_EXT)' *'$(OUT_EXT)' *'$(TMP_EXT)' '$(TMP_PREF)'* callgrind.out.* ;\
 	fi
 	if [ -x 'clean' ]; then ./clean; fi
 

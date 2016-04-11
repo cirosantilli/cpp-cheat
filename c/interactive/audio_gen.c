@@ -1,5 +1,13 @@
 /*
 http://stackoverflow.com/a/36510894/895245
+
+TODO
+
+- smooth transition between sines without tic sound. Needs a phase change I imagine.
+- ADSR https://en.wikipedia.org/wiki/Synthesizer#Attack_Decay_Sustain_Release_.28ADSR.29_envelope
+    Currently, hitting the same not twice sounds the same as hitting it once for double the time,
+    (except for the tic of phase, which is a bug as well...)
+- drum / percurssion synth
 */
 
 #include <math.h>
@@ -13,7 +21,8 @@ typedef uint16_t point_type;
 #define WRITE(name, func) \
     f = fopen("tmp." name ".raw", "wb"); \
     for (t = 0; t < NSAMPLES; ++t) { \
-        write_ampl(f, func); \
+        func; \
+        write_ampl(f, ampl); \
     } \
     fclose(f);
 
@@ -32,15 +41,13 @@ double piano_freq(unsigned int i) {
 }
 
 /* Chord formed by the nth note of the piano. */
-point_type piano_sum(unsigned int max_ampl, unsigned int time, double sample_freq, unsigned int nargs, ...) {
+point_type piano_sum(unsigned int max_ampl, unsigned int time,
+        double sample_freq, unsigned int nargs, unsigned int *notes) {
     double freq;
     unsigned int i;
-    va_list args;
-    va_start(args, nargs);
     double sum = 0;
     for (i = 0 ; i < nargs; ++i)
-        sum += sin(PI2 * time * piano_freq(va_arg(args, int)) / sample_freq);
-    va_end(args);
+        sum += sin(PI2 * time * piano_freq(notes[i]) / sample_freq);
     return max_ampl * 0.5 * (nargs + sum) / nargs;
 }
 
@@ -202,10 +209,91 @@ int main(void) {
 
     f = fopen("tmp.chord.raw", "wb");
     for (t = 0; t < NSAMPLES; ++t) {
-        ampl = piano_sum(max_ampl, t, SAMPLE_FREQ, 4, C4, E4, G4, B4);
+        ampl = piano_sum(max_ampl, t, SAMPLE_FREQ, 4, (unsigned int[]){C4, E4, G4, B4});
         write_ampl(f, ampl);
     }
     fclose(f);
+
+    /*
+    # Pianola
+
+    # Canon
+
+        https://en.wikipedia.org/wiki/Player_piano
+
+        http://www.8notes.com/scores/420.asp After where I've stopped,
+        that score gets weird, maybe find another one.
+    */
+    {
+        unsigned int i;
+        unsigned int samples_per_unit = SAMPLE_FREQ * 0.375;
+        unsigned int *ip[] = {
+            (unsigned int[]){4, 2, C3, E4},
+            (unsigned int[]){4, 2, G3, D4},
+            (unsigned int[]){4, 2, A3, C4},
+            (unsigned int[]){4, 2, E3, B3},
+
+            (unsigned int[]){4, 2, F3, A3},
+            (unsigned int[]){4, 2, C3, G3},
+            (unsigned int[]){4, 2, F3, A3},
+            (unsigned int[]){4, 2, G3, B3},
+
+            (unsigned int[]){4, 3, C3, G4, E5},
+            (unsigned int[]){4, 3, G3, B4, D5},
+            (unsigned int[]){4, 2, A3,     C5},
+            (unsigned int[]){4, 3, E3, G4, B4},
+
+            (unsigned int[]){4, 3, F3, C4, A4},
+            (unsigned int[]){4, 3, C3, G4, G4},
+            (unsigned int[]){4, 3, F3, F4, A4},
+            (unsigned int[]){4, 3, G3, D4, B4},
+
+            (unsigned int[]){2, 3, C4, E4, C5},
+            (unsigned int[]){2, 3, C4, E4, C5},
+            (unsigned int[]){2, 3, G3, D4, D5},
+            (unsigned int[]){2, 3, G3, D4, B4},
+
+            (unsigned int[]){2, 3, A3, C4, C5},
+            (unsigned int[]){2, 3, A3, C4, E5},
+            (unsigned int[]){2, 2, E3,     G5},
+            (unsigned int[]){2, 2, E3,     G4},
+
+            (unsigned int[]){2, 3, F3, A3, A4},
+            (unsigned int[]){2, 3, F3, A3, F4},
+            (unsigned int[]){2, 3, C3,     E4},
+            (unsigned int[]){2, 3, C3,     G4},
+
+            (unsigned int[]){2, 3, F3, A3, F4},
+            (unsigned int[]){2, 3, F3, A3, C5},
+            (unsigned int[]){2, 3, G3, B3, B4},
+            (unsigned int[]){2, 3, G3, B3, G4},
+
+            (unsigned int[]){2, 3, C4, E4, C5},
+            (unsigned int[]){1, 3, C4, E4, E5},
+            (unsigned int[]){1, 3, C4, E4, G5},
+            (unsigned int[]){1, 2, G3,     G5},
+            (unsigned int[]){1, 2, G3,     A5},
+            (unsigned int[]){1, 2, G3,     G5},
+            (unsigned int[]){1, 2, G3,     F5},
+
+            (unsigned int[]){3, 3, A3, C4, E5},
+            (unsigned int[]){1, 3, A3, C4, E5},
+            (unsigned int[]){1, 3, E3, G3, E5},
+            (unsigned int[]){1, 3, E3, G3, F5},
+            (unsigned int[]){1, 3, E3, G3, E5},
+            (unsigned int[]){1, 3, E3, G3, D5},
+        };
+        f = fopen("tmp.canon.raw", "wb");
+        for (i = 0; i < sizeof(ip) / sizeof(int*); ++i) {
+            unsigned int *cur = ip[i];
+            unsigned int total = samples_per_unit * cur[0];
+            for (t = 0; t < total; ++t) {
+                ampl = piano_sum(max_ampl, t, SAMPLE_FREQ, cur[1], &cur[2]);
+                write_ampl(f, ampl);
+            }
+        }
+        fclose(f);
+    }
 
     return EXIT_SUCCESS;
 }

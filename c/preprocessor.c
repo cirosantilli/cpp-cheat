@@ -185,6 +185,16 @@ int main() {
             }
 
             /*
+            # Function inside argument
+
+                - http://stackoverflow.com/questions/163365/how-do-i-make-a-c-macro-behave-like-a-function
+                - http://stackoverflow.com/questions/154136/do-while-and-if-else-statements-in-c-c-macros
+            */
+            {
+                /* TODO */
+            }
+
+            /*
             # Argument inside string
 
             # #

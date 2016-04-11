@@ -26,6 +26,10 @@
 # va_end
 
     Analogous to va_start after usage. Mandatory.
+
+# Vs C99 array literal
+
+    If all arguments are of a single type, use arrays, they are saner.
 */
 
 #include "common.h"
@@ -137,6 +141,13 @@ int main() {
             /*sprintf(s, "wrong %s");*/
         }
     }
+
+    /*
+    # Array argument
+
+    http://stackoverflow.com/questions/280940/calling-a-c-function-with-a-varargs-argument-dynamically
+    http://stackoverflow.com/questions/14705920/passing-an-array-as-parameters-to-a-vararg-function
+    */
 
     return EXIT_SUCCESS;
 }
