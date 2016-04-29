@@ -24,9 +24,12 @@ int main() {
     C c(1);
     C *cp = &c;
 
-    /* Operator .* */
+    // Operator .*
     assert((c.*p)(2) == 3);
 
-    /* Operator ->* */
+    // Operator ->*
     assert((cp->*p)(2) == 3);
+
+    // Bound this: TODO Impossible? Things accept the `this` as the next argument however:
+    // http://stackoverflow.com/questions/10673585/start-thread-with-member-function
 }

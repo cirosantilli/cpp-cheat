@@ -28,7 +28,7 @@ Standards:
 Tutorials with runnable version tracked code:
 
 - <https://github.com/JoeyDeVries/LearnOpenGL> <http://learnopengl.com/> GLFW, retained, tutorial source also on GitHub, C++.
-- <https://github.com/opengl-tutorials/ogl> <http://www.opengl-tutorial.org/> GLFW, retained
+- <https://github.com/opengl-tutorials/ogl> <http://www.opengl-tutorial.org/> GLFW, retained. Code WTF, tutorials CC-BY-NC-ND http://www.opengl-tutorial.org/uncategorized/2014/02/18/license-changes/ By <https://github.com/Whiteseeker>, now UK Googler.
 - <https://github.com/capnramses/antons_opengl_tutorials_book> GLFW, retained, C.
 - <https://github.com/Overv/Open.GL/tree/master/content/code> <https://open.gl/> GLFW, retained
 - <https://github.com/tomdalling/opengl-series> <http://www.tomdalling.com/blog/category/modern-opengl/> GLFW, retained
@@ -60,3 +60,7 @@ Java:
 Demos:
 
 - <https://github.com/prideout/recipes>
+
+Unevaluated:
+
+- <http://www.swiftless.com/>

@@ -50,7 +50,7 @@
     1.  [new](new.cpp)
     1.  [Preprocessor](preprocessor.cpp)
     1.  using
-        using type alias. TODO http://en.cppreference.com/w/cpp/language/type_alias
+        1. using type alias. TODO http://en.cppreference.com/w/cpp/language/type_alias
 1.  [Standard library](standard_library.md)
     1.  [Headers](common.hpp)
     1.  [Containers](containers.md)

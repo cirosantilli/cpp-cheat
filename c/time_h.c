@@ -36,6 +36,15 @@ int main() {
 
         Precision is quite limited, and if too few clicks pass, it may return 0.
 
+        POSIX forces `CLOCKS_PER_SEC` to be 1 million as an XSI extension:
+        http://pubs.opengroup.org/onlinepubs/009695399/basedefs/time.h.html
+        and most modern systems use that value, giving a maximum of 1 microsecond precision.
+
+        Consider `timespec_get` if you need greater precision, but for benchmarks you want user
+        + system time only, not time, and there seems to be no ANSI C way:
+        http://stackoverflow.com/questions/12392278/measure-time-in-linux-getrusage-vs-clock-gettime-vs-clock-vs-gettimeofday
+        So this may be the best ANSI C benchmark method.
+
     # clock_t
 
         Type returned by `clock()`.

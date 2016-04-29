@@ -84,3 +84,15 @@ Some things which are in each:
 - `io`: `read`
 - `libio`: `puts`
 - `stdio-common`: `printf`
+
+## abilist
+
+TODO
+
+## make-syscalls.sh
+
+## syscall-template.S
+
+## syscalls.list
+
+Generated code for direct system call APIs.

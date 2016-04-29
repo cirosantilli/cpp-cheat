@@ -2,17 +2,23 @@
 
 1.  [About](about.md)
 1.  [Introduction](introduction.md)
-    1.  [GLUT](glut.md)
+    1.  [Utility libraries](utility-libraries.md)
+        1.  [GLUT](glut.md)
     1.  [Lightning](lightning.md)
+        1. [Ray tracing](ray-tracing.md)
 1.  Examples
     1.  [GLUT hello world](hello_world.c)
     1.  [info](info.c)
-    1.  [Triangle](triangl.c)
+    1.  [Triangle](triangle.c)
+    1.  [Points](points.c)
     1.  [glOrtho](ortho.c)
     1.  [gluLookAt](look_at.c)
     1.  [glShadeModel](shade_model.c)
     1.  [glViewport](viewport.c)
     1.  [Depth](depth.c)
+    1.  [Transparent](transparent.c)
+    1.  [Texture](texture.c)
+        1.  [Transparent texture](texture_transparent.c)
     1.  Transformations
         1.  [glTranslate](glTranslate.c)
     1.  Lightning

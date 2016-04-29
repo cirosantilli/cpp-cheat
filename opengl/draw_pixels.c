@@ -5,11 +5,13 @@ TODO not working. Problem is the glRasterPos2i I think.
 A few blue points appear on screen, but not a continuous line.
 Is it using world coordinates instead of window x / y points?
 
-http://stackoverflow.com/questions/6151135/in-opengl-can-i-draw-a-pixel-that-exactly-at-the-coordinates-5-5
-
 Heard people talking about glWindowPos
 https://www.opengl.org/sdk/docs/man2/xhtml/glWindowPos.xml
 but that function is not defined for me...
+
+- http://stackoverflow.com/questions/20056174/gldrawpixel-rgb-value-from-a-array
+- https://www.quora.com/OpenGL-How-can-I-use-glDrawPixels-correctly
+- http://stackoverflow.com/questions/12072799/an-alternative-to-gldrawpixels-in-opengl-3-0
 */
 
 #include <stdlib.h>

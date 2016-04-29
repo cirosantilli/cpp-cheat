@@ -23,3 +23,5 @@ Sample output:
         printf()
 
 TODO C++ method? Does not seem to work.
+
+TODO ignore `#include` / other files. Otherwise too much stdlib trash. `-d` may help... Can't even find a thread for that.

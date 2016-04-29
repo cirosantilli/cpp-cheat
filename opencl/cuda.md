@@ -20,6 +20,8 @@ If GPUCC generates SPIR-V, problem solved. TODO does it?
 
 LLVM-based CUDA compiler. TODO output format?
 
+Merged into LLVM.
+
 http://wujingyue.github.io/docs/gpucc-talk.pdf https://www.youtube.com/watch?v=JHfb8z-iSYk
 
 http://gpuocelot.gatech.edu/ is a precursor it seems https://code.google.com/archive/p/gpuocelot/

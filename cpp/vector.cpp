@@ -25,18 +25,24 @@ int main() {
             assert(v == v1);
         }
 
+        // Given size
+        {
+            std::vector<int> v(3);
+            assert(v.size() == 3);
+        }
+
         /*
         Fill constructor.
 
         Make a `std::vector` with n copies of a single value.
         */
         {
-            //copies of given object
+            // Copies of given object.
             {
                 assert(std::vector<int>(3, 2) == std::vector<int>({2, 2, 2}));
             }
 
-            //default constructed objects. int = 0.
+            // Default constructed objects. int = 0.
             {
                 assert(std::vector<int>(3) == std::vector<int>({0, 0, 0}));
             }

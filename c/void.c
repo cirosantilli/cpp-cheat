@@ -9,7 +9,7 @@
 */
 #include "common.h"
 
-int main() {
+int main(void) {
     /* ERROR: variable or field declared void */
     /*void v;*/
 
@@ -18,4 +18,6 @@ int main() {
 
     /* ERROR: invalid application of sizeof to void type */
     /*printf("sizeof (void) = %d\n", sizeof(void));*/
+
+    return EXIT_SUCCESS;
 }

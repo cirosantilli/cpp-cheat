@@ -1,5 +1,8 @@
 /*
 Transformation matrices.
+
+It is just an explicit uniform passed to the vertex shader,
+and explicitly multiplies vectors.
 */
 
 #include <math.h>

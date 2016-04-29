@@ -14,7 +14,7 @@
 
 #include "common.h"
 
-int main() {
+int main(void) {
     /*
     # memcpy
 
@@ -286,7 +286,7 @@ int main() {
 
         Split string at a given character sequence.
 
-        <http://en.cppreference.com/w/c/string/byte/strtok>
+        http://en.cppreference.com/w/c/string/byte/strtok
     */
 
     /*
@@ -300,13 +300,6 @@ int main() {
     */
     {
         printf("strerror(EDOM) = \"%s\"\n", strerror(EDOM));
-    }
-
-    /*
-    # strcoll
-    */
-    {
-        /* TODO example */
     }
 
     /*
@@ -340,6 +333,17 @@ int main() {
         char cs[] = "abcdef";
         memset(cs + 2, '0', 3);
         assert(strcmp(cs, "ab000f") == 0);
+    }
+
+    /*
+    # strcoll
+
+        String compare using locale.
+
+        TODO understand.
+    */
+    {
+        /* TODO example */
     }
 
     return EXIT_SUCCESS;

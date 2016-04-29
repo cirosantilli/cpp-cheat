@@ -20,8 +20,6 @@ This file is being split up into smaller parts and will eventually disappear.
         return 1;
     }
 
-    int uninitializedGlobal;
-
     /* ERROR: only var declarations with const initialization allowed */
 
         /* Non-const. */
@@ -54,27 +52,6 @@ int main() {
         {
             int i = 5;
             int j = 7;
-        }
-
-        /* # Uninitialized variables. */
-        {
-#ifdef UNDEFINED_BEHAVIOUR
-            /*
-            Undefined behaviour for local variables:
-            http://stackoverflow.com/questions/11962457/why-is-using-an-uninitialized-variable-undefined-behavior-in-c
-
-            WARN -Wuninitialized
-            */
-            {
-                int uninitializedLocal;
-                printf("uninitializedLocal = %d\n", uninitializedLocal);
-            }
-#endif
-
-            /* Fixed to 0 for global or static function variables. */
-            {
-                assert(uninitializedGlobal == 0);
-            }
         }
     }
 

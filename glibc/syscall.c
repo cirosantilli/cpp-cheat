@@ -42,7 +42,7 @@ How to make a system call from C.
     Are defined in terms of `__NR_` for compatibility.
 
     TODO: what is the difference between `asm/unistd.h __NR_X` and `sys/types SYS_NAME`?
-    which is better in which situtaions?
+    which is better in which situations?
 
 # _syscall macro
 
@@ -56,7 +56,7 @@ How to make a system call from C.
 
 #include "common.h"
 
-int main() {
+int main(void) {
 #ifdef __linux__
     puts("__linux__");
 

@@ -68,6 +68,8 @@
 
     Avoid using C headers and functionality altogether if that functionality has an equivalent C++ version,
     since the C++ version will play more nicely with new language features and libraries.
+
+    http://stackoverflow.com/questions/32606023/when-using-c-headers-in-c-should-we-use-functions-from-std-or-the-global-na
 */
 #include <cassert>
 #include <cmath>

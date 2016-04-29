@@ -44,5 +44,41 @@ int main() {
                 C(float f) : f(f) {}
         };
     }
+
+    /*
+    Cannot initialize anything else when a delegation is used:
+    http://stackoverflow.com/questions/12190051/member-initialization-while-using-delegated-constructor
+    */
+    {
+        class C {
+            public:
+                int i;
+                int j;
+                C() : i(i) {}
+                //C(int i) : C(), i(i) {}
+        };
+        C c;
+        assert(c.i == 1);
+    }
+
+    /*
+    Works with inheritance.
+    TODO: Is this still called a "delegated constructor"?
+    */
+    {
+        class B {
+            public:
+                int i;
+                B() : i(1) {}
+        };
+        class C : public B {
+            public:
+                int j;
+                C() : B(), j(2) {}
+        };
+        C c;
+        assert(c.i == 1);
+        assert(c.j == 2);
+    }
 #endif
 }

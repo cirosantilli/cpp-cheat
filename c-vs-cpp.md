@@ -21,16 +21,35 @@ All of those features allow to:
 
 at the cost of:
 
--   adding huge complexity to the language (probably at least doubles the complexity).
+-   adding huge complexity to the language.
 
-    The problem is that individual features sometimes interact in ways which are not obvious to understand, so the complexity growth is exponential per feature.
+    The C++ standards have twice as many pages as the C standards.
 
--   making it harder to track what assembly code is generated thus:
+-   harder to track what assembly code is generated thus:
 
-    -   making it harder to write very efficient code
+    -   harder to write very efficient code
 
-    -   generating executables that are very large
+    -   generated executables are very large and compilation is slow
 
-        For exmple, at one point I had a 7k line C file whose assembly was 8k lines, but a 7k C++ file generated 55k assembly code lines!!
+        For exmple, at one point I had a 7k line C file whose assembly was 8k lines, but a 7k C++ file generated 55k assembly code lines!
 
-All things considered, C++ offers huge productivity boosts over C *once you learn it*... It should be used on any new project, except if code efficiency is absolutelly crucial, and even in those cases it might be worth it to have a C++ project that use C only features for the 20% critical sections.
+    -   harder to interface with other languages because of name mangling.
+
+        `extern C` reduces the pain a bit: http://stackoverflow.com/questions/1041866/in-c-source-what-is-the-effect-of-extern-c/30526795#30526795
+
+All things considered, C++ offers huge productivity boosts over C *once you learn it*...
+
+It should be used on any new project, except if code efficiency is absolutely crucial, and even in those cases it might be worth it to have a C++ project that use C only features for the 20% critical sections.
+
+## C++11 N3337 standard draft Annex C
+
+Not all behaviour changes in C++ from C are new features!
+
+Some are just deprecation of archaic C ugliness.
+
+This section of the C++ standard lists those differences.
+
+Some examples:
+
+- `static struct` definitions deprecated: <http://stackoverflow.com/questions/7259830/why-and-when-to-use-static-structures-in-c-programming>
+- char literals `a` are... chars, not int: <http://stackoverflow.com/questions/433895/why-are-c-character-literals-ints-instead-of-chars>

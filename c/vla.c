@@ -9,7 +9,9 @@
     - requires one addition and one multiplication per declaration
 
     Pros and cons:
-    <http://stackoverflow.com/questions/3082126/c99-faq-and-variable-length-arrays>
+
+    - http://stackoverflow.com/questions/2034712/is-there-any-overhead-for-using-variable-length-arrays
+    - http://stackoverflow.com/questions/16672322/malloced-array-vs-variable-length-array
 */
 
 #include "common.h"

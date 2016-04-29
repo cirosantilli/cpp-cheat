@@ -12,3 +12,7 @@ Those examples seem to use files from other places of the build tree, in particu
 
 - `build-scripts/` is needed for `./configure` before `make`
 - some examples (`testgl`) still fail because they include headers directly from the tree... Remove those from the `Makefile`
+
+## Inspiration
+
+- <https://www.youtube.com/watch?v=LrEvoKI07Ww>

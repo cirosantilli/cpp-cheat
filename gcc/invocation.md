@@ -449,7 +449,15 @@ The resulting build has no dependencies:
 
     ldd a.out
 
-TODO Link statically only to glibc: <http://stackoverflow.com/questions/13187499/static-linking-glibc>
+The effect is that after `-lxyz`, only `libxyz.a` is searched in the search path, not `libxyz.so`.
+
+Without `-static` TODO: `-lxyz` seems to use `libxyz.a`, but that may lead to link errors.
+
+TODO links some libraries statically and others dynamically:
+
+- <http://stackoverflow.com/questions/13187499/static-linking-glibc>
+- <http://stackoverflow.com/questions/809794/use-both-static-and-dynamically-linked-libraries-in-gcc>
+- <http://stackoverflow.com/questions/6578484/telling-gcc-directly-to-link-a-library-statically>
 
 ### static-libgcc
 

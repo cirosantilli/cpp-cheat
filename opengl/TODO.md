@@ -54,7 +54,7 @@
         - comes before the fragment shader
         - first pipeline stage
     - fragment shader
-        - TODO more precisly, how many times is this called? Once per pixel (for each triangle it appears in)? Seems so:
+        - TODO more precisely, how many times is this called? Once per pixel (for each triangle it appears in)? Seems so:
             - http://gamedev.stackexchange.com/questions/8977/what-is-a-fragment
             - http://gamedev.stackexchange.com/questions/63992/how-many-times-fragment-shader-is-executed
             - http://stackoverflow.com/questions/4421261/vertex-shader-vs-fragment-shader
@@ -80,8 +80,52 @@
     - HLSL: DirectX version of GLSL
 -   motion blur:
     -   http://john-chapman-graphics.blogspot.fr/2013/01/what-is-motion-blur-motion-pictures-are.html
-
-    | 1 0  0 0 |   | x |   |  x |               | x / -z |
-    | 0 1  0 0 | * | y | = |  y | identified to | y / -z |
-    | 0 0  1 0 |   | z |   |  z |               |     -2 |
-    | 0 0 -1 0 |   | w |   | -z |               |      0 |
+-   HUD, billboards, draw pixel on screen:
+    - people suggest: glOrtho + disable depth tests
+    - could think about a transparent texture right on top of the camera
+    - http://stackoverflow.com/questions/10040961/opengl-pixel-perfect-2d-drawing
+    - http://stackoverflow.com/questions/4282036/rendering-2d-sprites-in-a-3d-world/36568461#36568461
+    - http://stackoverflow.com/questions/6151135/in-opengl-can-i-draw-a-pixel-that-exactly-at-the-coordinates-5-5
+    - http://gamedev.stackexchange.com/questions/5959/rendering-2d-sprites-into-a-3d-world/119739#119739
+    - glDrawPixels
+    - http://stackoverflow.com/questions/6151135/in-opengl-can-i-draw-a-pixel-that-exactly-at-the-coordinates-5-5
+    - http://stackoverflow.com/questions/18362058/opengl-draw-pixels-directly
+    - http://stackoverflow.com/questions/6644248/how-to-draw-opencl-calculated-pixels-to-the-screen-with-opengl
+    - also useful to render "particles": things that are so far / so small that a billboards approximate well enough with less overhead
+-   text, fonts
+    - glut does it
+    - non trivial: most fonts are specified in vector formats with Bezier curves, and OpenGL does not have any primitives for that
+    - the best option is to convert fonts to large textures, and then use those textures
+    - http://stackoverflow.com/questions/8847899/opengl-how-to-draw-text-using-only-opengl-methods/36065835#36065835
+    - http://stackoverflow.com/questions/14318/using-glut-bitmap-fonts/14319#14319
+    - http://stackoverflow.com/questions/2183270/what-is-the-easiest-way-to-print-text-to-screen-in-opengl
+    - http://stackoverflow.com/questions/18847109/displaying-fixed-location-2d-text-in-a-3d-opengl-world-using-glut
+    - http://stackoverflow.com/questions/9430852/glutbitmapcharacter-positions-text-wrong
+    - not in GLFW https://www.reddit.com/r/opengl/comments/2ygsgv/text_on_screen_with_glfw/
+-   UV mapping https://en.wikipedia.org/wiki/UV_mapping
+    - http://stackoverflow.com/questions/322111/any-one-know-of-an-opengl-es-example-of-an-interactive-globe-earth-for-the-iphon
+    - http://stackoverflow.com/questions/17488259/opengl-mapping-texture-to-sphere
+    - http://stackoverflow.com/questions/9511499/seam-issue-when-mapping-a-texture-to-a-sphere-in-opengl
+-   3D file formats
+    - .obj https://en.wikipedia.org/wiki/Wavefront_.obj_file
+        - Blender can open it http://stackoverflow.com/questions/4570788/how-can-i-open-obj-files-in-blender
+        - created by a 1984 company that was sold to SI https://en.wikipedia.org/wiki/Wavefront_Technologies 
+    - .stl https://en.wikipedia.org/wiki/STL_(file_format)
+    - BSP https://en.wikipedia.org/wiki/BSP_%28file_format%29 used by Guake, Irrlicht can load them
+    - MD2 https://en.wikipedia.org/wiki/MD2_%28file_format%29 animated models, used by Guake 2, Irrlicht can load them
+    - viewers / editors:
+        - `g3dviewer`: lightweight
+-   anti-aliasing, multi-sampling
+    - http://www.learnopengl.com/#!Advanced-OpenGL/Anti-aliasing
+    - https://en.wikipedia.org/wiki/Subpixel_rendering
+-   curve primitives: arcs, Bezier, NURBS: nope?
+-   level of detail https://en.wikipedia.org/wiki/Level_of_detail
+-   detect and highlight which triangle a straight line hits, e.g. for FPS
+    - ray casting seems to be the name of this: https://unity3d.com/learn/tutorials/modules/beginner/physics/raycasting
+    - bullet can do it: http://bulletphysics.org/mediawiki-1.5.8/index.php/Using_RayTest
+    - Irrlicht can do it, 1.8.1 example `./07.collision`
+    - https://en.wikipedia.org/wiki/Ray_casting
+    - http://stackoverflow.com/questions/14953178/how-to-detect-mouse-over-some-object-in-opengl
+    - http://stackoverflow.com/questions/4040616/opengl-gl-select-or-manual-collision-detection
+-   dynamic shadows.
+    - Irrlicht 1.8.1 example `./08.SpecialFX` does is

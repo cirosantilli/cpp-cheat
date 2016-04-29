@@ -17,6 +17,7 @@
     1.  [main function](main_function.c)
     1.  Data
         1.  [Identifier](identifier.c)
+            1.  [Uninitialized variable](uninitialized_variable.c)
         1.  [Types](types.c)
             1.  [Basic types](basic_types.md)
             1.  [Incomplete types](incomplete_type.c)

@@ -84,19 +84,22 @@ int main() {
         6.3.1.3
     */
     {
-        /* OK: can be represented. */
+        /* Signed to unsigned: always OK. */
         {
-            assert(((unsigned char)127) == ((char)127));
-        }
+            /* OK: can be represented. */
+            {
+                assert(((unsigned char)127) == ((char)127));
+            }
 
-        /* OK: to unsigned that cannot be represented wraps around. */
-        {
-            assert(((unsigned char)-1) == UCHAR_MAX);
+            /* OK: to unsigned that cannot be represented wraps around. */
+            {
+                assert(((unsigned char)-1) == UCHAR_MAX);
+            }
         }
 
 #ifdef IMPLEMENTATION_SIGNAL
         /*
-        To signed is implementation defined, or implementation-defined signal.
+        Unsigned to signed is implementation defined, or implementation-defined signal.
 
         GCC 4.8 x86 does 2's complement.
         */

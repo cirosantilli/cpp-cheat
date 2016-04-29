@@ -50,7 +50,7 @@ Resources:
 - <http://developer.amd.com/tools-and-sdks/opencl-zone/opencl-resources/>
 - The specifications of your hardware, e.g. <http://www.nvidia.com/object/nvs_techspecs.html>
 
-Big programs:
+Big programs that use it:
 
 -   <https://github.com/bulletphysics/bullet3>
 
@@ -67,6 +67,8 @@ Big programs:
 -   Interactive fluid simulations
 
     - <https://www.youtube.com/watch?v=LGTxZRRwvsI>
+
+-   Scientific computation: <http://scicomp.stackexchange.com/questions/376/mathematical-libraries-for-opencl>
 
 ## NVIDIA samples
 
