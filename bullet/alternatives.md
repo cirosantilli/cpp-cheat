@@ -9,14 +9,15 @@ Open source:
 
 Proprietary:
 
-- PhysX: bought by NVIDIA from a Swiss company. NVIDIA GPU acceleration.
+-   PhysX: bought by NVIDIA from a Swiss company. NVIDIA GPU acceleration.
     - 2015 Flex demo with lots of water / cloth: <https://www.youtube.com/watch?v=pfonMfP__Ks>
-- Havoc: first bought by Intel from an Irish company, then Microsoft.
+-   Havoc: first bought by Intel from an Irish company, then by Microsoft from Intel.
     - Has GPU support.
     - Used by Assassin's Creed (Ubisoft)
     - Havoc destruction
         - car demo 2015: https://www.youtube.com/watch?v=iiRR6DtR1z8
         - 2010 demo: https://www.youtube.com/watch?v=cIcg5eotZlY
+-   https://docs.coronalabs.com/guide/physics/index.html
 
 2D:
 

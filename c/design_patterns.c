@@ -8,7 +8,7 @@
 
 #include "common.h"
 
-int main() {
+int main(void) {
     /*
     # Objects
 
@@ -25,7 +25,15 @@ int main() {
     /*
     # Private struct fields
 
-        Use opaque structs and expose public fields through getter and setter methods.
+        Opaque structs and expose public fields through getter and setter methods.
+    */
+
+    /*
+    # Static fields
+
+        Static.
+
+        For private, don't include on header.
     */
 
     /*

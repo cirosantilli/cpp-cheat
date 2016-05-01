@@ -68,3 +68,17 @@ With the generated makefile:
     cmake .. -DBUILD_SHARED_LIBS=ON
 
 <https://cmake.org/cmake/help/v3.0/variable/BUILD_SHARED_LIBS.html>
+
+## IDEs
+
+<https://cmake.org/Wiki/CMake_Generator_Specific_Information>
+
+Eclipse CDT:
+
+- <http://stackoverflow.com/questions/18931278/project-generated-with-cmake-for-eclipse-cdt>
+- <http://stackoverflow.com/questions/9453851/how-to-configure-eclipse-cdt-for-cmake>
+
+Code::Blocks:
+
+    cd build
+    cmake .. -G 'CodeBlocks - Unix Makefiles'

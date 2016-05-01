@@ -1,11 +1,23 @@
-#include <stdio.h>
-#include <stdlib.h>
+/*
+Adapted from https://github.com/bulletphysics/bullet3/tree/2.83/examples/HelloWorld
+
+A sphere falling infinitely to gravity.
+*/
+
+#include <cstdio>
+#include <cstdlib>
 
 #include <btBulletDynamicsCommon.h>
+
+constexpr float gravity = -10.0f;
+constexpr float initialY = 10.0f;
+constexpr float timeStep = 1.0f / 60.0f;
+constexpr int maxNPoints = 125;
 
 int main() {
     int i, j;
 
+    // Setup.
     btDefaultCollisionConfiguration* collisionConfiguration
             = new btDefaultCollisionConfiguration();
     btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collisionConfiguration);
@@ -13,23 +25,17 @@ int main() {
     btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
     btDiscreteDynamicsWorld* dynamicsWorld = new btDiscreteDynamicsWorld(
             dispatcher, overlappingPairCache, solver, collisionConfiguration);
-
-    dynamicsWorld->setGravity(btVector3(0, -10, 0));
-    btCollisionShape* groundShape = new btBoxShape(
-            btVector3(btScalar(50.0), btScalar(50.0), btScalar(50.0)));
+    dynamicsWorld->setGravity(btVector3(0, gravity, 0));
+    // This is not used by the actual simulation, only cleanup.
     btAlignedObjectArray<btCollisionShape*> collisionShapes;
-    collisionShapes.push_back(groundShape);
-    btTransform groundTransform;
-    groundTransform.setIdentity();
-    groundTransform.setOrigin(btVector3(0, 0, 0));
 
-    // Shpere at position 0, 10, 0.
+    // Sphere.
     {
-        btCollisionShape *colShape = new btSphereShape(btScalar(1.0));
+        btCollisionShape* colShape = new btSphereShape(btScalar(1.0));
         collisionShapes.push_back(colShape);
         btTransform startTransform;
         startTransform.setIdentity();
-        startTransform.setOrigin(btVector3(0, 10, 0));
+        startTransform.setOrigin(btVector3(0, initialY, 0));
         btVector3 localInertia(0, 0, 0);
         btScalar mass(1.0f);
         colShape->calculateLocalInertia(mass, localInertia);
@@ -39,9 +45,10 @@ int main() {
         dynamicsWorld->addRigidBody(body);
     }
 
-    // Main loop. Update state and print it.
-    for (i = 0; i < 100; ++i) {
-        dynamicsWorld->stepSimulation(1.0f / 60.0f, 10);
+    // Main loop.
+    std::printf("step body x y z\n");
+    for (i = 0; i < maxNPoints; ++i) {
+        dynamicsWorld->stepSimulation(timeStep);
         for (j = dynamicsWorld->getNumCollisionObjects() - 1; j >= 0; --j) {
             btCollisionObject *obj = dynamicsWorld->getCollisionObjectArray()[j];
             btRigidBody *body = btRigidBody::upcast(obj);
@@ -51,7 +58,8 @@ int main() {
             } else {
                 trans = obj->getWorldTransform();
             }
-            printf("%d = %7.3f, %7.3f, %7.3f\n",
+            std::printf("%d %d %7.3f %7.3f %7.3f\n",
+                    i,
                     j,
                     float(trans.getOrigin().getX()),
                     float(trans.getOrigin().getY()),
@@ -66,13 +74,11 @@ int main() {
         if (body && body->getMotionState()) {
             delete body->getMotionState();
         }
-        dynamicsWorld->removeCollisionObject( obj );
+        dynamicsWorld->removeCollisionObject(obj);
         delete obj;
     }
     for (i = 0; i < collisionShapes.size(); ++i) {
-        btCollisionShape* shape = collisionShapes[i];
-        collisionShapes[i] = 0;
-        delete shape;
+        delete collisionShapes[i];
     }
     delete dynamicsWorld;
     delete solver;

@@ -3,7 +3,7 @@
 
 # Process address space
 
-    Lets have some fun reverse engeneering the process memory space modeul used on your OS!
+    Let's have some fun reverse engeneering the process memory space modeul used on your OS!
 
     This is all implementation defined behaviour on ANSI C, but the test code is the same on all OS.
 

@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Compile an example, run and view data with gnuplot.
+# Usage: `gnuplot-run <basename without extension>`
+# Example: `gnuplot-run gravity`
+set -e
+make
+./"$1".out >"$1".tmp
+gnuplot -p ./"$1".gnuplot
