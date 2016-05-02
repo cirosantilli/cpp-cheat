@@ -9,6 +9,8 @@ A sphere falling infinitely to gravity.
 
 #include <btBulletDynamicsCommon.h>
 
+#define PRINTF_FLOAT "%7.3f"
+
 constexpr float gravity = -10.0f;
 constexpr float initialY = 10.0f;
 constexpr float timeStep = 1.0f / 60.0f;
@@ -58,12 +60,15 @@ int main() {
             } else {
                 trans = obj->getWorldTransform();
             }
-            std::printf("%d %d %7.3f %7.3f %7.3f\n",
+            btVector3 origin = trans.getOrigin();
+            // TODO: how to get numbers out of this?
+            btQuaternion rotation = trans.getRotation();
+            std::printf("%d %d " PRINTF_FLOAT " " PRINTF_FLOAT " " PRINTF_FLOAT "\n",
                     i,
                     j,
-                    float(trans.getOrigin().getX()),
-                    float(trans.getOrigin().getY()),
-                    float(trans.getOrigin().getZ()));
+                    float(origin.getX()),
+                    float(origin.getY()),
+                    float(origin.getZ()));
         }
     }
 

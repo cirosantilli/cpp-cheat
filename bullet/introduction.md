@@ -1,5 +1,11 @@
 # Introduction
 
+## Documentation
+
+Very little besides the Doxygen: <http://bulletphysics.org/Bullet/BulletFull/>
+
+Good luck.
+
 ## C API
 
 Bullet is written in C++, and exposes only a C++ API.

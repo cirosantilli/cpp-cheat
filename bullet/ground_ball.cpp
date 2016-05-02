@@ -7,6 +7,8 @@ A sphere falling and hitting the ground.
 
 #include <btBulletDynamicsCommon.h>
 
+#define PRINTF_FLOAT "%7.3f"
+
 constexpr float gravity = -10.0f;
 constexpr float initialY = 10.0f;
 constexpr float timeStep = 1.0f / 60.0f;
@@ -16,17 +18,49 @@ constexpr float groundRestitution = 0.9f;
 constexpr float sphereRestitution = 0.9f;
 constexpr int maxNPoints = 500;
 
+static void myTickCallback(btDynamicsWorld *world, btScalar timeStep) {
+    bool hadCollision = false;
+    for (int i = 0; i < numManifolds; i++) {
+        btPersistentManifold* contactManifold = dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
+        const btCollisionObject* obA = static_cast<const btCollisionObject*>(contactManifold->getBody0());
+        const btCollisionObject* obB = static_cast<const btCollisionObject*>(contactManifold->getBody1());
+        int numContacts = contactManifold->getNumContacts();
+        for (int j = 0; j < numContacts; j++) {
+            if (!hadCollision)
+                std::printf("1 ");
+            hadCollision = true;
+            btManifoldPoint& pt = contactManifold->getContactPoint(j);
+            if (pt.getDistance() < 0.0f) {
+                const btVector3& ptA = pt.getPositionWorldOnA();
+                const btVector3& ptB = pt.getPositionWorldOnB();
+                const btVector3& normalOnB = pt.m_normalWorldOnB;
+                std::printf(
+                        PRINTF_FLOAT " " PRINTF_FLOAT " " PRINTF_FLOAT " "
+                        PRINTF_FLOAT " " PRINTF_FLOAT " " PRINTF_FLOAT " "
+                        PRINTF_FLOAT " " PRINTF_FLOAT " " PRINTF_FLOAT " ",
+                        ptA.getX(), ptA.getY(), ptA.getZ(),
+                        ptB.getX(), ptB.getY(), ptB.getZ(),
+                        normalOnB.getX(), normalOnB.getY(), normalOnB.getZ());
+            }
+        }
+    }
+    if (!hadCollision)
+        std::printf("0 ");
+    puts("");
+}
+
 int main() {
     int i, j;
 
-    btDefaultCollisionConfiguration* collisionConfiguration
+    btDefaultCollisionConfiguration *collisionConfiguration
             = new btDefaultCollisionConfiguration();
-    btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collisionConfiguration);
-    btBroadphaseInterface* overlappingPairCache = new btDbvtBroadphase();
+    btCollisionDispatcher *dispatcher = new btCollisionDispatcher(collisionConfiguration);
+    btBroadphaseInterface *overlappingPairCache = new btDbvtBroadphase();
     btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
-    btDiscreteDynamicsWorld* dynamicsWorld = new btDiscreteDynamicsWorld(
+    btDiscreteDynamicsWorld *dynamicsWorld = new btDiscreteDynamicsWorld(
             dispatcher, overlappingPairCache, solver, collisionConfiguration);
     dynamicsWorld->setGravity(btVector3(0, gravity, 0));
+    dynamicsWorld->setInternalTickCallback(myTickCallback);
     btAlignedObjectArray<btCollisionShape*> collisionShapes;
 
     // Ground.
@@ -77,7 +111,7 @@ int main() {
     }
 
     // Main loop.
-    std::printf("step body x y z\n");
+    std::printf("step body x y z collision a b normal\n");
     for (i = 0; i < maxNPoints; ++i) {
         dynamicsWorld->stepSimulation(timeStep, 10);
         for (j = dynamicsWorld->getNumCollisionObjects() - 1; j >= 0; --j) {
@@ -89,12 +123,14 @@ int main() {
             } else {
                 trans = obj->getWorldTransform();
             }
-            std::printf("%d %d %7.3f %7.3f %7.3f\n",
+            btVector3 origin = trans.getOrigin();
+            std::printf("%d %d " PRINTF_FLOAT " " PRINTF_FLOAT " " PRINTF_FLOAT " ",
                     i,
                     j,
-                    float(trans.getOrigin().getX()),
-                    float(trans.getOrigin().getY()),
-                    float(trans.getOrigin().getZ()));
+                    float(origin.getX()),
+                    float(origin.getY()),
+                    float(origin.getZ()));
+            int numManifolds = dynamicsWorld->getDispatcher()->getNumManifolds();
         }
     }
 

@@ -10,6 +10,14 @@ C++ has many major interesting non standard libs.
 
 Google unit test framework: <http://code.google.com/p/googletest/>
 
+### Vision
+
+OpenCV.
+
+Originally by Intel: <https://en.wikipedia.org/wiki/OpenCV>
+
+BSD.
+
 ### Linear algebra
 
 #### eigen
