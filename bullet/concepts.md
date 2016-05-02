@@ -15,3 +15,5 @@
     - Kinematic objects, which are objects without mass, but the user can move them. There is on-way interaction, and Bullet calculates a velocity based on the timestep and previous and current world transform.
 -   sleeping object: TODO
 -   island split algorithm?
+-   collision primitives: <http://www.bulletphysics.org/mediawiki-1.5.8/index.php?title=Collision_Shapes>
+    - A few efficient geometric ones + more general meshes of points.

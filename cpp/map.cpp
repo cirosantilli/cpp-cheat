@@ -132,13 +132,15 @@ int main() {
         assert(m[0] == "zero");
         assert(m[1] == "one");
 
-        //inserts `(3,"")` because `""` is the value for the default string constructor
+        // Inserts `(2,"")` because `""` is the value for the default String constructor.
         assert(m[2] == "");
         assert(m.size() == 3);
     }
 
     /*
-    # find #check if in map
+    # find
+
+    # check if in map
 
         Similar to `std::set` find with respect to the keys:
         returns an iterator pointing to the pair which has given key, not the value.

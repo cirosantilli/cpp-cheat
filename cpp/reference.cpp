@@ -18,17 +18,6 @@
         and whether they should expect that it is possible that the function modifies their object.
 
     - http://stackoverflow.com/questions/7058339/c-when-to-use-references-vs-pointers
-
-    # Return reference from function
-
-        Just like for pointers, you have to watch scope. If the original object dies,
-        you get a dangling reference
-
-        - http://stackoverflow.com/questions/752658/is-the-practice-of-returning-a-c-reference-variable-evil
-
-        There is also some rule about const local references:
-
-        - http://stackoverflow.com/questions/2784262/does-a-const-reference-prolong-the-life-of-a-temporary
 */
 
 #include "common.hpp"
@@ -476,8 +465,14 @@ int main() {
     /*
     # return reference from function
 
-        Just like when returning pointers from functions,
-        one must take care not to return dangling references.
+        Just like for pointers, you have to watch scope.
+        If the original object dies, you get a dangling reference.
+
+        - http://stackoverflow.com/questions/752658/is-the-practice-of-returning-a-c-reference-variable-evil
+
+        There is also some rule about const local references:
+
+        - http://stackoverflow.com/questions/2784262/does-a-const-reference-prolong-the-life-of-a-temporary
     */
     {
         /*

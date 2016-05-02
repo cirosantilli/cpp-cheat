@@ -61,14 +61,10 @@ int main() {
                 trans = obj->getWorldTransform();
             }
             btVector3 origin = trans.getOrigin();
-            // TODO: how to get numbers out of this?
+            // TODO: how to get 3 euler rotation numbers out of this?
             btQuaternion rotation = trans.getRotation();
-            std::printf("%d %d " PRINTF_FLOAT " " PRINTF_FLOAT " " PRINTF_FLOAT "\n",
-                    i,
-                    j,
-                    float(origin.getX()),
-                    float(origin.getY()),
-                    float(origin.getZ()));
+            std::printf("%d %d " PRINTF_FLOAT " " PRINTF_FLOAT " " PRINTF_FLOAT " ",
+                    i, j, origin.getX(), origin.getY(), origin.getZ());
         }
     }
 
