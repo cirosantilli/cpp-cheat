@@ -72,6 +72,7 @@ int main() {
     }
 
     // Objects.
+    std::vector<btRidigBody*> objects;
     for (size_t i = 0; i < nObjects; ++i) {
         btCollisionShape *colShape;
         colShape = new btSphereShape(btScalar(1.0));
@@ -87,6 +88,7 @@ int main() {
                 mass, myMotionState, colShape, localInertia));
 		body->setRestitution(objectRestitution);
         dynamicsWorld->addRigidBody(body);
+        objects.push_back(body);
     }
 
     // Main loop.
@@ -105,6 +107,7 @@ int main() {
             btVector3 origin = trans.getOrigin();
             std::printf("%d %d " PRINTF_FLOAT " " PRINTF_FLOAT " " PRINTF_FLOAT " ",
                     i, j, origin.getX(), origin.getY(), origin.getZ());
+            // We could use objects[i] here to check for one of the objects we've created.
             auto& manifoldPoints = objectsCollisions[body];
             if (manifoldPoints.empty()) {
                 std::printf("0");
