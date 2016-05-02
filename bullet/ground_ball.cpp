@@ -1,9 +1,19 @@
 /*
 A sphere falling and hitting the ground.
+
+It may bounce up a few times depending on the restitution coefficients.
+
+Collisions are detected and printed to output. Releated threads:
+
+- http://stackoverflow.com/questions/11175694/bullet-physics-simplest-collision-example
+- http://stackoverflow.com/questions/9117932/detecting-collisions-with-bullet
+- http://gamedev.stackexchange.com/questions/22442/how-get-collision-callback-of-two-specific-objects-using-bullet-physics
+- http://www.bulletphysics.org/mediawiki-1.5.8/index.php?title=Collision_Callbacks_and_Triggers
 */
 
 #include <cstdio>
 #include <cstdlib>
+#include <vector>
 
 #include <btBulletDynamicsCommon.h>
 
@@ -18,35 +28,31 @@ constexpr float groundRestitution = 0.9f;
 constexpr float sphereRestitution = 0.9f;
 constexpr int maxNPoints = 500;
 
-static void myTickCallback(btDynamicsWorld *world, btScalar timeStep) {
-    bool hadCollision = false;
+std::vector<btVector3> collisions;
+void myTickCallback(btDynamicsWorld *dynamicsWorld, btScalar timeStep) {
+    collisions.clear();
+    int numManifolds = dynamicsWorld->getDispatcher()->getNumManifolds();
     for (int i = 0; i < numManifolds; i++) {
-        btPersistentManifold* contactManifold = dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
-        const btCollisionObject* obA = static_cast<const btCollisionObject*>(contactManifold->getBody0());
-        const btCollisionObject* obB = static_cast<const btCollisionObject*>(contactManifold->getBody1());
+        btPersistentManifold *contactManifold = dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
+        // TODO those are unused. What can be done with them?
+        // I think they are the same objects as those in the main loop
+        // dynamicsWorld->getCollisionObjectArray() and we could compare
+        // the pointers to see which object collided with which.
+        {
+            const btCollisionObject *objA = contactManifold->getBody0();
+            const btCollisionObject *objB = contactManifold->getBody1();
+        }
         int numContacts = contactManifold->getNumContacts();
         for (int j = 0; j < numContacts; j++) {
-            if (!hadCollision)
-                std::printf("1 ");
-            hadCollision = true;
             btManifoldPoint& pt = contactManifold->getContactPoint(j);
-            if (pt.getDistance() < 0.0f) {
-                const btVector3& ptA = pt.getPositionWorldOnA();
-                const btVector3& ptB = pt.getPositionWorldOnB();
-                const btVector3& normalOnB = pt.m_normalWorldOnB;
-                std::printf(
-                        PRINTF_FLOAT " " PRINTF_FLOAT " " PRINTF_FLOAT " "
-                        PRINTF_FLOAT " " PRINTF_FLOAT " " PRINTF_FLOAT " "
-                        PRINTF_FLOAT " " PRINTF_FLOAT " " PRINTF_FLOAT " ",
-                        ptA.getX(), ptA.getY(), ptA.getZ(),
-                        ptB.getX(), ptB.getY(), ptB.getZ(),
-                        normalOnB.getX(), normalOnB.getY(), normalOnB.getZ());
-            }
+            const btVector3& ptA = pt.getPositionWorldOnA();
+            const btVector3& ptB = pt.getPositionWorldOnB();
+            const btVector3& normalOnB = pt.m_normalWorldOnB;
+            collisions.push_back(ptA);
+            collisions.push_back(ptB);
+            collisions.push_back(normalOnB);
         }
     }
-    if (!hadCollision)
-        std::printf("0 ");
-    puts("");
 }
 
 int main() {
@@ -66,20 +72,17 @@ int main() {
     // Ground.
     {
         btTransform groundTransform;
-
         groundTransform.setIdentity();
         groundTransform.setOrigin(btVector3(0, 0, 0));
-
         btCollisionShape* groundShape;
 #if 1
-        // x / z plane.
-        // TODO: what is the planeConstant (second argument)?
-        // Looks like the displacement from the origin.
+        // x / z plane at y = -1.
         groundShape = new btStaticPlaneShape(btVector3(0, 1, 0), -1);
 #else
         // A cube of width 10 at y = -6.
         // Does not fall because we won't call:
         // colShape->calculateLocalInertia
+        // TODO: remove this from this example into a collision shape example.
         groundTransform.setOrigin(btVector3(0, -6, 0));
         groundShape = new btBoxShape(
                 btVector3(btScalar(5.0), btScalar(5.0), btScalar(5.0)));
@@ -113,7 +116,7 @@ int main() {
     // Main loop.
     std::printf("step body x y z collision a b normal\n");
     for (i = 0; i < maxNPoints; ++i) {
-        dynamicsWorld->stepSimulation(timeStep, 10);
+        dynamicsWorld->stepSimulation(timeStep);
         for (j = dynamicsWorld->getNumCollisionObjects() - 1; j >= 0; --j) {
             btCollisionObject *obj = dynamicsWorld->getCollisionObjectArray()[j];
             btRigidBody *body = btRigidBody::upcast(obj);
@@ -130,7 +133,20 @@ int main() {
                     float(origin.getX()),
                     float(origin.getY()),
                     float(origin.getZ()));
-            int numManifolds = dynamicsWorld->getDispatcher()->getNumManifolds();
+            if (collisions.empty()) {
+                std::printf("0 ");
+            } else {
+                std::printf("1 ");
+                // Yes, this is getting reprinted for all bodies when collisions happen.
+                // It's just a quick and dirty way to visualize it, should be outside
+                // of this loop normally.
+                for (auto& v : collisions) {
+                    std::printf(
+                            PRINTF_FLOAT " " PRINTF_FLOAT " " PRINTF_FLOAT " ",
+                            v.getX(), v.getY(), v.getZ());
+                }
+            }
+            puts("");
         }
     }
 

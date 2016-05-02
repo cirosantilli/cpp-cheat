@@ -10,6 +10,6 @@ Tested on Bullet 2.83.
     1.  [Users](users.md)
 1.  Examples
     1.  [Gravity](gravity.cpp)
-    1.  [Ground ball](ground ball.cpp)
+    1.  [Ground ball](ground_ball.cpp)
 1. 	[gnuplot-run](gnuplot-run)
 1.  [TODO](TODO.md)

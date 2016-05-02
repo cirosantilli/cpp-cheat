@@ -430,10 +430,11 @@ int main() {
         }
 
         // # clear
+        // Make the vector empty.
         {
             std::vector<int> v{0, 1, 2};
             v.clear();
-            assert(v.size() == 0);
+            assert(v.empty());
         }
 
         /*
