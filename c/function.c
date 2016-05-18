@@ -13,45 +13,7 @@ void func_int(int i) {}
 void func_float(float f) {}
 void func_double(double d) {}
 
-int array_arg(int i[]) {
-    return i[0] + i[1];
-}
-
-int array_size_arg(int i[3]) {
-    assert(sizeof(i) == sizeof(int *));
-    return i[0] + i[1];
-}
-
-int pointer_arg(int *i) {
-    return i[0] + i[1];
-}
-
-void func_string_abc(char s[]) {
-    assert(strcmp(s, "abc") == 0);
-}
-
-void func_string_const_abc(char const s[]) {
-    assert(strcmp(s, "abc") == 0);
-}
-
-void func_string_modify(char s[]) {
-    s[0] = '0';
-}
-
-void func_array(int a[]){
-    assert(a[0] == 1);
-}
-
-void func_array_modify(int a[]) {
-    a[0] = -1;
-}
-
 /* Struct arguments and return */
-
-    struct func_struct { int i; };
-    void func_struct_1(struct func_struct s) {
-        assert(s.i == 1);
-    }
 
     struct struct_func_struct {
         int i;
@@ -165,7 +127,7 @@ function struct args
         return (struct struct_func_struct){ 0, 1 };
     }
 
-int main() {
+int main(void) {
     {
         func_int(1.1);
         func_float(1);
@@ -175,72 +137,6 @@ int main() {
     {
         assert(decl_1() == 1);
         assert(decl_2() == 2);
-    }
-
-    /*
-    Array arguments
-    */
-    {
-        /*
-        # Array argument vs pointer argument
-
-            http://stackoverflow.com/questions/5573310/difference-between-passing-array-and-array-pointer-into-function-in-c
-
-            Function declaration with array arguments are exactly equivalent
-            to corresponding pointer declarations.
-
-            This is analogous to array to pointer decay in expressions.
-
-            Therefore, always use pointers which is the more direct approach.
-            Linux crucifying people because of that: https://lkml.org/lkml/2015/9/3/428
-
-            The following are all the same.
-        */
-        {
-            int i[] = {1, 2};
-            assert(array_arg(i)      == 3);
-            /* Sizes are simply ignored. */
-            assert(array_size_arg(i) == 3);
-            assert(pointer_arg(i)    == 3);
-        }
-
-        /*
-        # Pass string literals to functions
-
-            It initializes the string on stack and then passes a pointer to it.
-
-            String literals should only be passed to `const char *` arguments,
-            since string literals cannot be modified, possibly leading to segfaults.
-
-            Ideally, all calling functions that can receive such strings should be const.
-
-            This is not however enforced by the compiler.
-        */
-        {
-            func_string_abc("abc");
-            func_string_const_abc("abc");
-            /* Segfault. */
-            /*func_string_modify("abc");*/
-        }
-
-#if __STDC_VERSION__ >= 199901L
-        /*
-        Pass struct and array literals to function using C99 compound literals.
-
-        Unlike string literals, array and struct literals can be modified.
-        */
-        {
-            func_array((int[]){1});
-
-            func_array_modify((int[]){1});
-
-            int is[] = {1};
-            func_array_modify(is);
-            assert(is[0] == -1);
-
-            func_struct_1((struct func_struct){.i = 1});
-        }
-#endif
     }
 
     /* # return */

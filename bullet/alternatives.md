@@ -4,7 +4,7 @@
 
 Open source:
 
-- ODE
+- ODE <http://stackoverflow.com/questions/27385970/clearing-the-quickfix-list-in-vim>
 - Newton
 
 Proprietary:
@@ -22,6 +22,7 @@ Proprietary:
 2D:
 
 - Box2D
+- <http://brm.io/matter-js/> JavaScript on browser
 
 ## Fluids
 

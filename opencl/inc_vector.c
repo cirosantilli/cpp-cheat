@@ -3,6 +3,10 @@ Increment a vector, one value per work item.
 
 It is useless to do this on a GPU, not enough work / IO,
 it's just a clEnqueueNDRangeKernel + get_global_id hello world.
+
+- http://stackoverflow.com/questions/15194798/vector-step-addition-slower-on-cuda
+- http://stackoverflow.com/questions/22005405/how-to-add-up-the-elements-of-an-array-in-gpu-any-function-similar-to-cublasdas
+- http://stackoverflow.com/questions/15161575/reduction-for-sum-of-vector-when-size-is-not-power-of-2
 */
 
 #include <assert.h>

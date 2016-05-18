@@ -53,7 +53,7 @@ str2int_errno str2int(int *out, char *s, int base) {
     return STR2INT_SUCCESS;
 }
 
-int main() {
+int main(void) {
     int i;
     /* Lazy to calculate this size properly. */
     char s[256];

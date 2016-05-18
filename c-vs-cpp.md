@@ -53,3 +53,4 @@ Some examples:
 
 - `static struct` definitions deprecated: <http://stackoverflow.com/questions/7259830/why-and-when-to-use-static-structures-in-c-programming>
 - char literals `a` are... chars, not int: <http://stackoverflow.com/questions/433895/why-are-c-character-literals-ints-instead-of-chars>
+- implicit `void *` casts are OK in C, but not in C++: <http://stackoverflow.com/questions/605845/do-i-cast-the-result-of-malloc>

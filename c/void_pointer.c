@@ -35,8 +35,7 @@ int caller(int i, int (*cb)(int i, void* payload), void* payload) {
     return i + cb(2, payload);
 }
 
-
-int main() {
+int main(void) {
     void* vp;
     int* ip;
     int i = 0;
@@ -81,8 +80,8 @@ int main() {
         vp = (void*)&s;
         ip = (int*)vp;
         i = *ip;
-        /* Proabably defined because it is the first field. */
-        /* Reordering is not possible, but what about padding before first field TODO? */
+
+        /* TODO: UB, ID or good?  */
         /*assert(i == 0);*/
     }
 
@@ -95,7 +94,7 @@ int main() {
 
         -   In libc, it is the return type of `malloc`, since it cannot know what type of pointer to return.
             You should use implicit casts with it only:
-            <http://stackoverflow.com/questions/605845/do-i-cast-the-result-of-malloc>
+            http://stackoverflow.com/questions/605845/do-i-cast-the-result-of-malloc
 
         -   Extra parameters to callback functions.
 

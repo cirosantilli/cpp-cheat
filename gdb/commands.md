@@ -1175,3 +1175,7 @@ Same syntax for convenience variables, very insane:
 ### Run arbitrary assembly code
 
 Nope: <http://stackoverflow.com/questions/5480868/how-to-call-assembly-in-gdb>
+
+## C++
+
+<http://stackoverflow.com/questions/8528979/how-to-determine-whether-an-object-is-an-instance-of-certain-c-class-in-gdb>

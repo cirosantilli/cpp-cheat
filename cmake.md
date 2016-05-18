@@ -1,21 +1,15 @@
 # CMake
 
-Make alternative that aims to be:
+Make alternative that aims to be portable.
 
--   more cross platform: works on Linux and Windows
-
--   more declarative and compilation focused:
-    you declare high level properties, Make translates them to the system.
-
-Generates programs that make the project, including projects for IDEs.
-
-For example, it can generated:
+Generates build files that work on Linux and Windows, e.g.:
 
 - POSIX `Makefiles` on Linux,
-- `cmd.exe` build scripts for Windows
 - Code::Blocks project
+- `cmd.exe` build scripts for Windows
+- Visual Studio projects for Windows
 
-all from the same input file.
+So basically a compatibility wrapper to various build systems.
 
 The configuration file is `CMakeLists.txt`, and are written in Yet Another Language.
 
@@ -37,13 +31,11 @@ CMake also comes with a test driver, `ctest`, which you can use as:
     cd build
     ctest .
 
-## Change install destination without recompile
+## Choose generator
 
-<http://stackoverflow.com/questions/13480846/how-to-modify-the-install-path-without-running-the-configure-script-cmake-again>
+    cmake --help
 
-Says:
-
-    make install DESTDIR=/opt/local
+shows a list, then:
 
 ## Uninstall
 
@@ -69,6 +61,25 @@ With the generated makefile:
 
 <https://cmake.org/cmake/help/v3.0/variable/BUILD_SHARED_LIBS.html>
 
+## Debug symbols
+
+No (default it seems):
+
+    cmake -DCMAKE_BUILD_TYPE=Release
+
+Yes, no optimizations:
+
+    cmake -DCMAKE_BUILD_TYPE=Debug
+
+Both release optimizations and debug symbols:
+
+    cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo
+
+Change what flags are passed;
+
+    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -Wall")
+
 ## IDEs
 
 <https://cmake.org/Wiki/CMake_Generator_Specific_Information>
@@ -82,3 +93,19 @@ Code::Blocks:
 
     cd build
     cmake .. -G 'CodeBlocks - Unix Makefiles'
+
+## Makefile options
+
+### Show commands
+
+<http://stackoverflow.com/questions/2670121/using-cmake-with-gnu-make-how-can-i-see-the-exact-commands>
+
+    make VERBOSE=1
+
+### Change install destination without recompile
+
+<http://stackoverflow.com/questions/13480846/how-to-modify-the-install-path-without-running-the-configure-script-cmake-again>
+
+Says:
+
+    make install DESTDIR=/opt/local

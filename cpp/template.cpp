@@ -616,22 +616,6 @@ int main() {
 
                 //TypenameInTemplateFunc<HasIMember>();
         }
-
-        /*
-        # template keyword qualifier
-
-            Just like the typename qualifier helps the compiler solve another type of parsing ambiguity,
-            in this case if `<` is a minus or a template instantiation.
-
-            Only used inside of templates that use templates!
-
-            Very good example of the template qualifier:
-            <http://stackoverflow.com/questions/610245/where-and-why-do-i-have-to-put-the-template-and-typename-keywords>
-        */
-        {
-            TemplateQualifier tq;
-            TemplateQualifierTest<TemplateQualifier>(tq, tq, &tq);
-        }
     }
 
     /*
@@ -713,16 +697,62 @@ int main() {
         }
     }
 
-    //double less signs: can only be used in C++11.
-    //or compiler could get confused with `>>` operator
+    /*
+    # Lexing pitfalls
+
+    # Syntax problems with templates
+
+        The use of `<` and `>` generated lots of ugly lexing conflicts.
+
+        http://stackoverflow.com/questions/7304699/what-are-all-the-syntax-problems-introduced-by-the-usage-of-angle-brackets-in-c
+    */
     {
-        {std::vector<std::vector<int> > vv;}
-        //                            ^
-        //                            THIS space was required before C++11
+        /*
+        Double less signs: can only be used in C++11,
+        or lexer + longest munching rule would get it confused with `>>` operator
+        http://stackoverflow.com/questions/5341202/why-doesnt-ab-work-in-c/24947922#24947922
+        */
+        {
+            {std::vector<std::vector<int> > vv;}
+            //                            ^
+            //                            THIS space was required before C++11
 
 #if __cplusplus >= 201103L
-        {std::vector<std::vector<int>> vv;}
+            {std::vector<std::vector<int>> vv;}
 #endif
+        }
+
+        /*
+        > inside template
+
+            typename std::enable_if<sizeof(T) > 1, void>::type
+
+        http://stackoverflow.com/questions/33423702/how-to-use-greater-than-inside-a-template-parameter-and-not-get-a-parsing-er
+        */
+
+        /*
+        >=
+
+        http://stackoverflow.com/questions/28354108/operators-and-template-ids/28354898#28354898
+        */
+        {
+        }
+
+        /*
+        # template keyword qualifier
+
+            Just like the typename qualifier helps the compiler solve another type of parsing ambiguity,
+            in this case if `<` is a minus or a template instantiation.
+
+            Only used inside of templates that use templates!
+
+            Very good example of the template qualifier:
+            http://stackoverflow.com/questions/610245/where-and-why-do-i-have-to-put-the-template-and-typename-keywords
+        */
+        {
+            TemplateQualifier tq;
+            TemplateQualifierTest<TemplateQualifier>(tq, tq, &tq);
+        }
     }
 
 /*

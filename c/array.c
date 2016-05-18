@@ -20,7 +20,7 @@ void print_array(int **mat, int m, int n) {
     }
 }
 
-int main() {
+int main(void) {
     /* Basic example. */
     {
         int is[3];
@@ -315,38 +315,51 @@ int main() {
         }
     }
 
-    /* Array type madness. */
+    /* # Arrays vs pointers */
     {
-        /* Pointers and arrays are different types. */
+        /*
+        Pointers and arrays are different types.
+
+        (non-VLA) arrays have the size they are allocated to: they ARE the chunk.
+
+        Pointers point to some chunk of memory.
+        */
         {
             assert(sizeof(int*) != sizeof(int[3]));
             assert(sizeof(int[3]) == 3 * sizeof(int));
-            /*
-            # int []
-
-                Is this a type? is it different from int*?
-            */
         }
 
-        /* Some operators like `+` implicly convert arrays to pointers to the same type. */
+        /*
+        Almost any expression in which array identifiers appear decays to a pointer implicitly.
+
+        sizeof is an exception.
+
+        Here, (is + 1) makes is decay to an int* before the sizeof.
+        */
         {
             int is[2];
             assert(sizeof(is + 1) == sizeof(int*));
         }
 
         /*
-        ERROR: declaration of `vs` as an array of voids.
-        You cannot have an array of void: how many bytes should the compiler allocate?
+        # Address of arrays
+
+            http://stackoverflow.com/questions/2528318/how-come-an-arrays-address-is-equal-to-its-value-in-c
         */
         {
-            /*void vs[2];*/
-        }
-
-        /* ERROR: ou can't declare multidimentional arrays like that. */
-        {
-            /*int[2] iss[2];*/
+            int is[2];
+            assert(&is == (int(*)[2])is);
         }
     }
+
+    /*
+    # int []
+
+        TODO Is this a type? is it different from int*?
+
+        I think int[] is an incomplete type, and can only appear on function declarations,
+        where it is identical to int*.
+    */
 
     /*
     # Iterate array

@@ -1,6 +1,5 @@
 CFLAGS_EXTRA := \
   -DIMPLEMENTATION_SIGNAL \
-  -DUNDEFINED_BEHAVIOUR \
   -trigraphs \
   -Wno-comment \
   -Wno-ignored-qualifiers \
@@ -15,3 +14,4 @@ CFLAGS_EXTRA := \
   -Wno-unused-local-typedefs \
   -Wno-unused-value \
   -Wno-unused-variable
+  #-DUNDEFINED_BEHAVIOUR \

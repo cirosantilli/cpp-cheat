@@ -66,6 +66,11 @@ int main() {
         int vla[size];
         vla_arg_k_and_r(vla, size);
     }
+
+    /*
+    Initialize VLA: nope:
+    http://stackoverflow.com/questions/17332360/initializing-variable-length-array
+    */
 #endif
     return EXIT_SUCCESS;
 }

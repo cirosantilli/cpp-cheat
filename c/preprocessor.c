@@ -32,7 +32,7 @@ int int_int_int_func(int m, int n) {
     return m + n;
 }
 
-int main() {
+int main(void) {
 
     /*
     # Comments are replaced by spaces.
@@ -671,6 +671,13 @@ int main() {
             assert(sizeof(double) == 8);
 #endif
         }
+
+        /*
+        # Expand macro to another macro
+
+            Nope:
+            http://stackoverflow.com/questions/1262063/preprocessor-macro-expansion-to-another-preprocessor-directive
+        */
 
 #ifndef __STDC_NO_ATOMICS__
         /* Indicates no C11 support for `_Atomic` and `<stdatomic.h>`. */

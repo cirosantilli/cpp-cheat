@@ -120,6 +120,7 @@
     - https://en.wikipedia.org/wiki/Subpixel_rendering
 -   curve primitives: arcs, Bezier, NURBS: nope?
 -   level of detail https://en.wikipedia.org/wiki/Level_of_detail
+    - example on bullet physics example browser for spheres: <https://github.com/bulletphysics/bullet3/blob/85368973a1a8b5d0d230feb512fd19540611f923/examples/OpenGLWindow/SimpleOpenGL3App.cpp#L503>
 -   detect and highlight which triangle a straight line hits, e.g. for FPS
     - ray casting seems to be the name of this: https://unity3d.com/learn/tutorials/modules/beginner/physics/raycasting
     - bullet can do it: http://bulletphysics.org/mediawiki-1.5.8/index.php/Using_RayTest

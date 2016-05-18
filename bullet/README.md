@@ -11,5 +11,7 @@ Tested on Bullet 2.83.
 1.  Examples
     1.  [Gravity](gravity.cpp)
     1.  [Drop object](drop_object.cpp)
-1. 	[gnuplot-run](gnuplot-run)
+1.  Tools
+    1. 	[gnuplot-run](gnuplot-run)
+1. 	[Bibliography](gnuplot-run)
 1.  [TODO](TODO.md)

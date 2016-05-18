@@ -16,3 +16,7 @@ Those examples seem to use files from other places of the build tree, in particu
 ## Inspiration
 
 - <https://www.youtube.com/watch?v=LrEvoKI07Ww>
+
+## Tutorials
+
+- 57 videos from techcplusplusguy from 2012: <https://www.youtube.com/playlist?list=PL949B30C9A609DEE8> He's nice, but you know, videos.

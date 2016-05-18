@@ -7,7 +7,15 @@
 -   Voronoi: https://www.youtube.com/watch?v=FIPu9_OGFgc
 -   substeps vs smaller time step on stepSimulation?
 -   opengl visualization
+    - rendering is done from <https://github.com/bulletphysics/bullet3/blob/2.83/examples/ExampleBrowser/GL_ShapeDrawer.cpp> in immediate mode
+        - TODO what happens then?
+        - from <https://github.com/bulletphysics/bullet3/blob/2.83/examples/ExampleBrowser/OpenGLGuiHelper.cpp#L447> renderScene
+        - `m_guiHelper` is set called from OpenGLExampleBrowser to a OpenGLGuiHelper
+		- CommonRigidBodyBase::renderScene() calls `m_guiHelper->render(m_dynamicsWorld);`
+        - `BasicExample:: CommonRigidBodyBase::renderScene();` calls `CommonRigidBodyBase::renderScene();`
+        - colors just alternate between 4 values: <https://github.com/bulletphysics/bullet3/blob/2.83/examples/ExampleBrowser/OpenGLGuiHelper.cpp#L117>
 -   user input
 -   2D
     - http://gamedev.stackexchange.com/questions/22319/how-to-disable-y-axis-movement-in-the-bullet-physics-engine
     - http://gamedev.stackexchange.com/questions/6130/is-it-worth-it-to-use-bullet-for-2d-physics-instead-of-box2d-for-the-sake-of-lea
+    - an SDL demo with mouse drag generating forces proportional to initial drag point distance on object would be easy and neat to do

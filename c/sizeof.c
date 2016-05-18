@@ -104,7 +104,14 @@ int main() {
         */
         assert(sizeof(char) == 1);
 
-        /* Relative guarantees. */
+        /*
+        Relative guarantees.
+
+        - http://stackoverflow.com/questions/11438794/is-the-size-of-c-int-2-bytes-or-4-bytes
+        - http://stackoverflow.com/questions/7279504/long-and-long-long-bit-length
+        - http://stackoverflow.com/questions/18901080/why-is-the-sizeofint-sizeoflong
+        - http://stackoverflow.com/questions/12279060/difference-between-short-int-and-int-in-c
+        */
         assert(sizeof(short int) <= sizeof(int          ));
         assert(sizeof(int      ) <= sizeof(long int     ));
 #if __STDC_VERSION__ >= 199901L
@@ -115,7 +122,8 @@ int main() {
 
         /*
         Absolute lower bound guarantees:
-        http://stackoverflow.com/questions/1738568/any-guaranteed-minimum-sizes-for-types-in-c
+
+        - http://stackoverflow.com/questions/1738568/any-guaranteed-minimum-sizes-for-types-in-c
 
         C99 5.2.4.2.1 "Size of integer types"
         */
