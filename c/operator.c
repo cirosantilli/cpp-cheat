@@ -627,9 +627,12 @@ int main() {
         Called ternary operator since it is the only operator that
         takes 3 inputs.
 
-        It seems that the only use for the ternary operator is writing less,
-        so it is completely redundant with and if else:
-        http://stackoverflow.com/questions/758849/the-ternary-conditional-operator-in-c
+        Likely exists because of CMOV instructions. But with branch preditction CMOV can be slower than if / else:
+        http://stackoverflow.com/questions/6754454/speed-difference-between-if-else-and-ternary-operator-in-c?lq=1#comment8007791_6754495
+
+        - http://stackoverflow.com/questions/758849/the-ternary-conditional-operator-in-c
+        - http://stackoverflow.com/questions/3565368/ternary-operator-vs-if-else
+        - http://stackoverflow.com/questions/6754454/speed-difference-between-if-else-and-ternary-operator-in-c?lq=1
     */
     {
         assert((1 < 2 ? 3 : 4) == 3);

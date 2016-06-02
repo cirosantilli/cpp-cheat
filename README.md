@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/cirosantilli/cpp-cheat.svg?branch=master)](https://travis-ci.org/cirosantilli/cpp-cheat)
 
-C and C++ minimal examples. Asserts used wherever possible. Cheatsheets, tutorials and mini-projects.
+C and C++ minimal examples. Asserts used wherever possible. Hello worlds for cool third party libraries. Cheatsheets, tutorials and mini-projects.
 
 [Assembly Cheat](https://github.com/cirosantilli/assembly-cheat) contains lower level issues, like assembly, ELF and Binutils.
 

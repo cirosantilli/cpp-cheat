@@ -18,6 +18,10 @@
     Each error has an error message string associated to it.
     To get that error message, consider using `strerror`.
     To print an error message to stderr, consider using `perror`.
+
+    Success of calls does not normally set errno,
+    and you can and should set it yourself in most cases:
+    http://stackoverflow.com/questions/9856822/should-i-set-errno
 */
 
 #include "common.h"

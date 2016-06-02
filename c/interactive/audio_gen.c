@@ -8,6 +8,7 @@ TODO
     Currently, hitting the same not twice sounds the same as hitting it once for double the time,
     (except for the tic of phase, which is a bug as well...)
 - drum / percurssion synth
+- siren sound TODO Mechanical: https://www.youtube.com/watch?v=uckkpr2b8U8
 */
 
 #include <math.h>
