@@ -19,7 +19,7 @@ ANSI C features shall not be discussed here.
 
 #include "common.h"
 
-int main() {
+int main(void) {
     /*
     # Namespace
 
@@ -283,7 +283,7 @@ int main() {
         Get real time, user time and system time.
     */
     {
-        //TODO0 example
+        /* TODO0 example */
     }
 
     /*

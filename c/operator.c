@@ -288,7 +288,13 @@ int main() {
         }
     }
 
-    /* # Bitwise operators */
+    /*
+    # Bitwise operators
+
+        On signed integers: implementation defined or UB:
+        http://stackoverflow.com/questions/11644362/bitwise-operation-on-signed-integer
+        so just never do it.
+    */
     {
         /*
         # ~

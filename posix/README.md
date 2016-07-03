@@ -15,6 +15,7 @@
 1.  [getrusage](dlopen.c)
 1.  [pthread](pthread.c)
     1. [pthread_mutex](pthread_mutex.c)
+1.  [Regex](regex.c)
 1.  Networking
     1.  [socket](socket/)
     1.  [netdb.h](netdb-h.md)

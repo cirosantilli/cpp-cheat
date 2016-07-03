@@ -1,1 +1,1 @@
-LIBS := -lSDL2 -lm
+LIBS := -lSDL2 -lSDL2_ttf -lm

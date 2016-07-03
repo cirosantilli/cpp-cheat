@@ -44,6 +44,7 @@
 
 /* POSIX only headers. */
 #include <arpa/inet.h>
+#include <curses.h>
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h> /* creat, O_CREAT */
@@ -67,6 +68,7 @@
 #include <sys/utsname.h> /* uname, struct utsname */
 #include <sys/wait.h> /* wait, sleep */
 #include <syslog.h> /* syslog */
+#include <termios.h>
 #include <unistd.h> /* fork, ftruncate */
 
 #define TMPFILE(x) __FILE__ "__" x ".tmp"

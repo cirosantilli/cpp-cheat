@@ -6,6 +6,7 @@ Cheat on the GNU Compile Collection (GCC) language extensions and command line u
     1. [Compilation steps](compilation-steps.md)
     1. [Invocation](invocation.md)
     1. [Spec files](spec-files.md)
+    1. [GCC as library](gcc-as-library.md)
 1.  Extensions
     1.  Types
         1. [Empty struct](empty_struct.c)

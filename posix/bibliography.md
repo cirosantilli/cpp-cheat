@@ -15,3 +15,7 @@
     Very good intro do many of POSIX utilities with interesting examples and topics.
 
     The problem is that each program requires you to pass several CLI arguments to them, and just print stuff to stdout, no assertions.
+
+-   <https://github.com/hailinzeng/Unix-Network-Programming>
+
+-   <http://www.apuebook.com/index.html> Advanced Programming in the UNIX® Environment, Third Edition by Richard Stevens

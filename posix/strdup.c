@@ -6,7 +6,7 @@
 
 #include "common.h"
 
-int main() {
+int main(void) {
     char *s = "abc";
     char *s2;
     s2 = strdup(s);

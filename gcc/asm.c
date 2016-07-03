@@ -60,7 +60,7 @@
 
 #include "common.h"
 
-int main() {
+int main(void) {
 #if defined(__i386__) || defined(__x86_64__)
     puts("__i386__ || __x86_64__");
 
@@ -169,7 +169,7 @@ int main() {
         gcc will automatically put the value of `in` from RAM into a register for us
         and `out` from a register into ram at the end
 
-        note how we can do an `inc` operation directly on `%1` and `%0`
+        We can do an `inc` operation directly on both `%1` and `%0`,
         so they must both already be inside a registers as expected
 
         GCC just makes sure they are written from/to memory before/after the operations.
@@ -185,6 +185,9 @@ int main() {
             : "=r" (out)
             : "r" (in)
         );
+        /* in was not modified by inc. It had already been moved to a register. */
+        assert(in == 0);
+        /* Out was modified. But only after our custom assembly executed. */
         assert(out == 2);
     }
 
@@ -201,7 +204,7 @@ int main() {
         and minimize the use of new registers.
     */
     {
-        volatile int x = 0;
+        int x = 0;
         asm (
             "incl %0"
             : "=r" (x)
@@ -214,12 +217,14 @@ int main() {
     /*
     # Specific register constraints
 
-        `a` forces it to be put into eax.
+    # a
+
+        Forces it to be put into eax.
     */
     {
-        volatile int x = 0;
-        asm volatile (
-            "incl %0"
+        int x = 0;
+        asm (
+            "incl %%eax"
             : "=a" (x)
             : "0" (x)
         );
@@ -235,11 +240,43 @@ int main() {
     */
     {
         register int eax asm ("eax");
-        asm volatile ("mov $1, %%eax;" : : : "%eax");
+        asm ("mov $1, %%eax;" : : : "%eax");
         assert(eax == 1);
-        asm volatile ("mov $2, %%eax;" : : : "%eax");
+        asm ("mov $2, %%eax;" : : : "%eax");
         assert(eax == 2);
     }
+
+    /*
+    # modifiers
+
+        https://gcc.gnu.org/onlinedocs/gcc-4.7.0/gcc/Modifiers.html#Modifiers
+
+    # =
+
+        Says that a value may have been modified by asm.
+
+        TODO: `=` vs indicating that it is an output? (before the second `:`?
+
+    # +
+
+        Both read from and written to.
+    */
+
+    /*
+    # asm volatile
+
+        http://stackoverflow.com/questions/14449141/the-difference-between-asm-asm-volatile-and-clobbering-memory
+
+        TODO minimal example.
+    */
+
+    /*
+    # volatile variable modified in asm
+
+        TODO do you need to mark variables modified in `asm` as volatile?
+
+        I think this is exactly what the `=` modifier does already, so maybe not.
+    */
 #endif
     return EXIT_SUCCESS;
 }

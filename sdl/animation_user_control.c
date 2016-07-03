@@ -37,7 +37,6 @@ int main(void) {
     double x;
     double y;
 
-    srand(time(NULL));
     SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO);
     SDL_CreateWindowAndRenderer(WINDOW_WIDTH, WINDOW_WIDTH, 0, &window, &renderer);
     rect.x = WINDOW_WIDTH / 2;

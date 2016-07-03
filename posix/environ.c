@@ -8,7 +8,7 @@
 
 #include "common.h"
 
-int main() {
+int main(void) {
     /* Print entire environment. */
     extern char **environ;
     char **env = environ;
