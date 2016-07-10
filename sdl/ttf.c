@@ -74,9 +74,11 @@ int main(int argc, char **argv) {
         }
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
         SDL_RenderClear(renderer);
-        /* Use textures. */
+
+        /* Use TTF textures. */
         SDL_RenderCopy(renderer, texture1, NULL, &rect1);
         SDL_RenderCopy(renderer, texture2, NULL, &rect2);
+
         SDL_RenderPresent(renderer);
     }
 
