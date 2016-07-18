@@ -217,38 +217,6 @@ int main() {
         }
     }
 
-    /*
-    # stringstream
-
-    # basic_stringstream
-
-        An iostream String backed implementation.
-
-        The following is defined:
-
-            typedef basic_stringstream<char> stringstream;
-
-            typedef basic_stringstream<char>
-
-        Very useful to test streams without creating files / stdin.
-    */
-    {
-        std::stringstream oss("abcd");
-
-        // str does not clear the std::stringstream object
-        assert(oss.str() == "abcd");
-
-        // To clear it you could do: http://stackoverflow.com/questions/20731/in-c-how-do-you-clear-a-stringstream-variable
-        // Set to empty:
-        oss.str("");
-        // Clear flags. Very important, not only for error indicators but also for end of stream.
-        oss.clear();
-        assert(oss.str() == "");
-
-        // ERROR: use of deleted function because the constructor is =delete.
-        //oss = std::stringstream();
-    }
-
     // Possible application: build up a huge string step by step.
     // May be more efficient than concatenations which always generates new objects.
     {
@@ -263,7 +231,7 @@ int main() {
 
         There are a few standard alternatives.
 
-        <http://stackoverflow.com/questions/5590381/easiest-way-to-convert-int-to-string-in-c>
+        http://stackoverflow.com/questions/5590381/easiest-way-to-convert-int-to-string-in-c
     */
     {
         /*
@@ -299,8 +267,11 @@ int main() {
         }
     }
 
-    // #int to string
-    // http://stackoverflow.com/questions/7663709/convert-string-to-int-c
+    /*
+    # string to int
+
+        http://stackoverflow.com/questions/7663709/convert-string-to-int-c
+    */
     {
         // Best C++11 error checking option: stoi
 #if __cplusplus >= 201103L

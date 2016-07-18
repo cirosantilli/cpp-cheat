@@ -10,6 +10,7 @@
     1.  [Animation](animation.c)
         1.  [Animation user control](animation_user_control.c)
         1.  [Animation user control discrete](animation_user_control_discrete.c)
+        1.  [Two player discrete](two_player_discrete.c)
         1.  [Animation random walk](animation_random_walk.c)
         1.  [Plane wave](plane_wave.c)
     1.  [TTF](ttf.c)
