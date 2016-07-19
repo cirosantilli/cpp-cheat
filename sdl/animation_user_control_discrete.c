@@ -1,13 +1,11 @@
 /*
-Use controls a square in a very discrete world, e.g. tetris.
+Use controls a square in a very discrete world, e.g. Tetris.
 
 Using float coordinates would lead to an internal invisible state,
-which is weird (you can be eithe at the left or right corner of the active square).
+which is weird (you can be either at the left or right corner of the active square).
 */
 
-#include <math.h>
 #include <stdlib.h>
-#include <time.h>
 
 #include <SDL2/SDL.h>
 

@@ -243,10 +243,9 @@ int main(int argc, char *argv[]) {
         if (mainAudioLead < 0)
             mainAudioLead += audioBufferLength;
         if (mainAudioLead < floatStreamLength)
-            printf("An audio collision may have occured!\n");
+            printf("An audio collision may have occurred!\n");
         SDL_Delay(mainAudioLead * syncCompensationFactor);
     }
     onExit();
     return 0;
 }
-

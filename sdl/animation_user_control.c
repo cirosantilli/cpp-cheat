@@ -4,7 +4,6 @@ Use controls a square.
 https://www.libsdl.org/release/SDL-1.2.15/docs/html/guideinputkeyboard.html
 */
 
-#include <math.h>
 #include <stdlib.h>
 #include <time.h>
 
@@ -33,14 +32,11 @@ int main(void) {
     SDL_Rect rect;
     SDL_Renderer *renderer;
     SDL_Window *window;
-    int quit = 0;
-    unsigned int current_time;
+    double speed_x, speed_y;
     double step;
-    double speed_x;
-    double speed_y;
-    unsigned int last_time;
-    double x;
-    double y;
+    double x, y;
+    int quit = 0;
+    unsigned int current_time, last_time;
 
     SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO);
     SDL_CreateWindowAndRenderer(WINDOW_WIDTH, WINDOW_WIDTH, 0, &window, &renderer);

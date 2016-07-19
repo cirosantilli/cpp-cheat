@@ -21,7 +21,8 @@ Bibliography:
 TODO: why do I see some tearing. vsync problem?
 */
 
-#define SDL 0
+/* Input parameters. Play with those to try to increase FPS. */
+#define SDL 1
 #define STREAMING (SDL && 0)
 
 #include <math.h>
