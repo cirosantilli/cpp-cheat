@@ -73,7 +73,7 @@ int main(void) {
     double fps_last_time;
     double initial_time;
     double t;
-    int nframes;
+    int fps_nframes;
     float z;
     unsigned int x;
     unsigned int xc;
@@ -89,7 +89,7 @@ int main(void) {
 #endif
     initial_time = get_secs();
     fps_last_time = initial_time;
-    nframes = 0;
+    fps_nframes = 0;
     while (1) {
         t = get_secs();
         dt = t - initial_time;
@@ -124,14 +124,14 @@ int main(void) {
 # endif
         SDL_RenderPresent(renderer);
 #endif
-        nframes++;
+        fps_nframes++;
         fps_dt = t - fps_last_time;
         if (fps_dt > 0.25) {
             /* Produce a side-effect for the non-SDL version so that
              * it does not get optimized away. */
-            printf("FPS = %f\n", nframes / fps_dt);
+            printf("FPS = %f\n", fps_nframes / fps_dt);
             fps_last_time = t;
-            nframes = 0;
+            fps_nframes = 0;
 #if !SDL
             printf("%f\n", sum);
 #endif

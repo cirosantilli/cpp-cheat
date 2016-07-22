@@ -78,6 +78,7 @@
     1.  [utility](utility.cpp)
     1.  Smart pointers
         1. [unique_ptr](unique_ptr.cpp)
+1.  [Interactive](interactive/)
 1.  Applications
     1. [Design patterns](design_patterns.cpp)
 

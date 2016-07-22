@@ -6,13 +6,16 @@ Speed differences are controlled by frequency dividers.
 
 #include <math.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include <SDL2/SDL.h>
 
+#include "fps.h"
+
 #define WINDOW_WIDTH 600
-#define RECTS_PER_WINDOW (10)
+#define RECTS_PER_WINDOW (4)
 #define RECT_WIDTH (WINDOW_WIDTH / RECTS_PER_WINDOW)
-#define FASTEST_TICK_PERIOD (1.0 / 16.0)
+#define FASTEST_TICK_PERIOD_S (1.0 / 16.0)
 #define NORMAL_FREQUENCY_DIVIDER 2
 #define FAST_FREQUENCY_DIVIDER 1
 #define GRAVITY_FREQUENCY_DIVIDER 4
@@ -48,14 +51,11 @@ void draw_player(
     SDL_RenderFillRect(renderer, &rect);
 }
 
-
 void update_player(
     PlayerState *player_state
 ) {
-    if (player_state->speed_x || player_state->speed_y) {
-        player_state->x = get_pos(player_state->x, player_state->speed_x);
-        player_state->y = get_pos(player_state->y, player_state->speed_y);
-    }
+    player_state->x = get_pos(player_state->x, player_state->speed_x);
+    player_state->y = get_pos(player_state->y, player_state->speed_y);
 }
 
 void init_state(
@@ -76,6 +76,7 @@ void init_state(
     player_state_1->y = RECTS_PER_WINDOW / 2;
     player_state_1->speed_x = 0;
     player_state_1->speed_y = 0;
+    fps_init();
 }
 
 int main(void) {
@@ -100,8 +101,6 @@ main_loop:
         &player_move_frequency_divider
     );
     while (1) {
-        current_time = SDL_GetTicks();
-        current_time_s = current_time / 1000.0;
         while (SDL_PollEvent(&event) == 1) {
             if (event.type == SDL_QUIT) {
                 goto quit;
@@ -109,83 +108,59 @@ main_loop:
                 switch(event.key.keysym.sym) {
                     case SDLK_ESCAPE:
                         goto main_loop;
-
-                    case SDLK_SPACE:
-                        player_move_frequency_divider = FAST_FREQUENCY_DIVIDER;
-                        break;
-
                     case SDLK_q:
                         goto quit;
-
-                    case SDLK_a:
-                        player_state_0.speed_x = -1;
-                        break;
-                    case SDLK_d:
-                        player_state_0.speed_x = 1;
-                        break;
-                    case SDLK_w:
-                        player_state_0.speed_y = -1;
-                        break;
-                    case SDLK_s:
-                        player_state_0.speed_y = 1;
-                        break;
-
-                    case SDLK_j:
-                        player_state_1.speed_x = -1;
-                        break;
-                    case SDLK_l:
-                        player_state_1.speed_x = 1;
-                        break;
-                    case SDLK_i:
-                        player_state_1.speed_y = -1;
-                        break;
-                    case SDLK_k:
-                        player_state_1.speed_y = 1;
-                        break;
-
-                    default:
-                        break;
-                }
-            } else if (event.type == SDL_KEYUP) {
-                switch(event.key.keysym.sym) {
-                    case SDLK_SPACE:
-                        player_move_frequency_divider = NORMAL_FREQUENCY_DIVIDER;
-                        break;
-
-                    case SDLK_a:
-                    case SDLK_d:
-                        player_state_0.speed_x = 0;
-                        break;
-                    case SDLK_w:
-                    case SDLK_s:
-                        player_state_0.speed_y = 0;
-                        break;
-
-                    case SDLK_j:
-                    case SDLK_l:
-                        player_state_1.speed_x = 0;
-                        break;
-                    case SDLK_i:
-                    case SDLK_k:
-                        player_state_1.speed_y = 0;
-                        break;
-
                     default:
                         break;
                 }
             }
         }
+
+        const Uint8 *keystate = SDL_GetKeyboardState(NULL);
+
+        if (keystate[SDL_SCANCODE_SPACE]) {
+            player_move_frequency_divider = FAST_FREQUENCY_DIVIDER;
+        } else {
+            player_move_frequency_divider = NORMAL_FREQUENCY_DIVIDER;
+        }
+
+        /* Player 0. */
+        player_state_0.speed_x = 0;
+        player_state_0.speed_y = 0;
+        if (keystate[SDL_SCANCODE_A]) {
+            player_state_0.speed_x = -1;
+        }
+        if (keystate[SDL_SCANCODE_D]) {
+            player_state_0.speed_x = 1;
+        }
+        if (keystate[SDL_SCANCODE_W]) {
+            player_state_0.speed_y = -1;
+        }
+        if (keystate[SDL_SCANCODE_S]) {
+            player_state_0.speed_y = 1;
+        }
+
+        /* Player 1. */
+        player_state_1.speed_x = 0;
+        player_state_1.speed_y = 0;
+        if (keystate[SDL_SCANCODE_J]) {
+            player_state_1.speed_x = -1;
+        }
+        if (keystate[SDL_SCANCODE_L]) {
+            player_state_1.speed_x = 1;
+        }
+        if (keystate[SDL_SCANCODE_I]) {
+            player_state_1.speed_y = -1;
+        }
+        if (keystate[SDL_SCANCODE_K]) {
+            player_state_1.speed_y = 1;
+        }
+
+        current_time = SDL_GetTicks();
+        current_time_s = current_time / 1000.0;
         if (current_time != last_time) {
-            if (current_time_s - last_tick_time_s > FASTEST_TICK_PERIOD) {
-                /* TODO this is broken. It should be possible to overcome gravity with a fast up movement. */
-                if (frequency_divider_counter % GRAVITY_FREQUENCY_DIVIDER == 0) {
-                    player_state_0.speed_y = 1;
-                    player_state_1.speed_y = 1;
-                }
-                if (frequency_divider_counter % player_move_frequency_divider == 0) {
-                    update_player(&player_state_0);
-                    update_player(&player_state_1);
-                }
+            if (current_time_s - last_tick_time_s > FASTEST_TICK_PERIOD_S) {
+                /* Draw world. */
                 SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
                 SDL_RenderClear(renderer);
                 draw_player(
@@ -203,10 +178,25 @@ main_loop:
                     255
                 );
                 SDL_RenderPresent(renderer);
+
+                /* Update state. */
+                if (frequency_divider_counter % GRAVITY_FREQUENCY_DIVIDER == 0) {
+                    player_state_0.speed_y += 1;
+                    player_state_1.speed_y += 1;
+                }
+                if (frequency_divider_counter % player_move_frequency_divider == 0) {
+                    update_player(&player_state_0);
+                    update_player(&player_state_1);
+                }
+
+                /* Update time tracking. */
                 last_tick_time_s = current_time_s;
                 frequency_divider_counter++;
                 if (frequency_divider_counter == MCD_FREQUENCY_DIVIDER)
                     frequency_divider_counter = 0;
+
+                /* Ticks per second.Equls 1 / FASTEST_TICK_PERIOD_S if no processing is done. */
+                fps_update_and_print();
             }
         }
         last_time = current_time;
