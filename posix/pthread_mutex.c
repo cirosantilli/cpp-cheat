@@ -1,4 +1,9 @@
 /*
+Expected outcome:
+
+- works with mutex
+- fails without
+
 # PTHREAD_MUTEX_INITIALIZER
 
     New pthread_mutex_t should be initialized to it.
@@ -55,7 +60,7 @@ void* main_thread(void *arg) {
     return NULL;
 }
 
-int main() {
+int main(void) {
     pthread_t threads[NUM_THREADS];
     int i;
     for (i = 0; i < NUM_THREADS; ++i)

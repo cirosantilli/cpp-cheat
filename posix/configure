@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+sudo aptitude install -y libncurses5-dev
