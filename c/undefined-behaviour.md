@@ -70,3 +70,9 @@ The standard however may put constraints on what may happen.
 E.g.: argument order of evaluation `f1() * f2()`.
 
 Unlike undefined behaviour, we are sure that this will not produce nasal deamons: there are only two valid outcomes: `f1()` runs before or after `f2()`.
+
+## Trap representation
+
+TODO. Occurs with undefined behaviour? Or implementation defined signal?
+
+<http://stackoverflow.com/questions/6725809/trap-representation>
