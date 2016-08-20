@@ -3,6 +3,11 @@ Determine which object has collided with which object:
 http://gamedev.stackexchange.com/questions/22442/how-get-collision-callback-of-two-specific-objects-using-bullet-physics
 
 Derived from drop_object.cpp
+
+TODO compilation fails with:
+
+    which_collision.cpp:75:17: error: ‘btRidigBody’ was not declared in this scope
+        std::vector<btRidigBody*> objects;
 */
 
 #include <cstdio>
@@ -11,7 +16,6 @@ Derived from drop_object.cpp
 #include <vector>
 
 #include <btBulletDynamicsCommon.h>
-#include <btRigidBody.h>
 
 #define PRINTF_FLOAT "%7.3f"
 

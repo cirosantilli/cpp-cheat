@@ -26,3 +26,14 @@ Run examples: you must first install it (or checkout to the same version as that
     cd test
     ./configure
     make
+
+## Contribute
+
+- issue tracker <https://bugzilla.libsdl.org>
+- unofficial GitHub mirror: <https://github.com/spurious/SDL-mirror>
+
+## Bugs
+
+2.0.4: with `~/.Xmodmap` key remapping, `SDL_GetKeyboardState(NULL)` + `SDL_SCANCODE_ESCAPE` does not work (uses old key) while `SDL_PollEvent(&event)` + `SDLK_ESCAPE` does.
+
+- http://forums.libsdl.org/viewtopic.php?p=42784&sid=c6f3d4c6aa9c0c9faf1d9d031c9a2c98

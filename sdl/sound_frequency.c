@@ -1,9 +1,10 @@
 /*
-http://codereview.stackexchange.com/questions/41086/play-some-sine-waves-with-sdl2
-http://stackoverflow.com/questions/10110905/simple-wave-generator-with-sdl-in-c
-http://stackoverflow.com/questions/9137297/generating-sounds-without-a-library
-http://stackoverflow.com/questions/7678470/generating-sound-of-a-particular-frequency-using-gcc-in-ubuntu
-http://gamedev.stackexchange.com/questions/47009/is-there-a-sound-library-for-c-to-generate-sound-samples-from-code
+- http://codereview.stackexchange.com/questions/41086/play-some-sine-waves-with-sdl2
+- http://stackoverflow.com/questions/10110905/simple-wave-generator-with-sdl-in-c
+- http://stackoverflow.com/questions/9137297/generating-sounds-without-a-library
+- http://stackoverflow.com/questions/7678470/generating-sound-of-a-particular-frequency-using-gcc-in-ubuntu
+- http://gamedev.stackexchange.com/questions/47009/is-there-a-sound-library-for-c-to-generate-sound-samples-from-code
+- https://www.youtube.com/watch?v=0Q8VB5oZJVM
 
 TODO minimize, clean up.
 */

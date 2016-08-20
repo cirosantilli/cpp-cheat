@@ -1,8 +1,11 @@
 # TODO get rid of this. Bullet headers are horribly coded for Linux:
 # the toplevel include all btBulletDynamicsCommon.h uses #include "subdir"
 # instead of the better #include "bullet/subdir".
+#
 # So we are forced to add it to the search path.
+#
 # Maybe some cmake magic would prevent that?
+#
 I := -I/usr/include/bullet -I/usr/local/include/bullet
 LIBS := \
 	-lBullet2FileLoader \

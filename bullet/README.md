@@ -1,6 +1,6 @@
 # Bullet
 
-Tested on Bullet 2.83.
+Tested on Bullet 2.83, Ubuntu 16.04.
 
 1.  Theory
     1.  [Introduction](introduction.md)

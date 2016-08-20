@@ -1,7 +1,6 @@
 # SDL
 
 1.  [Introduction](introduction.md)
-1.  [Bibliography](bibliography.md)
 1.  Examples
     1.  [SDL_RenderDrawPoint](render_draw_point.c)
     1.  [SDL_RenderDrawRect](render_draw_rect.c)
@@ -19,3 +18,5 @@
     1.  [Sound frequency](sound_frequency.c)
     1.  Text
         1.  [TTF](ttf.c)
+1.  [Users](users.md)
+1.  [Bibliography](bibliography.md)
