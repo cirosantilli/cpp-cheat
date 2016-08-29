@@ -6,7 +6,7 @@
 #
 # Maybe some cmake magic would prevent that?
 #
-I := -I/usr/include/bullet -I/usr/local/include/bullet
+I := -I/usr/local/include/bullet -I/usr/include/bullet
 LIBS := \
 	-lBullet2FileLoader \
 	-lBullet3Collision \

@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+# Compile an example, run and view data with gnuplot.
+#
+# Usage: view a single graph on a window:
+#
+#     gnuplot-run <basename without extension>`
+#
+# Example:
+#
+#     gnuplot-run gravity`
+#
+# Compile all graphs to PNGs:
+#
+#     gnuplot-run <basename without extension>`
+
+set -e
+make
+name="${1%.*}"
+if [ -n "$name" ]; then
+  ./"${name}.out" > "${name}.data"
+  gnuplot -p ./"${name}.gnuplot"
+else
+  for name in *.cpp; do
+    name="${name%.*}"
+    ./"${name}.out" > "${name}.data"
+    gnuplot \
+      -e 'set terminal png' \
+      -e "set output \"${name}.png\"" \
+      ./"${name}.gnuplot"
+  done
+fi

@@ -2,6 +2,8 @@
 Adapted from https://github.com/bulletphysics/bullet3/tree/2.83/examples/HelloWorld
 
 A sphere falling infinitely to gravity.
+
+Expected outcome: x and z are constant, y is a parabola downwards.
 */
 
 #include <cstdio>
@@ -12,7 +14,7 @@ A sphere falling infinitely to gravity.
 #define PRINTF_FLOAT "%7.3f"
 
 constexpr float gravity = -10.0f;
-constexpr float initialY = 10.0f;
+constexpr float initialX = 0.0f, initialY = 10.0f, initialZ = 0.0f;
 constexpr float timeStep = 1.0f / 60.0f;
 constexpr int maxNPoints = 125;
 
@@ -37,7 +39,7 @@ int main() {
         collisionShapes.push_back(colShape);
         btTransform startTransform;
         startTransform.setIdentity();
-        startTransform.setOrigin(btVector3(0, initialY, 0));
+        startTransform.setOrigin(btVector3(initialX, initialY, initialZ));
         btVector3 localInertia(0, 0, 0);
         btScalar mass(1.0f);
         colShape->calculateLocalInertia(mass, localInertia);
@@ -63,7 +65,7 @@ int main() {
             btVector3 origin = trans.getOrigin();
             // TODO: how to get 3 euler rotation numbers out of this?
             btQuaternion rotation = trans.getRotation();
-            std::printf("%d %d " PRINTF_FLOAT " " PRINTF_FLOAT " " PRINTF_FLOAT " ",
+            std::printf("%d %d " PRINTF_FLOAT " " PRINTF_FLOAT " " PRINTF_FLOAT "\n",
                     i, j, origin.getX(), origin.getY(), origin.getZ());
         }
     }

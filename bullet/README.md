@@ -2,6 +2,7 @@
 
 Tested on Bullet 2.83, Ubuntu 16.04.
 
+1.  [Getting started](getting-started.md)
 1.  Theory
     1.  [Introduction](introduction.md)
     1.  [Concepts](concepts.md)
@@ -10,8 +11,9 @@ Tested on Bullet 2.83, Ubuntu 16.04.
     1.  [Users](users.md)
 1.  Examples
     1.  [Gravity](gravity.cpp)
-    1.  [Drop object](drop_object.cpp)
+    1.  [Gravity collision](gravity_collision.cpp)
+    1.  [Which collision](which_collision.cpp)
 1.  Tools
-    1. 	[gnuplot-run](gnuplot-run)
-1. 	[Bibliography](gnuplot-run)
+    1. 	[plot](plot)
+1. 	[Bibliography](bibliography.md)
 1.  [TODO](TODO.md)

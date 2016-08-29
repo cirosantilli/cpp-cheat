@@ -1,5 +1,7 @@
 /*
-Determine which object has collided with which object:
+Drop two objects to the ground, starting from different heights.
+
+Whenever a collision happens, determine which object has collided with which object:
 http://gamedev.stackexchange.com/questions/22442/how-get-collision-callback-of-two-specific-objects-using-bullet-physics
 
 Derived from drop_object.cpp
@@ -11,7 +13,6 @@ Derived from drop_object.cpp
 #include <vector>
 
 #include <btBulletDynamicsCommon.h>
-#include <btRigidBody.h>
 
 #define PRINTF_FLOAT "%7.3f"
 
@@ -22,7 +23,7 @@ constexpr float objectRestitution = 0.9f;
 constexpr int maxNPoints = 500;
 constexpr float initialXs[] = {  0.0f, 5.0f };
 constexpr float initialYs[] = { 10.0f, 5.0f };
-constexpr size_t nObjects = sizeof(initialYs) / sizeof(*initialYs);
+constexpr size_t nObjects = sizeof(initialYs) / sizeof(float);
 
 std::map<const btCollisionObject*,std::vector<btManifoldPoint*>> objectsCollisions;
 void myTickCallback(btDynamicsWorld *dynamicsWorld, btScalar timeStep) {
@@ -73,7 +74,7 @@ int main() {
     }
 
     // Objects.
-    std::vector<btRidigBody*> objects;
+    std::vector<btRigidBody*> objects;
     for (size_t i = 0; i < nObjects; ++i) {
         btCollisionShape *colShape;
         colShape = new btSphereShape(btScalar(1.0));
@@ -96,7 +97,8 @@ int main() {
     std::printf("step body x y z collision2 collision1\n");
     for (i = 0; i < maxNPoints; ++i) {
         dynamicsWorld->stepSimulation(timeStep);
-        for (j = dynamicsWorld->getNumCollisionObjects() - 1; j >= 0; --j) {
+        const auto& numCollisionObjects = dynamicsWorld->getNumCollisionObjects() - 1;
+        for (j = 0; j < numCollisionObjects; ++j) {
             btCollisionObject *obj = dynamicsWorld->getCollisionObjectArray()[j];
             btRigidBody *body = btRigidBody::upcast(obj);
             btTransform trans;
@@ -121,8 +123,8 @@ int main() {
 
     // Cleanup.
     for (i = dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; --i) {
-        btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[i];
-        btRigidBody* body = btRigidBody::upcast(obj);
+        btCollisionObject *obj = dynamicsWorld->getCollisionObjectArray()[i];
+        btRigidBody *body = btRigidBody::upcast(obj);
         if (body && body->getMotionState()) {
             delete body->getMotionState();
         }
