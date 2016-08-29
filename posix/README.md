@@ -13,8 +13,9 @@
 1.  [syslog](syslog.c)
 1.  [dlopen](dlopen.c)
 1.  [getrusage](dlopen.c)
-1.  [pthread](pthread.c)
+1.  [pthread](pthread.md)
     1. [pthread_mutex](pthread_mutex.c)
+    1. [pthread_tid](pthread_tid.c)
 1.  [Regex](regex.c)
 1.  Networking
     1.  [socket](socket/)

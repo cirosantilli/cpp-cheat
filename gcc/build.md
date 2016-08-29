@@ -21,6 +21,8 @@ Summary:
     cd build
     # C and C++ only.
     ../src/configure --enable-languages=c,c++ --prefix="$(pwd)/../install"
+    # Add a suffix to the executable names:
+    # --program-suffix="-4.7"
     # All languages.
     # ../src/configure --enable-languages=all --prefix="$(pwd)/../install"
     # Wait hours.
@@ -31,6 +33,7 @@ Summary:
     # There are also many other installed files under /usr/local.
     sudo make install
     gcc -v
+    # sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.9 60 --slave /usr/bin/g++ g++ /usr/bin/g++-4.9
 
 Or install locally for interactive testing:
 
