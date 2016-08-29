@@ -42,6 +42,7 @@ C and C++ minimal examples. Asserts used wherever possible. Hello worlds for coo
 1.  Utility libraries
     1.  [Boost](boost/)
     1.  [glibc](glibc/)
+    1.  [Linux](linux/)
 1.  GUI
     1. [GTK](gtk/)
     1. [Open GL](opengl/)
