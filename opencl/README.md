@@ -10,6 +10,7 @@
     1.  [Vector built-in](vector_builtin.c)
 1.  Tools
     1.  [clinfo](clinfo.md)
+    1.  [Benchmarks](benchmarks.md)
 1.  Theory
     1.  [Introduction](introduction.md)
     1.  [Implementations](implementations.md)

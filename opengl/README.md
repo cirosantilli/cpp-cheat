@@ -4,6 +4,7 @@
 1.  [Introduction](introduction.md)
     1.  [Utility libraries](utility-libraries.md)
         1.  [GLUT](glut.md)
+        1.  [GLFW](glfw.md)
     1.  [Lightning](lightning.md)
         1. [Ray tracing](ray-tracing.md)
     1.  [Benchmarks](benchmarks.md)
@@ -36,7 +37,7 @@
     1.  GLUT
         1. [glutBitmapCharacter](bitmap_character.c)
         1. [Animation](animation.c)
-    1.  [GLFW](glfw.md)
+    1.  GLFW
         1.  [hello world](glfw_hello_world.c)
         1.  [animation](glfw_animation.c)
     1.  Retained mode + shaders
