@@ -9,15 +9,6 @@ There is a certain "installable client driver loader (ICD loader)" which forward
 <http://www.x.org/wiki/XorgEVoC/GalliumCompute/>
 
 Looks like the major open source implementation.
-
-## pocl
-
-Portable OpenCL implementation.
-
-<https://github.com/pocl/pocl>
-
-<http://portablecl.org/>
-
 MIT and LLVM based.
 
 ## NVIDIA
@@ -44,10 +35,14 @@ Threads:
 
 ## Intel
 
+<http://stackoverflow.com/questions/19141272/opencl-implementation-for-intel-core-i5-linux>
+
 No official Linux packages.
 
 - <http://askubuntu.com/questions/545763/installation-of-intel-opencl>
 - <http://askubuntu.com/questions/629456/intel-opencl-on-14-04>
+
+Beignet looks like an open source implementation for Intel's embedded GPU: <https://www.freedesktop.org/wiki/Software/Beignet/> TODO reversed or documented?
 
 ## Altera FPGA
 
@@ -56,3 +51,20 @@ No official Linux packages.
 ## Transpiler
 
 - <http://repo.or.cz/w/ppcg.git> C99 to OpenCL.
+
+## CPU implementations
+
+Slow but portable, and a sanity check that OpenCL is actually making anything faster:
+
+### Clover
+
+- <https://people.freedesktop.org/~steckdenis/clover/>
+
+### pocl
+
+Portable OpenCL implementation.
+
+<https://github.com/pocl/pocl>
+
+<http://portablecl.org/>
+

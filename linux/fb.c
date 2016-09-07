@@ -1,6 +1,15 @@
 /*
 Framebuffer device /dev/fb0
 
+Adapted from:
+http://stackoverflow.com/questions/4996777/paint-pixels-to-screen-via-linux-framebuffer
+
+More examples:
+
+- https://github.com/prpplague/fb-test-app
+- https://gist.github.com/robmint/4753401
+- http://stackoverflow.com/a/14809058/895245
+
 https://en.wikipedia.org/wiki/Linux_framebuffer
 
 To run this, you must:
@@ -13,10 +22,9 @@ To run this, you must:
 
 Expected outcome: pink square is printed on screen.
 If any terminal text scrolls over it, those square get overwritten.
-Get rid of terminal for good: http://stackoverflow.com/questions/32620019/c-linux-how-to-takeover-the-framebuffer
-
-Adapted from:
-http://stackoverflow.com/questions/4996777/paint-pixels-to-screen-via-linux-framebuffer
+Get rid of terminal for good:
+- http://stackoverflow.com/questions/32620019/c-linux-how-to-takeover-the-framebuffer
+- http://stackoverflow.com/questions/14805294/using-linux-framebuffer-for-graphics-but-disabling-console-text
 
 Other things to try:
 

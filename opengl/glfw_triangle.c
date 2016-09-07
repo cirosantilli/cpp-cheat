@@ -39,7 +39,7 @@ static const GLfloat vertices[] = {
 };
 
 int main(void) {
-    GLint shader_program;
+    GLuint shader_program, vbo, vao;
 
     glfwInit();
     GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, __FILE__, NULL, NULL);
@@ -51,7 +51,6 @@ int main(void) {
 
     shader_program = common_get_shader_program(vertex_shader_source, fragment_shader_source);
 
-    GLuint vbo, vao;
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo);
     glBindVertexArray(vao);

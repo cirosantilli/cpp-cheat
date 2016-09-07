@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# Tested on Ubuntu 16.04.
 sudo aptitude update
 # Ubuntu 14.04: glfw3 not present in repos, only glfw 2.
+# Must compile yourself, good luck: http://stackoverflow.com/questions/17768008/how-to-build-install-glfw-3-and-use-it-in-a-linux-project
 sudo aptitude install -y freeglut3-dev libglfw3-dev libglew-dev libopencv-dev

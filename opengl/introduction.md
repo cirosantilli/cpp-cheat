@@ -8,6 +8,8 @@ OpenGL is only the interface, but there can be several implementations, open and
 
 OpenGL is a C API with bindings to every language. So will will use C for the examples to minimize things.
 
+OpenGL is designed to allow you to talk efficiently with hardware. It would be much simpler to render without the efficiency restriction.  OpenGL's API is greatly complicated by this critical efficiency requirement.
+
 ## Mesa
 
 <https://en.wikipedia.org/wiki/Mesa_%28computer_graphics%29>

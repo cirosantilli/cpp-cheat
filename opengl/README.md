@@ -6,6 +6,8 @@
         1.  [GLUT](glut.md)
     1.  [Lightning](lightning.md)
         1. [Ray tracing](ray-tracing.md)
+    1.  [Benchmarks](benchmarks.md)
+    1.  [Drivers](drivers.md)
 1.  Examples
     1.  [GLUT hello world](hello_world.c)
     1.  [info](info.c)
@@ -46,8 +48,7 @@
             1.  [Infinite loop shader](glfw_infinite_loop_shader.c.off)
             1.  [Memory overflow shader](glfw_memory_overflow_shader.c.off)
     1.  [GLX](glx.c)
-    1.  Performance
-        1.  [Many triangles](many_triangles.c)
+    1.  Benchmarks
         1.  [Many triangles animation](many_triangles_animation.c)
 1.  [main](main.cpp)
 1.  Mini projects

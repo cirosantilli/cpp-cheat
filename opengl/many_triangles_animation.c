@@ -10,8 +10,8 @@ static const GLfloat speed = 45.0f;
 static GLfloat angle = 0.0f;
 static int old_t;
 
-#define HOW_MANY 200
-#define REPEAT 10
+unsigned int triangles_per_line = 200;
+unsigned int nlayers = 10;
 
 static int fps_last_time;
 static void fps() {
@@ -29,14 +29,13 @@ static void fps() {
 }
 
 static void display(void) {
-    int i;
-    int j;
-    int repeats;
+    unsigned int i, j;
+    unsigned int repeats;
     glClear(GL_COLOR_BUFFER_BIT);
     glLoadIdentity();
-    for (repeats = 0; repeats < REPEAT; repeats++) {
-        for (i = 0; i < HOW_MANY; i++) {
-            for (j = 0; j < HOW_MANY; j++) {
+    for (repeats = 0; repeats < nlayers; repeats++) {
+        for (i = 0; i < triangles_per_line; i++) {
+            for (j = 0; j < triangles_per_line; j++) {
                 glPushMatrix();
                 glTranslatef(2*i, 2*j, 0);
                 glRotatef(angle, 0.0f, 0.0f, 1.0f);
@@ -60,7 +59,7 @@ static void reshape(int w, int h) {
     glViewport(0, 0, w, h);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho(-1.0, HOW_MANY + 1, -1.0, HOW_MANY + 1, -1.5, 1.5);
+    glOrtho(-1.0, triangles_per_line + 1, -1.0, triangles_per_line + 1, -1.5, 1.5);
     glMatrixMode(GL_MODELVIEW);
 }
 
@@ -82,6 +81,12 @@ void init(void) {
 
 int main(int argc, char **argv) {
     glutInit(&argc, argv);
+    if (argc > 1) {
+        triangles_per_line = strtol(argv[1], NULL, 10);
+        if (argc > 2) {
+            nlayers = strtol(argv[2], NULL, 10);
+        }
+    }
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
     glutInitWindowSize(1000, 1000);
     glutInitWindowPosition(100, 100);
