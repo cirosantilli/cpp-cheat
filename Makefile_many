@@ -43,11 +43,11 @@ ASSEMBLER_NOEXT     ?= $(IN_DIR)$(RUN)
 
 RUN_BNAME   := $(RUN)$(OUT_EXT)
 
-INS         := $(foreach IN_EXT, $(IN_EXTS), $(wildcard $(IN_DIR)*$(IN_EXT)))
-INS_NODIR   := $(notdir $(INS))
-OUTS_NODIR  := $(basename $(INS_NODIR))
-OUTS_NODIR  := $(addsuffix $(OUT_EXT), $(OUTS_NODIR))
-OUTS        := $(addprefix $(OUT_DIR), $(OUTS_NODIR))
+INS              := $(foreach IN_EXT, $(IN_EXTS), $(wildcard $(IN_DIR)*$(IN_EXT)))
+INS_NODIR        := $(notdir $(INS))
+OUTS_NODIR_NOEXT := $(basename $(INS_NODIR))
+OUTS_NOEXT       := $(addprefix $(OUT_DIR), $(OUTS_NODIR_NOEXT))
+OUTS             := $(addsuffix $(OUT_EXT), $(OUTS_NOEXT))
 
 .PHONY: all asm clean debug help mkdir objdump set_objdump_flags profile set_profile_flags test $(PHONY)
 

@@ -10,17 +10,16 @@ Expected outcome: x and z are constant, y is a parabola downwards.
 #include <cstdlib>
 
 #include <btBulletDynamicsCommon.h>
+#include <type_traits>
 
-#define PRINTF_FLOAT "%7.3f"
+#include "common.hpp"
 
 constexpr float gravity = -10.0f;
 constexpr float initialX = 0.0f, initialY = 10.0f, initialZ = 0.0f;
 constexpr float timeStep = 1.0f / 60.0f;
-constexpr int maxNPoints = 125;
+constexpr unsigned int nSteps = 125;
 
 int main() {
-    int i, j;
-
     // Setup.
     btDefaultCollisionConfiguration* collisionConfiguration
             = new btDefaultCollisionConfiguration();
@@ -50,37 +49,31 @@ int main() {
     }
 
     // Main loop.
-    std::printf("step body x y z\n");
-    for (i = 0; i < maxNPoints; ++i) {
+    std::printf(COMMON_PRINTF_HEADER "\n");
+    for (std::remove_const<decltype(nSteps)>::type step = 0; step < nSteps; ++step) {
         dynamicsWorld->stepSimulation(timeStep);
-        for (j = dynamicsWorld->getNumCollisionObjects() - 1; j >= 0; --j) {
-            btCollisionObject *obj = dynamicsWorld->getCollisionObjectArray()[j];
-            btRigidBody *body = btRigidBody::upcast(obj);
-            btTransform trans;
-            if (body && body->getMotionState()) {
-                body->getMotionState()->getWorldTransform(trans);
-            } else {
-                trans = obj->getWorldTransform();
-            }
-            btVector3 origin = trans.getOrigin();
-            // TODO: how to get 3 euler rotation numbers out of this?
-            btQuaternion rotation = trans.getRotation();
-            std::printf("%d %d " PRINTF_FLOAT " " PRINTF_FLOAT " " PRINTF_FLOAT "\n",
-                    i, j, origin.getX(), origin.getY(), origin.getZ());
+        auto nCollisionObjects = dynamicsWorld->getNumCollisionObjects();
+        for (decltype(nCollisionObjects) objectIndex = 0; objectIndex < nCollisionObjects; ++objectIndex) {
+            commonPrintBodyState(
+                btRigidBody::upcast(dynamicsWorld->getCollisionObjectArray()[objectIndex]),
+                step,
+                objectIndex
+            );
+            std::printf("\n");
         }
     }
 
     // Cleanup.
-    for (i = dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; --i) {
-        btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[i];
-        btRigidBody* body = btRigidBody::upcast(obj);
+    for (int i = dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; --i) {
+        btCollisionObject *obj = dynamicsWorld->getCollisionObjectArray()[i];
+        btRigidBody *body = btRigidBody::upcast(obj);
         if (body && body->getMotionState()) {
             delete body->getMotionState();
         }
         dynamicsWorld->removeCollisionObject(obj);
         delete obj;
     }
-    for (i = 0; i < collisionShapes.size(); ++i) {
+    for (int i = 0; i < collisionShapes.size(); ++i) {
         delete collisionShapes[i];
     }
     delete dynamicsWorld;

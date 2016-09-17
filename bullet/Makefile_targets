@@ -1,0 +1,17 @@
+DATA_EXT := .dat
+IMG_EXT := .png
+
+DATAS := $(addsuffix $(DATA_EXT), $(OUTS_NOEXT))
+IMGS := $(addsuffix $(IMG_EXT), $(OUTS_NOEXT))
+
+PHONY := dat imgs
+
+data: $(DATAS)
+
+imgs: $(IMGS)
+
+$(IN_DIR)%$(DATA_EXT): $(OUT_DIR)%$(OUT_EXT)
+	./'$<' >'$@'
+
+$(IN_DIR)%$(IMG_EXT): $(OUT_DIR)%$(DATA_EXT)
+	./plot '$<'

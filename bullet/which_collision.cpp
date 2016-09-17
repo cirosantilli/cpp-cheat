@@ -10,17 +10,18 @@ Derived from drop_object.cpp
 #include <cstdio>
 #include <cstdlib>
 #include <map>
+#include <type_traits>
 #include <vector>
 
 #include <btBulletDynamicsCommon.h>
 
-#define PRINTF_FLOAT "%7.3f"
+#include "common.hpp"
 
 constexpr float gravity = -10.0f;
 constexpr float timeStep = 1.0f / 60.0f;
 constexpr float groundRestitution = 0.9f;
 constexpr float objectRestitution = 0.9f;
-constexpr int maxNPoints = 500;
+constexpr unsigned int nSteps = 500;
 constexpr float initialXs[] = {  0.0f, 5.0f };
 constexpr float initialYs[] = { 10.0f, 5.0f };
 constexpr size_t nObjects = sizeof(initialYs) / sizeof(float);
@@ -45,8 +46,6 @@ void myTickCallback(btDynamicsWorld *dynamicsWorld, btScalar timeStep) {
 }
 
 int main() {
-    int i, j;
-
     btDefaultCollisionConfiguration *collisionConfiguration
             = new btDefaultCollisionConfiguration();
     btCollisionDispatcher *dispatcher = new btCollisionDispatcher(collisionConfiguration);
@@ -94,24 +93,15 @@ int main() {
     }
 
     // Main loop.
-    std::printf("step body x y z collision2 collision1\n");
-    for (i = 0; i < maxNPoints; ++i) {
+    std::printf(COMMON_PRINTF_HEADER " collision1 collision2\n");
+    for (std::remove_const<decltype(nSteps)>::type step = 0; step < nSteps; ++step) {
         dynamicsWorld->stepSimulation(timeStep);
-        const auto& numCollisionObjects = dynamicsWorld->getNumCollisionObjects() - 1;
-        for (j = 0; j < numCollisionObjects; ++j) {
-            btCollisionObject *obj = dynamicsWorld->getCollisionObjectArray()[j];
-            btRigidBody *body = btRigidBody::upcast(obj);
-            btTransform trans;
-            if (body && body->getMotionState()) {
-                body->getMotionState()->getWorldTransform(trans);
-            } else {
-                trans = obj->getWorldTransform();
-            }
-            btVector3 origin = trans.getOrigin();
-            std::printf("%d %d " PRINTF_FLOAT " " PRINTF_FLOAT " " PRINTF_FLOAT " ",
-                    i, j, origin.getX(), origin.getY(), origin.getZ());
+        auto nCollisionObjects = dynamicsWorld->getNumCollisionObjects();
+        for (std::remove_const<decltype(nCollisionObjects)>::type objectIndex = 0; objectIndex < nCollisionObjects; ++objectIndex) {
+            btRigidBody *body = btRigidBody::upcast(dynamicsWorld->getCollisionObjectArray()[objectIndex]);
+            commonPrintBodyState(body, step, objectIndex);
             // We could use objects[i] here to check for one of the objects we've created.
-            auto& manifoldPoints = objectsCollisions[body];
+            auto manifoldPoints = objectsCollisions[body];
             if (manifoldPoints.empty()) {
                 std::printf("0");
             } else {
@@ -122,7 +112,7 @@ int main() {
     }
 
     // Cleanup.
-    for (i = dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; --i) {
+    for (int i = dynamicsWorld->getNumCollisionObjects() - 1; i >= 0; --i) {
         btCollisionObject *obj = dynamicsWorld->getCollisionObjectArray()[i];
         btRigidBody *body = btRigidBody::upcast(obj);
         if (body && body->getMotionState()) {
@@ -131,7 +121,7 @@ int main() {
         dynamicsWorld->removeCollisionObject(obj);
         delete obj;
     }
-    for (i = 0; i < collisionShapes.size(); ++i) {
+    for (int i = 0; i < collisionShapes.size(); ++i) {
         delete collisionShapes[i];
     }
     delete dynamicsWorld;

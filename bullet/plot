@@ -1,32 +1,62 @@
-#!/usr/bin/env bash
+#!/usr/bin/env python
+"""
+Two lines on the same plot.
+All points are on a 3 column file, and the first column
+decides which line each (x, y) point belongs to.
 
-# Compile an example, run and view data with gnuplot.
-#
-# Usage: view a single graph on a window:
-#
-#     gnuplot-run <basename without extension>`
-#
-# Example:
-#
-#     gnuplot-run gravity`
-#
-# Compile all graphs to PNGs:
-#
-#     gnuplot-run <basename without extension>`
+- http://stackoverflow.com/questions/31863083/python-split-numpy-array-based-on-values-in-the-array
+- http://stackoverflow.com/questions/33622888/how-to-plot-2-lines-based-on-the-value-not-column pandas example
+"""
+import imp
+import os
+import sys
 
-set -e
-make
-name="${1%.*}"
-if [ -n "$name" ]; then
-  ./"${name}.out" > "${name}.data"
-  gnuplot -p ./"${name}.gnuplot"
-else
-  for name in *.cpp; do
-    name="${name%.*}"
-    ./"${name}.out" > "${name}.data"
-    gnuplot \
-      -e 'set terminal png' \
-      -e "set output \"${name}.png\"" \
-      ./"${name}.gnuplot"
-  done
-fi
+from cycler import cycler
+import matplotlib
+import matplotlib.pyplot as plt
+import numpy
+
+out_ext = 'png'
+time_col = 0
+position_cols = [2, 3, 4]
+velocity_cols = [5, 6, 7]
+
+def plot_cols(cols, title, nplots, key, plot_index):
+    for c in cols:
+        ax = plt.subplot(nplots, 1, plot_index + 1)
+        ax.plot(
+            v[:, time_col],
+            v[:, c],
+            'x',
+            label=str(c)
+        )
+        ax.set_title('{} {}'.format(title, key))
+
+if len(sys.argv) > 1:
+    data_path = sys.argv[1]
+    data_name = os.path.splitext(os.path.split(data_path)[1])[0]
+    data_file = open(data_path, 'r')
+else:
+    data_name = 'stdin'
+    data_file = sys.stdin
+
+a = numpy.loadtxt(data_file, skiprows=1, usecols=range(8))
+matplotlib.rcParams['axes.prop_cycle'] = cycler('color', ['r', 'g', 'b'])
+body_col = 1
+keys = list(set(a[:, body_col]))
+nplots = 2 * len(keys)
+fig, axs = plt.subplots()
+for key in keys:
+    key = int(key)
+    v = a[a[:, body_col] == key, :]
+    plot_cols(position_cols, 'pos', nplots, key, 2 * key    )
+    plot_cols(velocity_cols, 'vel', nplots, key, 2 * key + 1)
+# TODO custom per figure plots.
+# try:
+    # custom_plotter = imp.load_source(name, name + '.py')
+# except IOError:
+    # raise
+# else:
+    # custom_plotter.plot(plt, data_path)
+fig.set_size_inches(8, nplots * 3)
+plt.savefig(data_name + '.' + out_ext, dpi=100)
