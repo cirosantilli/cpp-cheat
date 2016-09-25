@@ -32,6 +32,7 @@ Tutorials with runnable version tracked code:
 - <https://github.com/capnramses/antons_opengl_tutorials_book> GLFW, retained, C.
 - <https://github.com/Overv/Open.GL/tree/master/content/code> <https://open.gl/> GLFW, retained
 - <https://github.com/tomdalling/opengl-series> <http://www.tomdalling.com/blog/category/modern-opengl/> GLFW, retained
+- <https://gitlab.com/wikibooks-opengl/modern-tutorials>
 
 Samples without tutorial:
 
@@ -60,6 +61,7 @@ Java:
 Demos:
 
 - <https://github.com/prideout/recipes>
+- <https://www.youtube.com/watch?v=H-3yPXXZUC8>
 
 Unevaluated:
 

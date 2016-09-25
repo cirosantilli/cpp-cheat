@@ -6,27 +6,14 @@
 #include <GL/glu.h>
 #include <GL/glut.h>
 
+#include "common_glut.h"
+
 static const GLfloat speed = 45.0f;
 static GLfloat angle = 0.0f;
 static int old_t;
 
 unsigned int triangles_per_line = 200;
 unsigned int nlayers = 10;
-
-static int fps_last_time;
-static void fps() {
-    int t;
-    int dt;
-    static int nframes = 0;
-    nframes++;
-    t = glutGet(GLUT_ELAPSED_TIME);
-    dt = t - fps_last_time;
-    if (dt > 250) {
-        printf("FPS = %f\n", (nframes / (dt / 1000.0)));
-        fps_last_time = t;
-        nframes = 0;
-    }
-}
 
 static void display(void) {
     unsigned int i, j;
@@ -52,7 +39,7 @@ static void display(void) {
         }
     }
     glutSwapBuffers();
-    fps();
+    common_glut_fps_print();
 }
 
 static void reshape(int w, int h) {
@@ -75,8 +62,7 @@ void idle(void) {
 void init(void) {
     glClearColor(0.0, 0.0, 0.0, 0.0);
     glShadeModel(GL_SMOOTH);
-    old_t = glutGet(GLUT_ELAPSED_TIME);
-    fps_last_time = old_t;
+    common_glut_fps_init();
 }
 
 int main(int argc, char **argv) {

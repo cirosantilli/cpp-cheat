@@ -7,13 +7,12 @@ TODO:
 - use time deltas and some user input
 */
 
-#include <GLFW/glfw3.h>
-#include <stdlib.h>
-#include <stdio.h>
+#include "common.h"
 
 static void error_callback(int error, const char* description) {
     fputs(description, stderr);
 }
+
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GL_TRUE);
@@ -34,6 +33,7 @@ int main(void) {
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1);
     glfwSetKeyCallback(window, key_callback);
+    common_fps_init();
     while (!glfwWindowShouldClose(window)) {
         glfwGetFramebufferSize(window, &width, &height);
         ratio = width / (float) height;
@@ -54,6 +54,7 @@ int main(void) {
         glVertex3f(0.f, 0.6f, 0.f);
         glEnd();
         glfwSwapBuffers(window);
+        common_fps_print();
         glfwPollEvents();
     }
     glfwDestroyWindow(window);

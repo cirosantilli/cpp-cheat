@@ -5,15 +5,6 @@ It is just an explicit uniform passed to the vertex shader,
 and explicitly multiplies vectors.
 */
 
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-
-#define GLEW_STATIC
-#include <GL/glew.h>
-
-#include <GLFW/glfw3.h>
-
 #include "common.h"
 
 static const GLuint WIDTH = 800;
@@ -74,6 +65,7 @@ int main(void) {
     glEnableVertexAttribArray(1);
     glBindVertexArray(0);
 
+    common_fps_init();
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
         glClear(GL_COLOR_BUFFER_BIT);
@@ -96,6 +88,7 @@ int main(void) {
         glDrawArrays(GL_TRIANGLES, 0, 3);
         glBindVertexArray(0);
         glfwSwapBuffers(window);
+        common_fps_print();
     }
     glDeleteVertexArrays(1, &vao);
     glDeleteBuffers(1, &vbo);

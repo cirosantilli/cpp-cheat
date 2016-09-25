@@ -23,17 +23,20 @@ Derived from gravity.cpp
 
 #include "common.hpp"
 
-constexpr float gravity = -10.0f;
+constexpr float gravity = 0.0f;
 // How inclined the ground plane is towards +x.
 constexpr float groundXNormal = 0.0f;
 constexpr float initialX = 0.0f;
 constexpr float initialY = 10.0f;
 constexpr float initialZ = 0.0f;
+constexpr float initialLinearVelocityX = 0.0f;
+constexpr float initialLinearVelocityY = -10.0f;
+constexpr float initialLinearVelocityZ = 0.0f;
 constexpr float timeStep = 1.0f / 60.0f;
 // TODO some combinations of coefficients smaller than 1.0
 // make the ball go up higher / not lose height. Why?
-constexpr float groundRestitution = 0.9f;
-constexpr float objectRestitution = 0.9f;
+constexpr float groundRestitution = 1.0f;
+constexpr float objectRestitution = 1.0f;
 constexpr int nSteps = 500;
 
 std::map<const btCollisionObject*,std::vector<btManifoldPoint*>> objectsCollisions;
@@ -73,15 +76,15 @@ int main() {
         groundTransform.setIdentity();
         groundTransform.setOrigin(btVector3(0, 0, 0));
         btCollisionShape* groundShape;
-#if 1
-        // x / z plane at y = -1.
+#if 0
+        // x / z plane at y = -1 (not 0 to compensate the radius of the falling object).
         groundShape = new btStaticPlaneShape(btVector3(groundXNormal, 1, 0), -1);
 #else
-        // A cube of width 10 at y = -6.
+        // A cube of width 10 at y = -6 (upper surface at -1).
         // Does not fall because we won't call:
         // colShape->calculateLocalInertia
         // TODO: remove this from this example into a collision shape example.
-        groundTransform.setOrigin(btVector3(0, -6, 0));
+        groundTransform.setOrigin(btVector3(-5, -6, 0));
         groundShape = new btBoxShape(
                 btVector3(btScalar(5.0), btScalar(5.0), btScalar(5.0)));
 
@@ -97,7 +100,7 @@ int main() {
     // Object.
     {
         btCollisionShape *colShape;
-#if 1
+#if 0
         colShape = new btSphereShape(btScalar(1.0));
 #else
         // Because of numerical instabilities, the cube bumps all over,
@@ -116,6 +119,7 @@ int main() {
         btRigidBody *body = new btRigidBody(btRigidBody::btRigidBodyConstructionInfo(
                 mass, myMotionState, colShape, localInertia));
 		body->setRestitution(objectRestitution);
+		body->setLinearVelocity(btVector3(initialLinearVelocityX, initialLinearVelocityY, initialLinearVelocityZ));
         dynamicsWorld->addRigidBody(body);
     }
 
@@ -145,7 +149,7 @@ int main() {
                     }
                 }
             }
-            puts("");
+            std::printf("\n");
         }
     }
 

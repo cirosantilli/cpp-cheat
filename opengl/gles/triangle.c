@@ -24,8 +24,8 @@ static const GLchar* fragment_shader_source =
     "   gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n"
     "}\n";
 static const GLfloat vertices[] = {
-        0.0f,  0.5f, 0.0f,
-        0.5f, -0.5f, 0.0f,
+     0.0f,  0.5f, 0.0f,
+     0.5f, -0.5f, 0.0f,
     -0.5f, -0.5f, 0.0f,
 };
 

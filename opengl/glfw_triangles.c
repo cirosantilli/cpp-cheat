@@ -2,14 +2,6 @@
 Reuse vertices on multiple triangles via vertex indices.
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-
-#define GLEW_STATIC
-#include <GL/glew.h>
-
-#include <GLFW/glfw3.h>
-
 #include "common.h"
 
 static const GLuint WIDTH = 800;

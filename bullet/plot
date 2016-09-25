@@ -18,8 +18,12 @@ import numpy
 
 out_ext = 'png'
 time_col = 0
+
 position_cols = [2, 3, 4]
 velocity_cols = [5, 6, 7]
+rotation_cols = [8, 9, 10, 11]
+angular_velocity_cols = [12, 13, 14]
+nplots_per_body = 4
 
 def plot_cols(cols, title, nplots, key, plot_index):
     for c in cols:
@@ -40,17 +44,25 @@ else:
     data_name = 'stdin'
     data_file = sys.stdin
 
-a = numpy.loadtxt(data_file, skiprows=1, usecols=range(8))
-matplotlib.rcParams['axes.prop_cycle'] = cycler('color', ['r', 'g', 'b'])
+a = numpy.loadtxt(
+    data_file,
+    # TODO: convert first two columns to int here.
+    # dtype=([('a','i4')] * 2 + [('a','f4')] * 6),
+    skiprows=1,
+    usecols=range(15)
+)
+matplotlib.rcParams['axes.prop_cycle'] = cycler('color', ['r', 'g', 'b', 'y'])
 body_col = 1
 keys = list(set(a[:, body_col]))
-nplots = 2 * len(keys)
+nplots = nplots_per_body * len(keys)
 fig, axs = plt.subplots()
 for key in keys:
     key = int(key)
     v = a[a[:, body_col] == key, :]
-    plot_cols(position_cols, 'pos', nplots, key, 2 * key    )
-    plot_cols(velocity_cols, 'vel', nplots, key, 2 * key + 1)
+    plot_cols(position_cols,         'pos',     nplots, key, nplots_per_body * key    )
+    plot_cols(velocity_cols,         'vel',     nplots, key, nplots_per_body * key + 1)
+    plot_cols(rotation_cols,          'rot',    nplots, key, nplots_per_body * key + 2)
+    plot_cols(angular_velocity_cols, 'ang_vel', nplots, key, nplots_per_body * key + 3)
 # TODO custom per figure plots.
 # try:
     # custom_plotter = imp.load_source(name, name + '.py')

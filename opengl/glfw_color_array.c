@@ -1,5 +1,7 @@
 /*
-One color per vertex.
+One color per vertex, taken from the same array as the vertices.
+
+Color interpolation on the fragment shader is automatic.
 
 http://stackoverflow.com/questions/6733934/what-does-immediate-mode-mean-in-opengl
 */
@@ -9,7 +11,6 @@ http://stackoverflow.com/questions/6733934/what-does-immediate-mode-mean-in-open
 
 #define GLEW_STATIC
 #include <GL/glew.h>
-
 #include <GLFW/glfw3.h>
 
 #include "common.h"
@@ -17,7 +18,7 @@ http://stackoverflow.com/questions/6733934/what-does-immediate-mode-mean-in-open
 static const GLuint WIDTH = 800;
 static const GLuint HEIGHT = 600;
 /* ourColor is passed on to the fragment shader. */
-static const GLchar* vertex_shader_source =
+static const GLchar *vertex_shader_source =
     "#version 330 core\n"
     "layout (location = 0) in vec3 position;\n"
     "layout (location = 1) in vec3 color;\n"
@@ -26,7 +27,7 @@ static const GLchar* vertex_shader_source =
     "    gl_Position = vec4(position, 1.0f);\n"
     "    ourColor = color;\n"
     "}\n";
-static const GLchar* fragment_shader_source =
+static const GLchar *fragment_shader_source =
     "#version 330 core\n"
     "in vec3 ourColor;\n"
     "out vec4 color;\n"

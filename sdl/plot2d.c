@@ -3,9 +3,15 @@ Plot 2D function of time.
 
 Allow the following methods to compare speeds:
 
-- SDL_RenderDrawPoint , slowest
-- SDL_RenderCopy , faster, very close to the no SDL method
-- no SDL: just to calculate the maximum FPS if we weren't doing video IO, just pixel calculation
+-   SDL_RenderDrawPoint, slowest.
+
+-   SDL_RenderCopy , faster, very close to the no SDL method
+
+-   no SDL: just to calculate the maximum FPS if we weren't doing video IO, just pixel calculation.
+
+    This is as fast as we can possibly go (without pushing those calculations to a GPU shader).
+
+    To have an idea, a 500 x 500 window does 2.5e4 has pixels, x60 FPS gives 1.5e6
 
 Bibliography:
 
@@ -23,7 +29,7 @@ TODO: why do I see some tearing. vsync problem?
 
 /* Input parameters. Play with those to try to increase FPS. */
 #define SDL 1
-#define STREAMING (SDL && 0)
+#define STREAMING (SDL && 1)
 
 #include <math.h>
 #include <stdio.h>
@@ -61,7 +67,7 @@ int main(void) {
 #else
     double sum;
 #endif
-    const unsigned int WINDOW_WIDTH = 600;
+    const unsigned int WINDOW_WIDTH = 500;
     const unsigned int WINDOW_HEIGHT = WINDOW_WIDTH;
     const double SPEED = (WINDOW_WIDTH / 10.0);
     const double CENTER_X = WINDOW_WIDTH / 2.0;
