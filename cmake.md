@@ -109,3 +109,9 @@ Code::Blocks:
 Says:
 
     make install DESTDIR=/opt/local
+
+## ccmake
+
+CMake ncurses interface.
+
+Very convenient to see which options are available.
