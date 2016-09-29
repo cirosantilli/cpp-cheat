@@ -12,10 +12,13 @@
         1.  [Animation user control discrete](animation_user_control_discrete.c)
         1.  [Two player discrete](two_player_discrete.c)
         1.  [Two player discrete sync](two_player_discrete_sync.c)
-        1.  [Plane wave](plane_wave.c)
-    1.  [Plot 1D](plot1d.c)
-    1.  [Plot 2D](plot2d.c)
-    1.  [Sound frequency](sound_frequency.c)
+    1.  Plots
+        1.  [heatmap 1D](heatmap1d.c)
+        1.  [heatmap](heatmap.c)
+        1.  [heatmap shader](heatmap_shader.c)
+    1.  [OpenGL](opengl.c)
+    1.  Audio
+        1.  [Sound frequency](sound_frequency.c)
     1.  Text
         1.  [TTF](ttf.c)
 1.  [Users](users.md)

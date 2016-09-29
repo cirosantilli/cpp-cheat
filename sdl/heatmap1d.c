@@ -30,7 +30,7 @@ int main(void) {
     int nframes;
 
     SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO);
-    SDL_CreateWindowAndRenderer(WINDOW_WIDTH, WINDOW_WIDTH, 0, &window, &renderer);
+    SDL_CreateWindowAndRenderer(WINDOW_WIDTH, WINDOW_HEIGHT, 0, &window, &renderer);
     rect.y = 0;
     rect.w = 1;
     rect.h = WINDOW_HEIGHT;

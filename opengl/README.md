@@ -46,9 +46,10 @@
         1.  [triangle VAO](glfw_triangle_vao.c)
         1.  [color](glfw_color.c)
         1.  [triangles](glfw_triangles.c)
-        1.  [triangles IBO](glfw_triangles.c)
+        1.  [IBO](glfw_ibo.c)
         1.  [transform](glfw_transform.c)
         1.  [gl_FragCoord](glfw_gl_frag_coord.c)
+        1.  [heatplot](heatplot.c)
         1.  Naughty
             1.  [Infinite loop shader](glfw_infinite_loop_shader.c.off)
             1.  [Memory overflow shader](glfw_memory_overflow_shader.c.off)

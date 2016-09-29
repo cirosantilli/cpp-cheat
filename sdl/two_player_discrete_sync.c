@@ -4,13 +4,7 @@ All state is updated at a single time.
 Speed differences are controlled by frequency dividers.
 */
 
-#include <math.h>
-#include <stdlib.h>
-#include <time.h>
-
-#include <SDL2/SDL.h>
-
-#include "fps.h"
+#include "common.h"
 
 #define WINDOW_WIDTH 600
 #define RECTS_PER_WINDOW (4)
@@ -76,7 +70,7 @@ void init_state(
     player_state_1->y = RECTS_PER_WINDOW / 2;
     player_state_1->speed_x = 0;
     player_state_1->speed_y = 0;
-    fps_init();
+    common_fps_init();
 }
 
 int main(void) {
@@ -195,8 +189,8 @@ main_loop:
                 if (frequency_divider_counter == MCD_FREQUENCY_DIVIDER)
                     frequency_divider_counter = 0;
 
-                /* Ticks per second.Equls 1 / FASTEST_TICK_PERIOD_S if no processing is done. */
-                fps_update_and_print();
+                /* Ticks per second. Equls 1 / FASTEST_TICK_PERIOD_S if no processing is done. */
+                common_fps_update_and_print();
             }
         }
         last_time = current_time;

@@ -9,7 +9,7 @@ Allow the following methods to compare speeds:
 
 -   no SDL: just to calculate the maximum FPS if we weren't doing video IO, just pixel calculation.
 
-    This is as fast as we can possibly go (without pushing those calculations to a GPU shader).
+    This is as fast as we can possibly go without pushing CPU calculations to a GPU shader.
 
     To have an idea, a 500 x 500 window does 2.5e4 has pixels, x60 FPS gives 1.5e6
 
@@ -27,28 +27,13 @@ Bibliography:
 TODO: why do I see some tearing. vsync problem?
 */
 
+#include "common.h"
+
 /* Input parameters. Play with those to try to increase FPS. */
 #define SDL 1
 #define STREAMING (SDL && 1)
 
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-
-#if SDL
-#include <SDL2/SDL.h>
-#endif
-
 #define COLOR_MAX 255
-
-double get_secs(void) {
-    struct timespec ts;
-    /* C11. Use this so we can get completely rid of SDL to benchmark the CPU. */
-    timespec_get(&ts, TIME_UTC);
-    return ts.tv_sec + (1e-9 * ts.tv_nsec);
-    /*return SDL_GetTicks() / 1000.0;*/
-}
 
 int main(void) {
 #if SDL
@@ -67,38 +52,31 @@ int main(void) {
 #else
     double sum;
 #endif
-    const unsigned int WINDOW_WIDTH = 500;
-    const unsigned int WINDOW_HEIGHT = WINDOW_WIDTH;
-    const double SPEED = (WINDOW_WIDTH / 10.0);
-    const double CENTER_X = WINDOW_WIDTH / 2.0;
-    const double CENTER_Y = WINDOW_HEIGHT / 2.0;
-    const double PERIOD = (WINDOW_WIDTH / 10.0);
-    const double PI2 = 2.0 * acos(-1.0);
-    double dt;
-    double fps_dt;
-    double fps_last_time;
-    double initial_time;
-    double t;
-    int fps_nframes;
+    const unsigned int
+        WINDOW_WIDTH = 500,
+        WINDOW_HEIGHT = WINDOW_WIDTH;
+    const double
+        SPEED = WINDOW_WIDTH / 10.0,
+        CENTER_X = WINDOW_WIDTH / 2.0,
+        CENTER_Y = WINDOW_HEIGHT / 2.0,
+        PERIOD = WINDOW_WIDTH / 10.0,
+        PI2 = 2.0 * acos(-1.0);
+    double dt, initial_time;
     float z;
-    unsigned int x;
-    unsigned int xc;
-    unsigned int y;
-    unsigned int yc;
+    unsigned int x, xc, y, yc;
 
 #if SDL
     SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO);
     SDL_CreateWindowAndRenderer(WINDOW_WIDTH, WINDOW_WIDTH, 0, &window, &renderer);
 # if STREAMING
-    texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STREAMING, WINDOW_WIDTH, WINDOW_HEIGHT);
+    texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888,
+        SDL_TEXTUREACCESS_STREAMING, WINDOW_WIDTH, WINDOW_HEIGHT);
 # endif
 #endif
-    initial_time = get_secs();
-    fps_last_time = initial_time;
-    fps_nframes = 0;
+    initial_time = common_get_secs();
+    common_fps_init();
     while (1) {
-        t = get_secs();
-        dt = t - initial_time;
+        dt = common_get_secs() - initial_time;
 #if STREAMING
         SDL_LockTexture(texture, NULL, &pixels, &pitch);
 #endif
@@ -130,19 +108,8 @@ int main(void) {
 # endif
         SDL_RenderPresent(renderer);
 #endif
-        fps_nframes++;
-        fps_dt = t - fps_last_time;
-        if (fps_dt > 0.25) {
-            /* Produce a side-effect for the non-SDL version so that
-             * it does not get optimized away. */
-            printf("FPS = %f\n", fps_nframes / fps_dt);
-            fps_last_time = t;
-            fps_nframes = 0;
-#if !SDL
-            printf("%f\n", sum);
-#endif
-        }
 #if SDL
+        common_fps_update_and_print();
         if (SDL_PollEvent(&event) && event.type == SDL_QUIT)
             break;
 #endif

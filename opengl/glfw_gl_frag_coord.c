@@ -2,6 +2,8 @@
 Magic variable that contais the coordinates in the fragment shader, in pixels.
 
 All is calculated in screen pixel position, not local pixel position.
+
+Depreacted in 1.3 in favor of TODO.
 */
 
 #include "common.h"

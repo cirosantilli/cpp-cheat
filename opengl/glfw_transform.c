@@ -51,6 +51,7 @@ int main(void) {
     glViewport(0, 0, WIDTH, HEIGHT);
 
     shader_program = common_get_shader_program(vertex_shader_source, fragment_shader_source);
+    transform_location = glGetUniformLocation(shader_program, "transform");
 
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo);
@@ -71,7 +72,6 @@ int main(void) {
         glClear(GL_COLOR_BUFFER_BIT);
 
         glUseProgram(shader_program);
-        transform_location = glGetUniformLocation(shader_program, "transform");
         /* To do serious things, we'd need a math library like glm here. */
         GLfloat transform[] = {
             0.0f, 0.0f, 0.0f, 0.0f,
