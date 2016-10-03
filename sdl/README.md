@@ -15,6 +15,7 @@
     1.  Plots
         1.  [heatmap 1D](heatmap1d.c)
         1.  [heatmap](heatmap.c)
+        1.  [heatmap streaming](heatmap_streaming.c)
         1.  [heatmap shader](heatmap_shader.c)
     1.  [OpenGL](opengl.c)
     1.  Audio

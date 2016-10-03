@@ -29,26 +29,26 @@ TODO: why do I see some tearing. vsync problem?
 
 #include "common.h"
 
-/* Input parameters. Play with those to try to increase FPS. */
+/*
+Turn SDL on or off.
+If off, no window is created, but computations are still run.
+Play with those to try to increase FPS and find out if the limiting factor is computation or display.
+*/
 #define SDL 1
-#define STREAMING (SDL && 1)
 
 #define COLOR_MAX 255
 
 int main(void) {
 #if SDL
     SDL_Event event;
-    SDL_Rect rect;
     SDL_Renderer *renderer;
     SDL_Window *window;
-# if STREAMING
     SDL_Texture *texture = NULL;
     void *pixels;
     Uint8 *base;
     /* TODO: is it mandatory to use this? Maybe SDL_LockTexture
      * will make the array non continuous to improve alignment? */
     int pitch;
-# endif
 #else
     double sum;
 #endif
@@ -68,47 +68,27 @@ int main(void) {
 #if SDL
     SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO);
     SDL_CreateWindowAndRenderer(WINDOW_WIDTH, WINDOW_WIDTH, 0, &window, &renderer);
-# if STREAMING
-    texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888,
-        SDL_TEXTUREACCESS_STREAMING, WINDOW_WIDTH, WINDOW_HEIGHT);
-# endif
 #endif
     initial_time = common_get_secs();
     common_fps_init();
     while (1) {
         dt = common_get_secs() - initial_time;
-#if STREAMING
-        SDL_LockTexture(texture, NULL, &pixels, &pitch);
-#endif
         for (x = 0; x < WINDOW_WIDTH; x++) {
             for (y = 0; y < WINDOW_HEIGHT; y++) {
                 xc = CENTER_X - x;
                 yc = CENTER_Y - y;
                 z = COLOR_MAX * 0.5 * (1.0 + (sin(PI2 * (sqrt(xc*xc + yc*yc) - SPEED * dt) / PERIOD)));
+                /*z = (int)(x + y + SPEED * dt) % COLOR_MAX;*/
 #if SDL
-# if STREAMING
-                base = ((Uint8 *)pixels) + (4 * (x * WINDOW_WIDTH + y));
-                base[0] = 0;
-                base[1] = 0;
-                base[2] = z;
-                base[3] = COLOR_MAX;
-# else
                 SDL_SetRenderDrawColor(renderer, z, 0, 0, COLOR_MAX);
                 SDL_RenderDrawPoint(renderer, x, y);
-# endif
 #else
                 sum += z;
 #endif
             }
         }
 #if SDL
-# if STREAMING
-        SDL_UnlockTexture(texture);
-        SDL_RenderCopy(renderer, texture, NULL, NULL);
-# endif
         SDL_RenderPresent(renderer);
-#endif
-#if SDL
         common_fps_update_and_print();
         if (SDL_PollEvent(&event) && event.type == SDL_QUIT)
             break;

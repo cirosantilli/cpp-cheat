@@ -9,6 +9,7 @@ Tested on Bullet 2.83, Ubuntu 16.04.
     1.  [Build](build.md)
     1.  [Source code](source-code.md)
     1.  [Users](users.md)
+    1.  [Benchmarks](benchmarks.md)
 1.  Examples
     1.  [Gravity](gravity.cpp)
     1.  [Gravity collision](gravity_collision.cpp)
