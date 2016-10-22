@@ -2,11 +2,10 @@
 
 1.  [Getting started](getting-started.md)
 1.  Examples
-    1.  [increment](inc.c)
-    1.  [Build error](build_error.c)
+    1.  [Increment](inc.c)
+    1.  [Increment vector](inc_vector.c)
     1.  [Pass by value](pass_by_value.c)
     1.  [Work item built-ins](work_item_builtin.c)
-    1.  [Increment vector](inc_vector.c)
     1.  [Vector built-in](vector_builtin.c)
 1.  Tools
     1.  [clinfo](clinfo.md)

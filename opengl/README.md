@@ -53,7 +53,8 @@
         1.  Naughty
             1.  [Infinite loop shader](glfw_infinite_loop_shader.c.off)
             1.  [Memory overflow shader](glfw_memory_overflow_shader.c.off)
-    1.  [GLX](glx.c)
+    1.  Windowing
+        1.  [GLX](glx.c)
     1.  Benchmarks
         1.  [Many triangles animation](many_triangles_animation.c)
 1.  [main](main.cpp)
