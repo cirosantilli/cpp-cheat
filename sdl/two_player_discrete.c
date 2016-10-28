@@ -16,9 +16,7 @@ Without sync like in here, we have to keep one timer per event type,
 which is cumbersome.
 */
 
-#include <stdlib.h>
-
-#include <SDL2/SDL.h>
+#include "common.h"
 
 #define WINDOW_WIDTH 600
 #define RECTS_PER_WINDOW (10)
@@ -81,6 +79,7 @@ void init_state(
     player_state_1->speed_x = 0;
     player_state_1->speed_y = 0;
     player_state_1->last_move_time_s = player_state_0->last_move_time_s;
+    common_fps_init();
 }
 
 int main(void) {
@@ -95,7 +94,6 @@ int main(void) {
     SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO);
     SDL_CreateWindowAndRenderer(WINDOW_WIDTH, WINDOW_WIDTH, 0, &window, &renderer);
     SDL_SetWindowTitle(window, "asdw: move red | jkli: move blue | space: move faster | esc: restart | q: quit");
-
 main_loop:
     init_state(&player_state_0, &player_state_1, &move_delay);
     while (1) {
@@ -198,6 +196,7 @@ main_loop:
             SDL_RenderPresent(renderer);
         }
         last_time = current_time;
+        common_fps_update_and_print();
     }
 quit:
     SDL_DestroyRenderer(renderer);

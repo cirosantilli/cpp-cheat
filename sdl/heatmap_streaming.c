@@ -36,8 +36,8 @@ int main(void) {
             for (y = 0; y < WINDOW_HEIGHT; y++) {
                 xc = CENTER_X - x;
                 yc = CENTER_Y - y;
-                z = COLOR_MAX * 0.5 * (1.0 + (sin(PI2 * (sqrt(xc*xc + yc*yc) - SPEED * dt) / PERIOD)));
-                /*z = (int)(x + y + SPEED * dt) % COLOR_MAX;*/
+                /*z = COLOR_MAX * 0.5 * (1.0 + (sin(PI2 * (sqrt(xc*xc + yc*yc) - SPEED * dt) / PERIOD)));*/
+                z = (int)(x + y + SPEED * dt) % COLOR_MAX;
                 base = ((Uint8 *)pixels) + (4 * (x * WINDOW_WIDTH + y));
                 base[0] = 0;
                 base[1] = 0;

@@ -5,9 +5,7 @@ Using float coordinates would lead to an internal invisible state,
 which is weird (you can be either at the left or right corner of the active square).
 */
 
-#include <stdlib.h>
-
-#include <SDL2/SDL.h>
+#include "common.h"
 
 #define WINDOW_WIDTH 600
 #define RECTS_PER_WINDOW (10)
@@ -28,17 +26,21 @@ int main(void) {
     SDL_Renderer *renderer;
     SDL_Window *window;
     double current_time_s, last_key_pressed_time_s;
-    unsigned int x = RECTS_PER_WINDOW / 2, y = RECTS_PER_WINDOW / 2;
-    int quit = 0;
-    int speed_x = 0, speed_y = 0;
-    int key_pressed;
+    unsigned int x = RECTS_PER_WINDOW / 2,
+                 y = RECTS_PER_WINDOW / 2;
+    int key_pressed,
+        quit = 0,
+        speed_x = 0,
+        speed_y = 0;
     unsigned int current_time, last_time;
 
     SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO);
     SDL_CreateWindowAndRenderer(WINDOW_WIDTH, WINDOW_WIDTH, 0, &window, &renderer);
+    SDL_SetWindowTitle(window, "arrow keys: move");
     rect.w = RECT_WIDTH;
     rect.h = RECT_WIDTH;
     last_key_pressed_time_s = SDL_GetTicks() / 1000.0;
+    common_fps_init();
     while (!quit) {
         current_time = SDL_GetTicks();
         current_time_s = current_time / 1000.0;
@@ -98,6 +100,7 @@ int main(void) {
             SDL_RenderPresent(renderer);
         }
         last_time = current_time;
+        common_fps_update_and_print();
     }
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);

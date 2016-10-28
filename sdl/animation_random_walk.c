@@ -2,10 +2,7 @@
 Random walk.
 */
 
-#include <stdlib.h>
-#include <time.h>
-
-#include <SDL2/SDL.h>
+#include "common.h"
 
 #define WINDOW_WIDTH 600
 #define RECT_WIDTH (WINDOW_WIDTH / 30)
@@ -29,11 +26,8 @@ int main(void) {
     SDL_Rect rect;
     SDL_Renderer *renderer;
     SDL_Window *window;
-    unsigned int current_time;
-    double magnitude;
-    unsigned int last_time;
-    double x;
-    double y;
+    double x, y, magnitude;
+    unsigned int current_time, last_time;
 
     srand(time(NULL));
     SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO);
@@ -43,6 +37,7 @@ int main(void) {
     rect.w = RECT_WIDTH;
     rect.h = RECT_WIDTH;
     last_time = SDL_GetTicks();
+    common_fps_init();
     while (1) {
         if (SDL_PollEvent(&event) && event.type == SDL_QUIT)
             break;
@@ -58,6 +53,7 @@ int main(void) {
             SDL_RenderFillRect(renderer, &rect);
             SDL_RenderPresent(renderer);
         }
+        common_fps_update_and_print();
     }
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);

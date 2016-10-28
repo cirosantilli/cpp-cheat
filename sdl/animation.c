@@ -4,9 +4,7 @@ TODO find source saying the good way to control speed.
 Simple movement that has an absolute equation.
 */
 
-#include <stdlib.h>
-
-#include <SDL2/SDL.h>
+#include "common.h"
 
 #define WINDOW_WIDTH 600
 #define RECT_WIDTH WINDOW_WIDTH / 30
@@ -26,6 +24,7 @@ int main(void) {
     rect.w = RECT_WIDTH;
     rect.h = RECT_WIDTH;
     initial_time = SDL_GetTicks();
+    common_fps_init();
     while (1) {
         rect.x = ((int)(
                 SCREENS_PER_SECOND
@@ -39,6 +38,7 @@ int main(void) {
         SDL_RenderPresent(renderer);
         if (SDL_PollEvent(&event) && event.type == SDL_QUIT)
             break;
+        common_fps_update_and_print();
     }
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);

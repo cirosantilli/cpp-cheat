@@ -2,9 +2,7 @@
 http://stackoverflow.com/questions/20579658/pixel-drawing-in-sdl2-0
 */
 
-#include <stdlib.h>
-
-#include <SDL2/SDL.h>
+#include "common.h"
 
 #define WINDOW_WIDTH 600
 
@@ -22,9 +20,11 @@ int main(void) {
     for (i = 0; i < WINDOW_WIDTH; ++i)
         SDL_RenderDrawPoint(renderer, i, i);
     SDL_RenderPresent(renderer);
+    common_fps_init();
     while (1) {
         if (SDL_PollEvent(&event) && event.type == SDL_QUIT)
             break;
+        common_fps_update_and_print();
     }
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);

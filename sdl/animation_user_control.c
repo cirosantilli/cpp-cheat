@@ -4,10 +4,7 @@ Use controls a square.
 https://www.libsdl.org/release/SDL-1.2.15/docs/html/guideinputkeyboard.html
 */
 
-#include <stdlib.h>
-#include <time.h>
-
-#include <SDL2/SDL.h>
+#include "common.h"
 
 #define WINDOW_WIDTH 600
 #define RECT_WIDTH (WINDOW_WIDTH / 30)
@@ -40,11 +37,13 @@ int main(void) {
 
     SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO);
     SDL_CreateWindowAndRenderer(WINDOW_WIDTH, WINDOW_WIDTH, 0, &window, &renderer);
+    SDL_SetWindowTitle(window, "arrow keys: move");
     rect.x = WINDOW_WIDTH / 2;
     rect.y = WINDOW_WIDTH / 2;
     rect.w = RECT_WIDTH;
     rect.h = RECT_WIDTH;
     last_time = SDL_GetTicks();
+    common_fps_init();
     while (!quit) {
         while (SDL_PollEvent(&event) == 1) {
             if (event.type == SDL_QUIT) {
@@ -97,6 +96,7 @@ int main(void) {
             SDL_RenderFillRect(renderer, &rect);
             SDL_RenderPresent(renderer);
         }
+        common_fps_update_and_print();
     }
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);

@@ -4,6 +4,7 @@
 1.  Examples
     1.  [SDL_RenderDrawPoint](render_draw_point.c)
     1.  [SDL_RenderDrawRect](render_draw_rect.c)
+        1.  [Render draw point rect](render_draw_point_rect.c)
     1.  [Check A pressed](check_a_pressed.c)
     1.  [Error handling](error_handling.c)
     1.  [Animation](animation.c)
@@ -17,6 +18,9 @@
         1.  [heatmap](heatmap.c)
         1.  [heatmap streaming](heatmap_streaming.c)
         1.  [heatmap shader](heatmap_shader.c)
+    1.  [Mouse](mouse.c)
+        1. [Mouse rect](mouse_rect.c)
+        1. [Mouse point rect](mouse_point_rect.c)
     1.  [OpenGL](opengl.c)
     1.  Audio
         1.  [Sound frequency](sound_frequency.c)
