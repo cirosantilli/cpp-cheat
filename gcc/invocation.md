@@ -199,6 +199,14 @@ Arm v.7, used on mobiles today:
 
     gcc -march=armv7
 
+### mtune
+
+TODO: finer than `-march`? E.g.: <http://www.valvers.com/open-software/raspberry-pi/step01-bare-metal-programming-in-cpt1> proposes:
+
+    -march=armv7-a -mtune=cortex-a7
+
+where `armv7-a` is an ISA, and `cortex-a7` an specific processor.
+
 ## Optimization
 
 List possible optimizations for `-O`:

@@ -166,6 +166,14 @@ int main() {
     }
 
     /*
+    # Integer to pointer.
+
+    Implementation defined.
+
+    http://stackoverflow.com/questions/9372936/can-we-assign-a-value-to-a-given-memory-location
+    */
+
+    /*
     # Implicit operator typecasts
 
     # Usual arithmetic conversions

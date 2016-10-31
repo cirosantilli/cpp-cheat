@@ -19,5 +19,6 @@
     1.  [Architecture](architecture.md)
     1.  [C](c.md)
     1.  [Host API](host-api.md)
+    1.  [Use cases](use-cases.md)
     1.  [Bibliography](bibliography.md)
     1.  [TODO](TODO.md)

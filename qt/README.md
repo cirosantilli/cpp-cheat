@@ -31,7 +31,7 @@ Some objects cannot be created on the stack, only on the heap. QT takes charge o
 
 ## Sources
 
--   <www.zetcode.com/gui/qt4/firstprograms/>
+-   <http://www.zetcode.com/gui/qt4/firstprograms/>
 
     Short but good tutorial.
 

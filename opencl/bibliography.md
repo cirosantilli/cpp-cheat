@@ -6,6 +6,8 @@ Khronos standards:
 
     Qualifiers: <https://www.khronos.org/registry/cl/sdk/2.1/docs/man/xhtml/qualifiers.html>
 
+    Headers: <https://github.com/KhronosGroup/OpenCL-Headers>
+
 Tutorials with sample code:
 
 -   <https://github.com/HandsOnOpenCL/Exercises-Solutions>
@@ -81,6 +83,10 @@ Used to be part of the GPU computing SDK, then renamed CUDA SDK.
 But a header is missing and it does not compile: <https://github.com/sschaetz/nvidia-opencl-examples/issues/1>
 
 I'm not the only one who noticed: <https://streamcomputing.eu/blog/2012-09-10/nvidias-industry-leading-support-for-opencl/>
+
+### CUDA examples
+
+
 
 ## AMD samples
 

@@ -29,19 +29,19 @@ int main(void) {
     SDL_Rect rect;
     SDL_Renderer *renderer;
     SDL_Window *window;
-    double speed_x, speed_y;
-    double step;
-    double x, y;
+    double speed_x, speed_y, step, x, y;
     int quit = 0;
     unsigned int current_time, last_time;
 
     SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO);
     SDL_CreateWindowAndRenderer(WINDOW_WIDTH, WINDOW_WIDTH, 0, &window, &renderer);
     SDL_SetWindowTitle(window, "arrow keys: move");
-    rect.x = WINDOW_WIDTH / 2;
-    rect.y = WINDOW_WIDTH / 2;
+    x = WINDOW_WIDTH / 2;
+    y = WINDOW_WIDTH / 2;
     rect.w = RECT_WIDTH;
     rect.h = RECT_WIDTH;
+    speed_x = 0.0;
+    speed_y = 0.0;
     last_time = SDL_GetTicks();
     common_fps_init();
     while (!quit) {

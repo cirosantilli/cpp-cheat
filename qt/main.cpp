@@ -13,9 +13,11 @@
 #include <QPushButton>
 #include <QTabWidget>
 #include <QWidget>
-#include <QObject>      //tr
+// tr
+#include <QObject>
 #include <QShortcut>
-#include <Qt>           //enum Qt::AlignmentFlag {AlignTop, ...}
+// enum Qt::AlignmentFlag {AlignTop, ...}
+#include <Qt>
 
 #include "SlotTest.h"
 #include "ui_qt_designer.h"
