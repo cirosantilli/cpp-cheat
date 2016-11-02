@@ -1,5 +1,4 @@
-/*
-Some basic inertia / friction on a single body.
+/*Some basic inertia / friction on a single body.
 
 Gives a strong sense of realism.
 
@@ -12,10 +11,10 @@ of Box2D... right?
 
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT WINDOW_WIDTH
-#define WINDOW_CENTER_X = (WINDOW_WIDTH / 2)
-#define WINDOW_CENTER_Y = (WINDOW_HEIGHT / 2)
+#define WINDOW_CENTER_X (WINDOW_WIDTH / 2)
+#define WINDOW_CENTER_Y (WINDOW_HEIGHT / 2)
 #define WINDOW_HEIGHT WINDOW_WIDTH
-#define RECT_WIDTH (WINDOW_WIDTH / 30)
+#define RECT_WIDTH (WINDOW_WIDTH / 50)
 #define RECT_HEIGHT RECT_WIDTH
 #define MAX_RECT_POS (WINDOW_WIDTH - RECT_WIDTH)
 /*
@@ -90,7 +89,7 @@ double apply_constant_friction(double speed, double dt) {
 int main(void) {
     PlayerState player_state;
     SDL_Event event;
-    SDL_Rect rect;
+    SDL_Rect rect, rect_sun;
     SDL_Renderer *renderer;
     SDL_Window *window;
     int quit = 0;
@@ -102,6 +101,10 @@ int main(void) {
     SDL_SetWindowTitle(window, "arrow keys: accelerate | esc: reset | q: quit");
     rect.w = RECT_WIDTH;
     rect.h = RECT_HEIGHT;
+    rect_sun.w = RECT_WIDTH;
+    rect_sun.h = RECT_HEIGHT;
+    rect_sun.x = WINDOW_CENTER_X;
+    rect_sun.y = WINDOW_CENTER_Y;
 main_loop:
     init_state(&player_state, &user_acc_x, &user_acc_y, &last_time);
     while (!quit) {
@@ -126,8 +129,6 @@ main_loop:
                         goto main_loop;
                     case SDLK_q:
                         goto quit;
-                    default:
-                        break;
                 }
             } else if (event.type == SDL_KEYUP) {
                 switch (event.key.keysym.sym) {
@@ -138,8 +139,6 @@ main_loop:
                     case SDLK_UP:
                     case SDLK_DOWN:
                         user_acc_y = 0;
-                        break;
-                    default:
                         break;
                 }
             }
@@ -157,12 +156,20 @@ main_loop:
                 /* Constant gravity down. */
                 /*acc_y += ACC_GRAVITY_METERS_PER_SECOND;*/
 
-                /* Constant gravity to center of screen. */
-                double dx = player_state.x - WINDOW_CENTER_X;
-                double dy = player_state.y - WINDOW_CENTER_Y;
+                /* Constant gravity to center of screen, the "sun". */
+                {
+                    double dx = player_state.x - WINDOW_CENTER_X;
+                    double dy = player_state.y - WINDOW_CENTER_Y;
+                    double angle = atan2(dy, dx);
+                    double hyp = hypot(dx, dy);
 
-                acc_x += ACC_GRAVITY_METERS_PER_SECOND;
-                acc_y += ACC_GRAVITY_METERS_PER_SECOND;
+                    /* TODO Failed attempt at force proportional to inverse square of distance. */
+                    /*double mod = hyp > 0.001 ? hyp : 1.0;*/
+                    /*double mod2 = mod * mod;*/
+
+                    acc_x -= cos(angle) * ACC_GRAVITY_METERS_PER_SECOND;
+                    acc_y -= sin(angle) * ACC_GRAVITY_METERS_PER_SECOND;
+                }
             }
 
             /* Update speed. */
@@ -177,8 +184,8 @@ main_loop:
             but we must consider the case where the object stops completely
             because of it separately.
             */
-            player_state.speed_x = apply_constant_friction(player_state.speed_x, dt);
-            player_state.speed_y = apply_constant_friction(player_state.speed_y, dt);
+            /*player_state.speed_x = apply_constant_friction(player_state.speed_x, dt);*/
+            /*player_state.speed_y = apply_constant_friction(player_state.speed_y, dt);*/
 
             /* Friction  proportional to speed:
             - decelerates very quickly
@@ -199,6 +206,8 @@ main_loop:
             rect.x = player_state.x;
             rect.y = player_state.y;
             SDL_RenderFillRect(renderer, &rect);
+            SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+            SDL_RenderFillRect(renderer, &rect_sun);
             SDL_RenderPresent(renderer);
 
             /* Update time. */
