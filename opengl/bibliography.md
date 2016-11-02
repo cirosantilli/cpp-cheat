@@ -62,6 +62,7 @@ Demos:
 
 - <https://github.com/prideout/recipes>
 - <https://www.youtube.com/watch?v=H-3yPXXZUC8>
+- <https://github.com/premsasidharan/gpu_img_proc/tree/master/test/edge_camera> <https://www.youtube.com/watch?v=fJtOdJ9MHsA> GLSL Linux camera real time edge detection shown on screen. Getting started: <https://github.com/premsasidharan/gpu_img_proc/issues/1#issuecomment-257504913>
 
 Unevaluated:
 

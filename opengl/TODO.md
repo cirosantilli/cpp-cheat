@@ -34,14 +34,13 @@
     - http://stackoverflow.com/questions/5734794/mouse-movement-opengl
     - http://stackoverflow.com/questions/1426415/opengl-moving-camera-with-mouse
     - http://gamedev.stackexchange.com/questions/53333/how-to-implement-a-basic-arcball-camera-in-opengl-with-glm
--   VAO, VBO http://stackoverflow.com/questions/11821336/what-are-vertex-array-objects
-    -   Immediate mode vs retained mode:
-        - https://en.wikipedia.org/wiki/Retained_mode
-        - https://en.wikipedia.org/wiki/Immediate_mode_(computer_graphics)
-        - immediate mode is deprecated. So like, glBegin, glEnd and glVertex which we use in every test program are deprecated. Lol.
-        - http://gamedev.stackexchange.com/questions/21733/why-does-opengl-3-only-allow-vbos
-        - http://stackoverflow.com/questions/6733934/what-does-immediate-mode-mean-in-opengl Hello world requested but not provided, too long, lol. Opportunity!
-        - http://gamedev.stackexchange.com/questions/21733/why-does-opengl-3-only-allow-vbos
+-   Immediate mode vs retained mode:
+    - https://en.wikipedia.org/wiki/Retained_mode
+    - https://en.wikipedia.org/wiki/Immediate_mode_(computer_graphics)
+    - immediate mode is deprecated. So like, glBegin, glEnd and glVertex which we use in every test program are deprecated. Lol.
+    - http://gamedev.stackexchange.com/questions/21733/why-does-opengl-3-only-allow-vbos
+    - http://stackoverflow.com/questions/6733934/what-does-immediate-mode-mean-in-opengl Hello world requested but not provided, too long, lol. Opportunity!
+    - http://gamedev.stackexchange.com/questions/21733/why-does-opengl-3-only-allow-vbos
 -   https://en.wikipedia.org/wiki/Stencil_buffer
     - http://www.learnopengl.com/#!Advanced-OpenGL/Stencil-testing
 -   shading, glsl

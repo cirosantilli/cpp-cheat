@@ -49,7 +49,8 @@
         1.  [IBO](glfw_ibo.c)
         1.  [transform](glfw_transform.c)
         1.  [gl_FragCoord](glfw_gl_frag_coord.c)
-        1.  [heatplot](heatplot.c)
+        1.  [heatmap](glfw_heatmap.c)
+        1.  [Texture](glfw_texture.c)
         1.  Naughty
             1.  [Infinite loop shader](glfw_infinite_loop_shader.c.off)
             1.  [Memory overflow shader](glfw_memory_overflow_shader.c.off)

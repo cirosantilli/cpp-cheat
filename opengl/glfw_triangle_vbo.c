@@ -29,43 +29,49 @@ static const GLfloat vertices[] = {
 
 int main(void) {
     GLFWwindow *window;
-    GLint attribute_coord2d, program;
-    GLuint vbo;
+    GLuint attribute_coord2d, program, vbo;
 
+    /* Window system. */
     glfwInit();
+    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
     window = glfwCreateWindow(WIDTH, HEIGHT, __FILE__, NULL, NULL);
     glfwMakeContextCurrent(window);
     glewInit();
 
+    /* Shader setup. */
     program = common_get_shader_program(vertex_shader_source, fragment_shader_source);
     attribute_coord2d = glGetAttribLocation(program, "coord2d");
 
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glUseProgram(program);
-    glViewport(0, 0, WIDTH, HEIGHT);
-
+    /* Buffer setup. */
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(
+        attribute_coord2d,
+        2,
+        GL_FLOAT,
+        GL_FALSE,
+        0,
+        0
+    );
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+    /* Draw. */
+    glUseProgram(program);
+    glViewport(0, 0, WIDTH, HEIGHT);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glEnableVertexAttribArray(attribute_coord2d);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDisableVertexAttribArray(attribute_coord2d);
+    glfwSwapBuffers(window);
+
+    /* Main loop. */
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
-        glClear(GL_COLOR_BUFFER_BIT);
-        glEnableVertexAttribArray(attribute_coord2d);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glVertexAttribPointer(
-            attribute_coord2d,
-            2,
-            GL_FLOAT,
-            GL_FALSE,
-            0,
-            0
-        );
-        glDrawArrays(GL_TRIANGLES, 0, 3);
-        glDisableVertexAttribArray(attribute_coord2d);
-        glfwSwapBuffers(window);
     }
 
+    /* Cleanup. */
     glDeleteBuffers(1, &vbo);
     glDeleteProgram(program);
     glfwTerminate();

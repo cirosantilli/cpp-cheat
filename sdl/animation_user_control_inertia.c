@@ -11,7 +11,12 @@ of Box2D... right?
 #include "common.h"
 
 #define WINDOW_WIDTH 800
+#define WINDOW_HEIGHT WINDOW_WIDTH
+#define WINDOW_CENTER_X = (WINDOW_WIDTH / 2)
+#define WINDOW_CENTER_Y = (WINDOW_HEIGHT / 2)
+#define WINDOW_HEIGHT WINDOW_WIDTH
 #define RECT_WIDTH (WINDOW_WIDTH / 30)
+#define RECT_HEIGHT RECT_WIDTH
 #define MAX_RECT_POS (WINDOW_WIDTH - RECT_WIDTH)
 /*
  * Accelerations in meters per second.
@@ -45,14 +50,19 @@ typedef struct {
 void init_state(
     PlayerState *player_state,
     double *user_acc_x,
-    double *user_acc_y
+    double *user_acc_y,
+    unsigned int *last_time
 ) {
     player_state->x = WINDOW_WIDTH / 2.0;
-    player_state->y = WINDOW_WIDTH / 2.0;
+    player_state->y = WINDOW_HEIGHT / 2.0;
     player_state->speed_x = 0.0;
     player_state->speed_y = 0.0;
+
+    /* Encode if the movement keys are initially pressed or not. */
     *user_acc_x = 0.0;
     *user_acc_y = 0.0;
+
+    *last_time = SDL_GetTicks();
     common_fps_init();
 }
 
@@ -88,13 +98,12 @@ int main(void) {
     double dt, acc_x, acc_y, user_acc_x, user_acc_y;
 
     SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO);
-    SDL_CreateWindowAndRenderer(WINDOW_WIDTH, WINDOW_WIDTH, 0, &window, &renderer);
+    SDL_CreateWindowAndRenderer(WINDOW_WIDTH, WINDOW_HEIGHT, 0, &window, &renderer);
     SDL_SetWindowTitle(window, "arrow keys: accelerate | esc: reset | q: quit");
     rect.w = RECT_WIDTH;
-    rect.h = RECT_WIDTH;
-    last_time = SDL_GetTicks();
+    rect.h = RECT_HEIGHT;
 main_loop:
-    init_state(&player_state, &user_acc_x, &user_acc_y);
+    init_state(&player_state, &user_acc_x, &user_acc_y, &last_time);
     while (!quit) {
         while (SDL_PollEvent(&event) == 1) {
             if (event.type == SDL_QUIT) {
@@ -147,6 +156,13 @@ main_loop:
             {
                 /* Constant gravity down. */
                 /*acc_y += ACC_GRAVITY_METERS_PER_SECOND;*/
+
+                /* Constant gravity to center of screen. */
+                double dx = player_state.x - WINDOW_CENTER_X;
+                double dy = player_state.y - WINDOW_CENTER_Y;
+
+                acc_x += ACC_GRAVITY_METERS_PER_SECOND;
+                acc_y += ACC_GRAVITY_METERS_PER_SECOND;
             }
 
             /* Update speed. */

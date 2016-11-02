@@ -57,17 +57,15 @@ int main(void) {
         pi2 = 2.0 * acos(-1.0)
     ;
 
+    /* Window system. */
     glfwInit();
     window = glfwCreateWindow(WIDTH, HEIGHT, __FILE__, NULL, NULL);
     glfwMakeContextCurrent(window);
     glewInit();
 
+    /* Shader setup. */
     program = common_get_shader_program(vertex_shader_source, fragment_shader_source);
     attribute_coord2d = glGetAttribLocation(program, attribute_name);
-    if (attribute_coord2d == -1) {
-        fprintf(stderr, "error: attribute_coord2d: %s\n", attribute_name);
-        return EXIT_FAILURE;
-    }
     height_location = glGetUniformLocation(program, "height");
     periods_x_location = glGetUniformLocation(program, "periods_x");
     periods_y_location = glGetUniformLocation(program, "periods_y");
@@ -75,25 +73,30 @@ int main(void) {
     time_location = glGetUniformLocation(program, "time");
     width_location = glGetUniformLocation(program, "width");
 
+    /* Global settings. */
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glUseProgram(program);
     glViewport(0, 0, WIDTH, HEIGHT);
 
+    /* vbo */
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
+    /* ibo */
     glGenBuffers(1, &ibo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indexes), indexes, GL_STATIC_DRAW);
     glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &ibo_size);
 
+    /* Uniforms. */
     glUniform1f(pi2_location, pi2);
     glUniform1f(width_location, WIDTH);
     glUniform1f(height_location, HEIGHT);
     glUniform1f(periods_x_location, periods_x);
     glUniform1f(periods_y_location, periods_y);
 
+    /* Main loop. */
     common_fps_init();
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
@@ -116,6 +119,7 @@ int main(void) {
         common_fps_print();
     }
 
+    /* Cleanup. */
     glDeleteBuffers(1, &ibo);
     glDeleteBuffers(1, &vbo);
     glDeleteProgram(program);

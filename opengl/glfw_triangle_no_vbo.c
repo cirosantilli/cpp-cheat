@@ -36,22 +36,22 @@ int main(void) {
     GLint attribute_coord2d, program;
     const char *attribute_name = "coord2d";
 
+    /* Window system. */
     glfwInit();
     window = glfwCreateWindow(WIDTH, HEIGHT, __FILE__, NULL, NULL);
     glfwMakeContextCurrent(window);
     glewInit();
 
+    /* Shaders. */
     program = common_get_shader_program(vertex_shader_source, fragment_shader_source);
     attribute_coord2d = glGetAttribLocation(program, attribute_name);
-    if (attribute_coord2d == -1) {
-        fprintf(stderr, "error: attribute_coord2d: %s\n", attribute_name);
-        return EXIT_FAILURE;
-    }
 
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    /* Initial settings. */
     glUseProgram(program);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glViewport(0, 0, WIDTH, HEIGHT);
 
+    /* Main loop. */
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
         glClear(GL_COLOR_BUFFER_BIT);
@@ -69,6 +69,7 @@ int main(void) {
         glfwSwapBuffers(window);
     }
 
+    /* Cleanup. */
     glDeleteProgram(program);
     glfwTerminate();
     return EXIT_SUCCESS;

@@ -35,12 +35,14 @@ static void common_fps_print() {
     }
 }
 
-/* Build and compile shader program, return it's ID. */
+/* Build and compile shader program, return its ID. */
 GLint common_get_shader_program(
-        const char *vertex_shader_source,
-        const char *fragment_shader_source) {
+    const char *vertex_shader_source,
+    const char *fragment_shader_source
+) {
     GLchar *log = NULL;
-    GLint fragment_shader, log_length, program, success, vertex_shader;
+    GLint log_length, success;
+    GLuint fragment_shader, program, vertex_shader;
 
     /* Vertex shader */
     vertex_shader = glCreateShader(GL_VERTEX_SHADER);

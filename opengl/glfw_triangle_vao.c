@@ -1,7 +1,10 @@
 /*
-Minimal triangle example.
+Minimal triangle example with VAO.
 
 Expected outcome: a red triangle is drawn.
+
+TODO: what is the advantage of using VAO compared to just VBO?
+http://stackoverflow.com/questions/11821336/what-are-vertex-array-objects
 
 Adapted from
 https://github.com/JoeyDeVries/LearnOpenGL/blob/d5c3be70ab2b884cf2b2c94cbf73a31f632fbf47/src/1.getting_started/2.hello_triangle/hellotriangle2.cpp
