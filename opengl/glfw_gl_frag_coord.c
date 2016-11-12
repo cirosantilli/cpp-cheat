@@ -34,48 +34,50 @@ static const GLfloat vertices[] = {
 
 int main(void) {
     GLFWwindow *window;
-    GLint attribute_coord2d, program;
-    GLuint vbo;
+    GLint attribute_coord2d;
+    GLuint program, vbo;
     const char *attribute_name = "coord2d";
 
+    /* Window system. */
     glfwInit();
+    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
     window = glfwCreateWindow(WIDTH, HEIGHT, __FILE__, NULL, NULL);
     glfwMakeContextCurrent(window);
     glewInit();
 
+    /* Shader setup. */
     program = common_get_shader_program(vertex_shader_source, fragment_shader_source);
     attribute_coord2d = glGetAttribLocation(program, attribute_name);
-    if (attribute_coord2d == -1) {
-        fprintf(stderr, "error: attribute_coord2d: %s\n", attribute_name);
-        return EXIT_FAILURE;
-    }
 
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glUseProgram(program);
-    glViewport(0, 0, WIDTH, HEIGHT);
-
+    /* vbo */
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
+    /* Draw. */
+    glViewport(0, 0, WIDTH, HEIGHT);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glUseProgram(program);
+    glEnableVertexAttribArray(attribute_coord2d);
+    glVertexAttribPointer(
+        attribute_coord2d,
+        2,
+        GL_FLOAT,
+        GL_FALSE,
+        0,
+        0
+    );
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glDisableVertexAttribArray(attribute_coord2d);
+    glfwSwapBuffers(window);
+
+    /* Main loop. */
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
-        glClear(GL_COLOR_BUFFER_BIT);
-        glEnableVertexAttribArray(attribute_coord2d);
-        glVertexAttribPointer(
-            attribute_coord2d,
-            2,
-            GL_FLOAT,
-            GL_FALSE,
-            0,
-            0
-        );
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-        glDisableVertexAttribArray(attribute_coord2d);
-        glfwSwapBuffers(window);
-        glfwSwapBuffers(window);
     }
 
+    /* Cleanup. */
     glDeleteBuffers(1, &vbo);
     glDeleteProgram(program);
     glfwTerminate();

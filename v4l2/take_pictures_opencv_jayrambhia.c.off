@@ -7,6 +7,13 @@ http://www.jayrambhia.com/blog/capture-v4l2/
 
 Takes a screenshot with one of your cameras, and saves it to `__FILE__ . jpg`.
 Shows a preview window before saving.
+
+Turned off because it relies on OpenCV, which is non minimal because we can:
+
+- dump images as PPM without any libraries
+- show video to screen with OpenGL textures
+
+And OpenCV has cross platform video capture in fewer lines as well.
 */
 
 #include <errno.h>
@@ -186,7 +193,7 @@ int capture_image(int fd) {
     return 0;
 }
 
-int main() {
+int main(void) {
     int fd;
     fd = open("/dev/video0", O_RDWR);
     if (fd == -1) {

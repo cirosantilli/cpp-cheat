@@ -23,7 +23,11 @@ OpenCL, like any other language has versions. As of 2013 the latest version is O
 
 ## OpenCL and OpenGL integration
 
-- <http://stackoverflow.com/questions/4005935/mix-opencl-with-opengl>
 - <http://enja.org/2010/08/27/adventures-in-opencl-part-2-particles-with-opengl/>
+- <http://stackoverflow.com/questions/17899514/opencl-opengl-interop-performance>
+- <http://stackoverflow.com/questions/4005935/mix-opencl-with-opengl>
+- <http://stackoverflow.com/questions/7907510/opengl-vs-opencl-which-to-choose-and-why>
+- <http://stackoverflow.com/questions/8824269/gl-cl-interoperability-shared-texture>
+- <https://github.com/9prady9/CLGLInterop>
 
-Also see compute shaders for OpenGL, they seem to integrate better.
+Also see compute shaders for OpenGL 4.X, they seem to integrate better.

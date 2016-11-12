@@ -36,6 +36,7 @@ Tutorials with runnable version tracked code:
 
 Samples without tutorial:
 
+- <https://github.com/openglsuperbible/sb7code> MIT licensed samples from OpenGL superbible book by AMD employee. Very good.
 - <https://github.com/g-truc/ogl-samples> Many precise examples of specific OpenGL API features, organized by API version.
 
 Tutorials with runnable code that is not version tracked:
@@ -62,7 +63,6 @@ Demos:
 
 - <https://github.com/prideout/recipes>
 - <https://www.youtube.com/watch?v=H-3yPXXZUC8>
-- <https://github.com/premsasidharan/gpu_img_proc/tree/master/test/edge_camera> <https://www.youtube.com/watch?v=fJtOdJ9MHsA> GLSL Linux camera real time edge detection shown on screen. Getting started: <https://github.com/premsasidharan/gpu_img_proc/issues/1#issuecomment-257504913>
 
 Unevaluated:
 

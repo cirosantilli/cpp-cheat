@@ -1,0 +1,8 @@
+/*
+Recursive calculations where the input to the next frame is the previous frame.
+
+Conway's game of life is a popular example:
+
+- http://nullprogram.com/blog/2014/06/10/
+- http://gamedev.stackexchange.com/questions/87213/how-to-read-neighbor-pixels-in-glsl
+*/

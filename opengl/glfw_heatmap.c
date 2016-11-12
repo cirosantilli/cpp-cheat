@@ -12,16 +12,12 @@ static const GLchar* fragment_shader_source =
     "#version 120\n"
     "uniform float pi2;\n"
     "uniform float time;\n"
-    "uniform float width;\n"
-    "uniform float height;\n"
-    "uniform float periods_x;\n"
-    "uniform float periods_y;\n"
+    "uniform vec2 win_dim;\n"
+    "uniform vec2 periods;\n"
     "void main(void) {\n"
-    "    float center_x = width / 2.0;"
-    "    float center_y = height / 2.0;"
-    "    float x = (gl_FragCoord.x - center_x) * periods_x / width;"
-    "    float y = (gl_FragCoord.y - center_y) * periods_y / height;"
-    "    gl_FragColor[0] = 0.5 * (1.0 + (sin((pi2 * (sqrt(x*x + y*y) + time)))));\n"
+    "    vec2 center = win_dim / 2.0;"
+    "    vec2 xy = (gl_FragCoord.xy - center) * periods / win_dim;"
+    "    gl_FragColor[0] = 0.5 * (1.0 + (sin((pi2 * (length(xy) + time)))));\n"
     "    gl_FragColor[1] = 0.0;\n"
     "    gl_FragColor[2] = 0.0;\n"
     "}\n";
@@ -41,15 +37,12 @@ int main(void) {
     GLint
         attribute_coord2d,
         ibo_size,
-        width_location,
-        height_location,
-        time_location,
-        periods_x_location,
-        periods_y_location,
+        periods_location,
         pi2_location,
-        program
+        time_location,
+        win_dim_location
     ;
-    GLuint ibo, vbo;
+    GLuint ibo, program, vbo;
     const char *attribute_name = "coord2d";
     const float
         periods_x = 5.0,
@@ -66,12 +59,10 @@ int main(void) {
     /* Shader setup. */
     program = common_get_shader_program(vertex_shader_source, fragment_shader_source);
     attribute_coord2d = glGetAttribLocation(program, attribute_name);
-    height_location = glGetUniformLocation(program, "height");
-    periods_x_location = glGetUniformLocation(program, "periods_x");
-    periods_y_location = glGetUniformLocation(program, "periods_y");
+    periods_location = glGetUniformLocation(program, "periods");
     pi2_location = glGetUniformLocation(program, "pi2");
     time_location = glGetUniformLocation(program, "time");
-    width_location = glGetUniformLocation(program, "width");
+    win_dim_location = glGetUniformLocation(program, "win_dim");
 
     /* Global settings. */
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -82,6 +73,15 @@ int main(void) {
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glVertexAttribPointer(
+        attribute_coord2d,
+        2,
+        GL_FLOAT,
+        GL_FALSE,
+        0,
+        0
+    );
+    glEnableVertexAttribArray(attribute_coord2d);
 
     /* ibo */
     glGenBuffers(1, &ibo);
@@ -91,35 +91,22 @@ int main(void) {
 
     /* Uniforms. */
     glUniform1f(pi2_location, pi2);
-    glUniform1f(width_location, WIDTH);
-    glUniform1f(height_location, HEIGHT);
-    glUniform1f(periods_x_location, periods_x);
-    glUniform1f(periods_y_location, periods_y);
+    glUniform2f(win_dim_location, WIDTH, HEIGHT);
+    glUniform2f(periods_location, periods_x, periods_y);
 
     /* Main loop. */
     common_fps_init();
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
         glClear(GL_COLOR_BUFFER_BIT);
-        glEnableVertexAttribArray(attribute_coord2d);
-        glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glVertexAttribPointer(
-            attribute_coord2d,
-            2,
-            GL_FLOAT,
-            GL_FALSE,
-            0,
-            0
-        );
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
         glUniform1f(time_location, glfwGetTime());
         glDrawElements(GL_TRIANGLES, ibo_size / sizeof(indexes[0]), GL_UNSIGNED_INT, 0);
-        glDisableVertexAttribArray(attribute_coord2d);
         glfwSwapBuffers(window);
         common_fps_print();
     }
 
     /* Cleanup. */
+    glDisableVertexAttribArray(attribute_coord2d);
     glDeleteBuffers(1, &ibo);
     glDeleteBuffers(1, &vbo);
     glDeleteProgram(program);

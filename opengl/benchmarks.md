@@ -12,4 +12,4 @@ Free:
 
 Non free:
 
-- GFXBench: <https://gfxbench.com/result.jsp>
+- GFXBench: <https://gfxbench.com/result.jsp> By a company called Koshonti. You can run it for free on most devices, but they license the source (and TODO more complete versions?) to companies as a business model.

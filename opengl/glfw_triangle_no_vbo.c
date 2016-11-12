@@ -21,9 +21,7 @@ static const GLchar* vertex_shader_source =
 static const GLchar* fragment_shader_source =
     "#version 120\n"
     "void main(void) {\n"
-    "    gl_FragColor[0] = 0.0;\n"
-    "    gl_FragColor[1] = 0.0;\n"
-    "    gl_FragColor[2] = 1.0;\n"
+    "    gl_FragColor.rgb = vec3(0.0, 0.0, 1.0);\n"
     "}\n";
 static const GLfloat vertices[] = {
      0.0,  0.8,
@@ -38,6 +36,7 @@ int main(void) {
 
     /* Window system. */
     glfwInit();
+    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
     window = glfwCreateWindow(WIDTH, HEIGHT, __FILE__, NULL, NULL);
     glfwMakeContextCurrent(window);
     glewInit();

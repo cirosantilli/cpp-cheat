@@ -9,11 +9,11 @@ static const GLuint WIDTH = 500;
 static const GLuint HEIGHT = 500;
 static const GLchar *vertex_shader_source =
     "#version 330 core\n"
-    "layout(location = 0) in vec2 coord2d;\n"
-    "layout(location = 1) in vec2 vertexUv;\n"
+    "in vec2 coord2d;\n"
+    "in vec2 vertexUv;\n"
     "out vec2 fragmentUv;\n"
-    "void main(){\n"
-    "    gl_Position =  vec4(coord2d, 0, 1);\n"
+    "void main() {\n"
+    "    gl_Position = vec4(coord2d, 0, 1);\n"
     "    fragmentUv = vertexUv;\n"
     "}\n";
 static const GLchar *fragment_shader_source =
@@ -21,7 +21,7 @@ static const GLchar *fragment_shader_source =
     "in vec2 fragmentUv;\n"
     "out vec3 color;\n"
     "uniform sampler2D myTextureSampler;\n"
-    "void main(){\n"
+    "void main() {\n"
     "    color = texture(myTextureSampler, fragmentUv).rgb;\n"
     "}\n";
 static const GLfloat vertices[] = {
@@ -37,10 +37,12 @@ static const GLfloat uvs[] = {
 
 int main(void) {
     GLFWwindow *window;
+    GLint
+        coord2d_location,
+        myTextureSampler_location,
+        vertexUv_location
+    ;
     GLuint
-        attribute_coord2d,
-        attribute_myTextureSampler,
-        attribute_vertexUv,
         program,
         texture,
         uvbo,
@@ -61,22 +63,20 @@ int main(void) {
 
     /* Shader setup. */
     program = common_get_shader_program(vertex_shader_source, fragment_shader_source);
-    attribute_coord2d = glGetAttribLocation(program, "coord2d");
-    attribute_vertexUv = glGetAttribLocation(program, "vertexUv");
-	attribute_myTextureSampler = glGetUniformLocation(program, "myTextureSampler");
+    coord2d_location = glGetAttribLocation(program, "coord2d");
+    vertexUv_location = glGetAttribLocation(program, "vertexUv");
+	myTextureSampler_location = glGetUniformLocation(program, "myTextureSampler");
 
     /* Global settings.. */
-    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     glUseProgram(program);
-    glViewport(0, 0, WIDTH, HEIGHT);
 
-    /* Vertex buffer. */
+    /* vbo */
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    /* UV buffer. */
+    /* uvbo */
 	glGenBuffers(1, &uvbo);
 	glBindBuffer(GL_ARRAY_BUFFER, uvbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(uvs), uvs, GL_STATIC_DRAW);
@@ -101,16 +101,13 @@ int main(void) {
         /*glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR); */
         /*glGenerateMipmap(GL_TEXTURE_2D);*/
 
-        glBindTexture(GL_TEXTURE_2D, texture);
         free(texture_image);
     }
 
-    glClear(GL_COLOR_BUFFER_BIT);
-
-    glEnableVertexAttribArray(attribute_coord2d);
+    /* vbo */
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glVertexAttribPointer(
-        attribute_coord2d,
+        coord2d_location,
         2,
         GL_FLOAT,
         GL_FALSE,
@@ -119,10 +116,10 @@ int main(void) {
     );
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    glEnableVertexAttribArray(attribute_vertexUv);
+    /* uvbo */
     glBindBuffer(GL_ARRAY_BUFFER, uvbo);
     glVertexAttribPointer(
-        attribute_vertexUv,
+        vertexUv_location,
         2,
         GL_FLOAT,
         GL_FALSE,
@@ -132,12 +129,20 @@ int main(void) {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     glActiveTexture(GL_TEXTURE0);
+    /* A texture must have been actived by glActiveTexture. */
     glBindTexture(GL_TEXTURE_2D, texture);
-    glUniform1i(attribute_myTextureSampler, 0);
+    /* Sampler will sample from GL_TEXTURE0. */
+    glUniform1i(myTextureSampler_location, 0);
 
+    /* Draw. */
+    glViewport(0, 0, WIDTH, HEIGHT);
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glEnableVertexAttribArray(coord2d_location);
+    glEnableVertexAttribArray(vertexUv_location);
     glDrawArrays(GL_TRIANGLES, 0, 3);
-    glDisableVertexAttribArray(attribute_coord2d);
-    glDisableVertexAttribArray(attribute_vertexUv);
+    glDisableVertexAttribArray(coord2d_location);
+    glDisableVertexAttribArray(vertexUv_location);
     glfwSwapBuffers(window);
 
     /* Main loop. */
@@ -148,7 +153,7 @@ int main(void) {
     /* Cleanup. */
     glDeleteBuffers(1, &vbo);
     glDeleteBuffers(1, &uvbo);
-	glDeleteTextures(1, &attribute_myTextureSampler);
+	glDeleteTextures(1, &texture);
     glDeleteProgram(program);
     glfwTerminate();
     return EXIT_SUCCESS;

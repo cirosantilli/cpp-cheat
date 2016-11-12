@@ -82,7 +82,6 @@
 -   HUD, billboards, draw pixel on screen:
     - people suggest: glOrtho + disable depth tests
     - could think about a transparent texture right on top of the camera
-    - http://stackoverflow.com/questions/10040961/opengl-pixel-perfect-2d-drawing
     - http://stackoverflow.com/questions/4282036/rendering-2d-sprites-in-a-3d-world/36568461#36568461
     - http://stackoverflow.com/questions/6151135/in-opengl-can-i-draw-a-pixel-that-exactly-at-the-coordinates-5-5
     - http://gamedev.stackexchange.com/questions/5959/rendering-2d-sprites-into-a-3d-world/119739#119739
@@ -91,6 +90,11 @@
     - http://stackoverflow.com/questions/18362058/opengl-draw-pixels-directly
     - http://stackoverflow.com/questions/6644248/how-to-draw-opencl-calculated-pixels-to-the-screen-with-opengl
     - also useful to render "particles": things that are so far / so small that a billboards approximate well enough with less overhead
+-   2D acceleration (translation, rotation, alpha blending, z-order) and pixel perfectness:
+    - http://stackoverflow.com/questions/10040961/opengl-pixel-perfect-2d-drawing
+    - http://stackoverflow.com/questions/3919307/is-there-a-2d-graphics-api-with-both-pixel-perfect-drawing-and-2d-hardware-accel
+    - <http://stackoverflow.com/questions/7922526/opengl-deterministic-rendering-between-gpu-vendor>
+    - <http://stackoverflow.com/questions/671395/a-simple-2d-cross-platform-graphics-library-for-c-or-c/718384#718384>
 -   text, fonts
     - glut does it
     - non trivial: most fonts are specified in vector formats with Bezier curves, and OpenGL does not have any primitives for that
