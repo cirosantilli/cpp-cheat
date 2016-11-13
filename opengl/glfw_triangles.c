@@ -69,10 +69,10 @@ int main(void) {
     - 6: how many bytes to skip until next one == 3 (position) + 3 (color)
     */
     glVertexAttribPointer(attribute_position, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
-    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(attribute_position);
     /* Color attribute */
     glVertexAttribPointer(attribute_color, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-    glEnableVertexAttribArray(1);
+    glEnableVertexAttribArray(attribute_color);
     glBindVertexArray(0);
 
     /* Draw. */

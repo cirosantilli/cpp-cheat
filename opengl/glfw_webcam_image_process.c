@@ -4,6 +4,27 @@ a version modified by a fragment shader.
 
 Computer vision on the GPU.
 
+Usage:
+
+    ./prog [width [height [cpu]]
+
+-   width and height: size of captured image.
+    Only certain sizes can be returned by the camera.
+
+    If what you put is not one of them, the largest possible one is taken,
+    and a warning is printed saying what was actually used, and a segfault may happen.
+
+    You can then just use the actual numbers reported and it should work. TODO don't segfault.
+
+    `v4l2-ctl --all` shows the largest supported size. TODO how to get all supported sub-sizes.
+
+-   cpu: if `1`, use a CPU of the image transform, to see if are actually gaining anything with the GPU.
+
+Examples:
+
+    ./prog
+    ./prog 960 540 1
+
 Fragment shaders can access any byte of a texture, and so do operations over multiple pixels.
 
 Several web examples:
@@ -29,8 +50,8 @@ Android:
 Post processing is equivalent to image processing (unless there is some
 magic Krhonos way to bypass the CPU camera image copy to texture):
 
--   <https://en.wikibooks.org/wiki/OpenGL_Programming/Post-Processing>
--   r3dux tori demo <https://www.youtube.com/watch?v=9nDxIbj3mPU>
+-   https://en.wikibooks.org/wiki/OpenGL_Programming/Post-Processing
+-   r3dux tori demo https://www.youtube.com/watch?v=9nDxIbj3mPU
 */
 
 #include "common.h"
@@ -39,15 +60,11 @@ magic Krhonos way to bypass the CPU camera image copy to texture):
 static const GLuint WIDTH = 640;
 static const GLuint HEIGHT = 480;
 static const GLfloat vertices[] = {
-    -1.0,  1.0,
-     0.0,  1.0,
-     0.0, -1.0,
-    -1.0, -1.0,
-};
-static const GLfloat uvs[] = {
-    0.0, 1.0,
-    0.0, 0.0,
-    1.0, 0.0,
+/*  xy            uv */
+    -1.0,  1.0,   0.0, 1.0,
+     0.0,  1.0,   0.0, 0.0,
+     0.0, -1.0,   1.0, 0.0,
+    -1.0, -1.0,   1.0, 1.0,
 };
 static const GLuint indices[] = {
     0, 1, 2,
@@ -69,10 +86,7 @@ static const GLchar *fragment_shader_source =
     "out vec3 color;\n"
     "uniform sampler2D myTextureSampler;\n"
     "void main() {\n"
-    "    color = ("
-    "         texture(myTextureSampler, fragmentUv.yx ).rgb\n"
-    "    ) / 1\n"
-    ";\n"
+    "    color = texture(myTextureSampler, fragmentUv.yx).rgb;\n"
     "}\n";
 
 static const GLchar *vertex_shader_source2 =
@@ -89,21 +103,61 @@ static const GLchar *fragment_shader_source2 =
     "in vec2 fragmentUv;\n"
     "out vec3 color;\n"
     "uniform sampler2D myTextureSampler;\n"
+    "// pixel Delta. How large a pixel is in 0.0 to 1.0 that textures use.\n"
+    "uniform vec2 pixD;\n"
     "void main() {\n"
-    "    color = ("
-    /*"         texture(myTextureSampler, fragmentUv.yx ).brg\n"*/
-    "         1.0 - texture(myTextureSampler, fragmentUv.yx ).rgb\n"
-    "    ) / 1\n"
-    ";\n"
+
+    /*"// Identity\n"*/
+    /*"    color = texture(myTextureSampler, fragmentUv.yx ).rgb;\n"*/
+
+    /*"// Inverter\n"*/
+    /*"    color = 1.0 - texture(myTextureSampler, fragmentUv.yx ).rgb;\n"*/
+
+    /*"// Swapper\n"*/
+    /*"    color = texture(myTextureSampler, fragmentUv.yx ).gbr;\n"*/
+
+    /*"// Double vision ortho.\n"*/
+    /*"    color = ("*/
+    /*"        texture(myTextureSampler, fragmentUv.yx ).rgb +\n"*/
+    /*"        texture(myTextureSampler, fragmentUv.xy ).rgb\n"*/
+    /*"    ) / 2.0;\n"*/
+
+    /*"// Multi-me.\n"*/
+    /*"    color = texture(myTextureSampler, 4.0 * fragmentUv.yx ).rgb;\n"*/
+
+    /*"// Horizontal linear blur.\n"*/
+    /*"    int blur_width = 21;\n"*/
+    /*"    int blur_width_half = blur_width / 2;\n"*/
+    /*"    color = vec3(0.0, 0.0, 0.0);\n"*/
+    /*"    for (int i = -blur_width_half; i <= blur_width_half; ++i) {\n"*/
+    /*"       color += texture(myTextureSampler, vec2(fragmentUv.y + i * pixD.x, fragmentUv.x)).rgb;\n"*/
+    /*"    }\n"*/
+    /*"    color /= blur_width;\n"*/
+
+    /*"// Square linear blur. Good GPU bogger since n^2.\n"*/
+    "    int blur_width = 31;\n"
+    "    int blur_width_half = blur_width / 2;\n"
+    "    color = vec3(0.0, 0.0, 0.0);\n"
+    "    for (int i = -blur_width_half; i <= blur_width_half; ++i) {\n"
+    "       for (int j = -blur_width_half; j <= blur_width_half; ++j) {\n"
+    "           color += texture(\n"
+    "               myTextureSampler, fragmentUv.yx + ivec2(i, j) * pixD\n"
+    "           ).rgb;\n"
+    "       }\n"
+    "    }\n"
+    "    color /= (blur_width * blur_width);\n"
+
     "}\n";
 
-int main(void) {
+int main(int argc, char **argv) {
+    CommonV4l2 common_v4l2;
     GLFWwindow *window;
     GLint
         coord2d_location,
         myTextureSampler_location,
         vertexUv_location,
         coord2d_location2,
+        pixD_location2,
         myTextureSampler_location2,
         vertexUv_location2
     ;
@@ -112,19 +166,37 @@ int main(void) {
         program,
         program2,
         texture,
-        uvbo,
-        vbo
+        vbo,
+        vao
     ;
-    unsigned char *texture_image;
-    CommonV4l2 common_v4l2;
+    unsigned int
+        cpu,
+        width,
+        height
+    ;
+    uint8_t * image;
+
+    if (argc > 1) {
+        width = strtol(argv[1], NULL, 10);
+    } else {
+        width = WIDTH;
+    }
+    if (argc > 2) {
+        height = strtol(argv[2], NULL, 10);
+    } else {
+        height = HEIGHT;
+    }
+    if (argc > 3) {
+        cpu = (argv[3][0] == '1');
+    }
 
     /* Window system. */
     glfwInit();
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-    window = glfwCreateWindow(2 * WIDTH, HEIGHT, __FILE__, NULL, NULL);
+    window = glfwCreateWindow(2 * width, height, __FILE__, NULL, NULL);
     glfwMakeContextCurrent(window);
     glewInit();
-    CommonV4l2_init(&common_v4l2, COMMON_V4L2_DEVICE, WIDTH, HEIGHT);
+    CommonV4l2_init(&common_v4l2, COMMON_V4L2_DEVICE, width, height);
 
     /* Shader setup. */
     program = common_get_shader_program(vertex_shader_source, fragment_shader_source);
@@ -133,27 +205,37 @@ int main(void) {
 	myTextureSampler_location = glGetUniformLocation(program, "myTextureSampler");
 
     /* Shader setup 2. */
-    program2 = common_get_shader_program(vertex_shader_source2, fragment_shader_source2);
+    const GLchar *fs;
+    if (cpu) {
+        fs = fragment_shader_source;
+    } else {
+        fs = fragment_shader_source2;
+    }
+    program2 = common_get_shader_program(vertex_shader_source2, fs);
     coord2d_location2 = glGetAttribLocation(program2, "coord2d");
     vertexUv_location2 = glGetAttribLocation(program2, "vertexUv");
 	myTextureSampler_location2 = glGetUniformLocation(program2, "myTextureSampler");
+	pixD_location2 = glGetUniformLocation(program2, "pixD");
 
-    /* vbo */
+    /* Buffer setup. */
+    glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo);
+    glGenBuffers(1, &ebo);
+    glBindVertexArray(vao);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    /* uvbo */
-	glGenBuffers(1, &uvbo);
-	glBindBuffer(GL_ARRAY_BUFFER, uvbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(uvs), uvs, GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    /* ebo */
-    glGenBuffers(1, &ebo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    glVertexAttribPointer(coord2d_location, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(vertices[0]), (GLvoid*)0);
+    glVertexAttribPointer(coord2d_location2, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(vertices[0]), (GLvoid*)0);
+    glEnableVertexAttribArray(coord2d_location);
+    /* TODO this likely makes no sense. Do we need 2 vaos? */
+    glEnableVertexAttribArray(coord2d_location2);
+    glVertexAttribPointer(vertexUv_location, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(vertices[0])));
+    glVertexAttribPointer(vertexUv_location2, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(vertices[0])));
+    glEnableVertexAttribArray(vertexUv_location);
+    glEnableVertexAttribArray(vertexUv_location2);
+    glBindVertexArray(0);
 
     /* Texture buffer. */
     glGenTextures(1, &texture);
@@ -161,27 +243,10 @@ int main(void) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-    /* vbo */
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glVertexAttribPointer(coord2d_location, 2, GL_FLOAT, GL_FALSE, 0, 0);
-    glVertexAttribPointer(coord2d_location2, 2, GL_FLOAT, GL_FALSE, 0, 0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    /* uvbo */
-    glBindBuffer(GL_ARRAY_BUFFER, uvbo);
-    glVertexAttribPointer(vertexUv_location, 2, GL_FLOAT, GL_FALSE, 0, 0);
-    glVertexAttribPointer(vertexUv_location2, 2, GL_FLOAT, GL_FALSE, 0, 0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
     /* Constant state. */
-    glViewport(0, 0, 2 * WIDTH, HEIGHT);
+    glViewport(0, 0, 2 * width, height);
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     glActiveTexture(GL_TEXTURE0);
-    /* A texture must have been activated by glActiveTexture. */
-    glBindTexture(GL_TEXTURE_2D, texture);
-    /* Sampler will sample from GL_TEXTURE0. */
-    glUniform1i(myTextureSampler_location, 0);
-    glUniform1i(myTextureSampler_location2, 0);
 
     /* Main loop. */
     common_fps_init();
@@ -189,29 +254,57 @@ int main(void) {
         /* Blocks until an image is available, thus capping FPS to that.
          * 30FPS is common in cheap webcams. */
         CommonV4l2_update_image(&common_v4l2);
-
-        glTexImage2D(
-            GL_TEXTURE_2D, 0, GL_RGB, WIDTH, HEIGHT,
-            0, GL_RGB, GL_UNSIGNED_BYTE, CommonV4l2_get_image(&common_v4l2)
-        );
+        image = CommonV4l2_get_image(&common_v4l2);
         glClear(GL_COLOR_BUFFER_BIT);
+        glBindVertexArray(vao);
 
-        /* Original image. */
+        /* Original. */
         glUseProgram(program);
-        glEnableVertexAttribArray(coord2d_location);
-        glEnableVertexAttribArray(vertexUv_location);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
-        glDisableVertexAttribArray(coord2d_location);
-        glDisableVertexAttribArray(vertexUv_location);
+        glUniform1i(myTextureSampler_location, 0);
+        glTexImage2D(
+            GL_TEXTURE_2D, 0, GL_RGB, width, height,
+            0, GL_RGB, GL_UNSIGNED_BYTE, image
+        );
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-        /* Modified image. */
+        /* Modified. */
         glUseProgram(program2);
-        glEnableVertexAttribArray(coord2d_location2);
-        glEnableVertexAttribArray(vertexUv_location2);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
-        glDisableVertexAttribArray(coord2d_location2);
-        glDisableVertexAttribArray(vertexUv_location2);
+        glUniform1i(myTextureSampler_location2, 0);
+        glUniform2f(pixD_location2, 1.0 / width, 1.0 / height);
+        /* Optional CPU modification to compare with GPU shader speed.  */
+        if (cpu) {
+            for (unsigned int i = 0; i < height; ++i) {
+                for (unsigned int j = 0; j < width; ++j) {
+                    unsigned int index = 3 * (i * width + j);
 
+                    /* Inverter. */
+                    /*image[index + 0] = 255U - image[index + 0];*/
+                    /*image[index + 1] = 255U - image[index + 1];*/
+                    /*image[index + 2] = 255U - image[index + 2];*/
+
+                    /*"// Square linear blur.\n"*/
+                    /*TODO finish it. Lazy. Need a memcpy. */
+                    /*int blur_width = 31;*/
+                    /*int blur_width_half = blur_width / 2;*/
+                    /*int blur_width2 = (blur_width * blur_width);*/
+                    /*for (int k = -blur_width_half; k <= blur_width_half; ++k ) {*/
+                        /*for (int l = -blur_width_half; l <= blur_width_half; ++l ) {*/
+                            /*image[index + 0] += image[index + 0];*/
+                        /*}*/
+                    /*}*/
+                    /*image[index + 0] /= blur_width2;*/
+                    /*image[index + 1] /= blur_width2;*/
+                    /*image[index + 2] /= blur_width2;*/
+                }
+            }
+            glTexImage2D(
+                GL_TEXTURE_2D, 0, GL_RGB, width, height,
+                0, GL_RGB, GL_UNSIGNED_BYTE, image
+            );
+        }
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+        glBindVertexArray(0);
         glfwSwapBuffers(window);
         glfwPollEvents();
         common_fps_print();
@@ -220,7 +313,7 @@ int main(void) {
     /* Cleanup. */
     CommonV4l2_deinit(&common_v4l2);
     glDeleteBuffers(1, &vbo);
-    glDeleteBuffers(1, &uvbo);
+    glDeleteVertexArrays(1, &vao);
 	glDeleteTextures(1, &texture);
     glDeleteProgram(program);
     glfwTerminate();
