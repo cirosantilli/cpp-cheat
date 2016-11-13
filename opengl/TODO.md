@@ -133,3 +133,25 @@
     - http://stackoverflow.com/questions/4040616/opengl-gl-select-or-manual-collision-detection
 -   dynamic shadows.
     - Irrlicht 1.8.1 example `./08.SpecialFX` does is
+
+## Objects
+
+## Bind
+
+OpenGL is confusing because of those!
+
+<http://stackoverflow.com/a/9760790/895245>
+
+<https://www.quora.com/What-are-buffer-objects-in-OpenGL>
+
+### Container objects
+
+Some objects just contain other objects: <https://www.opengl.org/wiki/OpenGL_Object#Object_types>
+
+E.g. Vertex Array Object is a container <https://www.opengl.org/wiki/Vertex_Specification#Vertex_Array_Object>
+
+### glDrawElements vs glDrawArrays
+
+TODO.
+
+<http://stackoverflow.com/questions/6682771/gldrawelements-vs-gldrawarray-efficiency>

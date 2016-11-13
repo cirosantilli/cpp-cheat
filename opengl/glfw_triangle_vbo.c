@@ -1,5 +1,7 @@
 /*
-Minimal sane example.
+Minimal sane OpenGL 3 example.
+
+Will be extensively commented.
 
 Expected outcome: a red triangle on black background.
 */
@@ -21,7 +23,7 @@ static const GLchar* fragment_shader_source =
     "    gl_FragColor[1] = 0.0;\n"
     "    gl_FragColor[2] = 1.0;\n"
     "}\n";
-static const GLfloat vertices[] = {
+static GLfloat vertices[] = {
      0.0,  0.8,
     -0.8, -0.8,
      0.8, -0.8,
@@ -29,7 +31,8 @@ static const GLfloat vertices[] = {
 
 int main(void) {
     GLFWwindow *window;
-    GLuint attribute_coord2d, program, vbo;
+    GLint attribute_coord2d;
+    GLuint program, vbo;
 
     /* Window system. */
     glfwInit();
@@ -43,24 +46,36 @@ int main(void) {
     attribute_coord2d = glGetAttribLocation(program, "coord2d");
 
     /* Buffer setup. */
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    glVertexAttribPointer(
-        attribute_coord2d,
-        2,
-        GL_FLOAT,
-        GL_FALSE,
-        0,
-        0
-    );
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    {
+        /* Create a buffer object. */
+        glGenBuffers(1, &vbo);
+
+        /* Bind the buffer object to the GL_ARRAY_BUFFER. */
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+        /* Set data of the buffer object currently bound GL_ARRAY_BUFFER. */
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+        /*
+        CPU input data has already been copied: changing the array now has no effect.
+        It is likely not yet on GPU as the driver will likely wait to send a bunch of memory
+        in one go later on, so it has just been copied by the driver to a buffer it owns.
+        */
+        /* vertices[0] = 1.0; */
+
+        /* Set currently bound GL_ARRAY_BUFFER as the vertex shader input. */
+        glVertexAttribPointer(attribute_coord2d, 2, GL_FLOAT, GL_FALSE, 0, 0);
+
+        /* Unbind GL_ARRAY_BUFFER. */
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
 
     /* Draw. */
     glUseProgram(program);
     glViewport(0, 0, WIDTH, HEIGHT);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
+    /* TODO why is this needed? Isn't glVertexAttribPointer enough? */
     glEnableVertexAttribArray(attribute_coord2d);
     glDrawArrays(GL_TRIANGLES, 0, 3);
     glDisableVertexAttribArray(attribute_coord2d);

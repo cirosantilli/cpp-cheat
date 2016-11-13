@@ -9,8 +9,8 @@ static const GLuint HEIGHT = 600;
 /* ourColor is passed on to the fragment shader. */
 static const GLchar *vertex_shader_source =
     "#version 330 core\n"
-    "layout (location = 0) in vec3 position;\n"
-    "layout (location = 1) in vec3 color;\n"
+    "in vec3 position;\n"
+    "in vec3 color;\n"
     "out vec3 ourColor;\n"
     "void main() {\n"
     "    gl_Position = vec4(position, 1.0f);\n"
@@ -38,19 +38,23 @@ static const GLuint indices[] = {
 };
 
 int main(void) {
-    GLint shader_program;
+    GLint attribute_position, attribute_color;
+    GLuint ebo, program, vbo, vao;
 
+    /* Window system. */
     glfwInit();
+    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
     GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, __FILE__, NULL, NULL);
     glfwMakeContextCurrent(window);
     glewExperimental = GL_TRUE;
     glewInit();
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glViewport(0, 0, WIDTH, HEIGHT);
 
-    shader_program = common_get_shader_program(vertex_shader_source, fragment_shader_source);
+    /* Shader program. */
+    program = common_get_shader_program(vertex_shader_source, fragment_shader_source);
+    attribute_position = glGetAttribLocation(program, "position");
+    attribute_color = glGetAttribLocation(program, "color");
 
-    GLuint vbo, vao, ebo;
+    /* Buffer setup. */
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo);
     glGenBuffers(1, &ebo);
@@ -64,25 +68,33 @@ int main(void) {
     - 3: length
     - 6: how many bytes to skip until next one == 3 (position) + 3 (color)
     */
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
+    glVertexAttribPointer(attribute_position, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
     glEnableVertexAttribArray(0);
     /* Color attribute */
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+    glVertexAttribPointer(attribute_color, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
     glEnableVertexAttribArray(1);
     glBindVertexArray(0);
 
+    /* Draw. */
+    glViewport(0, 0, WIDTH, HEIGHT);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glUseProgram(program);
+    glBindVertexArray(vao);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
+    glfwSwapBuffers(window);
+
+    /* Main loop. */
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
-        glClear(GL_COLOR_BUFFER_BIT);
-        glUseProgram(shader_program);
-        glBindVertexArray(vao);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
-        glfwSwapBuffers(window);
     }
-    glDeleteVertexArrays(1, &vao);
+
+    /* Cleanup. */
     glDeleteBuffers(1, &vbo);
     glDeleteBuffers(1, &ebo);
+    glDeleteVertexArrays(1, &vao);
+    glDeleteProgram(program);
     glfwTerminate();
     return EXIT_SUCCESS;
 }

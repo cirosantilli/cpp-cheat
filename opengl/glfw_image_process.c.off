@@ -5,6 +5,7 @@ and so do operations over multiple pixels.
 -   <http://stackoverflow.com/questions/13693946/image-processing-with-glsl-shaders>
 -   <https://github.com/premsasidharan/gpu_img_proc/tree/master/test/edge_camera>
     <https://www.youtube.com/watch?v=fJtOdJ9MHsA> GLSL Linux camera real time edge detection shown on screen. Getting started: <https://github.com/premsasidharan/gpu_img_proc/issues/1#issuecomment-257504913>
+-   <http://stackoverflow.com/questions/7847912/is-it-possible-to-give-effect-like-vertex-shader-and-fragment-shader-to-the-andr>
 
 Post processing is equivalent to image processing (unless there is some
 magic Krhonos way to bypass the CPU camera image copy to texture):

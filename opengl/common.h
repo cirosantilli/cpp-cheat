@@ -36,7 +36,7 @@ static void common_fps_print() {
 }
 
 /* Build and compile shader program, return its ID. */
-GLint common_get_shader_program(
+GLuint common_get_shader_program(
     const char *vertex_shader_source,
     const char *fragment_shader_source
 ) {

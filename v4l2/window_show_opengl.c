@@ -108,7 +108,7 @@ static int capture(char *dev_name, int x_res, int y_res, int n_frames,
 
 	dpy = XOpenDisplay(NULL);
 	if (!dpy) {
-		printf("tcannot open display.\n");
+		printf("\tcannot open display.\n");
 		exit(EXIT_FAILURE);
 	}
 

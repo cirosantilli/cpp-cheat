@@ -42,6 +42,7 @@
         1.  [hello world](glfw_hello_world.c)
         1.  [triangle rotate](glfw_triangle_rotate.c)
     1.  Retained mode + shaders
+        1.  [triangle](glfw_triangle_vbo.c)
         1.  [triangle no VBO](glfw_triangle_no_vbo.c)
         1.  [triangle VAO](glfw_triangle_vao.c)
         1.  [color](glfw_color.c)

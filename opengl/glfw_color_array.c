@@ -36,7 +36,8 @@ static GLfloat vertices[] = {
 
 int main(void) {
     GLFWwindow *window;
-    GLuint attribute_vertColor, attribute_position, program, vbo, vao;
+    GLint attribute_vertColor, attribute_position;
+    GLuint program, vbo, vao;
 
     /* Window system. */
     glfwInit();

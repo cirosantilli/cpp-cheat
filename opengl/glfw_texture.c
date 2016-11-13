@@ -66,8 +66,6 @@ int main(void) {
     coord2d_location = glGetAttribLocation(program, "coord2d");
     vertexUv_location = glGetAttribLocation(program, "vertexUv");
 	myTextureSampler_location = glGetUniformLocation(program, "myTextureSampler");
-
-    /* Global settings.. */
     glUseProgram(program);
 
     /* vbo */
