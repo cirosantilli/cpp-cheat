@@ -51,7 +51,7 @@
         1.  [transform](glfw_transform.c)
         1.  [gl_FragCoord](glfw_gl_frag_coord.c)
         1.  [Texture](glfw_texture.c)
-            1.  [Image processing](glfw_image_processing.c.off)
+            1.  [Image processing](glfw_webcam_image_process.c)
             1.  [Recursive](glfw_recursive.c.off)
         1.  [heatmap](glfw_heatmap.c)
         1.  Naughty

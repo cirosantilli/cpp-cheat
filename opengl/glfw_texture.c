@@ -126,16 +126,13 @@ int main(void) {
     );
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    glActiveTexture(GL_TEXTURE0);
-    /* A texture must have been actived by glActiveTexture. */
-    glBindTexture(GL_TEXTURE_2D, texture);
-    /* Sampler will sample from GL_TEXTURE0. */
-    glUniform1i(myTextureSampler_location, 0);
-
     /* Draw. */
     glViewport(0, 0, WIDTH, HEIGHT);
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
+    glActiveTexture(GL_TEXTURE0);
+    /* Sampler will sample from GL_TEXTURE0. TODO example that changes this. */
+    glUniform1i(myTextureSampler_location, 0);
     glEnableVertexAttribArray(coord2d_location);
     glEnableVertexAttribArray(vertexUv_location);
     glDrawArrays(GL_TRIANGLES, 0, 3);

@@ -11,8 +11,8 @@ C and C++ minimal examples. Asserts used wherever possible. Hello worlds for coo
     1. [C](c/)
     1. [C++](cpp/)
     1. [POSIX](posix/): POSIX C API
-    1. [GCC](gcc/): GCC extensions
     1. [OpenGL](opengl/)
+    1. [GCC](gcc/): GCC extensions
     1. [KDE](kde/)
 1.  Introduction
     1. [C vs C++](c-vs-cpp.md)

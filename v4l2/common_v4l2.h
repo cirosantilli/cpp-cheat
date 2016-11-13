@@ -15,6 +15,7 @@
 #include <linux/videodev2.h>
 
 #define COMMON_V4L2_CLEAR(x) memset(&(x), 0, sizeof(x))
+#define COMMON_V4L2_DEVICE "/dev/video0"
 
 typedef struct {
     void *start;
@@ -118,8 +119,8 @@ void CommonV4l2_update_image(CommonV4l2 *this) {
     CommonV4l2_xioctl(this->fd, VIDIOC_QBUF, &this->buf);
 }
 
-char * CommonV4l2_get_image(CommonV4l2 *this) {
-    return ((char *)this->buffers[this->buf.index].start);
+void * CommonV4l2_get_image(CommonV4l2 *this) {
+    return this->buffers[this->buf.index].start;
 }
 
 size_t CommonV4l2_get_image_size(CommonV4l2 *this) {

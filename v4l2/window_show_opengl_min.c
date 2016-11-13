@@ -25,8 +25,6 @@ Same as window_show_opengl, but minimized.
 
 #include "common_v4l2.h"
 
-#define NUM_TEXTURES 1U
-
 static void setup_display(
     Display **dpy,
     Window *win,
@@ -59,9 +57,8 @@ static void setup_display(
     swa.event_mask = ExposureMask | KeyPressMask;
     swa.colormap = XCreateColormap(*dpy, root, vi->visual, AllocNone);
     *win = XCreateWindow(*dpy, root, 0, 0,
-                x_res, y_res, 0, vi->depth,
-                InputOutput, vi->visual, CWEventMask  | CWColormap,
-                &swa);
+                x_res, y_res, 0, vi->depth, InputOutput,
+                vi->visual, CWEventMask  | CWColormap, &swa);
     XMapWindow(*dpy, *win);
     XStoreName(*dpy, *win, dev_name);
     glc = glXCreateContext(*dpy, vi, NULL, GL_TRUE);
@@ -74,17 +71,15 @@ static void setup_display(
     XCreatePixmap(*dpy, root, x_res, y_res, vi->depth);
     glEnable(GL_TEXTURE_2D);
     glGenTextures(1, texture_id);
-    for (j = 0; j < NUM_TEXTURES; j++) {
-        glActiveTexture(GL_TEXTURE0 + j);
-        glBindTexture(GL_TEXTURE_2D, texture_id[j]);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glEnable(GL_TEXTURE_2D);
-    }
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, *texture_id);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glEnable(GL_TEXTURE_2D);
 }
 
 static void redraw(
-    char *image,
+    void *image,
     unsigned int x_res,
     unsigned int y_res,
     Display **dpy,
@@ -94,12 +89,10 @@ static void redraw(
     XWindowAttributes gwa;
     unsigned int i;
 
-    for (i = 0; i < NUM_TEXTURES; i++) {
-        glActiveTexture(GL_TEXTURE0 + i);
-        glBindTexture(GL_TEXTURE_2D, texture_id[i]);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, x_res, y_res, 0,
-            GL_RGB, GL_UNSIGNED_BYTE, image + i);
-    }
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, *texture_id);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, x_res, y_res, 0,
+                 GL_RGB, GL_UNSIGNED_BYTE, image);
     XGetWindowAttributes(*dpy, *win, &gwa);
     glViewport(0, 0, gwa.width, gwa.height);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -130,15 +123,15 @@ int main(void) {
     ;
     CommonV4l2 common_v4l2;
     Display *dpy = NULL;
-    GLuint texture_id[NUM_TEXTURES];
+    GLuint texture_id;
     Window win;
 
-    setup_display(&dpy, &win, texture_id, x_res, y_res, dev_name);
+    setup_display(&dpy, &win, &texture_id, x_res, y_res, dev_name);
     CommonV4l2_init(&common_v4l2, dev_name, x_res, y_res);
     /* Main loop. */
     while (1) {
         CommonV4l2_update_image(&common_v4l2);
-        redraw(CommonV4l2_get_image(&common_v4l2), x_res, y_res, &dpy, &win, texture_id);
+        redraw(CommonV4l2_get_image(&common_v4l2), x_res, y_res, &dpy, &win, &texture_id);
     }
     CommonV4l2_deinit(&common_v4l2);
     return EXIT_SUCCESS;

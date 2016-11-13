@@ -1,2 +1,3 @@
 LIBS := -lv4l2 \
 	-lX11 -lGL -lGLU
+ALL_DEPEND := common_v4l2.h

@@ -81,6 +81,7 @@ int main(void) {
     glClear(GL_COLOR_BUFFER_BIT);
     glUseProgram(program);
     glBindVertexArray(vao);
+    /* glDrawElements must be used instead of glDrawArrays. TODO where is that documented? */
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
     glfwSwapBuffers(window);
