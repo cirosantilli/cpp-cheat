@@ -17,3 +17,6 @@
 -   island split algorithm?
 -   collision primitives: <http://www.bulletphysics.org/mediawiki-1.5.8/index.php?title=Collision_Shapes>
     - A few efficient geometric ones + more general meshes of points.
+-   collision detection:
+    - http://gamedev.stackexchange.com/questions/34198/when-to-use-collision-detection-methods
+    - Unity discrete, continuous and Continuous Dynamic demo https://www.youtube.com/watch?v=6qKiSjaJzfo

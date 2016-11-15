@@ -130,8 +130,8 @@ int main(void) {
     CommonV4l2_init(&common_v4l2, dev_name, x_res, y_res);
     /* Main loop. */
     while (1) {
-        CommonV4l2_update_image(&common_v4l2);
-        redraw(CommonV4l2_get_image(&common_v4l2), x_res, y_res, &dpy, &win, &texture_id);
+        CommonV4l2_updateImage(&common_v4l2);
+        redraw(CommonV4l2_getImage(&common_v4l2), x_res, y_res, &dpy, &win, &texture_id);
     }
     CommonV4l2_deinit(&common_v4l2);
     return EXIT_SUCCESS;

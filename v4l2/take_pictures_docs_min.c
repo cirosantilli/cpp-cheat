@@ -38,13 +38,13 @@ int main(void) {
 
     CommonV4l2_init(&common_v4l2, dev_name, x_res, y_res);
     for (i = 0; i < 20; i++) {
-        CommonV4l2_update_image(&common_v4l2);
+        CommonV4l2_updateImage(&common_v4l2);
         save_ppm(
             i,
             x_res,
             y_res,
-            CommonV4l2_get_image_size(&common_v4l2),
-            CommonV4l2_get_image(&common_v4l2)
+            CommonV4l2_getImageSize(&common_v4l2),
+            CommonV4l2_getImage(&common_v4l2)
         );
     }
     CommonV4l2_deinit(&common_v4l2);

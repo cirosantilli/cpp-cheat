@@ -93,7 +93,7 @@ void CommonV4l2_init(CommonV4l2 *this, char *dev_name, unsigned int x_res, unsig
     CommonV4l2_xioctl(this->fd, VIDIOC_STREAMON, &type);
 }
 
-void CommonV4l2_update_image(CommonV4l2 *this) {
+void CommonV4l2_updateImage(CommonV4l2 *this) {
     fd_set fds;
     int r;
     struct timeval tv;
@@ -119,11 +119,13 @@ void CommonV4l2_update_image(CommonV4l2 *this) {
     CommonV4l2_xioctl(this->fd, VIDIOC_QBUF, &this->buf);
 }
 
-void * CommonV4l2_get_image(CommonV4l2 *this) {
+/* TODO must be called after updateImage? Or is init enough? */
+void * CommonV4l2_getImage(CommonV4l2 *this) {
     return this->buffers[this->buf.index].start;
 }
 
-size_t CommonV4l2_get_image_size(CommonV4l2 *this) {
+/* TODO must be called after updateImage? Or is init enough? */
+size_t CommonV4l2_getImageSize(CommonV4l2 *this) {
     return this->buffers[this->buf.index].length;
 }
 

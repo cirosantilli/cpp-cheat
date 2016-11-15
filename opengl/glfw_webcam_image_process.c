@@ -20,6 +20,11 @@ Usage:
 
 -   cpu: if `1`, use a CPU of the image transform, to see if are actually gaining anything with the GPU.
 
+    Using -O3 can make a HUGE difference, so always use it.
+
+    TODO: does O3 use SIMD operations? If not, we should use some
+    portable library for it to be faire and use the full CPU power.
+
 Examples:
 
     ./prog
@@ -52,6 +57,20 @@ magic Krhonos way to bypass the CPU camera image copy to texture):
 
 -   https://en.wikibooks.org/wiki/OpenGL_Programming/Post-Processing
 -   r3dux tori demo https://www.youtube.com/watch?v=9nDxIbj3mPU
+
+## Benchmark results
+
+Lenovo Thinkpad T430, NVIDIA NVS 5400, Linux:
+
+- linear blur: max width without frame drop:
+
+    - CPU: 5
+    - GPU: 23
+
+    Consider that this parameter has a squared effect, and feel the wrath of the GPU here.
+
+    AKA box blur: https://en.wikipedia.org/wiki/Box_blur
+
 */
 
 #include "common.h"
@@ -135,7 +154,7 @@ static const GLchar *fragment_shader_source2 =
     /*"    color /= blur_width;\n"*/
 
     /*"// Square linear blur. Good GPU bogger since n^2.\n"*/
-    "    int blur_width = 31;\n"
+    "    int blur_width = 23;\n"
     "    int blur_width_half = blur_width / 2;\n"
     "    color = vec3(0.0, 0.0, 0.0);\n"
     "    for (int i = -blur_width_half; i <= blur_width_half; ++i) {\n"
@@ -174,7 +193,9 @@ int main(int argc, char **argv) {
         width,
         height
     ;
-    uint8_t * image;
+    uint8_t *image;
+    float *image2 = NULL;
+    /*uint8_t *image2 = NULL;*/
 
     if (argc > 1) {
         width = strtol(argv[1], NULL, 10);
@@ -188,6 +209,8 @@ int main(int argc, char **argv) {
     }
     if (argc > 3) {
         cpu = (argv[3][0] == '1');
+    } else {
+        cpu = 0;
     }
 
     /* Window system. */
@@ -253,8 +276,8 @@ int main(int argc, char **argv) {
     do {
         /* Blocks until an image is available, thus capping FPS to that.
          * 30FPS is common in cheap webcams. */
-        CommonV4l2_update_image(&common_v4l2);
-        image = CommonV4l2_get_image(&common_v4l2);
+        CommonV4l2_updateImage(&common_v4l2);
+        image = CommonV4l2_getImage(&common_v4l2);
         glClear(GL_COLOR_BUFFER_BIT);
         glBindVertexArray(vao);
 
@@ -273,33 +296,49 @@ int main(int argc, char **argv) {
         glUniform2f(pixD_location2, 1.0 / width, 1.0 / height);
         /* Optional CPU modification to compare with GPU shader speed.  */
         if (cpu) {
+            image2 = realloc(image2, 3 * width * height * sizeof(image2[0]));
             for (unsigned int i = 0; i < height; ++i) {
                 for (unsigned int j = 0; j < width; ++j) {
-                    unsigned int index = 3 * (i * width + j);
+                    size_t index = 3 * (i * width + j);
 
                     /* Inverter. */
-                    /*image[index + 0] = 255U - image[index + 0];*/
-                    /*image[index + 1] = 255U - image[index + 1];*/
-                    /*image[index + 2] = 255U - image[index + 2];*/
+                    /*image2[index + 0] = 255U - image[index + 0];*/
+                    /*image2[index + 1] = 255U - image[index + 1];*/
+                    /*image2[index + 2] = 255U - image[index + 2];*/
 
-                    /*"// Square linear blur.\n"*/
-                    /*TODO finish it. Lazy. Need a memcpy. */
-                    /*int blur_width = 31;*/
-                    /*int blur_width_half = blur_width / 2;*/
-                    /*int blur_width2 = (blur_width * blur_width);*/
-                    /*for (int k = -blur_width_half; k <= blur_width_half; ++k ) {*/
-                        /*for (int l = -blur_width_half; l <= blur_width_half; ++l ) {*/
-                            /*image[index + 0] += image[index + 0];*/
-                        /*}*/
-                    /*}*/
-                    /*image[index + 0] /= blur_width2;*/
-                    /*image[index + 1] /= blur_width2;*/
-                    /*image[index + 2] /= blur_width2;*/
+                    /* Swapper. */
+                    /*image2[index + 0] = image[index + 1];*/
+                    /*image2[index + 1] = image[index + 2];*/
+                    /*image2[index + 2] = image[index + 0];*/
+
+                    /* Square linear blur. */
+                    int blur_width = 5;
+                    int blur_width_half = blur_width / 2;
+                    int blur_width2 = (blur_width * blur_width);
+                    image2[index + 0] = 0.0;
+                    image2[index + 1] = 0.0;
+                    image2[index + 2] = 0.0;
+                    for (int k = -blur_width_half; k <= blur_width_half; ++k) {
+                        for (int l = -blur_width_half; l <= blur_width_half; ++l) {
+                            int i2 = i + k;
+                            int j2 = j + l;
+                            // Out of bounds is black. TODO: do module to match shader exactly. 
+                            if (i2 > 0 && i2 < (int)height && j2 > 0 && j2 < (int)width) {
+                                unsigned int srcIndex = index + 3 * (k * width + l);
+                                image2[index + 0] += image[srcIndex + 0];
+                                image2[index + 1] += image[srcIndex + 1];
+                                image2[index + 2] += image[srcIndex + 2];
+                            }
+                        }
+                    }
+                    image2[index + 0] /= (blur_width2 * 255.0);
+                    image2[index + 1] /= (blur_width2 * 255.0);
+                    image2[index + 2] /= (blur_width2 * 255.0);
                 }
             }
             glTexImage2D(
                 GL_TEXTURE_2D, 0, GL_RGB, width, height,
-                0, GL_RGB, GL_UNSIGNED_BYTE, image
+                0, GL_RGB, GL_FLOAT, image2
             );
         }
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -311,6 +350,9 @@ int main(int argc, char **argv) {
     } while (!glfwWindowShouldClose(window));
 
     /* Cleanup. */
+    if (cpu) {
+        free(image2);
+    }
     CommonV4l2_deinit(&common_v4l2);
     glDeleteBuffers(1, &vbo);
     glDeleteVertexArrays(1, &vao);
