@@ -63,7 +63,12 @@ int main(void) {
         */
         /* vertices[0] = 1.0; */
 
-        /* Set currently bound GL_ARRAY_BUFFER as the vertex shader input. */
+        /*
+        Set currently bound GL_ARRAY_BUFFER as the vertex shader input.
+
+        -   argument 2: size. Can only be 1, 2, 3, or 4. Each one of those maps to a
+            vec1, 2, 3 or 4 argument in the shader.
+        */
         glVertexAttribPointer(attribute_coord2d, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
         /* Unbind GL_ARRAY_BUFFER. */

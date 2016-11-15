@@ -46,6 +46,7 @@ int main(void) {
         program,
         texture,
         uvbo,
+        vao,
         vbo
     ;
     unsigned int
@@ -66,7 +67,6 @@ int main(void) {
     coord2d_location = glGetAttribLocation(program, "coord2d");
     vertexUv_location = glGetAttribLocation(program, "vertexUv");
 	myTextureSampler_location = glGetUniformLocation(program, "myTextureSampler");
-    glUseProgram(program);
 
     /* vbo */
     glGenBuffers(1, &vbo);
@@ -85,9 +85,13 @@ int main(void) {
         texture_image = common_texture_get_image(texture_width, texture_height);
         glGenTextures(1, &texture);
         glBindTexture(GL_TEXTURE_2D, texture);
+        glActiveTexture(GL_TEXTURE0);
+
+        /* Specify data for current texture unit specified by glActiveTexture. */
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture_width, texture_width,
                      0, GL_BGR, GL_UNSIGNED_BYTE, texture_image);
 
+        /* glTexParameter specifies parameters for the current texture unit. */
         /* Cheap. filtering. */
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -102,42 +106,25 @@ int main(void) {
         free(texture_image);
     }
 
-    /* vbo */
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glVertexAttribPointer(
-        coord2d_location,
-        2,
-        GL_FLOAT,
-        GL_FALSE,
-        0,
-        0
-    );
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    /* uvbo */
+    glVertexAttribPointer(coord2d_location, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(coord2d_location);
     glBindBuffer(GL_ARRAY_BUFFER, uvbo);
-    glVertexAttribPointer(
-        vertexUv_location,
-        2,
-        GL_FLOAT,
-        GL_FALSE,
-        0,
-        0
-    );
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glVertexAttribPointer(vertexUv_location, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(vertexUv_location);
+    glBindVertexArray(0);
 
     /* Draw. */
     glViewport(0, 0, WIDTH, HEIGHT);
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
-    glActiveTexture(GL_TEXTURE0);
     /* Sampler will sample from GL_TEXTURE0. TODO example that changes this. */
-    glUniform1i(myTextureSampler_location, 0);
-    glEnableVertexAttribArray(coord2d_location);
-    glEnableVertexAttribArray(vertexUv_location);
+    glUseProgram(program);
+    glBindVertexArray(vao);
     glDrawArrays(GL_TRIANGLES, 0, 3);
-    glDisableVertexAttribArray(coord2d_location);
-    glDisableVertexAttribArray(vertexUv_location);
+    glBindVertexArray(0);
     glfwSwapBuffers(window);
 
     /* Main loop. */
@@ -148,6 +135,7 @@ int main(void) {
     /* Cleanup. */
     glDeleteBuffers(1, &vbo);
     glDeleteBuffers(1, &uvbo);
+    glDeleteVertexArrays(1, &vao);
 	glDeleteTextures(1, &texture);
     glDeleteProgram(program);
     glfwTerminate();

@@ -155,3 +155,7 @@ E.g. Vertex Array Object is a container <https://www.opengl.org/wiki/Vertex_Spec
 TODO.
 
 <http://stackoverflow.com/questions/6682771/gldrawelements-vs-gldrawarray-efficiency>
+
+If the last argument of glDrawElements is null, it takes the currently bound:
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);

@@ -57,27 +57,32 @@ int main(void) {
     glewExperimental = GL_TRUE;
     glewInit();
 
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glViewport(0, 0, WIDTH, HEIGHT);
-
-    /* Shaders. */
+    /* Shader program. */
     program = common_get_shader_program(vertex_shader_source, fragment_shader_source);
     vColor_location = glGetAttribLocation(program, "vColor");
     position_location = glGetAttribLocation(program, "position");
     transform_location = glGetUniformLocation(program, "transform");
     glUseProgram(program);
 
-    /* Buffers. */
-    glGenVertexArrays(1, &vao);
+    /* vbo */
     glGenBuffers(1, &vbo);
-    glBindVertexArray(vao);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    /* Position attribute */
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    /* Buffers. */
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glVertexAttribPointer(position_location, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
-    /* Color attribute */
+    glEnableVertexAttribArray(position_location);
     glVertexAttribPointer(vColor_location, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(vColor_location);
     glBindVertexArray(0);
+
+    /* Global draw calls. */
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glViewport(0, 0, WIDTH, HEIGHT);
 
     /* Main loop. */
     common_fps_init();
@@ -92,11 +97,7 @@ int main(void) {
         glUniformMatrix4fv(transform_location, 1, GL_FALSE, transform);
 
         glBindVertexArray(vao);
-        glEnableVertexAttribArray(position_location);
-        glEnableVertexAttribArray(vColor_location);
         glDrawArrays(GL_TRIANGLES, 0, 3);
-        glDisableVertexAttribArray(position_location);
-        glDisableVertexAttribArray(vColor_location);
         glBindVertexArray(0);
 
         glfwSwapBuffers(window);

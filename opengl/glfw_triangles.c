@@ -4,8 +4,8 @@ Reuse vertices on multiple triangles via vertex indices.
 
 #include "common.h"
 
-static const GLuint WIDTH = 800;
-static const GLuint HEIGHT = 600;
+static const GLuint WIDTH = 500;
+static const GLuint HEIGHT = 500;
 /* ourColor is passed on to the fragment shader. */
 static const GLchar *vertex_shader_source =
     "#version 330 core\n"
@@ -46,7 +46,6 @@ int main(void) {
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
     GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, __FILE__, NULL, NULL);
     glfwMakeContextCurrent(window);
-    glewExperimental = GL_TRUE;
     glewInit();
 
     /* Shader program. */
@@ -54,20 +53,23 @@ int main(void) {
     attribute_position = glGetAttribLocation(program, "position");
     attribute_color = glGetAttribLocation(program, "color");
 
-    /* Buffer setup. */
-    glGenVertexArrays(1, &vao);
+    /* vbo */
     glGenBuffers(1, &vbo);
-    glGenBuffers(1, &ebo);
-    glBindVertexArray(vao);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    /* ebo */
+    glGenBuffers(1, &ebo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-    /*
-    Position attribute.
-    - 3: length
-    - 6: how many bytes to skip until next one == 3 (position) + 3 (color)
-    */
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+    /* Buffer setup. */
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glVertexAttribPointer(attribute_position, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
     glEnableVertexAttribArray(attribute_position);
     /* Color attribute */

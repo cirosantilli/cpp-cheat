@@ -51,12 +51,16 @@ int main(void) {
     attribute_position = glGetAttribLocation(program, "position");
     attribute_vertColor = glGetAttribLocation(program, "vertColor");
 
-    /* Buffer setup. */
-    glGenVertexArrays(1, &vao);
+    /* vbo */
     glGenBuffers(1, &vbo);
-    glBindVertexArray(vao);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+    /* Buffer setup. */
+    glGenVertexArrays(1, &vao);
+    glBindVertexArray(vao);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glVertexAttribPointer(
         attribute_position,
         3,
