@@ -71,6 +71,8 @@ Lenovo Thinkpad T430, NVIDIA NVS 5400, Linux:
 
     AKA box blur: https://en.wikipedia.org/wiki/Box_blur
 
+    Good GPU bogger since n^2.
+
 */
 
 #include "common.h"
@@ -130,7 +132,7 @@ static const GLchar *fragment_shader_source2 =
     /*"    color = texture(myTextureSampler, fragmentUv.yx ).rgb;\n"*/
 
     /*"// Inverter\n"*/
-    "    color = 1.0 - texture(myTextureSampler, fragmentUv.yx ).rgb;\n"
+    /*"    color = 1.0 - texture(myTextureSampler, fragmentUv.yx ).rgb;\n"*/
 
     /*"// Swapper\n"*/
     /*"    color = texture(myTextureSampler, fragmentUv.yx ).gbr;\n"*/
@@ -153,18 +155,18 @@ static const GLchar *fragment_shader_source2 =
     /*"    }\n"*/
     /*"    color /= blur_width;\n"*/
 
-    /*"// Square linear blur. Good GPU bogger since n^2.\n"*/
-    /*"    int blur_width = 23;\n"*/
-    /*"    int blur_width_half = blur_width / 2;\n"*/
-    /*"    color = vec3(0.0, 0.0, 0.0);\n"*/
-    /*"    for (int i = -blur_width_half; i <= blur_width_half; ++i) {\n"*/
-    /*"       for (int j = -blur_width_half; j <= blur_width_half; ++j) {\n"*/
-    /*"           color += texture(\n"*/
-    /*"               myTextureSampler, fragmentUv.yx + ivec2(i, j) * pixD\n"*/
-    /*"           ).rgb;\n"*/
-    /*"       }\n"*/
-    /*"    }\n"*/
-    /*"    color /= (blur_width * blur_width);\n"*/
+    /*"// Square linear blur.\n"*/
+    "    int blur_width = 23;\n"
+    "    int blur_width_half = blur_width / 2;\n"
+    "    color = vec3(0.0, 0.0, 0.0);\n"
+    "    for (int i = -blur_width_half; i <= blur_width_half; ++i) {\n"
+    "       for (int j = -blur_width_half; j <= blur_width_half; ++j) {\n"
+    "           color += texture(\n"
+    "               myTextureSampler, fragmentUv.yx + ivec2(i, j) * pixD\n"
+    "           ).rgb;\n"
+    "       }\n"
+    "    }\n"
+    "    color /= (blur_width * blur_width);\n"
 
     "}\n";
 
@@ -314,9 +316,9 @@ int main(int argc, char **argv) {
                     size_t index = 3 * (i * width + j);
 
                     /* Inverter. */
-                    image2[index + 0] = 1.0 - (image[index + 0] / 255.0);
-                    image2[index + 1] = 1.0 - (image[index + 1] / 255.0);
-                    image2[index + 2] = 1.0 - (image[index + 2] / 255.0);
+                    /*image2[index + 0] = 1.0 - (image[index + 0] / 255.0);*/
+                    /*image2[index + 1] = 1.0 - (image[index + 1] / 255.0);*/
+                    /*image2[index + 2] = 1.0 - (image[index + 2] / 255.0);*/
 
                     /* Swapper. */
                     /*image2[index + 0] = image[index + 1] / 255.0;*/
@@ -324,7 +326,6 @@ int main(int argc, char **argv) {
                     /*image2[index + 2] = image[index + 0] / 255.0;*/
 
                     /* Square linear blur. */
-                    /*
                     int blur_width = 5;
                     int blur_width_half = blur_width / 2;
                     int blur_width2 = (blur_width * blur_width);
@@ -347,7 +348,6 @@ int main(int argc, char **argv) {
                     image2[index + 0] /= (blur_width2 * 255.0);
                     image2[index + 1] /= (blur_width2 * 255.0);
                     image2[index + 2] /= (blur_width2 * 255.0);
-                    */
                 }
             }
             glTexImage2D(
