@@ -28,6 +28,10 @@ OpenCL, like any other language has versions. As of 2013 the latest version is O
 - <http://stackoverflow.com/questions/4005935/mix-opencl-with-opengl>
 - <http://stackoverflow.com/questions/7907510/opengl-vs-opencl-which-to-choose-and-why>
 - <http://stackoverflow.com/questions/8824269/gl-cl-interoperability-shared-texture>
-- <https://github.com/9prady9/CLGLInterop>
+- <https://github.com/9prady9/CLGLInterop> Works! Started minifying example with: <https://github.com/cirosantilli/CLGLInterop/tree/minify>
+- <https://github.com/nvpro-samples/gl_cl_interop_pingpong_st> Build failed with: <https://github.com/nvpro-samples/gl_cl_interop_pingpong_st/issues/1> likely only tested on Windows.
+- <https://github.com/halcy/simpleflow> VS build, fluid simulation, preview: <https://www.youtube.com/watch?v=KD2UqBCqfjA>
+- <https://github.com/Twinklebear/OpenCL-OpenGL-Interop> VS build
+- <http://stackoverflow.com/questions/33575715/opencl-opengl-interop-how-to-fill-a-climagegl>
 
 Also see compute shaders for OpenGL 4.X, they seem to integrate better.

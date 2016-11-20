@@ -126,7 +126,7 @@ static const GLchar *fragment_shader_source2 =
     "in vec2 fragmentUv;\n"
     "out vec3 color;\n"
     "uniform sampler2D textureSampler;\n"
-    "// pixel Delta. How large a pixel is in 0.0 to 1.0 that textures use.\n"
+    "/* pixel Delta. How large a pixel is in 0.0 to 1.0 that textures use. */\n"
     "uniform vec2 pixD;\n"
     "void main() {\n"
 
@@ -201,6 +201,7 @@ int main(int argc, char **argv) {
     uint8_t *image;
     float *image2 = NULL;
 
+    /* CLI arguments. */
     if (argc > 1) {
         width = strtol(argv[1], NULL, 10);
     } else {
@@ -309,7 +310,6 @@ int main(int argc, char **argv) {
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
 
-        /* Optional CPU modification to compare with GPU shader speed.  */
         if (cpu) {
             image2 = realloc(image2, 3 * width * height * sizeof(image2[0]));
             for (unsigned int i = 0; i < height; ++i) {

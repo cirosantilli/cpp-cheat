@@ -38,6 +38,7 @@
     1.  Compute shader
         1.  [compute-shader.md](compute-shader.md)
         1.  [compute_shader.c](glfw_compute_shader.c)
+        1.  [compute_shader_.c](glfw_compute_shader.c)
     1.  GLUT
         1. [glutBitmapCharacter](bitmap_character.c)
         1. [Triangle rotate](triangle_rotate.c)

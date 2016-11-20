@@ -8,8 +8,8 @@ Expected outcome: a red triangle on black background.
 
 #include "common.h"
 
-static const GLuint WIDTH = 500;
-static const GLuint HEIGHT = 500;
+static const GLuint WIDTH = 512;
+static const GLuint HEIGHT = 512;
 static const GLchar* vertex_shader_source =
     "#version 120\n"
     "attribute vec2 coord2d;\n"

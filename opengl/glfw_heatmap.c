@@ -1,7 +1,12 @@
+/*
+Usage:
+
+    ./prog [width]
+*/
+
 #include "common.h"
 
-static const GLuint WIDTH = 500;
-static const GLuint HEIGHT = 500;
+static const GLuint WIDTH = 512;
 static const GLchar* vertex_shader_source =
     "#version 120\n"
     "attribute vec2 coord2d;\n"
@@ -32,7 +37,7 @@ static const GLuint indexes[] = {
     0, 3, 2,
 };
 
-int main(void) {
+int main(int argc, char **argv) {
     GLFWwindow *window;
     GLint
         attribute_coord2d,
@@ -42,7 +47,7 @@ int main(void) {
         time_location,
         win_dim_location
     ;
-    GLuint ibo, program, vbo;
+    GLuint height, ibo, program, width, vbo;
     const char *attribute_name = "coord2d";
     const float
         periods_x = 5.0,
@@ -50,9 +55,17 @@ int main(void) {
         pi2 = 2.0 * acos(-1.0)
     ;
 
+    /* CLI arguments. */
+    if (argc > 1) {
+        width = strtol(argv[1], NULL, 10);
+    } else {
+        width = WIDTH;
+    }
+    height = width;
+
     /* Window system. */
     glfwInit();
-    window = glfwCreateWindow(WIDTH, HEIGHT, __FILE__, NULL, NULL);
+    window = glfwCreateWindow(width, height, __FILE__, NULL, NULL);
     glfwMakeContextCurrent(window);
     glewInit();
 
@@ -67,7 +80,7 @@ int main(void) {
     /* Global settings. */
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glUseProgram(program);
-    glViewport(0, 0, WIDTH, HEIGHT);
+    glViewport(0, 0, width, height);
 
     /* vbo */
     glGenBuffers(1, &vbo);
@@ -91,7 +104,7 @@ int main(void) {
 
     /* Uniforms. */
     glUniform1f(pi2_location, pi2);
-    glUniform2f(win_dim_location, WIDTH, HEIGHT);
+    glUniform2f(win_dim_location, width, height);
     glUniform2f(periods_location, periods_x, periods_y);
 
     /* Main loop. */

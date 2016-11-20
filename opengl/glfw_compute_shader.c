@@ -1,11 +1,17 @@
 /*
 Compute shader hello world.
 
+Does a simple computation, and writes it directly to the
+texture seen by the frament shader.
+
 This could be done easily on a fragment shader,
 so this is is just an useless sanity check example.
 
 The main advantage of compute shaders (which we are not doing here),
-shader can do is keep state data on the GPU between draw calls.
+is that they can keep state data on the GPU between draw calls.
+
+This is basically the upper limit speed of compute to texture operations,
+since we are only doing a very simple operaiton on the shader.
 
 TODO understand:
 
@@ -55,10 +61,10 @@ static const char *compute_shader_source =
     "layout (local_size_x = 1, local_size_y = 1) in;\n"
     "layout (rgba32f, binding = 0) uniform image2D img_output;\n"
     "void main () {\n"
-    "    ivec2 pixel_coords = ivec2(gl_GlobalInvocationID.xy);\n"
+    "    ivec2 gid = ivec2(gl_GlobalInvocationID.xy);\n"
     "    ivec2 dims = imageSize(img_output);\n"
-    "    vec4 pixel = vec4(pixel_coords.x / float(dims.x), pixel_coords.y / float(dims.y), 1.0, 1.0);\n"
-    "    imageStore(img_output, pixel_coords, pixel);\n"
+    "    vec4 pixel = vec4(gid.x / float(dims.x), gid.y / float(dims.y), 1.0, 1.0);\n"
+    "    imageStore(img_output, gid, pixel);\n"
     "}\n";
 
 int main(void) {
@@ -77,8 +83,8 @@ int main(void) {
         vao
     ;
     unsigned int
-        width = 512,
-        height = 512
+        width = WIDTH,
+        height = HEIGHT
     ;
 
     /* Window. */
@@ -126,6 +132,8 @@ int main(void) {
     glBindTexture(GL_TEXTURE_2D, texture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    /* Same internal format as compute shader input.
+     * data=NULL to just allocate the memory but not set it to anything. */
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
     /* Bind to image unit, to allow writting to it from the compute shader. */
     glBindImageTexture(0, texture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
@@ -136,20 +144,22 @@ int main(void) {
     glDispatchCompute((GLuint)width, (GLuint)height, 1);
     glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
-    /* Draw. */
+    /* Global state. */
     glViewport(0, 0, width, height);
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-    glUseProgram(program);
-    glUniform1i(textureSampler_location, 0);
-    glBindVertexArray(vao);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
-    glfwSwapBuffers(window);
 
     /* Main loop. */
+    common_fps_init();
     while (!glfwWindowShouldClose(window)) {
+        glClear(GL_COLOR_BUFFER_BIT);
+        glUseProgram(program);
+        glUniform1i(textureSampler_location, 0);
+        glBindVertexArray(vao);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
+        glfwSwapBuffers(window);
         glfwPollEvents();
+        common_fps_print();
     }
 
     /* Cleanup. */

@@ -9,7 +9,7 @@ Depreacted in 1.3 in favor of TODO.
 #include "common.h"
 
 static const GLuint WIDTH = 1000;
-static const GLuint HEIGHT = 500;
+static const GLuint HEIGHT = 512;
 static const GLchar* vertex_shader_source =
     "#version 120\n"
     "attribute vec2 coord2d;\n"

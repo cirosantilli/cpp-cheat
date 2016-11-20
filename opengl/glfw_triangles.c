@@ -4,8 +4,8 @@ Reuse vertices on multiple triangles via vertex indices.
 
 #include "common.h"
 
-static const GLuint WIDTH = 500;
-static const GLuint HEIGHT = 500;
+static const GLuint WIDTH = 512;
+static const GLuint HEIGHT = 512;
 /* ourColor is passed on to the fragment shader. */
 static const GLchar *vertex_shader_source =
     "#version 330 core\n"

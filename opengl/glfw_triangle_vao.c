@@ -36,8 +36,8 @@ Tood explanations:
 
 #include "common.h"
 
-static const GLuint WIDTH = 500;
-static const GLuint HEIGHT = 500;
+static const GLuint WIDTH = 512;
+static const GLuint HEIGHT = 512;
 static const GLchar *vertex_shader_source =
     "#version 330 core\n"
     "in vec3 position;\n"

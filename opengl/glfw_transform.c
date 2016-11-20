@@ -3,12 +3,15 @@ Transformation matrices.
 
 It is just an explicit uniform passed to the vertex shader,
 and explicitly multiplies vectors.
+
+Usage:
+
+    ./prog [width]
 */
 
 #include "common.h"
 
-static const GLuint WIDTH = 800;
-static const GLuint HEIGHT = 600;
+static const GLuint WIDTH = 512;
 /* ourColor is passed on to the fragment shader. */
 static const GLchar* vertex_shader_source =
     "#version 330 core\n"
@@ -34,7 +37,7 @@ static GLfloat vertices[] = {
      0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f
 };
 
-int main(void) {
+int main(int argc, char **argv) {
     GLFWwindow* window;
     GLfloat transform[] = {
         0.0f, 0.0f, 0.0f, 0.0f,
@@ -47,12 +50,20 @@ int main(void) {
         position_location,
         transform_location
     ;
-    GLuint program, vao, vbo;
+    GLuint height, program, width, vao, vbo;
     double time;
+
+    /* CLI arguments. */
+    if (argc > 1) {
+        width = strtol(argv[1], NULL, 10);
+    } else {
+        width = WIDTH;
+    }
+    height = width;
 
     /* Window system. */
     glfwInit();
-    window = glfwCreateWindow(WIDTH, HEIGHT, __FILE__, NULL, NULL);
+    window = glfwCreateWindow(width, height, __FILE__, NULL, NULL);
     glfwMakeContextCurrent(window);
     glewExperimental = GL_TRUE;
     glewInit();
@@ -82,7 +93,7 @@ int main(void) {
 
     /* Global draw calls. */
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glViewport(0, 0, WIDTH, HEIGHT);
+    glViewport(0, 0, width, height);
 
     /* Main loop. */
     common_fps_init();

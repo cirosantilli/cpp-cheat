@@ -8,8 +8,8 @@ http://stackoverflow.com/questions/6733934/what-does-immediate-mode-mean-in-open
 
 #include "common.h"
 
-static const GLuint WIDTH = 500;
-static const GLuint HEIGHT = 500;
+static const GLuint WIDTH = 512;
+static const GLuint HEIGHT = 512;
 /* fragColor is passed on to the fragment shader. */
 static const GLchar *vertex_shader_source =
     "#version 330 core\n"
