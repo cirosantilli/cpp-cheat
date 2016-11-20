@@ -9,7 +9,7 @@
         1. [Ray tracing](ray-tracing.md)
     1.  [Benchmarks](benchmarks.md)
     1.  [Drivers](drivers.md)
-    1.  [GLFW](glfw.c)
+    1.  [GLFW](glfw.md)
 1.  Examples
     1.  [GLUT hello world](hello_world.c)
     1.  [info](info.c)
@@ -35,6 +35,9 @@
     1.  [glDrawPixels (TODO)](draw_pixels.c)
     1.  [Culling](culling.c)
     1.  [Offscreen](offscreen.c)
+    1.  Compute shader
+        1.  [compute-shader.md](compute-shader.md)
+        1.  [compute_shader.c](glfw_compute_shader.c)
     1.  GLUT
         1. [glutBitmapCharacter](bitmap_character.c)
         1. [Triangle rotate](triangle_rotate.c)

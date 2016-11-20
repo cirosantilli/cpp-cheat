@@ -1,4 +1,6 @@
 /*
+Demo: https://www.youtube.com/watch?v=MRhAljmHq-o
+
 Capture webcam video, show it on screen, and next to it show
 a version modified by a fragment shader.
 
@@ -41,7 +43,7 @@ Questions:
 
 Demos:
 
--   https://www.youtube.com/watch?v=fJtOdJ9MHsA> GLSL Linux camera real time edge detection shown on screen.
+-   https://www.youtube.com/watch?v=fJtOdJ9MHsA GLSL Linux camera real time edge detection shown on screen.
     Getting started: <https://github.com/premsasidharan/gpu_img_proc/issues/1#issuecomment-257504913>
 -   WebRTC chess with camera: https://www.youtube.com/watch?v=aK1DC2zp6ZE
 
@@ -105,9 +107,9 @@ static const GLchar *fragment_shader_source =
     "#version 330 core\n"
     "in vec2 fragmentUv;\n"
     "out vec3 color;\n"
-    "uniform sampler2D myTextureSampler;\n"
+    "uniform sampler2D textureSampler;\n"
     "void main() {\n"
-    "    color = texture(myTextureSampler, fragmentUv.yx).rgb;\n"
+    "    color = texture(textureSampler, fragmentUv.yx).rgb;\n"
     "}\n";
 
 static const GLchar *vertex_shader_source2 =
@@ -123,35 +125,35 @@ static const GLchar *fragment_shader_source2 =
     "#version 330 core\n"
     "in vec2 fragmentUv;\n"
     "out vec3 color;\n"
-    "uniform sampler2D myTextureSampler;\n"
+    "uniform sampler2D textureSampler;\n"
     "// pixel Delta. How large a pixel is in 0.0 to 1.0 that textures use.\n"
     "uniform vec2 pixD;\n"
     "void main() {\n"
 
     /*"// Identity\n"*/
-    /*"    color = texture(myTextureSampler, fragmentUv.yx ).rgb;\n"*/
+    /*"    color = texture(textureSampler, fragmentUv.yx ).rgb;\n"*/
 
     /*"// Inverter\n"*/
-    /*"    color = 1.0 - texture(myTextureSampler, fragmentUv.yx ).rgb;\n"*/
+    /*"    color = 1.0 - texture(textureSampler, fragmentUv.yx ).rgb;\n"*/
 
     /*"// Swapper\n"*/
-    /*"    color = texture(myTextureSampler, fragmentUv.yx ).gbr;\n"*/
+    /*"    color = texture(textureSampler, fragmentUv.yx ).gbr;\n"*/
 
     /*"// Double vision ortho.\n"*/
     /*"    color = ("*/
-    /*"        texture(myTextureSampler, fragmentUv.yx ).rgb +\n"*/
-    /*"        texture(myTextureSampler, fragmentUv.xy ).rgb\n"*/
+    /*"        texture(textureSampler, fragmentUv.yx ).rgb +\n"*/
+    /*"        texture(textureSampler, fragmentUv.xy ).rgb\n"*/
     /*"    ) / 2.0;\n"*/
 
     /*"// Multi-me.\n"*/
-    /*"    color = texture(myTextureSampler, 4.0 * fragmentUv.yx ).rgb;\n"*/
+    /*"    color = texture(textureSampler, 4.0 * fragmentUv.yx ).rgb;\n"*/
 
     /*"// Horizontal linear blur.\n"*/
     /*"    int blur_width = 21;\n"*/
     /*"    int blur_width_half = blur_width / 2;\n"*/
     /*"    color = vec3(0.0, 0.0, 0.0);\n"*/
     /*"    for (int i = -blur_width_half; i <= blur_width_half; ++i) {\n"*/
-    /*"       color += texture(myTextureSampler, vec2(fragmentUv.y + i * pixD.x, fragmentUv.x)).rgb;\n"*/
+    /*"       color += texture(textureSampler, vec2(fragmentUv.y + i * pixD.x, fragmentUv.x)).rgb;\n"*/
     /*"    }\n"*/
     /*"    color /= blur_width;\n"*/
 
@@ -162,7 +164,7 @@ static const GLchar *fragment_shader_source2 =
     "    for (int i = -blur_width_half; i <= blur_width_half; ++i) {\n"
     "       for (int j = -blur_width_half; j <= blur_width_half; ++j) {\n"
     "           color += texture(\n"
-    "               myTextureSampler, fragmentUv.yx + ivec2(i, j) * pixD\n"
+    "               textureSampler, fragmentUv.yx + ivec2(i, j) * pixD\n"
     "           ).rgb;\n"
     "       }\n"
     "    }\n"
@@ -175,11 +177,11 @@ int main(int argc, char **argv) {
     GLFWwindow *window;
     GLint
         coord2d_location,
-        myTextureSampler_location,
+        textureSampler_location,
         vertexUv_location,
         coord2d_location2,
         pixD_location2,
-        myTextureSampler_location2,
+        textureSampler_location2,
         vertexUv_location2
     ;
     GLuint
@@ -198,7 +200,6 @@ int main(int argc, char **argv) {
     ;
     uint8_t *image;
     float *image2 = NULL;
-    /*uint8_t *image2 = NULL;*/
 
     if (argc > 1) {
         width = strtol(argv[1], NULL, 10);
@@ -228,7 +229,7 @@ int main(int argc, char **argv) {
     program = common_get_shader_program(vertex_shader_source, fragment_shader_source);
     coord2d_location = glGetAttribLocation(program, "coord2d");
     vertexUv_location = glGetAttribLocation(program, "vertexUv");
-	myTextureSampler_location = glGetUniformLocation(program, "myTextureSampler");
+	textureSampler_location = glGetUniformLocation(program, "textureSampler");
 
     /* Shader setup 2. */
     const GLchar *fs;
@@ -240,7 +241,7 @@ int main(int argc, char **argv) {
     program2 = common_get_shader_program(vertex_shader_source2, fs);
     coord2d_location2 = glGetAttribLocation(program2, "coord2d");
     vertexUv_location2 = glGetAttribLocation(program2, "vertexUv");
-	myTextureSampler_location2 = glGetUniformLocation(program2, "myTextureSampler");
+	textureSampler_location2 = glGetUniformLocation(program2, "textureSampler");
 	pixD_location2 = glGetUniformLocation(program2, "pixD");
 
     /* Create vbo. */
@@ -303,7 +304,7 @@ int main(int argc, char **argv) {
             0, GL_RGB, GL_UNSIGNED_BYTE, image
         );
         glUseProgram(program);
-        glUniform1i(myTextureSampler_location, 0);
+        glUniform1i(textureSampler_location, 0);
         glBindVertexArray(vao);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
@@ -358,7 +359,7 @@ int main(int argc, char **argv) {
 
         /* Modified. */
         glUseProgram(program2);
-        glUniform1i(myTextureSampler_location2, 0);
+        glUniform1i(textureSampler_location2, 0);
         glUniform2f(pixD_location2, 1.0 / width, 1.0 / height);
         glBindVertexArray(vao2);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);

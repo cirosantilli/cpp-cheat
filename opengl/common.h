@@ -12,6 +12,7 @@
 
 #include "common_texture.h"
 
+/* FPS. */
 static unsigned long common_fps_last_time_nanos;
 static unsigned long common_get_nanos(void) {
     struct timespec ts;
@@ -93,10 +94,52 @@ GLuint common_get_shader_program(
         exit(EXIT_FAILURE);
     }
 
+    /* Cleanup. */
     free(log);
     glDeleteShader(vertex_shader);
     glDeleteShader(fragment_shader);
+    return program;
+}
 
+GLuint common_get_compute_program(const char *source) {
+    GLchar *log = NULL;
+    GLint log_length, success;
+    GLuint program, shader;
+
+    /* Shader. */
+    shader = glCreateShader(GL_COMPUTE_SHADER);
+    glShaderSource(shader, 1, &source, NULL);
+    glCompileShader(shader);
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+    glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &log_length);
+    log = malloc(log_length);
+    if (log_length > 0) {
+        glGetShaderInfoLog(shader, log_length, NULL, log);
+        printf("shader log:\n\n%s\n", log);
+    }
+    if (!success) {
+        printf("error: shader compile\n");
+        exit(EXIT_FAILURE);
+    }
+
+    /* Program. */
+    program = glCreateProgram();
+    glAttachShader(program, shader);
+    glLinkProgram(program);
+    glGetProgramiv(program, GL_LINK_STATUS, &success);
+    glGetProgramiv(program, GL_INFO_LOG_LENGTH, &log_length);
+    if (log_length > 0) {
+        log = realloc(log, log_length);
+        glGetProgramInfoLog(program, log_length, NULL, log);
+        printf("shader link log:\n\n%s\n", log);
+    }
+    if (!success) {
+        printf("shader link error");
+        exit(EXIT_FAILURE);
+    }
+
+    free(log);
+    glDeleteShader(shader);
     return program;
 }
 
