@@ -85,6 +85,7 @@ static void write_png_file(char *filename) {
     /*png_set_filler(png, 0, PNG_FILLER_AFTER);*/
     png_write_image(png, row_pointers);
     png_write_end(png, NULL);
+    png_destroy_write_struct(&png, &info);
     for (y = 0; y < height; y++) {
         free(row_pointers[y]);
     }

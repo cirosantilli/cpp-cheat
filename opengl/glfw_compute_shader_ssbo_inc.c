@@ -249,10 +249,10 @@ int main(int argc, char **argv) {
 
     /* Cleanup. */
     glDeleteBuffers(1, &ebo);
-    if (!cpu) {
-        glDeleteBuffers(1, &ssbo);
-    } else {
+    if (cpu) {
         free(temperatures);
+    } else {
+        glDeleteBuffers(1, &ssbo);
     }
     glDeleteBuffers(1, &vbo);
     glDeleteVertexArrays(1, &vao);

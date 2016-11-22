@@ -112,6 +112,7 @@ static void screenshot_png(const char *filename, unsigned int width, unsigned in
     png_write_info(png, info);
     png_write_image(png, *png_rows);
     png_write_end(png, NULL);
+    png_destroy_write_struct(&png, &info);
     fclose(f);
 }
 #endif
