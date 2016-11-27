@@ -13,15 +13,13 @@ static const GLuint HEIGHT = 512;
 static const GLchar* vertex_shader_source =
     "#version 120\n"
     "attribute vec2 coord2d;\n"
-    "void main(void) {\n"
+    "void main() {\n"
     "    gl_Position = vec4(coord2d, 0.0, 1.0);\n"
     "}\n";
 static const GLchar* fragment_shader_source =
     "#version 120\n"
-    "void main(void) {\n"
-    "    gl_FragColor[0] = 0.0;\n"
-    "    gl_FragColor[1] = 0.0;\n"
-    "    gl_FragColor[2] = 1.0;\n"
+    "void main() {\n"
+    "    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n"
     "}\n";
 static GLfloat vertices[] = {
      0.0,  0.8,

@@ -12,6 +12,8 @@ Derived from <https://en.wikipedia.org/wiki/Mantle_%28API%29> by AMD, now abando
 
 There is no ES version like for OpenGL, <http://arstechnica.com/gadgets/2015/08/android-to-support-vulkan-graphics-api-the-open-answer-to-metal-and-dx12/> says ES and non-ES convergence has been going on for a while now.
 
+TODO software implementations: <https://www.quora.com/unanswered/Is-there-a-Vulkan-software-CPU-implementation>
+
 ### Samples
 
 - <https://github.com/SaschaWillems/Vulkan>

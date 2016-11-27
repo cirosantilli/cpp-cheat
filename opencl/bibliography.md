@@ -51,6 +51,7 @@ Resources:
 
 - <http://developer.amd.com/tools-and-sdks/opencl-zone/opencl-resources/>
 - The specifications of your hardware, e.g. <http://www.nvidia.com/object/nvs_techspecs.html>
+- <http://www.cmsoft.com.br/> several good examples, but not always with full source? By <https://www.linkedin.com/in/douglas-coimbra-de-andrade-1241aa34> who is a Brazilian from a famous Brazilian university.
 
 Big programs that use it:
 

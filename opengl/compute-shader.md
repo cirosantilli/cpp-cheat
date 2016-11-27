@@ -23,7 +23,7 @@ Applications:
 
 ## Work group
 
-TODO: what is the advantage of work grops?
+TODO: what is the advantage of work groups?
 
 Ideally, we would have a single work group, but that hits hardware design limitations (memory locality): <http://stackoverflow.com/questions/39380986/opengl-is-there-a-benefit-to-using-multiple-global-work-groups-for-compute-shad>
 
@@ -41,3 +41,7 @@ Per work group, faster access in group. This is what characterizes different gro
 General algorithm: copy global memory to shared, and then process there.
 
 Only useful if the given memory is accessed several times.
+
+Same as OpenCL `local`.
+
+TODO how efficient is it for memory access, compared to CPU memory access? Are there algorithms which are IO bound on CPU, that are not IO bound on shared memory?
