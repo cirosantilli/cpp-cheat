@@ -402,7 +402,8 @@ int main() {
             }
         }
 
-        // # remove_if # filter
+        // # remove_if
+        // # filter
         // Algorithm. Remove if a given function evaluates to true on an element.
         {
             std::vector<int> v{0, 1, 2, 3, 4};
@@ -478,11 +479,9 @@ int main() {
         }
 
         /*
-        #back  Get reference to last  element in vector.
-
-        #front Get reference to first element in vector.
-
-        #at    Like `[]`, but does bound checking and throws `out_of_range` in case of overflow.
+        # back  Get reference to last  element in vector.
+        # front Get reference to first element in vector.
+        # at    Like `[]`, but does bound checking and throws `out_of_range` in case of overflow.
         */
         {
             std::vector<int> v{0, 1, 2};

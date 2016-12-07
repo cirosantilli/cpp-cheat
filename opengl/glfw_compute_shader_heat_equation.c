@@ -283,7 +283,7 @@ int main(int argc, char **argv) {
         square_width,
         square_height
     ;
-    unsigned int steps_per_frame;
+    unsigned int steps_per_frame, window_x;
 
     /* CLI arguments. */
     if (argc > 1) {
@@ -339,6 +339,10 @@ int main(int argc, char **argv) {
     if (argc > 7) {
         steps_per_frame = strtol(argv[7], NULL, 10);
     }
+    window_x = 0;
+    if (argc > 8) {
+        window_x = strtol(argv[8], NULL, 10);
+    }
     square_x = width / 2;
     square_y = height / 2;
     square_width = width / 20;
@@ -350,6 +354,7 @@ int main(int argc, char **argv) {
     glfwInit();
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
     window = glfwCreateWindow(window_width, window_height, __FILE__, NULL, NULL);
+    glfwSetWindowPos(window, window_x, 0);
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1);
     glewInit();

@@ -39,7 +39,7 @@
             1. [Pure virtual](pure_virtual.cpp)
             1. [Pure virtual from constructor](pure_virtual_from_constructor.cpp)
             1. [Covariant return](covariant_return.cpp)
-            1. Virtual base class: TODO <http://stackoverflow.com/questions/21558/in-c-what-is-a-virtual-base-class>
+            1. [Virtual inheritance](http://stackoverflow.com/questions/21558/in-c-what-is-a-virtual-base-class)
         1.  [Inheriting constructor](inheriting_constructor.cpp)
         1.  [Inherit overload_hide](inherit_overload_hide.cpp)
     1.  [namespace](namespace.cpp)

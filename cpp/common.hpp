@@ -23,8 +23,8 @@
 #include <list> // forward_list, list
 #include <limits> //
 #include <map> // map, multimap
-#include <memory> // shared_ptr
-#include <new> //
+#include <memory> // unique_ptr, shared_ptr
+#include <new>
 #include <numeric> // partial sums, differences on std::vectors of numbers
 #include <ostream> // ostream
 #include <set> // multiset, set

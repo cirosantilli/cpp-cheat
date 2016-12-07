@@ -18,7 +18,7 @@ int* int_ptr_func_int_ptr(int *ip) {
     }
 #endif
 
-int main() {
+int main(void) {
     int i = 0;
     const int ic = 0;
     /* Same. */

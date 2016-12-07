@@ -52,6 +52,7 @@ int main(void) {
         if (SDL_PollEvent(&event) && event.type == SDL_QUIT)
             break;
     }
+    SDL_DestroyTexture(texture);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();

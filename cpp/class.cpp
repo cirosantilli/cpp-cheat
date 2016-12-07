@@ -1928,19 +1928,6 @@ int main() {
             //MultipleInheritanceConflictDerived::is;
             //MultipleInheritanceConflictDerived().i;
             //MultipleInheritanceConflictDerived().f();
-
-            /*
-            # Dreaded diamond
-
-            # Virtual inheritance
-
-                Solves the dreaded diamond problem.
-
-                Has nothing to do with the `virtual` keyword for methods:
-                everything is done at compile time in this usage.
-
-                http://stackoverflow.com/questions/21558/in-c-what-is-a-virtual-base-class
-            */
         }
     }
 

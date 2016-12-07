@@ -16,17 +16,6 @@ Widely cross platform: Windows, Mac, Linux, Android, [iOS](http://stackoverflow.
 
 Widely popular. Steam for Linux embeds it, and the lead dev is working for them as of 2016. 2014 Steam talk <https://www.youtube.com/watch?v=MeMPCSqQ-34>
 
-## Build
-
-    hg clone http://hg.libsdl.org/SDL
-    mkdir -p build && cd build && cmake .. && cmake --build .
-
-Run examples: you must first install it (or checkout to the same version as that installed by your package manager). Then:
-
-    cd test
-    ./configure
-    make
-
 ## Contribute
 
 - issue tracker <https://bugzilla.libsdl.org>
