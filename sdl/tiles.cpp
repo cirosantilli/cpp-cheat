@@ -32,10 +32,10 @@ class Action {
 
 class Object {
     public:
-        Object(){}
-        Object(World *world, unsigned int x, unsigned int y);
-        virtual void draw(SDL_Renderer *renderer) const = 0;
-        virtual Action act() = 0;
+        Object();
+        virtual ~Object();
+        Object(unsigned int x, unsigned int y);
+        virtual Action act(World *world) = 0;
         unsigned int getX() const;
         unsigned int getY() const;
         void setX(unsigned int x);
@@ -43,7 +43,15 @@ class Object {
     protected:
         unsigned int x;
         unsigned int y;
-        World *world;
+};
+
+class DrawableObject {
+    public:
+        DrawableObject(Object *object) : object(object){}
+        virtual ~DrawableObject(){}
+        virtual void draw(const World * world) const = 0;
+    protected:
+        Object *object;
 };
 
 class World {
@@ -60,14 +68,17 @@ class World {
         ~World();
         void draw() const;
         /// Collect desired actions from all objects, and resolve them
+        unsigned int getHeight() const;
+        SDL_Renderer * getRenderer() const;
+        unsigned int getTileWidthPix() const;
+        unsigned int getTileHeightPix() const;
+        unsigned int getWidth() const;
+        void initPhysics();
+        void resetPhysics();
         /// to the next world state. E.g.: what happens if two objects
         /// want to move to the same place next tick? Or if an object
         /// wants to move into a wall?
         void update();
-        unsigned int getHeight() const;
-        unsigned int getWidth() const;
-        unsigned int getTileWidthPix() const;
-        unsigned int getTileHeightPix() const;
     private:
         unsigned int width;
         unsigned int height;
@@ -79,66 +90,53 @@ class World {
         SDL_Renderer *renderer;
         SDL_Window *window;
         std::vector<std::unique_ptr<Object>> objects;
+        std::vector<std::unique_ptr<DrawableObject>> drawableObjects;
         std::vector<SDL_Texture *> textures;
+
         SDL_Texture * createSolidTexture(unsigned int r, unsigned int g, unsigned int b, unsigned int a);
 };
 
-Object::Object(World *world, unsigned int x, unsigned int y) :
-        world(world), x(x), y(y) {}
-
+Object::Object(){}
+Object::~Object(){}
+Object::Object(unsigned int x, unsigned int y) : x(x), y(y) {}
 unsigned int Object::getX() const { return this->x; }
 unsigned int Object::getY() const { return this->y; }
 void Object::setX(unsigned int x) { this->x = x; }
 void Object::setY(unsigned int y) { this->y = y; }
 
-class SingleTextureDrawableObject : public virtual Object {
+class MoveUpObject : public Object {
     public:
-        SingleTextureDrawableObject(SDL_Texture *texture) :
-            texture(texture) {
-        }
-        virtual void draw(SDL_Renderer *renderer) const {
-            SDL_Rect rect;
-            rect.x = this->x * this->world->getTileWidthPix();
-            rect.y = this->y * this->world->getTileHeightPix();
-            rect.w = this->world->getTileWidthPix();
-            rect.h = this->world->getTileHeightPix();
-            SDL_RenderCopy(renderer, this->texture, NULL, &rect);
-        }
-    private:
-        /// Pointer to texture shared across all objects that look the same.
-        SDL_Texture * const texture;
-};
-
-class MoveUpActableObject : public virtual Object {
-    public:
-        MoveUpActableObject(){}
-        virtual Action act() {
+        MoveUpObject(unsigned int x, unsigned int y) : Object(x, y) {}
+        virtual ~MoveUpObject(){}
+        virtual Action act(World *world) {
             return Action(Action::Direction::UP);
         };
 };
 
-class MoveDownActableObject : public virtual Object {
+class MoveDownObject : public Object {
     public:
-        MoveDownActableObject(){}
-        virtual Action act() {
+        MoveDownObject(unsigned int x, unsigned int y) : Object(x, y) {}
+        virtual ~MoveDownObject(){}
+        virtual Action act(World *world) {
             return Action(Action::Direction::DOWN);
         };
 };
 
-class SingleTextureMoveUpObject : public SingleTextureDrawableObject, public MoveUpActableObject {
+class SingleTextureDrawableObject : public DrawableObject {
     public:
-        SingleTextureMoveUpObject(World *world, unsigned int x, unsigned int y, SDL_Texture *texture) :
-            Object(world, x, y),
-            SingleTextureDrawableObject(texture)
-        {}
-};
-
-class SingleTextureMoveDownObject : public SingleTextureDrawableObject, public MoveDownActableObject {
-    public:
-        SingleTextureMoveDownObject(World *world, unsigned int x, unsigned int y, SDL_Texture *texture) :
-            Object(world, x, y),
-            SingleTextureDrawableObject(texture)
-        {}
+        SingleTextureDrawableObject(Object *object, SDL_Texture *texture) :
+            DrawableObject(object), texture(texture) {}
+        virtual void draw(const World * world) const {
+            SDL_Rect rect;
+            rect.x = this->object->getX() * world->getTileWidthPix();
+            rect.y = this->object->getY() * world->getTileHeightPix();
+            rect.w = world->getTileWidthPix();
+            rect.h = world->getTileHeightPix();
+            SDL_RenderCopy(world->getRenderer(), this->texture, NULL, &rect);
+        }
+    private:
+        /// Pointer to texture shared across all objects that look the same.
+        SDL_Texture * texture;
 };
 
 World::World(
@@ -160,32 +158,15 @@ World::World(
 {
     this->window = NULL;
     this->renderer = NULL;
-    SDL_Texture
-        *redTexture = NULL,
-        *blueTexture = NULL
-    ;
     if (this->display) {
         // Window setup.
         SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO);
         SDL_CreateWindowAndRenderer(this->windowWidthPix, this->windowHeightPix, 0, &this->window, &this->renderer);
         SDL_SetWindowTitle(window, __FILE__);
-
-        // Initialize textures to be reused across objects..
-        redTexture = createSolidTexture(COLOR_MAX, 0, 0, 0);
-        blueTexture = createSolidTexture(0, 0, COLOR_MAX, 0);
+        createSolidTexture(COLOR_MAX, 0, 0, 0);
+        createSolidTexture(0, 0, COLOR_MAX, 0);
     }
-
-    // Initialize objects in world. TODO also load serialization.
-    for (unsigned int y = 0; y < this->height; ++y) {
-        for (unsigned int x = 0; x < this->width; ++x) {
-            unsigned int sum = x + y;
-            if (sum & 1) {
-                objects.push_back(std::unique_ptr<Object>(new SingleTextureMoveUpObject(this, x, y, redTexture)));
-            } else if (sum % 3 == 0) {
-                objects.push_back(std::unique_ptr<Object>(new SingleTextureMoveDownObject(this, x, y, blueTexture)));
-            }
-        }
-    }
+    this->initPhysics();
 }
 
 World::~World() {
@@ -204,16 +185,47 @@ void World::draw() const {
         Uint8 *base;
         SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 0);
         SDL_RenderClear(this->renderer);
-        for (auto const& object : this->objects) {
-            object->draw(this->renderer);
+        for (auto const& object : this->drawableObjects) {
+            object->draw(this);
         }
         SDL_RenderPresent(this->renderer);
     }
 }
 
+void World::initPhysics() {
+    for (unsigned int y = 0; y < this->height; ++y) {
+        for (unsigned int x = 0; x < this->width; ++x) {
+            unsigned int sum = x + y;
+            if (sum & 1) {
+                auto object = std::unique_ptr<Object>(new MoveUpObject(x, y));
+                if (display) {
+                    drawableObjects.push_back(std::unique_ptr<DrawableObject>(
+                        new SingleTextureDrawableObject(object.get(), this->textures[0])
+                    ));
+                }
+                objects.push_back(std::move(object));
+            } else if (sum % 3 == 0) {
+                auto object = std::unique_ptr<Object>(new MoveDownObject(x, y));
+                if (display) {
+                    drawableObjects.push_back(std::unique_ptr<DrawableObject>(
+                        new SingleTextureDrawableObject(object.get(), this->textures[1])
+                    ));
+                }
+                objects.push_back(std::move(object));
+            }
+        }
+    }
+}
+
+void World::resetPhysics() {
+    this->objects.clear();
+    this->drawableObjects.clear();
+    this->initPhysics();
+}
+
 void World::update() {
     for (auto& object : this->objects) {
-        Action a = object->act();
+        Action a = object->act(this);
         if (a.getDirection() == Action::Direction::UP) {
             auto y = object->getY();
             if (y < this->getHeight() - 1) {
@@ -229,6 +241,7 @@ void World::update() {
 }
 
 unsigned int World::getHeight() const { return this->height; }
+SDL_Renderer * World::getRenderer() const { return this->renderer; }
 unsigned int World::getTileHeightPix() const { return this->tileHeightPix; }
 unsigned int World::getTileWidthPix() const { return this->tileWidthPix; }
 unsigned int World::getWidth() const { return this->width; }
@@ -254,7 +267,7 @@ SDL_Texture * World::createSolidTexture(unsigned int r, unsigned int g, unsigned
 
 int main(int argc, char **argv) {
     SDL_Event event;
-    World *world;
+    std::unique_ptr<World> world;
     bool
         display = true,
         limitFps = false
@@ -264,10 +277,10 @@ int main(int argc, char **argv) {
         last_time;
     ;
     unsigned int
-        width = 10,
+        width = 100,
         height = width,
         ticks = 0,
-        tileWidthPix = 50,
+        tileWidthPix = 5,
         tileHeightPix = tileWidthPix,
         windowWidthPix = width * tileWidthPix,
         windowHeightPix = height * tileHeightPix
@@ -277,22 +290,34 @@ int main(int argc, char **argv) {
     while (argc > 1) {
         argc--;
         if (argv[argc][0] == '-') {
-            // -d: turn display off. Might make simulation faster
-            //     or runnable in device without display.
             if (std::strcmp(argv[argc], "-d") == 0) {
                 display = !display;
-            // -f 1.5: limit FPS to 1.5 fps. Helps humans visualize
-            //         what is going on if simulation is too fast.
             } else if (std::strcmp(argv[argc], "-f") == 0) {
                 limitFps = !limitFps;
                 targetFps = std::strtod(argv[argc + 1], NULL);
+            } else if (std::strcmp(argv[argc], "-h") == 0) {
+                std::cerr <<
+                    "# CLI Options\n"
+                    "\n"
+                    "- `-d`:          turn display off. Might make simulation faster\n"
+                    "                 or runnable in device without display.\n"
+                    "\n"
+                    "- `-f <double>`: limit FPS to <double> FPS. Helps humans visualize\n"
+                    "                 what is going on if simulation is too fast. E.g.\n"
+                    "                 `-f 2.0` limits simulation to 2 FPS.\n"
+                    "\n"
+                    "# Controls\n"
+                    "\n"
+                    "- `ESC`: quit\n"
+                    "- `r`:   restart from initial state\n"
+                ;
+                std::exit(EXIT_SUCCESS);
             }
         }
     }
     auto targetSpf = 1.0 / targetFps;
 
-main_loop:
-    world = new World(
+    world = std::unique_ptr<World>(new World(
         width,
         height,
         display,
@@ -300,7 +325,8 @@ main_loop:
         windowHeightPix,
         tileWidthPix,
         tileHeightPix
-    );
+    ));
+main_loop:
     common_fps_init();
     last_time = common_get_secs();
     while (1) {
@@ -315,7 +341,12 @@ main_loop:
                     } else if (event.type == SDL_KEYDOWN) {
                         switch(event.key.keysym.sym) {
                             case SDLK_ESCAPE:
+                                goto quit;
+                            break;
+                            case SDLK_r:
+                                world->resetPhysics();
                                 goto main_loop;
+                            break;
                         }
                     }
                 }

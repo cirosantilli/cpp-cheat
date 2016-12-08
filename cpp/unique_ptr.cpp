@@ -101,4 +101,19 @@ int main() {
             }
         }
     }
+
+    /*
+    # reset
+
+    Explicit destruction of pointer. Equivalent to `delete`.
+
+    http://stackoverflow.com/questions/25609457/unique-ptr-explicit-delete
+    */
+    {
+        Base::count = 0;
+        std::unique_ptr<Base> p = std::unique_ptr<Base>(new Base(1));
+        assert(Base::count == 1);
+        p.reset();
+        assert(Base::count == 0);
+    }
 }
