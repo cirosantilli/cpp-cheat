@@ -10,6 +10,15 @@
 
 #include "common.hpp"
 
+int f() {
+    return 1;
+}
+
+class C {
+    public:
+        int f() { return 2; }
+};
+
 int main() {
 #if __cplusplus >= 201103L
     int i = 1;
@@ -31,6 +40,16 @@ int main() {
         int i = 0;
         std::vector<decltype(i)> v;
         v.push_back(0);
+    }
+
+    // Return value.
+    {
+        decltype(f) i;
+        assert(sizeof(i) == sizeof(int));
+
+        C c;
+        decltype(c.f()) j;
+        assert(sizeof(i) == sizeof(int));
     }
 #endif
 }

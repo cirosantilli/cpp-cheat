@@ -96,7 +96,9 @@ int main() {
     }
 
     /*
-    # range based for loop #foreach
+    # range based for loop
+
+    # foreach
 
         C++11
 
