@@ -116,4 +116,17 @@ int main() {
         p.reset();
         assert(Base::count == 0);
     }
+
+    /*
+    # unique_ptr function argments
+
+    - `std::move` for transfering ownership
+    - TODO for not transfering ownership:
+        - `const &`
+        - `get()`. Simple and efficient. But how to use it for containers like `vector<std::unique_ptr>`?
+
+    http://stackoverflow.com/questions/8114276/how-do-i-pass-a-unique-ptr-argument-to-a-constructor-or-a-functionhttp://stackoverflow.com/questions/8114276/how-do-i-pass-a-unique-ptr-argument-to-a-constructor-or-a-function
+    */
+    {
+    }
 }

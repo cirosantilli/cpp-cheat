@@ -2,6 +2,22 @@
 2D tile-based game world, made for programmable AIs to compete.
 
 https://en.wikipedia.org/wiki/Tile-based_video_game
+
+TODO:
+
+-   separate objects from controllers. Give controllers observed state instead of full world.
+-   hold mode: no need to press keys, if you hold them input is taken for every frame
+-   redo previous human action
+-   pause
+-   use protobuf serialization for full world state, controller world view, and controller actions
+-   put players in separate processes, and control resources:
+    - time
+    - RAM
+    - disk: loopback + seccomp should suffice
+    But hopefully allow for access to:
+    - threading
+    - GPU (TODO how to enforce fair resource sharing of GPU shaders?)
+    Should we use raw seccomp, or a more full blown docker?
 */
 
 #include "common.h"
@@ -18,16 +34,26 @@ class World;
 
 class Action {
     public:
-        enum Direction {
-            UP,
-            DOWN,
-            LEFT,
-            RIGHT
+        enum DirectionX {
+            X_NONE,
+            X_LEFT,
+            X_RIGHT
         };
-        Action(Direction direction) : direction(direction) {}
-        Direction getDirection() { return this->direction; }
+        enum DirectionY {
+            Y_NONE,
+            Y_DOWN,
+            Y_UP
+        };
+        Action() : directionX(X_NONE), directionY(Y_NONE) {}
+        Action(DirectionX directionX, DirectionY directionY) :
+            directionX(directionX), directionY(directionY) {}
+        DirectionX getDirectionX() const { return this->directionX; }
+        DirectionY getDirectionY() const { return this->directionY; }
+        void setDirectionX(DirectionX x) { this->directionX = x; }
+        void setDirectionY(DirectionY y) { this->directionY = y; }
     private:
-        Direction direction;
+        DirectionX directionX;
+        DirectionY directionY;
 };
 
 class Object {
@@ -38,6 +64,7 @@ class Object {
         virtual Action act(World *world) = 0;
         unsigned int getX() const;
         unsigned int getY() const;
+        virtual bool takesHumanAction() const;
         void setX(unsigned int x);
         void setY(unsigned int y);
     protected:
@@ -66,9 +93,11 @@ class World {
             unsigned int tileHeightPix
         );
         ~World();
+        void addObject(std::unique_ptr<Object> object);
         void draw() const;
         /// Collect desired actions from all objects, and resolve them
         unsigned int getHeight() const;
+        unsigned int getNHumanActions() const;
         SDL_Renderer * getRenderer() const;
         unsigned int getTileWidthPix() const;
         unsigned int getTileHeightPix() const;
@@ -78,10 +107,11 @@ class World {
         /// to the next world state. E.g.: what happens if two objects
         /// want to move to the same place next tick? Or if an object
         /// wants to move into a wall?
-        void update();
+        void update(const std::vector<std::unique_ptr<Action>> &humanActions);
     private:
         unsigned int width;
         unsigned int height;
+        unsigned int nHumanActions;
         unsigned int windowWidthPix;
         unsigned int windowHeightPix;
         unsigned int tileWidthPix;
@@ -101,25 +131,33 @@ Object::~Object(){}
 Object::Object(unsigned int x, unsigned int y) : x(x), y(y) {}
 unsigned int Object::getX() const { return this->x; }
 unsigned int Object::getY() const { return this->y; }
+bool Object::takesHumanAction() const { return false; }
 void Object::setX(unsigned int x) { this->x = x; }
 void Object::setY(unsigned int y) { this->y = y; }
 
 class MoveUpObject : public Object {
     public:
         MoveUpObject(unsigned int x, unsigned int y) : Object(x, y) {}
-        virtual ~MoveUpObject(){}
         virtual Action act(World *world) {
-            return Action(Action::Direction::UP);
+            return Action(Action::DirectionX::X_NONE, Action::DirectionY::Y_UP);
         };
 };
 
 class MoveDownObject : public Object {
     public:
         MoveDownObject(unsigned int x, unsigned int y) : Object(x, y) {}
-        virtual ~MoveDownObject(){}
         virtual Action act(World *world) {
-            return Action(Action::Direction::DOWN);
+            return Action(Action::DirectionX::X_NONE, Action::DirectionY::Y_DOWN);
         };
+};
+
+class HumanPlayerObject : public Object {
+    public:
+        HumanPlayerObject(unsigned int x, unsigned int y) : Object(x, y) {}
+        virtual Action act(World *world) {
+            return Action();
+        };
+        virtual bool takesHumanAction() const { return true; }
 };
 
 class SingleTextureDrawableObject : public DrawableObject {
@@ -129,7 +167,7 @@ class SingleTextureDrawableObject : public DrawableObject {
         virtual void draw(const World * world) const {
             SDL_Rect rect;
             rect.x = this->object->getX() * world->getTileWidthPix();
-            rect.y = this->object->getY() * world->getTileHeightPix();
+            rect.y = (world->getHeight() - this->object->getY() - 1) * world->getTileHeightPix();
             rect.w = world->getTileWidthPix();
             rect.h = world->getTileHeightPix();
             SDL_RenderCopy(world->getRenderer(), this->texture, NULL, &rect);
@@ -164,6 +202,7 @@ World::World(
         SDL_CreateWindowAndRenderer(this->windowWidthPix, this->windowHeightPix, 0, &this->window, &this->renderer);
         SDL_SetWindowTitle(window, __FILE__);
         createSolidTexture(COLOR_MAX, 0, 0, 0);
+        createSolidTexture(0, COLOR_MAX, 0, 0);
         createSolidTexture(0, 0, COLOR_MAX, 0);
     }
     this->initPhysics();
@@ -192,29 +231,44 @@ void World::draw() const {
     }
 }
 
+void World::addObject(std::unique_ptr<Object> object) {
+    if (object->takesHumanAction()) {
+        this->nHumanActions++;
+    }
+    this->objects.push_back(std::move(object));
+}
+
 void World::initPhysics() {
+    this->nHumanActions = 0;
     for (unsigned int y = 0; y < this->height; ++y) {
         for (unsigned int x = 0; x < this->width; ++x) {
             unsigned int sum = x + y;
             if (sum & 1) {
                 auto object = std::unique_ptr<Object>(new MoveUpObject(x, y));
                 if (display) {
-                    drawableObjects.push_back(std::unique_ptr<DrawableObject>(
+                    this->drawableObjects.push_back(std::unique_ptr<DrawableObject>(
                         new SingleTextureDrawableObject(object.get(), this->textures[0])
                     ));
                 }
-                objects.push_back(std::move(object));
+                this->addObject(std::move(object));
             } else if (sum % 3 == 0) {
                 auto object = std::unique_ptr<Object>(new MoveDownObject(x, y));
                 if (display) {
-                    drawableObjects.push_back(std::unique_ptr<DrawableObject>(
+                    this->drawableObjects.push_back(std::unique_ptr<DrawableObject>(
                         new SingleTextureDrawableObject(object.get(), this->textures[1])
                     ));
                 }
-                objects.push_back(std::move(object));
+                this->addObject(std::move(object));
             }
         }
     }
+    auto object = std::unique_ptr<Object>(new HumanPlayerObject(this->getWidth() / 2, this->getHeight() / 2));
+    if (display) {
+        drawableObjects.push_back(std::unique_ptr<DrawableObject>(
+            new SingleTextureDrawableObject(object.get(), this->textures[2])
+        ));
+    }
+    this->addObject(std::move(object));
 }
 
 void World::resetPhysics() {
@@ -223,15 +277,37 @@ void World::resetPhysics() {
     this->initPhysics();
 }
 
-void World::update() {
+void World::update(const std::vector<std::unique_ptr<Action>> &humanActions) {
+    auto humanActionsIt = humanActions.begin();
     for (auto& object : this->objects) {
-        Action a = object->act(this);
-        if (a.getDirection() == Action::Direction::UP) {
+        Action a;
+        if (object->takesHumanAction()) {
+            a = **humanActionsIt;
+            humanActionsIt++;
+        } else {
+            a = object->act(this);
+        }
+
+        // X
+        if (a.getDirectionX() == Action::DirectionX::X_LEFT) {
+            auto x = object->getX();
+            if (x > 0) {
+                object->setX(x - 1);
+            }
+        } else if (a.getDirectionX() == Action::DirectionX::X_RIGHT) {
+            auto x = object->getX();
+            if (x < this->getWidth() - 1) {
+                object->setX(x + 1);
+            }
+        }
+
+        // Y
+        if (a.getDirectionY() == Action::DirectionY::Y_UP) {
             auto y = object->getY();
             if (y < this->getHeight() - 1) {
                 object->setY(y + 1);
             }
-        } else if (a.getDirection() == Action::Direction::DOWN) {
+        } else if (a.getDirectionY() == Action::DirectionY::Y_DOWN) {
             auto y = object->getY();
             if (y > 0) {
                 object->setY(y - 1);
@@ -241,6 +317,7 @@ void World::update() {
 }
 
 unsigned int World::getHeight() const { return this->height; }
+unsigned int World::getNHumanActions() const { return this->nHumanActions; }
 SDL_Renderer * World::getRenderer() const { return this->renderer; }
 unsigned int World::getTileHeightPix() const { return this->tileHeightPix; }
 unsigned int World::getTileWidthPix() const { return this->tileWidthPix; }
@@ -265,12 +342,102 @@ SDL_Texture * World::createSolidTexture(unsigned int r, unsigned int g, unsigned
     return texture;
 }
 
+void printHelp() {
+    std::cerr <<
+        "# CLI Options\n"
+        "\n"
+        "- `-b`:          don't block on player input.\n"
+        "\n"
+        "                 If given, if he player does not give any input until\n"
+        "                 before the current frame is over, and empty input is used,\n"
+        "                 and the simulation progresses.\n"
+        "\n"
+        "                 Not setting this option makes the game more Rogue-like.\n"
+        "\n"
+        "- `-d`:          turn display off. Might make simulation faster\n"
+        "                 or runnable in device without display.\n"
+        "\n"
+        "                 User input is only available with display.\n"
+        "\n"
+        "- `-f <double>`: limit FPS to <double> FPS.\n"
+        "\n"
+        "                 If not present, simulation runs as faster as possible.\n"
+        "\n"
+        "                 Helps humans visualize non-interactive simulations\n"
+        "                 that are too fast. E.g. `-f 2.0` limits simulation to 2 FPS.\n"
+        "\n"
+        "                 You likely don't want this for interactive simulations that\n"
+        "                 block on user input (Rogue-like), as this becomes lag.\n"
+        "\n"
+        "- `-h`:          show this help\n"
+        "\n"
+        "- `-i`:          immediate mode. Progress simulation immediately after any user\n"
+        "                 control is given, without waiting for `SPACE`.\n"
+        "\n"
+        "                 Makes game more interactive, and less precisely controllable.\n"
+        "\n"
+        "- `-w <int>`:    world width in tiles\n"
+        "\n"
+        "- `-W <int>`:    window width in pixels. Square windows only for now.\n"
+        "                 Must be divisible by the width of the world.\n"
+        "\n"
+        "# Controls\n"
+        "\n"
+        "- `ESC`: quit\n"
+        "- `r`:   restart from initial state\n"
+        "- `Y_UP` / `Y_DOWN` / `LEFT` / `RIGHT` arrow keys: move\n"
+        "- `SPACE`: step simulation\n"
+        "\n"
+        "# Examples\n"
+        "\n"
+        "## Rogue-like TAS mode\n"
+        "\n"
+        "If a player controller is present,\n"
+        "then the world blocks until player makes a move (`SPACE`).\n"
+        "\n"
+        "By TAS, we mean that each input can be carefully constructed,\n"
+        "by parts, and the world only advances when `SPACE` is pressed.\n"
+        "in similar fashion to how Tool Assisted Speedruns are developed\n"
+        "\n"
+        "This mode may be too slow to be fun, but it allows for precise controls.\n"
+        "\n"
+        "E.g., to move diagonally right up, you do:\n"
+        "\n"
+        "- `RIGHT` (horizontal direction)\n"
+        "- `UP` (vertical direction)\n"
+        "- `SPACE`\n"
+        "\n"
+        "The default for each type of direction is to do nothing.\n"
+        "E.g., to just move up:\n"
+        "\n"
+        "- `UP` (vertical direction)\n"
+        "- `SPACE`\n"
+        "\n"
+        "Since there was no horizontal input, the default of not\n"
+        "moving horizontally is used.\n"
+        "\n"
+        "You can fix some controls half-way. E.g. the following will move up:\n"
+        ""
+        "\n"
+        "- `DOWN`\n"
+        "- `UP`, overrides the previous `DOWN`\n"
+        "- `SPACE`\n"
+        "\n"
+        "## Rogue mode TODO\n"
+        "\n"
+        "## Crypt of the NecroDancer mode TODO\n"
+        "\n"
+    ;
+}
+
 int main(int argc, char **argv) {
     SDL_Event event;
     std::unique_ptr<World> world;
     bool
         display = true,
-        limitFps = false
+        limitFps = false,
+        blockOnPlayer = true,
+        immediateAction = false
     ;
     double
         targetFps = 1.0,
@@ -278,44 +445,40 @@ int main(int argc, char **argv) {
     ;
     unsigned int
         width = 100,
-        height = width,
         ticks = 0,
-        tileWidthPix = 5,
-        tileHeightPix = tileWidthPix,
-        windowWidthPix = width * tileWidthPix,
-        windowHeightPix = height * tileHeightPix
+        windowWidthPix = 500
     ;
 
     // Treat CLI arguments.
-    while (argc > 1) {
-        argc--;
-        if (argv[argc][0] == '-') {
-            if (std::strcmp(argv[argc], "-d") == 0) {
+    for (decltype(argc) i = 0; i < argc; ++i) {
+        if (argv[i][0] == '-') {
+            if (std::strcmp(argv[i], "-b") == 0) {
+                blockOnPlayer = !blockOnPlayer;
+            } else if (std::strcmp(argv[i], "-d") == 0) {
                 display = !display;
-            } else if (std::strcmp(argv[argc], "-f") == 0) {
+            } else if (std::strcmp(argv[i], "-f") == 0) {
                 limitFps = !limitFps;
-                targetFps = std::strtod(argv[argc + 1], NULL);
-            } else if (std::strcmp(argv[argc], "-h") == 0) {
-                std::cerr <<
-                    "# CLI Options\n"
-                    "\n"
-                    "- `-d`:          turn display off. Might make simulation faster\n"
-                    "                 or runnable in device without display.\n"
-                    "\n"
-                    "- `-f <double>`: limit FPS to <double> FPS. Helps humans visualize\n"
-                    "                 what is going on if simulation is too fast. E.g.\n"
-                    "                 `-f 2.0` limits simulation to 2 FPS.\n"
-                    "\n"
-                    "# Controls\n"
-                    "\n"
-                    "- `ESC`: quit\n"
-                    "- `r`:   restart from initial state\n"
-                ;
+                targetFps = std::strtod(argv[i + 1], NULL);
+            } else if (std::strcmp(argv[i], "-h") == 0) {
+                printHelp();
                 std::exit(EXIT_SUCCESS);
+            } else if (std::strcmp(argv[i], "-i") == 0) {
+                immediateAction = !immediateAction;
+            } else if (std::strcmp(argv[i], "-w") == 0) {
+                width = std::strtol(argv[i + 1], NULL, 10);
+            } else if (std::strcmp(argv[i], "-W") == 0) {
+                windowWidthPix = std::strtol(argv[i + 1], NULL, 10);
+            } else {
+                printHelp();
+                std::exit(EXIT_FAILURE);
             }
         }
     }
+    auto windowHeightPix = windowWidthPix;
     auto targetSpf = 1.0 / targetFps;
+    auto height = width;
+    auto tileWidthPix = windowWidthPix / width;
+    auto tileHeightPix = windowHeightPix / height;
 
     world = std::unique_ptr<World>(new World(
         width,
@@ -329,32 +492,77 @@ int main(int argc, char **argv) {
 main_loop:
     common_fps_init();
     last_time = common_get_secs();
+    auto action = std::unique_ptr<Action>(new Action());
     while (1) {
         world->draw();
         double slack;
         double nextTarget = last_time + targetSpf;
+        std::vector<std::unique_ptr<Action>> humanActions;
         do {
             if (display) {
-                while (SDL_PollEvent(&event)) {
-                    if (event.type == SDL_QUIT) {
-                        goto quit;
-                    } else if (event.type == SDL_KEYDOWN) {
-                        switch(event.key.keysym.sym) {
-                            case SDLK_ESCAPE:
-                                goto quit;
-                            break;
-                            case SDLK_r:
-                                world->resetPhysics();
-                                goto main_loop;
-                            break;
+                do {
+                    while (SDL_PollEvent(&event)) {
+                        if (event.type == SDL_QUIT) {
+                            goto quit;
+                        } else if (event.type == SDL_KEYDOWN) {
+                            bool addHumanAction = false;
+                            switch(event.key.keysym.sym) {
+                                // Global controls.
+                                case SDLK_ESCAPE:
+                                    goto quit;
+                                break;
+                                case SDLK_r:
+                                    world->resetPhysics();
+                                    goto main_loop;
+                                break;
+
+                                // Player controls.
+                                case SDLK_LEFT:
+                                    action->setDirectionX(Action::DirectionX::X_LEFT);
+                                    if (immediateAction)
+                                        addHumanAction = true;
+                                break;
+                                case SDLK_RIGHT:
+                                    action->setDirectionX(Action::DirectionX::X_RIGHT);
+                                    if (immediateAction)
+                                        addHumanAction = true;
+                                break;
+                                case SDLK_DOWN:
+                                    action->setDirectionY(Action::DirectionY::Y_DOWN);
+                                    if (immediateAction)
+                                        addHumanAction = true;
+                                break;
+                                case SDLK_UP:
+                                    action->setDirectionY(Action::DirectionY::Y_UP);
+                                    if (immediateAction)
+                                        addHumanAction = true;
+                                break;
+                                case SDLK_SPACE:
+                                    addHumanAction = true;
+                                break;
+
+                            }
+                            if (addHumanAction && humanActions.size() < world->getNHumanActions()) {
+                                humanActions.push_back(std::move(action));
+                                action = std::unique_ptr<Action>(new Action());
+                            }
                         }
                     }
-                }
+                } while (blockOnPlayer && humanActions.size() < world->getNHumanActions());
             }
             slack = nextTarget - common_get_secs();
         } while (limitFps && slack > 0.0);
         last_time = common_get_secs();
-        world->update();
+        // Fill in dummy missing actions that player didn't
+        // enter in time in non-blocking mode.
+        for (
+            decltype(world->getNHumanActions()) nHumanActions = 0;
+            nHumanActions < world->getNHumanActions();
+            ++nHumanActions
+        ) {
+            humanActions.push_back(std::unique_ptr<Action>(new Action()));
+        }
+        world->update(humanActions);
         ticks++;
         common_fps_update_and_print();
     }
