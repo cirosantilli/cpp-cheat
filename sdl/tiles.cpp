@@ -22,7 +22,9 @@ TODO:
 
 #include "common.h"
 
+#include <cstdlib>
 #include <cstring>
+#include <ctime>
 #include <iostream>
 #include <memory>
 #include <vector>
@@ -155,6 +157,38 @@ class MoveDownObject : public Object {
         };
 };
 
+class MoveRandomObject : public Object {
+    public:
+        MoveRandomObject(unsigned int x, unsigned int y) : Object(x, y) {}
+        virtual Action act(World *world) {
+            Action::DirectionX x;
+            Action::DirectionY y;
+            switch (rand() % 3) {
+                case 0:
+                    x = Action::DirectionX::X_LEFT;
+                break;
+                case 1:
+                    x = Action::DirectionX::X_NONE;
+                break;
+                case 2:
+                    x = Action::DirectionX::X_RIGHT;
+                break;
+            }
+            switch (rand() % 3) {
+                case 0:
+                    y = Action::DirectionY::Y_DOWN;
+                break;
+                case 1:
+                    y = Action::DirectionY::Y_NONE;
+                break;
+                case 2:
+                    y = Action::DirectionY::Y_UP;
+                break;
+            }
+            return Action(x, y);
+        };
+};
+
 class HumanPlayerObject : public Object {
     public:
         HumanPlayerObject(unsigned int x, unsigned int y) : Object(x, y) {}
@@ -208,7 +242,9 @@ World::World(
         createSolidTexture(COLOR_MAX, 0, 0, 0);
         createSolidTexture(0, COLOR_MAX, 0, 0);
         createSolidTexture(0, 0, COLOR_MAX, 0);
+        createSolidTexture(COLOR_MAX, COLOR_MAX, 0, 0);
         createSolidTexture(COLOR_MAX, 0, COLOR_MAX, 0);
+        createSolidTexture(0, COLOR_MAX, COLOR_MAX, 0);
     }
     this->initPhysics();
 }
@@ -286,6 +322,16 @@ void World::initPhysics() {
         //}
         //this->addObject(std::move(object));
 	//}
+	{
+		auto object = std::unique_ptr<Object>(new MoveRandomObject(this->getWidth() / 4, this->getHeight() / 4));
+		if (display) {
+			drawableObjects.push_back(std::unique_ptr<DrawableObject>(
+				new SingleTextureDrawableObject(object.get(), this->textures[4])
+			));
+		}
+		this->addObject(std::move(object));
+	}
+
 }
 
 void World::resetPhysics() {
@@ -363,7 +409,7 @@ void printHelp() {
     std::cerr <<
         "# CLI Options\n"
         "\n"
-        "- `-b`:          don't block on player input.\n"
+        "- `-b`:          (Block) don't block on player input.\n"
         "\n"
         "                 If given, if he player does not give any input until\n"
         "                 before the current frame is over, and empty input is used,\n"
@@ -371,12 +417,12 @@ void printHelp() {
         "\n"
         "                 Not setting this option makes the game more Rogue-like.\n"
         "\n"
-        "- `-d`:          turn display off. Might make simulation faster\n"
+        "- `-d`:          (Display) turn display off. Might make simulation faster\n"
         "                 or runnable in device without display.\n"
         "\n"
         "                 User input is only available with display.\n"
         "\n"
-        "- `-f <double>`: limit FPS to <double> FPS.\n"
+        "- `-f <double>`: (Fps) limit FPS to <double> FPS.\n"
         "\n"
         "                 If not present, simulation runs as faster as possible.\n"
         "\n"
@@ -386,7 +432,7 @@ void printHelp() {
         "                 You likely don't want this for interactive simulations that\n"
         "                 block on user input (Rogue-like), as this becomes lag.\n"
         "\n"
-        "- `-h`:          show this help\n"
+        "- `-h`:          (help) show this help\n"
         "\n"
         "- `-H`:          (Hold key) actions are taken not only when the player clicks\n"
         "                 keys during a frame, but also when keys are being held during\n"
@@ -398,6 +444,14 @@ void printHelp() {
         "                 control is given, without waiting for `SPACE`.\n"
         "\n"
         "                 Makes game more interactive, and less precisely controllable.\n"
+        "\n"
+        "- `-r`:          (Random) set a fixed random seed.\n"
+        "\n"
+        "                 If given, it is always used across restarts. Otherwise, a new\n"
+        "                 seed is chosen for every restart.\n"
+        "\n"
+        "                 This is the only source of randomness in the whole engine.\n"
+        "                 Fixing it to a given value gives reproducible games.\n"
         "\n"
         "- `-w <int>`:    world width in tiles\n"
         "\n"
@@ -493,19 +547,21 @@ int main(int argc, char **argv) {
     SDL_Event event;
     std::unique_ptr<World> world;
     bool
-        display = true,
-        limitFps = false,
         blockOnPlayer = true,
+        display = true,
+        holdKey = false,
         immediateAction = false,
-        holdKey = false
+        limitFps = false,
+        fixedRandomSeed = false
     ;
     double
         targetFps = 1.0,
         last_time;
     ;
     unsigned int
-        width = 100,
+        randomSeed,
         ticks = 0,
+        width = 100,
         windowWidthPix = 500
     ;
 
@@ -526,6 +582,9 @@ int main(int argc, char **argv) {
                 holdKey = !holdKey;
             } else if (std::strcmp(argv[i], "-i") == 0) {
                 immediateAction = !immediateAction;
+            } else if (std::strcmp(argv[i], "-r") == 0) {
+                randomSeed = std::strtol(argv[i + 1], NULL, 10);
+                fixedRandomSeed = true;
             } else if (std::strcmp(argv[i], "-w") == 0) {
                 width = std::strtol(argv[i + 1], NULL, 10);
             } else if (std::strcmp(argv[i], "-W") == 0) {
@@ -552,6 +611,7 @@ int main(int argc, char **argv) {
         tileHeightPix
     ));
 main_loop:
+
     common_fps_init();
     last_time = common_get_secs();
 
@@ -566,6 +626,12 @@ main_loop:
     for (decltype(world->getNHumanActions()) i = 0; i < world->getNHumanActions(); ++i) {
         humanActions.push_back(std::unique_ptr<Action>(new Action()));
     }
+
+    // Randomness.
+    if (!fixedRandomSeed) {
+        randomSeed = std::time(NULL);
+    }
+    std::srand(randomSeed);
 
     while (1) {
         world->draw();
