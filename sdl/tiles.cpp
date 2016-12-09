@@ -203,6 +203,7 @@ World::World(
         createSolidTexture(COLOR_MAX, 0, 0, 0);
         createSolidTexture(0, COLOR_MAX, 0, 0);
         createSolidTexture(0, 0, COLOR_MAX, 0);
+        createSolidTexture(COLOR_MAX, 0, COLOR_MAX, 0);
     }
     this->initPhysics();
 }
@@ -261,13 +262,24 @@ void World::initPhysics() {
             }
         }
     }
-    auto object = std::unique_ptr<Object>(new HumanPlayerObject(this->getWidth() / 2, this->getHeight() / 2));
-    if (display) {
-        drawableObjects.push_back(std::unique_ptr<DrawableObject>(
-            new SingleTextureDrawableObject(object.get(), this->textures[2])
-        ));
-    }
-    this->addObject(std::move(object));
+	{
+		auto object = std::unique_ptr<Object>(new HumanPlayerObject(this->getWidth() / 2, this->getHeight() / 2));
+		if (display) {
+			drawableObjects.push_back(std::unique_ptr<DrawableObject>(
+				new SingleTextureDrawableObject(object.get(), this->textures[2])
+			));
+		}
+		this->addObject(std::move(object));
+	}
+	{
+		//auto object = std::unique_ptr<Object>(new HumanPlayerObject(this->getWidth() / 2, this->getHeight() / 2 + 1));
+		//if (display) {
+			//drawableObjects.push_back(std::unique_ptr<DrawableObject>(
+				//new SingleTextureDrawableObject(object.get(), this->textures[3])
+			//));
+		//}
+		//this->addObject(std::move(object));
+	}
 }
 
 void World::resetPhysics() {
