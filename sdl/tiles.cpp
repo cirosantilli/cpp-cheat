@@ -44,11 +44,15 @@ class Action {
             Y_DOWN,
             Y_UP
         };
-        Action() : directionX(X_NONE), directionY(Y_NONE) {}
+        Action() { this->reset(); }
         Action(DirectionX directionX, DirectionY directionY) :
             directionX(directionX), directionY(directionY) {}
         DirectionX getDirectionX() const { return this->directionX; }
         DirectionY getDirectionY() const { return this->directionY; }
+        void reset() {
+            this->directionX = X_NONE;
+            this->directionY = Y_NONE;
+        };
         void setDirectionX(DirectionX x) { this->directionX = x; }
         void setDirectionY(DirectionY y) { this->directionY = y; }
     private:
@@ -204,6 +208,7 @@ World::World(
         createSolidTexture(COLOR_MAX, 0, 0, 0);
         createSolidTexture(0, COLOR_MAX, 0, 0);
         createSolidTexture(0, 0, COLOR_MAX, 0);
+        createSolidTexture(COLOR_MAX, 0, COLOR_MAX, 0);
     }
     this->initPhysics();
 }
@@ -262,13 +267,25 @@ void World::initPhysics() {
             }
         }
     }
-    auto object = std::unique_ptr<Object>(new HumanPlayerObject(this->getWidth() / 2, this->getHeight() / 2));
-    if (display) {
-        drawableObjects.push_back(std::unique_ptr<DrawableObject>(
-            new SingleTextureDrawableObject(object.get(), this->textures[2])
-        ));
-    }
-    this->addObject(std::move(object));
+	{
+		auto object = std::unique_ptr<Object>(new HumanPlayerObject(this->getWidth() / 2, this->getHeight() / 2));
+		if (display) {
+			drawableObjects.push_back(std::unique_ptr<DrawableObject>(
+				new SingleTextureDrawableObject(object.get(), this->textures[2])
+			));
+		}
+		this->addObject(std::move(object));
+	}
+	// Player 2.
+	//{
+        //auto object = std::unique_ptr<Object>(new HumanPlayerObject(this->getWidth() / 2, this->getHeight() / 2 + 1));
+        //if (display) {
+            //drawableObjects.push_back(std::unique_ptr<DrawableObject>(
+                //new SingleTextureDrawableObject(object.get(), this->textures[3])
+            //));
+        //}
+        //this->addObject(std::move(object));
+	//}
 }
 
 void World::resetPhysics() {
@@ -279,7 +296,7 @@ void World::resetPhysics() {
 
 void World::update(const std::vector<std::unique_ptr<Action>> &humanActions) {
     auto humanActionsIt = humanActions.begin();
-    for (auto& object : this->objects) {
+    for (auto &object : this->objects) {
         Action a;
         if (object->takesHumanAction()) {
             a = **humanActionsIt;
@@ -371,6 +388,12 @@ void printHelp() {
         "\n"
         "- `-h`:          show this help\n"
         "\n"
+        "- `-H`:          (Hold key) actions are taken not only when the player clicks\n"
+        "                 keys during a frame, but also when keys are being held during\n"
+        "                 a frame from the previous frame.\n"
+        "\n"
+        "                 Makes the game more interactive, and controls less precise.\n"
+        "\n"
         "- `-i`:          immediate mode. Progress simulation immediately after any user\n"
         "                 control is given, without waiting for `SPACE`.\n"
         "\n"
@@ -391,6 +414,8 @@ void printHelp() {
         "# Examples\n"
         "\n"
         "## Rogue-like TAS mode\n"
+        "\n"
+        "    ./prog\n"
         "\n"
         "If a player controller is present,\n"
         "then the world blocks until player makes a move (`SPACE`).\n"
@@ -423,11 +448,45 @@ void printHelp() {
         "- `UP`, overrides the previous `DOWN`\n"
         "- `SPACE`\n"
         "\n"
-        "## Rogue mode TODO\n"
+        "## Rogue mode\n"
         "\n"
-        "## Crypt of the NecroDancer mode TODO\n"
+        "    ./prog -i\n"
+        "\n"
+        "When the player clicks any key, the world updates.\n"
+        "\n"
+        "## Crypt of the NecroDancer mode\n"
+        "\n"
+        "   ./prog -H -b -f 2.0 -i\n"
+        "\n"
+        "World updates even if user does nothing, but only at 2FPS.\n"
+        "\n"
+        "TODO currently the first input is taken, but that feels sluggish.\n"
+        "This is to allow haveing multiple players with the same controls in TAS mode,\n"
+        "where the second input starts as soon as the first one is done.\n"
+        "\n"
+        "## Continuous action game\n"
+        "\n"
+        "   ./prog -H -b -f 20.0 -i -w 100\n"
+        "\n"
+        "Same as Crypt of the NecroDancer, but with wide screen, and faster FPS.\n"
+        "\n"
+        "Most engines will implement this mode with floating point positions.\n"
         "\n"
     ;
+}
+
+bool activatetKey(
+    SDL_Scancode scancode,
+    const Uint8 *keyboardState,
+    Uint8 *lastKeyboardState,
+    bool holdKey
+) {
+    return
+        keyboardState[scancode] &&
+        (
+            holdKey
+            || !lastKeyboardState[scancode]
+        );
 }
 
 int main(int argc, char **argv) {
@@ -437,7 +496,8 @@ int main(int argc, char **argv) {
         display = true,
         limitFps = false,
         blockOnPlayer = true,
-        immediateAction = false
+        immediateAction = false,
+        holdKey = false
     ;
     double
         targetFps = 1.0,
@@ -462,6 +522,8 @@ int main(int argc, char **argv) {
             } else if (std::strcmp(argv[i], "-h") == 0) {
                 printHelp();
                 std::exit(EXIT_SUCCESS);
+            } else if (std::strcmp(argv[i], "-H") == 0) {
+                holdKey = !holdKey;
             } else if (std::strcmp(argv[i], "-i") == 0) {
                 immediateAction = !immediateAction;
             } else if (std::strcmp(argv[i], "-w") == 0) {
@@ -492,76 +554,83 @@ int main(int argc, char **argv) {
 main_loop:
     common_fps_init();
     last_time = common_get_secs();
-    auto action = std::unique_ptr<Action>(new Action());
+
+    // Keyboard state.
+    int numkeys;
+    const Uint8 * keyboardState = SDL_GetKeyboardState(&numkeys);
+    size_t keyboardStateSize = numkeys * sizeof(*keyboardState);
+    auto lastKeyboardState = std::unique_ptr<Uint8[]>(new Uint8[keyboardStateSize]);
+
+    // Human actions.
+    std::vector<std::unique_ptr<Action>> humanActions;
+    for (decltype(world->getNHumanActions()) i = 0; i < world->getNHumanActions(); ++i) {
+        humanActions.push_back(std::unique_ptr<Action>(new Action()));
+    }
+
     while (1) {
         world->draw();
         double slack;
         double nextTarget = last_time + targetSpf;
-        std::vector<std::unique_ptr<Action>> humanActions;
+        decltype(humanActions.size()) humanActionIdx = 0;
+        for (auto &action : humanActions) {
+            action->reset();
+        }
         do {
             if (display) {
                 do {
+                    std::memcpy(lastKeyboardState.get(), keyboardState, keyboardStateSize);
                     while (SDL_PollEvent(&event)) {
                         if (event.type == SDL_QUIT) {
                             goto quit;
-                        } else if (event.type == SDL_KEYDOWN) {
-                            bool addHumanAction = false;
-                            switch(event.key.keysym.sym) {
-                                // Global controls.
-                                case SDLK_ESCAPE:
-                                    goto quit;
-                                break;
-                                case SDLK_r:
-                                    world->resetPhysics();
-                                    goto main_loop;
-                                break;
-
-                                // Player controls.
-                                case SDLK_LEFT:
-                                    action->setDirectionX(Action::DirectionX::X_LEFT);
-                                    if (immediateAction)
-                                        addHumanAction = true;
-                                break;
-                                case SDLK_RIGHT:
-                                    action->setDirectionX(Action::DirectionX::X_RIGHT);
-                                    if (immediateAction)
-                                        addHumanAction = true;
-                                break;
-                                case SDLK_DOWN:
-                                    action->setDirectionY(Action::DirectionY::Y_DOWN);
-                                    if (immediateAction)
-                                        addHumanAction = true;
-                                break;
-                                case SDLK_UP:
-                                    action->setDirectionY(Action::DirectionY::Y_UP);
-                                    if (immediateAction)
-                                        addHumanAction = true;
-                                break;
-                                case SDLK_SPACE:
-                                    addHumanAction = true;
-                                break;
-
-                            }
-                            if (addHumanAction && humanActions.size() < world->getNHumanActions()) {
-                                humanActions.push_back(std::move(action));
-                                action = std::unique_ptr<Action>(new Action());
-                            }
                         }
                     }
-                } while (blockOnPlayer && humanActions.size() < world->getNHumanActions());
+                    bool addHumanAction = false;
+                    // Global controls.
+                    if (activatetKey(SDL_SCANCODE_ESCAPE, keyboardState, lastKeyboardState.get(), holdKey)) {
+                        goto quit;
+                    }
+                    if (activatetKey(SDL_SCANCODE_R, keyboardState, lastKeyboardState.get(), holdKey)) {
+                        world->resetPhysics();
+                        goto main_loop;
+                    }
+
+                    // Player controls.
+                    if (activatetKey(SDL_SCANCODE_LEFT, keyboardState, lastKeyboardState.get(), holdKey)) {
+                        humanActions[humanActionIdx]->setDirectionX(Action::DirectionX::X_LEFT);
+                        if (immediateAction) {
+                            addHumanAction = true;
+                        }
+                    }
+                    if (activatetKey(SDL_SCANCODE_RIGHT, keyboardState, lastKeyboardState.get(), holdKey)) {
+                        humanActions[humanActionIdx]->setDirectionX(Action::DirectionX::X_RIGHT);
+                        if (immediateAction) {
+                            addHumanAction = true;
+                        }
+                    }
+                    if (activatetKey(SDL_SCANCODE_UP, keyboardState, lastKeyboardState.get(), holdKey)) {
+                        humanActions[humanActionIdx]->setDirectionY(Action::DirectionY::Y_UP);
+                        if (immediateAction) {
+                            addHumanAction = true;
+                        }
+                    }
+                    if (activatetKey(SDL_SCANCODE_DOWN, keyboardState, lastKeyboardState.get(), holdKey)) {
+                        humanActions[humanActionIdx]->setDirectionY(Action::DirectionY::Y_DOWN);
+                        if (immediateAction) {
+                            addHumanAction = true;
+                        }
+                    }
+                    if (activatetKey(SDL_SCANCODE_SPACE, keyboardState, lastKeyboardState.get(), holdKey)) {
+                        addHumanAction = true;
+                    }
+
+                    if (addHumanAction) {
+                        humanActionIdx++;
+                    }
+                } while (blockOnPlayer && humanActionIdx < world->getNHumanActions());
             }
             slack = nextTarget - common_get_secs();
         } while (limitFps && slack > 0.0);
         last_time = common_get_secs();
-        // Fill in dummy missing actions that player didn't
-        // enter in time in non-blocking mode.
-        for (
-            decltype(world->getNHumanActions()) nHumanActions = 0;
-            nHumanActions < world->getNHumanActions();
-            ++nHumanActions
-        ) {
-            humanActions.push_back(std::unique_ptr<Action>(new Action()));
-        }
         world->update(humanActions);
         ticks++;
         common_fps_update_and_print();
