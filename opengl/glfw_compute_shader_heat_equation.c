@@ -315,8 +315,16 @@ int main(int argc, char **argv) {
      * Physics allows it to be in 0 / infinity.
      *
      * Anything greater than 1.0 leads to numeric instabilities
-     * for our simplistic method, as equilibrium is reached in less
-     * time than one time step, and goes over.
+     * for our simplistic method. For example, the following:
+     *
+     *        1.0
+     *
+     *   1.0  0.0  1.0
+     *
+     *        1.0
+     *
+     * the center point goes above its surroundings on the next time step (2.0)
+     * for a conduction coefficient of 2.0.
      *
      * Negative values make temperatures unbounded and breaks energy conservation.
      *

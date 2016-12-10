@@ -6,7 +6,6 @@ https://en.wikipedia.org/wiki/Tile-based_video_game
 TODO:
 
 -   separate objects from controllers. Give controllers observed state instead of full world.
--   hold mode: no need to press keys, if you hold them input is taken for every frame
 -   redo previous human action
 -   pause
 -   use protobuf serialization for full world state, controller world view, and controller actions
@@ -27,6 +26,7 @@ TODO:
 #include <ctime>
 #include <iostream>
 #include <memory>
+#include <typeinfo>
 #include <vector>
 
 const unsigned int COLOR_MAX = 255;
@@ -87,6 +87,18 @@ class DrawableObject {
         Object *object;
 };
 
+class WorldView {
+    public:
+        WorldView(unsigned int width, unsigned int height, std::unique_ptr<std::vector<std::unique_ptr<Object>>> objects) :
+            width(width), height(height), objects(std::move(objects)) {}
+        unsigned int getHeight() const { return this->height; }
+        unsigned int getWidth() const { return this->width; }
+    private:
+        unsigned int width;
+        unsigned int height;
+        std::unique_ptr<std::vector<std::unique_ptr<Object>>> objects;
+};
+
 class World {
     public:
         World(
@@ -104,6 +116,7 @@ class World {
         /// Collect desired actions from all objects, and resolve them
         unsigned int getHeight() const;
         unsigned int getNHumanActions() const;
+        const std::vector<std::unique_ptr<Object>>& getObjects() const;
         SDL_Renderer * getRenderer() const;
         unsigned int getTileWidthPix() const;
         unsigned int getTileHeightPix() const;
@@ -130,6 +143,7 @@ class World {
         std::vector<SDL_Texture *> textures;
 
         SDL_Texture * createSolidTexture(unsigned int r, unsigned int g, unsigned int b, unsigned int a);
+        std::unique_ptr<WorldView> createWorldView(const std::unique_ptr<Object> &object) const;
 };
 
 Object::Object(){}
@@ -198,6 +212,56 @@ class HumanPlayerObject : public Object {
         virtual bool takesHumanAction() const { return true; }
 };
 
+/// Dumb: no understanding of walls.
+class FollowPlayerObject : public Object {
+    public:
+        FollowPlayerObject(unsigned int x, unsigned int y) : Object(x, y) {}
+        virtual Action act(World *world) {
+            Action a;
+            for (auto const& object : world->getObjects()) {
+                if (typeid(*object) == typeid(HumanPlayerObject)) {
+                    if (this->getX() < object->getX()) {
+                        a.setDirectionX(Action::DirectionX::X_RIGHT);
+                    } else if (this->getX() > object->getX()) {
+                        a.setDirectionX(Action::DirectionX::X_LEFT);
+                    }
+                    if (this->getY() < object->getY()) {
+                        a.setDirectionY(Action::DirectionY::Y_UP);
+                    } else if (this->getY() > object->getY()) {
+                        a.setDirectionY(Action::DirectionY::Y_DOWN);
+                    }
+                    break;
+                }
+            }
+            return a;
+        };
+};
+
+/// Dumb: no understanding of walls.
+class FleePlayerObject : public Object {
+    public:
+        FleePlayerObject(unsigned int x, unsigned int y) : Object(x, y) {}
+        virtual Action act(World *world) {
+            Action a;
+            for (auto const& object : world->getObjects()) {
+                if (typeid(*object) == typeid(HumanPlayerObject)) {
+                    if (this->getX() < object->getX()) {
+                        a.setDirectionX(Action::DirectionX::X_LEFT);
+                    } else {
+                        a.setDirectionX(Action::DirectionX::X_RIGHT);
+                    }
+                    if (this->getY() < object->getY()) {
+                        a.setDirectionY(Action::DirectionY::Y_DOWN);
+                    } else {
+                        a.setDirectionY(Action::DirectionY::Y_UP);
+                    }
+                    break;
+                }
+            }
+            return a;
+        };
+};
+
 class SingleTextureDrawableObject : public DrawableObject {
     public:
         SingleTextureDrawableObject(Object *object, SDL_Texture *texture) :
@@ -245,6 +309,8 @@ World::World(
         createSolidTexture(COLOR_MAX, COLOR_MAX, 0, 0);
         createSolidTexture(COLOR_MAX, 0, COLOR_MAX, 0);
         createSolidTexture(0, COLOR_MAX, COLOR_MAX, 0);
+        createSolidTexture(COLOR_MAX, COLOR_MAX, COLOR_MAX, 0);
+        createSolidTexture(COLOR_MAX / 2, COLOR_MAX / 2, COLOR_MAX / 2, 0);
     }
     this->initPhysics();
 }
@@ -331,6 +397,24 @@ void World::initPhysics() {
 		}
 		this->addObject(std::move(object));
 	}
+	{
+		auto object = std::unique_ptr<Object>(new FollowPlayerObject(3 * this->getWidth() / 4, 3 * this->getHeight() / 4));
+		if (display) {
+			drawableObjects.push_back(std::unique_ptr<DrawableObject>(
+				new SingleTextureDrawableObject(object.get(), this->textures[5])
+			));
+		}
+		this->addObject(std::move(object));
+	}
+	{
+		auto object = std::unique_ptr<Object>(new FleePlayerObject(this->getWidth() / 4, 3 * this->getHeight() / 4));
+		if (display) {
+			drawableObjects.push_back(std::unique_ptr<DrawableObject>(
+				new SingleTextureDrawableObject(object.get(), this->textures[6])
+			));
+		}
+		this->addObject(std::move(object));
+	}
 
 }
 
@@ -343,6 +427,8 @@ void World::resetPhysics() {
 void World::update(const std::vector<std::unique_ptr<Action>> &humanActions) {
     auto humanActionsIt = humanActions.begin();
     for (auto &object : this->objects) {
+        auto worldView = createWorldView(object);
+
         Action a;
         if (object->takesHumanAction()) {
             a = **humanActionsIt;
@@ -381,6 +467,7 @@ void World::update(const std::vector<std::unique_ptr<Action>> &humanActions) {
 
 unsigned int World::getHeight() const { return this->height; }
 unsigned int World::getNHumanActions() const { return this->nHumanActions; }
+const std::vector<std::unique_ptr<Object>>& World::getObjects() const { return this->objects; }
 SDL_Renderer * World::getRenderer() const { return this->renderer; }
 unsigned int World::getTileHeightPix() const { return this->tileHeightPix; }
 unsigned int World::getTileWidthPix() const { return this->tileWidthPix; }
@@ -403,6 +490,12 @@ SDL_Texture * World::createSolidTexture(unsigned int r, unsigned int g, unsigned
     SDL_UnlockTexture(texture);
     textures.push_back(texture);
     return texture;
+}
+
+// TODO.
+std::unique_ptr<WorldView> World::createWorldView(const std::unique_ptr<Object> &object) const {
+    auto objects = std::unique_ptr<std::vector<std::unique_ptr<Object>>>();
+    return std::unique_ptr<WorldView>(new WorldView(1, 2, std::move(objects)));
 }
 
 void printHelp() {

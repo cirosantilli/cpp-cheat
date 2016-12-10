@@ -34,13 +34,32 @@ int main() {
     {
         int i, i1;
         int& ia = i;
-        class Class {};
-        Class c;
+        assert(typeid(i)   == typeid(int) );
+        assert(typeid(ia)  == typeid(int&));
+        assert(typeid(i)   == typeid(i1)  );
+    }
 
-        assert(typeid(i)  == typeid(int) );
-        assert(typeid(ia) == typeid(int&));
-        assert(typeid(i)  == typeid(i1)  );
-        assert(typeid(i)  != typeid(c)   );
+    // Works differently for virtual and non virtual classes!
+    // http://stackoverflow.com/questions/11484010/c-typeid-used-on-derived-class-doesnt-return-correct-type
+    {
+        class C {};
+        class D : public C {};
+        C c;
+        D d;
+        C *dp = &d;
+        assert(typeid(C)   == typeid(c)   );
+        assert(typeid(*dp) == typeid(C)   );
+        assert(typeid(*dp) != typeid(D)   );
+
+        class PolyBase {
+             void virtual f() {};
+        };
+        class PolyDerived : public PolyBase {
+             void virtual f() {};
+        };
+        PolyDerived pd;
+        PolyBase *pdp = &pd;
+        assert(typeid(*pdp) == typeid(PolyDerived));
     }
 
     /*
