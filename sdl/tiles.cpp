@@ -536,7 +536,6 @@ SDL_Texture * World::createSolidTexture(unsigned int r, unsigned int g, unsigned
     return texture;
 }
 
-// TODO.
 std::unique_ptr<WorldView> World::createWorldView(const Object &object) const {
     auto objectViews = std::make_unique<std::vector<std::unique_ptr<ObjectView>>>();
     for (auto const& otherObject : this->objects) {
@@ -782,6 +781,7 @@ main_loop:
         double slack;
         double nextTarget = last_time + targetSpf;
         decltype(humanActions.size()) humanActionIdx = 0;
+        bool needMoreHumanActions = humanActionIdx < world->getNHumanActions();
         for (auto &action : humanActions) {
             action->reset();
         }
@@ -794,7 +794,6 @@ main_loop:
                             goto quit;
                         }
                     }
-                    bool addHumanAction = false;
                     // Global controls.
                     if (activatetKey(SDL_SCANCODE_Q, keyboardState, lastKeyboardState.get(), holdKey)) {
                         goto quit;
@@ -805,43 +804,44 @@ main_loop:
                     }
 
                     // Player controls.
-                    if (activatetKey(SDL_SCANCODE_LEFT, keyboardState, lastKeyboardState.get(), holdKey)) {
-                        std::cout << "left" << std::endl;
-                        humanActions[humanActionIdx]->setMoveX(Action::MoveX::LEFT);
-                        if (immediateAction) {
+                    if (needMoreHumanActions) {
+                        bool addHumanAction = false;
+                        if (activatetKey(SDL_SCANCODE_LEFT, keyboardState, lastKeyboardState.get(), holdKey)) {
+                            humanActions[humanActionIdx]->setMoveX(Action::MoveX::LEFT);
+                            if (immediateAction) {
+                                addHumanAction = true;
+                            }
+                        }
+                        if (activatetKey(SDL_SCANCODE_RIGHT, keyboardState, lastKeyboardState.get(), holdKey)) {
+                            humanActions[humanActionIdx]->setMoveX(Action::MoveX::RIGHT);
+                            if (immediateAction) {
+                                addHumanAction = true;
+                            }
+                        }
+                        if (activatetKey(SDL_SCANCODE_UP, keyboardState, lastKeyboardState.get(), holdKey)) {
+                            humanActions[humanActionIdx]->setMoveY(Action::MoveY::UP);
+                            if (immediateAction) {
+                                addHumanAction = true;
+                            }
+                        }
+                        if (activatetKey(SDL_SCANCODE_DOWN, keyboardState, lastKeyboardState.get(), holdKey)) {
+                            humanActions[humanActionIdx]->setMoveY(Action::MoveY::DOWN);
+                            if (immediateAction) {
+                                addHumanAction = true;
+                            }
+                        }
+                        if (activatetKey(SDL_SCANCODE_SPACE, keyboardState, lastKeyboardState.get(), holdKey)) {
                             addHumanAction = true;
                         }
-                    }
-                    if (activatetKey(SDL_SCANCODE_RIGHT, keyboardState, lastKeyboardState.get(), holdKey)) {
-                        humanActions[humanActionIdx]->setMoveX(Action::MoveX::RIGHT);
-                        if (immediateAction) {
-                            addHumanAction = true;
+                        if (addHumanAction) {
+                            humanActionIdx++;
+                            needMoreHumanActions = humanActionIdx < world->getNHumanActions();
                         }
                     }
-                    if (activatetKey(SDL_SCANCODE_UP, keyboardState, lastKeyboardState.get(), holdKey)) {
-                        humanActions[humanActionIdx]->setMoveY(Action::MoveY::UP);
-                        if (immediateAction) {
-                            addHumanAction = true;
-                        }
-                    }
-                    if (activatetKey(SDL_SCANCODE_DOWN, keyboardState, lastKeyboardState.get(), holdKey)) {
-                        humanActions[humanActionIdx]->setMoveY(Action::MoveY::DOWN);
-                        if (immediateAction) {
-                            addHumanAction = true;
-                        }
-                    }
-                    if (activatetKey(SDL_SCANCODE_SPACE, keyboardState, lastKeyboardState.get(), holdKey)) {
-                        addHumanAction = true;
-                    }
-
-                    if (addHumanAction) {
-                        humanActionIdx++;
-                    }
-                } while (blockOnPlayer && humanActionIdx < world->getNHumanActions());
+                } while (blockOnPlayer && needMoreHumanActions);
             }
             slack = nextTarget - common_get_secs();
         } while (limitFps && slack > 0.0);
-        std::cout << "after limitfps" << std::endl;
         last_time = common_get_secs();
         world->update(humanActions);
         ticks++;
