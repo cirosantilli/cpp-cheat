@@ -106,6 +106,7 @@ int main() {
         // They have the same address.
         {
             int i = 0;
+            //int& ia = i;
             int& ia = i;
             ia = 1;
             assert(i == 1);

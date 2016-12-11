@@ -32,71 +32,103 @@ TODO:
 const unsigned int COLOR_MAX = 255;
 const unsigned int N_COLOR_CHANNELS = 4;
 
+class Actor;
 class World;
 
 class Action {
     public:
-        enum DirectionX {
-            X_NONE,
-            X_LEFT,
-            X_RIGHT
+        enum class MoveX {
+            NONE,
+            LEFT,
+            RIGHT
         };
-        enum DirectionY {
-            Y_NONE,
-            Y_DOWN,
-            Y_UP
+        enum class MoveY {
+            NONE,
+            DOWN,
+            UP
         };
         Action() { this->reset(); }
-        Action(DirectionX directionX, DirectionY directionY) :
-            directionX(directionX), directionY(directionY) {}
-        DirectionX getDirectionX() const { return this->directionX; }
-        DirectionY getDirectionY() const { return this->directionY; }
+        Action(MoveX moveX, MoveY moveY) :
+            moveX(moveX), moveY(moveY) {}
+        MoveX getMoveX() const { return this->moveX; }
+        MoveY getMoveY() const { return this->moveY; }
         void reset() {
-            this->directionX = X_NONE;
-            this->directionY = Y_NONE;
+            this->moveX = MoveX::NONE;
+            this->moveY = MoveY::NONE;
         };
-        void setDirectionX(DirectionX x) { this->directionX = x; }
-        void setDirectionY(DirectionY y) { this->directionY = y; }
+        void setMoveX(MoveX x) { this->moveX = x; }
+        void setMoveY(MoveY y) { this->moveY = y; }
     private:
-        DirectionX directionX;
-        DirectionY directionY;
+        MoveX moveX;
+        MoveY moveY;
 };
 
 class Object {
     public:
+        enum class Type {
+            DO_NOTHING,
+            MOVE_UP,
+            MOVE_DOWN,
+            RANDOM,
+            FOLLOW_HUMAN,
+            FLEE_HUMAN,
+            HUMAN
+        };
         Object();
         virtual ~Object();
-        Object(unsigned int x, unsigned int y);
-        virtual Action act(World *world) = 0;
+        Object(unsigned int x, unsigned int y, Type type, std::unique_ptr<Actor> actor, unsigned int lineOfSight);
+        Actor& getActor() const;
+        unsigned int getLineOfSight() const;
         unsigned int getX() const;
         unsigned int getY() const;
-        virtual bool takesHumanAction() const;
+        Type getType() const;
         void setX(unsigned int x);
         void setY(unsigned int y);
     protected:
         unsigned int x;
         unsigned int y;
+        unsigned int lineOfSight;
+        std::unique_ptr<Actor> actor;
+        Type type;
 };
 
 class DrawableObject {
     public:
-        DrawableObject(Object *object) : object(object){}
+        DrawableObject(const Object& object) : object(object){}
         virtual ~DrawableObject(){}
-        virtual void draw(const World * world) const = 0;
+        virtual void draw(const World& world) const = 0;
     protected:
-        Object *object;
+        const Object& object;
 };
 
+/// The properties of an object that actors can see.
+/// E.g., actors may not know the line of sight of other objects.
+class ObjectView {
+    public:
+        ObjectView(int x, int y, Object::Type type)
+            : x(x), y(y), type(type) {}
+        int getX() { return this->x; }
+        int getY() { return this->y; }
+        Object::Type getType() { return this->type; }
+    private:
+        int x;
+        int y;
+        Object::Type type;
+};
+
+/// The portion of the world that actors can see.
+/// E.g.: actors cannot see what lies beyond their line of sight.
 class WorldView {
     public:
-        WorldView(unsigned int width, unsigned int height, std::unique_ptr<std::vector<std::unique_ptr<Object>>> objects) :
-            width(width), height(height), objects(std::move(objects)) {}
+        WorldView(unsigned int width, unsigned int height, std::unique_ptr<std::vector<std::unique_ptr<ObjectView>>> objectViews) :
+            width(width), height(height), objectViews(std::move(objectViews)) {}
         unsigned int getHeight() const { return this->height; }
+        const std::vector<std::unique_ptr<ObjectView>>& getObjectViews() const { return *this->objectViews; }
         unsigned int getWidth() const { return this->width; }
     private:
         unsigned int width;
         unsigned int height;
-        std::unique_ptr<std::vector<std::unique_ptr<Object>>> objects;
+        std::unique_ptr<std::vector<std::unique_ptr<ObjectView>>> objectViews;
 };
 
 class World {
@@ -111,7 +143,6 @@ class World {
             unsigned int tileHeightPix
         );
         ~World();
-        void addObject(std::unique_ptr<Object> object);
         void draw() const;
         /// Collect desired actions from all objects, and resolve them
         unsigned int getHeight() const;
@@ -142,93 +173,110 @@ class World {
         std::vector<std::unique_ptr<DrawableObject>> drawableObjects;
         std::vector<SDL_Texture *> textures;
 
+        // Methods.
         SDL_Texture * createSolidTexture(unsigned int r, unsigned int g, unsigned int b, unsigned int a);
-        std::unique_ptr<WorldView> createWorldView(const std::unique_ptr<Object> &object) const;
+        void storeObject(std::unique_ptr<Object> object, size_t textureId);
+        std::unique_ptr<WorldView> createWorldView(const Object &object) const;
 };
 
-Object::Object(){}
-Object::~Object(){}
-Object::Object(unsigned int x, unsigned int y) : x(x), y(y) {}
+Object::Object() {}
+Object::Object(unsigned int x, unsigned int y, Type type, std::unique_ptr<Actor> actor, unsigned int lineOfSight)
+    : x(x), y(y), actor(std::move(actor)), lineOfSight(lineOfSight) {}
+Object::~Object() {}
+Actor& Object::getActor() const { return *this->actor; }
+Object::Type Object::getType() const { return this->type; }
+unsigned int Object::getLineOfSight() const { return this->lineOfSight; }
 unsigned int Object::getX() const { return this->x; }
 unsigned int Object::getY() const { return this->y; }
-bool Object::takesHumanAction() const { return false; }
 void Object::setX(unsigned int x) { this->x = x; }
 void Object::setY(unsigned int y) { this->y = y; }
 
-class MoveUpObject : public Object {
+class Actor {
     public:
-        MoveUpObject(unsigned int x, unsigned int y) : Object(x, y) {}
-        virtual Action act(World *world) {
-            return Action(Action::DirectionX::X_NONE, Action::DirectionY::Y_UP);
+        /// Perceive one step of the world.
+        /// Update internal mental state.
+        /// Return an action for this current world step.
+        virtual Action act(const WorldView &worldView) = 0;
+        virtual bool takesHumanAction() const { return false; }
+};
+
+class DoNothingActor : public Actor {
+    public:
+        virtual Action act(const WorldView &worldView) {
+            return Action();
         };
 };
 
-class MoveDownObject : public Object {
+class MoveUpActor : public Actor {
     public:
-        MoveDownObject(unsigned int x, unsigned int y) : Object(x, y) {}
-        virtual Action act(World *world) {
-            return Action(Action::DirectionX::X_NONE, Action::DirectionY::Y_DOWN);
+        virtual Action act(const WorldView &worldView) {
+            return Action(Action::MoveX::NONE, Action::MoveY::UP);
         };
 };
 
-class MoveRandomObject : public Object {
+class MoveDownActor : public Actor {
     public:
-        MoveRandomObject(unsigned int x, unsigned int y) : Object(x, y) {}
-        virtual Action act(World *world) {
-            Action::DirectionX x;
-            Action::DirectionY y;
+        virtual Action act(const WorldView &worldView) {
+            return Action(Action::MoveX::NONE, Action::MoveY::DOWN);
+        };
+};
+
+class RandomActor : public Actor {
+    public:
+        virtual Action act(const WorldView &worldView) {
+            Action::MoveX x;
+            Action::MoveY y;
             switch (rand() % 3) {
                 case 0:
-                    x = Action::DirectionX::X_LEFT;
+                    x = Action::MoveX::LEFT;
                 break;
                 case 1:
-                    x = Action::DirectionX::X_NONE;
+                    x = Action::MoveX::NONE;
                 break;
                 case 2:
-                    x = Action::DirectionX::X_RIGHT;
+                    x = Action::MoveX::RIGHT;
                 break;
             }
             switch (rand() % 3) {
                 case 0:
-                    y = Action::DirectionY::Y_DOWN;
+                    y = Action::MoveY::DOWN;
                 break;
                 case 1:
-                    y = Action::DirectionY::Y_NONE;
+                    y = Action::MoveY::NONE;
                 break;
                 case 2:
-                    y = Action::DirectionY::Y_UP;
+                    y = Action::MoveY::UP;
                 break;
             }
             return Action(x, y);
         };
 };
 
-class HumanPlayerObject : public Object {
+class HumanActor : public Actor {
     public:
-        HumanPlayerObject(unsigned int x, unsigned int y) : Object(x, y) {}
-        virtual Action act(World *world) {
+        virtual Action act(const WorldView &worldView) {
             return Action();
         };
         virtual bool takesHumanAction() const { return true; }
 };
 
+/// Follow the first human it sees. TODO: closest.
 /// Dumb: no understanding of walls.
-class FollowPlayerObject : public Object {
+class FollowHumanActor : public Actor {
     public:
-        FollowPlayerObject(unsigned int x, unsigned int y) : Object(x, y) {}
-        virtual Action act(World *world) {
+        virtual Action act(const WorldView &worldView) {
             Action a;
-            for (auto const& object : world->getObjects()) {
-                if (typeid(*object) == typeid(HumanPlayerObject)) {
-                    if (this->getX() < object->getX()) {
-                        a.setDirectionX(Action::DirectionX::X_RIGHT);
-                    } else if (this->getX() > object->getX()) {
-                        a.setDirectionX(Action::DirectionX::X_LEFT);
+            for (auto const& object : worldView.getObjectViews()) {
+                if (object->getType() == Object::Type::HUMAN) {
+                    if (object->getX() > 0) {
+                        a.setMoveX(Action::MoveX::RIGHT);
+                    } else if (object->getX() < 0) {
+                        a.setMoveX(Action::MoveX::LEFT);
                     }
-                    if (this->getY() < object->getY()) {
-                        a.setDirectionY(Action::DirectionY::Y_UP);
-                    } else if (this->getY() > object->getY()) {
-                        a.setDirectionY(Action::DirectionY::Y_DOWN);
+                    if (0 < object->getY()) {
+                        a.setMoveY(Action::MoveY::UP);
+                    } else if (0 > object->getY()) {
+                        a.setMoveY(Action::MoveY::DOWN);
                     }
                     break;
                 }
@@ -237,23 +285,23 @@ class FollowPlayerObject : public Object {
         };
 };
 
+/// Follow the first human it sees. TODO: closest.
 /// Dumb: no understanding of walls.
-class FleePlayerObject : public Object {
+class FleeHumanActor : public Actor {
     public:
-        FleePlayerObject(unsigned int x, unsigned int y) : Object(x, y) {}
-        virtual Action act(World *world) {
+        virtual Action act(const WorldView &worldView) {
             Action a;
-            for (auto const& object : world->getObjects()) {
-                if (typeid(*object) == typeid(HumanPlayerObject)) {
-                    if (this->getX() < object->getX()) {
-                        a.setDirectionX(Action::DirectionX::X_LEFT);
+            for (auto const& object : worldView.getObjectViews()) {
+                if (object->getType() == Object::Type::HUMAN) {
+                    if (object->getX() < 0) {
+                        a.setMoveX(Action::MoveX::LEFT);
                     } else {
-                        a.setDirectionX(Action::DirectionX::X_RIGHT);
+                        a.setMoveX(Action::MoveX::RIGHT);
                     }
-                    if (this->getY() < object->getY()) {
-                        a.setDirectionY(Action::DirectionY::Y_DOWN);
+                    if (object->getY() > 0) {
+                        a.setMoveY(Action::MoveY::DOWN);
                     } else {
-                        a.setDirectionY(Action::DirectionY::Y_UP);
+                        a.setMoveY(Action::MoveY::UP);
                     }
                     break;
                 }
@@ -264,15 +312,15 @@ class FleePlayerObject : public Object {
 
 class SingleTextureDrawableObject : public DrawableObject {
     public:
-        SingleTextureDrawableObject(Object *object, SDL_Texture *texture) :
+        SingleTextureDrawableObject(const Object& object, SDL_Texture *texture) :
             DrawableObject(object), texture(texture) {}
-        virtual void draw(const World * world) const {
+        virtual void draw(const World& world) const {
             SDL_Rect rect;
-            rect.x = this->object->getX() * world->getTileWidthPix();
-            rect.y = (world->getHeight() - this->object->getY() - 1) * world->getTileHeightPix();
-            rect.w = world->getTileWidthPix();
-            rect.h = world->getTileHeightPix();
-            SDL_RenderCopy(world->getRenderer(), this->texture, NULL, &rect);
+            rect.x = this->object.getX() * world.getTileWidthPix();
+            rect.y = (world.getHeight() - this->object.getY() - 1) * world.getTileHeightPix();
+            rect.w = world.getTileWidthPix();
+            rect.h = world.getTileHeightPix();
+            SDL_RenderCopy(world.getRenderer(), this->texture, NULL, &rect);
         }
     private:
         /// Pointer to texture shared across all objects that look the same.
@@ -332,14 +380,19 @@ void World::draw() const {
         SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 0);
         SDL_RenderClear(this->renderer);
         for (auto const& object : this->drawableObjects) {
-            object->draw(this);
+            object->draw(*this);
         }
         SDL_RenderPresent(this->renderer);
     }
 }
 
-void World::addObject(std::unique_ptr<Object> object) {
-    if (object->takesHumanAction()) {
+void World::storeObject(std::unique_ptr<Object> object, size_t textureId) {
+    if (this->display) {
+        this->drawableObjects.push_back(std::make_unique<SingleTextureDrawableObject>(
+            *object, this->textures[textureId]
+        ));
+    }
+    if (object->getActor().takesHumanAction()) {
         this->nHumanActions++;
     }
     this->objects.push_back(std::move(object));
@@ -347,75 +400,67 @@ void World::addObject(std::unique_ptr<Object> object) {
 
 void World::initPhysics() {
     this->nHumanActions = 0;
+    unsigned int lineOfSight = std::min(this->getWidth(), this->getHeight()) / 2;
     for (unsigned int y = 0; y < this->height; ++y) {
         for (unsigned int x = 0; x < this->width; ++x) {
             unsigned int sum = x + y;
             if (sum & 1) {
-                auto object = std::unique_ptr<Object>(new MoveUpObject(x, y));
-                if (display) {
-                    this->drawableObjects.push_back(std::unique_ptr<DrawableObject>(
-                        new SingleTextureDrawableObject(object.get(), this->textures[0])
-                    ));
-                }
-                this->addObject(std::move(object));
+                this->storeObject(std::make_unique<Object>(x, y, Object::Type::MOVE_UP, std::make_unique<MoveUpActor>(), lineOfSight), 0);
             } else if (sum % 3 == 0) {
-                auto object = std::unique_ptr<Object>(new MoveDownObject(x, y));
-                if (display) {
-                    this->drawableObjects.push_back(std::unique_ptr<DrawableObject>(
-                        new SingleTextureDrawableObject(object.get(), this->textures[1])
-                    ));
-                }
-                this->addObject(std::move(object));
+                this->storeObject(std::make_unique<Object>(x, y, Object::Type::MOVE_DOWN, std::make_unique<MoveDownActor>(), lineOfSight), 1);
             }
         }
     }
-	{
-		auto object = std::unique_ptr<Object>(new HumanPlayerObject(this->getWidth() / 2, this->getHeight() / 2));
-		if (display) {
-			drawableObjects.push_back(std::unique_ptr<DrawableObject>(
-				new SingleTextureDrawableObject(object.get(), this->textures[2])
-			));
-		}
-		this->addObject(std::move(object));
-	}
-	// Player 2.
-	//{
-        //auto object = std::unique_ptr<Object>(new HumanPlayerObject(this->getWidth() / 2, this->getHeight() / 2 + 1));
-        //if (display) {
-            //drawableObjects.push_back(std::unique_ptr<DrawableObject>(
-                //new SingleTextureDrawableObject(object.get(), this->textures[3])
-            //));
-        //}
-        //this->addObject(std::move(object));
-	//}
-	{
-		auto object = std::unique_ptr<Object>(new MoveRandomObject(this->getWidth() / 4, this->getHeight() / 4));
-		if (display) {
-			drawableObjects.push_back(std::unique_ptr<DrawableObject>(
-				new SingleTextureDrawableObject(object.get(), this->textures[4])
-			));
-		}
-		this->addObject(std::move(object));
-	}
-	{
-		auto object = std::unique_ptr<Object>(new FollowPlayerObject(3 * this->getWidth() / 4, 3 * this->getHeight() / 4));
-		if (display) {
-			drawableObjects.push_back(std::unique_ptr<DrawableObject>(
-				new SingleTextureDrawableObject(object.get(), this->textures[5])
-			));
-		}
-		this->addObject(std::move(object));
-	}
-	{
-		auto object = std::unique_ptr<Object>(new FleePlayerObject(this->getWidth() / 4, 3 * this->getHeight() / 4));
-		if (display) {
-			drawableObjects.push_back(std::unique_ptr<DrawableObject>(
-				new SingleTextureDrawableObject(object.get(), this->textures[6])
-			));
-		}
-		this->addObject(std::move(object));
-	}
-
+    this->storeObject(
+        std::make_unique<Object>(
+            this->getWidth() / 2,
+            this->getHeight() / 2,
+            Object::Type::HUMAN,
+            std::make_unique<HumanActor>(),
+            lineOfSight
+        ),
+        2
+    );
+    //this->storeObject(
+        //std::make_unique<Object>(
+            //this->getWidth() / 2,
+            //this->getHeight() / 2,
+            //Object::Type::HUMAN,
+            //std::make_unique<HumanActor>(),
+            //lineOfSight
+        //),
+        //3
+    //);
+    this->storeObject(
+        std::make_unique<Object>(
+            this->getWidth() / 4,
+            this->getHeight() / 4,
+            Object::Type::RANDOM,
+            std::make_unique<RandomActor>(),
+            lineOfSight
+        ),
+        4
+    );
+    this->storeObject(
+        std::make_unique<Object>(
+            3 * this->getWidth() / 4,
+            this->getHeight() / 4,
+            Object::Type::FOLLOW_HUMAN,
+            std::make_unique<FollowHumanActor>(),
+            lineOfSight
+        ),
+        5
+    );
+    this->storeObject(
+        std::make_unique<Object>(
+            3 * this->getWidth() / 4,
+            3 * this->getHeight() / 4,
+            Object::Type::FLEE_HUMAN,
+            std::make_unique<FleeHumanActor>(),
+            lineOfSight
+        ),
+        6
+    );
 }
 
 void World::resetPhysics() {
@@ -424,26 +469,25 @@ void World::resetPhysics() {
     this->initPhysics();
 }
 
-void World::update(const std::vector<std::unique_ptr<Action>> &humanActions) {
+void World::update(const std::vector<std::unique_ptr<Action>>& humanActions) {
     auto humanActionsIt = humanActions.begin();
     for (auto &object : this->objects) {
-        auto worldView = createWorldView(object);
-
-        Action a;
-        if (object->takesHumanAction()) {
-            a = **humanActionsIt;
+        Action action;
+        auto& actor = object->getActor();
+        if (actor.takesHumanAction()) {
+            action = **humanActionsIt;
             humanActionsIt++;
         } else {
-            a = object->act(this);
+            action = actor.act(*createWorldView(*object));
         }
 
         // X
-        if (a.getDirectionX() == Action::DirectionX::X_LEFT) {
+        if (action.getMoveX() == Action::MoveX::LEFT) {
             auto x = object->getX();
             if (x > 0) {
                 object->setX(x - 1);
             }
-        } else if (a.getDirectionX() == Action::DirectionX::X_RIGHT) {
+        } else if (action.getMoveX() == Action::MoveX::RIGHT) {
             auto x = object->getX();
             if (x < this->getWidth() - 1) {
                 object->setX(x + 1);
@@ -451,12 +495,12 @@ void World::update(const std::vector<std::unique_ptr<Action>> &humanActions) {
         }
 
         // Y
-        if (a.getDirectionY() == Action::DirectionY::Y_UP) {
+        if (action.getMoveY() == Action::MoveY::UP) {
             auto y = object->getY();
             if (y < this->getHeight() - 1) {
                 object->setY(y + 1);
             }
-        } else if (a.getDirectionY() == Action::DirectionY::Y_DOWN) {
+        } else if (action.getMoveY() == Action::MoveY::DOWN) {
             auto y = object->getY();
             if (y > 0) {
                 object->setY(y - 1);
@@ -493,9 +537,16 @@ SDL_Texture * World::createSolidTexture(unsigned int r, unsigned int g, unsigned
 }
 
 // TODO.
-std::unique_ptr<WorldView> World::createWorldView(const std::unique_ptr<Object> &object) const {
-    auto objects = std::unique_ptr<std::vector<std::unique_ptr<Object>>>();
-    return std::unique_ptr<WorldView>(new WorldView(1, 2, std::move(objects)));
+std::unique_ptr<WorldView> World::createWorldView(const Object &object) const {
+    auto objectViews = std::make_unique<std::vector<std::unique_ptr<ObjectView>>>();
+    for (auto const& otherObject : this->objects) {
+        auto dx = otherObject->getX() - object.getX();
+        auto dy = otherObject->getX() - object.getX();
+        if (std::abs(dx) < object.getLineOfSight() && std::abs(dx) < object.getLineOfSight()) {
+            objectViews->push_back(std::make_unique<ObjectView>(dx, dy, otherObject->getType()));
+        }
+    }
+    return std::make_unique<WorldView>(object.getLineOfSight(), object.getLineOfSight(), std::move(objectViews));
 }
 
 void printHelp() {
@@ -553,9 +604,9 @@ void printHelp() {
         "\n"
         "# Controls\n"
         "\n"
-        "- `ESC`: quit\n"
-        "- `r`:   restart from initial state\n"
-        "- `Y_UP` / `Y_DOWN` / `LEFT` / `RIGHT` arrow keys: move\n"
+        "- `q`: quit\n"
+        "- `r`: restart from initial state\n"
+        "- `UP` / `DOWN` / `LEFT` / `RIGHT` arrow keys: move\n"
         "- `SPACE`: step simulation\n"
         "\n"
         "# Examples\n"
@@ -694,7 +745,7 @@ int main(int argc, char **argv) {
     auto tileWidthPix = windowWidthPix / width;
     auto tileHeightPix = windowHeightPix / height;
 
-    world = std::unique_ptr<World>(new World(
+    world = std::make_unique<World>(
         width,
         height,
         display,
@@ -702,7 +753,7 @@ int main(int argc, char **argv) {
         windowHeightPix,
         tileWidthPix,
         tileHeightPix
-    ));
+    );
 main_loop:
 
     common_fps_init();
@@ -712,12 +763,12 @@ main_loop:
     int numkeys;
     const Uint8 * keyboardState = SDL_GetKeyboardState(&numkeys);
     size_t keyboardStateSize = numkeys * sizeof(*keyboardState);
-    auto lastKeyboardState = std::unique_ptr<Uint8[]>(new Uint8[keyboardStateSize]);
+    auto lastKeyboardState = std::make_unique<Uint8[]>(keyboardStateSize);
 
     // Human actions.
     std::vector<std::unique_ptr<Action>> humanActions;
     for (decltype(world->getNHumanActions()) i = 0; i < world->getNHumanActions(); ++i) {
-        humanActions.push_back(std::unique_ptr<Action>(new Action()));
+        humanActions.push_back(std::make_unique<Action>());
     }
 
     // Randomness.
@@ -745,7 +796,7 @@ main_loop:
                     }
                     bool addHumanAction = false;
                     // Global controls.
-                    if (activatetKey(SDL_SCANCODE_ESCAPE, keyboardState, lastKeyboardState.get(), holdKey)) {
+                    if (activatetKey(SDL_SCANCODE_Q, keyboardState, lastKeyboardState.get(), holdKey)) {
                         goto quit;
                     }
                     if (activatetKey(SDL_SCANCODE_R, keyboardState, lastKeyboardState.get(), holdKey)) {
@@ -755,25 +806,26 @@ main_loop:
 
                     // Player controls.
                     if (activatetKey(SDL_SCANCODE_LEFT, keyboardState, lastKeyboardState.get(), holdKey)) {
-                        humanActions[humanActionIdx]->setDirectionX(Action::DirectionX::X_LEFT);
+                        std::cout << "left" << std::endl;
+                        humanActions[humanActionIdx]->setMoveX(Action::MoveX::LEFT);
                         if (immediateAction) {
                             addHumanAction = true;
                         }
                     }
                     if (activatetKey(SDL_SCANCODE_RIGHT, keyboardState, lastKeyboardState.get(), holdKey)) {
-                        humanActions[humanActionIdx]->setDirectionX(Action::DirectionX::X_RIGHT);
+                        humanActions[humanActionIdx]->setMoveX(Action::MoveX::RIGHT);
                         if (immediateAction) {
                             addHumanAction = true;
                         }
                     }
                     if (activatetKey(SDL_SCANCODE_UP, keyboardState, lastKeyboardState.get(), holdKey)) {
-                        humanActions[humanActionIdx]->setDirectionY(Action::DirectionY::Y_UP);
+                        humanActions[humanActionIdx]->setMoveY(Action::MoveY::UP);
                         if (immediateAction) {
                             addHumanAction = true;
                         }
                     }
                     if (activatetKey(SDL_SCANCODE_DOWN, keyboardState, lastKeyboardState.get(), holdKey)) {
-                        humanActions[humanActionIdx]->setDirectionY(Action::DirectionY::Y_DOWN);
+                        humanActions[humanActionIdx]->setMoveY(Action::MoveY::DOWN);
                         if (immediateAction) {
                             addHumanAction = true;
                         }
@@ -789,6 +841,7 @@ main_loop:
             }
             slack = nextTarget - common_get_secs();
         } while (limitFps && slack > 0.0);
+        std::cout << "after limitfps" << std::endl;
         last_time = common_get_secs();
         world->update(humanActions);
         ticks++;

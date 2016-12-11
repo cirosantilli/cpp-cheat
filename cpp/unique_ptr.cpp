@@ -8,6 +8,12 @@ Sample use case:
 - how to prevent memory leaks?
 
 http://en.cppreference.com/w/cpp/memory/unique_ptr
+
+unique_ptr may incur an extra dereferece cost, but it is usually well worth it.
+
+In Java, everything can be though as a smart pointer (shared),
+so using this is still more efficient than Java, since C++ can know the exact
+lifetime of objects, and release them immediately when they are done.
 */
 
 #include "common.hpp"
@@ -50,6 +56,12 @@ void manual_ptr_test() {
     for (auto base : bases) {
         delete base;
     }
+}
+
+// Create unique pointer dynamically,
+// and transfers ownershipt to caller.
+std::unique_ptr<Base> return_unique_ptr() {
+    return std::unique_ptr<Base>(new Base(1));
 }
 
 int main() {
@@ -120,13 +132,46 @@ int main() {
     /*
     # unique_ptr function argments
 
-    - `std::move` for transfering ownership
+    -   transfering ownership TODO
+        -   use raw pointeres on the interface, and convert it to unique_ptr inside callee
+            -   if you already have an unique_ptr, release() it
+            -   this allows you to not tie down to a specific smart pointer on the function interface
+        -   use unique_ptr on interface and move on caller.
+            - Advantage: unique_ptr on interface documents ownership transfer,
+                and prevents callee from passing non new pointer to it by mistake.
     - TODO for not transfering ownership:
-        - `const &`
+        - `const & std::unique_ptr<T>`
         - `get()`. Simple and efficient. But how to use it for containers like `vector<std::unique_ptr>`?
+        - `T&` on function, `*t` on caller. Looks good!
 
-    http://stackoverflow.com/questions/8114276/how-do-i-pass-a-unique-ptr-argument-to-a-constructor-or-a-functionhttp://stackoverflow.com/questions/8114276/how-do-i-pass-a-unique-ptr-argument-to-a-constructor-or-a-function
+    - http://stackoverflow.com/questions/8114276/how-do-i-pass-a-unique-ptr-argument-to-a-constructor-or-a-functionhttp://stackoverflow.com/questions/8114276/how-do-i-pass-a-unique-ptr-argument-to-a-constructor-or-a-function
+    - http://stackoverflow.com/questions/11277249/how-to-pass-stdunique-ptr-around
     */
     {
     }
+
+    // Return unique_ptr from function.
+    {
+        {
+            Base::count = 0;
+            auto base = return_unique_ptr();
+            assert(Base::count == 1);
+            assert(base->i == 1);
+        }
+        assert(Base::count == 0);
+    }
+
+#if __cplusplus >= 201402L
+    // # make_unique
+    // Does new and puts it inside unique_ptr. Very convenient.
+    {
+        {
+            Base::count = 0;
+            auto base = std::make_unique<Base>(1);
+            assert(Base::count == 1);
+            assert(base->i == 1);
+        }
+        assert(Base::count == 0);
+    }
+#endif
 }

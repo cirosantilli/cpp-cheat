@@ -213,23 +213,6 @@ int main() {
         }
     }
 
-    // # enum
-    {
-        // Unlike C, already does typedef, no need to write enum all the time.
-        {
-            enum E {A, B, C};
-            E e = A;
-        }
-
-#if __cplusplus >= 201103L
-        // Set storage size.
-        {
-            enum E : char {A, B, C};
-            assert(sizeof(E) == sizeof(char));
-        }
-#endif
-    }
-
     // # for
     {
 

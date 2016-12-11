@@ -9,6 +9,7 @@
     1.  [Hello world](hello_world.cpp)
     1.  [goto crosses initialization of](goto-cross-initialization.cpp)
     1.  [const](const.cpp)
+    1.  [enum](enum.cpp)
     1.  [RTTI](rtti.md)
     1.  Compile time magic
         1.  [constexpr](constexpr.cpp)

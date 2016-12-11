@@ -34,9 +34,9 @@ int main() {
     {
         int i, i1;
         int& ia = i;
-        assert(typeid(i)   == typeid(int) );
-        assert(typeid(ia)  == typeid(int&));
-        assert(typeid(i)   == typeid(i1)  );
+        assert(typeid(i)  == typeid(int) );
+        assert(typeid(ia) == typeid(int&));
+        assert(typeid(i)  == typeid(i1)  );
     }
 
     // Works differently for virtual and non virtual classes!
