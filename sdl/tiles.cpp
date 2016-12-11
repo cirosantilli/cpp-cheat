@@ -5,7 +5,7 @@ https://en.wikipedia.org/wiki/Tile-based_video_game
 
 TODO:
 
--   separate objects from controllers. Give controllers observed state instead of full world.
+-   display mode that only shows the line of sight of one human instead of all world
 -   redo previous human action
 -   pause
 -   use protobuf serialization for full world state, controller world view, and controller actions
@@ -17,6 +17,8 @@ TODO:
     - threading
     - GPU (TODO how to enforce fair resource sharing of GPU shaders?)
     Should we use raw seccomp, or a more full blown docker?
+-   draw grids to screen
+-   display line of sight of objects on screen
 */
 
 #include "common.h"
@@ -107,9 +109,9 @@ class ObjectView {
     public:
         ObjectView(int x, int y, Object::Type type)
             : x(x), y(y), type(type) {}
-        int getX() { return this->x; }
-        int getY() { return this->y; }
-        Object::Type getType() { return this->type; }
+        int getX() const { return this->x; }
+        int getY() const { return this->y; }
+        Object::Type getType() const { return this->type; }
     private:
         int x;
         int y;
@@ -181,7 +183,7 @@ class World {
 
 Object::Object() {}
 Object::Object(unsigned int x, unsigned int y, Type type, std::unique_ptr<Actor> actor, unsigned int lineOfSight)
-    : x(x), y(y), actor(std::move(actor)), lineOfSight(lineOfSight) {}
+    : x(x), y(y), type(type), actor(std::move(actor)), lineOfSight(lineOfSight) {}
 Object::~Object() {}
 Actor& Object::getActor() const { return *this->actor; }
 Object::Type Object::getType() const { return this->type; }
@@ -266,16 +268,16 @@ class FollowHumanActor : public Actor {
     public:
         virtual Action act(const WorldView &worldView) {
             Action a;
-            for (auto const& object : worldView.getObjectViews()) {
-                if (object->getType() == Object::Type::HUMAN) {
-                    if (object->getX() > 0) {
+            for (auto const& objectView : worldView.getObjectViews()) {
+                if (objectView->getType() == Object::Type::HUMAN) {
+                    if (objectView->getX() > 0) {
                         a.setMoveX(Action::MoveX::RIGHT);
-                    } else if (object->getX() < 0) {
+                    } else if (objectView->getX() < 0) {
                         a.setMoveX(Action::MoveX::LEFT);
                     }
-                    if (0 < object->getY()) {
+                    if (0 < objectView->getY()) {
                         a.setMoveY(Action::MoveY::UP);
-                    } else if (0 > object->getY()) {
+                    } else if (0 > objectView->getY()) {
                         a.setMoveY(Action::MoveY::DOWN);
                     }
                     break;
@@ -291,14 +293,14 @@ class FleeHumanActor : public Actor {
     public:
         virtual Action act(const WorldView &worldView) {
             Action a;
-            for (auto const& object : worldView.getObjectViews()) {
-                if (object->getType() == Object::Type::HUMAN) {
-                    if (object->getX() < 0) {
-                        a.setMoveX(Action::MoveX::LEFT);
-                    } else {
+            for (auto const& objectView : worldView.getObjectViews()) {
+                if (objectView->getType() == Object::Type::HUMAN) {
+                    if (objectView->getX() < 0) {
                         a.setMoveX(Action::MoveX::RIGHT);
+                    } else {
+                        a.setMoveX(Action::MoveX::LEFT);
                     }
-                    if (object->getY() > 0) {
+                    if (objectView->getY() > 0) {
                         a.setMoveY(Action::MoveY::DOWN);
                     } else {
                         a.setMoveY(Action::MoveY::UP);
@@ -539,9 +541,9 @@ SDL_Texture * World::createSolidTexture(unsigned int r, unsigned int g, unsigned
 std::unique_ptr<WorldView> World::createWorldView(const Object &object) const {
     auto objectViews = std::make_unique<std::vector<std::unique_ptr<ObjectView>>>();
     for (auto const& otherObject : this->objects) {
-        auto dx = otherObject->getX() - object.getX();
-        auto dy = otherObject->getX() - object.getX();
-        if (std::abs(dx) < object.getLineOfSight() && std::abs(dx) < object.getLineOfSight()) {
+        auto dx = (int)otherObject->getX() - (int)object.getX();
+        auto dy = (int)otherObject->getY() - (int)object.getY();
+        if (std::abs(dx) < (int)object.getLineOfSight() && std::abs(dy) < (int)object.getLineOfSight()) {
             objectViews->push_back(std::make_unique<ObjectView>(dx, dy, otherObject->getType()));
         }
     }
@@ -574,6 +576,8 @@ void printHelp() {
         "\n"
         "                 You likely don't want this for interactive simulations that\n"
         "                 block on user input (Rogue-like), as this becomes lag.\n"
+        "\n"
+        "- `-F`:          (Fps) don't print FPS to stdout.\n"
         "\n"
         "- `-h`:          (help) show this help\n"
         "\n"
@@ -692,10 +696,11 @@ int main(int argc, char **argv) {
     bool
         blockOnPlayer = true,
         display = true,
+        fixedRandomSeed = false,
         holdKey = false,
         immediateAction = false,
         limitFps = false,
-        fixedRandomSeed = false
+        printFps = true
     ;
     double
         targetFps = 1.0,
@@ -715,6 +720,8 @@ int main(int argc, char **argv) {
                 blockOnPlayer = !blockOnPlayer;
             } else if (std::strcmp(argv[i], "-d") == 0) {
                 display = !display;
+            } else if (std::strcmp(argv[i], "-F") == 0) {
+                printFps = !printFps;
             } else if (std::strcmp(argv[i], "-f") == 0) {
                 limitFps = !limitFps;
                 targetFps = std::strtod(argv[i + 1], NULL);
@@ -754,8 +761,9 @@ int main(int argc, char **argv) {
         tileHeightPix
     );
 main_loop:
-
-    common_fps_init();
+    if (printFps) {
+        common_fps_init();
+    }
     last_time = common_get_secs();
 
     // Keyboard state.
@@ -845,7 +853,9 @@ main_loop:
         last_time = common_get_secs();
         world->update(humanActions);
         ticks++;
-        common_fps_update_and_print();
+        if (printFps) {
+            common_fps_update_and_print();
+        }
     }
 quit:
     return EXIT_SUCCESS;
