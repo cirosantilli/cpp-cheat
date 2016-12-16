@@ -702,7 +702,68 @@ void World::createSingleTextureObject(
     this->objects.push_back(std::move(object));
 }
 
-void printHelp() {
+static bool activatetKey(
+    SDL_Scancode scancode,
+    const Uint8 *keyboardState,
+    Uint8 *lastKeyboardState,
+    bool holdKey
+) {
+    return
+        keyboardState[scancode] &&
+        (
+            holdKey
+            || !lastKeyboardState[scancode]
+        );
+}
+
+// Controls that may not act immediately.
+static void holdControls(
+        bool& needMoreHumanActions,
+        std::vector<std::unique_ptr<Action>>& humanActions,
+        bool& immediateAction,
+        const Uint8*& keyboardState,
+        std::unique_ptr<Uint8[]>& lastKeyboardState,
+        bool holdKey,
+        std::vector<std::unique_ptr<Action>>::size_type& humanActionIdx,
+        std::unique_ptr<World>& world
+) {
+    if (needMoreHumanActions) {
+        bool addHumanAction = false;
+        if (activatetKey(SDL_SCANCODE_LEFT, keyboardState, lastKeyboardState.get(), holdKey)) {
+            humanActions[humanActionIdx]->setMoveX(Action::MoveX::LEFT);
+            if (immediateAction) {
+                addHumanAction = true;
+            }
+        }
+        if (activatetKey(SDL_SCANCODE_RIGHT, keyboardState, lastKeyboardState.get(), holdKey)) {
+            humanActions[humanActionIdx]->setMoveX(Action::MoveX::RIGHT);
+            if (immediateAction) {
+                addHumanAction = true;
+            }
+        }
+        if (activatetKey(SDL_SCANCODE_UP, keyboardState, lastKeyboardState.get(), holdKey)) {
+            humanActions[humanActionIdx]->setMoveY(Action::MoveY::UP);
+            if (immediateAction) {
+                addHumanAction = true;
+            }
+        }
+        if (activatetKey(SDL_SCANCODE_DOWN, keyboardState, lastKeyboardState.get(), holdKey)) {
+            humanActions[humanActionIdx]->setMoveY(Action::MoveY::DOWN);
+            if (immediateAction) {
+                addHumanAction = true;
+            }
+        }
+        if (activatetKey(SDL_SCANCODE_SPACE, keyboardState, lastKeyboardState.get(), holdKey)) {
+            addHumanAction = true;
+        }
+        if (addHumanAction) {
+            humanActionIdx++;
+            needMoreHumanActions = humanActionIdx < world->getNHumanActions();
+        }
+    }
+}
+
+static void printHelp() {
     std::cerr <<
         "# CLI Options\n"
         "\n"
@@ -734,10 +795,13 @@ void printHelp() {
         "- `-h`:          (help) show this help\n"
         "\n"
         "- `-H`:          (Hold key) actions are taken not only when the player clicks\n"
-        "                 keys during a frame, but also when keys are being held during\n"
-        "                 a frame from the previous frame.\n"
+        "                 keys during a frame, but also when keys are being held at\n"
+        "                 the end of a frame.\n"
         "\n"
         "                 Makes the game more interactive, and controls less precise.\n"
+        "\n"
+        "                 TODO not all option combinations work properly with -H now.\n"
+        "                 Makes more sense with -b -f <int> -i\n"
         "\n"
         "- `-i`:          immediate mode. Progress simulation immediately after any user\n"
         "                 control is given, without waiting for `SPACE`.\n"
@@ -752,7 +816,7 @@ void printHelp() {
         "                 This is the only source of randomness in the whole engine.\n"
         "                 Fixing it to a given value gives reproducible games.\n"
         "\n"
-        "- `-v <int>`:    Only show what the int-th player is seeing on screen,\n"
+        "- `-v <int>`:    (View player) Only show what the int-th player is seeing on screen,\n"
         "                 limited by its field of view.\n"
         "\n"
         "                 You are forced to use this if the world is so large that\n"
@@ -761,9 +825,9 @@ void printHelp() {
         "                 If the field of view is so large that the tiles are less than\n"
         "                 one pixel wide, then your game simply cannot be visualized.\n"
         "\n"
-        "- `-w <int>`:    world width in tiles\n"
+        "- `-w <int>`:    (Width) world width in tiles\n"
         "\n"
-        "- `-W <int>`:    window width in pixels. Square windows only for now.\n"
+        "- `-W <int>`:    (Width) window width in pixels. Square windows only for now.\n"
         "                 Must be divisible by the width of the world.\n"
         "\n"
         "# Controls\n"
@@ -822,33 +886,18 @@ void printHelp() {
         "\n"
         "World updates even if user does nothing, but only at 2FPS.\n"
         "\n"
-        "TODO currently the first input is taken, but that feels sluggish.\n"
-        "This is to allow haveing multiple players with the same controls in TAS mode,\n"
-        "where the second input starts as soon as the first one is done.\n"
-        "\n"
         "## Continuous action game\n"
         "\n"
         "   ./prog -H -b -f 20.0 -i -w 100\n"
         "\n"
         "Same as Crypt of the NecroDancer, but with wide screen, and faster FPS.\n"
         "\n"
-        "Most engines will implement this mode with floating point positions.\n"
+        "Most engines will implement this mode with floating point positions,\n"
+        "but it could also be done with integers. However, this maps states 1-to-1\n"
+        "with screen while using floating point means that multiple states map to a\n"
+        "single screen after rounding.\n"
         "\n"
     ;
-}
-
-bool activatetKey(
-    SDL_Scancode scancode,
-    const Uint8 *keyboardState,
-    Uint8 *lastKeyboardState,
-    bool holdKey
-) {
-    return
-        keyboardState[scancode] &&
-        (
-            holdKey
-            || !lastKeyboardState[scancode]
-        );
 }
 
 int main(int argc, char **argv) {
@@ -959,7 +1008,8 @@ main_loop:
                             goto quit;
                         }
                     }
-                    // Global controls.
+
+                    // Immediate action controls.
                     if (activatetKey(SDL_SCANCODE_Q, keyboardState, lastKeyboardState.get(), holdKey)) {
                         goto quit;
                     }
@@ -968,45 +1018,36 @@ main_loop:
                         goto main_loop;
                     }
 
-                    // Player controls.
-                    if (needMoreHumanActions) {
-                        bool addHumanAction = false;
-                        if (activatetKey(SDL_SCANCODE_LEFT, keyboardState, lastKeyboardState.get(), holdKey)) {
-                            humanActions[humanActionIdx]->setMoveX(Action::MoveX::LEFT);
-                            if (immediateAction) {
-                                addHumanAction = true;
-                            }
-                        }
-                        if (activatetKey(SDL_SCANCODE_RIGHT, keyboardState, lastKeyboardState.get(), holdKey)) {
-                            humanActions[humanActionIdx]->setMoveX(Action::MoveX::RIGHT);
-                            if (immediateAction) {
-                                addHumanAction = true;
-                            }
-                        }
-                        if (activatetKey(SDL_SCANCODE_UP, keyboardState, lastKeyboardState.get(), holdKey)) {
-                            humanActions[humanActionIdx]->setMoveY(Action::MoveY::UP);
-                            if (immediateAction) {
-                                addHumanAction = true;
-                            }
-                        }
-                        if (activatetKey(SDL_SCANCODE_DOWN, keyboardState, lastKeyboardState.get(), holdKey)) {
-                            humanActions[humanActionIdx]->setMoveY(Action::MoveY::DOWN);
-                            if (immediateAction) {
-                                addHumanAction = true;
-                            }
-                        }
-                        if (activatetKey(SDL_SCANCODE_SPACE, keyboardState, lastKeyboardState.get(), holdKey)) {
-                            addHumanAction = true;
-                        }
-                        if (addHumanAction) {
-                            humanActionIdx++;
-                            needMoreHumanActions = humanActionIdx < world->getNHumanActions();
-                        }
-                    }
+                    holdControls(
+                        needMoreHumanActions,
+                        humanActions,
+                        immediateAction,
+                        keyboardState,
+                        lastKeyboardState,
+                        false,
+                        humanActionIdx,
+                        world
+                    );
                 } while (blockOnPlayer && needMoreHumanActions);
             }
             slack = nextTarget - common_get_secs();
         } while (limitFps && slack > 0.0);
+
+        // Act if input should be taken when keys are held.
+        // Only touch the first controller.
+        humanActionIdx = 0;
+        needMoreHumanActions = humanActionIdx < world->getNHumanActions();
+        holdControls(
+            needMoreHumanActions,
+            humanActions,
+            immediateAction,
+            keyboardState,
+            lastKeyboardState,
+            holdKey,
+            humanActionIdx,
+            world
+        );
+
         last_time = common_get_secs();
         world->update(humanActions);
         ticks++;
