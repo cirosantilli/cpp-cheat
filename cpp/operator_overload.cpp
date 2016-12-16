@@ -23,9 +23,9 @@
 
     Member or not
 
-        Certain operators can be both member functions and free functions.
+        Certain operators can be both member functions and free overloaded functions.
         This includes most operators such as `+`, `=`, `+=` and others.
-        See: <http://stackoverflow.com/a/4421729/895245> for a discussion on how to decide
+        See: http://stackoverflow.com/a/4421729/895245 for a discussion on how to decide
         between them.
 
         One question is that being non member improves the incapsulation, since then those
@@ -112,12 +112,13 @@ class OperatorOverload {
 
 
             // Prefix. Should return reference to match primitives.
-            const OperatorOverload& operator++() {
+            OperatorOverload& operator++() {
                 ++(this->i);
                 return *this;
             }
 
             // Postfix. Should not return reference to match primitives.
+            // Yes, this weird `int` dummy argument differentiates signature from prefix.
             const OperatorOverload operator++(int) {
                 OperatorOverload old(*this);
                 ++(*this);
@@ -329,9 +330,25 @@ int main() {
         {
             // Prefix
             {
-                OperatorOverload i(1);
-                assert(++i == OperatorOverload(2));
-                assert(i == OperatorOverload(2));
+                {
+                    OperatorOverload i(1);
+                    assert(++i == OperatorOverload(2));
+                    assert(i == OperatorOverload(2));
+                }
+
+                // The non-const reference return allows to chain ++.
+                {
+                    OperatorOverload i(1);
+                    assert(++(++i) == OperatorOverload(3));
+                    assert(i == OperatorOverload(3));
+
+                    // Just like for primitives.
+                    {
+                        int i = 0;
+                        assert(++(++i) == 2);
+                        assert(i == 2);
+                    }
+                }
             }
 
             // Postfix. TODO
@@ -339,6 +356,10 @@ int main() {
                 OperatorOverload i(1);
                 assert(i++ == OperatorOverload(1));
                 assert(i == OperatorOverload(2));
+
+                // ERROR. Cannot chain postfix, just like for primitives.
+                // It must return a new value.
+                //(i++)++
             }
         }
 

@@ -513,33 +513,33 @@ void World::init() {
         //(this->getHeight() / 2) + 1,
         //Object::Type::HUMAN,
         //std::make_unique<HumanActor>(),
-        //fov
+        //fov,
         //1
     //);
-    //this->createSingleTextureObject(
-        //this->getWidth() / 4,
-        //this->getHeight() / 4,
-        //Object::Type::RANDOM,
-        //std::make_unique<RandomActor>(),
-        //fov,
-        //2
-    //);
-    //this->createSingleTextureObject(
-        //3 * this->getWidth() / 4,
-        //this->getHeight() / 4,
-        //Object::Type::FOLLOW_HUMAN,
-        //std::make_unique<FollowHumanActor>(),
-        //fov,
-        //3
-    //);
-    //this->createSingleTextureObject(
-        //3 * this->getWidth() / 4,
-        //3 * this->getHeight() / 4,
-        //Object::Type::FLEE_HUMAN,
-        //std::make_unique<FleeHumanActor>(),
-        //fov,
-        //4
-    //);
+    this->createSingleTextureObject(
+        this->getWidth() / 4,
+        this->getHeight() / 4,
+        Object::Type::RANDOM,
+        std::make_unique<RandomActor>(),
+        fov,
+        2
+    );
+    this->createSingleTextureObject(
+        3 * this->getWidth() / 4,
+        this->getHeight() / 4,
+        Object::Type::FOLLOW_HUMAN,
+        std::make_unique<FollowHumanActor>(),
+        fov,
+        3
+    );
+    this->createSingleTextureObject(
+        3 * this->getWidth() / 4,
+        3 * this->getHeight() / 4,
+        Object::Type::FLEE_HUMAN,
+        std::make_unique<FleeHumanActor>(),
+        fov,
+        4
+    );
     this->createSingleTextureObject(
         this->getWidth() / 4,
         3 * this->getHeight() / 4,
@@ -548,16 +548,16 @@ void World::init() {
         fov,
         5
     );
-    //for (unsigned int y = 0; y < this->height; ++y) {
-        //for (unsigned int x = 0; x < this->width; ++x) {
-            //unsigned int sum = x + y;
-            //if (sum % 5 == 0) {
-                //this->createSingleTextureObject(x, y, Object::Type::MOVE_UP, std::make_unique<MoveUpActor>(), fov, 6);
-            //} else if (sum % 7 == 0) {
-                //this->createSingleTextureObject(x, y, Object::Type::MOVE_DOWN, std::make_unique<MoveDownActor>(), fov, 7);
-            //}
-        //}
-    //}
+    for (unsigned int y = 0; y < this->height; ++y) {
+        for (unsigned int x = 0; x < this->width; ++x) {
+            unsigned int sum = x + y;
+            if (sum % 5 == 0) {
+                this->createSingleTextureObject(x, y, Object::Type::MOVE_UP, std::make_unique<MoveUpActor>(), fov, 6);
+            } else if (sum % 7 == 0) {
+                this->createSingleTextureObject(x, y, Object::Type::MOVE_DOWN, std::make_unique<MoveDownActor>(), fov, 7);
+            }
+        }
+    }
 }
 
 // Reset to initial state.
@@ -740,13 +740,19 @@ void printHelp() {
         "                 This is the only source of randomness in the whole engine.\n"
         "                 Fixing it to a given value gives reproducible games.\n"
         "\n"
+        "- `-v <int>`:    Only show what the int-th player is seeing on screen,\n"
+        "                 limited by its field of view.\n"
+        "\n"
+        "                 You are forced to use this if the world is so large that\n"
+        "                 each tile would be less than one pixel wide.\n"
+        "\n"
+        "                 If the field of view is so large that the tiles are less than\n"
+        "                 one pixel wide, then your game simply cannot be visualized.\n"
+        "\n"
         "- `-w <int>`:    world width in tiles\n"
         "\n"
         "- `-W <int>`:    window width in pixels. Square windows only for now.\n"
         "                 Must be divisible by the width of the world.\n"
-        "\n"
-        "- `-v <int>`:    Only show what the int-th player is seeing on screen,\n"
-        "                 limited by its field of view.\n"
         "\n"
         "# Controls\n"
         "\n"

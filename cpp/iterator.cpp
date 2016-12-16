@@ -57,11 +57,20 @@ int main() {
             std::vector<int> v{1, 2, 0};
             int i = 0;
             int is[]{1, 2, 0};
-
             for (auto it = v.begin(); it != v.end(); ++it) {
                 assert(*it == is[i]);
                 ++i;
             }
+        }
+
+        // begin is overloaded by method const-ness, to return either
+        // ::iterator or ::const_iterator
+        // http://stackoverflow.com/questions/12646998/how-does-begin-know-which-return-type-to-return-const-or-non-const
+        {
+            const std::vector<std::unique_ptr<int>> v;
+            // ERROR.
+            //std::vector<std::unique_ptr<int>>::iterator it = v.begin();
+            std::vector<std::unique_ptr<int>>::const_iterator it = v.begin();
         }
 
         /*
@@ -95,6 +104,7 @@ int main() {
         }
     }
 
+#if __cplusplus >= 201103L
     /*
     # range based for loop
 
@@ -121,9 +131,73 @@ int main() {
         - operator++()
         - operator!=()
         - operator*()
+
+        Those methods are usually trivial, except for ++ which can actually
+        make a smart choice of what is the next value.
+        I bet http://www.boost.org/doc/libs/1_62_0/libs/iterator/doc/index.html
+        will make implementation easier with some defaults.
     */
     {
-#if __cplusplus >= 201103L
+        // Implement it yourself.
+        {
+            class Iterable {
+                private:
+                    class Iterator {
+                        public:
+                            Iterator(int *ip) : ip(ip) {}
+                            Iterator& operator++() {
+                                this->ip++;
+                                return *this;
+                            }
+                            bool operator!=(const Iterator& other) const {
+                                return this->ip != other.ip;
+                            }
+                            // cont& could be used if there is no backing data,
+                            int& operator*() const {
+                                return *this->ip;
+                            }
+                        private:
+                            int *ip;
+                    };
+                public:
+                    Iterable() : is{1, 2, 3} {
+                    }
+                    Iterator begin() {
+                        return Iterator(&is[0]);
+                    }
+                    Iterator end() {
+                        return Iterator(&is[3]);
+                    }
+                private:
+                    int is[3];
+            };
+
+            // Range based for loop works with that bare skelleton.
+            // Try removing any method of the above, and watch it blow up.
+            {
+                int sum = 0;
+                Iterable it;
+                for (auto const& x : it) {
+                    sum += x;
+                }
+                assert(sum == 6);
+            }
+
+            // Modification is also possible with this
+            // default-ish setup and references.
+            {
+                int sum = 0;
+                Iterable it;
+                for (auto& x : it) {
+                    x++;
+                }
+                for (auto& x : it) {
+                    sum += x;
+                }
+                assert(sum == 9);
+            }
+        }
+
         //forward
         {
             // If `int&` is used, no useless copies are made.
@@ -268,8 +342,9 @@ int main() {
         // Last element.
         *(v.end() - 1);
 
+        // POSSIBLE RUNTIME ERROR.
         // After last element no born check.
-        *(v.end());
+        //*(v.end());
 
         // No such method.
         //(v.end().hasNext());
