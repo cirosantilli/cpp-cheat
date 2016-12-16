@@ -7,9 +7,6 @@ TODO:
 
 -   when hold is pressed, only take input at end of tick. Otherwise, any click leads to double move.
 -   implement one type of score
--   display mode that only shows the line of sight of on chosen object
--   redo previous human action
--   pause
 -   use protobuf serialization for full world state, controller world view, and controller actions
 -   put players in separate processes, and control resources:
     - time
@@ -19,12 +16,13 @@ TODO:
     - threading
     - GPU (TODO how to enforce fair resource sharing of GPU shaders?)
     Should we use raw seccomp, or a more full blown docker?
--   draw grids to screen
--   display line of sight of objects on screen
--   toroidal world, or world with closed barriers (invisible walls are a hard mechanic for AI to grasp!)
 -   use quadtree (same as B-tree width width 4?) for searches.
     Boost geometry has some classes: http://www.boost.org/doc/libs/1_58_0/libs/geometry/doc/html/geometry/spatial_indexes/introduction.html
     R-tree is even more efficient as it is not restricted to halves only.
+-   redo previous human action
+-   pause
+-   draw grids to screen
+-   toroidal world, or world with closed barriers (invisible walls are a hard mechanic for AI to grasp!)
 */
 
 #include "common.h"
@@ -173,7 +171,9 @@ class World {
             bool display,
             unsigned int windowWidthPix,
             unsigned int windowHeightPix,
-            int showFovId
+            int showFovId,
+            bool fixedRandomSeed,
+            int randomSeed
         );
         ~World();
         void draw() const;
@@ -195,6 +195,7 @@ class World {
         void update(const std::vector<std::unique_ptr<Action>> &humanActions);
     private:
         int showFovId;
+        int randomSeed;
         unsigned int height;
         unsigned int nHumanActions;
         unsigned int tileHeightPix;
@@ -204,6 +205,7 @@ class World {
         unsigned int windowWidthPix;
         unsigned int viewHeight;
         bool display;
+        bool fixedRandomSeed;
         SDL_Renderer *renderer;
         SDL_Window *window;
         std::vector<std::unique_ptr<Object>> objects;
@@ -407,14 +409,18 @@ World::World(
     bool display,
     unsigned int windowWidthPix,
     unsigned int windowHeightPix,
-    int showFovId
+    int showFovId,
+    bool fixedRandomSeed,
+    int randomSeed
 ) :
     width(width),
     height(height),
     display(display),
     windowWidthPix(windowWidthPix),
     windowHeightPix(windowHeightPix),
-    showFovId(showFovId)
+    showFovId(showFovId),
+    fixedRandomSeed(fixedRandomSeed),
+    randomSeed(randomSeed)
 {
     this->window = NULL;
     this->renderer = NULL;
@@ -470,6 +476,12 @@ void World::destroyTextures() {
 }
 
 void World::init() {
+    // Randomness.
+    if (!this->fixedRandomSeed) {
+        this->randomSeed = std::time(NULL);
+    }
+    std::srand(this->randomSeed);
+
     this->nHumanActions = 0;
     unsigned int fov = std::min(this->getWidth(), this->getHeight()) / 2;
 
@@ -907,7 +919,9 @@ int main(int argc, char **argv) {
         display,
         windowWidthPix,
         windowHeightPix,
-        showFovId
+        showFovId,
+        fixedRandomSeed,
+        randomSeed
     );
 main_loop:
     if (printFps) {
@@ -926,12 +940,6 @@ main_loop:
     for (decltype(world->getNHumanActions()) i = 0; i < world->getNHumanActions(); ++i) {
         humanActions.push_back(std::make_unique<Action>());
     }
-
-    // Randomness.
-    if (!fixedRandomSeed) {
-        randomSeed = std::time(NULL);
-    }
-    std::srand(randomSeed);
 
     while (1) {
         world->draw();
