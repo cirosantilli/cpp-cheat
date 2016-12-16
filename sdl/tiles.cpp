@@ -5,7 +5,9 @@ https://en.wikipedia.org/wiki/Tile-based_video_game
 
 TODO:
 
--   display mode that only shows the line of sight of one human instead of all world
+-   when hold is pressed, only take input at end of tick. Otherwise, any click leads to double move.
+-   implement one type of score
+-   display mode that only shows the line of sight of on chosen object
 -   redo previous human action
 -   pause
 -   use protobuf serialization for full world state, controller world view, and controller actions
@@ -19,10 +21,15 @@ TODO:
     Should we use raw seccomp, or a more full blown docker?
 -   draw grids to screen
 -   display line of sight of objects on screen
+-   toroidal world, or world with closed barriers (invisible walls are a hard mechanic for AI to grasp!)
+-   use quadtree (same as B-tree width width 4?) for searches.
+    Boost geometry has some classes: http://www.boost.org/doc/libs/1_58_0/libs/geometry/doc/html/geometry/spatial_indexes/introduction.html
+    R-tree is even more efficient as it is not restricted to halves only.
 */
 
 #include "common.h"
 
+#include <cassert>
 #include <cstdlib>
 #include <cstring>
 #include <ctime>
@@ -35,6 +42,7 @@ const unsigned int COLOR_MAX = 255;
 const unsigned int N_COLOR_CHANNELS = 4;
 
 class Actor;
+class DrawableObject;
 class World;
 
 class Action {
@@ -78,9 +86,17 @@ class Object {
         };
         Object();
         virtual ~Object();
-        Object(unsigned int x, unsigned int y, Type type, std::unique_ptr<Actor> actor, unsigned int lineOfSight);
+        Object(
+            unsigned int x,
+            unsigned int y,
+            Type type,
+            std::unique_ptr<Actor> actor,
+            unsigned int fov,
+            std::unique_ptr<DrawableObject> drawableObject
+        );
+        void draw(const World& world, int cameraX = 0, int cameraY = 0) const;
         Actor& getActor() const;
-        unsigned int getLineOfSight() const;
+        unsigned int getFov() const;
         unsigned int getX() const;
         unsigned int getY() const;
         Type getType() const;
@@ -89,18 +105,30 @@ class Object {
     protected:
         unsigned int x;
         unsigned int y;
-        unsigned int lineOfSight;
+        unsigned int fov;
         std::unique_ptr<Actor> actor;
         Type type;
+        std::unique_ptr<DrawableObject> drawableObject;
 };
 
 class DrawableObject {
     public:
-        DrawableObject(const Object& object) : object(object){}
         virtual ~DrawableObject(){}
-        virtual void draw(const World& world) const = 0;
-    protected:
-        const Object& object;
+        // cameraX / Y: lower left corner of the camera.
+        // Signed as it might go out of the scenario if player goes to world corner.
+        virtual void draw(
+            const World& world,
+            const Object& object,
+            int cameraX = 0,
+            int cameraY = 0
+        ) const = 0;
+};
+
+/// Placeholder for when we don't have any display.
+class DoNothingDrawableObject : public DrawableObject {
+    public:
+        DoNothingDrawableObject(){}
+        virtual void draw(const World& world, const Object& object, int cameraX = 0, int cameraY = 0) const {}
 };
 
 /// The properties of an object that actors can see.
@@ -117,6 +145,10 @@ class ObjectView {
         int y;
         Object::Type type;
 };
+
+std::ostream& operator<<(std::ostream& os, const ObjectView& o) {
+    return os << "ObjectView, x = " << o.getX() << ", y = " << o.getY();
+}
 
 /// The portion of the world that actors can see.
 /// E.g.: actors cannot see what lies beyond their line of sight.
@@ -141,11 +173,11 @@ class World {
             bool display,
             unsigned int windowWidthPix,
             unsigned int windowHeightPix,
-            unsigned int tileWidthPix,
-            unsigned int tileHeightPix
+            int showFovId
         );
         ~World();
         void draw() const;
+        void destroyTextures();
         /// Collect desired actions from all objects, and resolve them
         unsigned int getHeight() const;
         unsigned int getNHumanActions() const;
@@ -154,44 +186,79 @@ class World {
         unsigned int getTileWidthPix() const;
         unsigned int getTileHeightPix() const;
         unsigned int getWidth() const;
-        void initPhysics();
-        void resetPhysics();
+        unsigned int getViewHeight() const;
+        void init();
+        void reset();
         /// to the next world state. E.g.: what happens if two objects
         /// want to move to the same place next tick? Or if an object
         /// wants to move into a wall?
         void update(const std::vector<std::unique_ptr<Action>> &humanActions);
     private:
-        unsigned int width;
+        int showFovId;
         unsigned int height;
         unsigned int nHumanActions;
-        unsigned int windowWidthPix;
-        unsigned int windowHeightPix;
-        unsigned int tileWidthPix;
         unsigned int tileHeightPix;
+        unsigned int tileWidthPix;
+        unsigned int width;
+        unsigned int windowHeightPix;
+        unsigned int windowWidthPix;
+        unsigned int viewHeight;
         bool display;
         SDL_Renderer *renderer;
         SDL_Window *window;
         std::vector<std::unique_ptr<Object>> objects;
-        std::vector<std::unique_ptr<DrawableObject>> drawableObjects;
         std::vector<SDL_Texture *> textures;
 
-        // Methods.
+        // Private methods.
+        /// Should we only show the FOV for a single object on screen? Or show every object?
+        bool showFov() const;
         SDL_Texture * createSolidTexture(unsigned int r, unsigned int g, unsigned int b, unsigned int a);
-        void storeObject(std::unique_ptr<Object> object, size_t textureId);
+        /// Advance iterator until the next object in the FOV of object, including it itself.
+        /// Return true if such object exists, false if there are no more.
+        /// The caller is responsible for incrementing the pointer to ask for the next object.
+        bool findNextObjectInFov(std::vector<std::unique_ptr<Object>>::const_iterator& it, const Object& object, int& dx, int& dy) const;
         std::unique_ptr<WorldView> createWorldView(const Object &object) const;
+        void createSingleTextureObject(
+            unsigned int x,
+            unsigned int y,
+            Object::Type type,
+            std::unique_ptr<Actor> actor,
+            unsigned int fov,
+            size_t textureId
+        );
 };
 
-Object::Object() {}
-Object::Object(unsigned int x, unsigned int y, Type type, std::unique_ptr<Actor> actor, unsigned int lineOfSight)
-    : x(x), y(y), type(type), actor(std::move(actor)), lineOfSight(lineOfSight) {}
+Object::Object() : drawableObject(new DoNothingDrawableObject()) {}
+Object::Object(
+    unsigned int x,
+    unsigned int y,
+    Type type,
+    std::unique_ptr<Actor> actor,
+    unsigned int fov,
+    std::unique_ptr<DrawableObject> drawableObject
+) :
+    x(x),
+    y(y),
+    type(type),
+    actor(std::move(actor)),
+    fov(fov),
+    drawableObject(std::move(drawableObject))
+{}
 Object::~Object() {}
+void Object::draw(const World& world, int cameraX, int cameraY) const {
+    this->drawableObject->draw(world, *this, cameraX, cameraY);
+}
 Actor& Object::getActor() const { return *this->actor; }
 Object::Type Object::getType() const { return this->type; }
-unsigned int Object::getLineOfSight() const { return this->lineOfSight; }
+unsigned int Object::getFov() const { return this->fov; }
 unsigned int Object::getX() const { return this->x; }
 unsigned int Object::getY() const { return this->y; }
 void Object::setX(unsigned int x) { this->x = x; }
 void Object::setY(unsigned int y) { this->y = y; }
+
+std::ostream& operator<<(std::ostream& os, const Object& o) {
+    return os << "Object, x = " << o.getX() << ", y = " << o.getY();
+}
 
 class Actor {
     public:
@@ -314,12 +381,17 @@ class FleeHumanActor : public Actor {
 
 class SingleTextureDrawableObject : public DrawableObject {
     public:
-        SingleTextureDrawableObject(const Object& object, SDL_Texture *texture) :
-            DrawableObject(object), texture(texture) {}
-        virtual void draw(const World& world) const {
+        SingleTextureDrawableObject(SDL_Texture *texture) :
+            texture(texture) {}
+        virtual void draw(
+            const World& world,
+            const Object& object,
+            int cameraX,
+            int cameraY
+        ) const {
             SDL_Rect rect;
-            rect.x = this->object.getX() * world.getTileWidthPix();
-            rect.y = (world.getHeight() - this->object.getY() - 1) * world.getTileHeightPix();
+            rect.x = (object.getX() - cameraX) * world.getTileWidthPix();
+            rect.y = ((world.getViewHeight() - 1) - (object.getY() - cameraY)) * world.getTileHeightPix();
             rect.w = world.getTileWidthPix();
             rect.h = world.getTileHeightPix();
             SDL_RenderCopy(world.getRenderer(), this->texture, NULL, &rect);
@@ -335,16 +407,14 @@ World::World(
     bool display,
     unsigned int windowWidthPix,
     unsigned int windowHeightPix,
-    unsigned int tileWidthPix,
-    unsigned int tileHeightPix
+    int showFovId
 ) :
     width(width),
     height(height),
     display(display),
     windowWidthPix(windowWidthPix),
     windowHeightPix(windowHeightPix),
-    tileWidthPix(tileWidthPix),
-    tileHeightPix(tileHeightPix)
+    showFovId(showFovId)
 {
     this->window = NULL;
     this->renderer = NULL;
@@ -353,6 +423,71 @@ World::World(
         SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO);
         SDL_CreateWindowAndRenderer(this->windowWidthPix, this->windowHeightPix, 0, &this->window, &this->renderer);
         SDL_SetWindowTitle(window, __FILE__);
+    }
+    this->init();
+}
+
+World::~World() {
+    if (this->display) {
+        this->destroyTextures();
+        SDL_DestroyRenderer(this->renderer);
+        SDL_DestroyWindow(this->window);
+        SDL_Quit();
+    }
+}
+
+void World::draw() const {
+    int dx, dy;
+    if (this->display) {
+        Uint8 *base;
+        SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 0);
+        SDL_RenderClear(this->renderer);
+        auto it = this->objects.begin();
+        int dx, dy;
+        if (this->showFov()) {
+            auto const& object = *(this->objects[this->showFovId]);
+            auto cameraX = object.getX() - (object.getFov() / 2);
+            auto cameraY = object.getY() - (object.getFov() / 2);
+            while (this->findNextObjectInFov(it, object, dx, dy)) {
+                auto const& otherObject = **it;
+                otherObject.draw(*this, cameraX, cameraY);
+                it++;
+            }
+        } else {
+            for (auto const& object : this->objects) {
+                object->draw(*this);
+            }
+        }
+        SDL_RenderPresent(this->renderer);
+    }
+}
+
+void World::destroyTextures() {
+    for (auto& texture : this->textures) {
+        SDL_DestroyTexture(texture);
+    }
+    this->textures.clear();
+}
+
+void World::init() {
+    this->nHumanActions = 0;
+    unsigned int fov = std::min(this->getWidth(), this->getHeight()) / 2;
+
+    // Setup textures. Depends on fov if we are watching an object.
+    if (this->display) {
+        unsigned int fovWidth = 0;
+        unsigned int fovHeight = 0;
+        if (this->showFov()) {
+            fovWidth = fov;
+            fovHeight = fovWidth;
+            this->viewHeight = fovHeight;
+        } else {
+            fovWidth = this->width;
+            fovHeight = this->height;
+            this->viewHeight = this->height;
+        }
+        this->tileWidthPix = windowWidthPix / fovWidth;
+        this->tileHeightPix = windowHeightPix / fovHeight;
         createSolidTexture(COLOR_MAX, 0, 0, 0);
         createSolidTexture(0, COLOR_MAX, 0, 0);
         createSolidTexture(0, 0, COLOR_MAX, 0);
@@ -361,114 +496,76 @@ World::World(
         createSolidTexture(0, COLOR_MAX, COLOR_MAX, 0);
         createSolidTexture(COLOR_MAX, COLOR_MAX, COLOR_MAX, 0);
         createSolidTexture(COLOR_MAX / 2, COLOR_MAX / 2, COLOR_MAX / 2, 0);
+        createSolidTexture(0, COLOR_MAX / 2, COLOR_MAX, 0);
     }
-    this->initPhysics();
-}
 
-World::~World() {
-    if (this->display) {
-        for (auto& texture : this->textures) {
-            SDL_DestroyTexture(texture);
-        }
-        SDL_DestroyRenderer(this->renderer);
-        SDL_DestroyWindow(this->window);
-        SDL_Quit();
-    }
-}
-
-void World::draw() const {
-    if (this->display) {
-        Uint8 *base;
-        SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 0);
-        SDL_RenderClear(this->renderer);
-        for (auto const& object : this->drawableObjects) {
-            object->draw(*this);
-        }
-        SDL_RenderPresent(this->renderer);
-    }
-}
-
-void World::storeObject(std::unique_ptr<Object> object, size_t textureId) {
-    if (this->display) {
-        this->drawableObjects.push_back(std::make_unique<SingleTextureDrawableObject>(
-            *object, this->textures[textureId]
-        ));
-    }
-    if (object->getActor().takesHumanAction()) {
-        this->nHumanActions++;
-    }
-    this->objects.push_back(std::move(object));
-}
-
-void World::initPhysics() {
-    this->nHumanActions = 0;
-    unsigned int lineOfSight = std::min(this->getWidth(), this->getHeight()) / 2;
-    for (unsigned int y = 0; y < this->height; ++y) {
-        for (unsigned int x = 0; x < this->width; ++x) {
-            unsigned int sum = x + y;
-            if (sum & 1) {
-                this->storeObject(std::make_unique<Object>(x, y, Object::Type::MOVE_UP, std::make_unique<MoveUpActor>(), lineOfSight), 0);
-            } else if (sum % 3 == 0) {
-                this->storeObject(std::make_unique<Object>(x, y, Object::Type::MOVE_DOWN, std::make_unique<MoveDownActor>(), lineOfSight), 1);
-            }
-        }
-    }
-    this->storeObject(
-        std::make_unique<Object>(
-            this->getWidth() / 2,
-            this->getHeight() / 2,
-            Object::Type::HUMAN,
-            std::make_unique<HumanActor>(),
-            lineOfSight
-        ),
-        2
+    // Place objects.
+    this->createSingleTextureObject(
+        this->getWidth() / 2,
+        this->getHeight() / 2,
+        Object::Type::HUMAN,
+        std::make_unique<HumanActor>(),
+        fov,
+        0
     );
-    //this->storeObject(
-        //std::make_unique<Object>(
-            //this->getWidth() / 2,
-            //this->getHeight() / 2,
-            //Object::Type::HUMAN,
-            //std::make_unique<HumanActor>(),
-            //lineOfSight
-        //),
+    //this->createSingleTextureObject(
+        //(this->getWidth() / 2) + 1,
+        //(this->getHeight() / 2) + 1,
+        //Object::Type::HUMAN,
+        //std::make_unique<HumanActor>(),
+        //fov
+        //1
+    //);
+    //this->createSingleTextureObject(
+        //this->getWidth() / 4,
+        //this->getHeight() / 4,
+        //Object::Type::RANDOM,
+        //std::make_unique<RandomActor>(),
+        //fov,
+        //2
+    //);
+    //this->createSingleTextureObject(
+        //3 * this->getWidth() / 4,
+        //this->getHeight() / 4,
+        //Object::Type::FOLLOW_HUMAN,
+        //std::make_unique<FollowHumanActor>(),
+        //fov,
         //3
     //);
-    this->storeObject(
-        std::make_unique<Object>(
-            this->getWidth() / 4,
-            this->getHeight() / 4,
-            Object::Type::RANDOM,
-            std::make_unique<RandomActor>(),
-            lineOfSight
-        ),
-        4
-    );
-    this->storeObject(
-        std::make_unique<Object>(
-            3 * this->getWidth() / 4,
-            this->getHeight() / 4,
-            Object::Type::FOLLOW_HUMAN,
-            std::make_unique<FollowHumanActor>(),
-            lineOfSight
-        ),
+    //this->createSingleTextureObject(
+        //3 * this->getWidth() / 4,
+        //3 * this->getHeight() / 4,
+        //Object::Type::FLEE_HUMAN,
+        //std::make_unique<FleeHumanActor>(),
+        //fov,
+        //4
+    //);
+    this->createSingleTextureObject(
+        this->getWidth() / 4,
+        3 * this->getHeight() / 4,
+        Object::Type::DO_NOTHING,
+        std::make_unique<DoNothingActor>(),
+        fov,
         5
     );
-    this->storeObject(
-        std::make_unique<Object>(
-            3 * this->getWidth() / 4,
-            3 * this->getHeight() / 4,
-            Object::Type::FLEE_HUMAN,
-            std::make_unique<FleeHumanActor>(),
-            lineOfSight
-        ),
-        6
-    );
+    //for (unsigned int y = 0; y < this->height; ++y) {
+        //for (unsigned int x = 0; x < this->width; ++x) {
+            //unsigned int sum = x + y;
+            //if (sum % 5 == 0) {
+                //this->createSingleTextureObject(x, y, Object::Type::MOVE_UP, std::make_unique<MoveUpActor>(), fov, 6);
+            //} else if (sum % 7 == 0) {
+                //this->createSingleTextureObject(x, y, Object::Type::MOVE_DOWN, std::make_unique<MoveDownActor>(), fov, 7);
+            //}
+        //}
+    //}
 }
 
-void World::resetPhysics() {
+// Reset to initial state.
+// Resets everything, except the main window which stays open.
+void World::reset() {
     this->objects.clear();
-    this->drawableObjects.clear();
-    this->initPhysics();
+    this->destroyTextures();
+    this->init();
 }
 
 void World::update(const std::vector<std::unique_ptr<Action>>& humanActions) {
@@ -513,11 +610,15 @@ void World::update(const std::vector<std::unique_ptr<Action>>& humanActions) {
 
 unsigned int World::getHeight() const { return this->height; }
 unsigned int World::getNHumanActions() const { return this->nHumanActions; }
+
 const std::vector<std::unique_ptr<Object>>& World::getObjects() const { return this->objects; }
 SDL_Renderer * World::getRenderer() const { return this->renderer; }
 unsigned int World::getTileHeightPix() const { return this->tileHeightPix; }
 unsigned int World::getTileWidthPix() const { return this->tileWidthPix; }
 unsigned int World::getWidth() const { return this->width; }
+unsigned int World::getViewHeight() const { return this->viewHeight; }
+
+bool World::showFov() const { return this->showFovId >= 0; }
 
 SDL_Texture * World::createSolidTexture(unsigned int r, unsigned int g, unsigned int b, unsigned int a) {
     int pitch = 0;
@@ -538,16 +639,55 @@ SDL_Texture * World::createSolidTexture(unsigned int r, unsigned int g, unsigned
     return texture;
 }
 
+bool World::findNextObjectInFov(std::vector<std::unique_ptr<Object>>::const_iterator& it, const Object& object, int& dx, int& dy) const {
+    // TODO: use quadtree
+    auto const end = this->objects.end();
+    while (it != end) {
+        auto const& otherObject = **it;
+        dx = (int)otherObject.getX() - (int)object.getX();
+        dy = (int)otherObject.getY() - (int)object.getY();
+        int fov = object.getFov();
+        if (std::abs(dx) < fov && std::abs(dy) < fov) {
+            return true;
+        }
+        it++;
+    }
+    return false;
+}
+
 std::unique_ptr<WorldView> World::createWorldView(const Object &object) const {
     auto objectViews = std::make_unique<std::vector<std::unique_ptr<ObjectView>>>();
-    for (auto const& otherObject : this->objects) {
-        auto dx = (int)otherObject->getX() - (int)object.getX();
-        auto dy = (int)otherObject->getY() - (int)object.getY();
-        if (std::abs(dx) < (int)object.getLineOfSight() && std::abs(dy) < (int)object.getLineOfSight()) {
-            objectViews->push_back(std::make_unique<ObjectView>(dx, dy, otherObject->getType()));
-        }
+    auto it = this->objects.begin();
+    int dx, dy;
+    while (this->findNextObjectInFov(it, object, dx, dy)) {
+        auto const& otherObject = **it;
+        objectViews->push_back(std::make_unique<ObjectView>(
+            dx, dy, otherObject.getType()
+        ));
+        it++;
     }
-    return std::make_unique<WorldView>(object.getLineOfSight(), object.getLineOfSight(), std::move(objectViews));
+    return std::make_unique<WorldView>(object.getFov(), object.getFov(), std::move(objectViews));
+}
+
+void World::createSingleTextureObject(
+    unsigned int x,
+    unsigned int y,
+    Object::Type type,
+    std::unique_ptr<Actor> actor,
+    unsigned int fov,
+    size_t textureId
+) {
+    std::unique_ptr<DrawableObject> drawableObject;
+    if (this->display) {
+        drawableObject = std::make_unique<SingleTextureDrawableObject>(this->textures[textureId]);
+    } else {
+        drawableObject = std::make_unique<DoNothingDrawableObject>();
+    }
+    if (actor->takesHumanAction()) {
+        this->nHumanActions++;
+    }
+    auto object = std::make_unique<Object>(x, y, type, std::move(actor), fov, std::move(drawableObject));
+    this->objects.push_back(std::move(object));
 }
 
 void printHelp() {
@@ -604,6 +744,9 @@ void printHelp() {
         "\n"
         "- `-W <int>`:    window width in pixels. Square windows only for now.\n"
         "                 Must be divisible by the width of the world.\n"
+        "\n"
+        "- `-v <int>`:    Only show what the int-th player is seeing on screen,\n"
+        "                 limited by its field of view.\n"
         "\n"
         "# Controls\n"
         "\n"
@@ -706,6 +849,7 @@ int main(int argc, char **argv) {
         targetFps = 1.0,
         last_time;
     ;
+    int showFovId = -1;
     unsigned int
         randomSeed,
         ticks = 0,
@@ -735,6 +879,8 @@ int main(int argc, char **argv) {
             } else if (std::strcmp(argv[i], "-r") == 0) {
                 randomSeed = std::strtol(argv[i + 1], NULL, 10);
                 fixedRandomSeed = true;
+            } else if (std::strcmp(argv[i], "-v") == 0) {
+                showFovId = std::strtol(argv[i + 1], NULL, 10);
             } else if (std::strcmp(argv[i], "-w") == 0) {
                 width = std::strtol(argv[i + 1], NULL, 10);
             } else if (std::strcmp(argv[i], "-W") == 0) {
@@ -748,8 +894,6 @@ int main(int argc, char **argv) {
     auto windowHeightPix = windowWidthPix;
     auto targetSpf = 1.0 / targetFps;
     auto height = width;
-    auto tileWidthPix = windowWidthPix / width;
-    auto tileHeightPix = windowHeightPix / height;
 
     world = std::make_unique<World>(
         width,
@@ -757,8 +901,7 @@ int main(int argc, char **argv) {
         display,
         windowWidthPix,
         windowHeightPix,
-        tileWidthPix,
-        tileHeightPix
+        showFovId
     );
 main_loop:
     if (printFps) {
@@ -807,7 +950,7 @@ main_loop:
                         goto quit;
                     }
                     if (activatetKey(SDL_SCANCODE_R, keyboardState, lastKeyboardState.get(), holdKey)) {
-                        world->resetPhysics();
+                        world->reset();
                         goto main_loop;
                     }
 
