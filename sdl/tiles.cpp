@@ -34,8 +34,6 @@ https://en.wikipedia.org/wiki/Tile-based_video_game
 - -i -m
 */
 
-#include "common.h"
-
 #include <cassert>
 #include <cstdlib>
 #include <cstring>
@@ -44,6 +42,8 @@ https://en.wikipedia.org/wiki/Tile-based_video_game
 #include <memory>
 #include <typeinfo>
 #include <vector>
+
+#include "common.h"
 
 const unsigned int COLOR_MAX = 255;
 const unsigned int N_COLOR_CHANNELS = 4;
