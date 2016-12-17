@@ -27,6 +27,14 @@ TODO:
     - @ 1316fc445471432e3b73255420d5ec210a96bdab : ./tiles.out -w 10 -H
         - hold up and left, then hit space: nothing happens.
         - hold any  other combination of directionals like up and right: it works!
+
+Testing: the following options must be tested:
+
+- (none)
+- -i
+- -b -f 2.0 -i
+- -H -b -f 2.0 -i
+- -H -b -f 2.0
 */
 
 #include "common.h"
@@ -725,13 +733,10 @@ static bool activatetKeyImmediate(
     const Uint8 *keyboardState,
     const Uint8 *lastKeyboardState,
     bool holdKey,
-    bool immediateAction,
-    bool& addHumanAction
+    bool& actionModified
 ) {
     bool ret = activatetKey(scancode, keyboardState, lastKeyboardState, holdKey);
-    if (ret && immediateAction) {
-        addHumanAction = true;
-    }
+    actionModified = actionModified || ret;
     return ret;
 }
 
@@ -748,24 +753,25 @@ static void holdControls(
         Action& action
 ) {
     if (needMoreHumanActions) {
-        bool addHumanAction = false;
-        if (activatetKeyImmediate(SDL_SCANCODE_LEFT, keyboardState, lastKeyboardState, holdKey, immediateAction, addHumanAction)) {
+        bool actionModified = false;
+        if (activatetKeyImmediate(SDL_SCANCODE_LEFT, keyboardState, lastKeyboardState, holdKey, actionModified)) {
             action.setMoveX(Action::MoveX::LEFT);
         }
-        if (activatetKeyImmediate(SDL_SCANCODE_RIGHT, keyboardState, lastKeyboardState, holdKey, immediateAction, addHumanAction)) {
+        if (activatetKeyImmediate(SDL_SCANCODE_RIGHT, keyboardState, lastKeyboardState, holdKey, actionModified)) {
             action.setMoveX(Action::MoveX::RIGHT);
         }
-        if (activatetKeyImmediate(SDL_SCANCODE_UP, keyboardState, lastKeyboardState, holdKey, immediateAction, addHumanAction)) {
+        if (activatetKeyImmediate(SDL_SCANCODE_UP, keyboardState, lastKeyboardState, holdKey, actionModified)) {
             action.setMoveY(Action::MoveY::UP);
         }
-        if (activatetKeyImmediate(SDL_SCANCODE_DOWN, keyboardState, lastKeyboardState, holdKey, immediateAction, addHumanAction)) {
+        if (activatetKeyImmediate(SDL_SCANCODE_DOWN, keyboardState, lastKeyboardState, holdKey, actionModified)) {
             action.setMoveY(Action::MoveY::DOWN);
         }
-        if (activatetKey(SDL_SCANCODE_SPACE, keyboardState, lastKeyboardState, holdKey)) {
-            std::cout << 1 << std::endl;
-            addHumanAction = true;
-        }
-        if (addHumanAction || holdKey) {
+
+        // Add an action to the action list if the time has come.
+        if (
+            activatetKey(SDL_SCANCODE_SPACE, keyboardState, lastKeyboardState, holdKey)
+            || (actionModified && (immediateAction || holdKey))
+        ) {
             *humanActions[humanActionIdx] = action;
             humanActionIdx++;
             needMoreHumanActions = humanActionIdx < world->getNHumanActions();
@@ -804,24 +810,41 @@ static void printHelp() {
         "\n"
         "- `-h`:          (help) show this help\n"
         "\n"
-        "- `-H`:          (Hold key) actions are taken not only when the player clicks\n"
-        "                 keys during a frame, but also when keys are being held at\n"
-        "                 the end of a frame.\n"
+        "- `-H`:          (Hold key) actions are taken if the player is hoding\n"
+        "                 at the end of a frame, a click is not needed.\n"
+        "\n"
+        "                 This alone does not cause the end of the frame. You either\n"
+        "                 need to press space while holding the keys, or use -b for that.\n"
+        "\n"
+        "                 If a click action was taken during the previous frame,\n"
+        "                 it gets overridden if any key is held at the en of the frame.\n"
         "\n"
         "                 Makes the game more interactive, and controls less precise.\n"
-        "\n"
-        "                 TODO not all option combinations work properly with -H now.\n"
-        "                 Makes more sense with -b -f <int> -i\n"
         "\n"
         "                 By hardware limitation, some combinations of keys may be impossible,\n"
         "                 while similar ones are possible, e.g. Right + Up + Space vs Left + Up + Space\n"
         "                 on Lenovo keyboards:\n"
         "                 http://unix.stackexchange.com/questions/268850/leftupspace-keys-not-working-on-thinkpad-x201\n"
         "\n"
-        "- `-i`:          immediate mode. Progress simulation immediately after any user\n"
-        "                 control is given, without waiting for `SPACE`.\n"
+        "                 Only the first human player is affected by this option, since it is impossible\n"
+        "                 to give different controls to different players (the only two design\n"
+        "                 choices are: affect only first or affect all equally, and we chose N.1).\n"
+        "\n"
+        "                 Another sensible semantic for this command, which is not currently\n"
+        "                 implemented, would be to update the action for player 0 whenever a key\n"
+        "                 is held in the middle of the frame. This would make it impossible to\n"
+        "                 control multiple human players.\n"
+        "\n"
+        "                 SPACE is not affected by hold: you still have to press it\n"
+        "                 multiple times to advance.\n"
+        "\n"
+        "- `-i`:          (Immediate) mode. Create action immediately whenever the user presses any key,\n"
+        "                 without waiting for `SPACE` to be pressed.\n"
         "\n"
         "                 Makes game more interactive, and less precisely controllable.\n"
+        "\n"
+        "                 In particular, it becomes difficult to press multiple simultaneous\n"
+        "                 keys consistently.\n"
         "\n"
         "- `-r`:          (Random) set a fixed random seed.\n"
         "\n"
@@ -908,7 +931,7 @@ static void printHelp() {
         "Same as Crypt of the NecroDancer, but with wide screen, and faster FPS.\n"
         "\n"
         "Most engines will implement this mode with floating point positions,\n"
-        "but it could also be done with integers. However, this maps states 1-to-1\n"
+        "but it could also be done with integers. However, we map states 1-to-1\n"
         "with screen while using floating point means that multiple states map to a\n"
         "single screen after rounding.\n"
         "\n"
@@ -1052,22 +1075,20 @@ main_loop:
 
         // Act if input should be taken when keys are held.
         // Only touch the first controller.
-        if (holdKey) {
-            action = Action();
-            humanActionIdx = 0;
-            needMoreHumanActions = humanActionIdx < world->getNHumanActions();
-            holdControls(
-                needMoreHumanActions,
-                humanActions,
-                immediateAction,
-                keyboardState,
-                lastKeyboardState.get(),
-                holdKey,
-                humanActionIdx,
-                world,
-                action
-            );
-        }
+        action = Action();
+        humanActionIdx = 0;
+        needMoreHumanActions = humanActionIdx < world->getNHumanActions();
+        holdControls(
+            needMoreHumanActions,
+            humanActions,
+            immediateAction,
+            keyboardState,
+            lastKeyboardState.get(),
+            holdKey,
+            humanActionIdx,
+            world,
+            action
+        );
 
         last_time = common_get_secs();
         world->update(humanActions);
