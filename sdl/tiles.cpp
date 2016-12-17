@@ -3,9 +3,8 @@
 
 https://en.wikipedia.org/wiki/Tile-based_video_game
 
-TODO:
+## TODO
 
--   when hold is pressed, only take input at end of tick. Otherwise, any click leads to double move.
 -   implement one type of score
 -   use protobuf serialization for full world state, controller world view, and controller actions
 -   put players in separate processes, and control resources:
@@ -23,18 +22,16 @@ TODO:
 -   pause
 -   draw grids to screen
 -   toroidal world, or world with closed barriers (invisible walls are a hard mechanic for AI to grasp!)
--   -H bugs:
-    - @ 1316fc445471432e3b73255420d5ec210a96bdab : ./tiles.out -w 10 -H
-        - hold up and left, then hit space: nothing happens.
-        - hold any  other combination of directionals like up and right: it works!
 
-Testing: the following options must be tested:
+## Testing:
 
-- (none)
+- no options
 - -i
 - -b -f 2.0 -i
 - -H -b -f 2.0 -i
 - -H -b -f 2.0
+- -m
+- -i -m
 */
 
 #include "common.h"
@@ -185,7 +182,8 @@ class World {
             unsigned int windowHeightPix,
             int showFovId,
             bool fixedRandomSeed,
-            int randomSeed
+            int randomSeed,
+            bool multiHumanPlayer
         );
         ~World();
         void draw() const;
@@ -206,18 +204,25 @@ class World {
         /// wants to move into a wall?
         void update(const std::vector<std::unique_ptr<Action>> &humanActions);
     private:
-        int showFovId;
-        int randomSeed;
-        unsigned int height;
-        unsigned int nHumanActions;
-        unsigned int tileHeightPix;
-        unsigned int tileWidthPix;
-        unsigned int width;
-        unsigned int windowHeightPix;
-        unsigned int windowWidthPix;
-        unsigned int viewHeight;
-        bool display;
-        bool fixedRandomSeed;
+        bool
+            display,
+            fixedRandomSeed,
+            multiHumanPlayer
+        ;
+        int
+            showFovId,
+            randomSeed
+        ;
+        unsigned int
+            height,
+            nHumanActions,
+            tileHeightPix,
+            tileWidthPix,
+            width,
+            windowHeightPix,
+            windowWidthPix,
+            viewHeight
+        ;
         SDL_Renderer *renderer;
         SDL_Window *window;
         std::vector<std::unique_ptr<Object>> objects;
@@ -423,7 +428,8 @@ World::World(
     unsigned int windowHeightPix,
     int showFovId,
     bool fixedRandomSeed,
-    int randomSeed
+    int randomSeed,
+    bool multiHumanPlayer
 ) :
     width(width),
     height(height),
@@ -432,7 +438,8 @@ World::World(
     windowHeightPix(windowHeightPix),
     showFovId(showFovId),
     fixedRandomSeed(fixedRandomSeed),
-    randomSeed(randomSeed)
+    randomSeed(randomSeed),
+    multiHumanPlayer(multiHumanPlayer)
 {
     this->window = NULL;
     this->renderer = NULL;
@@ -532,14 +539,16 @@ void World::init() {
         fov,
         0
     );
-    //this->createSingleTextureObject(
-        //(this->getWidth() / 2) + 1,
-        //(this->getHeight() / 2) + 1,
-        //Object::Type::HUMAN,
-        //std::make_unique<HumanActor>(),
-        //fov,
-        //1
-    //);
+    if (this->multiHumanPlayer) {
+        this->createSingleTextureObject(
+            (this->getWidth() / 2) + 1,
+            (this->getHeight() / 2) + 1,
+            Object::Type::HUMAN,
+            std::make_unique<HumanActor>(),
+            fov,
+            1
+        );
+    }
     this->createSingleTextureObject(
         this->getWidth() / 4,
         this->getHeight() / 4,
@@ -714,7 +723,7 @@ void World::createSingleTextureObject(
     this->objects.push_back(std::move(object));
 }
 
-static bool activatetKey(
+static bool activateKey(
     SDL_Scancode scancode,
     const Uint8 *keyboardState,
     const Uint8 *lastKeyboardState,
@@ -728,60 +737,46 @@ static bool activatetKey(
         );
 }
 
-static bool activatetKeyImmediate(
+static bool activateKeyActionModified(
     SDL_Scancode scancode,
     const Uint8 *keyboardState,
     const Uint8 *lastKeyboardState,
     bool holdKey,
-    bool& actionModified
+    bool& currentActionModified
 ) {
-    bool ret = activatetKey(scancode, keyboardState, lastKeyboardState, holdKey);
-    actionModified = actionModified || ret;
+    bool ret = activateKey(scancode, keyboardState, lastKeyboardState, holdKey);
+    currentActionModified = currentActionModified || ret;
     return ret;
 }
 
 // Controls that may not act immediately.
-static void holdControls(
-        bool& needMoreHumanActions,
-        std::vector<std::unique_ptr<Action>>& humanActions,
-        bool immediateAction,
-        const Uint8*& keyboardState,
-        const Uint8* lastKeyboardState,
-        bool holdKey,
-        std::vector<std::unique_ptr<Action>>::size_type& humanActionIdx,
-        std::unique_ptr<World>& world,
-        Action& action
+static bool holdControls(
+    const Uint8* keyboardState,
+    const Uint8* lastKeyboardState,
+    bool holdKey,
+    Action& action
 ) {
-    if (needMoreHumanActions) {
-        bool actionModified = false;
-        if (activatetKeyImmediate(SDL_SCANCODE_LEFT, keyboardState, lastKeyboardState, holdKey, actionModified)) {
-            action.setMoveX(Action::MoveX::LEFT);
-        }
-        if (activatetKeyImmediate(SDL_SCANCODE_RIGHT, keyboardState, lastKeyboardState, holdKey, actionModified)) {
-            action.setMoveX(Action::MoveX::RIGHT);
-        }
-        if (activatetKeyImmediate(SDL_SCANCODE_UP, keyboardState, lastKeyboardState, holdKey, actionModified)) {
-            action.setMoveY(Action::MoveY::UP);
-        }
-        if (activatetKeyImmediate(SDL_SCANCODE_DOWN, keyboardState, lastKeyboardState, holdKey, actionModified)) {
-            action.setMoveY(Action::MoveY::DOWN);
-        }
-
-        // Add an action to the action list if the time has come.
-        if (
-            activatetKey(SDL_SCANCODE_SPACE, keyboardState, lastKeyboardState, holdKey)
-            || (actionModified && (immediateAction || holdKey))
-        ) {
-            *humanActions[humanActionIdx] = action;
-            humanActionIdx++;
-            needMoreHumanActions = humanActionIdx < world->getNHumanActions();
-        }
+    bool currentActionModified = false;
+    if (activateKeyActionModified(SDL_SCANCODE_LEFT, keyboardState, lastKeyboardState, holdKey, currentActionModified)) {
+        action.setMoveX(Action::MoveX::LEFT);
     }
+    if (activateKeyActionModified(SDL_SCANCODE_RIGHT, keyboardState, lastKeyboardState, holdKey, currentActionModified)) {
+        action.setMoveX(Action::MoveX::RIGHT);
+    }
+    if (activateKeyActionModified(SDL_SCANCODE_UP, keyboardState, lastKeyboardState, holdKey, currentActionModified)) {
+        action.setMoveY(Action::MoveY::UP);
+    }
+    if (activateKeyActionModified(SDL_SCANCODE_DOWN, keyboardState, lastKeyboardState, holdKey, currentActionModified)) {
+        action.setMoveY(Action::MoveY::DOWN);
+    }
+    return currentActionModified;
 }
 
 static void printHelp() {
     std::cerr <<
         "# CLI Options\n"
+        "\n"
+        "## Interactive play options\n"
         "\n"
         "- `-b`:          (Block) don't block on player input.\n"
         "\n"
@@ -796,8 +791,6 @@ static void printHelp() {
         "\n"
         "                 User input is only available with display.\n"
         "\n"
-        "- `-f <double>`: (Fps) limit FPS to <double> FPS.\n"
-        "\n"
         "                 If not present, simulation runs as faster as possible.\n"
         "\n"
         "                 Helps humans visualize non-interactive simulations\n"
@@ -806,11 +799,9 @@ static void printHelp() {
         "                 You likely don't want this for interactive simulations that\n"
         "                 block on user input (Rogue-like), as this becomes lag.\n"
         "\n"
-        "- `-F`:          (Fps) don't print FPS to stdout.\n"
+        "- `-f <double>`: (Fps) limit FPS to <double> FPS.\n"
         "\n"
-        "- `-h`:          (help) show this help\n"
-        "\n"
-        "- `-H`:          (Hold key) actions are taken if the player is hoding\n"
+        "- `-H`:          (Hold key) actions are taken if the player is holding\n"
         "                 at the end of a frame, a click is not needed.\n"
         "\n"
         "                 This alone does not cause the end of the frame. You either\n"
@@ -846,14 +837,6 @@ static void printHelp() {
         "                 In particular, it becomes difficult to press multiple simultaneous\n"
         "                 keys consistently.\n"
         "\n"
-        "- `-r`:          (Random) set a fixed random seed.\n"
-        "\n"
-        "                 If given, it is always used across restarts. Otherwise, a new\n"
-        "                 seed is chosen for every restart.\n"
-        "\n"
-        "                 This is the only source of randomness in the whole engine.\n"
-        "                 Fixing it to a given value gives reproducible games.\n"
-        "\n"
         "- `-v <int>`:    (View player) Only show what the int-th player is seeing on screen,\n"
         "                 limited by its field of view.\n"
         "\n"
@@ -863,17 +846,34 @@ static void printHelp() {
         "                 If the field of view is so large that the tiles are less than\n"
         "                 one pixel wide, then your game simply cannot be visualized.\n"
         "\n"
-        "- `-w <int>`:    (Width) world width in tiles\n"
-        "\n"
         "- `-W <int>`:    (Width) window width in pixels. Square windows only for now.\n"
         "                 Must be divisible by the width of the world.\n"
+        "\n"
+        "## World state options\n"
+        "\n"
+        "- `-m`:          add multiple (2) human players to the map instead of just one\n"
+        "\n"
+        "- `-r`:          (Random) set a fixed random seed.\n"
+        "\n"
+        "                 If given, it is always used across restarts. Otherwise, a new\n"
+        "                 seed is chosen for every restart.\n"
+        "\n"
+        "                 This is the only source of randomness in the whole engine.\n"
+        "                 Fixing it to a given value gives reproducible games.\n"
+        "\n"
+        "- `-w <int>`:    (Width) world width in tiles\n"
+        "\n"
+        "## Debug options"
+        "- `-F`:          (Fps) don't print FPS to stdout. May help when debugging.\n"
+        "\n"
+        "- `-h`:          (help) show this help\n"
         "\n"
         "# Controls\n"
         "\n"
         "- `q`: quit\n"
         "- `r`: restart from initial state\n"
         "- `UP` / `DOWN` / `LEFT` / `RIGHT` arrow keys: move\n"
-        "- `SPACE`: step simulation\n"
+        "- `SPACE`: step simulation if neither or -i or \"-b -H\" are given\n"
         "\n"
         "# Examples\n"
         "\n"
@@ -946,6 +946,7 @@ int main(int argc, char **argv) {
         display = true,
         fixedRandomSeed = false,
         holdKey = false,
+        multiHumanPlayer = false,
         immediateAction = false,
         limitFps = false,
         printFps = true
@@ -965,31 +966,39 @@ int main(int argc, char **argv) {
     // Treat CLI arguments.
     for (decltype(argc) i = 0; i < argc; ++i) {
         if (argv[i][0] == '-') {
+
+            // Interactive play options.
             if (std::strcmp(argv[i], "-b") == 0) {
                 blockOnPlayer = !blockOnPlayer;
             } else if (std::strcmp(argv[i], "-d") == 0) {
                 display = !display;
-            } else if (std::strcmp(argv[i], "-F") == 0) {
-                printFps = !printFps;
             } else if (std::strcmp(argv[i], "-f") == 0) {
                 limitFps = !limitFps;
                 targetFps = std::strtod(argv[i + 1], NULL);
-            } else if (std::strcmp(argv[i], "-h") == 0) {
-                printHelp();
-                std::exit(EXIT_SUCCESS);
             } else if (std::strcmp(argv[i], "-H") == 0) {
                 holdKey = !holdKey;
             } else if (std::strcmp(argv[i], "-i") == 0) {
                 immediateAction = !immediateAction;
+            } else if (std::strcmp(argv[i], "-v") == 0) {
+                showFovId = std::strtol(argv[i + 1], NULL, 10);
+            } else if (std::strcmp(argv[i], "-W") == 0) {
+                windowWidthPix = std::strtol(argv[i + 1], NULL, 10);
+
+            // World state options.
+            } else if (std::strcmp(argv[i], "-m") == 0) {
+                multiHumanPlayer = !multiHumanPlayer;
             } else if (std::strcmp(argv[i], "-r") == 0) {
                 randomSeed = std::strtol(argv[i + 1], NULL, 10);
                 fixedRandomSeed = true;
-            } else if (std::strcmp(argv[i], "-v") == 0) {
-                showFovId = std::strtol(argv[i + 1], NULL, 10);
             } else if (std::strcmp(argv[i], "-w") == 0) {
                 width = std::strtol(argv[i + 1], NULL, 10);
-            } else if (std::strcmp(argv[i], "-W") == 0) {
-                windowWidthPix = std::strtol(argv[i + 1], NULL, 10);
+
+            // Debug options.
+            } else if (std::strcmp(argv[i], "-F") == 0) {
+                printFps = !printFps;
+            } else if (std::strcmp(argv[i], "-h") == 0) {
+                printHelp();
+                std::exit(EXIT_SUCCESS);
             } else {
                 printHelp();
                 std::exit(EXIT_FAILURE);
@@ -1008,7 +1017,8 @@ int main(int argc, char **argv) {
         windowHeightPix,
         showFovId,
         fixedRandomSeed,
-        randomSeed
+        randomSeed,
+        multiHumanPlayer
     );
 main_loop:
     if (printFps) {
@@ -1032,12 +1042,14 @@ main_loop:
         world->draw();
         double slack;
         double nextTarget = last_time + targetSpf;
-        decltype(humanActions.size()) humanActionIdx = 0;
-        bool needMoreHumanActions = humanActionIdx < world->getNHumanActions();
-        Action action;
+        decltype(humanActions.size()) currentActionIdx = 0;
+        bool needMoreHumanActions = currentActionIdx < world->getNHumanActions();
         for (auto &action : humanActions) {
             action->reset();
         }
+        // Action being currently built, possibly with multiple keypresses.
+        Action currentAction;
+        bool currentActionModified;
         do {
             if (display) {
                 do {
@@ -1057,17 +1069,25 @@ main_loop:
                         goto main_loop;
                     }
 
-                    holdControls(
-                        needMoreHumanActions,
-                        humanActions,
-                        immediateAction,
-                        keyboardState,
-                        lastKeyboardState.get(),
-                        false,
-                        humanActionIdx,
-                        world,
-                        action
-                    );
+                    // Actions that may be built with multiple key-presses.
+                    if (needMoreHumanActions) {
+                        currentActionModified = holdControls(
+                            keyboardState,
+                            lastKeyboardState.get(),
+                            false,
+                            currentAction
+                        );
+                        if (
+                            activateKey(SDL_SCANCODE_SPACE, keyboardState, lastKeyboardState.get(), false)
+                            || (currentActionModified && immediateAction)
+                        ) {
+                            *humanActions[currentActionIdx] = currentAction;
+                            currentActionIdx++;
+                            needMoreHumanActions = currentActionIdx < world->getNHumanActions();
+                            currentAction.reset();
+                        }
+                    }
+
                 } while (blockOnPlayer && needMoreHumanActions);
             }
             slack = nextTarget - common_get_secs();
@@ -1075,20 +1095,18 @@ main_loop:
 
         // Act if input should be taken when keys are held.
         // Only touch the first controller.
-        action = Action();
-        humanActionIdx = 0;
-        needMoreHumanActions = humanActionIdx < world->getNHumanActions();
-        holdControls(
-            needMoreHumanActions,
-            humanActions,
-            immediateAction,
-            keyboardState,
-            lastKeyboardState.get(),
-            holdKey,
-            humanActionIdx,
-            world,
-            action
-        );
+        if (holdKey && (world->getNHumanActions() > 0)) {
+            currentAction.reset();
+            currentActionModified = holdControls(
+                keyboardState,
+                lastKeyboardState.get(),
+                true,
+                currentAction
+            );
+            if (currentActionModified) {
+                *humanActions[0] = currentAction;
+            }
+        }
 
         last_time = common_get_secs();
         world->update(humanActions);
