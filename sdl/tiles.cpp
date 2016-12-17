@@ -23,6 +23,10 @@ TODO:
 -   pause
 -   draw grids to screen
 -   toroidal world, or world with closed barriers (invisible walls are a hard mechanic for AI to grasp!)
+-   -H bugs:
+    - @ 1316fc445471432e3b73255420d5ec210a96bdab : ./tiles.out -w 10 -H
+        - hold up and left, then hit space: nothing happens.
+        - hold any  other combination of directionals like up and right: it works!
 */
 
 #include "common.h"
@@ -705,58 +709,64 @@ void World::createSingleTextureObject(
 static bool activatetKey(
     SDL_Scancode scancode,
     const Uint8 *keyboardState,
-    Uint8 *lastKeyboardState,
+    const Uint8 *lastKeyboardState,
     bool holdKey
 ) {
     return
         keyboardState[scancode] &&
         (
-            holdKey
-            || !lastKeyboardState[scancode]
+            holdKey ||
+            !lastKeyboardState[scancode]
         );
+}
+
+static bool activatetKeyImmediate(
+    SDL_Scancode scancode,
+    const Uint8 *keyboardState,
+    const Uint8 *lastKeyboardState,
+    bool holdKey,
+    bool immediateAction,
+    bool& addHumanAction
+) {
+    bool ret = activatetKey(scancode, keyboardState, lastKeyboardState, holdKey);
+    if (ret && immediateAction) {
+        addHumanAction = true;
+    }
+    return ret;
 }
 
 // Controls that may not act immediately.
 static void holdControls(
         bool& needMoreHumanActions,
         std::vector<std::unique_ptr<Action>>& humanActions,
-        bool& immediateAction,
+        bool immediateAction,
         const Uint8*& keyboardState,
-        std::unique_ptr<Uint8[]>& lastKeyboardState,
+        const Uint8* lastKeyboardState,
         bool holdKey,
         std::vector<std::unique_ptr<Action>>::size_type& humanActionIdx,
-        std::unique_ptr<World>& world
+        std::unique_ptr<World>& world,
+        Action& action
 ) {
     if (needMoreHumanActions) {
         bool addHumanAction = false;
-        if (activatetKey(SDL_SCANCODE_LEFT, keyboardState, lastKeyboardState.get(), holdKey)) {
-            humanActions[humanActionIdx]->setMoveX(Action::MoveX::LEFT);
-            if (immediateAction) {
-                addHumanAction = true;
-            }
+        if (activatetKeyImmediate(SDL_SCANCODE_LEFT, keyboardState, lastKeyboardState, holdKey, immediateAction, addHumanAction)) {
+            action.setMoveX(Action::MoveX::LEFT);
         }
-        if (activatetKey(SDL_SCANCODE_RIGHT, keyboardState, lastKeyboardState.get(), holdKey)) {
-            humanActions[humanActionIdx]->setMoveX(Action::MoveX::RIGHT);
-            if (immediateAction) {
-                addHumanAction = true;
-            }
+        if (activatetKeyImmediate(SDL_SCANCODE_RIGHT, keyboardState, lastKeyboardState, holdKey, immediateAction, addHumanAction)) {
+            action.setMoveX(Action::MoveX::RIGHT);
         }
-        if (activatetKey(SDL_SCANCODE_UP, keyboardState, lastKeyboardState.get(), holdKey)) {
-            humanActions[humanActionIdx]->setMoveY(Action::MoveY::UP);
-            if (immediateAction) {
-                addHumanAction = true;
-            }
+        if (activatetKeyImmediate(SDL_SCANCODE_UP, keyboardState, lastKeyboardState, holdKey, immediateAction, addHumanAction)) {
+            action.setMoveY(Action::MoveY::UP);
         }
-        if (activatetKey(SDL_SCANCODE_DOWN, keyboardState, lastKeyboardState.get(), holdKey)) {
-            humanActions[humanActionIdx]->setMoveY(Action::MoveY::DOWN);
-            if (immediateAction) {
-                addHumanAction = true;
-            }
+        if (activatetKeyImmediate(SDL_SCANCODE_DOWN, keyboardState, lastKeyboardState, holdKey, immediateAction, addHumanAction)) {
+            action.setMoveY(Action::MoveY::DOWN);
         }
-        if (activatetKey(SDL_SCANCODE_SPACE, keyboardState, lastKeyboardState.get(), holdKey)) {
+        if (activatetKey(SDL_SCANCODE_SPACE, keyboardState, lastKeyboardState, holdKey)) {
+            std::cout << 1 << std::endl;
             addHumanAction = true;
         }
-        if (addHumanAction) {
+        if (addHumanAction || holdKey) {
+            *humanActions[humanActionIdx] = action;
             humanActionIdx++;
             needMoreHumanActions = humanActionIdx < world->getNHumanActions();
         }
@@ -802,6 +812,11 @@ static void printHelp() {
         "\n"
         "                 TODO not all option combinations work properly with -H now.\n"
         "                 Makes more sense with -b -f <int> -i\n"
+        "\n"
+        "                 By hardware limitation, some combinations of keys may be impossible,\n"
+        "                 while similar ones are possible, e.g. Right + Up + Space vs Left + Up + Space\n"
+        "                 on Lenovo keyboards:\n"
+        "                 http://unix.stackexchange.com/questions/268850/leftupspace-keys-not-working-on-thinkpad-x201\n"
         "\n"
         "- `-i`:          immediate mode. Progress simulation immediately after any user\n"
         "                 control is given, without waiting for `SPACE`.\n"
@@ -996,6 +1011,7 @@ main_loop:
         double nextTarget = last_time + targetSpf;
         decltype(humanActions.size()) humanActionIdx = 0;
         bool needMoreHumanActions = humanActionIdx < world->getNHumanActions();
+        Action action;
         for (auto &action : humanActions) {
             action->reset();
         }
@@ -1009,11 +1025,11 @@ main_loop:
                         }
                     }
 
-                    // Immediate action controls.
-                    if (activatetKey(SDL_SCANCODE_Q, keyboardState, lastKeyboardState.get(), holdKey)) {
+                    // Immediate action controls that don't wait for FPS limiting.
+                    if (keyboardState[SDL_SCANCODE_Q]) {
                         goto quit;
                     }
-                    if (activatetKey(SDL_SCANCODE_R, keyboardState, lastKeyboardState.get(), holdKey)) {
+                    if (keyboardState[SDL_SCANCODE_R]) {
                         world->reset();
                         goto main_loop;
                     }
@@ -1023,10 +1039,11 @@ main_loop:
                         humanActions,
                         immediateAction,
                         keyboardState,
-                        lastKeyboardState,
+                        lastKeyboardState.get(),
                         false,
                         humanActionIdx,
-                        world
+                        world,
+                        action
                     );
                 } while (blockOnPlayer && needMoreHumanActions);
             }
@@ -1035,18 +1052,22 @@ main_loop:
 
         // Act if input should be taken when keys are held.
         // Only touch the first controller.
-        humanActionIdx = 0;
-        needMoreHumanActions = humanActionIdx < world->getNHumanActions();
-        holdControls(
-            needMoreHumanActions,
-            humanActions,
-            immediateAction,
-            keyboardState,
-            lastKeyboardState,
-            holdKey,
-            humanActionIdx,
-            world
-        );
+        if (holdKey) {
+            action = Action();
+            humanActionIdx = 0;
+            needMoreHumanActions = humanActionIdx < world->getNHumanActions();
+            holdControls(
+                needMoreHumanActions,
+                humanActions,
+                immediateAction,
+                keyboardState,
+                lastKeyboardState.get(),
+                holdKey,
+                humanActionIdx,
+                world,
+                action
+            );
+        }
 
         last_time = common_get_secs();
         world->update(humanActions);
