@@ -16,12 +16,13 @@
     1.  Plots
         1.  [heatmap 1D](heatmap1d.c)
         1.  [heatmap](heatmap.c)
-        1.  [heatmap streaming](heatmap_streaming.c)
+        1.  [heatmap streaming](heatmap_texture.c)
         1.  [heatmap shader](heatmap_shader.c)
     1.  [Mouse](mouse.c)
         1. [Mouse rect](mouse_rect.c)
         1. [Mouse point rect](mouse_point_rect.c)
     1.  [OpenGL](opengl.c)
+        1. [Texture and OpenGL](texture_and_opengl.c)
     1.  Audio
         1.  [Sound frequency](sound_frequency.c)
     1.  Text

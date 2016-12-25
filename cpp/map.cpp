@@ -38,28 +38,85 @@ std::string map_to_str(std::map<K,V> map) {
 
 int main() {
     /*
-    The initializer list constructor makes things very easy.
+    Create initialized map.
     */
     {
         std::map<int,std::string> m{
             {0, "zero"},
             {1, "one"},
-            {2, "two"},
         };
+        assert(m[0] == "zero");
+        assert(m[1] == "one");
     }
 
     /*
     emplace
 
-        put a value pair into the map without creating the pair explicitly
+        Put a value pair into the map without creating the pair explicitly.
 
-        needs gcc 4.8: <http://stackoverflow.com/questions/15812276/stdset-has-no-member-emplace>
+        Only inserts if not already present.
+
+        Needs gcc 4.8: http://stackoverflow.com/questions/15812276/stdset-has-no-member-emplace
     */
     {
-        //std::map<int,std::string> m;
-        //m.emplace(0, "zero");
-        //m.emplace(1, "one");
-        //m.emplace(2, "two");
+        std::map<int,std::string> m;
+        m.emplace(0, "zero");
+        m.emplace(1, "one");
+        m.emplace(1, "one2");
+        assert(m[0] == "zero");
+        assert(m[1] == "one");
+    }
+
+    /*
+    # operator[]
+
+        get value from a given key
+    */
+    {
+        std::map<int,std::string> m{
+            {0, "zero"},
+            {1, "one"},
+        };
+        assert(m[0] == "zero");
+        assert(m[1] == "one");
+
+        // Returns a reference that can override the value.
+        m[1] = "one2";
+        assert(m[1] == "one2");
+
+        // WARNING: if the key does not exist, it is inserted with a value with default constructor.
+        // This can be avoided by using `find` instead of `[]`.
+        // Inserts `(2,"")` because `""` is the value for the default String constructor.
+        // http://stackoverflow.com/questions/10124679/what-happens-if-i-read-a-maps-value-where-the-key-does-not-exist
+        assert(m[2] == "");
+        assert(m.size() == 3);
+    }
+
+    /*
+    # find
+
+    # check if in map
+
+        Similar to `std::set` find with respect to the keys:
+        returns an iterator pointing to the pair which has given key, not the value.
+
+        If not found, returns `map::end()`
+
+        This is preferable to `[]` since it does not insert non-existent elements.
+    */
+    {
+        std::map<int,std::string> m{
+            {0, "zero"},
+            {1, "one"},
+        };
+
+
+        auto found = m.find(0);
+        assert(found != m.end());
+        assert(found->second == "zero");
+
+        assert(m.find(2) == m.end());
+        assert(m.size() == 2);
     }
 
     /*
@@ -67,33 +124,41 @@ int main() {
 
         Insert pair into map.
 
-        The return value is similar to that of a set insertion with respec to the key.
+        The return value is similar to that of a set insertion with respect to the key.
+
+        Just use emplace instead, less verbose as it was added after perfect forwarding.
+
+        http://stackoverflow.com/questions/17172080/insert-vs-emplace-vs-operator-in-c-map
     */
     {
         std::map<int,std::string> m;
         std::pair<std::map<int,std::string>::iterator,bool> ret;
 
-        ret = m.insert(std::pair<int,std::string>(0, "zero"));
+        ret = m.insert(std::make_pair(0, "zero"));
         assert(ret.first == m.find(0));
         assert(ret.second == true);
 
-        ret = m.insert(std::pair<int,std::string>(1, "one"));
+        ret = m.insert(std::make_pair(1, "one"));
         assert(ret.first == m.find(1));
         assert(ret.second == true);
 
         //key already present
-        ret = m.insert(std::pair<int,std::string>(1, "one2"));
+        ret = m.insert(std::make_pair(1, "one2"));
         assert(m[1] == "one");
         assert(ret.first == m.find(1));
         assert(ret.second == false);
     }
 
     /*
-    iterate
+    # iterate
 
-        Map is ordered.
+        Map is ordered:
+        http://stackoverflow.com/questions/7648756/is-the-order-of-iterating-through-stdmap-known-and-guaranteed-by-the-standard
 
         It is iterated in key `<` order.
+
+        So this basically requires implementations to use balanced
+        trees intead of hashmap.
 
         Iteration returns key value pairs.
     */
@@ -115,77 +180,38 @@ int main() {
     }
 
     /*
-    [] operator
-
-        get value from a given key
-
-        WARNING: if the key does not exist, it is inserted with a value with default constructor.
-
-        This can be avoided by using `find` instead of `[]`.
-    */
-    {
-        std::map<int,std::string> m{
-            {0, "zero"},
-            {1, "one"},
-        };
-
-        assert(m[0] == "zero");
-        assert(m[1] == "one");
-
-        // Inserts `(2,"")` because `""` is the value for the default String constructor.
-        assert(m[2] == "");
-        assert(m.size() == 3);
-    }
-
-    /*
-    # find
-
-    # check if in map
-
-        Similar to `std::set` find with respect to the keys:
-        returns an iterator pointing to the pair which has given key, not the value.
-
-        If not found, returns `map::end()`
-
-        This is perferrable to `[]` since it does not insert non-existent elements.
-    */
-    {
-        std::map<int,std::string> m{
-            {0, "zero"},
-            {1, "one"},
-        };
-
-        assert(m.find(0)->second == "zero");
-        assert(m.find(1)->second == "one");
-
-        assert(m.find(2) == m.end());
-        assert(m.size() == 2);
-    }
-
-    /*
-    erase
+    # erase
 
         Remove element from map.
-
-        Returns number of elements removed.
     */
     {
-        int ret;
+        // key version. Returns number of elements removed (0 or 1).
+        {
+            std::map<int,std::string> m{
+                {0, "zero"},
+                {1, "one"},
+            };
+            int ret;
+            ret = m.erase(1);
+            assert(ret = 1);
+            assert((m == std::map<int,std::string>{{0, "zero"}}));
 
-        std::map<int,std::string> m{
-            {0, "zero"},
-            {1, "one"},
-        };
+            ret = m.erase(1);
+            assert(ret == 0);
+        }
 
-        std::map<int,std::string> m2;
-        m2.insert(std::pair<int,std::string>(0, "zero"));
-
-        ret = m.erase(1);
-        assert(ret = 1);
-
-        assert(m == m2);
-
-        ret = m.erase(1);
-        assert(ret == 0);
+        // iterator version. Returns iterator to next element.
+        // Does not invalidate other iterators.
+        // http://stackoverflow.com/questions/6438086/iterator-invalidation-rules
+        {
+            std::map<int,std::string> m{
+                {0, "zero"},
+                {1, "one"},
+            };
+            auto itNext = m.find(1);
+            auto it = m.find(0);
+            assert(m.erase(it) == itNext);
+            assert((m == std::map<int,std::string>{{1, "one"}}));
+        }
     }
 }

@@ -3,6 +3,10 @@ Render text.
 Based on SDL_ttf, which is has a separate source tree
 https://www.libsdl.org/projects/SDL_ttf/, but is packaged
 together with SDL on Debian
+
+TODO: how to not recreate textures all the time.
+
+- http://stackoverflow.com/questions/29064904/rendering-fonts-and-text-with-sdl2-efficiently
 */
 
 #include <stdlib.h>

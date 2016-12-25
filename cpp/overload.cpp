@@ -94,16 +94,27 @@ int main() {
 
     // # const function overload
     // http://stackoverflow.com/questions/251159/what-is-the-use-of-const-overloading-in-c
+    // http://stackoverflow.com/questions/5103543/how-does-overloading-of-const-and-non-const-functions-work/41274591#41274591
     {
         class C {
             public:
                 int f() { return 1; }
-                int f() const { return 2; }
+                float f() const { return 1.5; }
         };
+
+        // Non const.
         C c;
         assert(c.f() == 1);
+
+        // Convert variable const at compile time.
+        assert(const_cast<const C&>(c).f() == 1.5);
+
+        // Same as above but with an explicit reference.
         const C& d = c;
-        // No, I kid you not. const qualification is serious stuff.
-        assert(d.f() == 2);
+        assert(d.f() == 1.5);
+
+        // Analogous but with a new const object from the start.
+        const C e;
+        assert(d.f() == 1.5);
     }
 }

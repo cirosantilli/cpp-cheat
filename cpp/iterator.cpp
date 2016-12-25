@@ -63,16 +63,6 @@ int main() {
             }
         }
 
-        // begin is overloaded by method const-ness, to return either
-        // ::iterator or ::const_iterator
-        // http://stackoverflow.com/questions/12646998/how-does-begin-know-which-return-type-to-return-const-or-non-const
-        {
-            const std::vector<std::unique_ptr<int>> v;
-            // ERROR.
-            //std::vector<std::unique_ptr<int>>::iterator it = v.begin();
-            std::vector<std::unique_ptr<int>>::const_iterator it = v.begin();
-        }
-
         /*
         # backwards iteration
 
@@ -286,7 +276,7 @@ int main() {
             int i;
             int is[] = {1, 2, 0};
 
-            //forward
+            // forward
             {
                 i = 2;
                 for (auto it = v.rbegin(); it != v.rend(); ++it) {
@@ -433,6 +423,41 @@ int main() {
         {
             assert(typeid(std::iterator_traits<std::vector<int>::iterator>::iterator_category)
                     == typeid(std::random_access_iterator_tag));
+        }
+    }
+
+    /*
+    # const_iterator
+
+        begin is overloaded by method const-ness, to return either
+        ::iterator or ::const_iterator
+
+        http://stackoverflow.com/questions/12646998/how-does-begin-know-which-return-type-to-return-const-or-non-const
+
+        const_iterator returns const values, so it cannot be used to modify the container.
+    */
+    {
+        // Basic example.
+        {
+            const std::vector<int> v{0};
+
+            // ERROR.
+            //std::vector<int>::iterator it = v.begin();
+
+            // OK.
+            std::vector<int>::const_iterator it = v.begin();
+            // ERROR: cannot modify because const_iterator.
+            //*it = 1;
+        }
+
+        // iterator can be converted to const_iterator.
+        {
+            std::vector<int> v{0};
+            std::vector<int>::iterator it = v.begin();
+            *it = 1;
+            std::vector<int>::const_iterator itc = it;
+            // ERROR.
+            //*itc = 1;
         }
     }
 }

@@ -6,6 +6,10 @@
 #include <time.h>
 
 #include <SDL2/SDL.h>
+#define GLEW_STATIC
+#include <GL/glew.h>
+
+#define COMMON_COLOR_MAX 255
 
 double common_get_secs(void) {
     struct timespec ts;

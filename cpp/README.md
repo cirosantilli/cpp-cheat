@@ -48,6 +48,8 @@
     1.  [exception](exception.cpp)
     1.  [typedef](typedef.cpp)
     1.  [typecast](typecast.cpp)
+        1.  [const_cast](const_cast.cpp)
+        1.  [static_cast](static_cast.cpp)
     1.  [new](new.cpp)
     1.  [Preprocessor](preprocessor.cpp)
     1.  using

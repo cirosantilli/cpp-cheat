@@ -66,65 +66,12 @@ int main() {
         }
 
         /*
-        # static_cast
-
-            - done at compile time
-            - only for pointers or references
-            - can only be done from / to base derived.
-
-                Always compiles, but if the conversion is wrong, bad errors may happen at runtime.
-        */
-
-        /*
         # reinterpret_cast
 
             Converts anything to anything by copying bytes.
 
             Behaviour is not portable in general.
         */
-
-        /*
-        # const_cast
-
-            Change (add/remove) constantness and volatility of objects (property called cv-qualification).
-
-            TODO when should it be used?
-
-            <http://stackoverflow.com/questions/357600/is-const-cast-safe/357640#357640>
-        */
-        {
-            //remove const
-            {
-                const int i = 0;
-                int const * ip = &i;
-
-                *const_cast<int*>(ip) = 1;
-                //assert(i == 1);
-                    //TODO why fail?
-
-            }
-
-            // ERROR: Returns rvalues. Therefore cannot initialize non-const references.
-            {
-                int i = 0;
-                int *ip;
-                //const int*& ipa = const_cast<const int*>(ip);
-                    //ipa is a non const reference.
-                    //int *const& would be a const reference.
-            }
-
-            // ERROR: only has effect for a single statement
-            {
-                //const_cast<int*>(ip);
-                //*ip = 1;
-            }
-
-            // ERROR: only works for pointers
-            {
-                const int i = 0;
-                //const_cast<int>(i) = 1;
-            }
-        }
 
         // Function pointer typecast.
         {

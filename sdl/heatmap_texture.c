@@ -1,6 +1,14 @@
-#include "common.h"
+/*
+Basic texture example.
 
-#define COLOR_MAX 255
+Much faster than SDL_RenderDrawPoint calls.
+
+Uses GL textures under the hood.
+
+SDL_TEXTUREACCESS_STREAMING is key to allow us to write to the texture from CPU.
+*/
+
+#include "common.h"
 
 int main(void) {
     SDL_Event event;
@@ -36,13 +44,13 @@ int main(void) {
             for (y = 0; y < WINDOW_HEIGHT; y++) {
                 xc = CENTER_X - x;
                 yc = CENTER_Y - y;
-                /*z = COLOR_MAX * 0.5 * (1.0 + (sin(PI2 * (sqrt(xc*xc + yc*yc) - SPEED * dt) / PERIOD)));*/
-                z = (int)(x + y + SPEED * dt) % COLOR_MAX;
+                /*z = COMMON_COLOR_MAX * 0.5 * (1.0 + (sin(PI2 * (sqrt(xc*xc + yc*yc) - SPEED * dt) / PERIOD)));*/
+                z = (int)(x + y + SPEED * dt) % COMMON_COLOR_MAX;
                 base = ((Uint8 *)pixels) + (4 * (x * WINDOW_WIDTH + y));
                 base[0] = 0;
                 base[1] = 0;
                 base[2] = z;
-                base[3] = COLOR_MAX;
+                base[3] = COMMON_COLOR_MAX;
             }
         }
         SDL_UnlockTexture(texture);

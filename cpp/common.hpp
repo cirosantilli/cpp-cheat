@@ -27,6 +27,7 @@
 #include <new>
 #include <numeric> // partial sums, differences on std::vectors of numbers
 #include <ostream> // ostream
+#include <ratio> // ratio, nano
 #include <set> // multiset, set
 #include <string> // getline, string
 #include <sstream> // stringstream
