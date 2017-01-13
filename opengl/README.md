@@ -10,6 +10,9 @@
     1.  [Benchmarks](benchmarks.md)
     1.  [Drivers](drivers.md)
     1.  [GLFW](glfw.md)
+    1.  Alternatives
+        1.  [Vulkan](vulkan.md)
+        1.  [GLES](gles/)
 1.  Examples
     1.  [GLUT hello world](hello_world.c)
     1.  [info](info.c)

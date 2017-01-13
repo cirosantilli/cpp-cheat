@@ -19,13 +19,13 @@ class C {
         int f() { return 2; }
 };
 
+int i;
+decltype(i) g() {
+    return 1;
+}
+
 int main() {
 #if __cplusplus >= 201103L
-    int i = 1;
-    float f = 2.0;
-    decltype(i + f) f2 = 1.5;
-    assert(f2 == 1.5);
-
     // Implies reference while auto does not.
     {
         int i = 0;
@@ -44,12 +44,20 @@ int main() {
 
     // Return value.
     {
-        decltype(f) i;
-        assert(sizeof(i) == sizeof(int));
+        decltype(f()) i;
+        assert(typeid(i) == typeid(int));
 
         C c;
         decltype(c.f()) j;
-        assert(sizeof(i) == sizeof(int));
+        assert(typeid(i) == typeid(int));
+
+        // Return value without instance. Use declval.
+        // http://stackoverflow.com/questions/9760358/decltype-requires-instantiated-object
+        decltype(std::declval<C>().f()) k;
+        assert(typeid(k) == typeid(int));
     }
+
+    // Can be used to declare the return value of functions.
+    assert(g() == 1);
 #endif
 }

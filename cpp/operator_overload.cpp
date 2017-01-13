@@ -389,7 +389,7 @@ int main() {
             assert(os.str() == "123");
         }
 
-        //typecast overload
+        // typecast overload
         {
             OperatorOverload oo(1);
 

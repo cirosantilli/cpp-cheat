@@ -599,27 +599,6 @@ const Member Base::member2 = Member(1);
 // ERROR: must be declared inside.
 //int Base::k;
 
-// multiple inheritance.
-
-    class MultipleInheritanceConflictBase1 {
-        public:
-            const static int is = 1;
-            int i;
-            void f(){}
-    };
-
-    class MultipleInheritanceConflictBase2 {
-        public:
-            const static int is = 2;
-            int i;
-            void f(){}
-    };
-
-    class MultipleInheritanceConflictDerived :
-        MultipleInheritanceConflictBase1,
-        MultipleInheritanceConflictBase2
-        {};
-
 class BaseProtected {
     public:
         BaseProtected(){callStack.push_back("BaseProtected::BaseProtected()");}
@@ -1883,51 +1862,6 @@ int main() {
             Means to implement a method on the derived class, replacing the definition on the base class.
         */
         {
-            Class c;
-            Class* cp = &c;
-
-            c.i = 0;
-            c.Class::i = 0;
-            cp->Class::i = 0;
-            c.Base::i = 1;
-
-            assert(c.i          == 0);
-            assert(c.Class::i   == 0);
-            assert(cp->Class::i == 0);
-
-            assert(c.Base::i   == 1);
-            assert(cp->Base::i == 1);
-
-            // ERROR: ambiguous
-            //c.iAmbiguous = 0;
-            c.Base::iAmbiguous = 0;
-
-            callStack.clear();
-            c.method();
-            assert(callStack.back() == "Class::method()");
-            // ERROR: ambiguous
-            //c.methodAmbiguous();
-            callStack.clear();
-            c.Base::methodAmbiguous();
-            assert(callStack.back() == "Base::methodAmbiguous()");
-
-            callStack.clear();
-        }
-
-        /*
-        # Multiple inheritance
-
-            In C++, if a member of an object or static variable of a class
-            comes from two base classes, an ambiguity occurs and the program does not
-            compile.
-
-            This just makes multiple inheritance very insane, since the addition of
-            new fields in a Base class can break existing code on Derived classes.
-        */
-        {
-            //MultipleInheritanceConflictDerived::is;
-            //MultipleInheritanceConflictDerived().i;
-            //MultipleInheritanceConflictDerived().f();
         }
     }
 

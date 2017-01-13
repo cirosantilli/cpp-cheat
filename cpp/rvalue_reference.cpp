@@ -77,9 +77,6 @@ int main() {
 
         irr = 1;
         assert(irr == 1);
-
-        //once assigned, rvalue references are iden
-        std::cout << "&iff = " << &irr << std::endl;
     }
 
     // Function overload can distinguish rvalues from lvalues.

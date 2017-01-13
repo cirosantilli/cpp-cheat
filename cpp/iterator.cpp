@@ -36,6 +36,20 @@
 
 #include "common.hpp"
 
+template<typename T>
+class MyInsertIterator : public std::insert_iterator<T> {
+    public:
+        using std::insert_iterator<T>::insert_iterator;
+        MyInsertIterator& operator=(const typename T::value_type& rhs) {
+            this->std::insert_iterator<T>::operator=(rhs + 1);
+            // Same, but a bit less DRY.
+            //this->container->insert(rhs + 1);
+        }
+        MyInsertIterator& operator=(const std::string& rhs) {
+            this->std::insert_iterator<T>::operator=(std::stoi(rhs));
+        }
+};
+
 int main() {
     // Before C++11: begin and end were the only way to use iterators.
     // After C++11; the range based syntax is the best way to use them.
@@ -345,7 +359,7 @@ int main() {
 
     The stdlib functions have specializations for pointers.
 
-    <http://stackoverflow.com/questions/713309/c-stl-can-arrays-be-used-transparently-with-stl-functions>
+    http://stackoverflow.com/questions/713309/c-stl-can-arrays-be-used-transparently-with-stl-functions
     */
     {
         int is[]{2, 0, 1};
@@ -458,6 +472,84 @@ int main() {
             std::vector<int>::const_iterator itc = it;
             // ERROR.
             //*itc = 1;
+        }
+    }
+
+    /*
+    # Output Iterators
+
+        Assignment inserts with some function, dereference returns *this.
+
+        Used by several `algorithm` functions.
+
+    # insert_iterator
+
+        Inserts with `.insert()`.
+
+    # inserter
+
+        Convenience function that saves a lot of typing with auto.
+
+        http://stackoverflow.com/questions/9270563/what-is-the-purpose-of-stdmake-pair-vs-the-constructor-of-stdpair/41521422#41521422
+
+    # back_inserter
+
+    # back_insert_iterator
+
+    # front_inserter
+
+    # front_insert_iterator
+
+        Analogous to `inserter`, but with `push_back` and `push_front`..
+    */
+    {
+        // vector example.
+        {
+            std::vector<int> v{0, 1};
+            // inserter + auto saves us from typing:
+            // std::insert_iterator<std::vector<int>>
+            auto it = std::inserter(v, v.end());
+            it = 2;
+            it++;
+            // Dereference is the same as without, thus useless here.
+            ********it = 3;
+            assert(v == std::vector<int>({0, 1, 2, 3}));
+        }
+
+        // set example.
+        // begin vs end
+        // http://stackoverflow.com/questions/5909624/is-there-a-difference-between-using-begin-vs-end-for-stdinserter-for-std
+        {
+            std::set<int> s{0, 1};
+            auto it = std::inserter(s, s.end());
+            it = 2;
+            it++;
+            it = 3;
+            assert(s == std::set<int>({0, 1, 2, 3}));
+        }
+
+        /*
+        Modify value before inserting.
+
+        TODO: easier way, maybe with boost iterators?
+
+        Some algorithms like std::transform also take an unary predicate
+        that does the job, but it may be that the algorithm does not have such API.
+        */
+        {
+            std::set<int> v{0, 1};
+            auto it = MyInsertIterator<decltype(v)>(v, v.end());
+
+            // Increment and insert.
+            it = 2;
+            it++;
+            it = 3;
+            it++;
+
+            // Adapt a different input type.
+            it = "5";
+
+            assert(v == std::set<int>({0, 1, 3, 4, 5}));
         }
     }
 }

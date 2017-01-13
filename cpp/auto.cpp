@@ -18,8 +18,30 @@ int main() {
 #if __cplusplus >= 201103L
     // Basic usage.
     {
-        //the compiler infers the type of i from the initialization.
+        // The compiler infers the type of i from the initialization.
         auto i = 1;
+        assert(typeid(i) == typeid(int));
+    }
+
+    // Two different types on a single declaration. Nope.
+    {
+        // ERROR: inconsistent types.
+        {
+            //auto
+                //i = 1,
+                //s = std::string("abc")
+            //;
+        }
+
+        // OK for single type.
+        {
+            auto
+                i = 1,
+                j = 2
+            ;
+            assert(typeid(i) == typeid(int));
+            assert(typeid(j) == typeid(int));
+        }
     }
 
     // Reference.
@@ -48,12 +70,6 @@ int main() {
     // Array. Seems not.
     {
         //auto is[]{1, 0};
-    }
-
-    {
-        typedef int Type;
-        std::vector<std::vector<Type>> is{{0}, {1, 2}};
-        for (auto& i : is[1]) std::cout << i << std::endl;
     }
 #endif
 }

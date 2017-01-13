@@ -11,10 +11,6 @@
 
     Does not require a hash function. Usually implemented as a self balancing tree such as a rb tree.
 
-# unordered_map
-
-    TODO complexity comparison to map.
-
 # hashmap
 
     There seems to be no explicit hashmap container, only a generic map interface,
@@ -60,9 +56,9 @@ int main() {
     */
     {
         std::map<int,std::string> m;
-        m.emplace(0, "zero");
-        m.emplace(1, "one");
-        m.emplace(1, "one2");
+        assert((m.emplace(0, "zero").second));
+        assert((m.emplace(1, "one").second));
+        assert(!(m.emplace(1, "one2").second));
         assert(m[0] == "zero");
         assert(m[1] == "one");
     }
@@ -70,7 +66,7 @@ int main() {
     /*
     # operator[]
 
-        get value from a given key
+        get value from a given key.
     */
     {
         std::map<int,std::string> m{
@@ -88,8 +84,23 @@ int main() {
         // This can be avoided by using `find` instead of `[]`.
         // Inserts `(2,"")` because `""` is the value for the default String constructor.
         // http://stackoverflow.com/questions/10124679/what-happens-if-i-read-a-maps-value-where-the-key-does-not-exist
-        assert(m[2] == "");
-        assert(m.size() == 3);
+        {
+            assert(m[2] == "");
+            assert(m.size() == 3);
+
+            // This behaviour is however very convenient for nested containers.
+            {
+                std::map<int,std::map<int,int>> m;
+                // Create the empty map at m[0], and immediately add a (0,0) pair to it.
+                m[0][0] = 0;
+                // map at m[0] already exists, now just add a new (1, 1) pair to it.
+                m[0][1] = 1;
+                m[1][0] = 2;
+                assert(m[0][0] == 0);
+                assert(m[0][1] == 1);
+                assert(m[1][0] == 2);
+            }
+        }
     }
 
     /*

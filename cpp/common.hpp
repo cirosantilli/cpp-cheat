@@ -33,8 +33,9 @@
 #include <sstream> // stringstream
 #include <typeinfo> // typeid, bad_typeid, bad_typecast
 #include <tuple> // tuple
+#include <unordered_set>
 #include <unordered_map> // unordered_map, unordered_multimap
-#include <utility> // forward, get, pair, size_t, type_info
+#include <utility> // forward, get, pair, size_t, type_info, declval
 #include <vector> // vector
 #include <valarray>
 

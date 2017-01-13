@@ -29,7 +29,8 @@ int main() {
             assert((strs == std::vector<std::string>{"a", "", "b", "cd"}));
         }
 
-        // #strip ##filter
+        // # strip
+        // #filter
         {
             // Single character, no single function in C++11.
             {
@@ -53,7 +54,11 @@ int main() {
 
 
     /*
-    #filesystem #path #join
+    # filesystem
+
+    # path
+
+    # join
 
     Proposed for inclusion on TR2.
     */

@@ -22,18 +22,31 @@ int main() {
         assert(sizeof(E) == sizeof(char));
     }
 
-    // # class enum
+    // # enum class
+    //
+    // Much better than the older enum, just always use it.
+    {
     enum class ClassEnum {
-        A,
-        B
-    };
+            A,
+            B
+        };
 
-    // Error. YES, namespaces!
-    //ClassEnum classEnum = A;
+        // Error. YES, namespaces!
+        //ClassEnum classEnum = A;
 
-    ClassEnum classEnum = ClassEnum::A;
+        ClassEnum classEnum = ClassEnum::A;
 
-    // No conversion insanity.
-    //int i = ClassEnum::A;
+        // No conversion insanity.
+        //int i = ClassEnum::A;
+    }
+
+    /*
+    # enum to string
+
+    C++14 nope:
+
+    - http://stackoverflow.com/questions/201593/is-there-a-simple-way-to-convert-c-enum-to-string
+    - http://stackoverflow.com/questions/28828957/enum-to-string-in-modern-c-and-future-c17-c20
+    */
 #endif
 }
