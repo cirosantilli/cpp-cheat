@@ -86,6 +86,7 @@
         1.  [tuple](tuple.cpp)
     1.  Smart pointers
         1. [unique_ptr](unique_ptr.cpp)
+    1.  [random](random.cpp)
 1.  [Interactive](interactive/)
 1.  Applications
     1. [Design patterns](design_patterns.cpp)

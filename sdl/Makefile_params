@@ -1,2 +1,2 @@
-LIBS := -lSDL2 -lSDL2_ttf -lm \
-	-lGL -lGLEW
+LIBS := -lSDL2 -lSDL2_image -lSDL2_ttf  \
+	-lm -lGL -lGLEW

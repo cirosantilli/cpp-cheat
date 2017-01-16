@@ -27,6 +27,7 @@
         1.  [Sound frequency](sound_frequency.c)
     1.  Text
         1.  [TTF](ttf.c)
+    1.  Image
 1.  Theory
     1.  [Users](users.md)
     1.  [Build](build.md)

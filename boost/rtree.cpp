@@ -267,6 +267,27 @@ int main() {
         // Leak. Smart pointers. Meh.
     }
 
+    // Query by a different type than the key.
+    // Like C++14 set comparable finds.
+    {
+        Rtree rtree;
+        rtree.insert(Value(MyPoint(1, 1), 1));
+        rtree.insert(Value(MyPoint(3, 3), 3));
+        assert(
+            getValueSet(rtree, bgi::intersects(bg::model::point<int, 2, bg::cs::cartesian>(1, 1)))
+            == ValueSet({1})
+        );
+    }
+
     // update
     // TODO: any hint insertion iterator as in std::set? Seems not.
+
+    {
+        Rtree rtree;
+        rtree.insert(Value(Point(1, 1), 1));
+        rtree.insert(Value(Point(3, 3), 3));
+        for (const auto& val : rtree) {
+            std::cout << val.second << std::endl;
+        }
+    }
 }
