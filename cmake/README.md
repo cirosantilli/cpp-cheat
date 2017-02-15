@@ -1,5 +1,7 @@
 # CMake
 
+1. [shared_lib_external](shared_lib_external/)
+
 Make alternative that aims to be portable.
 
 Generates build files that work on Linux and Windows, e.g.:

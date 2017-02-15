@@ -23,7 +23,7 @@ C and C++ minimal examples. Asserts used wherever possible. Hello worlds for coo
     1.  [Fortran from C](fortran-from-c/)
     1.  [SWIG](swig.md)
 1.  [Build systems](build-systems.md)
-    1.  [CMake](cmake.md)
+    1.  [CMake](cmake/)
 1.  Analysis tools
     1.  [GDB](gdb/)
     1.  [cflow](cflow.md)
