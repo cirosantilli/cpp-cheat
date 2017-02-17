@@ -11,15 +11,6 @@ SDL_TEXTUREACCESS_STREAMING is key to allow us to write to the texture from CPU.
 
 #include "common.h"
 
-SDL_Texture* load_image(SDL_Renderer *renderer, char *path) {
-    SDL_Surface *surface = NULL;
-    SDL_Texture *texture = NULL;
-    surface = IMG_Load(path);
-    texture = SDL_CreateTextureFromSurface(renderer, surface);
-    SDL_FreeSurface(surface);
-    return texture;
-}
-
 int main(void) {
     SDL_Event event;
     SDL_Renderer *renderer = NULL;
@@ -32,7 +23,7 @@ int main(void) {
         0, &window, &renderer
     );
     IMG_Init(IMG_INIT_PNG);
-    texture = load_image(renderer, "flower.png");
+    texture = IMG_LoadTexture(renderer, "flower.png");
     common_fps_init();
     while (1) {
         SDL_RenderCopy(renderer, texture, NULL, NULL);
