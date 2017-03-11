@@ -1,26 +1,25 @@
 /*
-Increment a vector, one value per work item.
+Increment a vector type (int2) using a vector built-in type.
 
-It is useless to do this on a GPU, not enough work / IO,
-it's just a clEnqueueNDRangeKernel + get_global_id hello world.
+http://stackoverflow.com/questions/13118228/how-to-pass-vector-paramater-to-opencl-kernel-in-c
 
-- http://stackoverflow.com/questions/15194798/vector-step-addition-slower-on-cuda
-- http://stackoverflow.com/questions/22005405/how-to-add-up-the-elements-of-an-array-in-gpu-any-function-similar-to-cublasdas
-- http://stackoverflow.com/questions/15161575/reduction-for-sum-of-vector-when-size-is-not-power-of-2
+TODO: is using them faster than scalars?
+
+- http://stackoverflow.com/questions/20200203/using-own-vector-type-in-opencl-seems-to-be-faster
 */
 
 #include "common.h"
 
 int main(void) {
     const char *source =
-        "__kernel void main(__global int *out) {\n"
+        "__kernel void main(__global int2 *out) {\n"
         "      out[get_global_id(0)]++;\n"
         "}\n";
     cl_command_queue command_queue;
-    cl_int input[] = {1, 2};
+    cl_int input[] = {0, 1, 2, 3};
     cl_mem buffer;
-    const size_t global_work_size = sizeof(input) / sizeof(cl_int);
     Common common;
+    const size_t global_work_size = sizeof(input) / sizeof(cl_int2);
 
 	/* Run kernel. */
     common_init(&common, source);
@@ -33,8 +32,10 @@ int main(void) {
     clEnqueueReadBuffer(command_queue, buffer, CL_TRUE, 0, sizeof(input), &input, 0, NULL, NULL);
 
 	/* Assertions. */
-    assert(input[0] == 2);
-    assert(input[1] == 3);
+    assert(input[0] == 1);
+    assert(input[1] == 2);
+    assert(input[2] == 3);
+    assert(input[3] == 4);
 
 	/* Cleanup. */
     clReleaseMemObject(buffer);

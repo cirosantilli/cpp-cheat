@@ -1,19 +1,23 @@
 /*
 Pass an int by reference and increment it.
 
-This is our OpenCL hello world. No error checking for simplicity.
+This is our OpenCL hello world, so we are not doing:
+
+- error checking
+- factoring out with anything else
 */
 
 #include <assert.h>
 #include <stdio.h>
 
+#define CL_USE_DEPRECATED_OPENCL_1_2_APIS
 #include <CL/cl.h>
 
 int main(void) {
     const char *source =
         /* kernel pointer arguments must be __global, __constant, or __local. */
         /* https://www.khronos.org/registry/cl/sdk/2.1/docs/man/xhtml/restrictions.html */
-        "__kernel void increment(__global int *out) {\n"
+        "__kernel void main(__global int *out) {\n"
         "    out[0]++;\n"
         "}\n";
     cl_command_queue command_queue;
@@ -31,8 +35,7 @@ int main(void) {
     context = clCreateContext(NULL, 1, &device, NULL, NULL, NULL);
     program = clCreateProgramWithSource(context, 1, &source, NULL, NULL);
 	clBuildProgram(program, 1, &device, "", NULL, NULL);
-    /* The name of the kernel function we want to call. */
-    kernel = clCreateKernel(program, "increment", NULL);
+    kernel = clCreateKernel(program, "main", NULL);
     buffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(cl_int), &input, NULL);
     clSetKernelArg(kernel, 0, sizeof(buffer), &buffer);
     command_queue = clCreateCommandQueue(context, device, 0, NULL);
@@ -45,10 +48,11 @@ int main(void) {
     assert(input == 2);
 
     /* Cleanup. */
-    clReleaseKernel(kernel);
-    clReleaseProgram(program);
     clReleaseCommandQueue(command_queue);
-    clReleaseContext(context);
     clReleaseMemObject(buffer);
+    clReleaseProgram(program);
+    clReleaseKernel(kernel);
+    clReleaseContext(context);
+    clReleaseDevice(device);
     return EXIT_SUCCESS;
 }

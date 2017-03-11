@@ -6,7 +6,7 @@
     1.  [Increment vector](inc_vector.c)
     1.  [Pass by value](pass_by_value.c)
     1.  [Work item built-ins](work_item_builtin.c)
-    1.  [Vector built-in](vector_builtin.c)
+    1.  [Vector type](vector_type.c)
 1.  Tools
     1.  [clinfo](clinfo.md)
     1.  [Benchmarks](benchmarks.md)

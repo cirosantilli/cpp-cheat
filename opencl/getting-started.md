@@ -1,6 +1,8 @@
 # Getting started
 
-Tested in Ubuntu 15.10 NVIDIA 352.
+Tested in Ubuntu 15.10 NVIDIA 352, OpenCL 1.2.
+
+The day we do OpenCL 2.0, it will be put inside a subdirectory and clearly labeled.
 
 ## NVIDIA
 
