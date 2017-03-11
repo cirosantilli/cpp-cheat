@@ -9,7 +9,39 @@
 
 #include "common.hpp"
 
+int overload(int i){ return i + 1; }
+int overload(int i, int j){ return i + j; }
+
+int default_(int i, int j = 1){ return i + j; }
+
 int main() {
+    // # function
+    {
+        // Disambiguate overload.
+        // http://stackoverflow.com/questions/12500411/setting-a-stdfunction-variable-to-refer-to-the-stdsin-function
+        {
+            std::function<int(int)> f = (int(*)(int))&overload;
+            assert(f(1) == 2);
+            std::function<int(int, int)> g = (int(*)(int, int))&overload;
+            assert(g(1, 2) == 3);
+        }
+
+        // Default vaues without bind.
+        // TODO possible?
+        {
+            // Fails. j seems to contain trash.
+            //std::function<int(int)> f = (int(*)(int))&default_;
+            //assert(f(1) == 2);
+
+            // Lambda workaround.
+            std::function<int(int)> f = [](int i){ return default_(i); };
+            assert(f(1) == 2);
+
+            std::function<int(int, int)> g = (int(*)(int, int))&default_;
+            assert(g(1, 2) == 3);
+        }
+    }
+
     /*
     # bind2nd
 
@@ -31,9 +63,7 @@ int main() {
         */
     }
 
-    /*
-    # plus
-    */
+    // # plus
     {
         assert(std::plus<int>()(1, 2) == 3);
     }

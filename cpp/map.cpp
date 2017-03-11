@@ -121,13 +121,33 @@ int main() {
             {1, "one"},
         };
 
-
         auto found = m.find(0);
         assert(found != m.end());
         assert(found->second == "zero");
 
         assert(m.find(2) == m.end());
         assert(m.size() == 2);
+
+        /*
+        Get default provided value if key not present
+
+        TODO: any less verbose way than finding and check != end? Like:
+
+            m.get(key, default)
+
+        I know I can define a helper, but come on...
+        */
+        {
+            std::map<int,int> m{};
+            int default_ = 42;
+            int result;
+            auto f = m.find(1);
+            if (f == m.end()) {
+                result = default_;
+            } else {
+                result = f->second;
+            }
+        }
     }
 
     /*
@@ -225,4 +245,34 @@ int main() {
             assert((m == std::map<int,std::string>{{1, "one"}}));
         }
     }
+
+    // # Range switch case.
+    // http://stackoverflow.com/questions/9432226/how-do-i-select-a-range-of-values-in-a-switch-statement/42331563#42331563
+#if 0
+    {
+        for (auto i = -1; i < 8; ++i) {
+            std::cout << i << std::endl;
+            std::map<int,std::function<void()>> m;
+            m.emplace(0, [](){
+                std::cout << "too small" << std::endl;
+            });
+            m.emplace(2, [](){
+                std::cout << "zero" << std::endl;
+            });
+            m.emplace(5, [](){
+                std::cout << "two" << std::endl;
+            });
+            m.emplace(7, [](){
+                std::cout << "five" << std::endl;
+            });
+            auto it = m.upper_bound(i);
+            if (it == m.end()) {
+                std::cout << "too large" << std::endl;
+            } else {
+                it->second();
+            }
+            std::cout << std::endl;
+        }
+    }
+#endif
 }

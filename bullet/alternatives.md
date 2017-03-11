@@ -21,8 +21,18 @@ Proprietary:
 
 2D:
 
-- Box2D
 - <http://brm.io/matter-js/> JavaScript on browser
+
+## Box2D
+
+AngryBirds used Box2D physics engine which does not require even attribution, and never gave anything back to its creator (Blizzard employee):
+
+- <http://www.geek.com/games/box2d-creator-asks-rovio-for-angry-birds-credit-at-gdc-1321779/>
+- <http://www.neogaf.com/forum/showthread.php?t=472319>
+- impressive chain and watch demos with RUBE (closed source) editor <https://www.youtube.com/watch?v=WqLR4dFn1qE>
+- destructible terrain as in Worms:
+    - https://www.youtube.com/watch?v=Qkh8PMwOgQ4
+- gas internal combustion engine!!! <https://www.youtube.com/watch?v=8kZRpouZ3OQ>
 
 ## Fluids
 

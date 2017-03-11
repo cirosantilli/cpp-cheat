@@ -17,6 +17,7 @@ TODO software implementations: <https://www.quora.com/unanswered/Is-there-a-Vulk
 - <https://github.com/SaschaWillems/Vulkan>
 - <https://github.com/LunarG/VulkanSamples>
 - <https://github.com/Overv/VulkanTutorial>
+- <https://gist.githubusercontent.com/sheredom/523f02bbad2ae397d7ed255f3f3b5a7f/raw/7c33ee6136ae1f7c03741ba7ad6e02e8de9f9802/VkComputeSample> Codeplay employee writes SPIR-V shader by hand! :-) The absolute minimal example?
 
 ## Hardware support
 

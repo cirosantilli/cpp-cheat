@@ -81,8 +81,6 @@ int main() {
     /*
     # insert
 
-        Like for std::vector, insert makes copies.
-
         Return is a pair conatining:
 
         - if the item was not present, an iterator to the item inserted and true
@@ -177,8 +175,6 @@ int main() {
         Else, returns `map::end()`
 
         find is `log n` time since the container is ordered.
-
-        log n time complexity since always sorted
     */
     {
         std::set<int> s = {0, 1, 2};
