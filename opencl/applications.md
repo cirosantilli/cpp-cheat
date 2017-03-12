@@ -5,7 +5,9 @@ For an application to experience speedup compared to the CPU, it must:
 - be highly parallelizable
 - do a lot of work per input byte, because IO is very expensive
 
-## Actual applications
+Minimal example request: <http://stackoverflow.com/questions/7663343/simplest-possible-example-to-show-gpu-outperform-cpu-using-cuda>
+
+## Examples
 
 -   Monte Carlo
 
@@ -14,10 +16,11 @@ For an application to experience speedup compared to the CPU, it must:
     - <https://en.wikipedia.org/wiki/Black%E2%80%93Scholes_model>
     - Reverse Time Migration: RTM <http://www.slb.com/services/seismic/geophysical_processing_characterization/dp/technologies/depth/prestackdepth/rtm.aspx>
 
-Matrix multiplication:
+### Matrix multiplication
 
 - <http://hpclab.blogspot.fr/2011/09/is-gpu-good-for-large-vector-addition.html>
 - <https://developer.nvidia.com/cublas>
+- <http://stackoverflow.com/questions/16748604/opencl-matrix-multiplication-should-be-faster>
 
 Not surprising, since rendering is just a bunch of matrix multiplications, with fixed matrices and varying vectors.
 
@@ -28,3 +31,11 @@ Bolt: C++ STL GPU powered implementation by AMD: <http://developer.amd.com/tools
 ## Non-applications
 
 Vector addition. Too little work per input byte (1 CPU cycle). <https://forums.khronos.org/showthread.php/7741-CPU-faster-in-vector-addition-than-GPU>, <http://stackoverflow.com/questions/15194798/vector-step-addition-slower-on-cuda> <http://hpclab.blogspot.fr/2011/09/is-gpu-good-for-large-vector-addition.html>
+
+## Projects using OpenCL
+
+Notable users:
+
+- OpenCV
+- Bullet physics
+- VP9 decoding 2013 by Ittiam: <http://malideveloper.arm.com/partner-showroom/ittiam-vp9-decoder-using-opencl/>

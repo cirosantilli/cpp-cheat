@@ -50,6 +50,8 @@ But memory localization on GPUs is important enough that OpenCL exposes this ext
 
 Synchronization only works inside a single work groups: http://stackoverflow.com/questions/5895001/opencl-synchronization-between-work-groups
 
+TODO: can a single work group be run in parallel on the GPU?
+
 ### Local size
 
 Size of the work group.

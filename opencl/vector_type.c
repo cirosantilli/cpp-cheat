@@ -15,7 +15,6 @@ int main(void) {
         "__kernel void main(__global int2 *out) {\n"
         "      out[get_global_id(0)]++;\n"
         "}\n";
-    cl_command_queue command_queue;
     cl_int input[] = {0, 1, 2, 3};
     cl_mem buffer;
     Common common;
@@ -23,13 +22,12 @@ int main(void) {
 
 	/* Run kernel. */
     common_init(&common, source);
-    buffer = clCreateBuffer(common.context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(input), &input, NULL);
+    buffer = clCreateBuffer(common.context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(input), input, NULL);
     clSetKernelArg(common.kernel, 0, sizeof(cl_mem), &buffer);
-    command_queue = clCreateCommandQueue(common.context, common.device, 0, NULL);
-    clEnqueueNDRangeKernel(command_queue, common.kernel, 1, NULL, &global_work_size, NULL, 0, NULL, NULL);
-    clFlush(command_queue);
-    clFinish(command_queue);
-    clEnqueueReadBuffer(command_queue, buffer, CL_TRUE, 0, sizeof(input), &input, 0, NULL, NULL);
+    clEnqueueNDRangeKernel(common.command_queue, common.kernel, 1, NULL, &global_work_size, NULL, 0, NULL, NULL);
+    clFlush(common.command_queue);
+    clFinish(common.command_queue);
+    clEnqueueReadBuffer(common.command_queue, buffer, CL_TRUE, 0, sizeof(input), input, 0, NULL, NULL);
 
 	/* Assertions. */
     assert(input[0] == 1);
@@ -39,7 +37,6 @@ int main(void) {
 
 	/* Cleanup. */
     clReleaseMemObject(buffer);
-    clReleaseCommandQueue(command_queue);
     common_deinit(&common);
     return EXIT_SUCCESS;
 }

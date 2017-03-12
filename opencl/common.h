@@ -2,14 +2,19 @@
 #define COMMON_H
 
 #include <assert.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-// http://stackoverflow.com/questions/28500496/opencl-function-found-deprecated-by-visual-studio
+/* http://stackoverflow.com/questions/28500496/opencl-function-found-deprecated-by-visual-studio */
 #define CL_USE_DEPRECATED_OPENCL_1_2_APIS
 #include <CL/cl.h>
 
+/* Encapsulates objects that we use the same on most programs.
+ * This excludes, notably, buffers. */
 typedef struct {
+    cl_command_queue command_queue;
     cl_context context;
     cl_device_id device;
     cl_kernel kernel;
@@ -39,6 +44,7 @@ static void common_init(
 		exit(EXIT_FAILURE);
     }
     common->kernel = clCreateKernel(common->program, "main", NULL);
+    common->command_queue = clCreateCommandQueue(common->context, common->device, 0, NULL);
 }
 
 static char * common_read_file(const char *path) {
@@ -70,6 +76,7 @@ static void common_init_file(
 static void common_deinit(
     Common *common
 ) {
+    clReleaseCommandQueue(common->command_queue);
     clReleaseProgram(common->program);
     clReleaseKernel(common->kernel);
     clReleaseContext(common->context);
