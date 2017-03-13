@@ -10,11 +10,11 @@ https://www.khronos.org/registry/OpenCL/sdk/1.0/docs/man/xhtml/clGetDeviceInfo.h
 
 #define PRINT_SIZE_T(id) \
     clGetDeviceInfo(device, CL_ ## id, sizeof(size_t), &(buf_size_t), NULL); \
-    printf("  " #id " = %zu\n", buf_size_t);
+    printf(#id " = %zu\n", buf_size_t);
 
 #define PRINT_CL_UINT(id) \
     clGetDeviceInfo(device, CL_ ## id, sizeof(cl_uint), &(buf_cl_uint), NULL); \
-    printf("  " #id " = %ju\n", (uintmax_t)buf_cl_uint);
+    printf(#id " = %ju\n", (uintmax_t)buf_cl_uint);
 
 int main(void) {
     cl_platform_id platform;
@@ -27,12 +27,14 @@ int main(void) {
     clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, 1, &device, NULL);
 
     /* Print. */
-    puts("clinfo");
+    puts("#clinfo");
     PRINT_CL_UINT(DEVICE_MAX_WORK_ITEM_DIMENSIONS)
     PRINT_SIZE_T(DEVICE_MAX_WORK_GROUP_SIZE)
     PRINT_SIZE_T(DEVICE_MAX_WORK_ITEM_SIZES)
 
     /* Cleanup. */
-    clReleaseDevice(device);
+#ifdef CL_1_2
+	clReleaseDevice(device);
+#endif
     return EXIT_SUCCESS;
 }

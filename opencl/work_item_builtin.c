@@ -28,6 +28,7 @@ int main(void) {
     clEnqueueReadBuffer(common.command_queue, buffer, CL_TRUE, 0, sizeof(output), output, 0, NULL, NULL);
 
 	/* Check the values. */
+	puts("#work_item_builtin");
     printf("work_dim      = %d\n", output[0]);
     printf("global_size   = %d\n", output[1]);
     printf("global_id     = %d\n", output[2]);

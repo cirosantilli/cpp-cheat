@@ -2,10 +2,12 @@
 #define COMMON_H
 
 #include <assert.h>
+#include <math.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 /* http://stackoverflow.com/questions/28500496/opencl-function-found-deprecated-by-visual-studio */
 #define CL_USE_DEPRECATED_OPENCL_1_2_APIS
@@ -47,18 +49,18 @@ static void common_init(
     common->command_queue = clCreateCommandQueue(common->context, common->device, 0, NULL);
 }
 
-static char * common_read_file(const char *path) {
+static char* common_read_file(const char *path) {
     char *buffer;
     FILE *f;
     long length;
 
     f = fopen(path, "r");
-    fseek (f, 0, SEEK_END);
+    fseek(f, 0, SEEK_END);
     length = ftell(f);
     fseek(f, 0, SEEK_SET);
     buffer = calloc(1, length + 1);
-    fread (buffer, 1, length, f);
-    fclose (f);
+    fread(buffer, 1, length, f);
+    fclose(f);
     buffer[length] = '\0';
     return buffer;
 }
@@ -80,7 +82,15 @@ static void common_deinit(
     clReleaseProgram(common->program);
     clReleaseKernel(common->kernel);
     clReleaseContext(common->context);
-    clReleaseDevice(common->device);
+#ifdef CL_1_2
+	clReleaseDevice(common->device);
+#endif
+}
+
+static double common_get_nanos(void) {
+    struct timespec ts;
+    timespec_get(&ts, TIME_UTC);
+    return ts.tv_sec + ts.tv_nsec / 1000000000.0;
 }
 
 #endif

@@ -33,18 +33,16 @@ Threads:
 - <http://stackoverflow.com/questions/3271243/clcreatesubbuffer-not-found-oo>
 - <https://devtalk.nvidia.com/default/topic/486564/nvidia-39-s-opencl-1-1-and-clcreatesubbuffer/>
 
-No OpenCL 2 planned as of 2016:
+## OpenCL
+
+OpenCL 2 announced in 2017:
 
 - <http://stackoverflow.com/questions/29219307/opencl-2-0-on-nvidia-graphics-cards>
 - <https://devtalk.nvidia.com/default/topic/954622/opencl-2-x-support-plans-/>
 
 but hardware support will very likely be / is already there because of Vulkan / OpenCL 2 convergence.
 
-Linux dependencies for 340.65:
-
-- `libdl.so.2`
-- `libpthread.so.0`
-- `libc.so.6`
+OpenCL 1.2 apparently added in driver 350.12, on Kepler hardware and up.
 
 ## Intel
 

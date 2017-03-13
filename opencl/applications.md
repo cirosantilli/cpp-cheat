@@ -16,11 +16,19 @@ Minimal example request: <http://stackoverflow.com/questions/7663343/simplest-po
     - <https://en.wikipedia.org/wiki/Black%E2%80%93Scholes_model>
     - Reverse Time Migration: RTM <http://www.slb.com/services/seismic/geophysical_processing_characterization/dp/technologies/depth/prestackdepth/rtm.aspx>
 
+-   clMathLibraries organization, by AMD employees
+
+    -   <https://github.com/clMathLibraries/clFFT> FFT
+    -   <https://github.com/clMathLibraries/clRNG> random number generation
+
 ### Matrix multiplication
 
 - <http://hpclab.blogspot.fr/2011/09/is-gpu-good-for-large-vector-addition.html>
 - <https://developer.nvidia.com/cublas>
+- <https://github.com/clMathLibraries/clBLAS>
+- <https://github.com/clMathLibraries/clSPARSE>
 - <http://stackoverflow.com/questions/16748604/opencl-matrix-multiplication-should-be-faster>
+- <http://stackoverflow.com/questions/33086029/multiply-matrices-in-c-or-in-glsl>
 
 Not surprising, since rendering is just a bunch of matrix multiplications, with fixed matrices and varying vectors.
 

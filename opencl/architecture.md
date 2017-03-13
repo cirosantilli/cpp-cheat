@@ -94,3 +94,10 @@ It also shows how we must make an explicit copy to use private memory.
 - <http://stackoverflow.com/questions/8888718/how-to-declare-local-memory-in-opencl>
 - <http://stackoverflow.com/questions/2541929/how-do-i-use-local-memory-in-opencl>
 - <http://stackoverflow.com/questions/17574570/create-local-array-dynamic-inside-opencl-kernel>
+
+## Pinned memory
+
+TODO.
+
+- <http://stackoverflow.com/questions/25496656/cl-mem-use-host-ptr-vs-cl-mem-copy-host-ptr-vs-cl-mem-alloc-host-ptr>
+- <http://stackoverflow.com/questions/24158909/how-to-use-pinned-memory-mapped-memory-in-opencl>

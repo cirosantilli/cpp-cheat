@@ -16,22 +16,22 @@ int main(void) {
         "__kernel void main(int in, __global int *out) {\n"
         "    out[0] = in + 1;\n"
         "}\n";
-    cl_int input = 1;
+    cl_int in = 1, out;
     cl_mem buffer;
     Common common;
 
 	/* Run kernel. */
     common_init(&common, source);
-    clSetKernelArg(common.kernel, 0, sizeof(input), &input);
-    buffer = clCreateBuffer(common.context, CL_MEM_READ_WRITE, sizeof(input), NULL, NULL);
+    clSetKernelArg(common.kernel, 0, sizeof(in), &in);
+    buffer = clCreateBuffer(common.context, CL_MEM_READ_WRITE, sizeof(out), NULL, NULL);
     clSetKernelArg(common.kernel, 1, sizeof(buffer), &buffer);
     clEnqueueTask(common.command_queue, common.kernel, 0, NULL, NULL);
     clFlush(common.command_queue);
     clFinish(common.command_queue);
-    clEnqueueReadBuffer(common.command_queue, buffer, CL_TRUE, 0, sizeof(input), &input, 0, NULL, NULL);
+    clEnqueueReadBuffer(common.command_queue, buffer, CL_TRUE, 0, sizeof(out), &out, 0, NULL, NULL);
 
 	/* Assertions. */
-    assert(input == 2);
+    assert(out == 2);
 
 	/* Cleanup. */
     clReleaseMemObject(buffer);
