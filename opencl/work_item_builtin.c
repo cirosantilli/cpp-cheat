@@ -13,7 +13,6 @@ static size_t global = 1;
 static size_t local = 1;
 
 int main(void) {
-    cl_int ret;
     cl_mem buffer;
     cl_uint output[NUM_FUNCTIONS];
     Common common;

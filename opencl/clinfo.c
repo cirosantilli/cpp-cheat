@@ -28,8 +28,10 @@ int main(void) {
 
     /* Print. */
     puts("#clinfo");
-    PRINT_CL_UINT(DEVICE_MAX_WORK_ITEM_DIMENSIONS)
     PRINT_SIZE_T(DEVICE_MAX_WORK_GROUP_SIZE)
+    PRINT_CL_UINT(DEVICE_MAX_WORK_ITEM_DIMENSIONS)
+    /* TODO this is wrong, it is actually an array.
+     * But yeah, likely the same for all dimensions. */
     PRINT_SIZE_T(DEVICE_MAX_WORK_ITEM_SIZES)
 
     /* Cleanup. */

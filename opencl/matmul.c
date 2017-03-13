@@ -8,6 +8,7 @@ TODO: make a SERIOUS matrix implementation. Also compare with existing SERIOUS C
 - http://stackoverflow.com/questions/1907557/optimized-matrix-multiplication-in-c
 - http://stackoverflow.com/questions/12289235/simple-and-fast-matrix-vector-multiplication-in-c-c
 - https://www.quora.com/What-is-the-best-way-to-multiply-two-matrices-in-C++
+- http://www.netlib.org/utk/papers/autoblock/node2.html
 */
 
 #include "common.h"
@@ -94,7 +95,7 @@ void mat_print(const F *A, size_t n) {
 }
 
 /* Zero a matrix. */
-F * mat_zero(F *A, size_t n) {
+void mat_zero(F *A, size_t n) {
 	size_t i, n2;
 	n2 = n*n;
 	for (i = 0; i < n2; ++i) {
@@ -103,7 +104,7 @@ F * mat_zero(F *A, size_t n) {
 }
 
 /* Initialize a random matrix. */
-F * mat_rand(F *A, size_t n) {
+void mat_rand(F *A, size_t n) {
 	size_t i, n2;
 	n2 = n*n;
 	for (i = 0; i < n2; ++i) {
@@ -144,7 +145,7 @@ int main(void) {
 	{
 		F *A = NULL, *B = NULL, *C = NULL, *C_ref = NULL;
 		double dt, time;
-		size_t i, n = 1, n2, a_sizeof;
+		size_t n = 1, n2, a_sizeof;
 
 		puts("#matmul");
 		puts("n mat_mul_cpu mat_mul_cl");
@@ -174,7 +175,7 @@ int main(void) {
 
 			assert(mat_eq(C, C_ref, n));
 			puts("");
-			if (dt > 4.0)
+			if (dt > 1.0)
 				break;
 			n *= 2;
 		}

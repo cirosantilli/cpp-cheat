@@ -23,7 +23,7 @@ typedef struct {
     cl_program program;
 } Common;
 
-static void common_init(
+void common_init(
     Common *common,
     const char *source
 ) {
@@ -49,7 +49,7 @@ static void common_init(
     common->command_queue = clCreateCommandQueue(common->context, common->device, 0, NULL);
 }
 
-static char* common_read_file(const char *path) {
+char* common_read_file(const char *path) {
     char *buffer;
     FILE *f;
     long length;
@@ -58,14 +58,16 @@ static char* common_read_file(const char *path) {
     fseek(f, 0, SEEK_END);
     length = ftell(f);
     fseek(f, 0, SEEK_SET);
-    buffer = calloc(1, length + 1);
-    fread(buffer, 1, length, f);
+    buffer = malloc(length + 1);
+    if (fread(buffer, 1, length, f) < (size_t)length) {
+    	return NULL;
+    }
     fclose(f);
     buffer[length] = '\0';
     return buffer;
 }
 
-static void common_init_file(
+void common_init_file(
     Common *common,
     const char *source_path
 ) {
@@ -75,7 +77,7 @@ static void common_init_file(
     free(source);
 }
 
-static void common_deinit(
+void common_deinit(
     Common *common
 ) {
     clReleaseCommandQueue(common->command_queue);
@@ -87,7 +89,7 @@ static void common_deinit(
 #endif
 }
 
-static double common_get_nanos(void) {
+double common_get_nanos(void) {
     struct timespec ts;
     timespec_get(&ts, TIME_UTC);
     return ts.tv_sec + ts.tv_nsec / 1000000000.0;
