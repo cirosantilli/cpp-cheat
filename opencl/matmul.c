@@ -1,6 +1,9 @@
 /*
 Matrix multiplication.
 
+Based on the amazing:
+https://github.com/HandsOnOpenCL/Exercises-Solutions/tree/a908ac3f0fadede29f2735eb1264b0db7f4311a0/Solutions/Exercise08
+
 The most basic / useful application where OpenCL might be faster than CPU.
 
 TODO: make a SERIOUS matrix implementation. Also compare with existing SERIOUS CPU and GPU implementations:
@@ -9,6 +12,7 @@ TODO: make a SERIOUS matrix implementation. Also compare with existing SERIOUS C
 - http://stackoverflow.com/questions/12289235/simple-and-fast-matrix-vector-multiplication-in-c-c
 - https://www.quora.com/What-is-the-best-way-to-multiply-two-matrices-in-C++
 - http://www.netlib.org/utk/papers/autoblock/node2.html
+- http://stackoverflow.com/questions/25900312/optimizing-batched-matrix-multiplication-opencl-code
 */
 
 #include "common.h"
@@ -31,7 +35,7 @@ void mat_mul_cpu(const F *A, const F *B, F *C, size_t n) {
 	}
 }
 
-/* Simplest possible implementation. */
+/* Simplest possible CL implementation. No speedup. */
 void mat_mul_cl(const F *A, const F *B, F *C, size_t n) {
     cl_mem buf_a, buf_b, buf_c;
     Common common;
@@ -55,6 +59,41 @@ void mat_mul_cl(const F *A, const F *B, F *C, size_t n) {
     clSetKernelArg(common.kernel, 2, sizeof(buf_c), &buf_c);
     clSetKernelArg(common.kernel, 3, sizeof(ncl), &ncl);
     clEnqueueNDRangeKernel(common.command_queue, common.kernel, 2, NULL, global_work_size, NULL, 0, NULL, NULL);
+    clFlush(common.command_queue);
+    clFinish(common.command_queue);
+    clEnqueueReadBuffer(common.command_queue, buf_c, CL_TRUE, 0, mat_sizeof, C, 0, NULL, NULL);
+
+	/* Cleanup. */
+    clReleaseMemObject(buf_a);
+    clReleaseMemObject(buf_b);
+    clReleaseMemObject(buf_c);
+    common_deinit(&common);
+}
+
+/* Cache rows in private memory. Drastic speedups expected over naive CPU. */
+void mat_mul_cl_row(const F *A, const F *B, F *C, size_t n) {
+    cl_mem buf_a, buf_b, buf_c;
+    Common common;
+    cl_uint ncl;
+    size_t global_work_size[2], mat_sizeof, n2;
+
+	/* Setup variables. */
+	global_work_size[0] = n;
+	global_work_size[1] = n;
+	n2 = n * n;
+	mat_sizeof = n2 * sizeof(F);
+ 	ncl = n;
+
+	/* Run kernel. */
+    common_init_file(&common, "matmul_row.cl");
+    buf_a = clCreateBuffer(common.context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, mat_sizeof, (F*)A, NULL);
+    buf_b = clCreateBuffer(common.context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, mat_sizeof, (F*)B, NULL);
+    buf_c = clCreateBuffer(common.context, CL_MEM_WRITE_ONLY, mat_sizeof, C, NULL);
+    clSetKernelArg(common.kernel, 0, sizeof(buf_a), &buf_a);
+    clSetKernelArg(common.kernel, 1, sizeof(buf_b), &buf_b);
+    clSetKernelArg(common.kernel, 2, sizeof(buf_c), &buf_c);
+    clSetKernelArg(common.kernel, 3, sizeof(ncl), &ncl);
+    clEnqueueNDRangeKernel(common.command_queue, common.kernel, 1, NULL, global_work_size, NULL, 0, NULL, NULL);
     clFlush(common.command_queue);
     clFinish(common.command_queue);
     clEnqueueReadBuffer(common.command_queue, buf_c, CL_TRUE, 0, mat_sizeof, C, 0, NULL, NULL);
@@ -148,7 +187,7 @@ int main(void) {
 		size_t n = 1, n2, a_sizeof;
 
 		puts("#matmul");
-		puts("n mat_mul_cpu mat_mul_cl");
+		puts("n mat_mul_cpu mat_mul_cl mat_mul_cl_row");
 		while(1) {
 			printf("%zu ", n);
 			n2 = n * n;
@@ -169,8 +208,12 @@ int main(void) {
 			dt = common_get_nanos() - time;
 			printf("%f ", dt);
 
+			/*time = common_get_nanos();*/
+			/*mat_mul_cl(A, B, C, n);*/
+			/*printf("%f ", common_get_nanos() - time);*/
+
 			time = common_get_nanos();
-			mat_mul_cl(A, B, C, n);
+			mat_mul_cl_row(A, B, C, n);
 			printf("%f", common_get_nanos() - time);
 
 			assert(mat_eq(C, C_ref, n));

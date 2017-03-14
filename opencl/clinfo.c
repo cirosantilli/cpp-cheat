@@ -16,11 +16,16 @@ https://www.khronos.org/registry/OpenCL/sdk/1.0/docs/man/xhtml/clGetDeviceInfo.h
     clGetDeviceInfo(device, CL_ ## id, sizeof(cl_uint), &(buf_cl_uint), NULL); \
     printf(#id " = %ju\n", (uintmax_t)buf_cl_uint);
 
+#define PRINT_CL_ULONG(id) \
+    clGetDeviceInfo(device, CL_ ## id, sizeof(cl_ulong), &(buf_cl_ulong), NULL); \
+    printf(#id " = 0x%lx\n", (uintmax_t)buf_cl_ulong);
+
 int main(void) {
-    cl_platform_id platform;
     cl_device_id device;
-    size_t buf_size_t;
+    cl_platform_id platform;
     cl_uint buf_cl_uint;
+    cl_ulong buf_cl_ulong;
+    size_t buf_size_t;
 
     /* Setup. */
     clGetPlatformIDs(1, &platform, NULL);
@@ -33,6 +38,8 @@ int main(void) {
     /* TODO this is wrong, it is actually an array.
      * But yeah, likely the same for all dimensions. */
     PRINT_SIZE_T(DEVICE_MAX_WORK_ITEM_SIZES)
+	PRINT_CL_ULONG(DEVICE_LOCAL_MEM_SIZE)
+    PRINT_CL_UINT(DEVICE_MAX_COMPUTE_UNITS)
 
     /* Cleanup. */
 #ifdef CL_1_2

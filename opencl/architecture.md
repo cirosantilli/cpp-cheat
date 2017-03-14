@@ -83,12 +83,14 @@ Contains private memory, which no other work item can see.
 
 TODO: can a single work item be run in parallel on the GPU?
 
-## Local and Private memory
+## Local memory
 
-TODO: why use those at all instead of global memory?
+## Private memory
 
-- <http://stackoverflow.com/questions/21872810/whats-the-advantage-of-the-local-memory-in-opencl>
 - <http://stackoverflow.com/questions/9885880/effect-of-private-memory-in-opencl>
+- <http://stackoverflow.com/questions/9885880/is-private-memory-slower-than-local-memory>
+
+TODO: can private memory be slower than local memory? <http://stackoverflow.com/questions/21872810/whats-the-advantage-of-the-local-memory-in-opencl>
 
 Might be faster, and global memory is limited.
 

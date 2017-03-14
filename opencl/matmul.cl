@@ -4,9 +4,9 @@ __kernel void main(
     __global float *C,
     const uint N
 ) {
-    uint k;
     uint i = get_global_id(0);
     uint j = get_global_id(1);
+    uint k;
     float tmp;
 
     tmp = 0.0;
