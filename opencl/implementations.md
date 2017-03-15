@@ -8,8 +8,7 @@ There is a certain "installable client driver loader (ICD loader)" which forward
 
 <http://www.x.org/wiki/XorgEVoC/GalliumCompute/>
 
-Looks like the major open source implementation.
-MIT and LLVM based.
+Looks like the major open source implementation. MIT and LLVM based.
 
 ## NVIDIA
 
@@ -32,8 +31,6 @@ Threads:
 - <https://devtalk.nvidia.com/default/topic/572548/support-for-opencl-1-2-gtx-690-ubuntu>
 - <http://stackoverflow.com/questions/3271243/clcreatesubbuffer-not-found-oo>
 - <https://devtalk.nvidia.com/default/topic/486564/nvidia-39-s-opencl-1-1-and-clcreatesubbuffer/>
-
-## OpenCL
 
 OpenCL 2 announced in 2017:
 
@@ -65,6 +62,8 @@ Beignet looks like an open source implementation for Intel's embedded GPU: <http
 
 ## CPU implementations
 
+## Software implementations
+
 Slow but portable, and a sanity check that OpenCL is actually making anything faster:
 
 ### Clover
@@ -79,3 +78,6 @@ Portable OpenCL implementation.
 
 <http://portablecl.org/>
 
+### Oclgrind
+
+<https://github.com/jrprice/Oclgrind>
