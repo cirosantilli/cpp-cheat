@@ -26,6 +26,7 @@ Cheat on the GNU Compile Collection (GCC) language extensions and command line u
     1.  [Attribute](attribute.c)
         1.  Variable
             1.  [weak](weak/)
+            1.  [Vector extensions](vector.c)
         1.  Function
             1.  [sentinel](sentinel.c)
     1.  [asm](asm.c)

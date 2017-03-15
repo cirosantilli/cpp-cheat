@@ -23,9 +23,10 @@ typedef struct {
     cl_program program;
 } Common;
 
-void common_init(
+void common_init_options(
     Common *common,
-    const char *source
+    const char *source,
+    const char *options
 ) {
 	char *err;
 	size_t err_len;
@@ -36,7 +37,7 @@ void common_init(
     clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, 1, &(common->device), NULL);
     common->context = clCreateContext(NULL, 1, &(common->device), NULL, NULL, NULL);
     common->program = clCreateProgramWithSource(common->context, 1, &source, NULL, NULL);
-    ret = clBuildProgram(common->program, 1, &(common->device), "", NULL, NULL);
+    ret = clBuildProgram(common->program, 1, &(common->device), options, NULL, NULL);
     if (CL_SUCCESS != ret) {
 		clGetProgramBuildInfo(common->program, common->device, CL_PROGRAM_BUILD_LOG, 0, NULL, &err_len);
 		err = malloc(err_len);
@@ -47,6 +48,13 @@ void common_init(
     }
     common->kernel = clCreateKernel(common->program, "main", NULL);
     common->command_queue = clCreateCommandQueue(common->context, common->device, 0, NULL);
+}
+
+void common_init(
+    Common *common,
+    const char *source
+) {
+	common_init_options(common, source, "");
 }
 
 char* common_read_file(const char *path) {
