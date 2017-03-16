@@ -5,6 +5,8 @@ Basically a more abstract and ISA portable (TODO?) version of intrinsics.
 
 Note however that the GCC and other compiles have an auto-vectorization
 optimization, which might use SIMD even if you don't use the vector extensions.
+
+TODO: is explicit alignment attribute necessary, or automatically done?
 */
 
 #include "common.h"
