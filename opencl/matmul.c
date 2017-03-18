@@ -28,10 +28,14 @@ Articles:
 
 #include <cblas.h>
 
-#define VECTOR_SIZE (4 * sizeof(F))
+/* TODO how to auto tune this?
+ * GCC 6 was not smart enough to use widest type automatically:
+ * anything larger than the widest type just dropped perf drastically. */
+#define VECTOR_NELEMS 4
+#define VECTOR_SIZEOF (VECTOR_NELEMS * sizeof(F))
 
 typedef cl_float F;
-typedef F F4 __attribute__ ((vector_size(VECTOR_SIZE)));
+typedef F Vec __attribute__ ((vector_size(VECTOR_SIZEOF)));
 typedef void (*MatMul)(const F *A, const F *B, F *C, size_t n);
 
 /* No, this was not created for debugging, my code is flawless from the first try. */
@@ -95,6 +99,10 @@ int mat_eq(const F *A, const F *B, size_t n) {
     return (sqrt(err) / i_max) < err_max;
 }
 
+size_t zmin(size_t x, size_t y) {
+	return (x < y) ? x : y;
+}
+
 /* C = A*B, width n, naive. */
 void mat_mul_cpu(const F *A, const F *B, F *C, size_t n) {
     F tmp;
@@ -129,52 +137,73 @@ void mat_mul_cpu_trans(const F *A, const F *B, F *C, size_t n) {
     mat_trans((F*)B, n);
 }
 
-/* Transpose matrix B to:
+/* Zero vector. */
+void vec_zero(Vec *vec, size_t vec_n) {
+	size_t i;
+	for (i = 0; i < vec_n; ++i) {
+		(*vec)[i] = 0.0;
+	}
+}
+
+/* Load vector from array. */
+void vec_load(Vec *vec, size_t vec_n, const F* A, size_t A_base) {
+	size_t i;
+	for (i = 0; i < vec_n; ++i) {
+		(*vec)[i] = A[A_base + i];
+	}
+}
+
+/* Sum elements of the vector. */
+F vec_sum(Vec vec, size_t vec_n) {
+	size_t i;
+	F sum;
+	sum = 0.0;
+	for (i = 0; i < vec_n; ++i) {
+		sum += vec[i];
+	}
+	return sum;
+}
+
+/* Transpose matrix B to both:
  *
- * - increase cache hits,
+ * - increase cache hits
  * - simd GCC vector extensions which is made possible.
  *   by the transposition, to increase likelyhood of SIMDs.
  *
  * Note that GCC 6 O=3 is smart enough to use SIMD
- * even for the naive CPU method. However this was more efficient.
+ * even for the naive CPU method. However this was still way faster.
  * */
 void mat_mul_cpu_trans_vec(const F *A, const F *B, F *C, size_t n) {
-    size_t i, j, k, ai, bi;
-    F4 tmp, a4, b4;
+    size_t i, j, k, k_max, ai, bi;
+    Vec tmp, a, b;
+    F tmpf;
 
     mat_trans((F*)B, n);
+    k_max = (n / VECTOR_NELEMS) * VECTOR_NELEMS;
     for (i = 0; i < n; ++i) {
         for (j = 0; j < n; ++j) {
-            tmp[0] = 0.0;
-            tmp[1] = 0.0;
-            tmp[2] = 0.0;
-            tmp[3] = 0.0;
-            for (k = 0; k < n; k += 4) {
-                ai =  i*n+k;
-                bi =  j*n+k;
-                a4[0] = A[ai+0];
-                a4[1] = A[ai+1];
-                a4[2] = A[ai+2];
-                a4[3] = A[ai+3];
-                b4[0] = B[bi+0];
-                b4[1] = B[bi+1];
-                b4[2] = B[bi+2];
-                b4[3] = B[bi+3];
-                tmp += a4 * b4;
+        	vec_zero(&tmp, VECTOR_NELEMS);
+            for (k = 0; k < k_max; k += VECTOR_NELEMS) {
+                ai = i * n + k;
+                bi = j * n + k;
+                vec_load(&a, VECTOR_NELEMS, A, ai);
+                vec_load(&b, VECTOR_NELEMS, B, bi);
+                tmp += a * b;
             }
-            C[i*n+j] = tmp[0] + tmp[1] + tmp[2] + tmp[3];
+			tmpf = 0.0;
+            for (; k < n; ++k) {
+            	tmpf += A[i*n+k] * B[j*n+k];
+            }
+            C[i*n+j] = vec_sum(tmp, VECTOR_NELEMS) + tmpf;
         }
     }
     mat_trans((F*)B, n);
 }
 
-size_t zmin(size_t x, size_t y) {
-	return (x < y) ? x : y;
-}
-
 /* Blocked matrix multiplication.
  * TODO slower than transpose, sometimes similar timing to naive.
- * Why do they say that this is better? */
+ * Why do they say that this is better?
+ * */
 void mat_mul_cpu_block(const F *A, const F *B, F *C, size_t n) {
     size_t ib, jb, kb, i, j, k, i_max, j_max, k_max, nb ;
     F tmp;
@@ -302,7 +331,7 @@ double bench(MatMul f, const F *A, const F *B, F *C, F *C_ref, size_t n) {
 	dt = common_get_nanos() - time;
 	if (C_ref != NULL)
 		assert(mat_eq(C, C_ref, n));
-	printf("%f ", dt);
+	printf("%.3e ", dt);
 	return dt;
 }
 
@@ -319,6 +348,7 @@ int main(int argc, char **argv) {
 		/*mat_mul_cl,*/
 		mat_mul_cl_row,
 	};
+	size_t f;
 
 	/* CLI args. */
     if (argc > 1) {
@@ -327,7 +357,7 @@ int main(int argc, char **argv) {
         max_cpu_runtime = 1.0;
     }
 
-    /* Unit test our implementations. */
+    /* Unit test 2x2. */
     {
         const F A[] = {
             1.0, 2.0,
@@ -344,32 +374,14 @@ int main(int argc, char **argv) {
             43.0, 50.0
         };
 
-        mat_zero(C, n);
-        mat_mul_cpu(A, B, C, n);
-        assert(mat_eq(C, C_ref, n));
-
-        mat_zero(C, n);
-        mat_mul_cpu_trans(A, B, C, n);
-        assert(mat_eq(C, C_ref, n));
-
-        mat_zero(C, n);
-        mat_mul_cpu_block(A, B, C, n);
-        assert(mat_eq(C, C_ref, n));
-
-        mat_zero(C, n);
-        mat_mul_cpu_cblas(A, B, C, n);
-        assert(mat_eq(C, C_ref, n));
-
-        mat_zero(C, n);
-        mat_mul_cl(A, B, C, n);
-        assert(mat_eq(C, C_ref, n));
-
-        mat_zero(C, n);
-        mat_mul_cl_row(A, B, C, n);
-        assert(mat_eq(C, C_ref, n));
+		for (f = 0; f < sizeof(mat_mul_funcs)/sizeof(mat_mul_funcs[0]); ++f) {
+			mat_zero(C, n);
+			mat_mul_funcs[f](A, B, C, n);
+			assert(mat_eq(C, C_ref, n));
+		}
     }
 
-    /* Unit test for vector implementation, which requires 4x4 matrices. */
+    /* Unit test 4x4. */
     {
         const F A[] = {
             1.0,  2.0,  3.0,  4.0,
@@ -392,26 +404,28 @@ int main(int argc, char **argv) {
         enum N { n = 4 };
         F C[n*n];
 
-        mat_zero(C, n);
-        mat_mul_cpu_trans_vec(A, B, C, n);
-        assert(mat_eq(C, C_ref, n));
+		for (f = 0; f < sizeof(mat_mul_funcs)/sizeof(mat_mul_funcs[0]); ++f) {
+			mat_zero(C, n);
+			mat_mul_funcs[f](A, B, C, n);
+			assert(mat_eq(C, C_ref, n));
+		}
     }
 
     /* Benchmarks. */
     {
 		double dt;
         F *A = NULL, *B = NULL, *C = NULL, *C_ref = NULL;
-        size_t f, n = 4, a_sizeof;
+        size_t n = 4, a_sizeof;
 
         puts("#matmul");
         puts("n cpu cpu_trans cpu_trans_vec cpu_block cpu_cblas cl_row");
         a_sizeof = n * n * sizeof(F);
-        A = aligned_alloc(VECTOR_SIZE, a_sizeof);
-        B = aligned_alloc(VECTOR_SIZE, a_sizeof);
-        C = aligned_alloc(VECTOR_SIZE, a_sizeof);
-        C_ref = aligned_alloc(VECTOR_SIZE, a_sizeof);
+        A = aligned_alloc(VECTOR_SIZEOF, a_sizeof);
+        B = aligned_alloc(VECTOR_SIZEOF, a_sizeof);
+        C = aligned_alloc(VECTOR_SIZEOF, a_sizeof);
+        C_ref = aligned_alloc(VECTOR_SIZEOF, a_sizeof);
         while(1) {
-            printf("%zu ", n);
+            printf("%zu ", (size_t)log2(n));
             if (A == NULL || B == NULL || C == NULL) {
                 printf("Could not allocate memory for n = %zu. Aborting.", n);
                 break;
