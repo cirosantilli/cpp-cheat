@@ -75,14 +75,22 @@ char* common_read_file(const char *path) {
     return buffer;
 }
 
+void common_init_file_options(
+    Common *common,
+    const char *source_path,
+    const char *options
+) {
+    char *source;
+    source = common_read_file(source_path);
+    common_init_options(common, source, options);
+    free(source);
+}
+
 void common_init_file(
     Common *common,
     const char *source_path
 ) {
-    char *source;
-    source = common_read_file(source_path);
-    common_init(common, source);
-    free(source);
+	common_init_file_options(common, source_path, "");
 }
 
 void common_deinit(
