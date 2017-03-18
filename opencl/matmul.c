@@ -26,10 +26,12 @@ Articles:
 
 #include "common.h"
 
+#include <cblas.h>
+
 #define VECTOR_SIZE (4 * sizeof(F))
 
 typedef cl_float F;
-typedef cl_float F4 __attribute__ ((vector_size(VECTOR_SIZE)));
+typedef F F4 __attribute__ ((vector_size(VECTOR_SIZE)));
 typedef void (*MatMul)(const F *A, const F *B, F *C, size_t n);
 
 /* No, this was not created for debugging, my code is flawless from the first try. */
@@ -166,29 +168,59 @@ void mat_mul_cpu_trans_vec(const F *A, const F *B, F *C, size_t n) {
     mat_trans((F*)B, n);
 }
 
+size_t zmin(size_t x, size_t y) {
+	return (x < y) ? x : y;
+}
+
 /* Blocked matrix multiplication.
- * Assumes n is power of 2.
- * TODO slower than transpose, sometimes similar timing to naive.*/
+ * TODO slower than transpose, sometimes similar timing to naive.
+ * Why do they say that this is better? */
 void mat_mul_cpu_block(const F *A, const F *B, F *C, size_t n) {
-    size_t nb = sqrt(n);
-    size_t ib, jb, i, j, i2, j2, k;
+    size_t ib, jb, kb, i, j, k, i_max, j_max, k_max, nb ;
     F tmp;
 
-    for (ib = 0; ib < nb; ++ib) {
-        for (jb = 0; jb < nb; ++jb) {
-            for (i = 0; i < nb; ++i) {
-                for (j = 0; j < nb; ++j) {
-                    i2 = nb * ib + i;
-                    j2 = nb * jb + j;
-                    tmp = 0.0;
-                    for (k = 0; k < n; ++k) {
-                        tmp += A[i2*n+k] * B[k*n+j2];
-                    }
-                    C[i2*n+j2] = tmp;
-                }
+	nb = lround(sqrt(n));
+    for (ib = 0; ib < n; ib += nb) {
+		i_max = zmin(ib + nb, n);
+        for (jb = 0; jb < n; jb += nb) {
+			k_max = zmin(jb + nb, n);
+			for (kb = 0; kb < n; kb += nb) {
+				j_max = zmin(kb + nb, n);
+
+				/* TODO would be cool to recurse here, but would require more offset parameters,
+				 * likely similar to tose of CBLAS. */
+				for (i = ib; i < i_max; ++i) {
+					for (j = kb; j < j_max; ++j) {
+						tmp = 0.0;
+						for (k = jb; k < k_max; ++k) {
+							tmp += A[i*n+k] * B[k*n+j];
+						}
+						C[i*n+j] += tmp;
+					}
+				}
             }
         }
     }
+}
+
+/* The golden single thread CPU standard. */
+void mat_mul_cpu_cblas(const F *A, const F *B, F *C, size_t n) {
+    cblas_sgemm(
+        CblasRowMajor,
+        CblasNoTrans,
+        CblasNoTrans,
+        n,
+        n,
+        n,
+        1.0,
+        A,
+        n,
+        B,
+        n,
+        1.0,
+        C,
+        n
+    );
 }
 
 /* Simplest possible CL implementation. No speedup. */
@@ -261,18 +293,34 @@ void mat_mul_cl_row(const F *A, const F *B, F *C, size_t n) {
     common_deinit(&common);
 }
 
+
+double bench(MatMul f, const F *A, const F *B, F *C, F *C_ref, size_t n) {
+	double dt, time;
+	mat_zero(C, n);
+	time = common_get_nanos();
+	f(A, B, C, n);
+	dt = common_get_nanos() - time;
+	if (C_ref != NULL)
+		assert(mat_eq(C, C_ref, n));
+	printf("%f ", dt);
+	return dt;
+}
+
 int main(int argc, char **argv) {
     srand(time(NULL));
     double max_cpu_runtime;
-    /* TODO stop being lazy and use this. */
-    /*MatMul mat_mul[] = {*/
-        /*mat_mul_cpu,*/
-        /*mat_mul_cpu_trans,*/
-        /*mat_mul_cpu_trans_vec,*/
-        /*mat_mul_cl,*/
-        /*mat_mul_cl_row,*/
-    /*};*/
+	MatMul mat_mul_funcs[] = {
+		mat_mul_cpu_trans,
+		mat_mul_cpu_trans_vec,
+		mat_mul_cpu_block,
+		mat_mul_cpu_cblas,
+		/* Comment out, because this overflows GPU memory and blocks computer
+		 * before the others get to meaningful times. */
+		/*mat_mul_cl,*/
+		mat_mul_cl_row,
+	};
 
+	/* CLI args. */
     if (argc > 1) {
         max_cpu_runtime = strtod(argv[1], NULL);
     } else {
@@ -291,26 +339,34 @@ int main(int argc, char **argv) {
         };
         enum N { n = 2 };
         F C[n*n];
-        const F C_expect[] = {
+        const F C_ref[] = {
             19.0, 22.0,
             43.0, 50.0
         };
 
         mat_zero(C, n);
         mat_mul_cpu(A, B, C, n);
-        assert(mat_eq(C, C_expect, n));
+        assert(mat_eq(C, C_ref, n));
 
         mat_zero(C, n);
         mat_mul_cpu_trans(A, B, C, n);
-        assert(mat_eq(C, C_expect, n));
+        assert(mat_eq(C, C_ref, n));
+
+        mat_zero(C, n);
+        mat_mul_cpu_block(A, B, C, n);
+        assert(mat_eq(C, C_ref, n));
+
+        mat_zero(C, n);
+        mat_mul_cpu_cblas(A, B, C, n);
+        assert(mat_eq(C, C_ref, n));
 
         mat_zero(C, n);
         mat_mul_cl(A, B, C, n);
-        assert(mat_eq(C, C_expect, n));
+        assert(mat_eq(C, C_ref, n));
 
         mat_zero(C, n);
         mat_mul_cl_row(A, B, C, n);
-        assert(mat_eq(C, C_expect, n));
+        assert(mat_eq(C, C_ref, n));
     }
 
     /* Unit test for vector implementation, which requires 4x4 matrices. */
@@ -327,7 +383,7 @@ int main(int argc, char **argv) {
            25.0, 26.0, 27.0, 28.0,
            29.0, 30.0, 31.0, 32.0,
         };
-        const F C_expect[] = {
+        const F C_ref[] = {
             250.000000, 260.000000, 270.000000, 280.000000,
             618.000000, 644.000000, 670.000000, 696.000000,
             986.000000, 1028.000000, 1070.000000, 1112.000000,
@@ -337,22 +393,18 @@ int main(int argc, char **argv) {
         F C[n*n];
 
         mat_zero(C, n);
-        mat_mul_cpu_block(A, B, C, n);
-        assert(mat_eq(C, C_expect, n));
-
-        mat_zero(C, n);
         mat_mul_cpu_trans_vec(A, B, C, n);
-        assert(mat_eq(C, C_expect, n));
+        assert(mat_eq(C, C_ref, n));
     }
 
     /* Benchmarks. */
     {
+		double dt;
         F *A = NULL, *B = NULL, *C = NULL, *C_ref = NULL;
-        double dt, time;
-        size_t n = 4, a_sizeof;
+        size_t f, n = 4, a_sizeof;
 
         puts("#matmul");
-        puts("n cpu cpu_trans cpu_trans_vec cpu_block cl_row");
+        puts("n cpu cpu_trans cpu_trans_vec cpu_block cpu_cblas cl_row");
         a_sizeof = n * n * sizeof(F);
         A = aligned_alloc(VECTOR_SIZE, a_sizeof);
         B = aligned_alloc(VECTOR_SIZE, a_sizeof);
@@ -361,43 +413,15 @@ int main(int argc, char **argv) {
         while(1) {
             printf("%zu ", n);
             if (A == NULL || B == NULL || C == NULL) {
-                printf("Could not allocate memory for n = %zu", n);
+                printf("Could not allocate memory for n = %zu. Aborting.", n);
                 break;
             }
             mat_rand(A, n);
             mat_rand(B, n);
-
-            time = common_get_nanos();
-            mat_mul_cpu(A, B, C_ref, n);
-            dt = common_get_nanos() - time;
-            printf("%f ", dt);
-
-            time = common_get_nanos();
-            mat_mul_cpu_trans(A, B, C, n);
-            assert(mat_eq(C, C_ref, n));
-            printf("%f ", common_get_nanos() - time);
-
-            time = common_get_nanos();
-            mat_mul_cpu_trans_vec(A, B, C, n);
-            assert(mat_eq(C, C_ref, n));
-            printf("%f ", common_get_nanos() - time);
-
-            time = common_get_nanos();
-            mat_mul_cpu_block(A, B, C, n);
-            assert(mat_eq(C, C_ref, n));
-            printf("%f ", common_get_nanos() - time);
-
-            /* Comment out, because this overflows GPU memory and blocks computer
-             * before the others get to meaningful times. */
-            /*time = common_get_nanos();*/
-            /*mat_mul_cl(A, B, C, n);*/
-            /*printf("%f ", common_get_nanos() - time);*/
-
-            time = common_get_nanos();
-            mat_mul_cl_row(A, B, C, n);
-            printf("%f ", common_get_nanos() - time);
-            assert(mat_eq(C, C_ref, n));
-
+			dt = bench(mat_mul_cpu, A, B, C_ref, NULL, n);
+			for (f = 0; f < sizeof(mat_mul_funcs)/sizeof(mat_mul_funcs[0]); ++f) {
+				bench(mat_mul_funcs[f], A, B, C, C_ref, n);
+			}
             puts("");
             if (dt > max_cpu_runtime)
                 break;

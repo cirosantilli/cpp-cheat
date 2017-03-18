@@ -1,1 +1,3 @@
-LIBS := -lm -pthread -lOpenCL
+LIBS := -lm -pthread -lOpenCL -lblas
+# blas from libatlas-base-dev
+# cblas from libblas-dev
