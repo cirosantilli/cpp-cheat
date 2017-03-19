@@ -63,6 +63,7 @@ char* common_read_file(const char *path) {
     long length;
 
     f = fopen(path, "r");
+    assert(NULL != f);
     fseek(f, 0, SEEK_END);
     length = ftell(f);
     fseek(f, 0, SEEK_SET);

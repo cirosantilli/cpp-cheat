@@ -9,15 +9,15 @@ https://www.khronos.org/registry/OpenCL/sdk/1.0/docs/man/xhtml/clGetDeviceInfo.h
 #include "common.h"
 
 #define PRINT_SIZE_T(id) \
-    clGetDeviceInfo(device, CL_ ## id, sizeof(size_t), &(buf_size_t), NULL); \
+    clGetDeviceInfo(device, CL_ ## id, sizeof(buf_size_t), &(buf_size_t), NULL); \
     printf(#id " = %zu\n", buf_size_t);
 
 #define PRINT_CL_UINT(id) \
-    clGetDeviceInfo(device, CL_ ## id, sizeof(cl_uint), &(buf_cl_uint), NULL); \
+    clGetDeviceInfo(device, CL_ ## id, sizeof(buf_cl_uint), &(buf_cl_uint), NULL); \
     printf(#id " = %ju\n", (uintmax_t)buf_cl_uint);
 
 #define PRINT_CL_ULONG(id) \
-    clGetDeviceInfo(device, CL_ ## id, sizeof(cl_ulong), &(buf_cl_ulong), NULL); \
+    clGetDeviceInfo(device, CL_ ## id, sizeof(buf_cl_ulong), &(buf_cl_ulong), NULL); \
     printf(#id " = 0x%lx\n", (uintmax_t)buf_cl_ulong);
 
 int main(void) {
@@ -33,13 +33,15 @@ int main(void) {
 
     /* Print. */
     puts("#clinfo");
-    PRINT_SIZE_T(DEVICE_MAX_WORK_GROUP_SIZE)
-    PRINT_CL_UINT(DEVICE_MAX_WORK_ITEM_DIMENSIONS)
-    /* TODO this is wrong, it is actually an array.
-     * But yeah, likely the same for all dimensions. */
-    PRINT_SIZE_T(DEVICE_MAX_WORK_ITEM_SIZES)
-	PRINT_CL_ULONG(DEVICE_LOCAL_MEM_SIZE)
-    PRINT_CL_UINT(DEVICE_MAX_COMPUTE_UNITS)
+    PRINT_SIZE_T(DEVICE_MAX_WORK_GROUP_SIZE);
+    PRINT_CL_UINT(DEVICE_MAX_WORK_ITEM_DIMENSIONS);
+    /* TODO this is wrong, it is actually an array of
+     * DEVICE_MAX_WORK_ITEM_DIMENSIONS elements.
+     * But yeah, likely the same for all dimensions,
+     * and equal to DEVICE_MAX_WORK_GROUP_SIZE. */
+    PRINT_SIZE_T(DEVICE_MAX_WORK_ITEM_SIZES);
+	PRINT_CL_ULONG(DEVICE_LOCAL_MEM_SIZE);
+    PRINT_CL_UINT(DEVICE_MAX_COMPUTE_UNITS);
 
     /* Cleanup. */
 #ifdef CL_1_2

@@ -31,6 +31,7 @@ Minimal example request: <http://stackoverflow.com/questions/7663343/simplest-po
     -   Hough transform: <https://www.youtube.com/watch?v=vn9y7t9iqC8>
 
 -   Conway's game of life:
+
     -   <https://github.com/GollyGang/ready>
     -   Nuno Fachada <https://www.youtube.com/watch?v=xz6hkaveGOo>
 
