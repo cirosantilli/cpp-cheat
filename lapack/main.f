@@ -171,7 +171,7 @@
             !return status returned on `info`:
             !pivots returned on `pivots`:
             call sgesv( n, nrhs, a2x2, lda, pivots, b2, ldb, info )
-            
+
             c2(1) = 1.0
             c2(2) = 2.0
             call assert_eqi( info, 0 )

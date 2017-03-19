@@ -46,7 +46,7 @@ void random_array(char * const arr, const size_t len) {
         arr[i] = rand() % SCHAR_MAX;
 }
 
-int main() {
+int main(void) {
     srand(time(NULL));
 
     /*

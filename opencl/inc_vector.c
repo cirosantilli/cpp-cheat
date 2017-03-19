@@ -19,12 +19,12 @@ int main(void) {
     cl_int input[] = {1, 2};
     cl_mem buffer;
     Common common;
-    const size_t global_work_size = sizeof(input) / sizeof(cl_int);
+    const size_t global_work_size = sizeof(input) / sizeof(input[0]);
 
 	/* Run kernel. */
     common_init(&common, source);
     buffer = clCreateBuffer(common.context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(input), input, NULL);
-    clSetKernelArg(common.kernel, 0, sizeof(cl_mem), &buffer);
+    clSetKernelArg(common.kernel, 0, sizeof(buffer), &buffer);
     clEnqueueNDRangeKernel(common.command_queue, common.kernel, 1, NULL, &global_work_size, NULL, 0, NULL, NULL);
     clFlush(common.command_queue);
     clFinish(common.command_queue);

@@ -53,26 +53,6 @@ Resources:
 - The specifications of your hardware, e.g. <http://www.nvidia.com/object/nvs_techspecs.html>
 - <http://www.cmsoft.com.br/> several good examples, but not always with full source? By <https://www.linkedin.com/in/douglas-coimbra-de-andrade-1241aa34> who is a Brazilian from a famous Brazilian university.
 
-Big programs that use it:
-
--   <https://github.com/bulletphysics/bullet3>
-
-    - <https://www.youtube.com/watch?v=8jGZv1YYe2c>
-    - <https://www.youtube.com/watch?v=-6Sl5CCxp3Q>
-    - <https://www.youtube.com/watch?v=J9HaT23b-xc>
-
--   <https://github.com/nthend/cltracer>
-
--   Computer vision:
-
-    - Hough transform: <https://www.youtube.com/watch?v=vn9y7t9iqC8>
-
--   Interactive fluid simulations
-
-    - <https://www.youtube.com/watch?v=LGTxZRRwvsI>
-
--   Scientific computation: <http://scicomp.stackexchange.com/questions/376/mathematical-libraries-for-opencl>
-
 ## NVIDIA samples
 
 Used to be part of the GPU computing SDK, then renamed CUDA SDK.
@@ -84,10 +64,6 @@ Used to be part of the GPU computing SDK, then renamed CUDA SDK.
 But a header is missing and it does not compile: <https://github.com/sschaetz/nvidia-opencl-examples/issues/1>
 
 I'm not the only one who noticed: <https://streamcomputing.eu/blog/2012-09-10/nvidias-industry-leading-support-for-opencl/>
-
-### CUDA examples
-
-
 
 ## AMD samples
 

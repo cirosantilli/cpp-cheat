@@ -9,7 +9,9 @@ This is our OpenCL hello world, so we are not doing:
 
 #include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>
 
+/* To prevent deprecation warnings when headers are 2.0. */
 #define CL_USE_DEPRECATED_OPENCL_1_2_APIS
 #include <CL/cl.h>
 
@@ -53,6 +55,8 @@ int main(void) {
     clReleaseProgram(program);
     clReleaseKernel(kernel);
     clReleaseContext(context);
-    clReleaseDevice(device);
+#ifdef CL_1_2
+	clReleaseDevice(device);
+#endif
     return EXIT_SUCCESS;
 }

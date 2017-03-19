@@ -8,7 +8,7 @@ BLAS and LAPACK are:
 
 -   de-facto standards
 
--   non-parallel 
+-   non-parallel
 
 -   originally written in Fortran
 
@@ -29,8 +29,6 @@ BLAS contains low level functions such as:
 - vector scalar multiplication
 - vector matrix multiplication
 - matrix matrix multiplication
-
-The BLAS project provides `cblas.h`, which contains a C interface for BLAS.
 
 ### LAPACK
 
@@ -61,21 +59,19 @@ Implements full BLAS, but only part of LAPACK.
 
 Has C interface.
 
-## Installation on Ubuntu
+## C interface
 
-### Fortran
+The BLAS project provides `cblas.h`, which contains a C interface for BLAS (TODO but also an implementation?)
 
-    sudo aptitude install liblapack-dev liblapack-doc libblas-doc
+Via atlas:
 
-### C interface
+    sudo aptitude install libatlas-dev
+    gcc -lcblas
 
-via atlas:
-
-    sudo aptitude install 
-
-via LAPACKE (`libblas-dev` already contains `cblas.h`):
+Via LAPACKE (`libblas-dev` already contains `cblas.h`):
 
     sudo aptitude install liblapacke-dev
+    gcc -lblas
 
 ## Levels
 
@@ -84,6 +80,8 @@ via LAPACKE (`libblas-dev` already contains `cblas.h`):
 3: matrix matrix. ex: multiply two matrices.
 
 ## Function naming conventions
+
+<http://www.netlib.org/lapack/lug/node24.html>
 
 The functions are named according to the pattern:
 
@@ -108,6 +106,8 @@ Where:
 -   `ZZ`: computation to be done:
 
     - `SV`: SolVe linear system
+    - `MM`: Matrix Multiply
+    - `LS`: Least Squares (overdetermined system)
 
 ## Sources
 
@@ -118,3 +118,7 @@ Where:
 - user's guide. algorithm info <http://www.netlib.org/lapack/lug/>
 
 - <http://www.tat.physik.uni-tuebingen.de/~kley/lehre/ftn77/tutorial/blas.html>
+
+## LAPACKE
+
+<http://stackoverflow.com/questions/26875415/difference-between-lapacke-and-lapack>

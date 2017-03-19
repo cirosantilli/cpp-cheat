@@ -13,8 +13,8 @@ I               ?= #-I/usr/include
 O               ?= 0
 STD             ?= c11
 PEDANTIC        ?= -pedantic-errors
-CFLAGS          ?= -g$(G) -O$(O) -pthread -std=$(STD) -Wextra $(PEDANTIC) $(CFLAGS_EXTRA)   #-pg 
-MYCXXFLAGS      ?= -g$(G) -O$(O) -pthread -std=c++14  -Wextra $(PEDANTIC) $(CXXFLAGS_EXTRA) #-pg 
+CFLAGS          ?= -g$(G) -march=native -O$(O) -pthread -std=$(STD) -Wall -Wextra $(PEDANTIC) $(CFLAGS_EXTRA)   #-pg 
+MYCXXFLAGS      ?= -g$(G) -march=native -O$(O) -pthread -std=c++14  -Wall -Wextra $(PEDANTIC) $(CXXFLAGS_EXTRA) #-pg 
 
 LIBS            ?= -lm -lrt #-lGL -lGLU -lglut
 
