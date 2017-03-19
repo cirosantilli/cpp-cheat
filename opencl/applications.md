@@ -9,14 +9,20 @@ Minimal example request: <http://stackoverflow.com/questions/7663343/simplest-po
 
 ## Examples
 
--   Monte Carlo
+-   Monte Carlo. TODO code.
 
 -   PDEs
 
     - <https://en.wikipedia.org/wiki/Black%E2%80%93Scholes_model>
     - Reverse Time Migration: RTM <http://www.slb.com/services/seismic/geophysical_processing_characterization/dp/technologies/depth/prestackdepth/rtm.aspx>
 
+-   Conway's game of life:
+    -   <https://github.com/GollyGang/ready>
+    -   Nuno Fachada <https://www.youtube.com/watch?v=xz6hkaveGOo>
+
 ### Matrix multiplication
+
+Major example:
 
 - <http://hpclab.blogspot.fr/2011/09/is-gpu-good-for-large-vector-addition.html>
 - <https://developer.nvidia.com/cublas>
@@ -39,3 +45,7 @@ Notable users:
 - OpenCV
 - Bullet physics
 - VP9 decoding 2013 by Ittiam: <http://malideveloper.arm.com/partner-showroom/ittiam-vp9-decoder-using-opencl/>
+
+## Wrappers
+
+- <https://github.com/fakenmc/cf4ocl>
