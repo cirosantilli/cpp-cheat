@@ -21,6 +21,7 @@
     1.  References
         1.  [reference](reference.cpp)
         1.  [rvalue reference](rvalue_reference.cpp)
+        1.  [Value category cheatsheet](https://github.com/jeaye/value-category-cheatsheet/tree/14aef17fb5ab9c35416ec62ac0d45eb12729901f/resources/code)
     1.  [Function](function.cpp)
         1.  [Operator overload](operator_overload.cpp)
         1.  [Default parameters](default_parameters.cpp)
