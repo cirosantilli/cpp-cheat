@@ -36,18 +36,23 @@ void common_init_options(
     clGetPlatformIDs(1, &platform, NULL);
     clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, 1, &(common->device), NULL);
     common->context = clCreateContext(NULL, 1, &(common->device), NULL, NULL, NULL);
-    common->program = clCreateProgramWithSource(common->context, 1, &source, NULL, NULL);
-    ret = clBuildProgram(common->program, 1, &(common->device), options, NULL, NULL);
-    if (CL_SUCCESS != ret) {
-		clGetProgramBuildInfo(common->program, common->device, CL_PROGRAM_BUILD_LOG, 0, NULL, &err_len);
-		err = malloc(err_len);
-		clGetProgramBuildInfo(common->program, common->device, CL_PROGRAM_BUILD_LOG, err_len, err, NULL);
-		fprintf(stderr, "error: kernel build:\n%s\n", err);
-		free(err);
-		exit(EXIT_FAILURE);
-    }
-    common->kernel = clCreateKernel(common->program, "main", NULL);
     common->command_queue = clCreateCommandQueue(common->context, common->device, 0, NULL);
+    if (NULL != source) {
+        common->program = clCreateProgramWithSource(common->context, 1, &source, NULL, NULL);
+        ret = clBuildProgram(common->program, 1, &(common->device), options, NULL, NULL);
+        if (CL_SUCCESS != ret) {
+            clGetProgramBuildInfo(common->program, common->device, CL_PROGRAM_BUILD_LOG, 0, NULL, &err_len);
+            err = malloc(err_len);
+            clGetProgramBuildInfo(common->program, common->device, CL_PROGRAM_BUILD_LOG, err_len, err, NULL);
+            fprintf(stderr, "error: kernel build:\n%s\n", err);
+            free(err);
+            exit(EXIT_FAILURE);
+        }
+        common->kernel = clCreateKernel(common->program, "main", NULL);
+    } else {
+        common->kernel = NULL;
+        common->program = NULL;
+    }
 }
 
 void common_init(
@@ -99,8 +104,12 @@ void common_deinit(
 ) {
     clReleaseCommandQueue(common->command_queue);
     clReleaseProgram(common->program);
-    clReleaseKernel(common->kernel);
-    clReleaseContext(common->context);
+    if (NULL != common->kernel) {
+        clReleaseKernel(common->kernel);
+    }
+    if (NULL != common->context) {
+        clReleaseContext(common->context);
+    }
 #ifdef CL_1_2
 	clReleaseDevice(common->device);
 #endif

@@ -76,10 +76,6 @@ Notable users:
     - <https://www.youtube.com/watch?v=-6Sl5CCxp3Q>
     - <https://www.youtube.com/watch?v=J9HaT23b-xc>
 
-## Wrappers
-
--   <https://github.com/fakenmc/cf4ocl>
-
 ## Application areas
 
 -   <https://streamcomputing.eu/blog/2013-06-03/the-application-areas-opencl-can-be-used/>

@@ -34,6 +34,23 @@ int main() {
     {
         sprintf(s, "%c", 'a');
         assert(strcmp(s, "a") == 0);
+
+        /*
+        Repeat character n times.
+
+        http://stackoverflow.com/questions/14678948/how-to-repeat-a-char-using-printfhttp://stackoverflow.com/questions/14678948/how-to-repeat-a-char-using-printf
+        */
+        {
+            /* Only works for zeros '0'. */
+            sprintf(s, "%0*d", 3, 0);
+            printf("%s\n", s);
+            assert(strcmp(s, "000") == 0);
+
+            /* Only works for spaces ' '. */
+            sprintf(s, "%*s", 3, "");
+            printf("%s\n", s);
+            assert(strcmp(s, "   ") == 0);
+        }
     }
 
     /* int */

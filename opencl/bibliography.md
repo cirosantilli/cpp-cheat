@@ -87,3 +87,8 @@ Binaries fall under the `bin/` directory of each examples.
 The SDK also comes with pre-built binaries under `samples/opencl/bin`. Just make sure you only run the ones whose source is under `1.x` if that's all that your implementation supports. They work fine.
 
 License: looks like a custom MIT, you can redistribute, modify and reuse samples.
+
+## Wrappers
+
+-   <https://github.com/fakenmc/cf4ocl>
+-   <https://github.com/RadeonOpenCompute/ROCm>
