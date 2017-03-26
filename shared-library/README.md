@@ -1,5 +1,8 @@
 # Library
 
+1. [Basic](basic/)
+1. [Lib-lib dependency](lib-lib-dependency/)
+
 Minimal example of a dynamic and static libraries.
 
 Tested on Ubuntu 14.04.

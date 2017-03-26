@@ -25,7 +25,8 @@ https://www.khronos.org/registry/OpenCL/sdk/1.0/docs/man/xhtml/clGetDeviceInfo.h
     printf(#id " = 0x%lx\n", (uintmax_t)buf_cl_ulong);
 
 int main(void) {
-    char buf_char[256];
+    /* TODO how to ensure that this is big enough? */
+    char buf_char[0x1000];
     cl_device_id device;
     cl_platform_id platform;
     cl_uint buf_cl_uint;
