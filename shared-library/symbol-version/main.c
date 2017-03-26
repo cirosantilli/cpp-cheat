@@ -3,7 +3,13 @@
 
 #include "a.h"
 
-__asm__(".symver a1,a@LIBA_1");
+/* TODO: any clearer way of doing this maybe
+ * with some compilation option only? */
+#if defined(V1)
+__asm__(".symver a,a@LIBA_1");
+#elif defined(V2)
+__asm__(".symver a,a@LIBA_2");
+#endif
 
 int main(void) {
     a();
