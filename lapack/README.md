@@ -1,6 +1,4 @@
-# BLAS and LAPACK
-
-TODO BROKEN: how to install LAPACKE on Ubuntu 12.04?
+# LAPACK
 
 BLAS and LAPACK are:
 
@@ -16,9 +14,9 @@ BLAS and LAPACK are:
 
     It might be a good idea to understand how to interface Fortran with C before the C interfaces.
 
-## Related projects
+Many implementations have been made, so they may be considered interfaces derived from an initial implementation nowadays.
 
-### BLAS
+## BLAS
 
 <http://www.netlib.org/blas/>
 
@@ -30,16 +28,19 @@ BLAS contains low level functions such as:
 - vector matrix multiplication
 - matrix matrix multiplication
 
-### LAPACK
+LAPACK uses BLAS
+
+### BLAS vs LAPACK
 
 LAPACK contains higher level functions such as:
 
 - solving linear systems
+- least squares
 - eigenvalue/eigenvector calculations
 
-It now includes an official C interface called LAPACKE.
+It now includes an official C interface called LAPACKE, which other implementations also implement.
 
-This does not ship with the Ubuntu `liblapack-dev` package at the time of writing, but there is a `liblapacke-dev` package available which provides it.
+## Implementations
 
 ### ScaLAPACK
 
@@ -47,7 +48,7 @@ This does not ship with the Ubuntu `liblapack-dev` package at the time of writin
 
 Continuation of LAPACK.
 
-Considers parallelism.
+Considers parallelism distributed across machines.
 
 ### ATLAS
 
@@ -58,6 +59,20 @@ Automatically tuned BLAS LAPACK. Not sure what this means, but sounds good!
 Implements full BLAS, but only part of LAPACK.
 
 Has C interface.
+
+### OpenBLAS
+
+<https://github.com/xianyi/OpenBLAS>
+
+### PBLAS
+
+<https://en.wikipedia.org/wiki/PBLAS>
+
+Created and used by ScaLAPACK.
+
+### MKL
+
+Intel's closed source implementation.
 
 ## C interface
 

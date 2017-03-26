@@ -2,7 +2,15 @@
 
 <https://en.wikipedia.org/wiki/OpenCL#Implementations>
 
+## ICD
+
+## Installable client driver
+
 There is a certain "installable client driver loader (ICD loader)" which forwards calls to the proprietary implementation.
+
+<https://www.khronos.org/news/permalink/opencl-installable-client-driver-icd-loader>
+
+TODO how to use it.
 
 ## Gallium Compute
 

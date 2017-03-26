@@ -1,3 +1,5 @@
 LIBS := -lm -pthread -lOpenCL -lblas -lclBLAS
-# blas from libatlas-base-dev
-# cblas from libblas-dev
+# Alternative blas implementations with identical interfaces:
+# - cblas from libblas-dev
+# - blas from libatlas-base-dev
+# - openblas from libopenblas-dev

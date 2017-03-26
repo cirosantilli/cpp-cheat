@@ -8,6 +8,10 @@ https://www.khronos.org/registry/OpenCL/sdk/1.0/docs/man/xhtml/clGetDeviceInfo.h
 
 #include "common.h"
 
+#define PRINT_CHAR(id) \
+    clGetDeviceInfo(device, CL_ ## id, sizeof(buf_char), buf_char, NULL); \
+    printf(#id " = %s\n", buf_char);
+
 #define PRINT_SIZE_T(id) \
     clGetDeviceInfo(device, CL_ ## id, sizeof(buf_size_t), &(buf_size_t), NULL); \
     printf(#id " = %zu\n", buf_size_t);
@@ -21,6 +25,7 @@ https://www.khronos.org/registry/OpenCL/sdk/1.0/docs/man/xhtml/clGetDeviceInfo.h
     printf(#id " = 0x%lx\n", (uintmax_t)buf_cl_ulong);
 
 int main(void) {
+    char buf_char[256];
     cl_device_id device;
     cl_platform_id platform;
     cl_uint buf_cl_uint;
@@ -33,6 +38,12 @@ int main(void) {
 
     /* Print. */
     puts("#clinfo");
+    PRINT_CHAR(DEVICE_EXTENSIONS);
+    PRINT_CHAR(DEVICE_NAME);
+    PRINT_CHAR(DEVICE_PROFILE);
+    PRINT_CHAR(DEVICE_VENDOR);
+    PRINT_CHAR(DEVICE_VERSION);
+    PRINT_CHAR(DRIVER_VERSION);
     PRINT_SIZE_T(DEVICE_MAX_WORK_GROUP_SIZE);
     PRINT_CL_UINT(DEVICE_MAX_WORK_ITEM_DIMENSIONS);
     /* TODO this is wrong, it is actually an array of
