@@ -11,7 +11,7 @@ run: main.out
 
 libcirosantilli_a.so: a.o libcirosantilli_b.so
 	@# This adds an RPATH=. field to readelf -d.
-	@#$(CC) -L'.' -Wl,-rpath,. -shared a.o -o '$@' -lcirosantilli_b
+	$(CC) -L'.' -Wl,-rpath,. -shared a.o -o '$@' -lcirosantilli_b
 	@#
 	@# These don't add RPATH, and main.out link fails,
 	@# unless you compile with LD_LIBRARY_PATH=. ? So LD_LIBRARY_PATH IS

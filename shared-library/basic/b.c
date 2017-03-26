@@ -2,4 +2,4 @@
 
 #include "b.h"
 
-void b() { puts("b"); }
+void b(void) { puts("b"); }

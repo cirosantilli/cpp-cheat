@@ -2,6 +2,7 @@
 
 1. [Basic](basic/)
 1. [Lib-lib dependency](lib-lib-dependency/)
+1. [Symbol version](symbol-version/)
 
 Minimal example of a dynamic and static libraries.
 

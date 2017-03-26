@@ -1,0 +1,13 @@
+LIBA_1{
+    global:
+    a;
+    local:
+    *;
+};
+
+LIBA_2{
+    global:
+    a;
+    local:
+    *;
+};

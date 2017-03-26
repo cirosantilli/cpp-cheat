@@ -9,4 +9,4 @@ Often required because of header struct declarations.
 */
 #include "a.h"
 
-void a() { puts("a"); }
+void a(void) { puts("a"); }

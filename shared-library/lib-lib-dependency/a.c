@@ -3,7 +3,7 @@
 #include "a.h"
 #include "b.h"
 
-void a() {
+void a(void) {
     puts("a");
     b();
 }
