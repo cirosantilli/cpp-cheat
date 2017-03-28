@@ -13,6 +13,7 @@
     1.  Alternatives
         1.  [Vulkan](vulkan.md)
         1.  [GLES](gles/)
+    1.  [Software implementations](software-implementations.md)
 1.  Examples
     1.  [GLUT hello world](hello_world.c)
     1.  [info](info.c)

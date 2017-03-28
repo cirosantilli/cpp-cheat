@@ -30,6 +30,7 @@ Articles:
 #include <clBLAS.h>
 
 #define NELEMS(a) sizeof(a)/sizeof(a[0])
+#define UNUSED(x) (void)(x)
 
 /* TODO how to auto tune this?
  * GCC 6 was not smart enough to use widest type automatically:
@@ -39,7 +40,22 @@ Articles:
 
 typedef cl_float F;
 typedef F Vec __attribute__ ((vector_size(VECTOR_SIZEOF)));
-typedef void (*MatMul)(const F *A, const F *B, F *C, size_t n);
+/* Stuff reused across OpenCL calls.
+ * It would not be fair to consider their alocation time for each call,
+ * as the functions will be called millions of times.
+ *
+ * TODO: also factor out the kernel compile time.
+ * Currently recompiled every time.
+ * Implementations already cache compiled kernels, but we would need
+ * to call each function multiple times.
+ * */
+typedef struct {
+    Common common;
+    /* We only factor out the allocation of those buffers.
+     * Data transfer time with clEnqueueWriteBuffer must still be considered. */
+    cl_mem buf_a, buf_b, buf_c;
+} Cache;
+typedef void (*MatMul)(const F *A, const F *B, F *C, size_t n, Cache *cache);
 
 /* No, this was not created for debugging, my code is flawless from the first try. */
 void mat_print(const F *A, size_t n) {
@@ -117,9 +133,10 @@ size_t zmin(size_t x, size_t y) {
 }
 
 /* C = A*B, width n, naive. */
-void mat_mul_cpu(const F *A, const F *B, F *C, size_t n) {
+void mat_mul_cpu(const F *A, const F *B, F *C, size_t n, Cache *cache) {
     F tmp;
     size_t i, j, k;
+    UNUSED(cache);
 
     for (i = 0; i < n; ++i) {
         for (j = 0; j < n; ++j) {
@@ -133,9 +150,10 @@ void mat_mul_cpu(const F *A, const F *B, F *C, size_t n) {
 }
 
 /* Transpose matrix B to increase cache hits. */
-void mat_mul_cpu_trans(const F *A, const F *B, F *C, size_t n) {
+void mat_mul_cpu_trans(const F *A, const F *B, F *C, size_t n, Cache *cache) {
     F tmp;
     size_t i, j, k;
+    UNUSED(cache);
 
     mat_trans((F*)B, n);
     for (i = 0; i < n; ++i) {
@@ -186,10 +204,11 @@ F vec_sum(Vec vec, size_t vec_n) {
  * Note that GCC 6 O=3 is smart enough to use SIMD
  * even for the naive CPU method. However this was still way faster.
  * */
-void mat_mul_cpu_trans_vec(const F *A, const F *B, F *C, size_t n) {
+void mat_mul_cpu_trans_vec(const F *A, const F *B, F *C, size_t n, Cache *cache) {
+    F tmpf;
     size_t i, j, k, k_max, ai, bi;
     Vec tmp, a, b;
-    F tmpf;
+    UNUSED(cache);
 
     mat_trans((F*)B, n);
     k_max = (n / VECTOR_NELEMS) * VECTOR_NELEMS;
@@ -217,9 +236,10 @@ void mat_mul_cpu_trans_vec(const F *A, const F *B, F *C, size_t n) {
  * TODO slower than transpose, sometimes similar timing to naive.
  * Why do they say that this is better?
  * */
-void mat_mul_cpu_block(const F *A, const F *B, F *C, size_t n) {
+void mat_mul_cpu_block(const F *A, const F *B, F *C, size_t n, Cache *cache) {
     size_t ib, jb, kb, i, j, k, i_max, j_max, k_max, nb ;
     F tmp;
+    UNUSED(cache);
 
     nb = lround(sqrt(n));
     for (ib = 0; ib < n; ib += nb) {
@@ -246,7 +266,8 @@ void mat_mul_cpu_block(const F *A, const F *B, F *C, size_t n) {
 }
 
 /* The golden single thread CPU standard. */
-void mat_mul_cpu_cblas(const F *A, const F *B, F *C, size_t n) {
+void mat_mul_cpu_cblas(const F *A, const F *B, F *C, size_t n, Cache *cache) {
+    UNUSED(cache);
     cblas_sgemm(
         CblasRowMajor,
         CblasNoTrans,
@@ -265,59 +286,8 @@ void mat_mul_cpu_cblas(const F *A, const F *B, F *C, size_t n) {
     );
 }
 
-void mat_mul_cl_clblas(const F *A, const F *B, F *C, size_t n) {
-    cl_event event;
-    cl_mem buf_a, buf_b, buf_c;
-    Common common;
-    size_t mat_sizeof;
-
-    common_init(&common, NULL);
-    mat_sizeof = n * n * sizeof(F);
-    buf_a = clCreateBuffer(common.context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, mat_sizeof, (F*)A, NULL);
-    buf_b = clCreateBuffer(common.context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, mat_sizeof, (F*)B, NULL);
-    buf_c = clCreateBuffer(common.context, CL_MEM_WRITE_ONLY, mat_sizeof, C, NULL);
-    clblasSgemm(
-        clblasRowMajor,
-        clblasNoTrans,
-        clblasNoTrans,
-
-        n,
-        n,
-        n,
-        1.0,
-
-        buf_a,
-        0,
-        n,
-
-        buf_b,
-        0,
-        n,
-
-        0.0,
-        buf_c,
-        0,
-        n,
-
-        1,
-        &(common.command_queue),
-        0,
-        NULL,
-        &event
-    );
-    clWaitForEvents(1, &event);
-    clEnqueueReadBuffer(common.command_queue, buf_c, CL_TRUE, 0, mat_sizeof, C, 0, NULL, NULL);
-
-    clReleaseMemObject(buf_a);
-    clReleaseMemObject(buf_b);
-    clReleaseMemObject(buf_c);
-    common_deinit(&common);
-}
-
 /* Simplest possible CL implementation. No speedup. */
-void mat_mul_cl(const F *A, const F *B, F *C, size_t n) {
-    cl_mem buf_a, buf_b, buf_c;
-    Common common;
+void mat_mul_cl(const F *A, const F *B, F *C, size_t n, Cache *cache) {
     cl_uint ncl;
     size_t global_work_size[2], mat_sizeof;
 
@@ -328,31 +298,22 @@ void mat_mul_cl(const F *A, const F *B, F *C, size_t n) {
     ncl = n;
 
     /* Run kernel. */
-    common_init_file(&common, "matmul.cl");
-    buf_a = clCreateBuffer(common.context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, mat_sizeof, (F*)A, NULL);
-    buf_b = clCreateBuffer(common.context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, mat_sizeof, (F*)B, NULL);
-    buf_c = clCreateBuffer(common.context, CL_MEM_WRITE_ONLY, mat_sizeof, C, NULL);
-    clSetKernelArg(common.kernel, 0, sizeof(buf_a), &buf_a);
-    clSetKernelArg(common.kernel, 1, sizeof(buf_b), &buf_b);
-    clSetKernelArg(common.kernel, 2, sizeof(buf_c), &buf_c);
-    clSetKernelArg(common.kernel, 3, sizeof(ncl), &ncl);
-    clEnqueueNDRangeKernel(common.command_queue, common.kernel, 2, NULL, global_work_size, NULL, 0, NULL, NULL);
-    clFlush(common.command_queue);
-    clFinish(common.command_queue);
-    clEnqueueReadBuffer(common.command_queue, buf_c, CL_TRUE, 0, mat_sizeof, C, 0, NULL, NULL);
-
-    /* Cleanup. */
-    clReleaseMemObject(buf_a);
-    clReleaseMemObject(buf_b);
-    clReleaseMemObject(buf_c);
-    common_deinit(&common);
+    common_create_kernel_file(&cache->common, "matmul.cl", NULL);
+    clEnqueueWriteBuffer(cache->common.command_queue, cache->buf_a, CL_TRUE, 0, mat_sizeof, (F*)A, 0, NULL, NULL);
+    clEnqueueWriteBuffer(cache->common.command_queue, cache->buf_b, CL_TRUE, 0, mat_sizeof, (F*)B, 0, NULL, NULL);
+    clSetKernelArg(cache->common.kernel, 0, sizeof(cache->buf_a), &cache->buf_a);
+    clSetKernelArg(cache->common.kernel, 1, sizeof(cache->buf_b), &cache->buf_b);
+    clSetKernelArg(cache->common.kernel, 2, sizeof(cache->buf_c), &cache->buf_c);
+    clSetKernelArg(cache->common.kernel, 3, sizeof(ncl), &ncl);
+    clEnqueueNDRangeKernel(cache->common.command_queue, cache->common.kernel, 2, NULL, global_work_size, NULL, 0, NULL, NULL);
+    clFlush(cache->common.command_queue);
+    clFinish(cache->common.command_queue);
+    clEnqueueReadBuffer(cache->common.command_queue, cache->buf_c, CL_TRUE, 0, mat_sizeof, C, 0, NULL, NULL);
 }
 
 /* Cache rows in private memory. Drastic speedups expected over naive CPU. */
-void mat_mul_cl_row_priv(const F *A, const F *B, F *C, size_t n) {
+void mat_mul_cl_row_priv(const F *A, const F *B, F *C, size_t n, Cache *cache) {
     char options[256];
-    cl_mem buf_a, buf_b, buf_c;
-    Common common;
     cl_uint ncl;
     size_t global_work_size, mat_sizeof;
 
@@ -363,31 +324,22 @@ void mat_mul_cl_row_priv(const F *A, const F *B, F *C, size_t n) {
 
     /* Run kernel. */
     snprintf(options, sizeof(options), "-DPRIV_ROW_SIZE=%ju", n);
-    common_init_file_options(&common, "matmul_row_priv.cl", options);
-    buf_a = clCreateBuffer(common.context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, mat_sizeof, (F*)A, NULL);
-    buf_b = clCreateBuffer(common.context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, mat_sizeof, (F*)B, NULL);
-    buf_c = clCreateBuffer(common.context, CL_MEM_WRITE_ONLY, mat_sizeof, C, NULL);
-    clSetKernelArg(common.kernel, 0, sizeof(buf_a), &buf_a);
-    clSetKernelArg(common.kernel, 1, sizeof(buf_b), &buf_b);
-    clSetKernelArg(common.kernel, 2, sizeof(buf_c), &buf_c);
-    clSetKernelArg(common.kernel, 3, sizeof(ncl), &ncl);
-    clEnqueueNDRangeKernel(common.command_queue, common.kernel, 1, NULL, &global_work_size, NULL, 0, NULL, NULL);
-    clFlush(common.command_queue);
-    clFinish(common.command_queue);
-    clEnqueueReadBuffer(common.command_queue, buf_c, CL_TRUE, 0, mat_sizeof, C, 0, NULL, NULL);
-
-    /* Cleanup. */
-    clReleaseMemObject(buf_a);
-    clReleaseMemObject(buf_b);
-    clReleaseMemObject(buf_c);
-    common_deinit(&common);
+    common_create_kernel_file(&cache->common, "matmul_row_priv.cl", options);
+    clEnqueueWriteBuffer(cache->common.command_queue, cache->buf_a, CL_TRUE, 0, mat_sizeof, (F*)A, 0, NULL, NULL);
+    clEnqueueWriteBuffer(cache->common.command_queue, cache->buf_b, CL_TRUE, 0, mat_sizeof, (F*)B, 0, NULL, NULL);
+    clSetKernelArg(cache->common.kernel, 0, sizeof(cache->buf_a), &cache->buf_a);
+    clSetKernelArg(cache->common.kernel, 1, sizeof(cache->buf_b), &cache->buf_b);
+    clSetKernelArg(cache->common.kernel, 2, sizeof(cache->buf_c), &cache->buf_c);
+    clSetKernelArg(cache->common.kernel, 3, sizeof(ncl), &ncl);
+    clEnqueueNDRangeKernel(cache->common.command_queue, cache->common.kernel, 1, NULL, &global_work_size, NULL, 0, NULL, NULL);
+    clFlush(cache->common.command_queue);
+    clFinish(cache->common.command_queue);
+    clEnqueueReadBuffer(cache->common.command_queue, cache->buf_c, CL_TRUE, 0, mat_sizeof, C, 0, NULL, NULL);
 }
 
 /* Let's see if this is any different from local memory.
  * Outcome: much slower than private memory, slower than naive method. */
-void mat_mul_cl_row_local(const F *A, const F *B, F *C, size_t n) {
-    cl_mem buf_a, buf_b, buf_c;
-    Common common;
+void mat_mul_cl_row_local(const F *A, const F *B, F *C, size_t n, Cache *cache) {
     cl_uint ncl;
     size_t global_work_size, local_work_size, mat_sizeof;
 
@@ -400,25 +352,18 @@ void mat_mul_cl_row_local(const F *A, const F *B, F *C, size_t n) {
     ncl = n;
 
     /* Run kernel. */
-    common_init_file(&common, "matmul_row_local.cl");
-    buf_a = clCreateBuffer(common.context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, mat_sizeof, (F*)A, NULL);
-    buf_b = clCreateBuffer(common.context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, mat_sizeof, (F*)B, NULL);
-    buf_c = clCreateBuffer(common.context, CL_MEM_WRITE_ONLY, mat_sizeof, C, NULL);
-    clSetKernelArg(common.kernel, 0, sizeof(buf_a), &buf_a);
-    clSetKernelArg(common.kernel, 1, sizeof(buf_b), &buf_b);
-    clSetKernelArg(common.kernel, 2, sizeof(buf_c), &buf_c);
-    clSetKernelArg(common.kernel, 3, n * sizeof(F), NULL);
-    clSetKernelArg(common.kernel, 4, sizeof(ncl), &ncl);
-    clEnqueueNDRangeKernel(common.command_queue, common.kernel, 1, NULL, &global_work_size, &local_work_size, 0, NULL, NULL);
-    clFlush(common.command_queue);
-    clFinish(common.command_queue);
-    clEnqueueReadBuffer(common.command_queue, buf_c, CL_TRUE, 0, mat_sizeof, C, 0, NULL, NULL);
-
-    /* Cleanup. */
-    clReleaseMemObject(buf_a);
-    clReleaseMemObject(buf_b);
-    clReleaseMemObject(buf_c);
-    common_deinit(&common);
+    common_create_kernel_file(&cache->common, "matmul_row_local.cl", NULL);
+    clEnqueueWriteBuffer(cache->common.command_queue, cache->buf_a, CL_TRUE, 0, mat_sizeof, (F*)A, 0, NULL, NULL);
+    clEnqueueWriteBuffer(cache->common.command_queue, cache->buf_b, CL_TRUE, 0, mat_sizeof, (F*)B, 0, NULL, NULL);
+    clSetKernelArg(cache->common.kernel, 0, sizeof(cache->buf_a), &cache->buf_a);
+    clSetKernelArg(cache->common.kernel, 1, sizeof(cache->buf_b), &cache->buf_b);
+    clSetKernelArg(cache->common.kernel, 2, sizeof(cache->buf_c), &cache->buf_c);
+    clSetKernelArg(cache->common.kernel, 3, n * sizeof(F), NULL);
+    clSetKernelArg(cache->common.kernel, 4, sizeof(ncl), &ncl);
+    clEnqueueNDRangeKernel(cache->common.command_queue, cache->common.kernel, 1, NULL, &global_work_size, &local_work_size, 0, NULL, NULL);
+    clFlush(cache->common.command_queue);
+    clFinish(cache->common.command_queue);
+    clEnqueueReadBuffer(cache->common.command_queue, cache->buf_c, CL_TRUE, 0, mat_sizeof, C, 0, NULL, NULL);
 }
 
 /* Like row private, but to reduce global memory accesses,
@@ -432,10 +377,8 @@ void mat_mul_cl_row_local(const F *A, const F *B, F *C, size_t n) {
  * This leads to a thread blockage / memory access tradeoff.
  *
  * We make work groups as large as possible to reload memory less times. */
-void mat_mul_cl_row_priv_col_local(const F *A, const F *B, F *C, size_t n) {
+void mat_mul_cl_row_priv_col_local(const F *A, const F *B, F *C, size_t n, Cache *cache) {
     char options[256];
-    cl_mem buf_a, buf_b, buf_c;
-    Common common;
     cl_uint ncl;
     size_t global_work_size, local_work_size, mat_sizeof;
 
@@ -446,37 +389,28 @@ void mat_mul_cl_row_priv_col_local(const F *A, const F *B, F *C, size_t n) {
 
     /* Run kernel. */
     snprintf(options, sizeof(options), "-DPRIV_ROW_SIZE=%ju", n);
-    common_init_file_options(&common, "matmul_row_priv_col_local.cl", options);
+    common_create_kernel_file(&cache->common, "matmul_row_priv_col_local.cl", options);
     local_work_size = 0;
-    clGetDeviceInfo(common.device, CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(local_work_size), &local_work_size, NULL);
+    clGetDeviceInfo(cache->common.device, CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(local_work_size), &local_work_size, NULL);
     local_work_size = zmin(local_work_size, n);
-    buf_a = clCreateBuffer(common.context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, mat_sizeof, (F*)A, NULL);
-    buf_b = clCreateBuffer(common.context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, mat_sizeof, (F*)B, NULL);
-    buf_c = clCreateBuffer(common.context, CL_MEM_WRITE_ONLY, mat_sizeof, C, NULL);
-    clSetKernelArg(common.kernel, 0, sizeof(buf_a), &buf_a);
-    clSetKernelArg(common.kernel, 1, sizeof(buf_b), &buf_b);
-    clSetKernelArg(common.kernel, 2, sizeof(buf_c), &buf_c);
-    clSetKernelArg(common.kernel, 3, n * sizeof(F), NULL);
-    clSetKernelArg(common.kernel, 4, sizeof(ncl), &ncl);
-    clEnqueueNDRangeKernel(common.command_queue, common.kernel, 1, NULL, &global_work_size, &local_work_size, 0, NULL, NULL);
-    clFlush(common.command_queue);
-    clFinish(common.command_queue);
-    clEnqueueReadBuffer(common.command_queue, buf_c, CL_TRUE, 0, mat_sizeof, C, 0, NULL, NULL);
-
-    /* Cleanup. */
-    clReleaseMemObject(buf_a);
-    clReleaseMemObject(buf_b);
-    clReleaseMemObject(buf_c);
-    common_deinit(&common);
+    clEnqueueWriteBuffer(cache->common.command_queue, cache->buf_a, CL_TRUE, 0, mat_sizeof, (F*)A, 0, NULL, NULL);
+    clEnqueueWriteBuffer(cache->common.command_queue, cache->buf_b, CL_TRUE, 0, mat_sizeof, (F*)B, 0, NULL, NULL);
+    clSetKernelArg(cache->common.kernel, 0, sizeof(cache->buf_a), &cache->buf_a);
+    clSetKernelArg(cache->common.kernel, 1, sizeof(cache->buf_b), &cache->buf_b);
+    clSetKernelArg(cache->common.kernel, 2, sizeof(cache->buf_c), &cache->buf_c);
+    clSetKernelArg(cache->common.kernel, 3, n * sizeof(F), NULL);
+    clSetKernelArg(cache->common.kernel, 4, sizeof(ncl), &ncl);
+    clEnqueueNDRangeKernel(cache->common.command_queue, cache->common.kernel, 1, NULL, &global_work_size, &local_work_size, 0, NULL, NULL);
+    clFlush(cache->common.command_queue);
+    clFinish(cache->common.command_queue);
+    clEnqueueReadBuffer(cache->common.command_queue, cache->buf_c, CL_TRUE, 0, mat_sizeof, C, 0, NULL, NULL);
 }
 
 /* Copy as many cols from B as possibl to the local memory, only then start multiplying.
  * This leads to less memory barrier hits.
  * How many rows we copy is limited by the local memory size, ideally the entire matrix will fit. */
-void mat_mul_cl_row_priv_cols_local(const F *A, const F *B, F *C, size_t n) {
+void mat_mul_cl_row_priv_cols_local(const F *A, const F *B, F *C, size_t n, Cache *cache) {
     char options[256];
-    cl_mem buf_a, buf_b, buf_c;
-    Common common;
     cl_uint ncl, n_local_cols;
     cl_ulong local_mem_size;
     size_t col_size, global_work_size, local_work_size, mat_sizeof;
@@ -489,12 +423,12 @@ void mat_mul_cl_row_priv_cols_local(const F *A, const F *B, F *C, size_t n) {
 
     /* Run kernel. */
     snprintf(options, sizeof(options), "-DPRIV_ROW_SIZE=%ju", n);
-    common_init_file_options(&common, "matmul_row_priv_cols_local.cl", options);
+    common_create_kernel_file(&cache->common, "matmul_row_priv_cols_local.cl", options);
     local_work_size = 0;
-    clGetDeviceInfo(common.device, CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(local_work_size), &local_work_size, NULL);
+    clGetDeviceInfo(cache->common.device, CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(local_work_size), &local_work_size, NULL);
     local_work_size = zmin(local_work_size, n);
     local_mem_size = 0;
-    clGetDeviceInfo(common.device, CL_DEVICE_LOCAL_MEM_SIZE, sizeof(local_mem_size), &local_mem_size, NULL);
+    clGetDeviceInfo(cache->common.device, CL_DEVICE_LOCAL_MEM_SIZE, sizeof(local_mem_size), &local_mem_size, NULL);
     /* TODO: can blow up without that - 1. Why?
      * It only reaches the max without it, not crosses, right?
      * So bug in the kernel? */
@@ -503,30 +437,21 @@ void mat_mul_cl_row_priv_cols_local(const F *A, const F *B, F *C, size_t n) {
     /*printf("max memory %llu\n", (unsigned long long)local_mem_size);*/
     /*printf("n_local_cols %llu\n", (unsigned long long)n_local_cols);*/
     /*printf("memory %llu\n", (unsigned long long)n_local_cols * n * sizeof(F));*/
-    buf_a = clCreateBuffer(common.context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, mat_sizeof, (F*)A, NULL);
-    buf_b = clCreateBuffer(common.context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, mat_sizeof, (F*)B, NULL);
-    buf_c = clCreateBuffer(common.context, CL_MEM_WRITE_ONLY, mat_sizeof, C, NULL);
-    clSetKernelArg(common.kernel, 0, sizeof(buf_a), &buf_a);
-    clSetKernelArg(common.kernel, 1, sizeof(buf_b), &buf_b);
-    clSetKernelArg(common.kernel, 2, sizeof(buf_c), &buf_c);
-    clSetKernelArg(common.kernel, 3, n_local_cols * col_size, NULL);
-    clSetKernelArg(common.kernel, 4, sizeof(ncl), &ncl);
-    clSetKernelArg(common.kernel, 5, sizeof(n_local_cols), &n_local_cols);
-    clEnqueueNDRangeKernel(common.command_queue, common.kernel, 1, NULL, &global_work_size, &local_work_size, 0, NULL, NULL);
-    clFlush(common.command_queue);
-    clFinish(common.command_queue);
-    clEnqueueReadBuffer(common.command_queue, buf_c, CL_TRUE, 0, mat_sizeof, C, 0, NULL, NULL);
-
-    /* Cleanup. */
-    clReleaseMemObject(buf_a);
-    clReleaseMemObject(buf_b);
-    clReleaseMemObject(buf_c);
-    common_deinit(&common);
+    clEnqueueWriteBuffer(cache->common.command_queue, cache->buf_a, CL_TRUE, 0, mat_sizeof, (F*)A, 0, NULL, NULL);
+    clEnqueueWriteBuffer(cache->common.command_queue, cache->buf_b, CL_TRUE, 0, mat_sizeof, (F*)B, 0, NULL, NULL);
+    clSetKernelArg(cache->common.kernel, 0, sizeof(cache->buf_a), &cache->buf_a);
+    clSetKernelArg(cache->common.kernel, 1, sizeof(cache->buf_b), &cache->buf_b);
+    clSetKernelArg(cache->common.kernel, 2, sizeof(cache->buf_c), &cache->buf_c);
+    clSetKernelArg(cache->common.kernel, 3, n_local_cols * col_size, NULL);
+    clSetKernelArg(cache->common.kernel, 4, sizeof(ncl), &ncl);
+    clSetKernelArg(cache->common.kernel, 5, sizeof(n_local_cols), &n_local_cols);
+    clEnqueueNDRangeKernel(cache->common.command_queue, cache->common.kernel, 1, NULL, &global_work_size, &local_work_size, 0, NULL, NULL);
+    clFlush(cache->common.command_queue);
+    clFinish(cache->common.command_queue);
+    clEnqueueReadBuffer(cache->common.command_queue, cache->buf_c, CL_TRUE, 0, mat_sizeof, C, 0, NULL, NULL);
 }
 
-void mat_mul_cl_block(const F *A, const F *B, F *C, size_t n) {
-    cl_mem buf_a, buf_b, buf_c;
-    Common common;
+void mat_mul_cl_block(const F *A, const F *B, F *C, size_t n, Cache *cache) {
     cl_uint ncl, nblkcl;
     size_t global_work_size[2], local_work_size[2], mat_sizeof, nblk;
 
@@ -537,45 +462,78 @@ void mat_mul_cl_block(const F *A, const F *B, F *C, size_t n) {
     ncl = n;
 
     /* Run kernel. */
-    common_init_file(&common, "matmul_block.cl");
-    clGetDeviceInfo(common.device, CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(nblk), &nblk, NULL);
+    common_create_kernel_file(&cache->common, "matmul_block.cl", NULL);
+    clGetDeviceInfo(cache->common.device, CL_DEVICE_MAX_WORK_GROUP_SIZE, sizeof(nblk), &nblk, NULL);
     nblk = sqrt(zmin(nblk, n));
     nblk = zmin(nblk, 3);
     nblkcl = nblk;
     local_work_size[0] = nblk;
     local_work_size[1] = nblk;
-    buf_a = clCreateBuffer(common.context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, mat_sizeof, (F*)A, NULL);
-    buf_b = clCreateBuffer(common.context, CL_MEM_READ_ONLY | CL_MEM_COPY_HOST_PTR, mat_sizeof, (F*)B, NULL);
-    buf_c = clCreateBuffer(common.context, CL_MEM_READ_WRITE, mat_sizeof, C, NULL);
-    clSetKernelArg(common.kernel, 0, sizeof(buf_a), &buf_a);
-    clSetKernelArg(common.kernel, 1, sizeof(buf_b), &buf_b);
-    clSetKernelArg(common.kernel, 2, sizeof(buf_c), &buf_c);
-    clSetKernelArg(common.kernel, 3, nblk * nblk * sizeof(F), NULL);
+    clEnqueueWriteBuffer(cache->common.command_queue, cache->buf_a, CL_TRUE, 0, mat_sizeof, (F*)A, 0, NULL, NULL);
+    clEnqueueWriteBuffer(cache->common.command_queue, cache->buf_b, CL_TRUE, 0, mat_sizeof, (F*)B, 0, NULL, NULL);
+    clSetKernelArg(cache->common.kernel, 0, sizeof(cache->buf_a), &cache->buf_a);
+    clSetKernelArg(cache->common.kernel, 1, sizeof(cache->buf_b), &cache->buf_b);
+    clSetKernelArg(cache->common.kernel, 2, sizeof(cache->buf_c), &cache->buf_c);
+    clSetKernelArg(cache->common.kernel, 3, nblk * nblk * sizeof(F), NULL);
     printf("nblk = %llu\n", (unsigned long long)nblk);
     printf("local memory = %llu\n", (unsigned long long)2 * nblk * nblk * sizeof(F));
-    clSetKernelArg(common.kernel, 4, nblk * nblk * sizeof(F), NULL);
-    clSetKernelArg(common.kernel, 5, sizeof(ncl), &ncl);
-    clSetKernelArg(common.kernel, 6, sizeof(nblkcl), &nblkcl);
+    clSetKernelArg(cache->common.kernel, 4, nblk * nblk * sizeof(F), NULL);
+    clSetKernelArg(cache->common.kernel, 5, sizeof(ncl), &ncl);
+    clSetKernelArg(cache->common.kernel, 6, sizeof(nblkcl), &nblkcl);
     clEnqueueNDRangeKernel(
-        common.command_queue, common.kernel, 2, NULL,
+        cache->common.command_queue, cache->common.kernel, 2, NULL,
         global_work_size, local_work_size, 0, NULL, NULL
     );
-    clFlush(common.command_queue);
-    clFinish(common.command_queue);
-    clEnqueueReadBuffer(common.command_queue, buf_c, CL_TRUE, 0, mat_sizeof, C, 0, NULL, NULL);
-
-    /* Cleanup. */
-    clReleaseMemObject(buf_a);
-    clReleaseMemObject(buf_b);
-    clReleaseMemObject(buf_c);
-    common_deinit(&common);
+    clFlush(cache->common.command_queue);
+    clFinish(cache->common.command_queue);
+    clEnqueueReadBuffer(cache->common.command_queue, cache->buf_c, CL_TRUE, 0, mat_sizeof, C, 0, NULL, NULL);
 }
 
-double bench(MatMul f, const F *A, const F *B, F *C, F *C_ref, size_t n) {
+void mat_mul_cl_clblas(const F *A, const F *B, F *C, size_t n, Cache *cache) {
+    cl_event event;
+    size_t mat_sizeof;
+
+    mat_sizeof = n * n * sizeof(F);
+    clEnqueueWriteBuffer(cache->common.command_queue, cache->buf_a, CL_TRUE, 0, mat_sizeof, (F*)A, 0, NULL, NULL);
+    clEnqueueWriteBuffer(cache->common.command_queue, cache->buf_b, CL_TRUE, 0, mat_sizeof, (F*)B, 0, NULL, NULL);
+    clblasSgemm(
+        clblasRowMajor,
+        clblasNoTrans,
+        clblasNoTrans,
+
+        n,
+        n,
+        n,
+        1.0,
+
+        cache->buf_a,
+        0,
+        n,
+
+        cache->buf_b,
+        0,
+        n,
+
+        0.0,
+        cache->buf_c,
+        0,
+        n,
+
+        1,
+        &(cache->common.command_queue),
+        0,
+        NULL,
+        &event
+    );
+    clWaitForEvents(1, &event);
+    clEnqueueReadBuffer(cache->common.command_queue, cache->buf_c, CL_TRUE, 0, mat_sizeof, C, 0, NULL, NULL);
+}
+
+double bench(MatMul f, const F *A, const F *B, F *C, F *C_ref, size_t n, Cache *cache) {
     double dt, time;
     mat_zero(C, n);
     time = common_get_nanos();
-    f(A, B, C, n);
+    f(A, B, C, n, cache);
     dt = common_get_nanos() - time;
     if (C_ref != NULL)
         mat_assert_eq(C, C_ref, n);
@@ -586,24 +544,28 @@ double bench(MatMul f, const F *A, const F *B, F *C, F *C_ref, size_t n) {
 
 int main(int argc, char **argv) {
     srand(time(NULL));
+    Cache cache;
     double max_runtime;
     /* Overly slow ones commented out by default. */
     MatMul mat_mul_funcs[] = {
-        /*mat_mul_cpu_trans,*/
-        /*mat_mul_cpu_trans_vec,*/
-        /*mat_mul_cpu_block,*/
+        /*mat_mul_cpu,*/
+        mat_mul_cpu_trans,
+        mat_mul_cpu_trans_vec,
+        mat_mul_cpu_block,
         mat_mul_cpu_cblas,
         /*mat_mul_cl,*/
-        /*mat_mul_cl_row_priv,*/
-        /*mat_mul_cl_row_local,*/
-        /*mat_mul_cl_row_priv_col_local,*/
-        /*mat_mul_cl_row_priv_cols_local,*/
-        /* TODO broken for 32 or up, some cells contain trash. */
-        mat_mul_cl_block,
-        /*mat_mul_cl_clblas,*/
+        mat_mul_cl_row_priv,
+        mat_mul_cl_row_local,
+        mat_mul_cl_row_priv_col_local,
+        mat_mul_cl_row_priv_cols_local,
+        /* TODO broken for larger matrics, some cells contain trash.
+         * Likey some memory overflow problem. */
+        /*mat_mul_cl_block,*/
+        mat_mul_cl_clblas,
     };
     int first, func_done[NELEMS(mat_mul_funcs)] = {0};
     size_t f, i;
+    size_t mat_sizeof;
 
     /* CLI args. */
     if (argc > 1) {
@@ -614,54 +576,54 @@ int main(int argc, char **argv) {
 
     /* Unit test 2x2. */
     {
-        const F A[] = {
-            1.0, 2.0,
-            3.0, 4.0
-        };
-        const F B[] = {
-            5.0, 6.0,
-            7.0, 8.0
-        };
-        enum N { n = 2 };
-        F C[n*n];
-        const F C_ref[] = {
-            19.0, 22.0,
-            43.0, 50.0
-        };
-        for (f = 0; f < sizeof(mat_mul_funcs)/sizeof(mat_mul_funcs[0]); ++f) {
-            mat_zero(C, n);
-            mat_mul_funcs[f](A, B, C, n);
-            mat_assert_eq(C, C_ref, n);
-        }
+        /*const F A[] = {*/
+            /*1.0, 2.0,*/
+            /*3.0, 4.0*/
+        /*};*/
+        /*const F B[] = {*/
+            /*5.0, 6.0,*/
+            /*7.0, 8.0*/
+        /*};*/
+        /*enum N { n = 2 };*/
+        /*F C[n*n];*/
+        /*const F C_ref[] = {*/
+            /*19.0, 22.0,*/
+            /*43.0, 50.0*/
+        /*};*/
+        /*for (f = 0; f < sizeof(mat_mul_funcs)/sizeof(mat_mul_funcs[0]); ++f) {*/
+            /*mat_zero(C, n);*/
+            /*mat_mul_funcs[f](A, B, C, n, &cache);*/
+            /*mat_assert_eq(C, C_ref, n);*/
+        /*}*/
     }
 
     /* Unit test 4x4. */
     {
-        const F A[] = {
-             1.0,  2.0,  3.0,  4.0,
-             5.0,  6.0,  7.0,  8.0,
-             9.0, 10.0, 11.0, 12.0,
-            13.0, 14.0, 15.0, 16.0,
-        };
-        const F B[] = {
-            17.0, 18.0, 19.0, 20.0,
-            21.0, 22.0, 23.0, 24.0,
-            25.0, 26.0, 27.0, 28.0,
-            29.0, 30.0, 31.0, 32.0,
-        };
-        const F C_ref[] = {
-             250.0,  260.0,  270.0,  280.0,
-             618.0,  644.0,  670.0,  696.0,
-             986.0, 1028.0, 1070.0, 1112.0,
-            1354.0, 1412.0, 1470.0, 1528.0,
-        };
-        enum N { n = 4 };
-        F C[n*n];
-        for (f = 0; f < NELEMS(mat_mul_funcs); ++f) {
-            mat_zero(C, n);
-            mat_mul_funcs[f](A, B, C, n);
-            mat_assert_eq(C, C_ref, n);
-        }
+        /*const F A[] = {*/
+             /*1.0,  2.0,  3.0,  4.0,*/
+             /*5.0,  6.0,  7.0,  8.0,*/
+             /*9.0, 10.0, 11.0, 12.0,*/
+            /*13.0, 14.0, 15.0, 16.0,*/
+        /*};*/
+        /*const F B[] = {*/
+            /*17.0, 18.0, 19.0, 20.0,*/
+            /*21.0, 22.0, 23.0, 24.0,*/
+            /*25.0, 26.0, 27.0, 28.0,*/
+            /*29.0, 30.0, 31.0, 32.0,*/
+        /*};*/
+        /*const F C_ref[] = {*/
+             /*250.0,  260.0,  270.0,  280.0,*/
+             /*618.0,  644.0,  670.0,  696.0,*/
+             /*986.0, 1028.0, 1070.0, 1112.0,*/
+            /*1354.0, 1412.0, 1470.0, 1528.0,*/
+        /*};*/
+        /*enum N { n = 4 };*/
+        /*F C[n*n];*/
+        /*for (f = 0; f < NELEMS(mat_mul_funcs); ++f) {*/
+            /*mat_zero(C, n);*/
+            /*mat_mul_funcs[f](A, B, C, n, &cache);*/
+            /*mat_assert_eq(C, C_ref, n);*/
+        /*}*/
     }
 
     /* Benchmarks. */
@@ -669,23 +631,32 @@ int main(int argc, char **argv) {
         double dt;
         F *A = NULL, *B = NULL, *C = NULL, *C_ref = NULL, *dst = NULL, *ref = NULL;
         int done;
-        size_t n = 2, a_sizeof;
+        size_t n = 2;
 
-        done = 0;
         puts("#matmul");
-        a_sizeof = n * n * sizeof(F);
-        A = aligned_alloc(VECTOR_SIZEOF, a_sizeof);
-        B = aligned_alloc(VECTOR_SIZEOF, a_sizeof);
-        C = aligned_alloc(VECTOR_SIZEOF, a_sizeof);
-        C_ref = aligned_alloc(VECTOR_SIZEOF, a_sizeof);
+        common_init(&(cache.common), NULL);
+        done = 0;
         while(1) {
             printf("%zu ", (size_t)log2(n));
-            if (A == NULL || B == NULL || C == NULL) {
-                printf("Could not allocate memory for n = %zu. Aborting.", n);
+            mat_sizeof = n * n * sizeof(F);
+
+            /* CPU setup. */
+            A = aligned_alloc(VECTOR_SIZEOF, mat_sizeof);
+            B = aligned_alloc(VECTOR_SIZEOF, mat_sizeof);
+            C = aligned_alloc(VECTOR_SIZEOF, mat_sizeof);
+            C_ref = aligned_alloc(VECTOR_SIZEOF, mat_sizeof);
+            if (NULL == A || NULL == B || NULL == C) {
+                printf("error: could not allocate memory for n = %zu", n);
                 break;
             }
             mat_rand(A, n);
             mat_rand(B, n);
+
+            /* CL setup. */
+            cache.buf_a = clCreateBuffer(cache.common.context, CL_MEM_READ_ONLY, mat_sizeof, NULL, NULL);
+            cache.buf_b = clCreateBuffer(cache.common.context, CL_MEM_READ_ONLY, mat_sizeof, NULL, NULL);
+            cache.buf_c = clCreateBuffer(cache.common.context, CL_MEM_WRITE_ONLY, mat_sizeof, NULL, NULL);
+
             first = 1;
             for (f = 0; f < NELEMS(mat_mul_funcs); ++f) {
                 if (func_done[f]) {
@@ -699,7 +670,7 @@ int main(int argc, char **argv) {
                         dst = C;
                         ref = C_ref;
                     }
-                    dt = bench(mat_mul_funcs[f], A, B, dst, ref, n);
+                    dt = bench(mat_mul_funcs[f], A, B, dst, ref, n, &cache);
                     if (dt > max_runtime)
                         func_done[f] = 1;
                 }
@@ -715,15 +686,19 @@ int main(int argc, char **argv) {
             if (done)
                 break;
             n *= 2;
-            a_sizeof = n * n * sizeof(F);
-            A = realloc(A, a_sizeof);
-            B = realloc(B, a_sizeof);
-            C_ref = realloc(C_ref, a_sizeof);
-            C = realloc(C, a_sizeof);
+
+            /* CPU teardown. */
+            free(A);
+            free(B);
+            free(C);
+            free(C_ref);
+
+            /* GPU teardown. */
+            clReleaseMemObject(cache.buf_a);
+            clReleaseMemObject(cache.buf_b);
+            clReleaseMemObject(cache.buf_c);
         }
-        free(A);
-        free(B);
-        free(C);
+        common_deinit(&cache.common);
     }
 
     return EXIT_SUCCESS;

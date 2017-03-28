@@ -35,3 +35,7 @@ OpenCL, like any other language has versions. As of 2013 the latest version is O
 - <http://stackoverflow.com/questions/33575715/opencl-opengl-interop-how-to-fill-a-climagegl>
 
 Also see compute shaders for OpenGL 4.X, they seem to integrate better.
+
+## Implement OpenGL with OpenCL:
+
+- <https://github.com/a2flo/oclraster>

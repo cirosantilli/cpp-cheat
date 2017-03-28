@@ -10,6 +10,7 @@
     1.  [Vector type](vector_type.c)
     1.  [clinfo](clinfo.c)
     1.  [Preprocessor](matmul.c)
+    1.  [Write buffer](write_buffer.c)
     1.  [Benchmark examples](benchmark-examples.md)
         1.  [Matrix multiplication](matmul.c)
 1.  Tools

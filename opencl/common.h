@@ -23,20 +23,34 @@ typedef struct {
     cl_program program;
 } Common;
 
-void common_init_options(
+char* common_read_file(const char *path) {
+    char *buffer;
+    FILE *f;
+    long length;
+
+    f = fopen(path, "r");
+    assert(NULL != f);
+    fseek(f, 0, SEEK_END);
+    length = ftell(f);
+    fseek(f, 0, SEEK_SET);
+    buffer = malloc(length + 1);
+    if (fread(buffer, 1, length, f) < (size_t)length) {
+        return NULL;
+    }
+    fclose(f);
+    buffer[length] = '\0';
+    return buffer;
+}
+
+void common_create_kernel(
     Common *common,
     const char *source,
     const char *options
 ) {
-	char *err;
-	size_t err_len;
     cl_int ret;
-    cl_platform_id platform;
+    char *err;
+    size_t err_len;
 
-    clGetPlatformIDs(1, &platform, NULL);
-    clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, 1, &(common->device), NULL);
-    common->context = clCreateContext(NULL, 1, &(common->device), NULL, NULL, NULL);
-    common->command_queue = clCreateCommandQueue(common->context, common->device, 0, NULL);
     if (NULL != source) {
         common->program = clCreateProgramWithSource(common->context, 1, &source, NULL, NULL);
         ret = clBuildProgram(common->program, 1, &(common->device), options, NULL, NULL);
@@ -55,30 +69,36 @@ void common_init_options(
     }
 }
 
+void common_create_kernel_file(
+    Common *common,
+    const char *source_path,
+    const char *options
+) {
+    char *source;
+    source = common_read_file(source_path);
+    common_create_kernel(common, source, options);
+    free(source);
+}
+
+void common_init_options(
+    Common *common,
+    const char *source,
+    const char *options
+) {
+    cl_platform_id platform;
+
+    clGetPlatformIDs(1, &platform, NULL);
+    clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, 1, &(common->device), NULL);
+    common->context = clCreateContext(NULL, 1, &(common->device), NULL, NULL, NULL);
+    common->command_queue = clCreateCommandQueue(common->context, common->device, 0, NULL);
+    common_create_kernel(common, source, options);
+}
+
 void common_init(
     Common *common,
     const char *source
 ) {
-	common_init_options(common, source, "");
-}
-
-char* common_read_file(const char *path) {
-    char *buffer;
-    FILE *f;
-    long length;
-
-    f = fopen(path, "r");
-    assert(NULL != f);
-    fseek(f, 0, SEEK_END);
-    length = ftell(f);
-    fseek(f, 0, SEEK_SET);
-    buffer = malloc(length + 1);
-    if (fread(buffer, 1, length, f) < (size_t)length) {
-    	return NULL;
-    }
-    fclose(f);
-    buffer[length] = '\0';
-    return buffer;
+    common_init_options(common, source, "");
 }
 
 void common_init_file_options(
@@ -96,7 +116,7 @@ void common_init_file(
     Common *common,
     const char *source_path
 ) {
-	common_init_file_options(common, source_path, "");
+    common_init_file_options(common, source_path, "");
 }
 
 void common_deinit(
@@ -111,7 +131,7 @@ void common_deinit(
         clReleaseContext(common->context);
     }
 #ifdef CL_1_2
-	clReleaseDevice(common->device);
+    clReleaseDevice(common->device);
 #endif
 }
 
