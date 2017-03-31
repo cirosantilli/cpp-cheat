@@ -57,6 +57,18 @@ typedef struct {
 } Cache;
 typedef void (*MatMul)(const F *A, const F *B, F *C, size_t n, Cache *cache);
 
+void cl_buf_init(Cache *cache, size_t mat_sizeof) {
+    cache->buf_a = clCreateBuffer(cache->common.context, CL_MEM_READ_ONLY, mat_sizeof, NULL, NULL);
+    cache->buf_b = clCreateBuffer(cache->common.context, CL_MEM_READ_ONLY, mat_sizeof, NULL, NULL);
+    cache->buf_c = clCreateBuffer(cache->common.context, CL_MEM_WRITE_ONLY, mat_sizeof, NULL, NULL);
+}
+
+void cl_buf_deinit(Cache *cache) {
+    clReleaseMemObject(cache->buf_a);
+    clReleaseMemObject(cache->buf_b);
+    clReleaseMemObject(cache->buf_c);
+}
+
 /* No, this was not created for debugging, my code is flawless from the first try. */
 void mat_print(const F *A, size_t n) {
     size_t i, j;
@@ -574,56 +586,62 @@ int main(int argc, char **argv) {
         max_runtime = 1.0;
     }
 
+    common_init(&(cache.common), NULL);
+
     /* Unit test 2x2. */
     {
-        /*const F A[] = {*/
-            /*1.0, 2.0,*/
-            /*3.0, 4.0*/
-        /*};*/
-        /*const F B[] = {*/
-            /*5.0, 6.0,*/
-            /*7.0, 8.0*/
-        /*};*/
-        /*enum N { n = 2 };*/
-        /*F C[n*n];*/
-        /*const F C_ref[] = {*/
-            /*19.0, 22.0,*/
-            /*43.0, 50.0*/
-        /*};*/
-        /*for (f = 0; f < sizeof(mat_mul_funcs)/sizeof(mat_mul_funcs[0]); ++f) {*/
-            /*mat_zero(C, n);*/
-            /*mat_mul_funcs[f](A, B, C, n, &cache);*/
-            /*mat_assert_eq(C, C_ref, n);*/
-        /*}*/
+        const F A[] = {
+            1.0, 2.0,
+            3.0, 4.0
+        };
+        const F B[] = {
+            5.0, 6.0,
+            7.0, 8.0
+        };
+        enum N { n = 2 };
+        F C[n*n];
+        const F C_ref[] = {
+            19.0, 22.0,
+            43.0, 50.0
+        };
+        cl_buf_init(&cache, n * n * sizeof(F));
+        for (f = 0; f < sizeof(mat_mul_funcs)/sizeof(mat_mul_funcs[0]); ++f) {
+            mat_zero(C, n);
+            mat_mul_funcs[f](A, B, C, n, &cache);
+            mat_assert_eq(C, C_ref, n);
+        }
+        cl_buf_deinit(&cache);
     }
 
     /* Unit test 4x4. */
     {
-        /*const F A[] = {*/
-             /*1.0,  2.0,  3.0,  4.0,*/
-             /*5.0,  6.0,  7.0,  8.0,*/
-             /*9.0, 10.0, 11.0, 12.0,*/
-            /*13.0, 14.0, 15.0, 16.0,*/
-        /*};*/
-        /*const F B[] = {*/
-            /*17.0, 18.0, 19.0, 20.0,*/
-            /*21.0, 22.0, 23.0, 24.0,*/
-            /*25.0, 26.0, 27.0, 28.0,*/
-            /*29.0, 30.0, 31.0, 32.0,*/
-        /*};*/
-        /*const F C_ref[] = {*/
-             /*250.0,  260.0,  270.0,  280.0,*/
-             /*618.0,  644.0,  670.0,  696.0,*/
-             /*986.0, 1028.0, 1070.0, 1112.0,*/
-            /*1354.0, 1412.0, 1470.0, 1528.0,*/
-        /*};*/
-        /*enum N { n = 4 };*/
-        /*F C[n*n];*/
-        /*for (f = 0; f < NELEMS(mat_mul_funcs); ++f) {*/
-            /*mat_zero(C, n);*/
-            /*mat_mul_funcs[f](A, B, C, n, &cache);*/
-            /*mat_assert_eq(C, C_ref, n);*/
-        /*}*/
+        const F A[] = {
+             1.0,  2.0,  3.0,  4.0,
+             5.0,  6.0,  7.0,  8.0,
+             9.0, 10.0, 11.0, 12.0,
+            13.0, 14.0, 15.0, 16.0,
+        };
+        const F B[] = {
+            17.0, 18.0, 19.0, 20.0,
+            21.0, 22.0, 23.0, 24.0,
+            25.0, 26.0, 27.0, 28.0,
+            29.0, 30.0, 31.0, 32.0,
+        };
+        const F C_ref[] = {
+             250.0,  260.0,  270.0,  280.0,
+             618.0,  644.0,  670.0,  696.0,
+             986.0, 1028.0, 1070.0, 1112.0,
+            1354.0, 1412.0, 1470.0, 1528.0,
+        };
+        enum N { n = 4 };
+        F C[n*n];
+        cl_buf_init(&cache, n * n * sizeof(F));
+        for (f = 0; f < NELEMS(mat_mul_funcs); ++f) {
+            mat_zero(C, n);
+            mat_mul_funcs[f](A, B, C, n, &cache);
+            mat_assert_eq(C, C_ref, n);
+        }
+        cl_buf_deinit(&cache);
     }
 
     /* Benchmarks. */
@@ -634,7 +652,6 @@ int main(int argc, char **argv) {
         size_t n = 2;
 
         puts("#matmul");
-        common_init(&(cache.common), NULL);
         done = 0;
         while(1) {
             printf("%zu ", (size_t)log2(n));
@@ -652,11 +669,7 @@ int main(int argc, char **argv) {
             mat_rand(A, n);
             mat_rand(B, n);
 
-            /* CL setup. */
-            cache.buf_a = clCreateBuffer(cache.common.context, CL_MEM_READ_ONLY, mat_sizeof, NULL, NULL);
-            cache.buf_b = clCreateBuffer(cache.common.context, CL_MEM_READ_ONLY, mat_sizeof, NULL, NULL);
-            cache.buf_c = clCreateBuffer(cache.common.context, CL_MEM_WRITE_ONLY, mat_sizeof, NULL, NULL);
-
+            cl_buf_init(&cache, mat_sizeof);
             first = 1;
             for (f = 0; f < NELEMS(mat_mul_funcs); ++f) {
                 if (func_done[f]) {
@@ -687,16 +700,13 @@ int main(int argc, char **argv) {
                 break;
             n *= 2;
 
-            /* CPU teardown. */
+            /* CPU deinit. */
             free(A);
             free(B);
             free(C);
             free(C_ref);
 
-            /* GPU teardown. */
-            clReleaseMemObject(cache.buf_a);
-            clReleaseMemObject(cache.buf_b);
-            clReleaseMemObject(cache.buf_c);
+            cl_buf_deinit(&cache);
         }
         common_deinit(&cache.common);
     }

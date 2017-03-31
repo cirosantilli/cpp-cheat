@@ -24,10 +24,12 @@ double common_get_secs(void) {
 const double COMMON_FPS_GRANULARITY_S = 0.5;
 double common_fps_last_time_s;
 unsigned int common_fps_nframes;
+
 void common_fps_init() {
     common_fps_nframes = 0;
     common_fps_last_time_s = common_get_secs();
 }
+
 void common_fps_update_and_print() {
     double dt, current_time_s;
     current_time_s = common_get_secs();
