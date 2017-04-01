@@ -205,18 +205,14 @@ int main() {
 		std::string path("i_dont_exist.tmp");
 		std::ifstream ifs(path);
 		if (ifs) {
+		    assert(false);
 		} else {
 			try {
-				throw std::ios_base::failure("Error: Could not write to file: " + path);
+				//throw std::ios_base::failure("Error: Could not write to file: " + path);
 			} catch (std::ios_base::failure e) {
 				std::clog << e.what() << std::endl;
 			}
-
 		}
-	}
-
-	/
-	{
 	}
 
 	// # ios::in: flag automatically set for ifstream, but not fstream

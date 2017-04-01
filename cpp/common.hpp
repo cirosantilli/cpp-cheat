@@ -80,8 +80,8 @@
 #include <cstring>
 
 // Keeps a list of functions that called it for testing purposes.
-static std::vector<std::string> callStack;
-static void printCallStack() {
+std::vector<std::string> callStack;
+void printCallStack() {
     std::cout << "callStack:" << std::endl;
     for (auto& s : callStack)
         std::cout << s << std::endl;
@@ -89,9 +89,9 @@ static void printCallStack() {
 }
 
 // Global thread parameters.
-static const int NUM_THREADS = 1000;
-static const int NUM_ITERS = 1000;
-static const int NUM_OPS = NUM_THREADS * NUM_ITERS;
+const int NUM_THREADS = 1000;
+const int NUM_ITERS = 1000;
+const int NUM_OPS = NUM_THREADS * NUM_ITERS;
 
 // Misc.
-static bool odd(int i){ return (i % 2) == 1; }
+bool odd(int i){ return (i % 2) == 1; }
