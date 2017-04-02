@@ -42,26 +42,35 @@ char* common_read_file(const char *path) {
     return buffer;
 }
 
+void common_create_program(
+    Common *common,
+    const char *source,
+    const char *options,
+    cl_program *program
+) {
+    char *err;
+    cl_int ret;
+    size_t err_len;
+
+    *program = clCreateProgramWithSource(common->context, 1, &source, NULL, NULL);
+    ret = clBuildProgram(*program, 1, &(common->device), options, NULL, NULL);
+    if (CL_SUCCESS != ret) {
+        clGetProgramBuildInfo(*program, common->device, CL_PROGRAM_BUILD_LOG, 0, NULL, &err_len);
+        err = malloc(err_len);
+        clGetProgramBuildInfo(*program, common->device, CL_PROGRAM_BUILD_LOG, err_len, err, NULL);
+        fprintf(stderr, "error: kernel build:\n%s\n", err);
+        free(err);
+        exit(EXIT_FAILURE);
+    }
+}
+
 void common_create_kernel(
     Common *common,
     const char *source,
     const char *options
 ) {
-    cl_int ret;
-    char *err;
-    size_t err_len;
-
     if (NULL != source) {
-        common->program = clCreateProgramWithSource(common->context, 1, &source, NULL, NULL);
-        ret = clBuildProgram(common->program, 1, &(common->device), options, NULL, NULL);
-        if (CL_SUCCESS != ret) {
-            clGetProgramBuildInfo(common->program, common->device, CL_PROGRAM_BUILD_LOG, 0, NULL, &err_len);
-            err = malloc(err_len);
-            clGetProgramBuildInfo(common->program, common->device, CL_PROGRAM_BUILD_LOG, err_len, err, NULL);
-            fprintf(stderr, "error: kernel build:\n%s\n", err);
-            free(err);
-            exit(EXIT_FAILURE);
-        }
+        common_create_program(common, source, options, &common->program);
         common->kernel = clCreateKernel(common->program, "main", NULL);
     } else {
         common->kernel = NULL;
