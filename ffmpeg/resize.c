@@ -1,13 +1,8 @@
 /*
-http://stackoverflow.com/questions/12831761/how-to-resize-a-picture-using-ffmpegs-sws-scale
-
-Upstream: encode.c
+http://stackoverflow.com/questions/12831761/how-to-resize-a-picture-using-ffmpegs-sws-scale/36487785#36487785
 */
 
-#include <libavcodec/avcodec.h>
-#include <libavutil/imgutils.h>
-#include <libavutil/opt.h>
-#include <libswscale/swscale.h>
+#include "common.h"
 
 static AVCodecContext *c = NULL;
 static AVFrame *frame;
@@ -35,7 +30,7 @@ static void ffmpeg_encoder_init_frame(AVFrame **framep, int width, int height) {
     *framep = frame;
 }
 
-static void ffmpeg_encoder_scale(uint8_t *rgb) {
+static void ffmpeg_encoder_scale(void) {
     sws_context = sws_getCachedContext(sws_context,
             frame->width, frame->height, AV_PIX_FMT_YUV420P,
             frame2->width, frame2->height, AV_PIX_FMT_YUV420P,
@@ -54,57 +49,8 @@ static void ffmpeg_encoder_set_frame_yuv_from_rgb(uint8_t *rgb) {
             frame->height, frame->data, frame->linesize);
 }
 
-void generate_rgb(int width, int height, int pts, uint8_t **rgbp) {
-    int x, y, cur;
-    uint8_t *rgb = *rgbp;
-    rgb = realloc(rgb, 3 * sizeof(uint8_t) * height * width);
-    for (y = 0; y < height; y++) {
-        for (x = 0; x < width; x++) {
-            cur = 3 * (y * width + x);
-            rgb[cur + 0] = 0;
-            rgb[cur + 1] = 0;
-            rgb[cur + 2] = 0;
-            if ((frame->pts / 25) % 2 == 0) {
-                if (y < height / 2) {
-                    if (x < width / 2) {
-                        /* Black. */
-                    } else {
-                        rgb[cur + 0] = 255;
-                    }
-                } else {
-                    if (x < width / 2) {
-                        rgb[cur + 1] = 255;
-                    } else {
-                        rgb[cur + 2] = 255;
-                    }
-                }
-            } else {
-                if (y < height / 2) {
-                    rgb[cur + 0] = 255;
-                    if (x < width / 2) {
-                        rgb[cur + 1] = 255;
-                    } else {
-                        rgb[cur + 2] = 255;
-                    }
-                } else {
-                    if (x < width / 2) {
-                        rgb[cur + 1] = 255;
-                        rgb[cur + 2] = 255;
-                    } else {
-                        rgb[cur + 0] = 255;
-                        rgb[cur + 1] = 255;
-                        rgb[cur + 2] = 255;
-                    }
-                }
-            }
-        }
-    }
-    *rgbp = rgb;
-}
-
 void ffmpeg_encoder_start(const char *filename, int codec_id, int fps, int width, int height, float factor) {
     AVCodec *codec;
-    int ret;
     int width2 = width * factor;
     int height2 = height * factor;
     avcodec_register_all();
@@ -169,7 +115,7 @@ void ffmpeg_encoder_finish(void) {
 void ffmpeg_encoder_encode_frame(uint8_t *rgb) {
     int ret, got_output;
     ffmpeg_encoder_set_frame_yuv_from_rgb(rgb);
-    ffmpeg_encoder_scale(rgb);
+    ffmpeg_encoder_scale();
     frame2->pts = frame->pts;
     av_init_packet(&pkt);
     pkt.data = NULL;
@@ -185,26 +131,32 @@ void ffmpeg_encoder_encode_frame(uint8_t *rgb) {
     }
 }
 
-static void encode_example(float factor) {
+static void encode_example(int width, int height, float factor) {
     char filename[255];
     int pts;
-    int width = 320;
-    int height = 240;
     uint8_t *rgb = NULL;
-    snprintf(filename, 255, "tmp." __FILE__ ".%.2f.h264", factor);
+    snprintf(filename, 255, "tmp." __FILE__ "_%.2f.h264", factor);
     ffmpeg_encoder_start(filename, AV_CODEC_ID_H264, 25, width, height, factor);
     for (pts = 0; pts < 100; pts++) {
         frame->pts = pts;
-        generate_rgb(width, height, pts, &rgb);
+        common_generate_rgb(width, height, pts, &rgb);
         ffmpeg_encoder_encode_frame(rgb);
     }
     ffmpeg_encoder_finish();
     free(rgb);
 }
 
-int main(void) {
-    encode_example(0.5);
-    encode_example(1.0);
-    encode_example(2.0);
+int main(int argc, char **argv) {
+    int width = 320;
+    int height = 240;
+    if (argc > 1) {
+        width = strtol(argv[1], NULL, 10);
+        if (argc > 2) {
+            height = strtol(argv[2], NULL, 10);
+        }
+    }
+    encode_example(width, height, 0.5);
+    encode_example(width, height, 1.0);
+    encode_example(width, height, 2.0);
     return EXIT_SUCCESS;
 }

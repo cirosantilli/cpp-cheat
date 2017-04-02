@@ -21,10 +21,7 @@ but modified to:
 - take rgb input instead of YUV
 */
 
-#include <libavcodec/avcodec.h>
-#include <libavutil/imgutils.h>
-#include <libavutil/opt.h>
-#include <libswscale/swscale.h>
+#include "common.h"
 
 static AVCodecContext *c = NULL;
 static AVFrame *frame;
@@ -44,69 +41,6 @@ static void ffmpeg_encoder_set_frame_yuv_from_rgb(uint8_t *rgb) {
             0, NULL, NULL, NULL);
     sws_scale(sws_context, (const uint8_t * const *)&rgb, in_linesize, 0,
             c->height, frame->data, frame->linesize);
-}
-
-/*
-Generate 2 different images with four colored rectangles, each 25 frames long:
-
-Image 1:
-
-    black | red
-    ------+-----
-    green | blue
-
-Image 2:
-
-    yellow | red
-    -------+-----
-    green  | white
-*/
-void generate_rgb(int width, int height, int pts, uint8_t **rgbp) {
-    int x, y, cur;
-    uint8_t *rgb = *rgbp;
-    rgb = realloc(rgb, 3 * sizeof(uint8_t) * height * width);
-    for (y = 0; y < height; y++) {
-        for (x = 0; x < width; x++) {
-            cur = 3 * (y * width + x);
-            rgb[cur + 0] = 0;
-            rgb[cur + 1] = 0;
-            rgb[cur + 2] = 0;
-            if ((frame->pts / 25) % 2 == 0) {
-                if (y < height / 2) {
-                    if (x < width / 2) {
-                        /* Black. */
-                    } else {
-                        rgb[cur + 0] = 255;
-                    }
-                } else {
-                    if (x < width / 2) {
-                        rgb[cur + 1] = 255;
-                    } else {
-                        rgb[cur + 2] = 255;
-                    }
-                }
-            } else {
-                if (y < height / 2) {
-                    rgb[cur + 0] = 255;
-                    if (x < width / 2) {
-                        rgb[cur + 1] = 255;
-                    } else {
-                        rgb[cur + 2] = 255;
-                    }
-                } else {
-                    if (x < width / 2) {
-                        rgb[cur + 1] = 255;
-                        rgb[cur + 2] = 255;
-                    } else {
-                        rgb[cur + 0] = 255;
-                        rgb[cur + 1] = 255;
-                        rgb[cur + 2] = 255;
-                    }
-                }
-            }
-        }
-    }
-    *rgbp = rgb;
 }
 
 /* Allocate resources and write header data to the output file. */
@@ -208,24 +142,30 @@ void ffmpeg_encoder_encode_frame(uint8_t *rgb) {
 }
 
 /* Represents the main loop of an application which generates one frame per loop. */
-static void encode_example(const char *filename, int codec_id) {
+static void encode_example(const char *filename, int codec_id, int width, int height) {
     int pts;
-    int width = 320;
-    int height = 240;
     uint8_t *rgb = NULL;
     ffmpeg_encoder_start(filename, codec_id, 25, width, height);
     for (pts = 0; pts < 100; pts++) {
         frame->pts = pts;
-        generate_rgb(width, height, pts, &rgb);
+        common_generate_rgb(width, height, pts, &rgb);
         ffmpeg_encoder_encode_frame(rgb);
     }
     ffmpeg_encoder_finish();
     free(rgb);
 }
 
-int main(void) {
-    encode_example("tmp.h264", AV_CODEC_ID_H264);
-    encode_example("tmp.mpg", AV_CODEC_ID_MPEG1VIDEO);
+int main(int argc, char **argv) {
+    int width = 320;
+    int height = 240;
+    if (argc > 1) {
+        width = strtol(argv[1], NULL, 10);
+        if (argc > 2) {
+            height = strtol(argv[2], NULL, 10);
+        }
+    }
+    encode_example("tmp.h264", AV_CODEC_ID_H264, width, height);
+    encode_example("tmp.mpg", AV_CODEC_ID_MPEG1VIDEO, width, height);
     /* TODO: is this encoded correctly? Possible to view it without container? */
     /*encode_example("tmp.vp8", AV_CODEC_ID_VP8);*/
     return 0;
