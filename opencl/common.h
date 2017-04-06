@@ -150,4 +150,20 @@ double common_get_nanos(void) {
     return ts.tv_sec + ts.tv_nsec / 1000000000.0;
 }
 
+void common_vec_print_i(int *vec, size_t n) {
+	size_t i;
+	for (i = 0; i < n; ++i) {
+		printf("%d\n", vec[i]);
+	}
+}
+
+void common_vec_assert_eq_i(int *vec1, int *vec2, size_t n) {
+	if (memcmp(vec1, vec2, n * sizeof(*vec1)) != 0) {
+		common_vec_print_i(vec1, n);
+		puts("");
+		common_vec_print_i(vec2, n);
+		assert(0);
+	}
+}
+
 #endif
