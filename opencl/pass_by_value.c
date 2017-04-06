@@ -13,7 +13,7 @@ In practice, this is often used to pass problem size parameters to the kernel.
 
 int main(void) {
     const char *source =
-        "__kernel void main(int in, __global int *out) {\n"
+        "__kernel void kmain(int in, __global int *out) {\n"
         "    out[0] = in + 1;\n"
         "}\n";
     cl_int in = 1, out;

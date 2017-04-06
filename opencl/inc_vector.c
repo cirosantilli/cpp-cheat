@@ -13,7 +13,7 @@ it is just a clEnqueueNDRangeKernel + get_global_id hello world.
 
 int main(int argc, char **argv) {
     const char *source =
-        "__kernel void main(__global int *io) {\n"
+        "__kernel void kmain(__global int *io) {\n"
         "    io[get_global_id(0)]++;\n"
         "}\n";
     cl_int *io, *expected_output;

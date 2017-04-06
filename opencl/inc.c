@@ -19,7 +19,10 @@ int main(void) {
     const char *source =
         /* kernel pointer arguments must be __global, __constant, or __local. */
         /* https://www.khronos.org/registry/cl/sdk/2.1/docs/man/xhtml/restrictions.html */
-        "__kernel void main(__global int *out) {\n"
+        /**/
+        /* Kernel functions cannot be called main... NVIDIA's compiler may allow that
+         * but others don't, so don't do it. */
+        "__kernel void kmain(__global int *out) {\n"
         "    out[0]++;\n"
         "}\n";
     cl_command_queue command_queue;
@@ -37,7 +40,7 @@ int main(void) {
     context = clCreateContext(NULL, 1, &device, NULL, NULL, NULL);
     program = clCreateProgramWithSource(context, 1, &source, NULL, NULL);
 	clBuildProgram(program, 1, &device, "", NULL, NULL);
-    kernel = clCreateKernel(program, "main", NULL);
+    kernel = clCreateKernel(program, "kmain", NULL);
     buffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(cl_int), &input, NULL);
     clSetKernelArg(kernel, 0, sizeof(buffer), &buffer);
     command_queue = clCreateCommandQueue(context, device, 0, NULL);

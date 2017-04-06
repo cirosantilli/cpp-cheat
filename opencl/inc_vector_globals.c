@@ -3,7 +3,7 @@ API exercise, increment a vector with less global work groups than integers,
 which forces us to put a for loop in the kernel.
 
 I don't think we can get the size of each global work group from the kernel,
-so we just calculate it on CPU ans pass a sa parameter.
+so we just calculate it on CPU and pass as a parameter.
 
 This is how the work will be split:
 
@@ -17,7 +17,7 @@ This is how the work will be split:
 
 int main(void) {
     const char *source =
-        "__kernel void main(uint group_nlems, __global int *out) {\n"
+        "__kernel void kmain(uint group_nlems, __global int *out) {\n"
         "    uint i_min = get_global_id(0) * group_nlems;\n"
         "    uint i_max = i_min + group_nlems;\n"
         "    for (uint i = i_min; i < i_max; ++i) {\n"

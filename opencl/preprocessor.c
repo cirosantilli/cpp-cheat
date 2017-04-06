@@ -12,7 +12,7 @@ but this is a bit nicer.
 int main(void) {
 	char options[256];
     const char *source =
-        "__kernel void main(__global int *out) {\n"
+        "__kernel void kmain(__global int *out) {\n"
         "    out[0] = X;\n"
         "}\n";
     cl_int io[] = {0};

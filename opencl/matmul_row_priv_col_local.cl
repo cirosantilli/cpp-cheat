@@ -1,4 +1,4 @@
-__kernel void main(
+__kernel void kmain(
     __global float* A,
     __global float* B,
     __global float* C,

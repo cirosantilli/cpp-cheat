@@ -1,4 +1,4 @@
-__kernel void main(__global uint *out) {
+__kernel void kmain(__global uint *out) {
     out[0] = get_work_dim();
 
     /* Total number of work items that will run this kernel, not the size of each one...

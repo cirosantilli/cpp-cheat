@@ -12,7 +12,7 @@ TODO: is using them faster than scalars?
 
 int main(void) {
     const char *source =
-        "__kernel void main(__global int2 *out) {\n"
+        "__kernel void kmain(__global int2 *out) {\n"
         "      out[get_global_id(0)]++;\n"
         "}\n";
     cl_int input[] = {0, 1, 2, 3};

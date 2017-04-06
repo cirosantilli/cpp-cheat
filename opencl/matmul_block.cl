@@ -1,4 +1,4 @@
-__kernel void main(
+__kernel void kmain(
     __global const float* restrict A,
     __global const float* restrict B,
     __global float* restrict C,

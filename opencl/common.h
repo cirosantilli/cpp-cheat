@@ -71,7 +71,7 @@ void common_create_kernel(
 ) {
     if (NULL != source) {
         common_create_program(common, source, options, &common->program);
-        common->kernel = clCreateKernel(common->program, "main", NULL);
+        common->kernel = clCreateKernel(common->program, "mymain", NULL);
     } else {
         common->kernel = NULL;
         common->program = NULL;

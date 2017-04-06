@@ -8,7 +8,7 @@ Allows us to reuse an existing device buffer and kernel, possibly saving allocat
 
 int main(void) {
     const char *source =
-        "__kernel void main(__global int *io) {\n"
+        "__kernel void kmain(__global int *io) {\n"
         "    io[get_global_id(0)]++;\n"
         "}\n";
     cl_int io[2];
