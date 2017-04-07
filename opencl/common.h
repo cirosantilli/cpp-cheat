@@ -72,7 +72,7 @@ void common_create_kernel(
     if (NULL != source) {
         common_create_program(common, source, options, &common->program);
         common->kernel = clCreateKernel(common->program, "kmain", NULL);
-		assert(NULL != common->kernel);
+        assert(NULL != common->kernel);
     } else {
         common->kernel = NULL;
         common->program = NULL;
@@ -152,19 +152,19 @@ double common_get_nanos(void) {
 }
 
 void common_vec_print_i(int *vec, size_t n) {
-	size_t i;
-	for (i = 0; i < n; ++i) {
-		printf("%d\n", vec[i]);
-	}
+    size_t i;
+    for (i = 0; i < n; ++i) {
+        printf("%d\n", vec[i]);
+    }
 }
 
 void common_vec_assert_eq_i(int *vec1, int *vec2, size_t n) {
-	if (memcmp(vec1, vec2, n * sizeof(*vec1)) != 0) {
-		common_vec_print_i(vec1, n);
-		puts("");
-		common_vec_print_i(vec2, n);
-		assert(0);
-	}
+    if (memcmp(vec1, vec2, n * sizeof(*vec1)) != 0) {
+        common_vec_print_i(vec1, n);
+        puts("");
+        common_vec_print_i(vec2, n);
+        assert(0);
+    }
 }
 
 #endif

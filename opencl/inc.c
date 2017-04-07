@@ -34,12 +34,12 @@ int main(void) {
     cl_platform_id platform;
     cl_program program;
 
-	/* Run kernel. */
+    /* Run kernel. */
     clGetPlatformIDs(1, &platform, NULL);
     clGetDeviceIDs(platform, CL_DEVICE_TYPE_ALL, 1, &device, NULL);
     context = clCreateContext(NULL, 1, &device, NULL, NULL, NULL);
     program = clCreateProgramWithSource(context, 1, &source, NULL, NULL);
-	clBuildProgram(program, 1, &device, "", NULL, NULL);
+    clBuildProgram(program, 1, &device, "", NULL, NULL);
     kernel = clCreateKernel(program, "kmain", NULL);
     buffer = clCreateBuffer(context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(cl_int), &input, NULL);
     clSetKernelArg(kernel, 0, sizeof(buffer), &buffer);
@@ -49,7 +49,7 @@ int main(void) {
     clFinish(command_queue);
     clEnqueueReadBuffer(command_queue, buffer, CL_TRUE, 0, sizeof(input), &input, 0, NULL, NULL);
 
-	/* Asserts. */
+    /* Asserts. */
     assert(input == 2);
 
     /* Cleanup. */
@@ -59,7 +59,7 @@ int main(void) {
     clReleaseKernel(kernel);
     clReleaseContext(context);
 #ifdef CL_1_2
-	clReleaseDevice(device);
+    clReleaseDevice(device);
 #endif
     return EXIT_SUCCESS;
 }

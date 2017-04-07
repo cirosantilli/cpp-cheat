@@ -1,12 +1,12 @@
 /*
 Sample usage:
 
-	echo '1 2 3' | tr ' ' '\n' >vec_io.vec
-	./prog vec_io.cl vec_io.vec
+    echo '1 2 3' | tr ' ' '\n' >vec_io.vec
+    ./prog vec_io.cl vec_io.vec
 
 Or you can use the default kernel and stdin input:
 
-	echo '1 2 3' | tr ' ' '\n' | ./prog
+    echo '1 2 3' | tr ' ' '\n' | ./prog
 
 Generic boilerplate that:
 

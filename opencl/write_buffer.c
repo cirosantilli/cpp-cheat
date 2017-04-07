@@ -16,7 +16,7 @@ int main(void) {
     Common common;
     const size_t global_work_size = sizeof(io) / sizeof(io[0]);
 
-	/* Setup. */
+    /* Setup. */
     common_init(&common, source);
     buffer = clCreateBuffer(common.context, CL_MEM_READ_WRITE, sizeof(io), NULL, NULL);
 
@@ -43,7 +43,7 @@ int main(void) {
     assert(io[0] == 11);
     assert(io[1] == 12);
 
-	/* Cleanup. */
+    /* Cleanup. */
     clReleaseMemObject(buffer);
     common_deinit(&common);
     return EXIT_SUCCESS;

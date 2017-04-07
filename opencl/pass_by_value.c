@@ -20,7 +20,7 @@ int main(void) {
     cl_mem buffer;
     Common common;
 
-	/* Run kernel. */
+    /* Run kernel. */
     common_init(&common, source);
     clSetKernelArg(common.kernel, 0, sizeof(in), &in);
     buffer = clCreateBuffer(common.context, CL_MEM_READ_WRITE, sizeof(out), NULL, NULL);
@@ -30,10 +30,10 @@ int main(void) {
     clFinish(common.command_queue);
     clEnqueueReadBuffer(common.command_queue, buffer, CL_TRUE, 0, sizeof(out), &out, 0, NULL, NULL);
 
-	/* Assertions. */
+    /* Assertions. */
     assert(out == 2);
 
-	/* Cleanup. */
+    /* Cleanup. */
     clReleaseMemObject(buffer);
     common_deinit(&common);
     return EXIT_SUCCESS;

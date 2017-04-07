@@ -38,9 +38,9 @@ int main(void) {
     const size_t nelems_align = global_work_size * group_nelems;
     const size_t io_align_sizeof = nelems_align * sizeof(*io_align);
 
-	/* Run kernel. */
-	io_align = malloc(io_align_sizeof);
-	memcpy(io_align, io, sizeof(io));
+    /* Run kernel. */
+    io_align = malloc(io_align_sizeof);
+    memcpy(io_align, io, sizeof(io));
     common_init(&common, source);
     clSetKernelArg(common.kernel, 0, sizeof(group_nelems), &group_nelems);
     buffer = clCreateBuffer(common.context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, io_align_sizeof, io_align, NULL);
@@ -50,14 +50,14 @@ int main(void) {
     clFinish(common.command_queue);
     clEnqueueReadBuffer(common.command_queue, buffer, CL_TRUE, 0, io_align_sizeof, io_align, 0, NULL, NULL);
 
-	/* Assertions. */
+    /* Assertions. */
     assert(io_align[0] == 2);
     assert(io_align[1] == 3);
     assert(io_align[2] == 4);
     assert(io_align[3] == 5);
     assert(io_align[4] == 6);
 
-	/* Cleanup. */
+    /* Cleanup. */
     free(io_align);
     clReleaseMemObject(buffer);
     common_deinit(&common);
