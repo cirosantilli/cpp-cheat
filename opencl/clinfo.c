@@ -52,12 +52,12 @@ int main(void) {
      * But yeah, likely the same for all dimensions,
      * and equal to DEVICE_MAX_WORK_GROUP_SIZE. */
     PRINT_SIZE_T(DEVICE_MAX_WORK_ITEM_SIZES);
-	PRINT_CL_ULONG(DEVICE_LOCAL_MEM_SIZE);
+    PRINT_CL_ULONG(DEVICE_LOCAL_MEM_SIZE);
     PRINT_CL_UINT(DEVICE_MAX_COMPUTE_UNITS);
 
     /* Cleanup. */
 #ifdef CL_1_2
-	clReleaseDevice(device);
+    clReleaseDevice(device);
 #endif
     return EXIT_SUCCESS;
 }

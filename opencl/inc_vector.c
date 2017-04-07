@@ -21,22 +21,22 @@ int main(int argc, char **argv) {
     Common common;
     size_t i, n, io_sizeof;
 
-	if (argc > 1) {
-		n = strtoul(argv[1], NULL, 10);
-	} else {
-		n = 2;
-	}
+    if (argc > 1) {
+        n = strtoul(argv[1], NULL, 10);
+    } else {
+        n = 2;
+    }
 
-	/* Initialize data. */
-	io_sizeof = n * sizeof(*io);
-	io = malloc(io_sizeof);
-	expected_output = malloc(n * sizeof(*expected_output));
-	for (i = 0; i < n; ++i) {
-		io[i] = i;
-		expected_output[i] = i + 1;
-	}
+    /* Initialize data. */
+    io_sizeof = n * sizeof(*io);
+    io = malloc(io_sizeof);
+    expected_output = malloc(n * sizeof(*expected_output));
+    for (i = 0; i < n; ++i) {
+        io[i] = i;
+        expected_output[i] = i + 1;
+    }
 
-	/* Run kernel. */
+    /* Run kernel. */
     common_init(&common, source);
     buffer = clCreateBuffer(common.context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, io_sizeof, io, NULL);
     clSetKernelArg(common.kernel, 0, sizeof(buffer), &buffer);
@@ -45,13 +45,13 @@ int main(int argc, char **argv) {
     clFinish(common.command_queue);
     clEnqueueReadBuffer(common.command_queue, buffer, CL_TRUE, 0, io_sizeof, io, 0, NULL, NULL);
 
-	/* Assertions. */
-	common_vec_assert_eq_i(io, expected_output, n);
+    /* Assertions. */
+    common_vec_assert_eq_i(io, expected_output, n);
 
-	/* Cleanup. */
+    /* Cleanup. */
     clReleaseMemObject(buffer);
     common_deinit(&common);
-	free(io);
-	free(expected_output);
+    free(io);
+    free(expected_output);
     return EXIT_SUCCESS;
 }

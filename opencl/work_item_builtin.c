@@ -17,7 +17,7 @@ int main(void) {
     cl_uint output[NUM_FUNCTIONS];
     Common common;
 
-	/* Run kernel. */
+    /* Run kernel. */
     common_init_file(&common, "work_item_builtin.cl");
     buffer = clCreateBuffer(common.context, CL_MEM_WRITE_ONLY, sizeof(output), NULL, NULL);
     clSetKernelArg(common.kernel, 0, sizeof(cl_mem), &buffer);
@@ -26,8 +26,8 @@ int main(void) {
     clFinish(common.command_queue);
     clEnqueueReadBuffer(common.command_queue, buffer, CL_TRUE, 0, sizeof(output), output, 0, NULL, NULL);
 
-	/* Check the values. */
-	puts("#work_item_builtin");
+    /* Check the values. */
+    puts("#work_item_builtin");
     printf("work_dim      = %d\n", output[0]);
     printf("global_size   = %d\n", output[1]);
     printf("global_id     = %d\n", output[2]);
@@ -37,7 +37,7 @@ int main(void) {
     printf("group_id      = %d\n", output[6]);
     printf("global_offset = %d\n", output[7]);
 
-	/* Cleanup. */
+    /* Cleanup. */
     clReleaseMemObject(buffer);
     common_deinit(&common);
     return EXIT_SUCCESS;
