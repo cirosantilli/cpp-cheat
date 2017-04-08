@@ -4,7 +4,7 @@
  * Second half of io is untouched.
  *
  * To be less wasteful, you should set the work group size to n / 2,
- * but as we know, vector operations like this cannot be sped up by the GPU
+ * but as we know, vector sum cannot be sped up by the GPU
  * in the first place, so it won't matter much.
  * */
 __kernel void kmain(__global float *io) {
