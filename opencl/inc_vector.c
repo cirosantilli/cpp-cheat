@@ -15,7 +15,8 @@ int main(void) {
     const char *source =
         "__kernel void kmain(__global int *out) {\n"
         "    out[get_global_id(0)]++;\n"
-        "}\n";
+        "}\n"
+    ;
     cl_int input[] = {1, 2};
     cl_mem buffer;
     Common common;

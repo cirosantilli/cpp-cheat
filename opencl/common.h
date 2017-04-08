@@ -23,7 +23,11 @@ typedef struct {
     cl_program program;
 } Common;
 
-char* common_read_file(const char *path) {
+void common_assert_success(cl_int ret) {
+    assert(ret == CL_SUCCESS);
+}
+
+char* common_read_file(const char *path, long *length_out) {
     char *buffer;
     FILE *f;
     long length;
@@ -33,13 +37,43 @@ char* common_read_file(const char *path) {
     fseek(f, 0, SEEK_END);
     length = ftell(f);
     fseek(f, 0, SEEK_SET);
-    buffer = malloc(length + 1);
+    buffer = malloc(length);
     if (fread(buffer, 1, length, f) < (size_t)length) {
         return NULL;
     }
     fclose(f);
-    buffer[length] = '\0';
+    if (NULL != length_out) {
+        *length_out = length;
+    }
     return buffer;
+}
+
+char* common_read_file_null(const char *path) {
+    char *f;
+    long length;
+    f = common_read_file(path, &length);
+    f = realloc(f, length + 1);
+    f[length] = '\0';
+    return f;
+}
+
+void common_build_program(
+    Common *common,
+    const char *options,
+    cl_program *program
+) {
+    char *err;
+    cl_int ret;
+    size_t err_len;
+    ret = clBuildProgram(*program, 1, &(common->device), options, NULL, NULL);
+    if (CL_SUCCESS != ret) {
+        clGetProgramBuildInfo(*program, common->device, CL_PROGRAM_BUILD_LOG, 0, NULL, &err_len);
+        err = malloc(err_len);
+        clGetProgramBuildInfo(*program, common->device, CL_PROGRAM_BUILD_LOG, err_len, err, NULL);
+        fprintf(stderr, "error: clBuildProgram:\n%s\n", err);
+        free(err);
+        exit(EXIT_FAILURE);
+    }
 }
 
 void common_create_program(
@@ -48,20 +82,8 @@ void common_create_program(
     const char *options,
     cl_program *program
 ) {
-    char *err;
-    cl_int ret;
-    size_t err_len;
-
     *program = clCreateProgramWithSource(common->context, 1, &source, NULL, NULL);
-    ret = clBuildProgram(*program, 1, &(common->device), options, NULL, NULL);
-    if (CL_SUCCESS != ret) {
-        clGetProgramBuildInfo(*program, common->device, CL_PROGRAM_BUILD_LOG, 0, NULL, &err_len);
-        err = malloc(err_len);
-        clGetProgramBuildInfo(*program, common->device, CL_PROGRAM_BUILD_LOG, err_len, err, NULL);
-        fprintf(stderr, "error: clCreateProgramWithSource:\n%s\n", err);
-        free(err);
-        exit(EXIT_FAILURE);
-    }
+    common_build_program(common, options, program);
 }
 
 void common_create_kernel(
@@ -85,7 +107,7 @@ void common_create_kernel_file(
     const char *options
 ) {
     char *source;
-    source = common_read_file(source_path);
+    source = common_read_file_null(source_path);
     common_create_kernel(common, source, options);
     free(source);
 }
@@ -117,7 +139,7 @@ void common_init_file_options(
     const char *options
 ) {
     char *source;
-    source = common_read_file(source_path);
+    source = common_read_file_null(source_path);
     common_init_options(common, source, options);
     free(source);
 }
