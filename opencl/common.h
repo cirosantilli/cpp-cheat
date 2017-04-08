@@ -58,7 +58,7 @@ void common_create_program(
         clGetProgramBuildInfo(*program, common->device, CL_PROGRAM_BUILD_LOG, 0, NULL, &err_len);
         err = malloc(err_len);
         clGetProgramBuildInfo(*program, common->device, CL_PROGRAM_BUILD_LOG, err_len, err, NULL);
-        fprintf(stderr, "error: kernel build:\n%s\n", err);
+        fprintf(stderr, "error: clCreateProgramWithSource:\n%s\n", err);
         free(err);
         exit(EXIT_FAILURE);
     }

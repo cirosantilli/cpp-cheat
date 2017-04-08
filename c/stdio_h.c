@@ -75,16 +75,16 @@ Same as `file_size`, but takes the path instead of a `FILE*`.
 */
 long file_size(char *path) {
     FILE *fp;
-    long retur_value;
+    long return_value;
     fp = fopen(path, "r");
     if (fp == NULL) {
         return -1L;
     }
-    retur_value = fget_file_size(fp);
+    return_value = fget_file_size(fp);
     if (fclose(fp) == EOF) {
         return -1L;
     }
-    return retur_value;
+    return return_value;
 }
 
 /*
