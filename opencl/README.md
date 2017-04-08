@@ -13,7 +13,6 @@
     1.  [Write buffer](write_buffer.c)
     1.  [Multi-kernel](multi_kernel.c)
     1.  [Benchmark examples](benchmark-examples.md)
-        1.  [Matrix multiplication](matmul.c)
     1.  [Interactive](interactive)
 1.  Tools
     1.  [clinfo](clinfo.md)
