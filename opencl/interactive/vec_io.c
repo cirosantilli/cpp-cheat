@@ -8,18 +8,21 @@ Or you can use the default kernel and stdin input:
 
     echo '1 2 3' | tr ' ' '\n' | ./prog
 
+Set global work size and work group size different than defaults (n and 1):
+
+    ./prog -g 10 -l 5 vec_io.cl vec_io.vec
+
 Generic boilerplate that:
 
--     takes a vector as input either from stdin or from a file, one per line
-
--     processes it with a kernel read from a file, one vector item per work item
-
--     produces as output a vector of the same size to stdout
+- takes a vector as input either from stdin or from a file, one per line
+- processes it with a kernel read from a file, one vector item per work item (configurable with options)
+- produces as output a vector of the same size to stdout
 
 This allows you to quickly play with different kernels without recompiling the C code.
 
 But is unsuitable for real applications, which require  querying the CL implementation
-for limits, specially work group and memory maximum sizes.
+for limits, specially work group and memory maximum sizes. Although you could use a script
+to parse clinfo and get those values out... hmmm...
 */
 
 #include "common.h"
@@ -31,16 +34,37 @@ int main(int argc, char **argv) {
     Common common;
     FILE *input_vector_file;
     float f;
-    size_t i, n, nmax, io_sizeof;
+    int a, global_work_size_given;
+    size_t i, global_work_size, local_work_size, n, nmax, io_sizeof;
 
     /* Treat CLI arguments. */
-    if (argc > 1) {
-        cl_source_path = argv[1];
+    global_work_size_given = 0;
+    local_work_size = 1;
+    for (a = 1; a < argc; ++a) {
+        if (argv[a][0] == '-') {
+            switch(argv[a][1]) {
+                case 'g':
+                    a++;
+                    global_work_size = strtoul(argv[a], NULL, 10);
+                    global_work_size_given = 1;
+                break;
+                case 'l':
+                    a++;
+                    local_work_size = strtoul(argv[a], NULL, 10);
+                break;
+            }
+        } else {
+            break;
+        }
+    }
+    if (argc > a) {
+        cl_source_path = argv[a];
     } else {
         cl_source_path = "vec_io.cl";
     }
-    if (argc > 2) {
-        input_vector_file = fopen(argv[2], "r");
+    a++;
+    if (argc > a) {
+        input_vector_file = fopen(argv[a], "r");
     } else {
         input_vector_file = stdin;
     }
@@ -58,12 +82,15 @@ int main(int argc, char **argv) {
         }
     }
     io_sizeof = n * sizeof(*io);
+    if (!global_work_size_given) {
+        global_work_size = n;
+    }
 
     /* Run kernel. */
     common_init_file(&common, cl_source_path);
     buffer = clCreateBuffer(common.context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, io_sizeof, io, NULL);
     clSetKernelArg(common.kernel, 0, sizeof(buffer), &buffer);
-    clEnqueueNDRangeKernel(common.command_queue, common.kernel, 1, NULL, &n, NULL, 0, NULL, NULL);
+    clEnqueueNDRangeKernel(common.command_queue, common.kernel, 1, NULL, &global_work_size, &local_work_size, 0, NULL, NULL);
     clFlush(common.command_queue);
     clFinish(common.command_queue);
     clEnqueueReadBuffer(common.command_queue, buffer, CL_TRUE, 0, io_sizeof, io, 0, NULL, NULL);
