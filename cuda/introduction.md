@@ -30,6 +30,13 @@ http://gpuocelot.gatech.edu/ is a precursor it seems https://code.google.com/arc
 
 <https://en.wikipedia.org/wiki/NVIDIA_CUDA_Compiler>
 
+`--arch=sm` thing: <http://stackoverflow.com/questions/10330527/what-is-difference-between-arch-sm-13-and-arch-sm-20>
+
+TODO: compile OpenCL: failing with:
+
+- <http://stackoverflow.com/questions/13062469/compile-and-build-cl-file-using-nvidias-nvcc-compiler>
+- <http://stackoverflow.com/questions/22730484/dont-know-what-to-do-with-nvcc-fatal-error>
+
 ## CUDA C/C++
 
 The kernel language, like OpenCL C.

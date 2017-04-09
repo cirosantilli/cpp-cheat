@@ -52,6 +52,7 @@ C and C++ minimal examples. Asserts used wherever possible. Hello worlds for coo
     1. [X11](x11)
 1.  Scientific
     1. [Bullet physics](bullet/)
+    1. [CUDA](cuda/)
     1. [Fortran](fortran/)
     1. [GSL](gsl/)
     1. [LAPACK](lapack/)
