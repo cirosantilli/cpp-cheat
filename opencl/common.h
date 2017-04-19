@@ -112,6 +112,9 @@ void common_create_kernel_file(
     free(source);
 }
 
+/*
+ * @param[in] source: if NULL, kernel and program are left to NULL on common
+ **/
 void common_init_options(
     Common *common,
     const char *source,
@@ -151,20 +154,69 @@ void common_init_file(
     common_init_file_options(common, source_path, "");
 }
 
+void common_deinit_kernel_and_program(cl_kernel kernel, cl_program program) {
+    if (NULL != kernel) {
+        clReleaseKernel(kernel);
+    }
+    if (NULL != program) {
+        clReleaseProgram(program);
+    }
+}
+
 void common_deinit(
     Common *common
 ) {
     clReleaseCommandQueue(common->command_queue);
-    clReleaseProgram(common->program);
-    if (NULL != common->kernel) {
-        clReleaseKernel(common->kernel);
-    }
-    if (NULL != common->context) {
-        clReleaseContext(common->context);
-    }
+    common_deinit_kernel_and_program(common->kernel, common->program);
+    clReleaseContext(common->context);
 #ifdef CL_1_2
     clReleaseDevice(common->device);
 #endif
+}
+
+void common_create_kernel_or_use_cache(
+    Common *common,
+    int use_cache,
+    char *source_path,
+    char *bin_path
+) {
+    FILE *f;
+    char *binary;
+    cl_int errcode_ret, binary_status;
+    cl_kernel kernel;
+    cl_program program;
+    long length;
+    size_t binary_size;
+
+    if (use_cache) {
+        common_init(common, NULL);
+        binary = common_read_file(bin_path, &length);
+        binary_size = length;
+    } else {
+        common_init_file(common, source_path);
+        clGetProgramInfo(common->program, CL_PROGRAM_BINARY_SIZES, sizeof(size_t), &binary_size, NULL);
+        binary = malloc(binary_size);
+        clGetProgramInfo(common->program, CL_PROGRAM_BINARIES, binary_size, &binary, NULL);
+        f = fopen(bin_path, "w");
+        fwrite(binary, binary_size, 1, f);
+        fclose(f);
+    }
+    program = clCreateProgramWithBinary(
+        common->context, 1, &common->device, &binary_size,
+        (const unsigned char **)&binary, &binary_status, &errcode_ret
+    );
+    assert(NULL != program);
+    common_assert_success(binary_status);
+    common_assert_success(errcode_ret);
+    free(binary);
+    common_build_program(common, NULL, &program);
+    kernel = clCreateKernel(program, "kmain", &errcode_ret);
+    assert(NULL != kernel);
+    common_assert_success(errcode_ret);
+    /* Cleanup kernel and program if they were created from source. */
+    common_deinit_kernel_and_program(common->kernel, common->program);
+    common->kernel = kernel;
+    common->program = program;
 }
 
 double common_get_nanos(void) {

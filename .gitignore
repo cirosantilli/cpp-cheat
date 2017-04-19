@@ -26,6 +26,7 @@ main
 *.tmp
 tmp.*
 tmp
+*.bak
 
 core
 core.*

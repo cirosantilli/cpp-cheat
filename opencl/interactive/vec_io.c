@@ -1,8 +1,16 @@
 /*
+Process an arbitrary input vector with a given shader and print output to stdout.
+
 Sample usage:
 
     echo '1 2 3' | tr ' ' '\n' >vec_io.vec
     ./prog vec_io.cl vec_io.vec
+
+Output:
+
+    2.000000e+00
+    3.000000e+00
+    4.000000e+00
 
 Or you can use the default kernel and stdin input:
 
@@ -11,6 +19,13 @@ Or you can use the default kernel and stdin input:
 Set global work size and work group size different than defaults (n and 1):
 
     ./prog -g 10 -l 5 vec_io.cl vec_io.vec
+
+Generate a binary shader , and then use it (clCreateProgramWithBinary) instead of the CL C:
+
+    ./prog vec_io.cl vec_io.vec
+    ./prog -b vec_io.c.bin.tmp vec_io.vec
+
+This allows you to modify the binary shader while reverse engineer it.
 
 Generic boilerplate that:
 
@@ -28,21 +43,25 @@ to parse clinfo and get those values out... hmmm...
 #include "common.h"
 
 int main(int argc, char **argv) {
-    char *cl_source_path;
+    char *source_path;
     cl_float *io;
     cl_mem buffer;
     Common common;
     FILE *input_vector_file;
     float f;
-    int a, global_work_size_given;
+    int a, global_work_size_given, use_cache;
     size_t i, global_work_size, local_work_size, n, nmax, io_sizeof;
 
     /* Treat CLI arguments. */
     global_work_size_given = 0;
     local_work_size = 1;
+    use_cache = 0;
     for (a = 1; a < argc; ++a) {
         if (argv[a][0] == '-') {
             switch(argv[a][1]) {
+                case 'b':
+                    use_cache = 1;
+                break;
                 case 'g':
                     a++;
                     global_work_size = strtoul(argv[a], NULL, 10);
@@ -58,9 +77,9 @@ int main(int argc, char **argv) {
         }
     }
     if (argc > a) {
-        cl_source_path = argv[a];
+        source_path = argv[a];
     } else {
-        cl_source_path = "vec_io.cl";
+        source_path = "vec_io.cl";
     }
     a++;
     if (argc > a) {
@@ -86,8 +105,8 @@ int main(int argc, char **argv) {
         global_work_size = n;
     }
 
-    /* Run kernel. */
-    common_init_file(&common, cl_source_path);
+    /* Create kernel. */
+    common_create_kernel_or_use_cache(&common, use_cache, source_path, __FILE__ ".bin.tmp");
     buffer = clCreateBuffer(common.context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, io_sizeof, io, NULL);
     clSetKernelArg(common.kernel, 0, sizeof(buffer), &buffer);
     clEnqueueNDRangeKernel(common.command_queue, common.kernel, 1, NULL, &global_work_size, &local_work_size, 0, NULL, NULL);
@@ -97,7 +116,7 @@ int main(int argc, char **argv) {
 
     /* Print result. */
     for (i = 0; i < n; ++i) {
-        printf("%f\n", io[i]);
+        printf("%.6e\n", io[i]);
     }
 
     /* Cleanup. */
