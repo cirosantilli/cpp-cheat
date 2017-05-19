@@ -15,6 +15,7 @@
 
 #include <atomic>
 #include <algorithm> // copy, erase, lower_bound, remove_if, swap, transform
+#include <bitset>
 #include <exception> // bad_alloc, bad_cast, bad_exception, bad_typeid, exception, ios_base::failure
 #include <fstream> // fstream, ifstream, ofstream
 #include <functional> // bind2nd

@@ -23,7 +23,7 @@ Read entire file into a string at once.
 */
 void read_file(std::ifstream &ifs, std::string &data_read) {
 	ifs.seekg(0, std::ios::end);
-	size_t size = ifs.tellg();
+	auto size = ifs.tellg();
 	data_read.resize(size);
 	ifs.seekg(0);
 	ifs.read(&data_read[0], size);

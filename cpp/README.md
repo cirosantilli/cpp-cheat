@@ -60,6 +60,7 @@
     1.  [Headers](common.hpp)
     1.  [Containers](containers.md)
         1.  [vector](vector.cpp)
+        1.  [string](string.cpp)
         1.  [list](list.cpp)
         1.  [map](map.cpp)
         1.  [multimap](multimap.cpp)
@@ -67,7 +68,7 @@
             1.  [unordered_set](unordered_set.cpp)
         1.  [valarray](valarray.cpp)
         1.  [deque](deque.cpp)
-        1.  [string](string.cpp)
+        1.  [bitset](bitset.cpp)
     1.  IO
         1.  [sstream](sstream.cpp)
         1.  [iostream](iostream.cpp)
