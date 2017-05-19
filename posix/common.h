@@ -52,6 +52,7 @@
 #include <monetary.h> /* strfmon */
 #include <netdb.h> /* gethostbyname */
 #include <netinet/in.h>
+#include <poll.h>
 #include <pthread.h>
 #include <pwd.h> /* getpwuid, getpwnam, getpwent */
 #include <regex.h>

@@ -667,8 +667,7 @@ int main() {
             fp = fopen(path, "wb");
             if (fp == NULL) {
                 io_error("fopen", path);
-            }
-            else {
+            } else {
                 if (fwrite(elems_write, sizeof(elems_write[0]), nelems, fp) < nelems) {
                     io_error("fwrite", path);
                 }
