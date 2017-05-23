@@ -18,6 +18,11 @@ Now the first shell contains:
     i=1 n=1 buf=b
     loop
 
+Cooler example:
+
+    (while true; do date; sleep 1; done) > poll0.tmp
+    (while true; do date; sleep 2; done) > poll1.tmp
+
 Now:
 
 - any further writes on "poll*.tmp" will be ignored. This could be easily fixed by re-opening them from here.
@@ -35,6 +40,7 @@ int main(void) {
     enum { N = 2 };
     char buf[1024], path[1024];
     int fd, i, n;
+    short revents;
     struct pollfd pfds[N];
 
     for (i = 0; i < N; ++i) {
@@ -60,11 +66,12 @@ int main(void) {
             exit(EXIT_FAILURE);
         }
         for (i = 0; i < N; ++i) {
-            if (pfds[i].revents & POLLIN) {
+            revents = pfds[i].revents;
+            if (revents & POLLIN) {
                 n = read(pfds[i].fd, buf, sizeof(buf));
                 printf("i=%d n=%d buf=%.*s\n", i, n, n, buf);
             }
-            if (pfds[i].revents & POLLHUP) {
+            if (revents & POLLHUP) {
                 /* This happens when the other side closed.
                  * This event is only cleared when we close the reader. */
 
