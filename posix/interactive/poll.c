@@ -1,4 +1,6 @@
 /*
+https://stackoverflow.com/questions/5857461/poll-function-to-watch-named-pipes/44126952#44126952
+
     sudo mknod poll0.tmp p
     sudo mknod poll1.tmp p
     sudo chmod 666 poll*.tmp
@@ -12,10 +14,12 @@ In another shell:
 Now the first shell contains:
 
     loop
-    i=0 n=1 buf=a
+    POLLIN i=0 n=1 buf=a
     loop
+    POLLHUP i=0
     loop
-    i=1 n=1 buf=b
+    POLLIN i=1 n=1 buf=b
+    POLLHUP i=1
     loop
 
 Cooler example:
@@ -69,9 +73,11 @@ int main(void) {
             revents = pfds[i].revents;
             if (revents & POLLIN) {
                 n = read(pfds[i].fd, buf, sizeof(buf));
-                printf("i=%d n=%d buf=%.*s\n", i, n, n, buf);
+                printf("POLLIN i=%d n=%d buf=%.*s\n", i, n, n, buf);
             }
             if (revents & POLLHUP) {
+                printf("POLLHUP i=%d\n", i);
+
                 /* This happens when the other side closed.
                  * This event is only cleared when we close the reader. */
 
