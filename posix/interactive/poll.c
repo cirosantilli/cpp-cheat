@@ -1,7 +1,20 @@
 /*
-http://stackoverflow.com/questions/12444679/poll-function-in-c-how-does-it-work
+- https://stackoverflow.com/questions/12444679/how-does-the-poll-c-linux-function-work/44127590#44127590
+- https://stackoverflow.com/questions/5857461/poll-function-to-watch-named-pipes/44126952#44126952
+
+Examples:
 
     ./poll.sh
+    ./poll-loop.sh
+
+Cool interactive example:
+
+    sudo mknod poll0.tmp p
+    sudo mknod poll1.tmp p
+    sudo chmod 666 poll*.tmp
+    ./poll.out
+    (while true; do date; sleep 1; done) > poll0.tmp
+    (while true; do date; sleep 2; done) > poll1.tmp
 
 Now:
 
@@ -20,6 +33,7 @@ int main(void) {
     enum { N = 2 };
     char buf[1024], path[1024];
     int fd, i, n;
+    short revents;
     struct pollfd pfds[N];
 
     for (i = 0; i < N; ++i) {
@@ -45,11 +59,14 @@ int main(void) {
             exit(EXIT_FAILURE);
         }
         for (i = 0; i < N; ++i) {
-            if (pfds[i].revents & POLLIN) {
+            revents = pfds[i].revents;
+            if (revents & POLLIN) {
                 n = read(pfds[i].fd, buf, sizeof(buf));
-                printf("i=%d n=%d buf=%.*s\n", i, n, n, buf);
+                printf("POLLIN i=%d n=%d buf=%.*s\n", i, n, n, buf);
             }
-            if (pfds[i].revents & POLLHUP) {
+            if (revents & POLLHUP) {
+                printf("POLLHUP i=%d\n", i);
+
                 /* This happens when the other side closed.
                  * This event is only cleared when we close the reader. */
 
