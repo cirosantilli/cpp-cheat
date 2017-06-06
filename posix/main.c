@@ -561,62 +561,8 @@ int main(void) {
         int fd;
         char in[] = "abcd";
         int nbytes = strlen(in);
-        int nbytes_total, nbytes_last;
         char *out = malloc (nbytes + 1);
         char *fname = TMPFILE("open");
-
-        /*
-        write
-
-            A robust write usage that either outputs all its bytes,
-            or gives an error.
-        */
-        {
-            fd = open(fname, O_WRONLY | O_CREAT | O_TRUNC, S_IRWXU);
-            if (fd == -1) {
-                perror("open");
-                exit(EXIT_FAILURE);
-            } else {
-                nbytes_total = 0;
-                while (nbytes_total < nbytes) {
-                    nbytes_last = write(fd, in + nbytes_total, nbytes - nbytes_total);
-                    if (nbytes_last == -1) {
-                        perror("write");
-                        exit(EXIT_FAILURE);
-                    }
-                    nbytes_total += nbytes_last;
-                }
-                if (close(fd) == -1) {
-                    perror("close");
-                    exit(EXIT_FAILURE);
-                }
-            }
-        }
-
-        /* read */
-        {
-            fd = open(fname, O_RDONLY);
-            if (fd == -1) {
-                perror("open");
-                exit(EXIT_FAILURE);
-            } else {
-                nbytes_total = 0;
-                while ((nbytes_last = read(fd, out, nbytes)) > 0) {
-                    //compare output as it comes out, even if less than nbytes comes
-                    assert(memcmp(in + nbytes_total, out, nbytes_last) == 0);
-                    nbytes_total += nbytes_last;
-                }
-                if (nbytes_last == -1) {
-                    perror("read");
-                    exit(EXIT_FAILURE);
-                }
-                if (close(fd) == -1) {
-                    perror("close");
-                    exit(EXIT_FAILURE);
-                }
-                close(fd);
-            }
-        }
 
         /* BAD forget O_CREAT on non-existent file gives ENOENT */
         {

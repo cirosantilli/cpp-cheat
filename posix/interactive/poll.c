@@ -1,22 +1,7 @@
 /*
-    sudo mknod poll0.tmp p
-    sudo mknod poll1.tmp p
-    sudo chmod 666 poll*.tmp
-    ./poll.out
+http://stackoverflow.com/questions/12444679/poll-function-in-c-how-does-it-work
 
-In another shell:
-
-    printf a > poll0.tmp
-    printf b > poll1.tmp
-
-Now the first shell contains:
-
-    loop
-    i=0 n=1 buf=a
-    loop
-    loop
-    i=1 n=1 buf=b
-    loop
+    ./poll.sh
 
 Now:
 

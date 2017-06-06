@@ -3,6 +3,8 @@
 
 # sbrk
 
+    https://stackoverflow.com/questions/6988487/what-does-brk-system-call-do/31082353#31082353
+
     Was in POSIX 2001, but got removed.
 
     You must have in your mind:
@@ -48,7 +50,7 @@
 
 #include "common.h"
 
-int main() {
+int main(void) {
     /* Get the top of the heap. */
     {
         void *b = sbrk(0);

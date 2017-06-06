@@ -17,6 +17,8 @@
     1. [pthread_mutex](pthread_mutex.c)
     1. [pthread_tid](pthread_tid.c)
 1.  [Regex](regex.c)
+1.  File IO
+    1. [write_read](write_read.c)
 1.  Networking
     1.  [socket](socket/)
     1.  [netdb.h](netdb-h.md)
