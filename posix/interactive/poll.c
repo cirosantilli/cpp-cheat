@@ -9,9 +9,8 @@ Examples:
 
 Cool interactive example:
 
-    sudo mknod poll0.tmp p
-    sudo mknod poll1.tmp p
-    sudo chmod 666 poll*.tmp
+    sudo mknod -m 666 poll0.tmp p
+    sudo mknod -m 666 poll1.tmp p
     ./poll.out
     (while true; do date; sleep 1; done) > poll0.tmp
     (while true; do date; sleep 2; done) > poll1.tmp
