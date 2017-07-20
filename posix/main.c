@@ -148,41 +148,6 @@ int main(void) {
     }
 
     /*
-    # environment variables
-
-        Each process includes a list of its environment variables.
-
-        Those can be modified for the process.
-
-        Child processes inherit those variables, so this is a way
-        for processes to communicate.
-    */
-    {
-        /*
-        # getenv
-
-            specified by ANSI C
-
-        # setenv
-
-            not specified by ANSI C TODO check
-
-        # putenv
-
-            don't use, just use `setenv` instead. POSIX 7 itself says this.
-        */
-        {
-            assert(setenv("HOME", "asdf", true) != -1);
-            assert(strcmp(getenv("HOME"), "asdf") == 0);
-
-            /* With overwrite false, if existing is not overwritten */
-            /* but error is not returned. */
-            assert(setenv("HOME", "qwer", false) != -1);
-            assert(strcmp(getenv("HOME"), "asdf") == 0);
-        }
-    }
-
-    /*
     # math.h
 
         The `M_PI` constants are defined by POSIX inside of `math.h`.

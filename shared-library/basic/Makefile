@@ -1,4 +1,4 @@
-CC := gcc -pedantic-errors -std=c89 -Wall -Wextra
+CC := gcc -ggdb3 -pedantic-errors -std=c89 -Wall -Wextra
 
 .PHONY: all clean run
 
