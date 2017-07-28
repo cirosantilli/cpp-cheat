@@ -13,8 +13,7 @@ C and C++ minimal examples. Asserts used wherever possible. Hello worlds for coo
     1.  [POSIX](posix/): POSIX C API
     1.  [OpenGL](opengl/)
     1.  [GCC](gcc/): GCC extensions
-        1.  [Shared library](shared-library/)
-    1.  [KDE](kde/)
+    1.  [Shared library](shared-library/)
 1.  Introduction
     1. [C vs C++](c-vs-cpp.md)
     1. [Style guides](style-guides.md)
@@ -40,13 +39,14 @@ C and C++ minimal examples. Asserts used wherever possible. Hello worlds for coo
     1.  [FFmpeg](ffmpeg/)
     1.  [libpng](png/)
     1.  [v4l2](v4l2/)
-1.  Utility libraries
+1.  Utility
     1.  [Boost](boost/)
     1.  [glibc](glibc/)
     1.  [Linux](linux/)
 1.  GUI
     1. [GTK](gtk/)
-    1. [Open GL](opengl/)
+    1. [KDE](kde/)
+    1. [OpenGL](opengl/)
     1. [Qt](qt/)
     1. [SDL](sdl/)
     1. [X11](x11)
