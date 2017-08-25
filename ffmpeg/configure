@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 sudo aptitude update
-sudo aptitude install -y
+sudo aptitude install
   libavbin-dev \
   libavcodec-dev \
   libavdevice-dev \

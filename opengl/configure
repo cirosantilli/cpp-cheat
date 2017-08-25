@@ -3,7 +3,7 @@
 sudo aptitude update
 # Ubuntu 14.04: glfw3 not present in repos, only glfw 2.
 # Must compile yourself, good luck: http://stackoverflow.com/questions/17768008/how-to-build-install-glfw-3-and-use-it-in-a-linux-project
-sudo aptitude install -y \
+sudo aptitude install \
   freeglut3-dev \
   libgles2-mesa-dev \
   libglew-dev \
