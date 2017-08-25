@@ -105,6 +105,7 @@ int main(void) {
         }
     }
 
+#if 0
     /*
     Attempting this without changing `brk` is an almost sure segfault:
     unlike the stack, you can't just increment the heap directly,
@@ -114,7 +115,9 @@ int main(void) {
         void *b = sbrk(0);
         char *p = (char *)b;
         /* SEGFAULT */
-        /**p = 1;*/
+        *p = 1;
     }
+#endif
+
     return EXIT_SUCCESS;
 }

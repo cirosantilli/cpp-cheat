@@ -24,6 +24,7 @@ Tested on 7.7.1 unless mentioned otherwise.
         1.  [Overload](overload.cpp)
         1.  [Method](method.cpp)
         1.  [Polymorphism](polymorphism.cpp)
+1.  [gdbserver](gdbserver.md)
 1.  GDB scripts
     1.  [step_all](step_all.gdb)
     1.  [si_all](si_all.gdb)
