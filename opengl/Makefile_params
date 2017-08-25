@@ -1,5 +1,5 @@
 LIBS := -lm -lGL -lGLU -lglut -lglfw -lGLEW -lX11 \
--lpng \
--lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_ml -lopencv_video -lopencv_features2d -lopencv_calib3d -lopencv_objdetect -lopencv_contrib -lopencv_legacy -lopencv_flann \
--lavcodec -lswscale -lavutil \
--lv4l2
+  -lpng \
+  $(shell pkg-config opencv --cflags --libs) \
+  -lavcodec -lswscale -lavutil \
+  -lv4l2

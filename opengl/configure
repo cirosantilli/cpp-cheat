@@ -8,4 +8,6 @@ sudo aptitude install \
   libgles2-mesa-dev \
   libglew-dev \
   libglfw3-dev \
-  libopencv-dev
+  libopencv-dev \
+  libv4l-dev \
+;
