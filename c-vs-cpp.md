@@ -31,7 +31,7 @@ at the cost of:
 
     -   generated executables are very large and compilation is slow
 
-        For exmple, at one point I had a 7k line C file whose assembly was 8k lines, but a 7k C++ file generated 55k assembly code lines!
+        For example, at one point I had a 7k line C file whose assembly was 8k lines, but a 7k C++ file generated 55k assembly code lines!
 
     -   harder to interface with other languages because of name mangling.
 
