@@ -13,7 +13,6 @@ OUTS := $(addsuffix $(OUT_EXT), $(basename $(INS)))
 INS_CPP := $(wildcard *$(IN_EXT_CPP))
 OUTS_CPP := $(addsuffix $(OUT_EXT), $(basename $(INS_CPP)))
 
-
 .PHONY: all clean run
 
 all: $(OUTS) $(OUTS_CPP)
