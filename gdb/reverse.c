@@ -42,7 +42,8 @@ int main(void) {
 	 * */
 	printf("i = %d\n", i);
 
-    /* Is randomness completely removed? */
+    /* Is randomness completely removed?
+     * Meh, rr broke as well now: https://github.com/mozilla/rr/issues/2088 */
 	srand(time(NULL));
 	i = rand();
 	printf("rand() = %d\n", i);
