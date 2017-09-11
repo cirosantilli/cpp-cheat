@@ -3,11 +3,11 @@
 #include <time.h>
 
 int f() {
-	int i;
-	i = 0;
-	i = 1;
-	i = 2;
-	return i;
+    int i;
+    i = 0;
+    i = 1;
+    i = 2;
+    return i;
 }
 
 int where_return(int i) {
@@ -18,35 +18,34 @@ int where_return(int i) {
 }
 
 int main(void) {
-	int i;
+    int i;
 
-	/* Variable changes. */
-	i = 0;
-	i = 1;
-	i = 2;
+    /* Variable changes. */
+    i = 0;
+    i = 1;
+    i = 2;
 
-	/* Local call. */
-	f();
+    /* Local call. */
+    f();
 
     /* Where it returns. */
     /* https://stackoverflow.com/questions/3649468/setting-breakpoint-in-gdb-where-the-function-returns */
     where_return(0);
     where_return(1);
 
-	/* printf. Meh. How dare they ship this crap.
-	 * Use rr instead for now.
-	 * - https://stackoverflow.com/questions/40125154/target-record-full-in-gdb-makes-n-command-fail-on-printf-with-process-recor/46113357#46113357
-	 * - https://stackoverflow.com/questions/2528918/gdb-reverse-debugging-fails-with-process-record-does-not-support-instruction-0x/46113472#46113472
-	 * - https://stackoverflow.com/questions/42451492/disable-avx-optimized-functions-in-glibc-ld-hwcap-mask-etc-ld-so-nohwcap-for/44468494#44468494
-	 * - https://stackoverflow.com/questions/43750603/gdb-reverse-debugging-avx2
-	 * */
-	printf("i = %d\n", i);
+    /* printf. Meh. How dare they ship this crap.
+     * Use rr instead for now.
+     * - https://stackoverflow.com/questions/40125154/target-record-full-in-gdb-makes-n-command-fail-on-printf-with-process-recor/46113357#46113357
+     * - https://stackoverflow.com/questions/2528918/gdb-reverse-debugging-fails-with-process-record-does-not-support-instruction-0x/46113472#46113472
+     * - https://stackoverflow.com/questions/42451492/disable-avx-optimized-functions-in-glibc-ld-hwcap-mask-etc-ld-so-nohwcap-for/44468494#44468494
+     * - https://stackoverflow.com/questions/43750603/gdb-reverse-debugging-avx2
+     * */
+    printf("i = %d\n", i);
 
     /* Is randomness completely removed?
-     * Meh, rr broke as well now: https://github.com/mozilla/rr/issues/2088 */
-	srand(time(NULL));
-	i = rand();
-	printf("rand() = %d\n", i);
+     * Recently fixed: https://github.com/mozilla/rr/issues/2088 */
+    i = time(NULL);
+    printf("time(NULL) = %d\n", i);
 
     return EXIT_SUCCESS;
 }
