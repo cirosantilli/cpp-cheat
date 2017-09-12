@@ -37,7 +37,7 @@ char* common_read_file(const char *path, long *length_out) {
     fseek(f, 0, SEEK_END);
     length = ftell(f);
     fseek(f, 0, SEEK_SET);
-    buffer = malloc(length);
+    buffer = (char *)malloc(length);
     if (fread(buffer, 1, length, f) < (size_t)length) {
         return NULL;
     }
@@ -52,7 +52,7 @@ char* common_read_file_null(const char *path) {
     char *f;
     long length;
     f = common_read_file(path, &length);
-    f = realloc(f, length + 1);
+    f = (char *)realloc(f, length + 1);
     f[length] = '\0';
     return f;
 }
@@ -68,7 +68,7 @@ void common_build_program(
     ret = clBuildProgram(*program, 1, &(common->device), options, NULL, NULL);
     if (CL_SUCCESS != ret) {
         clGetProgramBuildInfo(*program, common->device, CL_PROGRAM_BUILD_LOG, 0, NULL, &err_len);
-        err = malloc(err_len);
+        err = (char *)malloc(err_len);
         clGetProgramBuildInfo(*program, common->device, CL_PROGRAM_BUILD_LOG, err_len, err, NULL);
         fprintf(stderr, "error: clBuildProgram:\n%s\n", err);
         free(err);
@@ -195,7 +195,7 @@ void common_create_kernel_or_use_cache(
     } else {
         common_init_file(common, source_path);
         clGetProgramInfo(common->program, CL_PROGRAM_BINARY_SIZES, sizeof(size_t), &binary_size, NULL);
-        binary = malloc(binary_size);
+        binary = (char *)malloc(binary_size);
         clGetProgramInfo(common->program, CL_PROGRAM_BINARIES, binary_size, &binary, NULL);
         f = fopen(bin_path, "w");
         fwrite(binary, binary_size, 1, f);

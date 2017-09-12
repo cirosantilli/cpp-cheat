@@ -94,7 +94,7 @@ int main(int argc, char **argv) {
     if (argc > a) {
         source_path = argv[a];
     } else {
-        source_path = "vec_io.cl";
+        source_path = (char *)"vec_io.cl";
     }
     a++;
     if (argc > a) {
@@ -106,13 +106,13 @@ int main(int argc, char **argv) {
     /* Initialize data. */
     n = 0;
     nmax = n + 1;
-    io = malloc(nmax * sizeof(*io));
+    io = (cl_float *)malloc(nmax * sizeof(*io));
     while(fscanf(input_vector_file, "%f", &f) != EOF) {
         io[n] = f;
         n++;
         if (n == nmax) {
             nmax *= 2;
-            io = realloc(io, nmax * sizeof(*io));
+            io = (cl_float *)realloc(io, nmax * sizeof(*io));
         }
     }
     io_sizeof = n * sizeof(*io);
@@ -121,7 +121,7 @@ int main(int argc, char **argv) {
     }
 
     /* Create kernel. */
-    common_create_kernel_or_use_cache(&common, use_cache, source_path, __FILE__ ".bin.tmp");
+    common_create_kernel_or_use_cache(&common, use_cache, source_path, (char *)(__FILE__ ".bin.tmp"));
     buffer = clCreateBuffer(common.context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, io_sizeof, io, NULL);
     clSetKernelArg(common.kernel, 0, sizeof(buffer), &buffer);
     clEnqueueNDRangeKernel(common.command_queue, common.kernel, 1, NULL, &global_work_size, &local_work_size, 0, NULL, NULL);
