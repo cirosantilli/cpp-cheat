@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -18,7 +19,7 @@ int where_return(int i) {
 }
 
 int main(void) {
-    int i;
+    int i, *ip;
 
     /* Variable changes. */
     i = 0;
@@ -46,6 +47,13 @@ int main(void) {
      * Recently fixed: https://github.com/mozilla/rr/issues/2088 */
     i = time(NULL);
     printf("time(NULL) = %d\n", i);
+
+    /* Pointer address determinism.
+     * echo 0 | sudo tee /proc/sys/kernel/randomize_va_space */
+    ip = malloc(sizeof(*ip));
+    printf("&i = %p\n", &i);
+    printf("ip = %p\n", ip);
+    printf("f = %p\n", (void *)(intptr_t)f);
 
     return EXIT_SUCCESS;
 }
