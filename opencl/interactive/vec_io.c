@@ -16,6 +16,21 @@ Or you can use the default kernel and stdin input:
 
     echo '1 2 3' | tr ' ' '\n' | ./prog
 
+Multi vector operations can be done by reusing parts of the vector as in `+=`, e.g.:
+
+	echo '1 2 3 4' | tr ' ' '\n' | ./vec_io.out vec_io_sum.cl
+
+gives:
+
+	4.000000e+00
+	6.000000e+00
+	3.000000e+00
+	4.000000e+00
+
+which represents:
+
+	(1, 2) += (3, 4) == (4, 6)
+
 Set global work size and work group size different than defaults (n and 1):
 
     ./prog -g 10 -l 5 vec_io.cl vec_io.vec
