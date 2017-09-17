@@ -1,3 +1,4 @@
+#include <signal.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,6 +17,9 @@ int where_return(int i) {
         return 0;
     else
         return 1;
+}
+
+void signal_handler(int sig) {
 }
 
 int main(void) {
@@ -51,9 +55,11 @@ int main(void) {
     /* Pointer address determinism.
      * echo 0 | sudo tee /proc/sys/kernel/randomize_va_space */
     ip = malloc(sizeof(*ip));
-    printf("&i = %p\n", &i);
-    printf("ip = %p\n", ip);
+    printf("&i = %p\n", (void *)&i);
+    printf("ip = %p\n", (void *)ip);
     printf("f = %p\n", (void *)(intptr_t)f);
+
+    signal(SIGINT, signal_handler);
 
     return EXIT_SUCCESS;
 }
