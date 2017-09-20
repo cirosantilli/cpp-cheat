@@ -57,6 +57,7 @@
 #include <pwd.h> /* getpwuid, getpwnam, getpwent */
 #include <regex.h>
 #include <sched.h>
+#include <signal.h>
 #include <sys/mman.h> /* mmap, munmap */
 #include <sys/ipc.h>
 #include <sys/resource.h> /* rusage, getrusage, rlimit, getrlimit */

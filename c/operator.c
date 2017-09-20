@@ -322,9 +322,14 @@ int main() {
             `&` and `|` have lower precedence than `==`!
 
             Notorious design choice, since they are analogous to + and * ...
+
+            GCC warns with -Wparentheses
             */
             {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wparentheses"
                 assert(!(2 &  0  == 0 ));
+#pragma GCC diagnostic pop
                 assert(!(2 & (0  == 0)));
                 assert( (2 &  0) == 0  );
             }
