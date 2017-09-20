@@ -124,68 +124,52 @@ or specific operating systems
     but also has nice examples that help understand the ANSI C model.
 */
 
+
 #include "common.h"
+
+/* This is the only type of global that can be modified from the signal handler:
+ * https://stackoverflow.com/questions/15500844/signal-handler-wont-see-global-variable/15502073#15502073 */
+volatile sig_atomic_t global = 0;
 
 void signal_handler(int sig) {
     /*
-    Signal arguments allow us to use a single function for several different signals:
-    just look at it and decide which action to take based on the signal number
-    */
+     * Only a very limited set standard library functions (async-signal-safe)
+     * may be called from signal handlers, and printf is not one of them.
+     *
+     * In POSIX, we can use write(STDOUT_FILENO, but still there is
+     * no way to format the string apparently.
+     *
+	 * - https://stackoverflow.com/questions/16891019/how-to-avoid-using-printf-in-a-signal-handler
+	 * - https://stackoverflow.com/questions/14573000/print-int-from-signal-handler-using-write-or-async-safe-functions
+     * */
+	/*printf("sig: %d\n", sig);*/
 
-        /*printf("sig: %d\n", sig);*/
-
-    /*
-    After the signal is dealt with, the handler is then changed to its default action
-
-    if you want to continue using this handler for future signals, you have to reregister
-    it here: TODO confirm. If I remove this it does not work.
-    */
-
-        signal(sig, signal_handler);
-
-    /*
-    You can change the action handler at any time.
-
-    For example, if you uncomment this line, only the first signal will be ignored.
-
-    And but the second will be dealt with the default action:
-    */
-    {
-        /*(void) signal(sig, SIG_DFL);*/
-    }
+	global = 1;
+    /* After the signal is dealt with, the handler is then changed to its default action
+     * if you want to continue using this handler for future signals, you have to reregister. */
+	signal(sig, signal_handler);
 }
 
-int main() {
-    /*
-        registers signal_handler as handler for SIGINT and SIGTERM:
+int main(void) {
 
-        you can get a SIGINT on terminals via C-C on linux or C-Z on windows
-        while the program runs on the foreground:
+    /* TODO: why don't we handle SIGABRT? */
+    signal(SIGABRT, signal_handler);
+	/*abort();*/
+    /*assert(i == 1);*/
 
-        you can get a SIGTERM by
-
-        - opening a new termianal (ex: `xterm` on linux)
-        - running this program on that terminal
-
-        From the current terminal, and then closing the first terminal.
-    */
-
-        signal(SIGINT, signal_handler);
-        signal(SIGTERM, signal_handler);
-        signal(SIGFPE, signal_handler);
-
-    /* # Floating point exception */
-
-        /*
-        {
-            int i = 0;
-            int j = 0;
-            //cannot do 1 / 0 or the compiler will give a warning. Lets dupe him:
-            j = 1 / i;
-            //you need this `printf` or the compiler may optimize your division away
-            printf( "%d", j );
-        }
-        */
+    /* # Floating point exception
+     *
+     * TODO why hangs? */
+	{
+		signal(SIGFPE, signal_handler);
+		int i = 0;
+		int j = 0;
+		/* cannot do 1 / 0 or the compiler will give a warning. Lets dupe him: */
+		j = 1 / i;
+		/* you need this `printf` or the compiler may optimize your division away */
+		printf("%d", j);
+		assert(global == 1);
+	}
 
     /*
     int i = 0;
@@ -202,9 +186,10 @@ int main() {
     */
 
     /*
-    TODO why does this not work:
+    TODO ctrl + c on getchar does not work:
 
         puts( "press any key to exit" );
+        signal(SIGINT, signal_handler);
         getchar();
 
     nor does this:
