@@ -21,7 +21,7 @@ all: $(OUTS) $(OUTS_CPP)
 	gcc -O'$O' -g'$(G)' -o '$@' -pedantic-errors -std=c89 -Wextra '$<'
 
 %$(OUT_EXT): %$(IN_EXT_CPP)
-	g++ -O'$O' -g'$(G)' -o '$@' -pedantic-errors -std=c++98 -Wextra '$<'
+	g++ -O'$O' -g'$(G)' -o '$@' -pedantic-errors -std=c++11 -Wextra '$<'
 
 clean:
 	rm -f *$(OUT_EXT)

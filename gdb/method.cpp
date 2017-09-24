@@ -6,8 +6,9 @@ Method
 
 class MyClass {
     public:
-        void myMethod() {
-            std::cout << "My method" << std::endl;
+        int myVar;
+        int myMethod() {
+            return myVar + 1;
         }
 };
 
