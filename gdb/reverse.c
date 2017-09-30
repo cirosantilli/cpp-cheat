@@ -24,6 +24,7 @@ void signal_handler(int sig) {
 
 int main(void) {
     int i, *ip;
+    FILE *fp;
 
     /* Variable changes. */
     i = 0;
@@ -59,6 +60,15 @@ int main(void) {
     printf("ip = %p\n", (void *)ip);
     printf("f = %p\n", (void *)(intptr_t)f);
 
+    /* Remove the file across replays to see if such side effects are re-done.
+     * Answer: no. So rr treats stdout and stderr magically, and side effects
+     * are not re-done in general. */
+    fp = fopen(__FILE__ ".tmp", "w");
+    fputs("a", fp);
+    fclose(fp);
+
+    /* Check that we can reverse step this, found a problem in a closed setup,
+     * but can't reproduce. */
     signal(SIGINT, signal_handler);
 
     return EXIT_SUCCESS;
