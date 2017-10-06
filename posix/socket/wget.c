@@ -1,4 +1,6 @@
 /*
+https://stackoverflow.com/questions/11208299/http-get-request-using-c-without-libcurl/35680609#35680609
+
 Fetches a web page and print it to stdout.
 
 example.com:
@@ -45,6 +47,8 @@ int main(int argc, char** argv) {
 
     if (argc > 1)
         hostname = argv[1];
+    if (argc > 2)
+        server_port = strtoul(argv[2], NULL, 10);
 
     request_len = snprintf(request, MAX_REQUEST_LEN, request_template, hostname);
     if (request_len >= MAX_REQUEST_LEN) {
@@ -96,14 +100,21 @@ int main(int argc, char** argv) {
         nbytes_total += nbytes_last;
     }
 
-    /*
-    Read the response. TODO: for example.com, the second read hangs for a few seconds.
-    Why? Does the connection keep open until I close it?
-    Must I parse the returned string for Content-Length to see if the HTTP response is over,
-    and close it then? http://stackoverflow.com/a/25586633/895245 says that if Content-Length
-    is not sent, the server can just close to determine length.
-    curl example.com does not lag at all.
-    */
+    /* Read the response.
+     *
+     * The second read hangs for a few seconds, until the server times out.
+     *
+     * Either server or client has to close the connection.
+     *
+     * We are not doing it, and neither is the server, likely to make serving the page faster
+     * to allow fetching HTML, CSS, Javascript and images in a single connection.
+     *
+     * The solution is to parse Content-Length to see if the HTTP response is over,
+     * and close it then.
+     *
+     * http://stackoverflow.com/a/25586633/895245 says that if Content-Length
+     * is not sent, the server can just close to determine length.
+     **/
     fprintf(stderr, "debug: before first read\n");
     while ((nbytes_total = read(socket_file_descriptor, buffer, BUFSIZ)) > 0) {
         fprintf(stderr, "debug: after a read\n");
