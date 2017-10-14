@@ -1,5 +1,8 @@
 # CMake
 
+Good examples: <https://github.com/ttroy50/cmake-examples>
+
+1. [multi_executable](multi_executable/)
 1. [shared_lib_external](shared_lib_external/)
 
 Make alternative that aims to be portable.

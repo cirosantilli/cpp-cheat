@@ -1,0 +1,7 @@
+cmake_minimum_required(VERSION 3.0)
+file(GLOB APP_SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "*.c")
+message("${APP_SOURCES}")
+foreach(testsourcefile ${APP_SOURCES})
+    string(REPLACE ".c" "" testname ${testsourcefile})
+    add_executable(${testname} ${testsourcefile})
+endforeach(testsourcefile ${APP_SOURCES})

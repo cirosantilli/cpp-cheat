@@ -30,7 +30,7 @@ int main(int argc, char **argv) {
     printf("  &heap       = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)heap);
     printf("  &bss        = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&bss);
     printf("  &data       = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&data);
-    printf("  &str main   = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&main);
+    printf("  &main       = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&main);
     printf("  &str char*  = %0*" PRIxPTR "\n", PRIxPTR_WIDTH, (uintptr_t)&str);
 
     free(heap);

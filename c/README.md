@@ -119,5 +119,5 @@
         1. [C++ templates](template_cpp.c)
     1.  [String to int](string_to_int.c)
     1.  [User input](interactive/user_input.c.off)
-    1.  [Virtual memory](virtual_memory.c)
+    1.  [Memory layout](memory_layout.c)
     1.  [Profiling](interactive/profiling.c)
