@@ -2,7 +2,7 @@ language: cpp
 
 install: |
   cd "$TRAVIS_BUILD_DIR"
-  ./configure
+  ./configure -t
 
 script: |
   cd "$TRAVIS_BUILD_DIR"

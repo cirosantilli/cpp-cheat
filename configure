@@ -1,16 +1,40 @@
 #!/usr/bin/env bash
-# This cannot be put into makefiles because
-# some systems don't have make installed.
-sudo apt-get update
-sudo apt-get install aptitude
-sudo aptitude install build-essential
-# C and C++
-sudo aptitude install python-software-properties
-sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-sudo aptitude update
-sudo aptitude install gcc-4.8
-sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 50
-sudo aptitude install g++-4.8
-sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50
-# Fortran
-sudo aptitude install gfortran-4.8
+travis=false
+y=''
+while getopts t OPT; do
+  case "$OPT" in
+    t)
+      travis=true
+      y='-y'
+      ;;
+  esac
+done
+shift $(($OPTIND - 1))
+
+if "$travis"; then
+  sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+fi
+sudo apt-get update $y
+cmd="sudo apt-get install $y \
+build-essential \
+python-software-properties \
+"
+if "$travis"; then
+  cmd="$cmd \
+gcc-4.8 \
+g++-4.8 \
+gfortran-4.8 \
+"
+else
+  cmd="$cmd \
+gcc \
+g++ \
+gfortran \
+"
+fi
+echo "$cmd"
+eval "$cmd"
+if "$travis"; then
+  sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.8 50
+  sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 50
+fi
