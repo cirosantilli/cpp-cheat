@@ -157,6 +157,7 @@ int main(void) {
 	/*abort();*/
     /*assert(i == 1);*/
 
+#if 0
     /* # Floating point exception
      *
      * TODO why hangs? */
@@ -170,6 +171,7 @@ int main(void) {
 		printf("%d", j);
 		assert(global == 1);
 	}
+#endif
 
     /*
     int i = 0;
