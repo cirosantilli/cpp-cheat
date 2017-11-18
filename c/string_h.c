@@ -158,9 +158,18 @@ int main(void) {
         assert(strcmp("abc", "aac") > 0);
 
         /*
-        TODO Different lengths. Works or UB? '\0' < 'c'?
+        Different lengths. TODO defined or not? C11:
+
+		> The sign of a nonzero value returned by the comparison functions memcmp, strcmp,
+		and strncmp is determined by the sign of the difference between the values of the first
+		pair of characters (both interpreted as unsigned char) that differ in the objects being
+		compared.
+
+		So it looks like '\0' == 0 and is smaller than everything, and it is part of the "string object".
+
+		https://stackoverflow.com/questions/36518931/what-does-strcmp-return-if-two-similar-strings-are-of-different-lengths
         */
-        assert(strcmp("abc", "a") > 0);
+        assert(strcmp("a", "abc") < 0);
     }
 
     /*
@@ -176,7 +185,7 @@ int main(void) {
 
         > characters that follow a null character are not compared
         */
-        assert(strncmp("abc", "a", 5) == 1);
+        assert(strncmp("a", "abc", 5) < 1);
     }
 
     /*
