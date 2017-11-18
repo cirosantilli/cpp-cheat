@@ -248,31 +248,40 @@ int main() {
 
     // # Range switch case.
     // http://stackoverflow.com/questions/9432226/how-do-i-select-a-range-of-values-in-a-switch-statement/42331563#42331563
-#if 0
     {
+		auto result = std::map<int, int>{
+			{-1, -1},
+			{ 0,  0},
+			{ 1,  0},
+			{ 2,  2},
+			{ 3,  2},
+			{ 4,  2},
+			{ 5,  5},
+			{ 6,  5},
+			{ 7,  7},
+		};
+		std::map<int,std::function<void()>> m;
+		int x;
+		m.emplace(0, [&](){
+			x = -1;
+		});
+		m.emplace(2, [&](){
+			x = 0;
+		});
+		m.emplace(5, [&](){
+			x = 2;
+		});
+		m.emplace(7, [&](){
+			x = 5;
+		});
         for (auto i = -1; i < 8; ++i) {
-            std::cout << i << std::endl;
-            std::map<int,std::function<void()>> m;
-            m.emplace(0, [](){
-                std::cout << "too small" << std::endl;
-            });
-            m.emplace(2, [](){
-                std::cout << "zero" << std::endl;
-            });
-            m.emplace(5, [](){
-                std::cout << "two" << std::endl;
-            });
-            m.emplace(7, [](){
-                std::cout << "five" << std::endl;
-            });
             auto it = m.upper_bound(i);
             if (it == m.end()) {
-                std::cout << "too large" << std::endl;
+            	x = 7;
             } else {
                 it->second();
             }
-            std::cout << std::endl;
+            assert(x == result[i]);
         }
     }
-#endif
 }
