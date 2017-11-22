@@ -11,6 +11,7 @@
         1.  [Animation random walk](animation_random_walk.c)
         1.  [Animation user control](animation_user_control.c)
         1.  [Animation user control discrete](animation_user_control_discrete.c)
+        1.  [Animation user control inertia](animation_user_control_inertia.c)
         1.  [Two player discrete](two_player_discrete.c)
         1.  [Two player discrete sync](two_player_discrete_sync.c)
     1.  Plots

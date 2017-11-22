@@ -3,6 +3,8 @@
 Good examples: <https://github.com/ttroy50/cmake-examples>
 
 1. [multi_executable](multi_executable/)
+1. [multi_file](multi_file/)
+1. [multi_file_recursive](multi_file_recursive/)
 1. [shared_lib_external](shared_lib_external/)
 
 Make alternative that aims to be portable.
