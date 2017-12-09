@@ -74,6 +74,13 @@ int main() {
     manual_ptr_test();
     assert(Base::count == 10);
 
+    // Convert to raw pointer.
+    // Not possible.
+    {
+        std::unique_ptr<int> p(new int);
+        //int *raw = p;
+    }
+
     // Copy constructor is deleted.
     // This is what imposes uniqueness.
     {
