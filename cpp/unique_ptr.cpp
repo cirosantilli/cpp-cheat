@@ -74,8 +74,8 @@ int main() {
     manual_ptr_test();
     assert(Base::count == 10);
 
-    // Convert to raw pointer.
-    // Not possible.
+    // ERROR: Convert to raw pointer.
+    // Not possible, the cast operator is not defined.
     {
         std::unique_ptr<int> p(new int);
         //int *raw = p;

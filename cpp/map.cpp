@@ -15,9 +15,9 @@
 
     There seems to be no explicit hashmap container, only a generic map interface,
 
-    See map.
+    However unordered_map is likely to be hashmap based.
 
-    Nonstandard `hash_map` already provided with gcc and msvc++.
+    A nonstandard `hash_map` already provided with gcc and msvc++.
     It is placed in the `std::` namespace, but it is *not* ISO.
 */
 

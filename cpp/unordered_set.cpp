@@ -22,5 +22,32 @@
 
 #include "common.hpp"
 
+class MyClass {
+    public:
+        int i;
+        int j;
+        MyClass(int i, int j) : i(i), j(j) {}
+};
+
+bool operator==(const MyClass& lhs, const MyClass& rhs) {
+    return lhs.i == rhs.i;
+}
+
+namespace std {
+  template <>
+  struct hash<MyClass> {
+    std::size_t operator()(const MyClass& k) const {
+        return k.i;
+    }
+  };
+}
+
 int main() {
+    std::unordered_set<MyClass> mySet;
+    assert(mySet.size() == 0);
+    mySet.insert(MyClass(1, 2));
+    assert(mySet.size() == 1);
+    mySet.insert(MyClass(1, 3));
+    assert(mySet.size() == 1);
+    assert(mySet.find(MyClass(1, -1))->j == 2);
 }

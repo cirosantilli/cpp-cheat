@@ -102,8 +102,8 @@ int main() {
         assert(ret.first == s.find(0));
         assert(ret.second == true);
 
-        //item already present:
-        //nothing is done and returns false on the pair
+        // Item already present:
+        // nothing is done and returns false on the pair.
         ret = s.insert(1);
         assert(ret.first == s.find(1));
         assert(ret.second == false);
