@@ -22,13 +22,7 @@ int main() {
         /*
         # make_tuple
 
-            forwards arguments to tuple constructor.
-
-            The advantage over the constructor is that since it is a function
-            template argument deduction can be done, so we don't need to type in
-            template arguments.
-
-            Remember that template argument deduction cannot be done for constructors.
+            Analogous to make_pair, but with variable number of arguments. Pretty neat.
         */
         {
             std::tuple<int,char,std::string> t;
@@ -111,6 +105,18 @@ int main() {
         // If only we could save both types and assignments...
         // http://stackoverflow.com/questions/29312154/how-to-create-a-new-variable-and-use-stdtie-at-the-same-time
         // http://codereview.stackexchange.com/questions/61499/a-tuple-unpacking-macro-that-approximates-python-elegance
+
+        // Structured bindings
+        // https://stackoverflow.com/questions/29312154/how-to-create-a-new-variable-and-use-stdtie-at-the-same-time
+        {
+#if __cplusplus >= 201703L
+            auto tuple = std::make_tuple(1, 'a', 2.3);
+            auto [ i, c, d ] = tuple;
+            jassert(i == 1);
+            assert(c == 'a');
+            assert(d == 2.3);
+        }
+#endif
     }
 
     /*
