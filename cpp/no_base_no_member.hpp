@@ -30,9 +30,9 @@ class NoBaseNoMember {
         }
 
         /// Destructor
-        ~NoBaseNoMember(){callStack.push_back("NoBaseNoMember::~NoBaseNoMember()");}
+        ~NoBaseNoMember() { callStack.push_back("NoBaseNoMember::~NoBaseNoMember()"); }
 
-        void method(){callStack.push_back("NoBaseNoMember::method()");}
+        void method() { callStack.push_back("NoBaseNoMember::method()"); }
 
         static NoBaseNoMember create() {
             return NoBaseNoMember();

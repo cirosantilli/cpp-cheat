@@ -36,7 +36,7 @@ int main() {
 
         // Tuple from pair.
         {
-            std::tuple<int,char> t2( std::pair<int,char>(0, 'a'));
+            std::tuple<int,char> t2(std::pair<int,char>(0, 'a'));
         }
 
         // Uniform initialization.
@@ -112,7 +112,7 @@ int main() {
 #if __cplusplus >= 201703L
             auto tuple = std::make_tuple(1, 'a', 2.3);
             auto [ i, c, d ] = tuple;
-            jassert(i == 1);
+            assert(i == 1);
             assert(c == 'a');
             assert(d == 2.3);
         }
