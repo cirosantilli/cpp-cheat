@@ -35,6 +35,8 @@
             1. [Most vexing parse](most_vexing_parse.cpp)
             1. [Delegating constructor](delegating_constructor.cpp)
             1. [Implicitly deleted constructor](implicitly_deleted_constructor.cpp)
+            1. [Constructor init object member](constructor_init_object_member.cpp)
+            1. [Initializer list constructor](initializer_list_constructor.cpp)
         1.  Inheritance
             1.  [Inheritance override](inheritance_override.cpp)
             1.  [Inherit overload_hide](inherit_overload_hide.cpp)

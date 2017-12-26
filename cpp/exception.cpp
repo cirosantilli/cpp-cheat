@@ -50,6 +50,7 @@ class myexception: public std::exception {
 // All exceptions are catchable (default):
 void exception_func_all() { throw 0; }
 
+#if __cplusplus < 201703L
 // Only int exceptions are catchable
 void exception_func_int_only(bool throw_int) throw (int) {
     if (throw_int)
@@ -66,6 +67,7 @@ void exception_func_int_exception_only(int which) throw (int, std::exception) {
         default: throw 'c'; break;
     }
 }
+#endif
 
 // No exceptions are catchable
 void exception_func_none() throw() {throw 1;}
@@ -201,10 +203,15 @@ int main() {
         //throw myexception();
     }
 
+#if __cplusplus < 201703L
     /*
     # exception specifications
 
         Functions can specify which exceptions are catchable with the following syntax.
+
+        Deprecated since C++11, removed in C++17, noexcept is favored instead.
+
+        https://stackoverflow.com/questions/47284705/c1z-dynamic-exception-specification-error
     */
     {
         try {
@@ -240,6 +247,7 @@ int main() {
             /* the same goes if we wrap the function */
         }
     }
+#endif
 
     /*
     # exception from destructor
