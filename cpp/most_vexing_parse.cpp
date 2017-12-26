@@ -20,7 +20,7 @@ int main() {
     /*
     BAD
 
-    Declares *FUNCTION* called `c` that returns `Class` inside function main.
+    Declares *FUNCTION* called `c` that returns `C` inside function main.
 
     This is the same as in C, where it is possible to declare a function from inside another function,
     but not define it.
@@ -32,7 +32,7 @@ int main() {
         C c();
 
         // ERROR: function definition is not possible inside another function.
-        //Class c() {return Class();}
+        //C c() {return C();}
 
         //c.i;
     }

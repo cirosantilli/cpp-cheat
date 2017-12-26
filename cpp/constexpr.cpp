@@ -40,14 +40,36 @@ C++11 specifies that the body of a constexrp function must contain a single retu
 
 Otherwise, it would be too much work for the compiler to do.
 
-<http://stackoverflow.com/questions/3226211/why-is-it-ill-formed-to-have-multi-line-constexpr-functions>
+http://stackoverflow.com/questions/3226211/why-is-it-ill-formed-to-have-multi-line-constexpr-functions
+
+C++ 14 lifts it.
+
+constexpr functions have several restrictions: in broad terms, they cannot have side effects:
+https://stackoverflow.com/questions/5112305/why-not-to-declare-a-function-constexpr
+which is cool, feels like functional pure functions.
 */
-/*
+#if __cplusplus >= 201402L
 constexpr int constexpr_func_multi_statement(int i) {
-    int j;
+    // ERROR: cannot have uninitialized vars.
+    //int j;
+    // ERROR: cannot call non constexpr functions
+    //std::time(NULL);
     return i;
 }
-*/
+#endif
+
+class MyClass {
+    public:
+        MyClass() : i(1) {}
+        constexpr MyClass(int i) : i(i) {}
+        // ERROR: Nah.
+        //MyClass(int i) : i(i) {}
+        int i;
+        constexpr int f(int j) const { return this->i + j; }
+        constexpr int noThis(int j) const { return j + 1; }
+        int nonConst() const { return std::time(NULL); }
+};
+
 
 constexpr int ConstexprFactorial(int n) {
     return (n == 1) ? 1 : n * ConstexprFactorial(n - 1);
@@ -92,7 +114,36 @@ int main() {
     // constexpr functions only work if all their arguments are constexprs.
     {
         { constexpr int i = constexpr_func(1); }
+        // ERROR
         //{ constexpr int i = constexpr_func(std::time(NULL)); }
+    }
+
+    // constexpr object
+    {
+        constexpr MyClass myClass(1);
+        MyClass myClassNonConst;
+
+        // ERROR: not using constexpr constructor on constexpr object.
+        //{ constexpr MyClass myClass; }
+
+        // Fine with non constexpr constructor.
+
+        // Now we can use members further constexpr chains.
+        { constexpr int i = myClass.i; }
+        // ERROR
+        //{ constexpr int i = myClassNonconst.i; }
+
+        // Methods that don't use this don't need the constexpr object.
+        { constexpr int i = myClassNonConst.noThis(1); }
+        // But if the method uses this, then it needs.
+        { constexpr int i = myClass.f(1); }
+        // ERROR
+        //{ constexpr int i = myClassNonConst.f(1); }
+
+        // Can still call non constexpr methods of the const object.
+        { int i = myClass.nonConst(); }
+        // ERROR But not initialize constexpre expressions with them.
+        //{ constexpr int i = myClass.nonConst(); }
     }
 
     // Recursive functions can be constexpr, as long as they fit into one line.
@@ -122,9 +173,15 @@ int main() {
         //i = 1;
     }
 
+    // constexpr do have addresses. But likely they will inlined when addresses are never taken.
     {
-        constexpr int i = 0;
-        &i;
+        constexpr int i = 1;
+        constexpr int j = 2;
+        const int *ip = &i;
+        const int *jp = &j;
+        assert(*ip == 1);
+        assert(*jp == 2);
+        assert(ip != jp);
     }
 
     // WARN: unitialized constexpr
