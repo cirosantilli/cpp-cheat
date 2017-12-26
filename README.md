@@ -16,12 +16,11 @@ C and C++ minimal examples. Asserts used wherever possible. Hello worlds for coo
     1.  [Shared library](shared-library/)
 1.  Introduction
     1. [C vs C++](c-vs-cpp.md)
-    1. [Style guides](style-guides.md)
 1.  Cross-language
     1.  [C from C++](c-from-cpp/)
     1.  [C++ from C](cpp-from-c/)
     1.  [Fortran from C](fortran-from-c/)
-    1.  [SWIG](swig.md)
+    1.  [SWIG](swig/)
 1.  [Build systems](build-systems.md)
     1.  [CMake](cmake/)
 1.  Analysis tools
