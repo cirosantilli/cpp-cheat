@@ -32,6 +32,35 @@ std::string map_to_str(std::map<K,V> map) {
     return result.str();
 }
 
+// How to use the range pattern from a method.
+// The key is to static initialize the lambda map.
+class RangeSwitch {
+public:
+    int method(int x) {
+        static std::map<int,std::function<void(int&)>> m = {
+            {0, [&](int &x){
+                x = -1;
+            }},
+            {2, [&](int &x){
+                x = 0;
+            }},
+            {5, [&](int &x){
+                x = 2;
+            }},
+            {7, [&](int &x){
+                x = 5;
+            }}
+        };
+        auto it = m.upper_bound(x);
+        if (it == m.end()) {
+            x = 7;
+        } else {
+            it->second(x);
+        }
+        return x;
+    }
+};
+
 int main() {
     /*
     Create initialized map.
@@ -260,20 +289,21 @@ int main() {
 			{ 6,  5},
 			{ 7,  7},
 		};
-		std::map<int,std::function<void()>> m;
 		int x;
-		m.emplace(0, [&](){
-			x = -1;
-		});
-		m.emplace(2, [&](){
-			x = 0;
-		});
-		m.emplace(5, [&](){
-			x = 2;
-		});
-		m.emplace(7, [&](){
-			x = 5;
-		});
+		std::map<int,std::function<void()>> m = {
+            {0, [&](){
+	            x = -1;
+		    }},
+            {2, [&](){
+			    x = 0;
+		    }},
+            {5, [&](){
+			    x = 2;
+		    }},
+            {7, [&](){
+			    x = 5;
+		    }}
+        };
         for (auto i = -1; i < 8; ++i) {
             auto it = m.upper_bound(i);
             if (it == m.end()) {
@@ -281,6 +311,12 @@ int main() {
             } else {
                 it->second();
             }
+            assert(x == result[i]);
+        }
+
+        RangeSwitch rangeSwitch;
+        for (auto i = -1; i < 8; ++i) {
+            x = rangeSwitch.method(i);
             assert(x == result[i]);
         }
     }

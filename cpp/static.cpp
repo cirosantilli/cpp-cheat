@@ -43,11 +43,13 @@ public:
 
         // https://stackoverflow.com/questions/1197106/static-constructors-in-c-i-need-to-initialize-private-static-objects
         static OtherClass otherClassWithJ;
+private:
         static struct _StaticConstructor {
             _StaticConstructor() {
                 otherClassWithJ.j = otherClassWithJ.i + 1;
             }
         } _staticConstructor;
+public:
 
     // Static methods
 
