@@ -6,55 +6,7 @@ This file is being split up into smaller parts and will eventually disappear.
 
 #include "common.h"
 
-/* # global scope */
-
-    /* This is a global variable: can be accessed and modified everywhere */
-    int global = 1;
-
-    /* OK! */
-    int global2 = 1+1;
-
-    int ret1() {
-        int i;
-        /* before main! */
-        return 1;
-    }
-
-    /* ERROR: only var declarations with const initialization allowed */
-
-        /* Non-const. */
-        /*int global2 = global+1;*/
-
-        /* Funcion call. */
-        /*puts("asdf");*/
-        /*int global3 = ret1();*/
-
-        /* Branching statement. */
-        /*if(1){}*/
-
-    /* ERROR */
-    /* Cannot create scopes here like that */
-    /* They'd be useless anyways. */
-
-        /*{}*/
-
-    int same_name_as_variable() { return 0; }
-
 int main() {
-
-    /* # variables */
-    {
-        {
-            int i;
-            i = 5;
-        }
-
-        {
-            int i = 5;
-            int j = 7;
-        }
-    }
-
     /*
     # Overflow
 

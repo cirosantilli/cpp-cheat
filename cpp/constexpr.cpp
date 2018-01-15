@@ -62,19 +62,20 @@ class MyClass {
     public:
         MyClass() : i(1) {}
         constexpr MyClass(int i) : i(i) {}
-        // ERROR: Nah.
+        // ERROR: Nah, no overload.
         //MyClass(int i) : i(i) {}
         int i;
+        static int member;
         constexpr int f(int j) const { return this->i + j; }
         constexpr int noThis(int j) const { return j + 1; }
         int nonConst() const { return std::time(NULL); }
+        // ERROR: constexpr data must be static, or this wouldn't make much sense / be useful, right?
+        //constexpr int nonStaticConstexpr;
 };
-
 
 constexpr int ConstexprFactorial(int n) {
     return (n == 1) ? 1 : n * ConstexprFactorial(n - 1);
 }
-
 
 /*
 ERROR: the compiler ensures that the function return is constexpr,

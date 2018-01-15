@@ -70,6 +70,7 @@
             1.  return
                 1.  [No return non-void](no_return_non_void.c)
                 1.  [_Noreturn](noreturn.c)
+    1.  [Global scope](global.c)
     1.  [Operator](operator.c)
         1. [sizeof()](sizeof.c)
     1.  [Sequence point](sequence_point.c)

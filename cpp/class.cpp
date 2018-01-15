@@ -289,8 +289,6 @@ class Base {
         void method() {
             callStack.push_back("Base::method()");
             int i = iAmbiguous;
-            i = iStatic;
-            i = iConstStatic;
         }
 
         void constMethod() const;
@@ -326,29 +324,11 @@ class Base {
         <http://stackoverflow.com/questions/634662/non-static-const-member-cant-use-default-assignment-operator>
         */
 
-        // # static
-
-            static void staticMethod();
-
-            // ERROR: static cannot be const.
-            //static void staticMethod() const;
-
-            static int iStatic;
-
-            // Concflicts with static int.
-            //int iStatic;
-
-            // OK: because const static integral type
-            const static int iConstStatic = 0;
-
         /*
         # member initialization outside of constructor
         */
 
             const int iConstInit = 0;
-
-            // ERROR: cannot initialize here unless const.
-            //static int iStatic = 0;
 
             // ERROR: non-integral type.
             //const static float fConstStatic = 0.0;
@@ -528,9 +508,6 @@ void Base::constMethod() const {
     */
     this->mutableI = 1;
 
-    // Static changes can still be done.
-    this->iStatic = 1;
-
     callStack.push_back("Base::constMethod()");
 
     {
@@ -552,22 +529,6 @@ void Base::constMethod(int *& ip) const {
     // ERROR: invalid conversion.
     //ip = &this->iPrivate;
 }
-
-int Base::iStatic = 0;
-
-void Base::staticMethod() {
-    callStack.push_back("Base::staticMethod()");
-
-    // ERROR: no this!
-    //int i = this->i;
-
-    // OK: ok to use static vars
-    int i = iStatic;
-}
-
-// ERROR: static linkage, like in C static.
-// meaning func only visible from current translational unit
-//static void staticMethod()
 
 // Must come outside
 const Member Base::member2 = Member(1);
@@ -1293,26 +1254,6 @@ int main() {
             "NoBaseNoMember0::~NoBaseNoMember0()",
         };
         assert(callStack == expectedCallStack);
-    }
-
-    // # static fields
-    {
-        {
-            Class c, c1;
-            int i;
-            c.iStatic = 0;
-            assert(Class::iStatic == 0);
-            c1.iStatic = 1;
-            assert(Class::iStatic == 1);
-            Class::iStatic = 2;
-            assert(Class::iStatic == 2);
-        }
-
-        {
-            Class c;
-            c.staticMethod();
-            Class::staticMethod();
-        }
     }
 
     /*
