@@ -115,8 +115,8 @@ int main() {
             assert(i == 1);
             assert(c == 'a');
             assert(d == 2.3);
-        }
 #endif
+        }
     }
 
     /*
