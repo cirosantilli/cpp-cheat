@@ -80,14 +80,14 @@ int main() {
         // WARN: cannot delete a void pointer
     }
 
-    //allocate single object / base type
+    // Allocate single object / base type.
     {
         int* ip = new int;
         *ip = 1;
         delete ip;
     }
 
-    //delete calls destructors of deleted objects
+    // Delete calls destructors of deleted objects.
     {
         callStack.clear();
         NoBaseNoMember* cp = new NoBaseNoMember;
