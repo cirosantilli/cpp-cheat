@@ -37,7 +37,7 @@ std::string map_to_str(std::map<K,V> map) {
 class RangeSwitch {
 public:
     int method(int x) {
-        static std::map<int,std::function<void(int&)>> m = {
+        static const std::map<int,std::function<void(int&)>> m{
             {0, [&](int &x){
                 x = -1;
             }},
@@ -51,8 +51,9 @@ public:
                 x = 5;
             }}
         };
+        static const auto end = m.end();
         auto it = m.upper_bound(x);
-        if (it == m.end()) {
+        if (it == end) {
             x = 7;
         } else {
             it->second(x);
@@ -95,7 +96,12 @@ int main() {
     /*
     # operator[]
 
-        get value from a given key.
+        Get value from a given key.
+
+        Create if not present, so avoid this if possible and prefer the more restrictive methods:
+
+        - use at() or find () for fetching and updating
+        - emplace() for putting new values
     */
     {
         std::map<int,std::string> m{
@@ -110,7 +116,7 @@ int main() {
         assert(m[1] == "one2");
 
         // WARNING: if the key does not exist, it is inserted with a value with default constructor.
-        // This can be avoided by using `find` instead of `[]`.
+        // This can be avoided by using `find` or `at` instead of `[]`.
         // Inserts `(2,"")` because `""` is the value for the default String constructor.
         // http://stackoverflow.com/questions/10124679/what-happens-if-i-read-a-maps-value-where-the-key-does-not-exist
         {
@@ -177,6 +183,25 @@ int main() {
                 result = f->second;
             }
         }
+    }
+
+    /*
+    # at()
+
+        A convenient version of find() that returns the item directly.
+
+        Throws if not present, so better when the key is supposed to be there.
+
+        C++11.
+    */
+    {
+        std::map<int,std::string> m{
+            {0, "zero"},
+            {1, "one"},
+        };
+        // Returns a reference, so we can modify it.
+        m.at(1) = "one2";
+        assert(m.at(1) == "one2");
     }
 
     /*
@@ -278,7 +303,7 @@ int main() {
     // # Range switch case.
     // http://stackoverflow.com/questions/9432226/how-do-i-select-a-range-of-values-in-a-switch-statement/42331563#42331563
     {
-		auto result = std::map<int, int>{
+		const std::map<int, int> result{
 			{-1, -1},
 			{ 0,  0},
 			{ 1,  0},
@@ -290,7 +315,7 @@ int main() {
 			{ 7,  7},
 		};
 		int x;
-		std::map<int,std::function<void()>> m = {
+		const std::map<int,std::function<void()>> m{
             {0, [&](){
 	            x = -1;
 		    }},
@@ -304,20 +329,21 @@ int main() {
 			    x = 5;
 		    }}
         };
+		const auto end = m.end();
         for (auto i = -1; i < 8; ++i) {
             auto it = m.upper_bound(i);
-            if (it == m.end()) {
+            if (it == end) {
             	x = 7;
             } else {
                 it->second();
             }
-            assert(x == result[i]);
+            assert(x == result.at(i));
         }
 
         RangeSwitch rangeSwitch;
         for (auto i = -1; i < 8; ++i) {
             x = rangeSwitch.method(i);
-            assert(x == result[i]);
+            assert(x == result.at(i));
         }
     }
 }

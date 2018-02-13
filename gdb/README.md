@@ -20,6 +20,7 @@ Tested on 7.7.1 unless mentioned otherwise.
     1.  [Multifile](multifile/)
     1.  [define](define.c)
     1.  [stderr ignore](stderr_ignore.c)
+    1.  [call](call.c)
     1.  C++ features
         1.  [Containers](container.cpp)
         1.  [Overload](overload.cpp)
