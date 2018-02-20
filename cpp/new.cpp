@@ -33,7 +33,6 @@
 */
 
 #include "common.hpp"
-#include "no_base_no_member.hpp"
 
 int main() {
     /*

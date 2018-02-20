@@ -1,0 +1,9 @@
+env = Environment()
+
+# Shared
+liba_shared = env.SharedLibrary(target='liba.so', source=['a.c'])
+env.Program(target='main_shared.out', source=['main.c'], LIBS=[liba_shared])
+
+# Static
+liba_static = env.Library(target='a.a', source=['a.c'])
+env.Program(target='main_static.out', source=['main.c'], LIBS=[liba_static])

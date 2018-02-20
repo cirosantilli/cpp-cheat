@@ -5,7 +5,6 @@
 */
 
 #include "common.hpp"
-#include "no_base_no_member.hpp"
 
 class Empty {};
 
@@ -1245,8 +1244,7 @@ int main() {
             MemberConstructorTest o;
         }
 
-        std::vector<std::string> expectedCallStack =
-        {
+        std::vector<std::string> expectedCallStack{
             "NoBaseNoMember0::NoBaseNoMember0()",
             "NoBaseNoMember1::NoBaseNoMember1()",
             "MemberConstructorTest::MemberConstructorTest()",
@@ -1285,12 +1283,9 @@ int main() {
         */
         {
             callStack.clear();
-
-            NoBaseNoMember c;       //1 constructor
-            c = NoBaseNoMember();   //1 constructor of the temporary, 1 assign, 1 destructor of the temporary
-
-            std::vector<std::string> expectedCallStack =
-            {
+            NoBaseNoMember c;       // 1 constructor
+            c = NoBaseNoMember();   // 1 constructor of the temporary, 1 assign, 1 destructor of the temporary
+            std::vector<std::string> expectedCallStack{
                 "NoBaseNoMember::NoBaseNoMember()",
                 "NoBaseNoMember::NoBaseNoMember()",
                 "NoBaseNoMember::operator=",
@@ -1308,8 +1303,7 @@ int main() {
         {
             callStack.clear();
             NoBaseNoMember().method();
-            std::vector<std::string> expectedCallStack =
-            {
+            std::vector<std::string> expectedCallStack{
                 "NoBaseNoMember::NoBaseNoMember()",
                 "NoBaseNoMember::method()",
                 "NoBaseNoMember::~NoBaseNoMember()",
@@ -1364,7 +1358,7 @@ int main() {
         - <http://stackoverflow.com/questions/4172722/what-is-the-rule-of-three>
     */
     {
-        //every class has a default copy operator and assign constructor
+        // Every class has a default copy operator and assign constructor.
         {
             DefaultCopyAssignCtor c0(0);
             DefaultCopyAssignCtor c1(1);
@@ -1391,8 +1385,7 @@ int main() {
             {
                 callStack.clear();
                 NoBaseNoMember c1(c);
-                std::vector<std::string> expectedCallStack =
-                {
+                std::vector<std::string> expectedCallStack{
                     "NoBaseNoMember::NoBaseNoMember(NoBaseNoMember)",
                 };
                 assert(callStack == expectedCallStack);
@@ -1410,8 +1403,7 @@ int main() {
             {
                 callStack.clear();
                 NoBaseNoMember c1 = c;
-                std::vector<std::string> expectedCallStack =
-                {
+                std::vector<std::string> expectedCallStack{
                     "NoBaseNoMember::NoBaseNoMember(NoBaseNoMember)",
                 };
                 assert(callStack == expectedCallStack);
@@ -1507,7 +1499,7 @@ int main() {
             - All input and output operations occur in the same order and with the same content
                 as if the program was executed as written.
 
-            The only exception to the ruls is copy elision.
+            The only exception to the rule is copy elision.
         */
 
         /*

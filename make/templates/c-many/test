@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+out_ext="$1"
+for t in *"$out_ext"; do
+  if ! ./"$t"; then
+    echo "ASSERT FAILED: $t"
+    exit 1
+  fi
+done
+
+echo 'ALL ASSERTS PASSED'
