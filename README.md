@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/cirosantilli/cpp-cheat.svg?branch=master)](https://travis-ci.org/cirosantilli/cpp-cheat)
 
-C and C++ minimal examples. Asserts used wherever possible. Hello worlds for cool third party libraries. Cheatsheets, tutorials and mini-projects.
+C and C++ minimal examples. Asserts used wherever possible. Hello worlds for cool third party libraries and build systems. Cheatsheets, tutorials and mini-projects.
 
 [Assembly Cheat](https://github.com/cirosantilli/assembly-cheat) contains lower level issues, like assembly, ELF and Binutils.
 
@@ -22,7 +22,9 @@ C and C++ minimal examples. Asserts used wherever possible. Hello worlds for coo
     1.  [Fortran from C](fortran-from-c/)
     1.  [SWIG](swig/)
 1.  [Build systems](build-systems.md)
+    1.  [make](make/)
     1.  [CMake](cmake/)
+    1.  [SCons](scons/)
 1.  Analysis tools
     1.  [GDB](gdb/)
     1.  [cflow](cflow.md)

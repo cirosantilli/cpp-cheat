@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+set -eu
+
+ext='.mk'
+
+assert_failed() {
+    echo "ASSERT FAILED: $1"
+    exit 1
+}
+
+assert_make() {
+  make -f "$1" || assert_failed "$1"
+}
+
+# Tests that run make without any arguments.
+# All asserts are in the makefile itself.
+for t in *"$ext"; do
+  assert_make "$t"
+done
+
+# Tests that need to pass arguments to makefile.
+# Asserts are made here in the shell.
+t='environment-variables.mk'
+[ "$(my_var='asdf' make -f "$t")" = 'asdf' ] || assert_failed "$t"
+
+echo 'ALL ASSERTS PASSED'
