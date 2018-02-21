@@ -166,6 +166,8 @@ all:
 	@[ '$($(varname2))' = 'avarname' ]
 	@# if [ ! "$(vardef_name)" = "vardef_val" ]; then exit 1; fi
 	$(multiline)
+	@# PWD does not change with -C, CURDIR does. You usually want CURDIR.
+	@echo 'PWD          = $(PWD)'
 	@echo 'CURDIR       = $(CURDIR)'
 	@echo 'MAKE         = $(MAKE)'
 	@echo 'MAKECMDGOALS = $(MAKECMDGOALS)'
