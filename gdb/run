@@ -8,4 +8,4 @@
 #     run watch.out
 
 f="${1%.*}"
-gdb -batch -x "${f}.gdb" "${f}.out"
+gdb -batch -nh -x "${f}.gdb" "${f}.out"
