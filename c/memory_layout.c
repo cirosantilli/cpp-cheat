@@ -3,11 +3,13 @@
 
 # Process address space
 
-    Let's have some fun reverse engeneering the process memory space modeul used on your OS!
+Let's have some fun reverse engeneering the process memory space modeul used on your OS!
 
-    This is all implementation defined behaviour on ANSI C, but the test code is the same on all OS.
+This is all implementation defined behaviour on ANSI C, but the test code is the same on all OS.
 
-    All of this reflects how the process is represented in main memory.
+All of this reflects how the process is represented in main memory.
+
+-pie fun: https://unix.stackexchange.com/questions/89211/test-whether-linux-binary-is-compiled-as-position-independent-code/435038#435038
 */
 
 #include "common.h"
