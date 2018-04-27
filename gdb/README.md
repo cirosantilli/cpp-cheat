@@ -23,6 +23,7 @@ Tested on 7.7.1 unless mentioned otherwise.
     1.  [call](call.c)
     1.  [sleep](sleep.c)
     1.  [maybe_crash](maybe_crash.c)
+    1.  [maybe_sleep_forever](maybe_sleep_forever.c)
     1.  C++ features
         1.  [Containers](container.cpp)
         1.  [Overload](overload.cpp)

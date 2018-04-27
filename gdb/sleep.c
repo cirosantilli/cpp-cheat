@@ -3,6 +3,6 @@
 #include <unistd.h>
 
 int main() {
-	sleep(3);
+    sleep(3);
     return EXIT_SUCCESS;
 }
