@@ -184,7 +184,7 @@ int main(void) {
         asm (
             "incl %%eax"
             : "=a" (x)
-            : "a" (x)
+            : "a"  (x)
         );
         assert(x == 1);
     }
