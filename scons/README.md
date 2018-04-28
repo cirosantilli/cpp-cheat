@@ -11,6 +11,7 @@ Tested on SCons v2.3.0.
     1. [CPPPATH](cpppath/)
     1. [Library](library/)
 1.  [ARGUMENTS](arguments/)
+    1.  [VariantDir](variant-dir/)
 1.  [Install](install/)
 1.  Compiler parameters
     1.  [Define](define/)
