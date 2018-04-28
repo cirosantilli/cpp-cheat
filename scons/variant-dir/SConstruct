@@ -1,0 +1,10 @@
+import os.path
+env = Environment()
+x = ARGUMENTS.get('x', '0')
+env.Append(CPPDEFINES=['X=' + x])
+variant_dir = 'build-{}'.format(x)
+env.VariantDir(variant_dir, 'src', duplicate=0)
+program1 = env.Program(
+    target=os.path.join(variant_dir, 'main.out'),
+    source=[os.path.join(variant_dir, 'main.c')]
+)
