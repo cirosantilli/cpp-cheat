@@ -1,4 +1,6 @@
 /*
+https://stackoverflow.com/questions/7696925/how-to-send-a-signal-to-a-process-in-c/50075790#50075790
+
 Some fun with signal sending.
 
 Fork a process, then a signal to it every second.
