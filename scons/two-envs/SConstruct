@@ -1,0 +1,14 @@
+import os.path
+
+def mkenv(x):
+    env = Environment()
+    env.Append(CPPDEFINES=['X=' + x])
+    variant_dir = 'build-{}'.format(x)
+    env.VariantDir(variant_dir, 'src', duplicate=0)
+    program = env.Program(
+        target=os.path.join(variant_dir, 'main.out'),
+        source=[os.path.join(variant_dir, 'main.c')]
+    )
+
+mkenv('0')
+mkenv('1')
