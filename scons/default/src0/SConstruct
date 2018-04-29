@@ -1,0 +1,4 @@
+env = Environment()
+p0 = env.Program(target='main.out', source=['main.c'])
+p1 = env.Program(target='../src1/main.out', source=['../src1/main.c'])
+env.Default(p1)
