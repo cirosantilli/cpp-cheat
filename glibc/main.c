@@ -67,51 +67,6 @@ int main() {
     }
 
     /*
-    # sched.h
-
-        More scheduling policies are defined.
-
-        Those constants have the same meaning as in the kernel code versions.
-    */
-    {
-        printf("SCHED_BATCH = %d\n", SCHED_BATCH);
-        printf("SCHED_IDLE  = %d\n", SCHED_IDLE );
-
-        /* Called SCHED_NORMAL in the kernel: */
-        printf("SCHED_OTHER = %d\n", SCHED_OTHER);
-
-        /*
-        # sched_getaffinity
-
-            view in which cpu's the given process can run
-
-            Linux keeps track of this, and this can be set with appropriate premissions
-
-        # sched_setaffinity
-
-            set for getaffinity
-
-        # cpu_set_t
-
-            a bitmap with a field per cpu
-        */
-        {
-            cpu_set_t mask;
-            if (sched_getaffinity(0, sizeof(cpu_set_t), &mask) == -1) {
-                perror("sched_getaffinity");
-                exit(EXIT_FAILURE);
-            } else {
-                printf("sched_getaffinity = ");
-                unsigned int i;
-                for (i = 0; i < sizeof(cpu_set_t); i++) {
-                    printf("%d", CPU_ISSET(0, &mask));
-                }
-                printf("\n");
-            }
-        }
-    }
-
-    /*
     # unistd.h
     */
     {
