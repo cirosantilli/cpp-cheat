@@ -1,4 +1,5 @@
 /*
+- https://unix.stackexchange.com/questions/73/how-can-i-set-the-processor-affinity-of-a-process-on-linux/441098#441098
 - https://stackoverflow.com/questions/10490756/how-to-use-sched-getaffinity2-and-sched-setaffinity2-please-give-code-samp
 - https://stackoverflow.com/questions/766395/how-does-sched-setaffinity-work
 - https://stackoverflow.com/questions/8336191/how-to-prevent-inheriting-cpu-affinity-by-child-forked-process
