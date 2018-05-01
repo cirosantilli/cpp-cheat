@@ -7,6 +7,7 @@
     1.  [main.c](main.c)
     1.  [ptrace.c](ptrace.c)
     1.  [reboot.c](reboot.c.off)
+    1.  [sched.c](sched.c)
     1.  [syscall.c](syscall.c)
     1.  `string.h`
         1.  [strverscmp.c](strverscmp.c)
