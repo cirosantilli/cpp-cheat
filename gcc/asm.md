@@ -45,9 +45,10 @@ where:
 
 Both inputs and outputs are constraints. `X` will indicate the constraint type
 
-# __asm__ vs asm
+## __asm__ vs asm
 
-<https://stackoverflow.com/questions/35131350/error-asm-undeclared-first-use-in-this-function/49830956#49830956>
+- <https://stackoverflow.com/questions/35131350/error-asm-undeclared-first-use-in-this-function/49830956#49830956>
+- <https://stackoverflow.com/questions/3323445/what-is-the-difference-between-asm-asm-and-asm/49830990#49830990>
 
 ## Double percent
 
