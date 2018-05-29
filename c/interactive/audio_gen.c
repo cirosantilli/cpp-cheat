@@ -32,7 +32,7 @@ double PI2;
 void write_ampl(FILE *f, point_type ampl) {
     uint8_t bytes[2];
     bytes[0] = ampl >> 8;
-    bytes[1] = ampl & 8;
+    bytes[1] = ampl & 0xFF;
     fwrite(bytes, 2, sizeof(uint8_t), f);
 }
 
