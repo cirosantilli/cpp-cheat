@@ -1,6 +1,4 @@
-/*
-http://stackoverflow.com/questions/7021725/converting-string-to-integer-c/12923949#12923949
-*/
+/* http://stackoverflow.com/questions/7021725/converting-string-to-integer-c/12923949#12923949 */
 
 #include <assert.h>
 #include <ctype.h>
@@ -16,26 +14,25 @@ typedef enum {
     STR2INT_INCONVERTIBLE
 } str2int_errno;
 
-/*
-Convert string s to int out.
-
-@param[out] out The converted int. Cannot be NULL.
-
-@param[in] s Input string to be converted.
-
-    The format is the same as strtol,
-    except that the following are inconvertible:
-
-    - empty string
-    - leading whitespace
-    - any trailing characters that are not part of the number
-
-    Cannot be NULL.
-
-@param[in] base Base to interpret string in. Same range as strtol (2 to 36).
-
-@return Indicates if the operation succeeded, or why it failed.
-*/
+/* Convert string s to int out.
+ *
+ * @param[out] out The converted int. Cannot be NULL.
+ *
+ * @param[in] s Input string to be converted.
+ *
+ *     The format is the same as strtol,
+ *     except that the following are inconvertible:
+ *
+ *     - empty string
+ *     - leading whitespace
+ *     - any trailing characters that are not part of the number
+ *
+ *     Cannot be NULL.
+ *
+ * @param[in] base Base to interpret string in. Same range as strtol (2 to 36).
+ *
+ * @return Indicates if the operation succeeded, or why it failed.
+ */
 str2int_errno str2int(int *out, char *s, int base) {
     char *end;
     if (s[0] == '\0' || isspace(s[0]))
@@ -92,12 +89,11 @@ int main(void) {
     assert(str2int(&i, "a10", 10) == STR2INT_INCONVERTIBLE);
     assert(str2int(&i, "10a", 10) == STR2INT_INCONVERTIBLE);
 
-    /*
-    int overflow.
-
-    `if` needed to avoid undefined behaviour
-    on `INT_MAX + 1` if INT_MAX == LONG_MAX.
-    */
+    /* int overflow.
+     *
+     * `if` needed to avoid undefined behaviour
+     * on `INT_MAX + 1` if INT_MAX == LONG_MAX.
+     */
     if (INT_MAX < LONG_MAX) {
         sprintf(s, "%ld", (long int)INT_MAX + 1L);
         assert(str2int(&i, s, 10) == STR2INT_OVERFLOW);
