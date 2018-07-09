@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+sudo aptitude update
+# BLAS C/Fotran and LAPACK Fortran:
+sudo aptitude install liblapack-dev liblapacke-dev
+# Lapack C via LAPACKE:
+# TODO: how to install on Ubuntu 12.04?
+# The following works only on later Ubuntu
+#sudo aptitude install liblapacke-dev

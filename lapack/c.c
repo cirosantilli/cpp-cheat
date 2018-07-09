@@ -1,8 +1,8 @@
 /*
-How to use blas and lapack with the standard
-interfaces provided by their respective projects, repectively through
-`cblas.h` and `lapacke.h`
-*/
+ * How to use blas and lapack with the standard
+ * interfaces provided by their respective projects, repectively through
+ * `cblas.h` and `lapacke.h`
+ */
 
 #include <assert.h>
 #include <math.h>
@@ -13,8 +13,7 @@ interfaces provided by their respective projects, repectively through
 #include <cblas.h>
 #include <lapacke.h>
 
-/**
- * assert two integers are equal
+/* Assert two integers are equal.
  * if not, print them to stderr and assert false
  */
 void assert_eqi(int i1, int i2) {
@@ -24,9 +23,8 @@ void assert_eqi(int i1, int i2) {
     }
 }
 
-/**
- * assert two doubles are equal within err precision
- * if not, print them to stderr
+/* Assert two doubles are equal within err precision
+ * If not, print them to stderr
  */
 void assert_eqd(double d1, double d2, double err) {
     if (fabs(d1 - d2) > err) {
@@ -35,7 +33,7 @@ void assert_eqd(double d1, double d2, double err) {
     }
 }
 
-/** print an array of doubles to stderr */
+/* print an array of doubles to stderr */
 void print_vecd(int n, double * v) {
     int i;
     for (i=0; i<n; i++) {
@@ -75,11 +73,10 @@ int main(void) {
 
 	/* lapacke */
 	{
-		/*
-		sgesv
-
-		Matrix vector multiply.
-		*/
+		/* sgesv
+		 *
+		 * Matrix vector multiply.
+		 */
 		{
 			a2x2[0][0] = 1.0;
 			a2x2[1][0] = 2.0;
