@@ -1,0 +1,1 @@
+CXXFLAGS_EXTRA := $(shell pkg-config --cflags eigen3)
