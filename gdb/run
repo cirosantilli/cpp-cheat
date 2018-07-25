@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
-
-# Usage: try either of:
-#
-#     run watch
-#     run watch.
-#     run watch.c
-#     run watch.out
-
+set -eu
 f="${1%.*}"
-gdb -batch -nh -x "${f}.gdb" "${f}.out"
+g="${f}.gdb"
+if [ -f "$g" ]; then
+  gdbcmd="-batch -x $g"
+else
+  gdbcmd=
+fi
+gdb -nh -q $gdbcmd "${f}.out"
