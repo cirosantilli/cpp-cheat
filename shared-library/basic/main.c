@@ -1,11 +1,11 @@
-#include <stdio.h>
+#include <assert.h>
 #include <stdlib.h>
 
 #include "a.h"
 #include "b.h"
 
 int main(void) {
-    a();
-    b();
+    assert(a() == 1);
+    assert(b() == 2);
     return EXIT_SUCCESS;
 }
