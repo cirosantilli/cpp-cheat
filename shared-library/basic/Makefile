@@ -1,13 +1,15 @@
-CC := gcc -ggdb3 -pedantic-errors -std=c89 -Wall -Wextra
+CC_DL = gcc -ggdb3 -std=c89 -Wall -Wextra
+CC = $(CC_DL) -pedantic-errors
 
 .PHONY: all clean run
 
-all: maina.out mainso.out mainso_fullpath.out
+all: maina.out mainso.out mainso_fullpath.out dlopen.out
 
 run: all
 	./maina.out
 	LD_LIBRARY_PATH=. ./mainso.out
 	./mainso_fullpath.out
+	LD_LIBRARY_PATH=. ./dlopen.out
 
 mainso.out: main.o libcirosantilli_ab.so
 	@# Will look for lib with basename *exactly* `libcirosantilli_ab.so`,
@@ -36,6 +38,17 @@ mainso_fullpath.out: main.o libcirosantilli_ab.so
 
 maina.out: main.o ab.a
 	$(CC) main.o ab.a -o maina.out
+
+# If we use -pedantic-errors, build fails:
+#
+#     ISO C forbids conversion of object pointer to function pointer type
+#
+# There seems to be no no undefined way of doing it:
+# https://stackoverflow.com/questions/14134245/iso-c-void-and-function-pointers
+#
+# -dl required otherwise: https://stackoverflow.com/questions/956640/linux-c-error-undefined-reference-to-dlopen
+dlopen.out: dlopen.c
+	$(CC_DL) -o '$@' '$<' -ldl
 
 libcirosantilli_ab.so: a.o b.o
 	$(CC) -shared a.o b.o -o libcirosantilli_ab.so
