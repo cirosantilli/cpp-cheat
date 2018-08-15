@@ -18,6 +18,9 @@ main1.out: main.c libcirosantilli_a.so
 main2.out: main.c libcirosantilli_a.so
 	$(CC) -DV2 -L'.' main.c -o '$@' -lcirosantilli_a
 
+a.o: a.c
+	$(CC) -fPIC -c '$<' -o '$@'
+
 libcirosantilli_a.so: a.o
 	$(CC) -Wl,--version-script,a.map -L'.' -shared a.o -o '$@'
 

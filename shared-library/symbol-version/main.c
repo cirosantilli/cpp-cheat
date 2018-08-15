@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include <assert.h>
 #include <stdlib.h>
 
 #include "a.h"
@@ -12,6 +12,10 @@ __asm__(".symver a,a@LIBA_2");
 #endif
 
 int main(void) {
-    a();
+#if defined(V1)
+    assert(a() == 1);
+#else
+    assert(a() == 2);
+#endif
     return EXIT_SUCCESS;
 }

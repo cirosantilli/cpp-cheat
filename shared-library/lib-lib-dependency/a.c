@@ -3,7 +3,6 @@
 #include "a.h"
 #include "b.h"
 
-void a(void) {
-    puts("a");
-    b();
+int a(void) {
+    return b() + 1;
 }

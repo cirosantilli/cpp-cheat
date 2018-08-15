@@ -1,9 +1,9 @@
-#include <stdio.h>
+#include <assert.h>
 #include <stdlib.h>
 
 #include "a.h"
 
 int main(void) {
-    a();
+    assert(a() == 3);
     return EXIT_SUCCESS;
 }
