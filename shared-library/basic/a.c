@@ -1,5 +1,3 @@
-#include <stdio.h>
-
 /* Not mandatory in this example since we define the function here.
  *
  * But still a good idea to ensure that the prototypes are compatible.
