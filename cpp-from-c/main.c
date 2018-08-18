@@ -2,8 +2,8 @@
 
 #include "cpp.h"
 
-int main() {
-    assert(f() == 1);
-    assert(f() == 1);
+int main(void) {
+    assert(f_int(1) == 2);
+    assert(f_float(1.0) == 3);
     return 0;
 }
