@@ -79,7 +79,7 @@
 
 #include "common.h"
 
-int main() {
+int main(void) {
     int status;
     /* This variable will be duplicated on the parent and on the child. */
     int i;
