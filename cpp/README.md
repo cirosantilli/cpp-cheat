@@ -82,6 +82,7 @@
             1.  [atomic<bool>](atomic_bool.cpp.off)
         1.  [mutex](mutex.cpp)
     1.  [algorithm](algorithm.cpp)
+        1.  [heap](heap.cpp)
     1.  [functional](functional.cpp)
     1.  [iterator](iterator.cpp)
     1.  [limits](limits.cpp)
