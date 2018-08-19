@@ -56,7 +56,9 @@ class NoBaseNoMember {
             temp.i = 0;
         }
 
-        static void temporaryReferenceConst(const NoBaseNoMember& temp) {}
+        static void temporaryReferenceConst(const NoBaseNoMember& temp) {
+            temp.i = 0;
+        }
 };
 
 class NoBaseNoMember0 {

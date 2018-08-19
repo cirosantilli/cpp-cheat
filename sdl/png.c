@@ -1,13 +1,13 @@
-
-/*
-Basic texture example.
-
-Much faster than SDL_RenderDrawPoint calls.
-
-Uses GL textures under the hood.
-
-SDL_TEXTUREACCESS_STREAMING is key to allow us to write to the texture from CPU.
-*/
+/* Basic texture example.
+ *
+ * Much faster than SDL_RenderDrawPoint calls.
+ *
+ * Uses GL textures under the hood.
+ *
+ * SDL_TEXTUREACCESS_STREAMING is key to allow us to write to the texture from CPU.
+ *
+ * https://gamedev.stackexchange.com/questions/59078/sdl-function-for-loading-pngs/135894#135894
+ */
 
 #include "common.h"
 

@@ -1,9 +1,6 @@
-/*
-# chrono
-
-What the clocks map to in GCC Linux:
-http://stackoverflow.com/questions/12392278/measure-time-in-linux-time-vs-clock-vs-getrusage-vs-clock-gettime-vs-gettimeof
-*/
+/* What the clocks map to in GCC Linux:
+ * http://stackoverflow.com/questions/12392278/measure-time-in-linux-time-vs-clock-vs-getrusage-vs-clock-gettime-vs-gettimeof
+ */
 
 #include "common.hpp"
 
@@ -14,8 +11,10 @@ int main() {
     std::cout << "steady_clock::period::den          = " << std::chrono::steady_clock::period::den << std::endl;
     std::cout << "system_clock::period::den          = " << std::chrono::system_clock::period::den << std::endl;
 
-    // high_resolution_clock
-    // Wall clock: sleeps are counted.
+    /* # high_resolution_clock
+     *
+     * Wall clock: sleeps are counted.
+     */
     {
         std::chrono::high_resolution_clock::time_point start_time = std::chrono::high_resolution_clock::now();
         std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -42,19 +41,18 @@ int main() {
         std::cout << "system_clock after sleep = " << std::chrono::duration_cast<std::chrono::nanoseconds>(dt).count() << std::endl;
     }
 
-    /*
-    # time_point
-
-    Convertions to base types:
-
-    - http://stackoverflow.com/questions/12835577/how-to-convert-stdchronotime-point-to-calendar-datetime-string-with-fraction
-    - http://stackoverflow.com/questions/33785564/how-do-i-get-seconds-since-epoch-as-a-double-given-a-time-point
-    - http://stackoverflow.com/questions/31255486/c-how-do-i-convert-a-stdchronotime-point-to-long-and-back
-    */
+    /* # time_point
+     *
+     * Convertions to base types:
+     *
+     * - http://stackoverflow.com/questions/12835577/how-to-convert-stdchronotime-point-to-calendar-datetime-string-with-fraction
+     * - http://stackoverflow.com/questions/33785564/how-do-i-get-seconds-since-epoch-as-a-double-given-a-time-point
+     * - http://stackoverflow.com/questions/31255486/c-how-do-i-convert-a-stdchronotime-point-to-long-and-back
+     */
     {
         std::cout << "nanoseconds since system_clock epoch = " << std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::system_clock::now().time_since_epoch()).count() << std::endl;
         std::cout << "nanoseconds since steady_clock epoch = " << std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now().time_since_epoch()).count() << std::endl;
     }
-	return 0;
+    return 0;
 #endif
 }
