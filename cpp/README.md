@@ -93,8 +93,13 @@
         1.  [tuple](tuple.cpp)
     1.  Smart pointers
         1. [unique_ptr](unique_ptr.cpp)
-    1.  [random](random.cpp)
 1.  [Interactive](interactive/)
+    1.  [bst_vs_heap](interactive/bst_vs_heap.cpp)
+    1.  [chrono](interactive/chrono.cpp)
+    1.  [random](interactive/random.cpp)
+    1.  thread
+        1.  [sleep_for](interactive/sleep_for.cpp)
+        1.  [thread_count](interactive/thread_count.cpp)
 1.  Applications
     1. [Design patterns](design_patterns.cpp)
 

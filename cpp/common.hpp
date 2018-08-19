@@ -28,6 +28,7 @@
 #include <new>
 #include <numeric> // partial sums, differences on std::vectors of numbers
 #include <ostream> // ostream
+#include <queue> // priority_queue
 #include <ratio> // ratio, nano
 #include <random>
 #include <set> // multiset, set

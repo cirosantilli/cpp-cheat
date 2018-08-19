@@ -1,7 +1,3 @@
-/*
-# sleep_for
-*/
-
 #include "common.hpp"
 
 int main() {

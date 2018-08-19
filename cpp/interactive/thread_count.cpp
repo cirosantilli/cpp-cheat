@@ -1,8 +1,7 @@
-/*
-Dummy operation that uses a lot of CPU, but very little memory.
-
-Used as a control for the parallel version, which should me scalably faster.
-*/
+/* Dummy operation that uses a lot of CPU, but very little memory.
+ *
+ * Used as a control for the parallel version, which should me scalably faster.
+ */
 
 #include "common.hpp"
 
