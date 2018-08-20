@@ -17,7 +17,7 @@ int main(int argc, char **argv) {
     for (i = 0; i < n; ++i) {
         auto random_value = dist(prng);
 
-        // BST.
+        // BST
         auto start = std::chrono::steady_clock::now();
         auto ret = bst.insert(random_value);
         auto end = std::chrono::steady_clock::now();
@@ -25,7 +25,7 @@ int main(int argc, char **argv) {
         // Heaps can have dupes, BST cannot, so skip them for both.
         if (!ret.second) continue;
 
-        // Heap.
+        // Heap
         start = std::chrono::steady_clock::now();
         heap.push(random_value);
         end = std::chrono::steady_clock::now();
