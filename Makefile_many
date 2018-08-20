@@ -57,7 +57,8 @@ all: mkdir $(OUTS)
 	@if [ -e "$(RUN_INPUT)" ] && [ ! -e "$(OUT_DIR)$(RUN_INPUT)" ]; then ln -s ../$(RUN_INPUT) "$(OUT_DIR)$(RUN_INPUT)"; fi
 ifneq ($(strip $(run)),)
 	@echo
-	cd $(OUT_DIR) && ./"$(run)" endif
+	cd $(OUT_DIR) && ./"$(run)"
+endif
 
 $(OUT_DIR)%$(OUT_EXT): $(IN_DIR)%.c $(ALL_DEPEND)
 	$(MYCC) $(CFLAGS) $(PROFILE_DEFINE) $(PROFILE_FLAGS) $(I) -o "$@" "$<" $(LIBS)
