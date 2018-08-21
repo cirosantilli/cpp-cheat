@@ -109,6 +109,7 @@ class NoBaseNoMember {
     public:
 
         int i;
+        static int si;
 
         /// Default constructor
         NoBaseNoMember() : i(0) {
@@ -156,8 +157,12 @@ class NoBaseNoMember {
             temp.i = 0;
         }
 
-        static void temporaryReferenceConst(const NoBaseNoMember& temp) {}
+        static void temporaryReferenceConst(const NoBaseNoMember& temp) {
+        	si = temp.i;
+        }
 };
+
+int NoBaseNoMember::si;
 
 class NoBaseNoMember0 {
     public:
