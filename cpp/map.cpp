@@ -1,24 +1,24 @@
 /*
 # map
 
-    http://www.cplusplus.com/reference/map/map/
+http://www.cplusplus.com/reference/map/map/
 
-    Also comes in an unordered version `unordered_map`.
+Also comes in an unordered version `unordered_map`.
 
-    Ordered.
+Ordered.
 
-    Also comes in an multiple value input version `multimap`.
+Also comes in an multiple value input version `multimap`.
 
-    Does not require a hash function. Usually implemented as a self balancing tree such as a rb tree.
+Does not require a hash function. Usually implemented as a self balancing tree such as a rb tree.
 
 # hashmap
 
-    There seems to be no explicit hashmap container, only a generic map interface,
+There seems to be no explicit hashmap container, only a generic map interface,
 
-    However unordered_map is likely to be hashmap based.
+However unordered_map is likely to be hashmap based.
 
-    A nonstandard `hash_map` already provided with gcc and msvc++.
-    It is placed in the `std::` namespace, but it is *not* ISO.
+A nonstandard `hash_map` already provided with gcc and msvc++.
+It is placed in the `std::` namespace, but it is *not* ISO.
 */
 
 #include "common.hpp"
@@ -76,7 +76,7 @@ int main() {
     }
 
     /*
-    emplace
+    # emplace
 
         Put a value pair into the map without creating the pair explicitly.
 

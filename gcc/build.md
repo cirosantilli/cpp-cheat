@@ -4,35 +4,36 @@ How to build GCC from source.
 
 Tested with: version 5.1.0 on Ubuntu 14.04 in a 2013 computer.
 
-Summary:
+Summary local build:
 
     sudo apt-get build-dep gcc
     # Required to compile gnat.
     sudo apt-get install gnat-4.8
-    mkdir gcc
+    git clone git://gcc.gnu.org/git/gcc.git
     cd gcc
-    git clone git://gcc.gnu.org/git/gcc.git src
-    cd src
     # No annotated tags... so no describe.
     git checkout gcc-5_1_0-release
     ./contrib/download_prerequisites
-    cd ..
     mkdir build
     cd build
     # C and C++ only.
-    ../src/configure --enable-languages=c,c++ --prefix="$(pwd)/../install"
+    ../configure --enable-languages=c,c++ --prefix="$(pwd)/install"
     # Add a suffix to the executable names:
     # --program-suffix="-4.7"
     # All languages.
-    # ../src/configure --enable-languages=all --prefix="$(pwd)/../install"
+    # ../configure --enable-languages=all --prefix="$(pwd)/install"
     # Wait hours.
-    make -j5
+    make -j$(nproc)
+
     # Wait hours.
-    make check
+    #make check
+
     # Install executables to /usr/local/bin
     # There are also many other installed files under /usr/local.
-    sudo make install
-    gcc -v
+    make install
+
+    # Use it.
+    ./install/bin/gcc -v
     # sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.9 60 --slave /usr/bin/g++ g++ /usr/bin/g++-4.9
 
 Or install locally for interactive testing:

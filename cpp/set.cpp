@@ -1,14 +1,14 @@
 /*
 # set
 
-    -   unique elements: inserting twice does nothing
+Implemented with Red Black trees in GCC 6.4:
+https://stackoverflow.com/questions/2558153/what-is-the-underlying-data-structure-of-a-stl-set-in-c/51944661#51944661
 
-    -   always ordered: $O(log)$ find / insert
+A hashtable would be unlikely because it is sorted and can be efficiently iterated.
 
-    -   immutable elements: it is not possible to modify an object,
-        one must first remove it and resinsert.
+Unique elements: inserting twice does nothing.
 
-        This is so because modification may mean reordering.
+Immutable elements: it is not possible to modify an object, one must first remove it and resinsert. This is so because modification may mean reordering.
 */
 
 #include "common.hpp"
@@ -81,7 +81,7 @@ int main() {
     /*
     # insert
 
-        Return is a pair conatining:
+        Return is a pair containing:
 
         - if the item was not present, an iterator to the item inserted and true
         - if the item was     present, an iterator to the existing item inserted and false
