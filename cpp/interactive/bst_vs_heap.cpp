@@ -6,10 +6,7 @@ int main(int argc, char **argv) {
     size_t i, j, n, granule, base;
     std::priority_queue<I> heap;
     std::set<I> bst;
-    std::uniform_int_distribution<I> dist;
-    std::random_device dev;
-    unsigned int seed = dev();
-    std::mt19937 prng(seed);
+    unsigned int seed = std::random_device()();
 
     // CLI arguments.
     if (argc > 1) {
@@ -27,7 +24,7 @@ int main(int argc, char **argv) {
     for (i = 0; i < n; ++i) {
         randoms.push_back(i);
     }
-    std::shuffle(randoms.begin(), randoms.end(), prng);
+    std::shuffle(randoms.begin(), randoms.end(), std::mt19937(seed));
     for (i = 0; i < n / granule; ++i) {
         using clk = std::chrono::high_resolution_clock;
         decltype(clk::now()) start, end;
