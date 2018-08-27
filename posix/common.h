@@ -57,6 +57,7 @@
 #include <pwd.h> /* getpwuid, getpwnam, getpwent */
 #include <regex.h>
 #include <sched.h>
+#include <semaphore.h>
 #include <signal.h>
 #include <sys/mman.h> /* mmap, munmap */
 #include <sys/ipc.h>
@@ -73,6 +74,7 @@
 #include <termios.h>
 #include <unistd.h> /* read, fork, ftruncate */
 
+#define COMMON_UNUSED(x) (void)(x)
 #define TMPFILE(x) __FILE__ "__" x ".tmp"
 
 union semun {

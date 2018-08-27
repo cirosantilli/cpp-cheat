@@ -1,19 +1,24 @@
-/*
-# shm_open
-
-# shm_unlink
-
-    Like open, but creates a fake file that can be passed to mmap.
-
-    The file is never written to disk.
-
-    Application: let two processes share memory.
-
-    Requires `-lrt` for Linux.
-
-    There is also the Linux specific `MAP_ANONYMOUS` `mmap` flag which seems
-    to reach a similar effect, but with an unamed `shm_mem`. TODO check.
-*/
+/* # shm_open
+ *
+ * # shm_unlink
+ *
+ * Like open, but creates a fake file that can be passed to mmap.
+ *
+ * The file is never written to disk.
+ *
+ * Application: let two processes share memory.
+ *
+ * Requires `-lrt` for Linux.
+ *
+ * ## shm_open vs mmap
+ *
+ * There is also the Linux specific `MAP_ANONYMOUS` `mmap` flag which seems
+ * to reach a similar effect, but with an unamed `shm_mem`. TODO check.
+ *
+ * - https://stackoverflow.com/questions/21311080/linux-shared-memory-shmget-vs-mmap
+ * - https://stackoverflow.com/questions/5656530/how-to-use-shared-memory-with-linux-in-c
+ * - https://stackoverflow.com/questions/16560401/anonymous-shared-memory
+ */
 
 #include "common.h"
 
@@ -23,12 +28,11 @@ int main() {
     char *name = "/" TMPFILE();
     enum Constexpr { size = sizeof(int) };
 
-    /*
-    The name creates a virtual file under `/dev/shm` in Linux.
-
-    Ther seems to be no POSIX way to list the obejcts. E.g. in FreeBDS there isn't:
-    http://stackoverflow.com/questions/12430351/how-to-get-list-of-open-posix-shared-memory-segments-in-freebsd
-    */
+    /* The name creates a virtual file under `/dev/shm` in Linux.
+     *
+     * There seems to be no POSIX way to list the objects. E.g. in FreeBDS there isn't:
+     * http://stackoverflow.com/questions/12430351/how-to-get-list-of-open-posix-shared-memory-segments-in-freebsd
+     */
     fd = shm_open(name, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
     /* Without ftruncate Linux gives SIGBUS. */
     ftruncate(fd, size);
@@ -36,11 +40,10 @@ int main() {
     *map = 0;
     if (fork() == 0) {
         *map = 1;
-        /*
-        `man msync` says that only other thing that guarantees write is munmap.
-
-        So I think `wait` is not enough for memory synchronization.
-        */
+        /* `man msync` says that only other thing that guarantees write is munmap.
+         *
+         * So I think `wait` is not enough for memory synchronization.
+         */
         msync(map, size, MS_SYNC);
         exit(EXIT_SUCCESS);
     }

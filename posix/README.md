@@ -7,11 +7,15 @@
     1.  [environ](environ.c)
     1.  [setenv](setenv.c)
 1.  [fork](fork.c)
-    1. [Fork bomb](interactive/fork_bomb.c.off)
-1.  [mmap](mmap.md)
-    1.  [mmap](mmap.c)
+    1.  [Fork bomb](interactive/fork_bomb.c.off)
+    1.  [pipe](pipe.c)
+    1.  Semaphores
+        1.  [System V semaphores](semaphore_sysv.c)
+        1.  semaphore_unnamed.c TODO
+        1.  semaphore_named.c TODO. https://stackoverflow.com/questions/16400820/c-how-to-use-posix-semaphores-on-forked-processes
+1.  [mmap](mmap.c)
     1.  [shm_open](shm_open.c)
-    1.  [mmap private](mmap_private.c)
+    1.  [MAP_PRIVATE](map_private.c)
 1.  [syslog](syslog.c)
 1.  [getrusage](getrusage.c)
 1.  [pthread](pthread.md)
@@ -28,4 +32,12 @@
         1. [getservbyport](getservbyport.c)
 1.  Signal
     1. [Kill](kill.c)
+    1.  Interactive
+        1. [signal_sleep](interactive/signal_sleep.c)
+        1. [signal_fork](interactive/signal_fork.c)
+        1. [setpgid](interactive/setpgid.c)
+        1. [alarm](interactive/alarm.c)
+1.  Interactive
+    1.  [sleep](interactive/sleep.c)
+    1.  [poll](interactive/poll.c)
 1.  [Biblography](bibliography.md)

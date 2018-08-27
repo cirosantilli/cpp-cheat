@@ -1,13 +1,14 @@
-/*
-https://stackoverflow.com/questions/2888425/is-o-largefile-needed-just-to-write-a-large-file
-
-If you compile with -m32, the program only works if _FILE_OFFSET_BITS is defined.
-
-In 64-bit, it does not matter.
-
-Ubuntu 16.04.
-
-I think this passes O_LARGEFILE on the open of the 32-bit syscall.
+/* # O_LARGEFILE
+ *
+ * https://stackoverflow.com/questions/2888425/is-o-largefile-needed-just-to-write-a-large-file
+ *
+ * If you compile with -m32, the program only works if _FILE_OFFSET_BITS is defined.
+ *
+ * In 64-bit, it does not matter.
+ *
+ * Ubuntu 16.04.
+ *
+ * I think this passes O_LARGEFILE on the open of the 32-bit syscall.
 */
 #define _FILE_OFFSET_BITS 64
 

@@ -106,65 +106,64 @@ int main(void) {
     if (pid == -1) {
         perror("fork");
         assert(false);
-    } else {
-        puts("child and parent");
-
-        /* Happens on child only. */
-        if (pid == 0) {
-            /*
-            This puts is asynchronous with the process stdout.
-
-            So it might not be in the line program order.
-
-            But they both go to the same terminal.
-            */
-            puts("child only");
-
-            /* Child has a different PID than its parent */
-            pid = getpid();
-            if (pid == -1) {
-                perror("getpid");
-                exit(EXIT_FAILURE);
-            }
-            assert(pid != ppid);
-            printf("child PID getpid() = %jd\n", (intmax_t)pid);
-
-            /* This only change the child's `i` because memory was cloned (unlike threads). */
-            i++;
-
-            /* The child exits here. */
-            exit(EXIT_SUCCESS);
-        }
-
-        /*
-        Only the parent reaches this point because of the exit call
-        done on the child.
-        */
-        puts("parent only");
-
-        /*
-        fork returns the child pid to the parent.
-
-        This could be asserted with the getpid in the child,
-        but would require the child to communicate that back to the parent,
-        which would need a `mmap` + `semaphore`,
-        and we don't want to complicate the example too much.
-        */
-        printf("child PID fork() = %jd\n", (intmax_t)pid);
-
-        wait(&status);
-        if (WIFEXITED(status)) {
-            assert(status == WEXITSTATUS(EXIT_SUCCESS));
-        } else {
-            perror("execl abnormal exit");
-            assert(false);
-        }
-
-        puts("parent only after child");
-
-        /* Memory was cloned, parent `i` was only modified in child memory. */
-        assert(i == 0);
     }
+    puts("child and parent");
+
+    /* Happens on child only. */
+    if (pid == 0) {
+        /*
+        This puts is asynchronous with the process stdout.
+
+        So it might not be in the line program order.
+
+        But they both go to the same terminal.
+        */
+        puts("child only");
+
+        /* Child has a different PID than its parent */
+        pid = getpid();
+        if (pid == -1) {
+            perror("getpid");
+            exit(EXIT_FAILURE);
+        }
+        assert(pid != ppid);
+        printf("child PID getpid() = %jd\n", (intmax_t)pid);
+
+        /* This only change the child's `i` because memory was cloned (unlike threads). */
+        i++;
+
+        /* The child exits here. */
+        exit(EXIT_SUCCESS);
+    }
+
+    /*
+    Only the parent reaches this point because of the exit call
+    done on the child.
+    */
+    puts("parent only");
+
+    /*
+    fork returns the child pid to the parent.
+
+    This could be asserted with the getpid in the child,
+    but would require the child to communicate that back to the parent,
+    which would need a `mmap` + `semaphore`,
+    and we don't want to complicate the example too much.
+    */
+    printf("child PID fork() = %jd\n", (intmax_t)pid);
+
+    wait(&status);
+    if (WIFEXITED(status)) {
+        assert(status == WEXITSTATUS(EXIT_SUCCESS));
+    } else {
+        perror("execl abnormal exit");
+        assert(false);
+    }
+
+    puts("parent only after child");
+
+    /* Memory was cloned, parent `i` was only modified in child memory. */
+    assert(i == 0);
 
     return EXIT_SUCCESS;
 }

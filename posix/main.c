@@ -1393,10 +1393,6 @@ int main(void) {
 
         # setsid
 
-        # setpgid
-
-        # getpgid
-
         # setpgrp
 
         # getpgrp
@@ -1410,13 +1406,11 @@ int main(void) {
     {
         uid_t uid  = getuid();
         uid_t euid = geteuid();
-        gid_t gid  = getgid();
         gid_t egid = getegid();
         pid_t pid  = getpid();
         printf("getpid()  = %ju\n",  (uintmax_t)pid      );
         printf("getuid()  = %ju\n",  (uintmax_t)uid      );
         printf("geteuid() = %ju\n",  (uintmax_t)euid     );
-        printf("getgid()  = %ju\n",  (uintmax_t)gid      );
         printf("getegid() = %ju\n",  (uintmax_t)egid     );
         printf("getppid() = %ju\n",  (uintmax_t)getppid());
 
@@ -1925,102 +1919,6 @@ int main(void) {
                     /* Print `2 * BUFSIZ` command waits until pipe close. */
                     exit_status = pclose(write_fp);
                     assert(exit_status == 0);
-                }
-            }
-        }
-
-        /*
-        # pipe
-
-            Create unnamed pipes.
-
-            Very close to the Linux pipe system call.
-
-            Differences from popen:
-
-            -   does not use a shell, avoiding many of its problems
-
-            -   uses two integer file descriptors, one for each end of the pipe,
-                instead of ANSI C `FILE` typedef.
-
-                Therefore you manipulate pipes with file descriptor functions
-                like `open` and `write` instead of ANSI C `fopen` family.
-
-            This gives you more control over the operations, but is harder to setup.
-
-            Typically used with fork + exec.
-        */
-        {
-            /*
-            Producer and consumer are the same process.
-
-            Useless but a good simple example.
-            */
-            {
-                int nbytes;
-                int pipes[2];
-                char data[] = "123";
-                char buf[BUFSIZ + 1];
-
-                if (pipe(pipes) == -1) {
-                    perror("pipe");
-                    exit(EXIT_FAILURE);
-                } else {
-                    nbytes = write(pipes[1], data, strlen(data));
-                    assert(nbytes != -1);
-                    assert((unsigned int)nbytes == strlen(data));
-
-                    nbytes = read(pipes[0], buf, BUFSIZ);
-                    assert(nbytes != -1);
-                    assert((unsigned int)nbytes == strlen(data));
-
-                    buf[nbytes] = '\0';
-                    assert(strcmp(buf, data) == 0);
-                }
-            }
-
-            /*
-            Parent writes to child.
-
-            This works because if ever read happens before, it blocks.
-            */
-            {
-                int nbytes;
-                int file_pipes[2];
-                const char data[] = "123";
-                char buf[BUFSIZ + 1];
-                pid_t pid;
-
-                if (pipe(file_pipes) == -1) {
-                    perror("pipe");
-                    exit(EXIT_FAILURE);
-                } else {
-                    fflush(stdout);
-                    pid = fork();
-                    if (pid == -1) {
-                        perror("fork");
-                        exit(EXIT_FAILURE);
-                    } else {
-                        if (pid == 0) {
-                            /* Child only. */
-
-                            /* If read happens before write, it blocks because there is no data. */
-                            nbytes = read(file_pipes[0], buf, BUFSIZ);
-
-                            printf("pipe child. data: %s\n", buf);
-                            exit(EXIT_SUCCESS);
-                        }
-
-                        /* parent only */
-                        nbytes = write(file_pipes[1], data, strlen(data));
-                        assert((size_t)nbytes == strlen(data));
-
-                        int status;
-                        wait(&status);
-
-                        /* parent only after child */
-                        assert(status == EXIT_SUCCESS);
-                    }
                 }
             }
         }

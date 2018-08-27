@@ -1,27 +1,19 @@
-/*
-https://stackoverflow.com/questions/7696925/how-to-send-a-signal-to-a-process-in-c/50075790#50075790
+/* https://stackoverflow.com/questions/7696925/how-to-send-a-signal-to-a-process-in-c/50075790#50075790
+ *
+ * Some fun with signal sending.
+ *
+ * Fork a process, then a signal to it every second.
+ *
+ * The fork prints a message to stdtout when the signal is received:
+ *
+ * SIGUSR1
+ * SIGUSR2
+ * SIGUSR1
+ * SIGUSR2
+ * ...
+ */
 
-Some fun with signal sending.
-
-Fork a process, then a signal to it every second.
-
-The fork prints a message to stdtout when the signal is received:
-
-SIGUSR1
-SIGUSR2
-SIGUSR1
-SIGUSR2
-....
-*/
-
-#define _XOPEN_SOURCE 700
-#include <assert.h>
-#include <signal.h>
-#include <stdbool.h> /* false */
-#include <stdio.h> /* perror */
-#include <stdlib.h> /* EXIT_SUCCESS, EXIT_FAILURE */
-#include <sys/wait.h> /* wait, sleep */
-#include <unistd.h> /* fork, write */
+#include "common.h"
 
 void signal_handler(int sig) {
     char s1[] = "SIGUSR1\n";
@@ -34,7 +26,7 @@ void signal_handler(int sig) {
     signal(sig, signal_handler);
 }
 
-int main() {
+int main(void) {
     pid_t pid;
 
     signal(SIGUSR1, signal_handler);
@@ -43,17 +35,16 @@ int main() {
     if (pid == -1) {
         perror("fork");
         assert(false);
-    } else {
-        if (pid == 0) {
-            while (1);
-            exit(EXIT_SUCCESS);
-        }
-        while (1) {
-            kill(pid, SIGUSR1);
-            sleep(1);
-            kill(pid, SIGUSR2);
-            sleep(1);
-        }
+    }
+    if (pid == 0) {
+        while (1);
+        exit(EXIT_SUCCESS);
+    }
+    while (1) {
+        kill(pid, SIGUSR1);
+        sleep(1);
+        kill(pid, SIGUSR2);
+        sleep(1);
     }
     return EXIT_SUCCESS;
 }

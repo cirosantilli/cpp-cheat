@@ -1,21 +1,12 @@
-/*
-# Semaphore
-
-# semget
-
-# semctl
-
-# semop
-
-    Process synchronization.
-
-    In this example, processes communicate through `mmap`.
-
-    Implemented in Linux by equally named system calls.
-
-    This example uses a semaphore to ensure that mmaped read / write
-    is synchronized across two processes.
-*/
+/* Semaphores are a method of inter-process synchronization.
+ *
+ * In this example, processes communicate through `mmap`.
+ *
+ * Implemented in Linux by equally named system calls.
+ *
+ * This example uses a semaphore to ensure that mmaped read / write
+ * is synchronized across two processes.
+ */
 
 #include "common.h"
 
@@ -30,7 +21,7 @@ int main() {
     enum Constexpr { size = sizeof(int) };
     struct sembuf mysembuf;
 
-    /* First semaphore in set. */
+    /* Operate on first semaphore in set. */
     mysembuf.sem_num = 0;
     /* No special options for operation */
     mysembuf.sem_flg = 0;

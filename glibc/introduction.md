@@ -59,3 +59,16 @@ Sample output:
     libc ABIs: UNIQUE IFUNC
     For bug reporting instructions, please see:
     <https://bugs.launchpad.net/ubuntu/+source/eglibc/+bugs>.
+
+Alternatively:
+
+    ./gnu_get_libc_version.out
+
+## LSB
+
+Linux standard base seems to require only the two following gnu extensions to be available:
+
+- `gnu_get_libc_version()` returns a string that identifies the version of the C library running the program making the call.
+- `gnu_get_libc_release()`
+
+All the other functions seem to be present on all Linux distros only because glibc is a de-facto standard. TODO any others?

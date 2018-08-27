@@ -1,6 +1,7 @@
-/*
-https://stackoverflow.com/questions/4508998/what-is-anonymous-inode/44388030#44388030
-*/
+/* # O_TMPFILE
+ *
+ * https://stackoverflow.com/questions/4508998/what-is-anonymous-inode/44388030#44388030
+ */
 
 #include "common.h"
 
