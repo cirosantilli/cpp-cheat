@@ -1,6 +1,4 @@
-/*
-Shows clearly that program execution waits until signal handler is done.
-*/
+/* Shows clearly that program execution waits until signal handler is done. */
 
 #include "common.h"
 

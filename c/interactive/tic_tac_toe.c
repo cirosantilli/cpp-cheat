@@ -2,8 +2,15 @@
 
 static const char * const names[] = {"circle", "cross"};
 static const char * const marker[] = {"o", "x"};
-enum constexpr { WIDTH = 3, NSTATES = WIDTH * WIDTH };
-typedef enum { PLAYER_CROSS = 0, PLAYER_CIRCLE = 1, PLAYER_EMPTY = 2 } Player;
+enum constexpr {
+    WIDTH = 3,
+    NSTATES = WIDTH * WIDTH
+};
+typedef enum {
+    PLAYER_CROSS = 0,
+    PLAYER_CIRCLE = 1,
+    PLAYER_EMPTY = 2
+} Player;
 
 static void render(Player *state) {
     int i;
@@ -25,8 +32,7 @@ static void render(Player *state) {
 }
 
 static int won(Player *state, Player current_player) {
-    int i;
-    int j;
+    int i, j;
 
     /* Horizontal. */
     for (i = 0; i < WIDTH; ++i) {
@@ -96,7 +102,7 @@ static void update_state(Player *state, Player current_player) {
     return;
 }
 
-int main() {
+int main(void) {
     Player current_player = PLAYER_CIRCLE;
     Player state[NSTATES];
     const char *s;

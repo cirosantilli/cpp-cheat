@@ -1,10 +1,17 @@
-/*
-# Command line arguments
-
-    Try running this as:
-
-        ./command_line_arguments asdf qwer zxcv
-*/
+/* # Command line arguments
+ *
+ * Try running this as:
+ *
+ *     ./command_line_arguments.out asdf qwer zxcv
+ *
+ * Output:
+ *
+ *     argc = 4
+ *     argv[0] = ./command_line_arguments.out
+ *     argv[1] = asdf
+ *     argv[2] = qwer
+ *     argv[3] = zxcv
+ */
 
 #include "common.h"
 

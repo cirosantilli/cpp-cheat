@@ -157,7 +157,7 @@ void heap1mbProf(int n) {
     }
 }
 
-int main() {
+int main(void) {
     loop_only_prof(n_prof_runs);
     while_only_prof(n_prof_runs);
 

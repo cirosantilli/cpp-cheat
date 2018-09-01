@@ -72,7 +72,7 @@
 #include <sys/wait.h> /* wait, sleep */
 #include <syslog.h> /* syslog */
 #include <termios.h>
-#include <unistd.h> /* read, fork, ftruncate */
+#include <unistd.h> /* read, fork, ftruncate, write */
 
 #define COMMON_UNUSED(x) (void)(x)
 #define TMPFILE(x) __FILE__ "__" x ".tmp"

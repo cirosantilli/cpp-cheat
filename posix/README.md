@@ -34,6 +34,7 @@
     1. [Kill](kill.c)
     1.  Interactive
         1. [signal_sleep](interactive/signal_sleep.c)
+        1. [sigint](interactive/sigint.c)
         1. [signal_fork](interactive/signal_fork.c)
         1. [setpgid](interactive/setpgid.c)
         1. [alarm](interactive/alarm.c)

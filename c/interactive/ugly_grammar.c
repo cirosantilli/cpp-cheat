@@ -1,10 +1,9 @@
-/*
-# Ugly grammar
-
-    C allows for grammar obscenities to be compatible with a distant past.
-
-    Here are some perfectly legal jewels. Don't compile with `-pedantic-errors`, only `-std=c99`.
-*/
+/* # Ugly grammar
+ *
+ * C allows for grammar obscenities to be compatible with a distant past.
+ *
+ * Here are some perfectly legal jewels. Don't compile with `-pedantic-errors`, only `-std=c99`.
+ */
 
 #include "common.h"
 

@@ -4,7 +4,6 @@
 #include "common_curses.h"
 
 int main(void) {
-    int c;
 	initscr();
 	printw("before clear\n");
 	clear();

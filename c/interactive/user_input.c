@@ -1,9 +1,15 @@
+/* Get a string, int and float from the user, with full error checking.
+ *
+ * Keep bugging the user until he enters properly formatted input.
+ */
+
 #include "common.h"
+#include "../str2num.h"
 
 /* Discard sdtin content up to first newline.
-if there is no newline, waits for a newline to be input.*/
+ * if there is no newline, waits for a newline to be input.
+ */
 void flush_stdin_to_newline() {
-
     char junk[16];
     do {
         if (fgets(junk, sizeof(junk), stdin) == NULL) {
@@ -13,8 +19,7 @@ void flush_stdin_to_newline() {
 
 }
 
-/*
- * user get string until newline.
+/* user get string until newline.
  *
  * fixed maximum size.
  *
@@ -24,7 +29,7 @@ void flush_stdin_to_newline() {
  */
 void ugstr(char* out, int max) {
     bool done=false;
-    while(!done) {
+    while (!done) {
         if (fgets(out, max, stdin) == NULL) {
             /* TODO deal with error proprely */
         }
@@ -45,110 +50,60 @@ void ugstr(char* out, int max) {
  *
  * same as ugstr, but writes user prompt to stderr
  */
-void upstr(char* out, int max) {
+void user_get_string(char* out, int max) {
     fprintf(stderr, "enter a string and press <enter> (max %d chars):\n", max-1);
     fflush(stderr);
     ugstr(out,max);
 }
 
-/*
-This is not the canonical source for this function: it is somewhere else in this repo.
-We just copy pasted it here because lazy for proprely sharing.
-*/
-typedef enum { S2NSUCCESS, S2NOVERFLOW, S2NUNDERFLOW, S2NINCONVERTIBLE } STR2NUM_ERROR;
-STR2NUM_ERROR str2int(int *i, char *s, int base) {
-    if (isspace(s[0])) {
-        return S2NINCONVERTIBLE;
-    }
-    char *end;
-    errno = 0;
-    long l = strtol(s, &end, base);
-    if ((errno == ERANGE && l == LONG_MAX) || l > INT_MAX) {
-        return S2NOVERFLOW;
-    }
-    if ((errno == ERANGE && l == LONG_MIN) || l < INT_MIN) {
-        return S2NUNDERFLOW;
-    }
-    if (*s == '\0' || *end != '\0') {
-        return S2NINCONVERTIBLE;
-    }
-    *i = l;
-    return S2NSUCCESS;
-}
-
 /* Same as str2int, but prints errors to stderr. */
-STR2NUM_ERROR str2int_stderr(int *i, char *s, int base) {
-    STR2NUM_ERROR out = str2int (i, s, base);
-    if (out == S2NINCONVERTIBLE) {
+str2num_errno str2int_stderr(int *i, char *s, int base) {
+    str2num_errno out = str2int(i, s, base);
+    if (out == STR2NUM_INCONVERTIBLE) {
         fprintf(stderr,"\"%s\" is not an int \n",s);
-    } else if (out == S2NOVERFLOW) {
-        fprintf(stderr,"\"%s\" is too large for an int. max value: %d\n",s,INT_MAX);
-    } else if (out == S2NUNDERFLOW) {
-        fprintf(stderr,"\"%s\" is too small for an int. min value: %d\n",s,INT_MIN);
+    } else if (out == STR2NUM_OVERFLOW) {
+        fprintf(stderr,"\"%s\" is too large for an int. max value: %d\n", s, INT_MAX);
+    } else if (out == STR2NUM_UNDERFLOW) {
+        fprintf(stderr,"\"%s\" is too small for an int. min value: %d\n", s, INT_MIN);
     }
     return out;
 }
 
-/* User prompt c int in base b <= 36. */
-int upint(int base) {
+/* User prompt c int in 2 <= base <= 36. */
+int user_get_int(int base) {
     int out;
-    STR2NUM_ERROR err;
+    str2num_errno err;
     const int max=64;
     char in[max];
 
     while (1) {
         fprintf(stderr, "enter a integer and press <enter>:\n");
         fflush(stderr);
-        ugstr (in,max);
+        ugstr(in,max);
         err = str2int_stderr(&out, in, base);
-        if (err == S2NSUCCESS) {
+        if (err == STR2NUM_SUCCESS) {
             break;
         }
     }
-
     return out;
 }
 
-STR2NUM_ERROR str2float(float *fout, char *s) {
-    /* strict checking: must be EXACTLY an int */
-    if(isspace(s[0])) {
-        return S2NINCONVERTIBLE;
-    }
-
-    char *end;
-    errno = 0;
-    float f = strtof(s, &end);
-
-    if ( errno == ERANGE && f == HUGE_VALF ) {
-        return S2NOVERFLOW;
-    }
-    if ( errno == ERANGE && f == -HUGE_VALF ) {
-        return S2NUNDERFLOW;
-    }
-    if (*s == '\0' || *end != '\0') {
-        return S2NINCONVERTIBLE;
-    }
-    *fout = f;
-    return S2NSUCCESS;
-}
-
 /*same as str2float, but prints errors to stderr*/
-STR2NUM_ERROR str2float_stderr(float *f, char *s) {
-    STR2NUM_ERROR out = str2float (f, s);
-    if(out == S2NINCONVERTIBLE) {
+str2num_errno str2float_stderr(float *f, char *s) {
+    str2num_errno out = str2float(f, s);
+    if(out == STR2NUM_INCONVERTIBLE) {
         fprintf(stderr,"\"%s\" is not a float \n",s);
-    } else if(out == S2NOVERFLOW) {
+    } else if(out == STR2NUM_OVERFLOW) {
         fprintf(stderr,"\"%s\" is too large for a float. max value: %f\n",s,FLT_MAX);
-    } else if(out == S2NUNDERFLOW) {
+    } else if(out == STR2NUM_UNDERFLOW) {
         fprintf(stderr,"\"%s\" is too small for a float. min value: %f\n",s,FLT_MIN);
     }
     return out;
 }
 
-
-float upfloat() {
+float user_get_float() {
     float out;
-    STR2NUM_ERROR err;
+    str2num_errno err;
     const int max=64;
     char in[max];
 
@@ -157,27 +112,26 @@ float upfloat() {
         fflush(stderr);
         ugstr(in, max);
         err = str2float_stderr (&out, in);
-        if (err == S2NSUCCESS) {
+        if (err == STR2NUM_SUCCESS) {
             break;
         }
     }
     return out;
 }
 
-int main() {
-    const int l = 20;
+int main(void) {
     int i;
     float f;
-    if (0) {
-        char str[l];
-        upstr(str,l);
-        printf("user entered:\n%s\n",str);
+    char str[4];
 
-        i = upint(10);
-        printf("user entered:\n%d\n",i);
+    user_get_string(str, sizeof(str));
+    printf("user entered:\n%s\n\n", str);
 
-        f = upfloat();
-        printf ("user entered:\n%f\n", f);
-    }
-    return 0;
+    i = user_get_int(10);
+    printf("user entered:\n%d\n\n", i);
+
+    f = user_get_float();
+    printf ("user entered:\n%f\n\n", f);
+
+    return EXIT_SUCCESS;
 }

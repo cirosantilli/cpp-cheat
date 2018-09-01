@@ -8,13 +8,13 @@
     1. [Pros and cons](pros-and-cons.md)
     1. [Trivia](trivia.md)
     1. [Bibliography](bibliography.md)
-1.  [main.c](main.c): huge dump that is being split up into smaller sections
 1.  Sanity
     1. [hello_world.c](hello_world.c)
     1. [min.c](min.c)
     1. [template.c](template.c)
 1.  Language
     1.  [main function](main_function.c)
+        1.  [Command line arguments](interactive/command_line_arguments.c)
     1.  Data
         1.  [Identifier](identifier.c)
             1.  [Uninitialized variable](uninitialized_variable.c)
@@ -95,7 +95,6 @@
         1.  Exit related
             1. [exit()](exit.c)
             1. [atexit()](atexit.c)
-            1. [abort()](interactive/abort.c.off)
             1. [abort()](interactive/abort.c.off)
         1. [abs()](abs.c)
         1. [malloc()](malloc.c)

@@ -1,23 +1,25 @@
-/*
-http://stackoverflow.com/a/36510894/895245
-
-TODO
-
-- smooth transition between sines without tic sound. Needs a phase change I imagine.
-- ADSR https://en.wikipedia.org/wiki/Synthesizer#Attack_Decay_Sustain_Release_.28ADSR.29_envelope
-    Currently, hitting the same not twice sounds the same as hitting it once for double the time,
-    (except for the tic of phase, which is a bug as well...)
-- drum / percurssion synth
-- siren sound TODO Mechanical: https://www.youtube.com/watch?v=uckkpr2b8U8
-*/
+/* https://stackoverflow.com/questions/732699/how-is-audio-represented-with-numbers/36510894#36510894
+ *
+ * TODO
+ *
+ * -   smooth transition between sines without tic sound. Needs a phase change I imagine.
+ *
+ * -   ADSR https://en.wikipedia.org/wiki/Synthesizer#Attack_Decay_Sustain_Release_.28ADSR.29_envelope
+ *     Currently, hitting the same not twice sounds the same as hitting it once for double the time,
+ *     (except for the tic of phase, which is a bug as well...)
+ *
+ * -   drum / percurssion synth
+ *
+ * -   siren sound TODO Mechanical: https://www.youtube.com/watch?v=uckkpr2b8U8
+ */
 
 #include <math.h>
 #include <stdarg.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
 
-typedef uint16_t point_type;
+typedef uint16_t point_type_t;
 
 #define WRITE(name, func) \
     f = fopen("tmp." name ".raw", "wb"); \
@@ -29,7 +31,7 @@ typedef uint16_t point_type;
 
 double PI2;
 
-void write_ampl(FILE *f, point_type ampl) {
+void write_ampl(FILE *f, point_type_t ampl) {
     uint8_t bytes[2];
     bytes[0] = ampl >> 8;
     bytes[1] = ampl & 0xFF;
@@ -42,9 +44,8 @@ double piano_freq(unsigned int i) {
 }
 
 /* Chord formed by the nth note of the piano. */
-point_type piano_sum(unsigned int max_ampl, unsigned int time,
+point_type_t piano_sum(unsigned int max_ampl, unsigned int time,
         double sample_freq, unsigned int nargs, unsigned int *notes) {
-    double freq;
     unsigned int i;
     double sum = 0;
     for (i = 0 ; i < nargs; ++i)
@@ -70,8 +71,8 @@ int main(void) {
     const double SAMPLE_FREQ = 44100;
     const unsigned int NSAMPLES = 4 * SAMPLE_FREQ;
     double freq;
-    point_type ampl;
-    point_type max_ampl = UINT16_MAX;
+    point_type_t ampl;
+    point_type_t max_ampl = UINT16_MAX;
     unsigned int t;
 
     WRITE("1000", (ampl = max_ampl * 0.5 * (1.0 + sin(PI2 * t * 1000.0 / SAMPLE_FREQ))));
@@ -103,11 +104,10 @@ int main(void) {
     }
     fclose(f);
 
-    /*
-    Dual channel, one sin per channel.
-    Play with ffmpeg -ac 2.
-    Get microphones. Each phone gives a different frequency.
-    */
+    /* Dual channel, one sin per channel.
+     * Play with ffmpeg -ac 2.
+     * Get microphones. Each phone gives a different frequency.
+     */
     f = fopen("tmp.dual.raw", "wb");
     for (t = 0; t < NSAMPLES; ++t) {
         ampl = max_ampl * 0.5 * (1.0 + sin(PI2 * t * 100.0 / SAMPLE_FREQ));
@@ -117,10 +117,9 @@ int main(void) {
     }
     fclose(f);
 
-    /*
-    Sum of sinuses with different frequencies and same amplitude.
-    AKA chord.
-    */
+    /* Sum of sinuses with different frequencies and same amplitude.
+     * AKA chord.
+     */
     f = fopen("tmp.sum.raw", "wb");
     for (t = 0; t < NSAMPLES; ++t) {
         ampl = max_ampl * 0.25 * (
@@ -132,9 +131,7 @@ int main(void) {
     }
     fclose(f);
 
-    /*
-    Sum of sinuses with different frequencies, and different amplitudes.
-    */
+    /* Sum of sinuses with different frequencies, and different amplitudes. */
     f = fopen("tmp.sum_ampl.raw", "wb");
     for (t = 0; t < NSAMPLES; ++t) {
         ampl = max_ampl * (1.0 / 12.0) * (
@@ -146,11 +143,10 @@ int main(void) {
     }
     fclose(f);
 
-    /*
-    See how a phase shift sounds like. No difference?
-    But obviously in some cases there must be a difference, e.g. canceling waves.
-    http://www.silcom.com/~aludwig/Phase_audibility.htm
-    */
+    /* See how a phase shift sounds like. No difference?
+     * But obviously in some cases there must be a difference, e.g. canceling waves.
+     * http://www.silcom.com/~aludwig/Phase_audibility.htm
+     */
     f = fopen("tmp.sum_phase.raw", "wb");
     for (t = 0; t < NSAMPLES; ++t) {
         ampl = max_ampl * 0.25 * (
@@ -162,14 +158,14 @@ int main(void) {
     }
     fclose(f);
 
-    /*
-    https://en.wikipedia.org/wiki/Chirp
-    Linearly varying instanteneous frequency.
-    http://math.stackexchange.com/questions/85388/does-the-phrase-instantaneous-frequency-make-sense
-    TODO understand intuitively why if we remove the 2.0 divisor from the frequency
-    then it goes first up and then down.
-    Yes, I know that mathematically it comes from the derivative.
-    */
+    /* https://en.wikipedia.org/wiki/Chirp
+     * Linearly varying instanteneous frequency.
+     * http://math.stackexchange.com/questions/85388/does-the-phrase-instantaneous-frequency-make-sense
+     *
+     * TODO understand intuitively why if we remove the 2.0 divisor from the frequency
+     * then it goes first up and then down.
+     * Yes, I know that mathematically it comes from the derivative.
+     */
     f = fopen("tmp.chirp.raw", "wb");
     for (t = 0; t < NSAMPLES; ++t) {
         freq = 20.0 + 19980.0 * t / ((double)NSAMPLES * 2.0);
@@ -178,11 +174,11 @@ int main(void) {
     }
     fclose(f);
 
-    /*
-    Saw tooth
-    https://www.youtube.com/watch?v=uIuJTWS2uvY mentions that high frequency saws
-    and sines are more similar than low frequency. This is because
-    humans don't hear the higher harmonics, and the lower one dominates.
+    /* # Saw tooth
+     *
+     * https://www.youtube.com/watch?v=uIuJTWS2uvY mentions that high frequency saws
+     * and sines are more similar than low frequency. This is because
+     * humans don't hear the higher harmonics, and the lower one dominates.
     */
     f = fopen("tmp.saw.raw", "wb");
     for (t = 0; t < NSAMPLES; ++t) {
@@ -215,16 +211,15 @@ int main(void) {
     }
     fclose(f);
 
-    /*
-    # Pianola
-
-    # Canon
-
-        https://en.wikipedia.org/wiki/Player_piano
-
-        http://www.8notes.com/scores/420.asp After where I've stopped,
-        that score gets weird, maybe find another one.
-    */
+    /* # Pianola
+     *
+     * Here we play some Canon!!!
+     *
+     * https://en.wikipedia.org/wiki/Player_piano
+     *
+     * Score: http://www.8notes.com/scores/420.asp
+     * After where I've stopped, that score gets weird, maybe find another one.
+     */
     {
         unsigned int i;
         unsigned int samples_per_unit = SAMPLE_FREQ * 0.375;

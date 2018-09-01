@@ -1,3 +1,8 @@
+/* Clear the screen, present a message, quit when any screen is pressed.
+ *
+ * Previous screen is restored at the end.
+ */
+
 #include <curses.h>
 
 int main(void) {

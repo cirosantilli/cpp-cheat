@@ -1,3 +1,6 @@
+#ifndef COMMON_H
+#define COMMON_H
+
 #include <assert.h>
 #include <ctype.h>
 #include <errno.h>
@@ -31,7 +34,4 @@
 
 #define PRIxPTR_WIDTH ((int)(sizeof(void*)*2))
 
-#define GCC_PUSH GCC diagnostic push
-/* TODO not working. */
-#define GCC_IGNORE(x) GCC diagnostic ignored x
-#define GCC_POP GCC diagnostic pop
+#endif
