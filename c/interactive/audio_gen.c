@@ -1,4 +1,6 @@
-/* https://stackoverflow.com/questions/732699/how-is-audio-represented-with-numbers/36510894#36510894
+/* - https://stackoverflow.com/questions/732699/how-is-audio-represented-with-numbers/36510894#36510894
+ * - https://stackoverflow.com/questions/2205070/programmatically-synthesizing-programming-music/52126471#52126471
+ * - https://www.quora.com/What-is-the-easiest-way-to-upload-audio-alone-to-YouTube/answer/Ciro-Santilli
  *
  * TODO
  *
