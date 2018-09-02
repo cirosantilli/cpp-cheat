@@ -46,7 +46,7 @@ int main(void) {
     When we hold a key, it it refreshed at a given low frequency it seems?
     */
     sleep_cycle.tv_nsec = 500000000L;
-	initscr();
+    initscr();
     for (;;) {
         clear();
         key = getkey();
@@ -54,6 +54,6 @@ int main(void) {
         refresh();
         nanosleep(&sleep_cycle, NULL);
     }
-	endwin();
+    endwin();
     return 0;
 }

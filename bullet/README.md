@@ -15,6 +15,6 @@ Tested on Bullet 2.83, Ubuntu 16.04.
     1.  [Gravity collision](gravity_collision.cpp)
     1.  [Which collision](which_collision.cpp)
 1.  Tools
-    1. 	[plot](plot)
-1. 	[Bibliography](bibliography.md)
+    1.  [plot](plot)
+1.  [Bibliography](bibliography.md)
 1.  [TODO](TODO.md)

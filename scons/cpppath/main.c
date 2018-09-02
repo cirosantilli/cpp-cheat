@@ -3,5 +3,5 @@
 #include "lib.h"
 
 int main(void) {
-	puts(S);
+    puts(S);
 }

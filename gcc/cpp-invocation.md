@@ -55,7 +55,7 @@ This is mostly useful for learning purposes only.
 
 Using `cpp` directly:
 
-	cpp c.c
+    cpp c.c
 
 Outputs the preprocessed file to stdout.
 

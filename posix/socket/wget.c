@@ -31,11 +31,11 @@ IP:
 #include <unistd.h>
 
 int main(int argc, char** argv) {
-	char buffer[BUFSIZ];
+    char buffer[BUFSIZ];
     enum CONSTEXPR { MAX_REQUEST_LEN = 1024};
-	char request[MAX_REQUEST_LEN];
-	char request_template[] = "GET / HTTP/1.1\r\nHost: %s\r\n\r\n";
-	struct protoent *protoent;
+    char request[MAX_REQUEST_LEN];
+    char request_template[] = "GET / HTTP/1.1\r\nHost: %s\r\n\r\n";
+    struct protoent *protoent;
     char *hostname = "example.com";
     in_addr_t in_addr;
     int request_len;

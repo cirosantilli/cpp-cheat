@@ -214,7 +214,7 @@ void freeNode(nodeType *p)
     if (p->type == typeOpr) {
         for (i = 0; i < p->opr.nops; i++)
             freeNode(p->opr.op[i]);
-		free (p->opr.op);
+        free (p->opr.op);
     }
     free (p);
 }

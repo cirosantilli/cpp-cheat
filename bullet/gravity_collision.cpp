@@ -90,11 +90,11 @@ int main() {
 
 #endif
         collisionShapes.push_back(groundShape);
-		btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
-		btRigidBody::btRigidBodyConstructionInfo rbInfo(0, myMotionState, groundShape, btVector3(0, 0, 0));
-		btRigidBody* body = new btRigidBody(rbInfo);
-		body->setRestitution(groundRestitution);
-		dynamicsWorld->addRigidBody(body);
+        btDefaultMotionState* myMotionState = new btDefaultMotionState(groundTransform);
+        btRigidBody::btRigidBodyConstructionInfo rbInfo(0, myMotionState, groundShape, btVector3(0, 0, 0));
+        btRigidBody* body = new btRigidBody(rbInfo);
+        body->setRestitution(groundRestitution);
+        dynamicsWorld->addRigidBody(body);
     }
 
     // Object.
@@ -118,8 +118,8 @@ int main() {
         btDefaultMotionState *myMotionState = new btDefaultMotionState(startTransform);
         btRigidBody *body = new btRigidBody(btRigidBody::btRigidBodyConstructionInfo(
                 mass, myMotionState, colShape, localInertia));
-		body->setRestitution(objectRestitution);
-		body->setLinearVelocity(btVector3(initialLinearVelocityX, initialLinearVelocityY, initialLinearVelocityZ));
+        body->setRestitution(objectRestitution);
+        body->setLinearVelocity(btVector3(initialLinearVelocityX, initialLinearVelocityY, initialLinearVelocityZ));
         dynamicsWorld->addRigidBody(body);
     }
 

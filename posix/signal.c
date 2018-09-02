@@ -167,8 +167,8 @@ which generate certain signals such as `SIGTERM`.
 volatile sig_atomic_t i = 0;
 
 void signal_handler(int sig) {
-	i = 1;
-	signal(sig, signal_handler);
+    i = 1;
+    signal(sig, signal_handler);
 }
 
 int main(void) {
@@ -182,7 +182,7 @@ int main(void) {
 
             int kill(pid_t pid, int sig);
     */
-	{
+    {
         assert(kill(getpid(), SIGALRM) == 0);
     }
     assert(i == 1);

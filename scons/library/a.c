@@ -3,5 +3,5 @@
 #include "a.h"
 
 void a() {
-	puts("a");
+    puts("a");
 }

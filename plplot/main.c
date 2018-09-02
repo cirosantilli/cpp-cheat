@@ -102,22 +102,22 @@ int main(void)
                 
                 //there is the concept of current color
 
-                //0 	black (default background)
-                //1 	red (default foreground)
-                //2 	yellow
-                //3 	green
-                //4 	aquamarine
-                //5 	pink
-                //6 	wheat
-                //7 	grey
-                //8 	brown
-                //9 	blue
-                //10 	BlueViolet
-                //11 	cyan
-                //12 	turquoise
-                //13 	magenta
-                //14 	salmon
-                //15 	white
+                //0     black (default background)
+                //1     red (default foreground)
+                //2     yellow
+                //3     green
+                //4     aquamarine
+                //5     pink
+                //6     wheat
+                //7     grey
+                //8     brown
+                //9     blue
+                //10    BlueViolet
+                //11    cyan
+                //12    turquoise
+                //13    magenta
+                //14    salmon
+                //15    white
 
                 plcol0( 1 );
 

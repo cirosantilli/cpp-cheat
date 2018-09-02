@@ -371,7 +371,7 @@ int main(int argc, char **argv) {
     program = common_get_shader_program(vertex_shader_source, fragment_shader_source);
     coord2d_location = glGetAttribLocation(program, "coord2d");
     vertexUv_location = glGetAttribLocation(program, "vertexUv");
-	textureSampler_location = glGetUniformLocation(program, "textureSampler");
+    textureSampler_location = glGetUniformLocation(program, "textureSampler");
 
     if (!cpu) {
         /* Compute shader. */
@@ -532,7 +532,7 @@ int main(int argc, char **argv) {
     }
     glDeleteBuffers(1, &vbo);
     glDeleteVertexArrays(1, &vao);
-	glDeleteTextures(1, &texture);
+    glDeleteTextures(1, &texture);
     glDeleteProgram(program);
     glDeleteProgram(compute_program);
     glfwTerminate();

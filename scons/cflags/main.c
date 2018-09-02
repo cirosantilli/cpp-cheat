@@ -1,4 +1,4 @@
 int main(void) {
-	// C99
-	return 0;
+    // C99
+    return 0;
 }

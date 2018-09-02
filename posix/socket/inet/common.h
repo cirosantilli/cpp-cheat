@@ -79,17 +79,17 @@ int listen_port(char *protoname, unsigned int port) {
 
 /* Return the socket of a server. */
 int connect_server(char *protoname, char *server_hostname, unsigned int port) {
-	struct protoent *protoent;
+    struct protoent *protoent;
     struct hostent *hostent;
     in_addr_t in_addr;
     struct sockaddr_in sockaddr_in;
     int sockfd;
     /* Get socket. */
-	protoent = getprotobyname(protoname);
-	if (protoent == NULL) {
+    protoent = getprotobyname(protoname);
+    if (protoent == NULL) {
         perror("getprotobyname");
         exit(EXIT_FAILURE);
-	}
+    }
     sockfd = socket(AF_INET, SOCK_STREAM, protoent->p_proto);
     if (sockfd == -1) {
         perror("socket");

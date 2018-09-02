@@ -64,43 +64,43 @@ int main(void) {
     float x2[2], b2[2], c2[2];
     float a2x2[2][2];
 
-	/* cblas */
-	{
+    /* cblas */
+    {
         x2[0] =  1.0;
         x2[1] = -2.0;
         assert_eqd(cblas_snrm2(2, x2, 1), sqrt(5.0), err);
     }
 
-	/* lapacke */
-	{
-		/* sgesv
-		 *
-		 * Matrix vector multiply.
-		 */
-		{
-			a2x2[0][0] = 1.0;
-			a2x2[1][0] = 2.0;
-			a2x2[0][1] = 3.0;
-			a2x2[1][1] = 4.0;
-			b2[0] = 5.;
-			b2[1] = 11.;
+    /* lapacke */
+    {
+        /* sgesv
+         *
+         * Matrix vector multiply.
+         */
+        {
+            a2x2[0][0] = 1.0;
+            a2x2[1][0] = 2.0;
+            a2x2[0][1] = 3.0;
+            a2x2[1][1] = 4.0;
+            b2[0] = 5.;
+            b2[1] = 11.;
 
-			info = LAPACKE_sgesv(
-				LAPACK_COL_MAJOR,
-				2,
-				1,
-				&a2x2[0][0],
-				2,
-				&ipiv2[0],
-				&b2[0],
-				2
-			);
-			c2[0] = 1.0;
-			c2[1] = 2.0;
-			assert_eqi(info, 0);
-			assert_eqd(b2[0], c2[0], err);
-			assert_eqd(b2[1], c2[1], err);
-		}
+            info = LAPACKE_sgesv(
+                LAPACK_COL_MAJOR,
+                2,
+                1,
+                &a2x2[0][0],
+                2,
+                &ipiv2[0],
+                &b2[0],
+                2
+            );
+            c2[0] = 1.0;
+            c2[1] = 2.0;
+            assert_eqi(info, 0);
+            assert_eqd(b2[0], c2[0], err);
+            assert_eqd(b2[1], c2[1], err);
+        }
     }
 
     return EXIT_SUCCESS;

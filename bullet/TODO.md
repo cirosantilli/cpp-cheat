@@ -11,7 +11,7 @@
         - TODO what happens then?
         - from <https://github.com/bulletphysics/bullet3/blob/2.83/examples/ExampleBrowser/OpenGLGuiHelper.cpp#L447> renderScene
         - `m_guiHelper` is set called from OpenGLExampleBrowser to a OpenGLGuiHelper
-		- CommonRigidBodyBase::renderScene() calls `m_guiHelper->render(m_dynamicsWorld);`
+        - CommonRigidBodyBase::renderScene() calls `m_guiHelper->render(m_dynamicsWorld);`
         - `BasicExample:: CommonRigidBodyBase::renderScene();` calls `CommonRigidBodyBase::renderScene();`
         - colors just alternate between 4 values: <https://github.com/bulletphysics/bullet3/blob/2.83/examples/ExampleBrowser/OpenGLGuiHelper.cpp#L117>
 -   user input

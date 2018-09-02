@@ -50,11 +50,11 @@ int main(int argc, char **argv) {
     clFinish(common.command_queue);
     clEnqueueReadBuffer(common.command_queue, buffer, CL_TRUE, 0, sizeof(input), input, 0, NULL, NULL);
 
-	/* Assertions. */
+    /* Assertions. */
     assert(input[0] == 2);
     assert(input[1] == 3);
 
-	/* Cleanup. */
+    /* Cleanup. */
     clReleaseMemObject(buffer);
     common_deinit(&common);
     return EXIT_SUCCESS;

@@ -79,9 +79,9 @@ int main() {
         btDefaultMotionState *myMotionState = new btDefaultMotionState(startTransform);
         btRigidBody *body = new btRigidBody(btRigidBody::btRigidBodyConstructionInfo(
                 mass, myMotionState, colShape, localInertia));
-		body->setRestitution(objectRestitution);
-		body->setLinearVelocity(btVector3(initialLinearVelocityX, initialLinearVelocityY, initialLinearVelocityZ));
-		body->setAngularVelocity(btVector3(initialAngularVelocityX, initialAngularVelocityY, initialAngularVelocityZ));
+        body->setRestitution(objectRestitution);
+        body->setLinearVelocity(btVector3(initialLinearVelocityX, initialLinearVelocityY, initialLinearVelocityZ));
+        body->setAngularVelocity(btVector3(initialAngularVelocityX, initialAngularVelocityY, initialAngularVelocityZ));
         dynamicsWorld->addRigidBody(body);
     }
 
@@ -106,9 +106,9 @@ int main() {
         btDefaultMotionState *myMotionState = new btDefaultMotionState(startTransform);
         btRigidBody *body = new btRigidBody(btRigidBody::btRigidBodyConstructionInfo(
                 mass, myMotionState, colShape, localInertia));
-		body->setRestitution(objectRestitution);
-		body->setLinearVelocity(btVector3(initialLinearVelocityX, initialLinearVelocityY, initialLinearVelocityZ));
-		body->setAngularVelocity(btVector3(initialAngularVelocityX, initialAngularVelocityY, initialAngularVelocityZ));
+        body->setRestitution(objectRestitution);
+        body->setLinearVelocity(btVector3(initialLinearVelocityX, initialLinearVelocityY, initialLinearVelocityZ));
+        body->setAngularVelocity(btVector3(initialAngularVelocityX, initialAngularVelocityY, initialAngularVelocityZ));
         dynamicsWorld->addRigidBody(body);
     }
 

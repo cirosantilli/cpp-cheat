@@ -22,7 +22,7 @@ Defaults:
 #include "common.h"
 
 int main(int argc, char **argv) {
-	char protoname[] = "tcp";
+    char protoname[] = "tcp";
     char *file_path = "input.tmp";
     char *server_hostname = "127.0.0.1";
     char *server_reply = NULL;

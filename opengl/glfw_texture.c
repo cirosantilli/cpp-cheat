@@ -66,7 +66,7 @@ int main(void) {
     program = common_get_shader_program(vertex_shader_source, fragment_shader_source);
     coord2d_location = glGetAttribLocation(program, "coord2d");
     vertexUv_location = glGetAttribLocation(program, "vertexUv");
-	myTextureSampler_location = glGetUniformLocation(program, "myTextureSampler");
+    myTextureSampler_location = glGetUniformLocation(program, "myTextureSampler");
 
     /* vbo */
     glGenBuffers(1, &vbo);
@@ -75,9 +75,9 @@ int main(void) {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     /* uvbo */
-	glGenBuffers(1, &uvbo);
-	glBindBuffer(GL_ARRAY_BUFFER, uvbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(uvs), uvs, GL_STATIC_DRAW);
+    glGenBuffers(1, &uvbo);
+    glBindBuffer(GL_ARRAY_BUFFER, uvbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(uvs), uvs, GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     /* Texture buffer. */
@@ -136,7 +136,7 @@ int main(void) {
     glDeleteBuffers(1, &vbo);
     glDeleteBuffers(1, &uvbo);
     glDeleteVertexArrays(1, &vao);
-	glDeleteTextures(1, &texture);
+    glDeleteTextures(1, &texture);
     glDeleteProgram(program);
     glfwTerminate();
     return EXIT_SUCCESS;

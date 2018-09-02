@@ -218,7 +218,7 @@ If there is no debugging information with attached source code, run until anothe
 
 Sample output if there are multiple instructions for the current line:
 
-    0x0000000000400593	24	    printf("%d\n", f3(0));
+    0x0000000000400593  24      printf("%d\n", f3(0));
 
 Which contains the:
 
@@ -232,7 +232,7 @@ If there is no source code:
 
 If each instruction corresponds to a single line:
 
-    9	    i += 1;
+    9       i += 1;
 
 the address number is not shown.
 

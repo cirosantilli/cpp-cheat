@@ -230,7 +230,7 @@ int main(int argc, char **argv) {
     program = common_get_shader_program(vertex_shader_source, fragment_shader_source);
     coord2d_location = glGetAttribLocation(program, "coord2d");
     vertexUv_location = glGetAttribLocation(program, "vertexUv");
-	textureSampler_location = glGetUniformLocation(program, "textureSampler");
+    textureSampler_location = glGetUniformLocation(program, "textureSampler");
 
     /* Shader setup 2. */
     const GLchar *fs;
@@ -242,8 +242,8 @@ int main(int argc, char **argv) {
     program2 = common_get_shader_program(vertex_shader_source2, fs);
     coord2d_location2 = glGetAttribLocation(program2, "coord2d");
     vertexUv_location2 = glGetAttribLocation(program2, "vertexUv");
-	textureSampler_location2 = glGetUniformLocation(program2, "textureSampler");
-	pixD_location2 = glGetUniformLocation(program2, "pixD");
+    textureSampler_location2 = glGetUniformLocation(program2, "textureSampler");
+    pixD_location2 = glGetUniformLocation(program2, "pixD");
 
     /* Create vbo. */
     glGenBuffers(1, &vbo);
@@ -377,7 +377,7 @@ int main(int argc, char **argv) {
     CommonV4l2_deinit(&common_v4l2);
     glDeleteBuffers(1, &vbo);
     glDeleteVertexArrays(1, &vao);
-	glDeleteTextures(1, &texture);
+    glDeleteTextures(1, &texture);
     glDeleteProgram(program);
     glfwTerminate();
     return EXIT_SUCCESS;

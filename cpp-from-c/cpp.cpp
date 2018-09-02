@@ -9,9 +9,9 @@ int f(float i) {
 }
 
 int f_int(int i) {
-	return f(i);
+    return f(i);
 }
 
 int f_float(float i) {
-	return f(i);
+    return f(i);
 }

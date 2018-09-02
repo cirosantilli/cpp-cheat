@@ -22,7 +22,7 @@ int main(void) {
     Common common;
     const size_t global_work_size = sizeof(input) / sizeof(input[0]);
 
-	/* Run kernel. */
+    /* Run kernel. */
     common_init(&common, source);
     buffer = clCreateBuffer(common.context, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, sizeof(input), input, NULL);
     clSetKernelArg(common.kernel, 0, sizeof(buffer), &buffer);
@@ -31,11 +31,11 @@ int main(void) {
     clFinish(common.command_queue);
     clEnqueueReadBuffer(common.command_queue, buffer, CL_TRUE, 0, sizeof(input), input, 0, NULL, NULL);
 
-	/* Assertions. */
+    /* Assertions. */
     assert(input[0] == 2);
     assert(input[1] == 3);
 
-	/* Cleanup. */
+    /* Cleanup. */
     clReleaseMemObject(buffer);
     common_deinit(&common);
     return EXIT_SUCCESS;

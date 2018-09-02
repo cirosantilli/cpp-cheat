@@ -8,11 +8,11 @@ the cursor is imply not lowered anymore.
 
 int main(void) {
     int i;
-	initscr();
-	for (i = 0; i < 1000; ++i) {
+    initscr();
+    for (i = 0; i < 1000; ++i) {
         printw("%d\n", i);
     }
-	press_any_key_to_quit();
-	endwin();
-	return 0;
+    press_any_key_to_quit();
+    endwin();
+    return 0;
 }

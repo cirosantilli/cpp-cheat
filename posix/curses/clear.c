@@ -4,12 +4,12 @@
 #include "common_curses.h"
 
 int main(void) {
-	initscr();
-	printw("before clear\n");
-	clear();
-	printw("after clear\n");
-	refresh();
-	press_any_key_to_quit();
-	endwin();
-	return 0;
+    initscr();
+    printw("before clear\n");
+    clear();
+    printw("after clear\n");
+    refresh();
+    press_any_key_to_quit();
+    endwin();
+    return 0;
 }

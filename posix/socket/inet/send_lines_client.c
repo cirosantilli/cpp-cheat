@@ -31,7 +31,7 @@ Default port: 12345
 #include "common.h"
 
 int main(int argc, char **argv) {
-	char protoname[] = "tcp";
+    char protoname[] = "tcp";
     FILE *sockf;
     char *server_hostname = "127.0.0.1";
     char *server_reply = NULL;
