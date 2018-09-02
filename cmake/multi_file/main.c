@@ -4,6 +4,6 @@
 #include "a.h"
 
 int main(void) {
-	printf("%d\n", a());
+    printf("%d\n", a());
     return EXIT_SUCCESS;
 }

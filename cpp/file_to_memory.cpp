@@ -17,7 +17,7 @@ struct ostreambuf : public std::basic_streambuf<char_type, std::char_traits<char
 };
 
 void write(std::ostream& os) {
-	os << "abc";
+    os << "abc";
 }
 
 int main() {
@@ -31,27 +31,27 @@ int main() {
     }
 
     /* To memory, but in a hidden buffer. */
-	{
-		std::stringstream s;
-		write(s);
-		assert(s.str() == "abc");
-	}
+    {
+        std::stringstream s;
+        write(s);
+        assert(s.str() == "abc");
+    }
 
     /* To file. */
-	{
-		std::ofstream s("a.tmp");
-		write(s);
-		s.close();
-	}
+    {
+        std::ofstream s("a.tmp");
+        write(s);
+        s.close();
+    }
 
     /* I think this is implementation defined.
      * pusetbuf calls basic_filebuf::setbuf(). */
-	{
-	    char c[3];
-		std::ofstream s;
+    {
+        char c[3];
+        std::ofstream s;
         s.rdbuf()->pubsetbuf(c, sizeof c);
-		write(s);
-		s.close();
+        write(s);
+        s.close();
         //assert(memcmp(c, "abc", sizeof(c)) == 0);
-	}
+    }
 }

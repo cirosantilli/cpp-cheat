@@ -303,37 +303,37 @@ int main() {
     // # Range switch case.
     // http://stackoverflow.com/questions/9432226/how-do-i-select-a-range-of-values-in-a-switch-statement/42331563#42331563
     {
-		const std::map<int, int> result{
-			{-1, -1},
-			{ 0,  0},
-			{ 1,  0},
-			{ 2,  2},
-			{ 3,  2},
-			{ 4,  2},
-			{ 5,  5},
-			{ 6,  5},
-			{ 7,  7},
-		};
-		int x;
-		const std::map<int,std::function<void()>> m{
+    const std::map<int, int> result{
+    {-1, -1},
+    { 0,  0},
+    { 1,  0},
+    { 2,  2},
+    { 3,  2},
+    { 4,  2},
+    { 5,  5},
+    { 6,  5},
+    { 7,  7},
+    };
+    int x;
+    const std::map<int,std::function<void()>> m{
             {0, [&](){
-	            x = -1;
-		    }},
+                x = -1;
+        }},
             {2, [&](){
-			    x = 0;
-		    }},
+        x = 0;
+        }},
             {5, [&](){
-			    x = 2;
-		    }},
+        x = 2;
+        }},
             {7, [&](){
-			    x = 5;
-		    }}
+        x = 5;
+        }}
         };
-		const auto end = m.end();
+    const auto end = m.end();
         for (auto i = -1; i < 8; ++i) {
             auto it = m.upper_bound(i);
             if (it == end) {
-            	x = 7;
+    x = 7;
             } else {
                 it->second();
             }

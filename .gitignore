@@ -44,3 +44,6 @@ callgrind.out*
 
 # perf
 perf.data*
+
+# gnuplot inputs generated from executables.
+*.dat

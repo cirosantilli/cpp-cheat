@@ -2,6 +2,6 @@
 #include <stdlib.h>
 
 int main(void) {
-	puts(__FILE__);
+    puts(__FILE__);
     return EXIT_SUCCESS;
 }

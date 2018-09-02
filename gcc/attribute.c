@@ -402,14 +402,14 @@ int main() {
 
             C11 has aligned_alloc:
 
-			- http://stackoverflow.com/questions/227897/how-to-allocate-aligned-memory-only-using-the-standard-library
-			- http://stackoverflow.com/questions/3839922/aligned-malloc-in-gcc
+    - http://stackoverflow.com/questions/227897/how-to-allocate-aligned-memory-only-using-the-standard-library
+    - http://stackoverflow.com/questions/3839922/aligned-malloc-in-gcc
 
-			Assume that function argument pointer is aligned:
-			http://stackoverflow.com/questions/9608171/how-to-tell-gcc-that-a-pointer-argument-is-always-double-word-aligned
+    Assume that function argument pointer is aligned:
+    http://stackoverflow.com/questions/9608171/how-to-tell-gcc-that-a-pointer-argument-is-always-double-word-aligned
 
-			TODO does it work for stack variables?
-			http://stackoverflow.com/questions/841433/are-stack-variables-aligned-by-the-gcc-attribute-alignedx
+    TODO does it work for stack variables?
+    http://stackoverflow.com/questions/841433/are-stack-variables-aligned-by-the-gcc-attribute-alignedx
         */
         {
             assert(aligned16 == 0);

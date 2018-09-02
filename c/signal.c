@@ -139,38 +139,38 @@ void signal_handler(int sig) {
      * In POSIX, we can use write(STDOUT_FILENO, but still there is
      * no way to format the string apparently.
      *
-	 * - https://stackoverflow.com/questions/16891019/how-to-avoid-using-printf-in-a-signal-handler
-	 * - https://stackoverflow.com/questions/14573000/print-int-from-signal-handler-using-write-or-async-safe-functions
+     * - https://stackoverflow.com/questions/16891019/how-to-avoid-using-printf-in-a-signal-handler
+     * - https://stackoverflow.com/questions/14573000/print-int-from-signal-handler-using-write-or-async-safe-functions
      * */
-	/*printf("sig: %d\n", sig);*/
+    /*printf("sig: %d\n", sig);*/
 
-	global = 1;
+    global = 1;
     /* After the signal is dealt with, the handler is then changed to its default action
      * if you want to continue using this handler for future signals, you have to reregister. */
-	signal(sig, signal_handler);
+    signal(sig, signal_handler);
 }
 
 int main(void) {
 
     /* TODO: why don't we handle SIGABRT? */
     signal(SIGABRT, signal_handler);
-	/*abort();*/
+    /*abort();*/
     /*assert(i == 1);*/
 
 #if 0
     /* # Floating point exception
      *
      * TODO why hangs? */
-	{
-		signal(SIGFPE, signal_handler);
-		int i = 0;
-		int j = 0;
-		/* cannot do 1 / 0 or the compiler will give a warning. Lets dupe him: */
-		j = 1 / i;
-		/* you need this `printf` or the compiler may optimize your division away */
-		printf("%d", j);
-		assert(global == 1);
-	}
+    {
+        signal(SIGFPE, signal_handler);
+        int i = 0;
+        int j = 0;
+        /* cannot do 1 / 0 or the compiler will give a warning. Lets dupe him: */
+        j = 1 / i;
+        /* you need this `printf` or the compiler may optimize your division away */
+        printf("%d", j);
+        assert(global == 1);
+    }
 #endif
 
     /*

@@ -158,7 +158,7 @@ class NoBaseNoMember {
         }
 
         static void temporaryReferenceConst(const NoBaseNoMember& temp) {
-        	si = temp.i;
+            si = temp.i;
         }
 };
 
