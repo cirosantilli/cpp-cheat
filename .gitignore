@@ -1,17 +1,20 @@
 # Final output files: executables, .so, .a
 _build/
 
-# Cmake style generated files
+# Cmake style generated files.
 build/
 
 # Executable generated on current directory.
 main
 
-# Compiled Object files
+# Compiled object files
 *.slo
 *.lo
 *.out
 *.o
+
+# Assembly output from gcc -S.
+*.s
 
 # Compiled Dynamic libraries
 *.so
