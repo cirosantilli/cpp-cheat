@@ -1,21 +1,25 @@
-/*
-To see if
-
-    ./pthread_count.out &
-    cat /proc/$!/status | grep -i thread
-    kill $!
-
-shows the right thread count.
-*/
+/* To see if
+ *
+ *     ./pthread_count.out &
+ *     cat /proc/$!/status | grep -E '^Threads:'
+ *     kill $!
+ *
+ * shows the right thread count:
+ *
+ *     Threads:        5
+ *
+ * which is 1 main thread + 4 we spawned.
+ */
 
 #include "common.h"
 
 void* main_thread(void *arg) {
+    (void)arg;
     sleep(1000000);
     return NULL;
 }
 
-int main() {
+int main(void) {
     int i;
     enum NUM_THREADS {NUM_THREADS = 4};
     pthread_t threads[NUM_THREADS];
