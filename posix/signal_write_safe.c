@@ -1,5 +1,6 @@
 /* Write integers from a signal handler in an async signal safe way:
  *
+ * - https://stackoverflow.com/questions/16891019/how-to-avoid-using-printf-in-a-signal-handler/52145149#52145149
  * - https://stackoverflow.com/questions/14573000/print-int-from-signal-handler-using-write-or-async-safe-functions/52111436#52111436
  *
  * Just unit test that our async signal safe implementation of itoa works:

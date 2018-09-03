@@ -16,7 +16,6 @@ void flush_stdin_to_newline() {
             /* TODO deal with error proprely */
         }
     } while (junk[strlen( junk ) -1 ] != '\n');
-
 }
 
 /* user get string until newline.
@@ -33,7 +32,6 @@ void ugstr(char* out, int max) {
         if (fgets(out, max, stdin) == NULL) {
             /* TODO deal with error proprely */
         }
-
         char *newline = strchr(out, '\n'); /* search for newline character */
         if (newline == NULL) {
             /* No newline. too much input. reask. */
@@ -53,18 +51,18 @@ void ugstr(char* out, int max) {
 void user_get_string(char* out, int max) {
     fprintf(stderr, "enter a string and press <enter> (max %d chars):\n", max-1);
     fflush(stderr);
-    ugstr(out,max);
+    ugstr(out, max);
 }
 
 /* Same as str2int, but prints errors to stderr. */
 str2num_errno str2int_stderr(int *i, char *s, int base) {
     str2num_errno out = str2int(i, s, base);
     if (out == STR2NUM_INCONVERTIBLE) {
-        fprintf(stderr,"\"%s\" is not an int \n",s);
+        fprintf(stderr, "\"%s\" is not an int \n", s);
     } else if (out == STR2NUM_OVERFLOW) {
-        fprintf(stderr,"\"%s\" is too large for an int. max value: %d\n", s, INT_MAX);
+        fprintf(stderr, "\"%s\" is too large for an int. max value: %d\n", s, INT_MAX);
     } else if (out == STR2NUM_UNDERFLOW) {
-        fprintf(stderr,"\"%s\" is too small for an int. min value: %d\n", s, INT_MIN);
+        fprintf(stderr, "\"%s\" is too small for an int. min value: %d\n", s, INT_MIN);
     }
     return out;
 }
@@ -73,13 +71,12 @@ str2num_errno str2int_stderr(int *i, char *s, int base) {
 int user_get_int(int base) {
     int out;
     str2num_errno err;
-    const int max=64;
+    enum { max = 64 };
     char in[max];
-
     while (1) {
         fprintf(stderr, "enter a integer and press <enter>:\n");
         fflush(stderr);
-        ugstr(in,max);
+        ugstr(in, max);
         err = str2int_stderr(&out, in, base);
         if (err == STR2NUM_SUCCESS) {
             break;
@@ -88,15 +85,15 @@ int user_get_int(int base) {
     return out;
 }
 
-/*same as str2float, but prints errors to stderr*/
+/* Same as str2float, but prints errors to stderr. */
 str2num_errno str2float_stderr(float *f, char *s) {
     str2num_errno out = str2float(f, s);
     if(out == STR2NUM_INCONVERTIBLE) {
-        fprintf(stderr,"\"%s\" is not a float \n",s);
+        fprintf(stderr, "\"%s\" is not a float \n", s);
     } else if(out == STR2NUM_OVERFLOW) {
-        fprintf(stderr,"\"%s\" is too large for a float. max value: %f\n",s,FLT_MAX);
+        fprintf(stderr, "\"%s\" is too large for a float. max value: %f\n", s, FLT_MAX);
     } else if(out == STR2NUM_UNDERFLOW) {
-        fprintf(stderr,"\"%s\" is too small for a float. min value: %f\n",s,FLT_MIN);
+        fprintf(stderr, "\"%s\" is too small for a float. min value: %f\n", s, FLT_MIN);
     }
     return out;
 }
@@ -104,9 +101,8 @@ str2num_errno str2float_stderr(float *f, char *s) {
 float user_get_float() {
     float out;
     str2num_errno err;
-    const int max=64;
+    enum { max = 64 };
     char in[max];
-
     while (1) {
         fprintf(stderr, "enter a float and press <enter>:\n");
         fflush(stderr);
