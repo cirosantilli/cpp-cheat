@@ -83,12 +83,22 @@ char *itoa_safe(intmax_t value, char *result, int base) {
 volatile sig_atomic_t global = 0;
 
 void signal_handler(int sig) {
-    char buf[ITOA_SAFE_STRLEN(sig_atomic_t)];
+    char key_str[] = "count, sigid: ";
+    /* This is exact:
+     * - the null after the first int will contain the space
+     * - the null after the second int will contain the newline
+     */
+    char buf[2 * ITOA_SAFE_STRLEN(sig_atomic_t) + sizeof(key_str)];
     enum { base = 10 };
     char *end;
-    end = itoa_safe(global, buf, base);
-    *end = '\n';
-    write(STDOUT_FILENO, buf, end - buf + 1);
+    end = buf;
+    strcpy(end, key_str);
+    end += sizeof(key_str);
+    end = itoa_safe(global, end, base);
+    *end++ = ' ';
+    end = itoa_safe(sig, end, base);
+    *end++ = '\n';
+    write(STDOUT_FILENO, buf, end - buf);
     global += 1;
     signal(sig, signal_handler);
 }
