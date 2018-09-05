@@ -1,4 +1,9 @@
 env = Environment()
-x = ARGUMENTS.get('x', '0')
+AddOption(
+    '--myx',
+    default='0',
+    help='the help for x',
+)
+x = GetOption('myx')
 env.Append(CPPDEFINES=['X=' + x])
 env.Program(target='main.out', source=['main.c'])

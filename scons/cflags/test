@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 set -eu
-cd "${top}/cflags"
-scons >>"$log_path" 2>&1
-[ scons std=c89 >>"$log_path" 2>&1 ] && assert_fail 'cflags c89'
+scons
+! scons std=c89
 

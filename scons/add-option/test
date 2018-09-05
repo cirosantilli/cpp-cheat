@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -eu
+scons
+[ "$(./main.out)" = '0' ]
+scons --myx=1
+[ "$(./main.out)" = '1' ]
+scons --myx=0
+[ "$(./main.out)" = '0' ]

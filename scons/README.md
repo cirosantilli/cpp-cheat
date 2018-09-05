@@ -15,10 +15,11 @@ Tested on SCons v2.3.0.
 1.  [ARGUMENTS](arguments/)
     1.  [VariantDir](variant-dir/)
         1.  [Two envs](two-envs/)
+    1.  [AddOption](add-option/)
 1.  [Install](install/)
 1.  Compiler parameters
     1.  [Define](define/)
     1.  [CFLAGS](cflags/)
 1.  Infrastructure
     1.  [test](test)
-    1.  [clean](clean)
+    1.  [clean](cleanr)
