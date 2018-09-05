@@ -19,3 +19,6 @@ Tested on SCons v2.3.0.
 1.  Compiler parameters
     1.  [Define](define/)
     1.  [CFLAGS](cflags/)
+1.  Infrastructure
+    1.  [test](test)
+    1.  [clean](clean)

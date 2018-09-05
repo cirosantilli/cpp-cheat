@@ -1,4 +1,1 @@
-# Hello world
-
-    scons
-    ./main.out
+Hello world.
