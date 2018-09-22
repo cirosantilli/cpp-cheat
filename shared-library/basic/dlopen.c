@@ -7,7 +7,7 @@
 #include "a.h"
 #include "b.h"
 
-int main() {
+int main(void) {
     void *handle;
     int (*a)(void);
     int (*b)(void);
