@@ -23,12 +23,14 @@
 #include <wchar.h>
 #if __STDC_VERSION__ >= 199901L
   /* Not yet implemented in GCC 5.2. */
-/*#  include <threads.h>*/
 # ifndef __STDC_NO_COMPLEX__
 #  include <complex.h>
 # endif
 # if __STDC_VERSION__ >= 201112L
 #  include <stdnoreturn.h>
+#  ifndef __STDC_NO_THREADS__
+#   include <threads.h>
+#  endif
 # endif
 #endif
 
