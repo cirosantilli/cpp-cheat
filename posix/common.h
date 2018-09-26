@@ -75,7 +75,8 @@
 #include <unistd.h> /* read, fork, ftruncate, write */
 
 #define COMMON_UNUSED(x) (void)(x)
-#define TMPFILE(x) __FILE__ "__" x ".tmp"
+#define TMPFILE_EXT ".tmp"
+#define TMPFILE(x) __FILE__ "__" x TMPFILE_EXT
 
 union semun {
     int              val;    /* Value for SETVAL */

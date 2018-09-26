@@ -1046,27 +1046,6 @@ int main(void) {
             }
         }
 
-        /* # mkdir */
-        {
-            struct stat s;
-            char fname[] = TMPFILE("mkdir");
-
-            // Remove the file if it exists.
-            if(stat(fname, &s) == 0)
-                rmdir(fname);
-
-            // Make the dir and check for error.
-            if(mkdir(fname, 0777) == -1)
-                assert(false);
-        }
-
-        /* # rmdir */
-        {
-            mkdir("rmdir", 0777);
-            if(rmdir("rmdir") == -1)
-                assert(false);
-        }
-
         /*
         # ls
 

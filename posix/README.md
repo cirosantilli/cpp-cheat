@@ -24,6 +24,7 @@
 1.  [Regex](regex.c)
 1.  File IO
     1. [write_read](write_read.c)
+    1. [mkdir](mkdir.c)
 1.  Networking
     1.  [socket](socket/)
     1.  [netdb.h](netdb-h.md)
