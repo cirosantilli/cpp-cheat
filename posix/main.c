@@ -921,51 +921,6 @@ int main(void) {
     }
 
     /*
-    # File and directory operations
-
-        there is no standard portable way of doing most them:
-        <http://www.devarticles.com/c/a/Cplusplus/Directories-in-Cplusplus/>
-
-        posix alternatives:
-
-        - portable semi heavyweight: booost: # include <boost/filesystem/operations.hpp>
-        - portable lightweight: dirent.h
-    */
-    {
-        /*
-        # access
-
-            http://pubs.opengroup.org/onlinepubs/9699919799/functions/access.html
-
-            Check if file or directory exists and or has a given permission (rwx):
-
-            - `R_OK`
-            - `W_OK`
-            - `X_OK`
-            - `F_OK`: file exists
-
-            If the access is not permitted, errno is still set even if this call did not give an error.
-
-            TODO vs stat?
-        */
-        {
-            char *exist = realpath(".", NULL);
-            if (access(exist, F_OK) == -1) {
-                perror("access");
-                assert(false);
-            }
-            free(exist);
-
-            char *dont_exist = "/i/dont/canot/must/not/exist.asdf";
-            if (access(dont_exist, F_OK) == -1) {
-                perror("access(dont_exist, F_OK)");
-            } else {
-                assert(false);
-            }
-        }
-    }
-
-    /*
     # getrlimit
 
         Returns the maximum value for a given resource.
