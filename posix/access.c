@@ -3,6 +3,8 @@
  * Check if a file exists and its permissions.
  *
  * Just a convenient subset of stat().
+ *
+ * http://pubs.opengroup.org/onlinepubs/9699919799/functions/access.html
  */
 
 #include "common.h"

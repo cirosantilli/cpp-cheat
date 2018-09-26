@@ -1,6 +1,4 @@
-/*
-Write to a file, then read it back to memory.
-*/
+/* Write to a file, then read it back to memory. */
 
 #include "common.h"
 

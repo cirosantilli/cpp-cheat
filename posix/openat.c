@@ -1,6 +1,8 @@
 /* # openat
  *
  * Create a file with a path relative to a given directory.
+ *
+ * http://pubs.opengroup.org/onlinepubs/9699919799/functions/open.html
  */
 
 #include "common.h"
