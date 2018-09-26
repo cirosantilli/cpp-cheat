@@ -1,25 +1,20 @@
-#include "common.h"
+#define _XOPEN_SOURCE 700
+#include <assert.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 int main(void) {
-    int i, ret;
-    struct stat s;
-    char fname[] = __FILE__ TMPFILE_EXT;
+    int dir_fd, file_fd;
+    char fname[] = __FILE__ ".tmp";
 
-    /* Do it twice, so that on second time, we are sure it exists,
-     * to exercise every possible state. */
-    for (i = 0; i < 2; ++i) {
-        /* Remove the directory if it exists. */
-        ret = stat(fname, &s);
-        if (ret) {
-            /* ENOENT happens when it exists, other errors are unexpected. */
-            assert(errno == ENOENT);
-            assert(rmdir(fname) == 0);
-        }
-
-        /* Make the dir and check for error. */
-        if(mkdir(fname, 0777) == -1)
-            assert(false);
-    }
-
+    dir_fd = open(".", O_DIRECTORY);
+    assert(dir_fd != -1);
+    file_fd = openat(dir_fd, fname, O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+    assert(file_fd != -1);
+    assert(close(dir_fd) != -1);
+    assert(close(file_fd) != -1);
     return EXIT_SUCCESS;
 }

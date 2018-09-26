@@ -10,9 +10,11 @@ int main(void) {
     int f, ret;
     size_t off;
 
-    /* write */
-    /* Could return less than the requested size if e.g. no more disk space.
-     * and that is not considered an error. */
+    /* write
+     *
+     * It could return less than the requested size if e.g. no more disk space.
+     * and that is not considered an error.
+     */
     f = open(__FILE__ ".tmp", O_CREAT | O_WRONLY | O_TRUNC, S_IRUSR | S_IWUSR);
     if (f == -1) {
         perror("open");
@@ -29,8 +31,10 @@ int main(void) {
     close(f);
 
     /* read
+     *
      * Could return less than requested, specially when reading from pipes.
-     * So we need to keep reading. 0 means EOF. */
+     * So we need to keep reading. 0 means EOF.
+     */
     off = 0;
     f = open(__FILE__ ".tmp", O_RDONLY);
     if (f == -1) {

@@ -11,15 +11,12 @@ int main(void) {
         /* Remove the directory if it exists. */
         ret = stat(fname, &s);
         if (ret == 0) {
-            /* ENOENT happens when it exists, other errors are unexpected. */
-            assert(errno == ENOENT);
             assert(rmdir(fname) == 0);
         }
 
         /* Make the dir and check for error. */
-        if(mkdir(fname, 0777) == -1)
+        if (mkdir(fname, S_IRWXU) == -1)
             assert(false);
     }
-
     return EXIT_SUCCESS;
 }
