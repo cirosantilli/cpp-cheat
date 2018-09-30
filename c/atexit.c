@@ -12,7 +12,7 @@ void atexit_func() {
     printf("atexit\n");
 }
 
-int main() {
+int main(void) {
     atexit(atexit_func);
     return EXIT_SUCCESS;
 }

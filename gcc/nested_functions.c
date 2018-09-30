@@ -15,7 +15,7 @@
 int nested() { return 0; }
 
 
-int main() {
+int main(void) {
     assert(nested() == 0);
     int nested() { return 1; }
     {

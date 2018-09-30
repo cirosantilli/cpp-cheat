@@ -9,7 +9,7 @@ int f() {
     return g();
 }
 
-int main() {
+int main(void) {
     printf("%d\n", f());
     return EXIT_SUCCESS;
 }

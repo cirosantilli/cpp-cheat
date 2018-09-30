@@ -19,7 +19,7 @@
 
 #include "common.h"
 
-int main() {
+int main(void) {
     assert(1 and 1);
     assert(0 or 1);
     return EXIT_SUCCESS;

@@ -11,7 +11,7 @@
 
 #include "common.h"
 
-int main() {
+int main(void) {
     assert(__builtin_constant_p(1));
     assert(__builtin_constant_p(1 + 1));
     const int i = 0;

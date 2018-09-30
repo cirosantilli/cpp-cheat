@@ -37,7 +37,7 @@ http://stackoverflow.com/questions/6834487/what-is-the-variable-in-shell-scripti
 
 #include "common.h"
 
-int main() {
+int main(void) {
     int status;
     pid_t pid = fork();
     if (pid == -1) {

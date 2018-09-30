@@ -34,7 +34,7 @@ service name (strings) to their ports and vice versa.
 
 #include "common.h"
 
-int main() {
+int main(void) {
     struct servent *servent;
     int port;
     char proto[] = "tcp";

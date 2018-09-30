@@ -7,7 +7,7 @@ https://stackoverflow.com/questions/50066342/how-to-get-a-notification-if-a-give
 #include <time.h>
 #include <unistd.h>
 
-int main() {
+int main(void) {
     if (time(NULL) % 2) {
         sleep(3);
     } else {

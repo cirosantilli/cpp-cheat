@@ -33,7 +33,7 @@
 
 #include "common.h"
 
-int main() {
+int main(void) {
     /* Basic usage */
     {
         size_t bytes = sizeof(int) * 2;

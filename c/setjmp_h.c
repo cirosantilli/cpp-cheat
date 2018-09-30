@@ -32,7 +32,7 @@ int setjmp_func(int jmp, jmp_buf env_buf) {
         return 1;
 }
 
-int main() {
+int main(void) {
     jmp_buf env_buffer;
     int val;
 

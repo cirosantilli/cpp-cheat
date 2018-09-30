@@ -17,7 +17,7 @@ int f(int i, int j) {
     return i + j;
 }
 
-int main() {
+int main(void) {
     /* Declare function. */
     {
         f_t f;

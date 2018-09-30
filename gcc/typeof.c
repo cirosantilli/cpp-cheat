@@ -10,7 +10,7 @@ https://stackoverflow.com/questions/6513806/would-it-be-possible-to-add-type-inf
 
 #include "common.h"
 
-int main() {
+int main(void) {
     /* Same as: double j = 0.5; */
     typeof(1 + 0.5) j = 0.5;
     assert(j == 0.5);

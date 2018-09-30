@@ -21,7 +21,7 @@ void func_struct_1(struct func_struct s) {
     assert(s.i == 1);
 }
 
-int main() {
+int main(void) {
 #if __STDC_VERSION__ >= 199901L
     /* Compound literals for arrays */
     {

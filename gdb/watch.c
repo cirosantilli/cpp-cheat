@@ -6,7 +6,7 @@ For testing how many lines some debugging commands show, e.g. `l`
 
 int i = 0;
 
-int main() {
+int main(void) {
     i += 1;
     i += 2;
     i += 3;

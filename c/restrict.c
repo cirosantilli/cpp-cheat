@@ -34,7 +34,7 @@ void restrict_double_add_one_restrict(int * restrict i, int *j, int *add) {
     *j += *add;
 }
 
-int main() {
+int main(void) {
 #if __STDC_VERSION__ >= 199901L
     {
         int i = 0;

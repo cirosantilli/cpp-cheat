@@ -34,7 +34,7 @@ int f0(int i) {
     return i;
 }
 
-int main() {
+int main(void) {
     printf("%d\n", f0(1));
     return 0;
 }

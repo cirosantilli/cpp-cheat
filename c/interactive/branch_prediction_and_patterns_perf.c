@@ -15,7 +15,7 @@ void f(long p) {
             sum++;
 }
 
-int main() {
+int main(void) {
     f(INT_MIN);
     f(-1);
     f(1);

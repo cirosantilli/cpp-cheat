@@ -4,7 +4,7 @@ int f() {
     puts("in f");
 }
 
-int main() {
+int main(void) {
     /* Do a nexti now! */
     f();
     return 0;

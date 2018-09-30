@@ -46,7 +46,7 @@ void printMain() {
 
 void printA();
 
-int main() {
+int main(void) {
     printA();
     printMain();
     printf("commonUninitInt = %d\n", commonUninitInt);

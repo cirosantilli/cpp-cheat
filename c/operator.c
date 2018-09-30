@@ -11,7 +11,7 @@ int int_func_int(int i) {
     return i;
 }
 
-int main() {
+int main(void) {
     /*
     # Arithmetic operators
 

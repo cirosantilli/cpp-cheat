@@ -12,7 +12,7 @@
 
 #include "common.h"
 
-int main() {
+int main(void) {
 
     /*
     TODO what are all possible types of incomplete types?

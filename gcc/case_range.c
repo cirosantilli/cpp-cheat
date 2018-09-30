@@ -4,7 +4,7 @@
 
 #include "common.h"
 
-int main() {
+int main(void) {
     int i = 1;
     switch (i) {
         case 0 ... 2:

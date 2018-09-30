@@ -18,6 +18,6 @@
 
 #define ABC 123
 
-int main() {
+int main(void) {
     return 0;
 }

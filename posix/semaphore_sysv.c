@@ -10,7 +10,7 @@
 
 #include "common.h"
 
-int main() {
+int main(void) {
     /* Not defined in any header, we must define it ourselves! TODO why? */
     union semun mysemun;
     int fd;

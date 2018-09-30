@@ -6,7 +6,7 @@
 
 #include "common.h"
 
-int main() {
+int main(void) {
     /* Standard multi line comment. */
     /*
     assert(false);

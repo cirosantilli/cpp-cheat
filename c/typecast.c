@@ -23,7 +23,7 @@
 
 #include "common.h"
 
-int main() {
+int main(void) {
     /*
     # Implicit typecasts done on operations
 

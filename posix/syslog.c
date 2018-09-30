@@ -34,7 +34,7 @@
 
 #include "common.h"
 
-int main() {
+int main(void) {
     syslog(LOG_ERR | LOG_USER, "syslog test: %m\n");
     return EXIT_SUCCESS;
 }

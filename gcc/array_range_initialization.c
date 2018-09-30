@@ -4,7 +4,7 @@
 
 #include "common.h"
 
-int main() {
+int main(void) {
     int is[] = {
         [0 ... 2] = 0,
         [3 ... 5 ] = 1

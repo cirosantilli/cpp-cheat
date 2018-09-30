@@ -9,7 +9,7 @@
 
 #include "common.h"
 
-int main() {
+int main(void) {
     /*
     `(x, y)` *always* returns `x`.
 

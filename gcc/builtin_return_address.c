@@ -11,7 +11,7 @@
 
 #include "common.h"
 
-int main();
+int main(void);
 
 void builtin_return_address_test() {
     /*
@@ -24,7 +24,7 @@ void builtin_return_address_test() {
     return;
 }
 
-int main() {
+int main(void) {
     builtin_return_address_test();
     return EXIT_SUCCESS;
 }

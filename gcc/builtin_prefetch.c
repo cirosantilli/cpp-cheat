@@ -46,7 +46,7 @@ void get_cache_dirty() {
     assert(is[0] == 1);
 }
 
-int main() {
+int main(void) {
     int j = 1;
 
     get_cache_dirty();

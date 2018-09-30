@@ -201,7 +201,7 @@ int write_float_arr_file(char * path, float *arr, int len, int precision) {
     return 0;
 }
 
-int main() {
+int main(void) {
     /*
     # BUFSIZ
 

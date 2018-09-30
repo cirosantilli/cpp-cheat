@@ -22,7 +22,7 @@
 
 #include "common.h"
 
-int main() {
+int main(void) {
     int fd;
     int *map;
     char *name = "/" TMPFILE();

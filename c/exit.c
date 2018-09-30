@@ -14,7 +14,7 @@ void exit_func() {
     exit(EXIT_SUCCESS);
 }
 
-int main() {
+int main(void) {
     exit_func();
     /* Never gets run */
     return EXIT_FAILURE;

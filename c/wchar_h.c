@@ -13,7 +13,7 @@
 
 #include "common.h"
 
-int main() {
+int main(void) {
     char cs[] = "汉语";
     printf("%s\n", cs);
 

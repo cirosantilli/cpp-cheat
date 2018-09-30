@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <time.h>
 
-int main() {
+int main(void) {
     int i;
     if (time(NULL) % 2) {
         i = 0;

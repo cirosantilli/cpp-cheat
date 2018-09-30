@@ -6,7 +6,7 @@
 
 #include "common.h"
 
-int main() {
+int main(void) {
     int complex z = 1 + 1*I;
     int complex z2 = 1 - 1*I;
     assert(z + z2 == 2  );

@@ -6,7 +6,7 @@
 
 #include "common.h"
 
-int main() {
+int main(void) {
 #if defined(__GNUC__) && (__GNUC__ >= 5 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 9))
     __auto_type i = 1;
     assert(_Generic((i), int: 1, default: 0));

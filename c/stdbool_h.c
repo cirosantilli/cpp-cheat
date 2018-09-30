@@ -18,7 +18,7 @@
 
 #include "common.h"
 
-int main() {
+int main(void) {
 #if __STDC_VERSION__ >= 199901L
     bool b = true;
     bool b2 = false;

@@ -17,7 +17,7 @@
 
 #include "common.h"
 
-int main() {
+int main(void) {
     assert('??=' == '#');
     assert('??(' == '[');
     /* TODO literal backslash? */

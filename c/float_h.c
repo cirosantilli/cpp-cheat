@@ -12,7 +12,7 @@
 
 #include "common.h"
 
-int main() {
+int main(void) {
     /*
     # Rounding method
 

@@ -34,7 +34,7 @@
 
 #include "common.h"
 
-int main() {
+int main(void) {
     /* TODO: do something interesting with it. */
     volatile int vi;
     return EXIT_SUCCESS;

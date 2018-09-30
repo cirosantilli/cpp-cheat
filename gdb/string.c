@@ -10,7 +10,7 @@ String.
 
 char *s = "ab\ncd\n";
 
-int main() {
+int main(void) {
     printf("%s\n", s);
     return 0;
 }

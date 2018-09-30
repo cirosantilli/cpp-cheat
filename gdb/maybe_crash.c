@@ -9,7 +9,7 @@ gdb -ex 'set confirm on' -ex=run -ex=quit --args ./maybe_crash.out
 #include <stdlib.h>
 #include <time.h>
 
-int main() {
+int main(void) {
     if (time(NULL) % 2) {
         raise(SIGINT);
     }

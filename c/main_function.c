@@ -14,7 +14,7 @@
  *
  * Valid signatures: either:
  *
- *     int main()
+ *     int main(void)
  *
  * or:
  *

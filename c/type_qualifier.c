@@ -6,7 +6,7 @@
 
 #include "common.h"
 
-int main() {
+int main(void) {
     /* Repeating qualifiers is OK and has no effect. C99 9.7.3.4 */
     {
         const const const const int i = 0;

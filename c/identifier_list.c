@@ -20,7 +20,7 @@ void g() {}
 /* Identifier type list. This one is not optional. */
 void h(void) {}
 
-int main() {
+int main(void) {
     assert(f(1, 2) == 3);
     return EXIT_SUCCESS;
 }

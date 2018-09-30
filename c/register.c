@@ -19,7 +19,7 @@ void f(register int i) {}
 /* -pedantic: File scope declaration. */
 /*register int i;*/
 
-int main() {
+int main(void) {
     {
         register int ri;
     }

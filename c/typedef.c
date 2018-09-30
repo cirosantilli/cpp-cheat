@@ -14,7 +14,7 @@
 
 #include "common.h"
 
-int main() {
+int main(void) {
     {
         typedef int Newint;
         Newint i = 1;

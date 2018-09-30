@@ -13,7 +13,7 @@
 
 #include "common.h"
 
-int main() {
+int main(void) {
     /* Basic struct definition. */
     struct S {
         int i;

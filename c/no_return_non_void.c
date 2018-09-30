@@ -16,7 +16,7 @@ int f() {}
 #endif
 #endif
 
-int main() {
+int main(void) {
 #if __STDC_VERSION__ >= 199901L
 #ifdef UNDEFINED_BEHAVIOUR
     f();

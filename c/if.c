@@ -2,7 +2,7 @@
 
 #include "common.h"
 
-int main() {
+int main(void) {
     /* Only 0 counts as false. */
     if (0) {
         assert(0);

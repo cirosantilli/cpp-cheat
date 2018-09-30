@@ -61,7 +61,7 @@
 
 int *ip;
 
-int main() {
+int main(void) {
     /*
     It never points to any possible valid memory location:
     global, local variable, malloc return, ...

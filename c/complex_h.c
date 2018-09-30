@@ -40,7 +40,7 @@
 
 #include "common.h"
 
-int main() {
+int main(void) {
 #if __STDC_VERSION__ >= 199901L
 #ifndef __STDC_NO_COMPLEX__
     puts("!__STDC_NO_COMPLEX__");

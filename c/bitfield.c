@@ -6,7 +6,7 @@
 
 #include "common.h"
 
-int main() {
+int main(void) {
     struct S {
         unsigned b1 : 1;
         unsigned b2 : 2;

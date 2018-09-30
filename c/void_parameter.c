@@ -20,6 +20,6 @@ void void_arg(void);
 
 void def(void) {}
 
-int main() {
+int main(void) {
     return EXIT_SUCCESS;
 }

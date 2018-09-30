@@ -27,7 +27,7 @@ noreturn
 #endif
 void g() { exit(0); }
 
-int main() {
+int main(void) {
 #if __STDC_VERSION__ >= 201112L
     f();
     g();

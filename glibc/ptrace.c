@@ -25,7 +25,7 @@
 #define REGRIP(regs) (intmax_t)regs.eip
 #endif
 
-int main() {
+int main(void) {
 
     pid_t child_pid;
     int i;

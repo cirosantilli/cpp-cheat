@@ -8,7 +8,7 @@
 
 #include "common.h"
 
-int main() {
+int main(void) {
     int i;
     int *pi, *pi2;
     /* BAD */

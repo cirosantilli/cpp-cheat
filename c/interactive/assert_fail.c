@@ -8,7 +8,7 @@
 
 #include "common.h"
 
-int main() {
+int main(void) {
     assert(0);
     puts("here");
     return EXIT_SUCCESS;

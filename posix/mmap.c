@@ -12,7 +12,7 @@
 
 #include "common.h"
 
-int main() {
+int main(void) {
     char *filepath = TMPFILE();
     enum Constexpr { NUMINTS = 4 };
     int filesize = NUMINTS * sizeof(int);

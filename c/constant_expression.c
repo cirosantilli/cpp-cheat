@@ -23,7 +23,7 @@
 */
 #include "common.h"
 
-int main() {
+int main(void) {
     const int i = 0;
 
     /* ERROR: not a constant expression. */

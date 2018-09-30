@@ -9,7 +9,7 @@
 
 #include "common.h"
 
-int main() {
+int main(void) {
     /* SAME: */
     int i;
     auto int i2;

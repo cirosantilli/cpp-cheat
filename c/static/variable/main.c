@@ -15,7 +15,7 @@ void m() {
     puts("");
 }
 
-int main() {
+int main(void) {
     m();
     m();
     a();

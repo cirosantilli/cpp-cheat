@@ -4,7 +4,7 @@
 
 #include "common.h"
 
-int main() {
+int main(void) {
     clock_t t;
     uintmax_t i, j;
 

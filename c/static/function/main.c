@@ -13,7 +13,7 @@ void m() {
     sf();
 }
 
-int main() {
+int main(void) {
     m();
     a();
     return 0;

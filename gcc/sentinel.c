@@ -33,7 +33,7 @@ void print_strings(const char* first, ...) {
     va_end(ap);
 }
 
-int main() {
+int main(void) {
     print_strings("print_strings", "a", "b", "c", NULL);
     print_strings("print_strings", "a", "b", "c", (void *)NULL);
 

@@ -9,6 +9,6 @@
 #ifdef UNDEFINED_BEHAVIOUR
 #endif
 
-int main() {
+int main(void) {
     return EXIT_SUCCESS;
 }

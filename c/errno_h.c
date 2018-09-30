@@ -26,7 +26,7 @@
 
 #include "common.h"
 
-int main() {
+int main(void) {
     /* No error */
     errno = 0;
 

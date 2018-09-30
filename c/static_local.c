@@ -28,7 +28,7 @@ void f(int *i_out, int *si_out) {
     *si_out = si;
 }
 
-int main() {
+int main(void) {
     int i;
     int si;
 

@@ -28,7 +28,7 @@
 
 char s[256];
 
-int main() {
+int main(void) {
 
     /* char */
     {

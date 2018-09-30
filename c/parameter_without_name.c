@@ -22,7 +22,7 @@ int f(int i, float g) { return i + (int)g; }
 
 int void_parameter(void) { return 1; }
 
-int main() {
+int main(void) {
     assert(f(1, 1.5) == 2);
 
     /* The exception is the "void paramter". */

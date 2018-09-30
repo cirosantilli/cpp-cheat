@@ -4,7 +4,7 @@ int f(int i, int j) {
     return i + j;
 }
 
-int main() {
+int main(void) {
     int i;
     int (*fp)(int, int);
     fp = f;

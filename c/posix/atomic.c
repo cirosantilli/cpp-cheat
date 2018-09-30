@@ -52,7 +52,7 @@ void* main_thread(void *arg) {
 }
 #endif
 
-int main() {
+int main(void) {
 #ifndef __STDC_NO_ATOMICS__
     int i;
 

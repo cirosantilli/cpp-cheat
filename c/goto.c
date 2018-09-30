@@ -12,7 +12,7 @@ int goto_func(int i) {
     return 1;
 }
 
-int main() {
+int main(void) {
     /*
     However, avoid using this as it may generate unreadable code.
 

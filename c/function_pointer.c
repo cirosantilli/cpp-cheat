@@ -21,7 +21,7 @@ int int_func_func_int_int(int (*function_ptr)(int, int), int m, int n) {
     return (*function_ptr)(m, n);
 }
 
-int main() {
+int main(void) {
     /*
     Basic usage.
 

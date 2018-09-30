@@ -4,7 +4,7 @@ For testing how many lines some debugging commands show, e.g. `l`
 
 #include <stdio.h>
 
-int main() {
+int main(void) {
     int i = 0;
     i += 1;
     i += 2;

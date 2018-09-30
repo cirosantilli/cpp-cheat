@@ -243,7 +243,7 @@ char aligned16 __attribute__ ((aligned (16))) = 0;
         int __attribute__((section("newsection2"))) newsection2_var = 2;
 
 
-int main() {
+int main(void) {
     /*
     # Function attributes
 

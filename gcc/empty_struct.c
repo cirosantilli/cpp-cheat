@@ -4,7 +4,7 @@
 
 #include "common.h"
 
-int main() {
+int main(void) {
     struct s {};
     struct s s0;
     assert(sizeof(s0) == 0);

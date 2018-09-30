@@ -25,7 +25,7 @@ void* main_thread(void *arg) {
     return NULL;
 }
 
-int main() {
+int main(void) {
     int i;
     pthread_t threads[NUM_THREADS];
     for (i = 0; i < NUM_THREADS; ++i)

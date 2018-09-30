@@ -2,7 +2,7 @@
 
 #include "common.h"
 
-int main() {
+int main(void) {
     /* Basic example. */
     {
         int i = 0;

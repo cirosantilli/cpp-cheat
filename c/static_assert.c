@@ -14,7 +14,7 @@
 
 #include "common.h"
 
-int main() {
+int main(void) {
 #if __STDC_VERSION__ >= 201112L
     /* ERROR: static assertion failed: "Error message". */
     /*_Static_assert(0, "Error message.");*/

@@ -10,7 +10,7 @@
 
 #include "common.h"
 
-int main() {
+int main(void) {
     const int namelength = 256;
     char hostname[namelength];
     gethostname(hostname, namelength);

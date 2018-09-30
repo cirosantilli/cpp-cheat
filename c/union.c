@@ -11,7 +11,7 @@
 
 #include "common.h"
 
-int main() {
+int main(void) {
     {
         union U {
             int i;

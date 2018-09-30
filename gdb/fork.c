@@ -4,7 +4,7 @@
 #include <sys/types.h> /* pid_t */
 #include <unistd.h> /* fork */
 
-int main() {
+int main(void) {
     pid_t pid = fork();
     if (pid == 0) {
         puts("child");

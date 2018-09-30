@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <time.h>
 
-int main() {
+int main(void) {
     int i;
     i  = time(NULL);
     /* This should generate an inner block. */

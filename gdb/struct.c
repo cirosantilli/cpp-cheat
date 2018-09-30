@@ -7,7 +7,7 @@ typedef struct {
 
 S s = {1, 1.1};
 
-int main() {
+int main(void) {
     printf("%d %f\n", s.i, s.f);
     s.i = 2;
     s.f = 2.2;

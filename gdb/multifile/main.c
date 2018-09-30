@@ -10,7 +10,7 @@ int main_a = 1;
 int main_f() { return 1; }
 int main_g() { return 1; }
 
-int main() {
+int main(void) {
     assert(main_a == 1);
     assert(main_f() == 1);
     assert(main_g() == 1);

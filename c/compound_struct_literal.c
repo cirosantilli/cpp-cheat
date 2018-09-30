@@ -8,7 +8,7 @@
 
 #include "common.h"
 
-int main() {
+int main(void) {
     struct S { int i; int j; };
 
     /* Basic example. */

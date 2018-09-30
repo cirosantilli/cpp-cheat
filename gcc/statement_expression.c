@@ -23,7 +23,7 @@ https://gcc.gnu.org/onlinedocs/gcc/Statement-Exprs.html
 
 #include "common.h"
 
-int main() {
+int main(void) {
     /* Minimal example */
     int x = ({int i = 0; i++; i + 1;});
     assert(x == 2);

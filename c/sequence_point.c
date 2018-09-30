@@ -51,7 +51,7 @@ int post_inc_global() {
     return global - 1;
 }
 
-int main() {
+int main(void) {
     /*
     Implementation defined.
 

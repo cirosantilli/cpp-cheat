@@ -15,7 +15,7 @@
 
 #include "common.h"
 
-int main() {
+int main(void) {
     /* Basic example. */
     {
         unsigned __int128 i = (unsigned __int128)1 << 127;

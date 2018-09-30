@@ -7,7 +7,7 @@
 
 #include "common.h"
 
-int main() {
+int main(void) {
     {
         /*
         # CHAR_BIT

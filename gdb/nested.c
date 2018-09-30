@@ -20,7 +20,7 @@ int f3(int i) {
     return f2(i + 1);
 }
 
-int main() {
+int main(void) {
     printf("%d\n", f3(0));
     return 0;
 }

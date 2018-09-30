@@ -8,6 +8,6 @@ _start is not?
 /*void __libc_start_main() {}*/
 /*void _start() {}*/
 
-int main() {
+int main(void) {
     return 0;
 }

@@ -22,7 +22,7 @@ void atexit_func() {
     printf("atexit\n");
 }
 
-int main() {
+int main(void) {
     /* Will not get called. */
     atexit(atexit_func);
     abort();

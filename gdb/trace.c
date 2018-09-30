@@ -5,7 +5,7 @@ int f(int i) {
     return i + 1;
 }
 
-int main() {
+int main(void) {
     int i;
     for (i = 0; i < 4; i++) {
         printf("%d\n", f(i));

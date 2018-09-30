@@ -71,7 +71,7 @@ int sprintf_wrapper(char *s, const char *fmt, ...) {
     return ret;
 }
 
-int main() {
+int main(void) {
 
     /* Basic examples */
     assert(variadic_add(3, 1, 2, 3)       == 6);

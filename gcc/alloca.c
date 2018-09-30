@@ -19,7 +19,7 @@ int f() {
     return ip[0];
 }
 
-int main() {
+int main(void) {
     assert(f() == 1);
     return EXIT_SUCCESS;
 }

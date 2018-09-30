@@ -5,7 +5,7 @@ http://stackoverflow.com/questions/2388561/block-output-of-debugged-program-gdb/
 #include <stdio.h>
 #include <stdlib.h>
 
-int main() {
+int main(void) {
     fprintf(stderr, "hello world\n");
     return EXIT_SUCCESS;
 }

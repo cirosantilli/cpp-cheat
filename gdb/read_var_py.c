@@ -6,7 +6,7 @@ Local and global variables.
 
 int g = 1;
 
-int main() {
+int main(void) {
     int i;
     float f;
     i = 1;
