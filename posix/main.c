@@ -1181,10 +1181,6 @@ int main(void) {
     /*
     # process info
 
-        # getpid
-
-            Each process has an unique identifying integer called PID.
-
         # getuid
 
             Each process has user information associated to it
@@ -1202,26 +1198,8 @@ int main(void) {
 
             Like `uid` versions but for group.
 
-        # getppid
-
-            Get parent's pid.
-
         It seems that it is not possible to list all children of a process in POSIX:
         <http://stackoverflow.com/questions/1009552/how-to-find-all-child-processes>
-
-        # getsid
-
-        # setsid
-
-        # setpgrp
-
-        # getpgrp
-
-        # Session
-
-        # Process group
-
-            TODO http://en.wikipedia.org/wiki/Process_group
     */
     {
         uid_t uid  = getuid();

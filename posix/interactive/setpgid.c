@@ -1,6 +1,56 @@
-/* https://unix.stackexchange.com/questions/149741/why-is-sigint-not-propagated-to-child-process-when-sent-to-its-parent-process/465112#465112
- * https://stackoverflow.com/questions/31907212/will-ctrlc-send-sigint-signals-to-both-parent-and-child-processes-in-linux/52042820#52042820
- * https://stackoverflow.com/questions/6108953/how-does-ctrl-c-terminate-a-child-process/52042970#52042970
+/* # setpgid
+ *
+ * http://pubs.opengroup.org/onlinepubs/9699919799/functions/setpgid.html
+ *
+ * Expected outcome documented at:
+ *
+ * Without argument, we change the process group of the child with setpgid:
+ *
+ *     ./setpgid.out
+ *
+ * and the program first outputs immediately:
+ *
+ *     child pid, pgid = 16396, 16396
+ *     parent pid, pgid = 16395, 16395
+ *     sigint
+ *
+ * and then whenever you hit Ctrl + C, it prints:
+ *
+ *     sigint
+ *
+ * once.
+ *
+ * With an argument:
+ *
+ *     ./setpgid.out 0
+ *
+ * The initial output shows that both child and parent have the same pgid as in:
+ *
+ *     child pid, pgid = 18747, 18746
+ *     parent pid, pgid = 18746, 18746
+ *
+ * and then each Ctrl + C outputs sigint twice:
+ *
+ *     sigint
+ *     sigint
+ *
+ * See also:
+ *
+ * - https://unix.stackexchange.com/questions/149741/why-is-sigint-not-propagated-to-child-process-when-sent-to-its-parent-process/465112#465112
+ * - https://stackoverflow.com/questions/31907212/will-ctrlc-send-sigint-signals-to-both-parent-and-child-processes-in-linux/52042820#52042820
+ * - https://stackoverflow.com/questions/6108953/how-does-ctrl-c-terminate-a-child-process/52042970#52042970
+ *
+ * # Process group
+ *
+ * http://en.wikipedia.org/wiki/Process_group
+ *
+ * # getpgrp
+ *
+ * Same at `getpgid(0)`.
+ *
+ * # setpgrp
+ *
+ * Same at `setpgid(0, 0)`, deprecated in POSIX 7.
  */
 
 #define _XOPEN_SOURCE 700

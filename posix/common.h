@@ -1,37 +1,17 @@
-/*
-# Headers
-
-    List of all headers: http://en.wikipedia.org/wiki/C_POSIX_library
-
-    POSIX defines certain things *inside*
-    headers with the same name as the ANSI stdlib ones
-    which are only activated if you add the defines *before
-    including those files*!
-
-    GCC: if you want to access them with the `-ansi -c99` flags,
-    you need to define `XXX_XOPEN_SOURCE`
-
-    There are other preprocessor defines which may expose POSIX functions
-    such as `_POSIX_C_SOURCE` and `POSIX_SOURCE`
-
-    For the GNU C library, see:
-
-        man feature_test_macros
-
-    for an explanation.
-
-    The actual value of the preprocessor refers to the POSIX version. For example:
-
-    - 500: issue 5, 1995
-    - 600: issue 6, 2004
-    - 700: issue 7, 2008
-*/
-
+/* Enable POSIX 7 definitions on the headers.
+ *
+ * This must come before including any other headers, because POSIX
+ * defines extensions inside ANSI C headers.
+ *
+ * POSIX 7 says http://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap02.html:
+ *
+ * > For the C programming language, shall define _XOPEN_SOURCE to be 700 before any header is included
+ *
+ * See also: https://stackoverflow.com/questions/5378778/what-does-d-xopen-source-do-mean
+ */
 #define _XOPEN_SOURCE 700
-/*#define _POSIX_C_SOURCE 200112L*/
-/*#define POSIX_SOURCE*/
 
-/* ANSI headers to which POSIX adds extensions. */
+/* ANSI C, many with POSIX extensions. */
 #include <assert.h>
 #include <limits.h> /* NZERO */
 #include <math.h> /* M_PI, M_PI_2, M_PI_4 */

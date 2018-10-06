@@ -1,45 +1,37 @@
-/*
-Expected outcome:
-
-- works with mutex
-- fails without
-
-# PTHREAD_MUTEX_INITIALIZER
-
-    New pthread_mutex_t should be initialized to it.
-
-# pthread_mutex_lock
-
-    Acquire mutex: from now one no one else can enter.
-
-    The mutex is required because:
-
-        global++
-
-    is not atomic.
-
-    There are no non-locking atomic types in POSIX:
-    http://stackoverflow.com/questions/1130018/unix-portable-atomic-operations
-
-# pthread_mutex_unlock
-
-    Release mutex: from now one others can enter.
-
-# volatile
-
-    We don't need:
-
-        volatile global
-
-    because `pthread_mutex_lock` and many other pthread functions
-    already enforce cross thread memory synchronization:
-    http://stackoverflow.com/questions/3208060/does-guarding-a-variable-with-a-pthread-mutex-guarantee-its-also-not-cached
+/* # pthread_mutex
+ *
+ * Assert passes because of mutex:
+ *
+ *     ./pthread_mutex.out
+ *
+ * Disable mutex and watch assert fail with very high probability on Ubuntu 18.04:
+ *
+ *     ./pthread_mutex.out 0
+ *
+ * thus confirming that the mutex was necessary, otherwise `++` is not atomic,
+ * and concurrent accesse mess up with it.
+ *
+ * There are no non-locking atomic types in POSIX:
+ * http://stackoverflow.com/questions/1130018/unix-portable-atomic-operations
+ *
+ * ## pthread_mutex_lock
+ *
+ * ## pthread_mutex_unlock
+ *
+ * http://pubs.opengroup.org/onlinepubs/9699919799/functions/pthread_mutex_lock.html
+ *
+ * ## volatile is not needed
+ *
+ * We don't need:
+ *
+ *     volatile global
+ *
+ * because `pthread_mutex_lock` and many other pthread functions
+ * already enforce cross thread memory synchronization:
+ * http://stackoverflow.com/questions/3208060/does-guarding-a-variable-with-a-pthread-mutex-guarantee-its-also-not-cached
 */
 
-#define _XOPEN_SOURCE 700
-#include <assert.h>
-#include <stdlib.h>
-#include <pthread.h>
+#include "common.h"
 
 enum CONSTANTS {
     NUM_THREADS = 1000,
@@ -51,6 +43,7 @@ int fail = 0;
 pthread_mutex_t main_thread_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 void* main_thread(void *arg) {
+    COMMON_UNUSED(arg);
     int i;
     for (i = 0; i < NUM_ITERS; ++i) {
         if (!fail)
@@ -65,6 +58,7 @@ void* main_thread(void *arg) {
 int main(int argc, char **argv) {
     pthread_t threads[NUM_THREADS];
     int i;
+    COMMON_UNUSED(argv);
     fail = argc > 1;
     for (i = 0; i < NUM_THREADS; ++i)
         pthread_create(&threads[i], NULL, main_thread, NULL);
