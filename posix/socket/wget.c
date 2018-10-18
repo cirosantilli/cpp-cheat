@@ -1,32 +1,27 @@
-/*
-https://stackoverflow.com/questions/11208299/http-get-request-using-c-without-libcurl/35680609#35680609
-
-Fetches a web page and print it to stdout.
-
-example.com:
-
-    ./wget
-
-Given page:
-
-    ./wget google.com
-
-IP:
-
-    ./wget 104.16.118.182
-*/
+/* https://stackoverflow.com/questions/11208299/http-get-request-using-c-without-libcurl/35680609#35680609
+ *
+ * Do an HTTP request to fetch a web page and print it to stdout:
+ *
+ *     ./wget google.com
+ *
+ * Hangs until you do a Ctrl + C.
+ *
+ * IP:
+ *
+ *     ./wget 104.16.118.182
+ *
+ * Connection works, but request fails because we don't set Ctrl + C properly here.
+ */
 
 #define _XOPEN_SOURCE 700
-
+#include <arpa/inet.h>
 #include <assert.h>
+#include <netdb.h> /* getprotobyname */
+#include <netinet/in.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#include <arpa/inet.h>
-#include <netdb.h> /* getprotobyname */
-#include <netinet/in.h>
 #include <sys/socket.h>
 #include <unistd.h>
 

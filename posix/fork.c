@@ -2,17 +2,15 @@
  *
  * Makes a copy of this process.
  *
- * Sample output:
+ * Possible output
  *
- *     parent only before child
- *     child and parent
- *     parent only
- *     child fork() = 9949
- *     child and parent
- *     child only
- *     child getpid() = 9949
- *     child getppid() = 9948
- *     parent only after child
+ *     before fork pid=16026 ppid=14381
+ *     after fork pid=16031 ppid=16026
+ *     inside (pid == 0) pid=16031 ppid=16026
+ *     after fork pid=16026 ppid=14381
+ *     after (pid == 0) pid=16026 ppid=14381
+ *     after wait pid=16026 ppid=14381
+ *     fork() return = 16031
  *
  * ## fork and stream buffering
  *
@@ -66,6 +64,11 @@
 
 #include "common.h"
 
+void print_pid(char *msg) {
+    printf("%s ", msg);
+    printf("pid=%jd ppid=%jd\n", (intmax_t)getpid(), (intmax_t)getppid());
+}
+
 int main(void) {
     int status;
     /* This variable will be duplicated on the parent and on the child. */
@@ -81,8 +84,8 @@ int main(void) {
         exit(EXIT_FAILURE);
     }
 
-    puts("parent only before child");
-
+    /* Happens on parent only: child does not exist yet! */
+    print_pid("before fork");
     /* Flush before fork so that existing output won't be duplicated. */
     fflush(stdout);
     fflush(stderr);
@@ -94,15 +97,18 @@ int main(void) {
         perror("fork");
         assert(false);
     }
-    puts("child and parent");
 
-    /* Happens on child only. */
+    /* Happens both on parent and child. */
+    print_pid("after fork");
+
     if (pid == 0) {
-        /* This puts is asynchronous with the process stdout.
+        /* Happens on child only.
+         *
+         * This print is asynchronous with the process stdout.
          * So it might not be in the line program order.
          * But they both go to the same terminal.
          */
-        puts("child only");
+        print_pid("inside (pid == 0)");
 
         /* Child has a different PID than its parent */
         pid = getpid();
@@ -111,8 +117,6 @@ int main(void) {
             exit(EXIT_FAILURE);
         }
         assert(pid != ppid);
-        printf("child getpid() = %jd\n", (intmax_t)pid);
-        printf("child getppid() = %jd\n", (intmax_t)getppid());
 
         /* This only change the child's `i` because memory was cloned (unlike threads). */
         i++;
@@ -123,17 +127,10 @@ int main(void) {
 
     /* Only the parent reaches this point because of the exit call
      * done on the child.
-     */
-    puts("parent only");
-
-    /* fork returns the child pid to the parent.
      *
-     * This could be asserted with the getpid in the child,
-     * but would require the child to communicate that back to the parent,
-     * which would need a `mmap` + `semaphore`,
-     * and we don't want to complicate the example too much.
+     * Could happen before or after the child executes.
      */
-    printf("child fork() = %jd\n", (intmax_t)pid);
+    print_pid("after (pid == 0)");
 
     /* Wait for any child to terminate, then wake up.
      * Since we only have on child here, wait for that one child to terminate.
@@ -146,8 +143,15 @@ int main(void) {
         assert(false);
     }
 
-    /* Only happens on parent, since we have waited for the child to exit by now.*/
-    puts("parent only after child");
+    /* fork returns the child pid to the parent.
+     *
+     * This could be asserted with the getpid in the child,
+     * but would require the child to communicate that back to the parent,
+     * which would need a `mmap` + `semaphore`,
+     * and we don't want to complicate the example too much.
+     */
+    print_pid("after wait");
+    printf("fork() return = %jd\n", (intmax_t)pid);
 
     /* Memory was cloned, parent `i` was only modified in child memory. */
     assert(i == 0);
