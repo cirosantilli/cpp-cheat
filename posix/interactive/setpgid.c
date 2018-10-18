@@ -2,8 +2,6 @@
  *
  * http://pubs.opengroup.org/onlinepubs/9699919799/functions/setpgid.html
  *
- * Expected outcome documented at:
- *
  * Without argument, we change the process group of the child with setpgid:
  *
  *     ./setpgid.out
@@ -53,14 +51,7 @@
  * Same at `setpgid(0, 0)`, deprecated in POSIX 7.
  */
 
-#define _XOPEN_SOURCE 700
-#include <assert.h>
-#include <signal.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
+#include "common.h"
 
 void signal_handler(int sig) {
     char sigint_str[] = "sigint\n";
@@ -71,7 +62,7 @@ void signal_handler(int sig) {
 }
 
 int main(int argc, char **argv) {
-    (void)(argv);
+    COMMON_UNUSED(argv);
     pid_t pid, pgid;
 
     signal(SIGINT, signal_handler);
