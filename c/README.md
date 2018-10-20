@@ -44,6 +44,7 @@
                 1.  [union](union.c)
         1.  [Literals](literals.c)
             1.  [Compound struct literal](compound_struct_literal.c)
+            1.  [Hex float literal](hex_float.c)
         1.  [Typecast](typecast.c)
         1.  Compile time operations
             1.  [_Generic](generic.c)
