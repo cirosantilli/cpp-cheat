@@ -13,7 +13,6 @@
     Prefer `.hpp` which indicates that the header is C++ specific, and not pure C.
 */
 
-#include <atomic>
 #include <algorithm> // copy, erase, lower_bound, remove_if, swap, transform
 #include <bitset>
 #include <exception> // bad_alloc, bad_cast, bad_exception, bad_typeid, exception, ios_base::failure
@@ -29,26 +28,29 @@
 #include <numeric> // partial sums, differences on std::vectors of numbers
 #include <ostream> // ostream
 #include <queue> // priority_queue
-#include <ratio> // ratio, nano
-#include <random>
 #include <set> // multiset, set
 #include <string> // getline, string
 #include <sstream> // stringstream
 #include <typeinfo> // typeid, bad_typeid, bad_typecast
-#include <tuple> // tuple
-#include <unordered_set>
-#include <unordered_map> // unordered_map, unordered_multimap
 #include <utility> // forward, get, pair, size_t, type_info, declval
 #include <vector> // vector
 #include <valarray>
 
 #if __cplusplus >= 201103L
 #include <array> // array
+#include <atomic>
+#include <cassert>
 #include <chrono> // nanoseconds
 #include <mutex> // mutex
+#include <random>
+#include <ratio> // ratio, nano
 #include <regex> // regex
 #include <thread> // thread
+#include <tuple>
+#include <type_traits> // is_pod, is_trivial, is_trivially_copyable, etc. etc.
 #include <typeindex> // type_index
+#include <unordered_set>
+#include <unordered_map> // unordered_map, unordered_multimap
 #endif
 
 /*
@@ -76,19 +78,9 @@
 
     http://stackoverflow.com/questions/32606023/when-using-c-headers-in-c-should-we-use-functions-from-std-or-the-global-na
 */
-#include <cassert>
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
-
-// Keeps a list of functions that called it for testing purposes.
-std::vector<std::string> callStack;
-void printCallStack() {
-    std::cout << "callStack:" << std::endl;
-    for (auto& s : callStack)
-        std::cout << s << std::endl;
-    std::cout << "END callStack" << std::endl;
-}
 
 // Global thread parameters.
 const int NUM_THREADS = 1000;
@@ -97,6 +89,16 @@ const int NUM_OPS = NUM_THREADS * NUM_ITERS;
 
 // Misc.
 bool odd(int i){ return (i % 2) == 1; }
+
+#if __cplusplus >= 201103L
+// Keeps a list of functions that called it for testing purposes.
+std::vector<std::string> callStack;
+void printCallStack() {
+    std::cout << "callStack:" << std::endl;
+    for (auto& s : callStack)
+        std::cout << s << std::endl;
+    std::cout << "END callStack" << std::endl;
+}
 
 /**
  * Simple instrumented class for tests on constructor destructor order.
@@ -177,3 +179,4 @@ class NoBaseNoMember1 {
         ~NoBaseNoMember1(){callStack.push_back("NoBaseNoMember1::~NoBaseNoMember1()");}
         void method(){callStack.push_back("NoBaseNoMember1::method()");}
 };
+#endif

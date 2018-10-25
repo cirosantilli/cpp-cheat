@@ -910,13 +910,6 @@ int main() {
         # Aggregate initialization
 
             http://en.cppreference.com/w/cpp/language/aggregate_initialization
-
-        # POD
-
-            Plain old data:
-
-            https://stackoverflow.com/questions/146452/what-are-pod-types-in-c
-            http://stackoverflow.com/questions/4178175/what-are-aggregates-and-pods-and-how-why-are-they-special
         */
         {
             // Syntax with new.
