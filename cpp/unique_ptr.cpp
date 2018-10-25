@@ -59,7 +59,7 @@ void manual_ptr_test() {
 }
 
 // Create unique pointer dynamically,
-// and transfers ownershipt to caller.
+// and transfers ownership to caller.
 std::unique_ptr<Base> return_unique_ptr() {
     return std::unique_ptr<Base>(new Base(1));
 }
@@ -146,7 +146,7 @@ int main() {
         -   use unique_ptr on interface and move on caller.
             - Advantage: unique_ptr on interface documents ownership transfer,
                 and prevents callee from passing non new pointer to it by mistake.
-    - TODO for not transfering ownership:
+    - TODO for not transferring ownership:
         - `const & std::unique_ptr<T>`
         - `get()`. Simple and efficient. But how to use it for containers like `vector<std::unique_ptr>`?
         - `T&` on function, `*t` on caller. Looks good!

@@ -776,7 +776,7 @@ int main() {
             There are other functions which are also defined by default:
             https://en.wikipedia.org/wiki/Special_member_functions
 
-        # Implicily declared constructors
+        # Implicitly declared constructors
 
             If no explicit constructor is declared,
             the compiler automatically declares the following functions:
@@ -791,7 +791,7 @@ int main() {
 
         # Trivial default constructor
 
-        # Implicily defined default constructor
+        # Implicitly defined default constructor
 
             If the implicitly-declared default constructor is not deleted
             or trivial, it is defined (that is, a function body is generated
@@ -1414,7 +1414,7 @@ int main() {
         }
 
         /*
-        It is possible to assing / copy from derived to base class.
+        It is possible to assign / copy from derived to base class.
         */
         {
             Class c;

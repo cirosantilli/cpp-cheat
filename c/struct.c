@@ -1,15 +1,14 @@
-/*
-# struct
-
-    Application:
-
-    - declare lots of data in one go
-
-    - pass lots of data in one go to functions
-
-    - avoid changing function signatures if you add a new field
-        to your struct.
-*/
+/* # struct
+ *
+ * Application:
+ *
+ * -   declare lots of data in one go
+ *
+ * -   pass lots of data in one go to functions
+ *
+ * -   avoid changing function signatures if you add a new field
+ *     to your struct.
+ */
 
 #include "common.h"
 
@@ -20,13 +19,12 @@ int main(void) {
         float f;
     };
 
-    /*
-    # Empty struct
-
-        Invalid, but possible as a GCC extension.
-
-        http://stackoverflow.com/questions/24685399/c-empty-struct-what-does-this-mean-do
-    */
+    /* # Empty struct
+     *
+     * Invalid, but possible as a GCC extension.
+     *
+     * http://stackoverflow.com/questions/24685399/c-empty-struct-what-does-this-mean-do
+     */
     {
         /* ERROR */
         /*struct S {};*/
@@ -44,13 +42,12 @@ int main(void) {
         assert(s.f == 2.0);
     }
 
-    /*
-    Initialization with less members than the total.
-    http://stackoverflow.com/questions/11152160/initializing-a-struct-to-0
-
-    Fine: missing fields get the same value as they would have
-    if they were static storage duration objects, thus 0 for int.
-    */
+    /* Initialization with less members than the total.
+     * http://stackoverflow.com/questions/11152160/initializing-a-struct-to-0
+     *
+     * Fine: missing fields get the same value as they would have
+     * if they were static storage duration objects, thus 0 for int.
+     */
     {
         struct S {int i; int j;};
         struct S s0 = {1};
@@ -80,9 +77,8 @@ int main(void) {
         sp = &s;
 
         /* equivalent `a->b` equals `(*a).b` */
-
-            sp->i = 1;
-            /*(*sp).i = 1;*/
+        sp->i = 1;
+        /*(*sp).i = 1;*/
 
         assert(s.i == 1);
     }
@@ -123,13 +119,12 @@ int main(void) {
     }
 #endif
 
-    /*
-    Array fields
-
-        Array length must be specified.
-
-        Allocates that many objects of the given type.
-    */
+    /* # struct array fields
+     *
+     * Array length must be specified.
+     *
+     * Allocates that many objects of the given type.
+     */
     {
         {
             struct S {
@@ -162,7 +157,6 @@ int main(void) {
             }
 
 #if __STDC_VERSION__ >= 199901L
-
             /* Designated init. */
             {
                 struct S ss[] = {
@@ -178,9 +172,7 @@ int main(void) {
                 assert(ss[1].is1[0] == 6);
                 assert(ss[1].is1[1] == 7);
             }
-
 #endif
-
         }
 
         /* Works for strings. */
@@ -237,16 +229,15 @@ int main(void) {
 
     }
 
-    /*
-    # Unnamed struct
-
-        This is a different concept than *anonymous structs*!!
-        http://stackoverflow.com/questions/14248044/are-anonymous-structs-standard-and-really-what-are-they
-
-        It is possible to create structs which don't have a name.
-
-        Only the structs declared immediatiely after definition can be used.
-    */
+    /* # Unnamed struct
+     *
+     * This is a different concept than *anonymous structs*!!
+     * http://stackoverflow.com/questions/14248044/are-anonymous-structs-standard-and-really-what-are-they
+     *
+     * It is possible to create structs which don't have a name.
+     *
+     * Only the structs declared immediatiely after definition can be used.
+     */
     {
         /* Basic. */
         {
@@ -271,11 +262,10 @@ int main(void) {
             assert(s[1].j == 3);
         }
 
-        /*
-        Initialize array bad style.
-
-        Generates a warning on GCC 4.7 and is horrible to read.
-        */
+        /* Initialize array bad style.
+         *
+         * Generates a warning on GCC 4.7 and is horrible to read.
+         */
         {
             /*struct { int i; int j; } s[] = { 0, 1, 2, 3 };*/
             /*assert(s[0].i == 0);*/
@@ -285,18 +275,17 @@ int main(void) {
         }
 
 #if __STDC_VERSION__ >= 201112L
-        /*
-        # Anonymous substructure and union
-
-            Different from unnamed struct!
-            <http://stackoverflow.com/questions/14248044/are-anonymous-structs-standard-and-really-what-are-they>
-
-            Is an unnamed struct inside another struct.
-
-            Is / was also the non-standard name given to some concept.
-
-            TODO application?
-        */
+        /* # Anonymous substructure and union
+         *
+         * Different from unnamed struct!
+         * <http://stackoverflow.com/questions/14248044/are-anonymous-structs-standard-and-really-what-are-they>
+         *
+         * Is an unnamed struct inside another struct.
+         *
+         * Is / was also the non-standard name given to some concept.
+         *
+         * TODO application?
+         */
         {
             struct S {
                 int i;
@@ -315,45 +304,40 @@ int main(void) {
 #endif
     }
 
-    /*
-    # typedef struct combo
-
-        TL;DR best practice: whenever possible use:
-
-            typedef struct {} S;
-
-        Some people, notably the Linux kernel, disagree:
-        http://stackoverflow.com/questions/252780/why-should-we-typedef-a-struct-so-often-in-c
-
-        Advantages:
-
-        -   avoid typing struct all over
-
-        -   if in the future you decide to change a struct,
-            e.g. to an `int` with boolean flags, you can do it.
-
-            This is because it prevents people from writing `struct S`
-            with the `struct` keyword, and forces them to write just `struct`.
-
-        -   write the identifier only 2 times instead of 3
-
-        -   put all declaration information into one single place.
-            No more "Should the typedef be before or after?" doubts.
-
-        Unfortunately this cannot be done if you need to declare the struct elsewhere to:
-
-        -   you use a pointer to a struct of the same type inside it.
-            E.g.: linked lists.
-
-            In that case, use:
-
-        -   use the declaration across many files. The typedef declaration would go into a `types.h`,
-            and the definition on a `precise-topic.h`.
-    */
+    /* # typedef struct combo
+     *
+     * TL;DR best practice: whenever possible use:
+     *
+     *     typedef struct {} S;
+     *
+     * Some people, notably the Linux kernel, disagree:
+     * http://stackoverflow.com/questions/252780/why-should-we-typedef-a-struct-so-often-in-c
+     *
+     * Advantages:
+     *
+     * -   avoid typing struct all over
+     *
+     * -   if in the future you decide to change a struct,
+     *     e.g. to an `int` with boolean flags, you can do it.
+     *
+     *     This is because it prevents people from writing `struct S`
+     *     with the `struct` keyword, and forces them to write just `struct`.
+     *
+     * -   write the identifier only 2 times instead of 3
+     *
+     * -   put all declaration information into one single place.
+     *     No more "Should the typedef be before or after?" doubts.
+     *
+     * Unfortunately this cannot be done if you need to declare the struct elsewhere to:
+     *
+     * -   you use a pointer to a struct of the same type inside it.
+     *     E.g.: linked lists.
+     *
+     * -   use the declaration across many files. The typedef declaration would go into a `types.h`,
+     *     and the definition on a `precise-topic.h`.
+     */
     {
-        /*
-        The typedef can come before the struct.
-        */
+        /* The typedef can come before the struct. */
         {
             typedef struct S T;
             struct S {
@@ -365,9 +349,7 @@ int main(void) {
             assert(s.i == t.i);
         }
 
-        /*
-        You can typedef and declare the struct in a single statement.
-        */
+        /* You can typedef and declare the struct in a single statement. */
         {
             typedef struct S {
                 int i;
@@ -390,11 +372,10 @@ int main(void) {
             assert(sp->i == 1);
         }
 
-        /*
-        The typedef and the struct can have the same name.
-
-        A common C89 pattern is `typedef struct S {...} S`.
-        */
+        /* The typedef and the struct can have the same name.
+         *
+         * A common C89 pattern is `typedef struct S {...} S`.
+         */
         {
             typedef struct S {
                 int i;
@@ -405,13 +386,12 @@ int main(void) {
             assert(ss.i == s.i);
         }
 
-        /*
-        # typedef to an unamed struct
-
-            - type even less than for typedef struct
-            - prevent anyone from using the useless `struct S`
-            - DRYer
-        */
+        /* # typedef to an unamed struct
+         *
+         * - type even less than for typedef struct
+         * - prevent anyone from using the useless `struct S`
+         * - DRYer
+         */
         {
             {
                 typedef struct {
@@ -424,8 +404,7 @@ int main(void) {
                 /* ERROR: storage size of `t` isn't known. */
                 /* Same error as when the struct is not defined. */
                 /* Awesome, users cannot shoot themselves on the foot! */
-
-                    /*struct TypedefUnnamed t;*/
+                /*struct TypedefUnnamed t;*/
             }
 
             /* Does not work either if the typedef is needed inside the definition. */
@@ -451,10 +430,9 @@ int main(void) {
                     } TypedefUnnamed;
                 }
 
-                /*
-                TODO possible to make it work such that it is impossible to say `struct s`,
-                like with unnamed structs?
-                */
+                /* TODO possible to make it work such that it is impossible to say `struct s`,
+                 * like with unnamed structs?
+                 */
             }
         }
     }
