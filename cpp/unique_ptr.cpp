@@ -3,7 +3,7 @@
 
 Sample use case:
 
-- you want a dynamic array a dynmically allocated derived class
+- you want a dynamic array a dynamically allocated derived class
 - thus you have to use pointers for polymorphism. Otherwise objects can have different sizes, and arrays can't be used.
 - how to prevent memory leaks?
 
@@ -21,6 +21,7 @@ lifetime of objects, and release them immediately when they are done.
 class Base {
     public:
         static int count;
+        Base() : Base(0) {}
         Base(int i) : i(i) {
             count++;
         }
@@ -29,34 +30,7 @@ class Base {
         }
         int i;
 };
-
 int Base::count = 0;
-
-/* No memory leaked. Destructors called. */
-void unique_ptr_test() {
-    std::vector<std::unique_ptr<Base>> bases;
-    for (int i = 0; i < 10; ++i) {
-        bases.push_back(std::unique_ptr<Base>(new Base(i)));
-    }
-}
-
-/* Memory leak. Destructors never called. */
-void raw_ptr_test() {
-    std::vector<Base *> bases;
-    for (int i = 0; i < 10; ++i) {
-        bases.push_back(new Base(i));
-    }
-}
-
-void manual_ptr_test() {
-    std::vector<Base *> bases;
-    for (int i = 0; i < 10; ++i) {
-        bases.push_back(new Base(i));
-    }
-    for (auto base : bases) {
-        delete base;
-    }
-}
 
 // Create unique pointer dynamically,
 // and transfers ownership to caller.
@@ -65,24 +39,67 @@ std::unique_ptr<Base> return_unique_ptr() {
 }
 
 int main() {
-    /* Basic example. */
-    assert(Base::count == 0);
-    unique_ptr_test();
-    assert(Base::count == 0);
-    raw_ptr_test();
-    assert(Base::count == 10);
-    manual_ptr_test();
-    assert(Base::count == 10);
+    /* Basic examples. */
+    {
+        // This is the problem case that we are trying to solve: memory leaks
+        {
+            {
+                Base *base = new Base(1);
+                assert(base->i == 1);
+                assert(Base::count == 1);
+                // You will forget to do this one day.
+                //delete base;
+            }
+            // Then base is lost forever: it went out of scope.
+            // And the memory has leaked.
+            assert(Base::count == 1);
+            // Hack up the count for future tests.
+            Base::count = 0;
+        }
 
-    // ERROR: Convert to raw pointer.
-    // Not possible, the cast operator is not defined.
+        // This is how unique_ptr solves it.
+        {
+            {
+                std::unique_ptr<Base> base(new Base(1));
+                assert(base->i == 1);
+                assert(Base::count == 1);
+            }
+            // Destructor called automatically! No memory leaks!
+            assert(Base::count == 0);
+        }
+
+    }
+
+    /* More commonly, the pointers are inside another container.
+     * When the parent goes out of scope, it just calls the
+     * child constructors in the same way.
+     */
+    {
+        {
+            std::vector<std::unique_ptr<Base>> bases;
+            bases.push_back(std::unique_ptr<Base>(new Base(0)));
+            bases.push_back(std::unique_ptr<Base>(new Base(1)));
+            assert(bases[0]->i == 0);
+            assert(bases[1]->i == 1);
+            assert(Base::count == 2);
+        }
+        assert(Base::count == 0);
+    }
+
+    // Convert to raw pointer.
     {
         std::unique_ptr<int> p(new int);
-        //int *raw = p;
+        int *raw;
+
+        // Not possible, the cast operator is not defined.
+        //raw = p;
+
+        // But can be done explicitly with .get().
+        raw = p.get();
     }
 
     // Copy constructor is deleted.
-    // This is what imposes uniqueness.
+    // This imposes uniqueness of ownership.
     {
         std::unique_ptr<int> p(new int);
         // ERROR.
@@ -121,26 +138,42 @@ int main() {
         }
     }
 
-    /*
-    # reset
-
-    Explicit destruction of pointer. Equivalent to `delete`.
-
-    http://stackoverflow.com/questions/25609457/unique-ptr-explicit-delete
-    */
+    // # reset
     {
-        Base::count = 0;
-        std::unique_ptr<Base> p = std::unique_ptr<Base>(new Base(1));
-        assert(Base::count == 1);
-        p.reset();
+        /* With no argumetns, explicit destruction of pointer. Equivalent to `delete`.
+         *
+         * http://stackoverflow.com/questions/25609457/unique-ptr-explicit-delete
+         */
+        {
+            std::unique_ptr<Base> p(new Base(1));
+            assert(Base::count == 1);
+            p.reset();
+            assert(Base::count == 0);
+        }
+
+        // There is no assignment operator, but reset with an argument
+        // does what you would expect: release and replace.
+        {
+            std::unique_ptr<Base> p(new Base(1));
+            assert(p->i == 1);
+            assert(Base::count == 1);
+
+            // Nope.
+            // p = new Base(2);
+
+            // Yup.
+            p.reset(new Base(2));
+            assert(p->i == 2);
+            assert(Base::count == 1);
+        }
         assert(Base::count == 0);
     }
 
     /*
-    # unique_ptr function argments
+    # unique_ptr function arguments
 
-    -   transfering ownership TODO
-        -   use raw pointeres on the interface, and convert it to unique_ptr inside callee
+    -   transferring ownership TODO examples
+        -   use raw pointers on the interface, and convert it to unique_ptr inside callee
             -   if you already have an unique_ptr, release() it
             -   this allows you to not tie down to a specific smart pointer on the function interface
         -   use unique_ptr on interface and move on caller.
@@ -181,4 +214,19 @@ int main() {
         assert(Base::count == 0);
     }
 #endif
+
+    /* Array inside unique_ptr
+     * https://stackoverflow.com/questions/16711697/is-there-any-use-for-unique-ptr-with-array
+     */
+    {
+        size_t n = 2;
+        Base::count = 0;
+        {
+            std::unique_ptr<Base[]> array(new Base[n]);
+            array[0].i = 1;
+            array[0].i = 1;
+            assert(Base::count == 2);
+        }
+        assert(Base::count == 0);
+    }
 }
