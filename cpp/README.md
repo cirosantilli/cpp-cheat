@@ -64,6 +64,7 @@
     1.  [Headers](common.hpp)
     1.  [Containers](containers.md)
         1.  [vector](vector.cpp)
+        1.  [array](array.cpp)
         1.  [string](string.cpp)
         1.  [list](list.cpp)
         1.  [map](map.cpp)

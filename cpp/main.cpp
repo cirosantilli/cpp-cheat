@@ -110,30 +110,6 @@ int main() {
     */
 
     /*
-    Get array length, find array length: http://stackoverflow.com/questions/4108313/how-do-i-find-the-length-of-an-array
-
-    Besides the C sizeof method which does not work for pointers and has lots of duplication, C++ offers:
-    */
-    {
-        // Vector class. Has overhead, but probably the best option given its flexibility.
-
-        // #array class. No overhead. Fixed size. Template based.
-        {
-            // WARN: double brackets required TODO why
-            //std::array<int, 3> a{0, 1, 2};
-
-            std::array<int, 3> a{{0, 1, 2}};
-            assert(a.size() == 3);
-        }
-
-        // Method which I don't understand.
-        {
-            //template<class T, size_t N>
-            //size_t size(T (&)[N]) { return N; }
-        }
-    }
-
-    /*
     # array size from variables
 
         In C++, any constant expression at compile time can be used as an array size.

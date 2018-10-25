@@ -220,11 +220,20 @@ int main() {
         }
 
         /* Standard library containers are not, for the most part (all?),
-         * POD because they are not trivial.
+         * POD because they are not trivial, which can be seen directly from their
+         * interface definition in the standard.
+         * https://stackoverflow.com/questions/27165436/pod-implications-for-a-struct-which-holds-an-standard-library-container
          */
         {
             static_assert(!std::is_pod<std::vector<int>>());
             static_assert(!std::is_trivially_copyable<std::vector<int>>());
+        }
+
+        /* Array of POD is POD. */
+        {
+            struct C {};
+            static_assert(std::is_pod<C>());
+            static_assert(std::is_pod<C[]>());
         }
     }
 #endif
