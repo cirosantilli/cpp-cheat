@@ -9,6 +9,7 @@
  */
 
 #include <type_traits>
+#include <vector>
 
 int main() {
 /* POD restrictions have become more and more relaxed as the standard evolved.
@@ -22,16 +23,36 @@ int main() {
          * https://en.cppreference.com/w/cpp/named_req/TrivialType
          */
         {
-            /* Not trivial because we removed the default constructor
-             * by using our own custom non-default constructor.
+            /* Has one or more default constructors, all of which are either
+             * trivial or deleted, and at least one of which is not deleted.
              */
             {
-                struct C {
-                    C(int i) {}
-                };
-                static_assert(std::is_trivially_copyable<C>());
-                static_assert(!std::is_trivial<C>());
-                static_assert(!std::is_pod<C>());
+                /* Not trivial because we removed the default constructor
+                * by using our own custom non-default constructor.
+                */
+                {
+                    struct C {
+                        C(int i) {}
+                    };
+                    static_assert(std::is_trivially_copyable<C>());
+                    static_assert(!std::is_trivial<C>());
+                    static_assert(!std::is_pod<C>());
+                }
+
+                /* No, this is not a default trivial constructor either:
+                 * https://en.cppreference.com/w/cpp/language/default_constructor
+                 *
+                 * The constructor is not user-provided (i.e., is implicitly-defined or
+                 * defaulted on its first declaration)
+                 */
+                {
+                    struct C {
+                        C() {}
+                    };
+                    static_assert(std::is_trivially_copyable<C>());
+                    static_assert(!std::is_trivial<C>());
+                    static_assert(!std::is_pod<C>());
+                }
             }
 
             /* Not trivial because not trivially copyable. */
@@ -107,6 +128,17 @@ int main() {
                         int i;
                     };
                     struct C : Base1 {};
+                    static_assert(std::is_standard_layout<C>());
+                    static_assert(std::is_pod<C>());
+                }
+
+                /* Just one base class with non-static member: Base1, Base2 has none. */
+                {
+                    struct Base1 {
+                        int i;
+                    };
+                    struct Base2 {};
+                    struct C : Base1, Base2 {};
                     static_assert(std::is_standard_layout<C>());
                     static_assert(std::is_pod<C>());
                 }
@@ -187,13 +219,12 @@ int main() {
 #endif
         }
 
-        /* Derived.
-         * https://stackoverflow.com/questions/4762788/can-a-class-with-all-private-members-be-a-pod-class/4762944#4762944
+        /* Standard library containers are not, for the most part (all?),
+         * POD because they are not trivial.
          */
         {
-            struct C {};
-            struct D : C {};
-            static_assert(std::is_pod<D>());
+            static_assert(!std::is_pod<std::vector<int>>());
+            static_assert(!std::is_trivially_copyable<std::vector<int>>());
         }
     }
 #endif
