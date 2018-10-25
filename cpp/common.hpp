@@ -1,17 +1,16 @@
-/*
-# Headers
-
-    C++ stdlib headers that are not C stdlib headers don't have the `.h` extension,
-    and therefore are not included with the `.h` extension.
-
-    Pre-standardized versions of C++ by Stroustrup used the `.h` extension, for example `iostream.h`,
-    but this has been deprecated: <http://stackoverflow.com/questions/214230/iostream-vs-iostream-h-vs-iostream-h>
-    It may still exits on certain systems, but never rely on it.
-
-    When writting new libs, you can use either `.h` or `.hpp` as extensions.
-
-    Prefer `.hpp` which indicates that the header is C++ specific, and not pure C.
-*/
+/* # Headers
+ *
+ * C++ stdlib headers that are not C stdlib headers don't have the `.h` extension,
+ * and therefore are not included with the `.h` extension.
+ *
+ * Pre-standardized versions of C++ by Stroustrup used the `.h` extension, for example `iostream.h`,
+ * but this has been deprecated: <http://stackoverflow.com/questions/214230/iostream-vs-iostream-h-vs-iostream-h>
+ * It may still exits on certain systems, but never rely on it.
+ *
+ * When writing new libs, you can use either `.h` or `.hpp` as extensions.
+ *
+ * Prefer `.hpp` which indicates that the header is C++ specific, and not pure C.
+ */
 
 #include <algorithm> // copy, erase, lower_bound, remove_if, swap, transform
 #include <bitset>
@@ -39,7 +38,6 @@
 #if __cplusplus >= 201103L
 #include <array> // array
 #include <atomic>
-#include <cassert>
 #include <chrono> // nanoseconds
 #include <mutex> // mutex
 #include <random>
@@ -53,34 +51,36 @@
 #include <unordered_map> // unordered_map, unordered_multimap
 #endif
 
-/*
-# C headers
-
-    The standard C++ library provides a `cNAME` version to every `NAME.h` for every C header.
-    E.g.: `math.h` vs `cmath`.
-
-    The difference is the following:
-
-    -   cX puts things in std:: namespace. *always* use the CNAME version on new code,
-        since this reduces the probability of a name conflicts, and is the standard c++ way of doing things.
-
-        Macro expansion happens *before* namespaces are even compiled,
-        so you still refer to macros like `EXIT_SUCCESS` and `assert` as in C,
-        and *not* as `std::EXIT_SUCCESS`.
-
-    -  `X.h` puts *all* in the global namespace, it is exactly the same as the c headers.
-        *never* use it in new code.
-
-        Those headers exist only for backwards compatibility.
-
-    Avoid using C headers and functionality altogether if that functionality has an equivalent C++ version,
-    since the C++ version will play more nicely with new language features and libraries.
-
-    http://stackoverflow.com/questions/32606023/when-using-c-headers-in-c-should-we-use-functions-from-std-or-the-global-na
-*/
+/* # C headers
+ *
+ * The standard C++ library provides a `cNAME` version to every `NAME.h` for every C header.
+ * E.g.: `math.h` vs `cmath`.
+ *
+ * The difference is the following:
+ *
+ * -   cX puts things in std:: namespace. *always* use the CNAME version on new code,
+ *     since this reduces the probability of a name conflicts, and is the standard c++ way of doing things.
+ *
+ *     Macro expansion happens *before* namespaces are even compiled,
+ *     so you still refer to macros like `EXIT_SUCCESS` and `assert` as in C,
+ *     and *not* as `std::EXIT_SUCCESS`.
+ *
+ * -  `X.h` puts *all* in the global namespace, it is exactly the same as the c headers.
+ *     *never* use it in new code.
+ *
+ *     Those headers exist only for backwards compatibility.
+ *
+ * Avoid using C headers and functionality altogether if that functionality has an equivalent C++ version,
+ * since the C++ version will play more nicely with new language features and libraries.
+ *
+ * http://stackoverflow.com/questions/32606023/when-using-c-headers-in-c-should-we-use-functions-from-std-or-the-global-na
+ */
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
+#if __cplusplus >= 201103L
+#include <cassert>
+#endif
 
 // Global thread parameters.
 const int NUM_THREADS = 1000;
@@ -100,13 +100,12 @@ void printCallStack() {
     std::cout << "END callStack" << std::endl;
 }
 
-/**
- * Simple instrumented class for tests on constructor destructor order.
+/* Simple instrumented class for tests on constructor destructor order.
  *
  * This class has no members which are objects and no base classes.
  *
  * TODO break this class up.
- * */
+ */
 class NoBaseNoMember {
     public:
 
