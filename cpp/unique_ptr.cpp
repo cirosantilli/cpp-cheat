@@ -151,19 +151,27 @@ int main() {
             assert(Base::count == 0);
         }
 
-        // There is no assignment operator, but reset with an argument
+        // Reset with an argument
         // does what you would expect: release and replace.
         {
             std::unique_ptr<Base> p(new Base(1));
             assert(p->i == 1);
             assert(Base::count == 1);
 
-            // Nope.
-            // p = new Base(2);
+            /* Nope. TODO why?
+             * - https://stackoverflow.com/questions/48104034/why-cant-i-assign-to-unique-ptr-of-type-uint-8
+             * - https://stackoverflow.com/questions/34882140/why-cant-a-pointer-be-automatically-converted-into-a-unique-ptr-when-returning
+             */
+            //p = new Base(2);
 
             // Yup.
-            p.reset(new Base(2));
+            p = std::unique_ptr<Base>(new Base(2));
             assert(p->i == 2);
+            assert(Base::count == 1);
+
+            // Yup, same. Less verbose, I like it.
+            p.reset(new Base(3));
+            assert(p->i == 3);
             assert(Base::count == 1);
         }
         assert(Base::count == 0);
