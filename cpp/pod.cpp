@@ -9,6 +9,7 @@
  */
 
 #include <type_traits>
+#include <array>
 #include <vector>
 
 int main() {
@@ -227,6 +228,9 @@ int main() {
         {
             static_assert(!std::is_pod<std::vector<int>>());
             static_assert(!std::is_trivially_copyable<std::vector<int>>());
+            // Some might be though:
+            // https://stackoverflow.com/questions/3674247/is-stdarrayt-s-guaranteed-to-be-pod-if-t-is-pod
+            static_assert(std::is_pod<std::array<int, 1>>());
         }
 
         /* Array of POD is POD. */

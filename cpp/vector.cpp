@@ -1,16 +1,7 @@
-/*
-# vector
-
-    Array backed conatiner that grows / shrinks as necessary.
-
-    $O(1)$ random access.
-
-    $O(n)$ element removal from interior
-
-    $O(1)$ element append to end (amortized, $O(n)$ worst case)
-
-    All methods that work for several SLT containers shall only be cheated here once.
-*/
+/* # vector
+ *
+ * Dynamic array: https://en.wikipedia.org/wiki/Dynamic_array
+ */
 
 #include "common.hpp"
 
@@ -31,11 +22,10 @@ int main() {
             assert(v.size() == 3);
         }
 
-        /*
-        Fill constructor.
-
-        Make a `std::vector` with n copies of a single value.
-        */
+        /* Fill constructor.
+         *
+         * Make a `std::vector` with n copies of a single value.
+         */
         {
             // Copies of given object.
             {
@@ -71,22 +61,21 @@ int main() {
         assert(v != v1);
     }
 
-    /*
-    # Contigous storage
-
-    # Data
-
-        Storage is required to be contiguous by TR1:
-        http://stackoverflow.com/questions/849168/are-stdvector-elements-guaranteed-to-be-contiguous
-
-        C++11 introduces the `data()` method which returns a pointer to the first element.
-        It works even if the vector is empty.
-        http://stackoverflow.com/questions/6485496/how-to-get-stdvector-pointer-to-the-raw-data
-
-        Before C++11, `&v[0]` works for non-empty vectors.
-
-        `vector<bool>` as usual is an exception.
-    */
+    /* # Contiguous storage
+     *
+     * # Data
+     *
+     * Storage is required to be contiguous by TR1:
+     * http://stackoverflow.com/questions/849168/are-stdvector-elements-guaranteed-to-be-contiguous
+     *
+     * C++11 introduces the `data()` method which returns a pointer to the first element.
+     * It works even if the vector is empty.
+     * http://stackoverflow.com/questions/6485496/how-to-get-stdvector-pointer-to-the-raw-data
+     *
+     * Before C++11, `&v[0]` works for non-empty vectors.
+     *
+     * `vector<bool>` as usual is an exception.
+     */
     {
         std::vector<int> v{0, 1, 2};
         assert(&v[0] == v.data());
@@ -96,17 +85,16 @@ int main() {
 
     // size methods
     {
-        /*
-        # size
-
-        # length of vector
-
-        # size_type
-
-            Number of elements in std::vector.
-
-            This has type std::vector<X>::size_type
-        */
+        /* # size
+         *
+         * # length of vector
+         *
+         * # size_type
+         *
+         * Number of elements in std::vector.
+         *
+         * This has type std::vector<X>::size_type
+         */
         {
             std::vector<int> v;
             assert(v.size() == 0);
@@ -114,13 +102,12 @@ int main() {
             assert(v.size() == 1);
         }
 
-        /*
-        # resize
-
-            If larger than current size, append given element at end.
-
-            If smaller than current size, remove elements from end.
-        */
+        /* # resize
+         *
+         * If larger than current size, append given element at end.
+         *
+         * If smaller than current size, remove elements from end.
+         */
         {
             // Reduce size
             {
@@ -150,17 +137,16 @@ int main() {
 
     // Capacity methods.
     {
-        /*
-        # capacity
-
-            Get currently allocated size.
-
-            Different from size, which is the number of elements in the std::vector!
-
-            At least as large as size.
-
-            Likely to be a power of 2 on most implementations.
-        */
+        /* # capacity
+         *
+         * Get currently allocated size.
+         *
+         * Different from size, which is the number of elements in the std::vector!
+         *
+         * At least as large as size.
+         *
+         * Likely to be a power of 2 on most implementations.
+         */
         {
             std::vector<int> v;
             v.push_back(0);

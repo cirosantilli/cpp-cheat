@@ -55,17 +55,15 @@ int main() {
     // After C++11; the range based syntax is the best way to use them.
     {
         /*
-        # forward iteration
+        # begin
 
-            Can be done on all containers.
+        Returns an iterator to the first element.
 
-            # begin
+        # end
 
-                Returns an iterator to the first element.
+        Returns an iterator to the first element *after* the last.
 
-            # end
-
-                Returns an iterator to the first element *after* the last.
+        https://stackoverflow.com/questions/7593086/why-use-non-member-begin-and-end-functions-in-c11
         */
         {
             std::vector<int> v{1, 2, 0};

@@ -140,7 +140,7 @@ int main() {
 
     // # reset
     {
-        /* With no argumetns, explicit destruction of pointer. Equivalent to `delete`.
+        /* With no arguments, explicitly destroy the pointer. Equivalent to `delete`.
          *
          * http://stackoverflow.com/questions/25609457/unique-ptr-explicit-delete
          */
@@ -152,13 +152,15 @@ int main() {
         }
 
         // Reset with an argument
-        // does what you would expect: release and replace.
+        // does what you would expect: release and replace,
+        // just like assignment.
         {
             std::unique_ptr<Base> p(new Base(1));
             assert(p->i == 1);
             assert(Base::count == 1);
 
             /* Nope. TODO why?
+             *
              * - https://stackoverflow.com/questions/48104034/why-cant-i-assign-to-unique-ptr-of-type-uint-8
              * - https://stackoverflow.com/questions/34882140/why-cant-a-pointer-be-automatically-converted-into-a-unique-ptr-when-returning
              */
