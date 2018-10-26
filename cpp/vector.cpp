@@ -104,7 +104,7 @@ int main() {
 
         /* # resize
          *
-         * If larger than current size, append given element at end.
+         * If larger than current size, append given element at end default initialized.
          *
          * If smaller than current size, remove elements from end.
          */
