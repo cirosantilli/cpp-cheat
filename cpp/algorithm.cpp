@@ -114,6 +114,15 @@ int main() {
             int v3[]{5, 5, 1, 2, 3};
             std::copy(std::begin(v1) + 1, std::end(v1) - 1, std::begin(v2) + 2);
             assert(std::equal(std::begin(v2), std::end(v2), std::begin(v3)));
+
+            // Pointer usage.
+            auto p1 = &v1[0];
+            auto p2 = &v2[0];
+            auto p3 = &v3[0];
+            std::copy(p1 + 1, p1 + 4, p2 + 2);
+            // Nah. Why.
+            // https://stackoverflow.com/questions/26909429/stdbegin-and-stdend-not-working-with-pointers-and-reference-why
+            //std::copy(std::begin(p1) + 1, std::begin(p1) + 4, std::begin(p2) + 2);
         }
 
         /* Therefore, a more elegant class approach that uses exact same syntax as arrays. */
