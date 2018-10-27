@@ -34,12 +34,12 @@ static GLubyte *pixels = NULL;
 static GLuint fbo;
 static GLuint rbo_color;
 static GLuint rbo_depth;
-static const unsigned int HEIGHT = 100;
-static const unsigned int WIDTH = 100;
 static int offscreen = 1;
 static unsigned int max_nframes = 100;
 static unsigned int nframes = 0;
 static unsigned int time0;
+static unsigned int height = 128;
+static unsigned int width = 128;
 
 /* Model. */
 static double angle;
@@ -271,13 +271,13 @@ static void init(void)  {
         glBindRenderbuffer(GL_RENDERBUFFER, rbo_color);
         /* Storage must be one of: */
         /* GL_RGBA4, GL_RGB565, GL_RGB5_A1, GL_DEPTH_COMPONENT16, GL_STENCIL_INDEX8. */
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_RGB565, WIDTH, HEIGHT);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_RGB565, width, height);
         glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, rbo_color);
 
         /* Depth renderbuffer. */
         glGenRenderbuffers(1, &rbo_depth);
         glBindRenderbuffer(GL_RENDERBUFFER, rbo_depth);
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, WIDTH, HEIGHT);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, width, height);
         glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo_depth);
 
         glReadBuffer(GL_COLOR_ATTACHMENT0);
@@ -285,7 +285,7 @@ static void init(void)  {
         /* Sanity check. */
         assert(glCheckFramebufferStatus(GL_FRAMEBUFFER));
         glGetIntegerv(GL_MAX_RENDERBUFFER_SIZE, &glget);
-        assert(WIDTH * HEIGHT < (unsigned int)glget);
+        assert(width * height < (unsigned int)glget);
     } else {
         glReadBuffer(GL_BACK);
     }
@@ -293,7 +293,7 @@ static void init(void)  {
     glClearColor(0.0, 0.0, 0.0, 0.0);
     glEnable(GL_DEPTH_TEST);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-    glViewport(0, 0, WIDTH, HEIGHT);
+    glViewport(0, 0, width, height);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glMatrixMode(GL_MODELVIEW);
@@ -301,7 +301,7 @@ static void init(void)  {
     time0 = glutGet(GLUT_ELAPSED_TIME);
     model_init();
 #if FFMPEG
-    ffmpeg_encoder_start("tmp.mpg", AV_CODEC_ID_MPEG1VIDEO, 25, WIDTH, HEIGHT);
+    ffmpeg_encoder_start("tmp.mpg", AV_CODEC_ID_MPEG1VIDEO, 25, width, height);
 #endif
 }
 
@@ -347,16 +347,16 @@ static void display(void) {
         glutSwapBuffers();
     }
 #if PPM
-    snprintf(filename, SCREENSHOT_MAX_FILENAME, "tmp%d.ppm", nframes);
-    screenshot_ppm(filename, WIDTH, HEIGHT, &pixels);
+    snprintf(filename, SCREENSHOT_MAX_FILENAME, "tmp.%d.ppm", nframes);
+    screenshot_ppm(filename, width, height, &pixels);
 #endif
 #if LIBPNG
-    snprintf(filename, SCREENSHOT_MAX_FILENAME, "tmp%d.png", nframes);
-    screenshot_png(filename, WIDTH, HEIGHT, &pixels, &png_bytes, &png_rows);
+    snprintf(filename, SCREENSHOT_MAX_FILENAME, "tmp.%d.png", nframes);
+    screenshot_png(filename, width, height, &pixels, &png_bytes, &png_rows);
 #endif
 # if FFMPEG
     frame->pts = nframes;
-    ffmpeg_encoder_glread_rgb(&rgb, &pixels, WIDTH, HEIGHT);
+    ffmpeg_encoder_glread_rgb(&rgb, &pixels, width, height);
     ffmpeg_encoder_encode_frame(rgb);
 #endif
     nframes++;
@@ -370,17 +370,39 @@ static void idle(void) {
 }
 
 int main(int argc, char **argv) {
+    int arg;
     GLint glut_display;
+
+    /* CLI args. */
     glutInit(&argc, argv);
-    if (argc > 1)
-        offscreen = 0;
+    arg = 0;
+    if (argc > arg + 1) {
+        offscreen = (argv[arg][0] == '1');
+    } else {
+        offscreen = 1;
+    }
+    arg++;
+    if (argc > arg + 1) {
+        max_nframes = strtoumax(argv[arg], NULL, 10);
+    }
+    arg++;
+    if (argc > arg + 1) {
+        width = strtoumax(argv[arg], NULL, 10);
+    }
+    arg++;
+    if (argc > arg + 1) {
+        height = strtoumax(argv[arg], NULL, 10);
+    }
+    arg++;
+
+    /* Work. */
     if (offscreen) {
         /* TODO: if we use anything smaller than the window, it only renders a smaller version of things. */
         /*glutInitWindowSize(50, 50);*/
-        glutInitWindowSize(WIDTH, HEIGHT);
+        glutInitWindowSize(width, height);
         glut_display = GLUT_SINGLE;
     } else {
-        glutInitWindowSize(WIDTH, HEIGHT);
+        glutInitWindowSize(width, height);
         glutInitWindowPosition(100, 100);
         glut_display = GLUT_DOUBLE;
     }
