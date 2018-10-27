@@ -30,9 +30,9 @@ Cheat on the GNU Compile Collection (GCC) language extensions and command line u
         1.  Function
             1.  [sentinel](sentinel.c)
     1.  asm
-        1.  [asm.mc](asm.md)
-        1.  [asm](asm.c)
-    1.  [Built-in functions]()
+        1.  [asm.md](asm.md)
+        1.  [asm.c](asm.c)
+    1.  Built-in functions
         1. [alloca()](alloca.c)
         1. [__atomic_fetch_add](atomic_fetch_add.c)
         1. [__builtin_expect](builtin_expect.c)

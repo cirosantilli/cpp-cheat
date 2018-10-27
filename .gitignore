@@ -19,6 +19,8 @@ main
 # Compiled Dynamic libraries
 *.so
 *.dylib
+# scons creates this for some reason...
+*.os
 
 # Compiled Static libraries
 *.lai

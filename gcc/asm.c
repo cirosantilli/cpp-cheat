@@ -19,9 +19,9 @@ int main(void) {
      */
     {
 #ifdef __i386__
-        asm ("push %eax; mov $1, %eax; pop %eax;");
+        __asm__ ("push %eax; mov $1, %eax; pop %eax;");
 #else
-        asm ("push %rax; mov $1, %rax; pop %rax;");
+        __asm__ ("push %rax; mov $1, %rax; pop %rax;");
 #endif
     }
 
@@ -38,13 +38,13 @@ int main(void) {
         {
             uint32_t in = 1;
             uint32_t out = 0;
-            asm (
+            __asm__ (
                 "movl %1, %%eax;"
                 "inc %%eax;"
                 "movl %%eax, %0"
                 : "=m" (out) /* Outputs. '=' means written to. */
                 : "m" (in)   /* Inputs. No '='. */
-                : "%eax"
+                : "%eax"     /* Clobbers: tell GCC that eax has been is modified. */
             );
             assert(out == in + 1);
         }
@@ -53,7 +53,7 @@ int main(void) {
         /*
         {
             uint32_t out = 0;
-            asm (
+            __asm__ (
                 "movl %1, %%eax;"
                 "inc %%eax;"
                 "movl %%eax, %0"
@@ -71,7 +71,7 @@ int main(void) {
         uint32_t in0 = 1;
         uint32_t in1 = 2;
         uint32_t out = 0;
-        asm (
+        __asm__ (
             "movl %1, %%eax;"
             "movl %2, %%ebx;"
             "addl %%ebx, %%eax;"
@@ -91,7 +91,7 @@ int main(void) {
      * We must mark it as `+` which means that the memory is used for both read and write. */
     {
         uint32_t io = 0;
-        asm (
+        __asm__ (
             "movl %0, %%eax;"
             "inc %%eax;"
             "movl %%eax, %0;"
@@ -107,7 +107,7 @@ int main(void) {
         float in = 1.0;
         float out = 0.0;
         /* out = -in */
-        asm (
+        __asm__ (
             "flds %1;"
             "fchs;"
             "fstps %0;"
@@ -151,7 +151,7 @@ int main(void) {
         const uint32_t in0 = 0;
         uint32_t in = in0;
         uint32_t out = 0;
-        asm (
+        __asm__ (
             "incl %1;"
             "movl %1, %0;"
             "incl %0;"
@@ -176,7 +176,7 @@ int main(void) {
         const uint32_t in0 = 1;
         uint32_t in = in0;
         uint32_t out = 0;
-        asm (
+        __asm__ (
             "incl %0"
             : "=r" (out)
             : "0" (in)
@@ -195,7 +195,7 @@ int main(void) {
      */
     {
         uint32_t x = 0;
-        asm (
+        __asm__ (
             "incl %%eax"
             : "=a" (x)
             : "a"  (x)
@@ -210,10 +210,10 @@ int main(void) {
      * https://gcc.gnu.org/onlinedocs/gcc-4.4.2/gcc/Explicit-Reg-Vars.html
      */
     {
-        register uint32_t eax asm ("eax");
-        asm ("mov $1, %%eax;" : : : "%eax");
+        register uint32_t eax __asm__ ("eax");
+        __asm__ ("mov $1, %%eax;" : : : "%eax");
         assert(eax == 1);
-        asm ("mov $2, %%eax;" : : : "%eax");
+        __asm__ ("mov $2, %%eax;" : : : "%eax");
         assert(eax == 2);
     }
 #endif
