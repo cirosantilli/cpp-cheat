@@ -360,13 +360,13 @@ static void display(void) {
     }
 #if PPM
     if (output_formats & PPM_BIT) {
-        snprintf(filename, SCREENSHOT_MAX_FILENAME, "tmp.%d.ppm", nframes);
+        snprintf(filename, SCREENSHOT_MAX_FILENAME, "tmp.%03d.ppm", nframes);
         screenshot_ppm(filename, width, height, &pixels);
     }
 #endif
 #if LIBPNG
     if (output_formats & LIBPNG_BIT) {
-        snprintf(filename, SCREENSHOT_MAX_FILENAME, "tmp.%d.png", nframes);
+        snprintf(filename, SCREENSHOT_MAX_FILENAME, "tmp.%03d.png", nframes);
         screenshot_png(filename, width, height, &pixels, &png_bytes, &png_rows);
     }
 #endif
