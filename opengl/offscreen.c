@@ -1,11 +1,15 @@
-/*
-http://stackoverflow.com/questions/3191978/how-to-use-glut-opengl-to-render-to-a-file/14324292#14324292
-*/
+/* http://stackoverflow.com/questions/3191978/how-to-use-glut-opengl-to-render-to-a-file/14324292#14324292 */
 
 /* Turn output methods on and off. */
+#ifndef PPM
 #define PPM 1
+#endif
+#ifndef LIBPNG
 #define LIBPNG 1
+#endif
+#ifndef FFMPEG
 #define FFMPEG 1
+#endif
 
 #include <assert.h>
 #include <stdio.h>
@@ -35,29 +39,33 @@ static GLuint fbo;
 static GLuint rbo_color;
 static GLuint rbo_depth;
 static int offscreen = 1;
-static unsigned int max_nframes = 100;
+static unsigned int max_nframes = 128;
 static unsigned int nframes = 0;
 static unsigned int time0;
 static unsigned int height = 128;
 static unsigned int width = 128;
+#define PPM_BIT (1 << 0)
+#define LIBPNG_BIT (1 << 1)
+#define FFMPEG_BIT (1 << 2)
+static unsigned int output_formats = PPM_BIT | LIBPNG_BIT | FFMPEG_BIT;
 
 /* Model. */
 static double angle;
 static double delta_angle;
 
 #if PPM
-/*
-Take screenshot with glReadPixels and save to a file in PPM format.
--   filename: file path to save to, without extension
--   width: screen width in pixels
--   height: screen height in pixels
--   pixels: intermediate buffer to avoid repeated mallocs across multiple calls.
-    Contents of this buffer do not matter. May be NULL, in which case it is initialized.
-    You must `free` it when you won't be calling this function anymore.
-*/
+/* Take screenshot with glReadPixels and save to a file in PPM format.
+ *
+ * -   filename: file path to save to, without extension
+ * -   width: screen width in pixels
+ * -   height: screen height in pixels
+ * -   pixels: intermediate buffer to avoid repeated mallocs across multiple calls.
+ *     Contents of this buffer do not matter. May be NULL, in which case it is initialized.
+ *     You must `free` it when you won't be calling this function anymore.
+ */
 static void screenshot_ppm(const char *filename, unsigned int width,
         unsigned int height, GLubyte **pixels) {
-    size_t i, j, k, cur;
+    size_t i, j, cur;
     const size_t format_nchannels = 3;
     FILE *f = fopen(filename, "w");
     fprintf(f, "P3\n%d %d\n%d\n", width, height, 255);
@@ -244,7 +252,7 @@ void ffmpeg_encoder_glread_rgb(uint8_t **rgb, GLubyte **pixels, unsigned int wid
 }
 #endif
 
-static int model_init(void) {
+static void model_init(void) {
     angle = 0;
     delta_angle = 1;
 }
@@ -285,7 +293,8 @@ static void init(void)  {
         /* Sanity check. */
         assert(glCheckFramebufferStatus(GL_FRAMEBUFFER));
         glGetIntegerv(GL_MAX_RENDERBUFFER_SIZE, &glget);
-        assert(width * height < (unsigned int)glget);
+        assert(width < (unsigned int)glget);
+        assert(height < (unsigned int)glget);
     } else {
         glReadBuffer(GL_BACK);
     }
@@ -309,12 +318,16 @@ static void deinit(void)  {
     printf("FPS = %f\n", 1000.0 * nframes / (double)(glutGet(GLUT_ELAPSED_TIME) - time0));
     free(pixels);
 #if LIBPNG
-    free(png_bytes);
-    free(png_rows);
+    if (output_formats & LIBPNG_BIT) {
+        free(png_bytes);
+        free(png_rows);
+    }
 #endif
 #if FFMPEG
-    ffmpeg_encoder_finish();
-    free(rgb);
+    if (output_formats & FFMPEG_BIT) {
+        ffmpeg_encoder_finish();
+        free(rgb);
+    }
 #endif
     if (offscreen) {
         glDeleteFramebuffers(1, &fbo);
@@ -338,7 +351,6 @@ static void draw_scene(void) {
 }
 
 static void display(void) {
-    char extension[SCREENSHOT_MAX_FILENAME];
     char filename[SCREENSHOT_MAX_FILENAME];
     draw_scene();
     if (offscreen) {
@@ -347,17 +359,23 @@ static void display(void) {
         glutSwapBuffers();
     }
 #if PPM
-    snprintf(filename, SCREENSHOT_MAX_FILENAME, "tmp.%d.ppm", nframes);
-    screenshot_ppm(filename, width, height, &pixels);
+    if (output_formats & PPM_BIT) {
+        snprintf(filename, SCREENSHOT_MAX_FILENAME, "tmp.%d.ppm", nframes);
+        screenshot_ppm(filename, width, height, &pixels);
+    }
 #endif
 #if LIBPNG
-    snprintf(filename, SCREENSHOT_MAX_FILENAME, "tmp.%d.png", nframes);
-    screenshot_png(filename, width, height, &pixels, &png_bytes, &png_rows);
+    if (output_formats & LIBPNG_BIT) {
+        snprintf(filename, SCREENSHOT_MAX_FILENAME, "tmp.%d.png", nframes);
+        screenshot_png(filename, width, height, &pixels, &png_bytes, &png_rows);
+    }
 #endif
 # if FFMPEG
-    frame->pts = nframes;
-    ffmpeg_encoder_glread_rgb(&rgb, &pixels, width, height);
-    ffmpeg_encoder_encode_frame(rgb);
+    if (output_formats & FFMPEG_BIT) {
+        frame->pts = nframes;
+        ffmpeg_encoder_glread_rgb(&rgb, &pixels, width, height);
+        ffmpeg_encoder_encode_frame(rgb);
+    }
 #endif
     nframes++;
     if (model_finished())
@@ -375,25 +393,28 @@ int main(int argc, char **argv) {
 
     /* CLI args. */
     glutInit(&argc, argv);
-    arg = 0;
-    if (argc > arg + 1) {
+    arg = 1;
+    if (argc > arg) {
         offscreen = (argv[arg][0] == '1');
     } else {
         offscreen = 1;
     }
     arg++;
-    if (argc > arg + 1) {
+    if (argc > arg) {
         max_nframes = strtoumax(argv[arg], NULL, 10);
     }
     arg++;
-    if (argc > arg + 1) {
+    if (argc > arg) {
         width = strtoumax(argv[arg], NULL, 10);
     }
     arg++;
-    if (argc > arg + 1) {
+    if (argc > arg) {
         height = strtoumax(argv[arg], NULL, 10);
     }
     arg++;
+    if (argc > arg) {
+        output_formats = strtoumax(argv[arg], NULL, 10);
+    }
 
     /* Work. */
     if (offscreen) {
