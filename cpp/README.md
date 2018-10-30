@@ -11,6 +11,7 @@
     1.  [const](const.cpp)
     1.  [enum](enum.cpp)
     1.  [RTTI](rtti.md)
+    1.  [Value category](value_category.cpp)
     1.  Compile time magic
         1.  [constexpr](constexpr.cpp)
         1.  [static_assert](static_assert.cpp)
@@ -37,6 +38,7 @@
             1.  [Implicitly deleted constructor](implicitly_deleted_constructor.cpp)
             1.  [Constructor init object member](constructor_init_object_member.cpp)
             1.  [Initializer list constructor](initializer_list_constructor.cpp)
+                1.  [Aggregate](aggregate.cpp)
             1.  [static](static.cpp)
             1.  [POD](pod.cpp)
         1.  Inheritance

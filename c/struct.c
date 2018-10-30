@@ -19,6 +19,12 @@ int main(void) {
         float f;
     };
 
+    struct T {
+        int i;
+        float f;
+        struct S s;
+    };
+
     /* # Empty struct
      *
      * Invalid, but possible as a GCC extension.
@@ -32,14 +38,20 @@ int main(void) {
 
     /* Initialize by order. */
     {
-        struct S s = { 1, 1.0 };
+        struct S s = {1, 1.0};
         assert(s.i == 1);
         assert(s.f == 1.0);
-
         s.i = 2;
         s.f = 2;
         assert(s.i == 2);
         assert(s.f == 2.0);
+
+        /* Nested example. */
+        struct T t = {1, 1.0, {2, 2.0}};
+        assert(t.i == 1);
+        assert(t.f == 1.0);
+        assert(t.s.i == 2);
+        assert(t.s.f == 2.0);
     }
 
     /* Initialization with less members than the total.

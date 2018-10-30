@@ -16,6 +16,8 @@ int main() {
 /* POD restrictions have become more and more relaxed as the standard evolved.
  *
  * std::is_pod was added in C++11, so let's consider that standard onwards for now.
+ *
+ * First, let's determine what is POD or not.
  */
 #if __cplusplus >= 201103L
     /* Non-POD examples. Let's just walk all non-recursive non-POD branches of cppreference. */
@@ -29,8 +31,8 @@ int main() {
              */
             {
                 /* Not trivial because we removed the default constructor
-                * by using our own custom non-default constructor.
-                */
+                 * by using our own custom non-default constructor.
+                 */
                 {
                     struct C {
                         C(int i) {}
@@ -56,7 +58,7 @@ int main() {
                 }
             }
 
-            /* Not trivial because not trivially copyable. */
+            // Not trivial because not trivially copyable.
             {
                 struct C {
                     C(C& c) {}
@@ -71,21 +73,41 @@ int main() {
          * https://en.cppreference.com/w/cpp/named_req/StandardLayoutType
          */
         {
-            /* Non static members with different access control:
-             * i is public and j is private.
-             */
+            // Non static members with different access control.
             {
-                struct C {
-                    public:
-                        int i;
-                    private:
-                        int j;
-                };
-                static_assert(!std::is_standard_layout<C>());
-                static_assert(!std::is_pod<C>());
+                // i is public and j is private.
+                {
+                    struct C {
+                        public:
+                            int i;
+                        private:
+                            int j;
+                    };
+                    static_assert(!std::is_standard_layout<C>());
+                    static_assert(!std::is_pod<C>());
+                }
+
+                // These have the same access control.
+                {
+                    struct C {
+                        private:
+                            int i;
+                            int j;
+                    };
+                    static_assert(std::is_standard_layout<C>());
+                    static_assert(std::is_pod<C>());
+
+                    struct D {
+                        public:
+                            int i;
+                            int j;
+                    };
+                    static_assert(std::is_standard_layout<D>());
+                    static_assert(std::is_pod<D>());
+                }
             }
 
-            /* virtual function */
+            // Virtual function.
             {
                 struct C {
                     virtual void f() = 0;
@@ -94,7 +116,7 @@ int main() {
                 static_assert(!std::is_pod<C>());
             }
 
-            /* Non-static member that is reference. */
+            // Non-static member that is reference.
             {
                 struct C {
                     int &i;
@@ -110,7 +132,7 @@ int main() {
              *   and at most one base class with non-static data members
              */
             {
-                /* Non POD because has two base classes with non-static data members. */
+                // Non POD because has two base classes with non-static data members.
                 {
                     struct Base1 {
                         int i;
@@ -123,7 +145,7 @@ int main() {
                     static_assert(!std::is_pod<C>());
                 }
 
-                /* POD: has just one base class with non-static member. */
+                // POD: has just one base class with non-static member.
                 {
                     struct Base1 {
                         int i;
@@ -133,7 +155,7 @@ int main() {
                     static_assert(std::is_pod<C>());
                 }
 
-                /* Just one base class with non-static member: Base1, Base2 has none. */
+                // Just one base class with non-static member: Base1, Base2 has none.
                 {
                     struct Base1 {
                         int i;
@@ -157,7 +179,7 @@ int main() {
                 //static_assert(!std::is_pod<C>());
             };
 
-            /* C++14 standard layout new rules, yay! */
+            // C++14 standard layout new rules, yay!
             {
                 /* Has two (possibly indirect) base class subobjects of the same type.
                  * Here C has two base classes which are indirectly "Base".
@@ -197,9 +219,9 @@ int main() {
         }
     }
 
-    /* POD examples. Everything that does not fall in the non-POD examples. */
+    // POD examples. Everything that does not fall in the non-POD examples.
     {
-        /* Can't get more POD than this. */
+        // Can't get more POD than this.
         {
             struct C {};
             static_assert(std::is_pod<C>());
@@ -233,12 +255,42 @@ int main() {
             static_assert(std::is_pod<std::array<int, 1>>());
         }
 
-        /* Array of POD is POD. */
+        // Array of POD is POD.
         {
             struct C {};
             static_assert(std::is_pod<C>());
             static_assert(std::is_pod<C[]>());
         }
+    }
+
+    /* Now, let's test properties of POD objects.
+     *
+     * This is a bit harder to do than determining pod-ness since the
+     * failures are implementation-defined and might not fail.
+     */
+    {
+        struct Pod {
+            uint32_t i;
+            uint64_t j;
+        };
+        static_assert(std::is_pod<Pod>());
+
+        struct NotPod {
+            NotPod(uint32_t i, uint64_t j) : i(i), j(j) {}
+            uint32_t i;
+            uint64_t j;
+        };
+        static_assert(!std::is_pod<NotPod>());
+
+#ifndef __STRICT_ANSI__
+        /* __attribute__((packed)) only works for POD, and is ignored for non-POD.
+         *
+         * https://stackoverflow.com/questions/35152877/ignoring-packed-attribute-because-of-unpacked-non-pod-field/52986680#52986680
+         */
+        {
+            // TODO.
+        }
+#endif
     }
 #endif
 }
