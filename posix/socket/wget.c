@@ -1,17 +1,4 @@
-/* https://stackoverflow.com/questions/11208299/http-get-request-using-c-without-libcurl/35680609#35680609
- *
- * Do an HTTP request to fetch a web page and print it to stdout:
- *
- *     ./wget google.com
- *
- * Hangs until you do a Ctrl + C.
- *
- * IP:
- *
- *     ./wget 104.16.118.182
- *
- * Connection works, but request fails because we don't set Ctrl + C properly here.
- */
+/* https://stackoverflow.com/questions/11208299/http-get-request-using-c-without-libcurl/35680609#35680609 */
 
 #define _XOPEN_SOURCE 700
 #include <arpa/inet.h>
@@ -95,21 +82,7 @@ int main(int argc, char** argv) {
         nbytes_total += nbytes_last;
     }
 
-    /* Read the response.
-     *
-     * The second read hangs for a few seconds, until the server times out.
-     *
-     * Either server or client has to close the connection.
-     *
-     * We are not doing it, and neither is the server, likely to make serving the page faster
-     * to allow fetching HTML, CSS, Javascript and images in a single connection.
-     *
-     * The solution is to parse Content-Length to see if the HTTP response is over,
-     * and close it then.
-     *
-     * http://stackoverflow.com/a/25586633/895245 says that if Content-Length
-     * is not sent, the server can just close to determine length.
-     **/
+    /* Read the response. */
     fprintf(stderr, "debug: before first read\n");
     while ((nbytes_total = read(socket_file_descriptor, buffer, BUFSIZ)) > 0) {
         fprintf(stderr, "debug: after a read\n");
