@@ -1,25 +1,23 @@
-/*
-# map
-
-http://www.cplusplus.com/reference/map/map/
-
-Also comes in an unordered version `unordered_map`.
-
-Ordered.
-
-Also comes in an multiple value input version `multimap`.
-
-Does not require a hash function. Usually implemented as a self balancing tree such as a rb tree.
-
-# hashmap
-
-There seems to be no explicit hashmap container, only a generic map interface,
-
-However unordered_map is likely to be hashmap based.
-
-A nonstandard `hash_map` already provided with gcc and msvc++.
-It is placed in the `std::` namespace, but it is *not* ISO.
-*/
+// # map
+//
+// http://www.cplusplus.com/reference/map/map/
+//
+// Also comes in an unordered version `unordered_map`.
+//
+// Ordered.
+//
+// Also comes in an multiple value input version `multimap`.
+//
+// Does not require a hash function. Usually implemented as a self balancing tree such as a rb tree.
+//
+// # hashmap
+//
+// There seems to be no explicit hashmap container, only a generic map interface,
+//
+// However unordered_map is likely to be hashmap based.
+//
+// A nonstandard `hash_map` already provided with gcc and msvc++.
+// It is placed in the `std::` namespace, but it is *not* ISO.
 
 #include "common.hpp"
 
@@ -32,40 +30,8 @@ std::string map_to_str(std::map<K,V> map) {
     return result.str();
 }
 
-// How to use the range pattern from a method.
-// The key is to static initialize the lambda map.
-class RangeSwitch {
-public:
-    int method(int x) {
-        static const std::map<int,std::function<void(int&)>> m{
-            {0, [&](int &x){
-                x = -1;
-            }},
-            {2, [&](int &x){
-                x = 0;
-            }},
-            {5, [&](int &x){
-                x = 2;
-            }},
-            {7, [&](int &x){
-                x = 5;
-            }}
-        };
-        static const auto end = m.end();
-        auto it = m.upper_bound(x);
-        if (it == end) {
-            x = 7;
-        } else {
-            it->second(x);
-        }
-        return x;
-    }
-};
-
 int main() {
-    /*
-    Create initialized map.
-    */
+    // Initializer list constructor.
     {
         std::map<int,std::string> m{
             {0, "zero"},
@@ -75,15 +41,13 @@ int main() {
         assert(m[1] == "one");
     }
 
-    /*
-    # emplace
-
-        Put a value pair into the map without creating the pair explicitly.
-
-        Only inserts if not already present.
-
-        Needs gcc 4.8: http://stackoverflow.com/questions/15812276/stdset-has-no-member-emplace
-    */
+    // # emplace
+    //
+    // Put a value pair into the map without creating the pair explicitly.
+    //
+    // Only inserts if not already present.
+    //
+    // Needs gcc 4.8: http://stackoverflow.com/questions/15812276/stdset-has-no-member-emplace
     {
         std::map<int,std::string> m;
         assert((m.emplace(0, "zero").second));
@@ -93,16 +57,14 @@ int main() {
         assert(m[1] == "one");
     }
 
-    /*
-    # operator[]
-
-        Get value from a given key.
-
-        Create if not present, so avoid this if possible and prefer the more restrictive methods:
-
-        - use at() or find () for fetching and updating
-        - emplace() for putting new values
-    */
+    // # operator[]
+    //
+    // Get value from a given key.
+    //
+    // Create if not present, so avoid this if possible and prefer the more restrictive methods:
+    //
+    // - use at() or find () for fetching and updating
+    // - emplace() for putting new values
     {
         std::map<int,std::string> m{
             {0, "zero"},
@@ -138,18 +100,14 @@ int main() {
         }
     }
 
-    /*
-    # find
-
-    # check if in map
-
-        Similar to `std::set` find with respect to the keys:
-        returns an iterator pointing to the pair which has given key, not the value.
-
-        If not found, returns `map::end()`
-
-        This is preferable to `[]` since it does not insert non-existent elements.
-    */
+    // # find
+    //
+    // Similar to `std::set` find with respect to the keys:
+    // returns an iterator pointing to the pair which has given key, not the value.
+    //
+    // If not found, returns `map::end()`
+    //
+    // This is preferable to `[]` since it does not insert non-existent elements.
     {
         std::map<int,std::string> m{
             {0, "zero"},
@@ -163,15 +121,13 @@ int main() {
         assert(m.find(2) == m.end());
         assert(m.size() == 2);
 
-        /*
-        Get default provided value if key not present
-
-        TODO: any less verbose way than finding and check != end? Like:
-
-            m.get(key, default)
-
-        I know I can define a helper, but come on...
-        */
+        // Get default provided value if key not present
+        //
+        // TODO: any less verbose way than finding and check != end? Like:
+        //
+        //     m.get(key, default)
+        //
+        // I know I can define a helper, but come on...
         {
             std::map<int,int> m{};
             int default_ = 42;
@@ -185,15 +141,13 @@ int main() {
         }
     }
 
-    /*
-    # at()
-
-        A convenient version of find() that returns the item directly.
-
-        Throws if not present, so better when the key is supposed to be there.
-
-        C++11.
-    */
+    // # at()
+    //
+    // A convenient version of find() that returns the item directly.
+    //
+    // Throws if not present, so better when the key is supposed to be there.
+    //
+    // C++11.
     {
         std::map<int,std::string> m{
             {0, "zero"},
@@ -204,17 +158,15 @@ int main() {
         assert(m.at(1) == "one2");
     }
 
-    /*
-    # insert
-
-        Insert pair into map.
-
-        The return value is similar to that of a set insertion with respect to the key.
-
-        Just use emplace instead, less verbose as it was added after perfect forwarding.
-
-        http://stackoverflow.com/questions/17172080/insert-vs-emplace-vs-operator-in-c-map
-    */
+    // # insert
+    //
+    // Insert pair into map.
+    //
+    // The return value is similar to that of a set insertion with respect to the key.
+    //
+    // Just use emplace instead, less verbose as it was added after perfect forwarding.
+    //
+    // http://stackoverflow.com/questions/17172080/insert-vs-emplace-vs-operator-in-c-map
     {
         std::map<int,std::string> m;
         std::pair<std::map<int,std::string>::iterator,bool> ret;
@@ -234,19 +186,17 @@ int main() {
         assert(ret.second == false);
     }
 
-    /*
-    # iterate
-
-        Map is ordered:
-        http://stackoverflow.com/questions/7648756/is-the-order-of-iterating-through-stdmap-known-and-guaranteed-by-the-standard
-
-        It is iterated in key `<` order.
-
-        So this basically requires implementations to use balanced
-        trees intead of hashmap.
-
-        Iteration returns key value pairs.
-    */
+    // # iterate
+    //
+    // Map is ordered:
+    // http://stackoverflow.com/questions/7648756/is-the-order-of-iterating-through-stdmap-known-and-guaranteed-by-the-standard
+    //
+    // It is iterated in key `<` order.
+    //
+    // So this basically requires implementations to use balanced
+    // trees intead of hashmap.
+    //
+    // Iteration returns key value pairs.
     {
         std::map<int,std::string> m{
             {1, "one"},
@@ -264,11 +214,9 @@ int main() {
         assert(map_to_str(m) == "0:zero, 1:one, ");
     }
 
-    /*
-    # erase
-
-        Remove element from map.
-    */
+    // # erase
+    //
+    // Remove element from map.
     {
         // key version. Returns number of elements removed (0 or 1).
         {
@@ -297,53 +245,6 @@ int main() {
             auto it = m.find(0);
             assert(m.erase(it) == itNext);
             assert((m == std::map<int,std::string>{{1, "one"}}));
-        }
-    }
-
-    // # Range switch case.
-    // http://stackoverflow.com/questions/9432226/how-do-i-select-a-range-of-values-in-a-switch-statement/42331563#42331563
-    {
-    const std::map<int, int> result{
-    {-1, -1},
-    { 0,  0},
-    { 1,  0},
-    { 2,  2},
-    { 3,  2},
-    { 4,  2},
-    { 5,  5},
-    { 6,  5},
-    { 7,  7},
-    };
-    int x;
-    const std::map<int,std::function<void()>> m{
-            {0, [&](){
-                x = -1;
-        }},
-            {2, [&](){
-        x = 0;
-        }},
-            {5, [&](){
-        x = 2;
-        }},
-            {7, [&](){
-        x = 5;
-        }}
-        };
-    const auto end = m.end();
-        for (auto i = -1; i < 8; ++i) {
-            auto it = m.upper_bound(i);
-            if (it == end) {
-    x = 7;
-            } else {
-                it->second();
-            }
-            assert(x == result.at(i));
-        }
-
-        RangeSwitch rangeSwitch;
-        for (auto i = -1; i < 8; ++i) {
-            x = rangeSwitch.method(i);
-            assert(x == result.at(i));
         }
     }
 }
