@@ -116,6 +116,7 @@ int main() {
 
         auto found = m.find(0);
         assert(found != m.end());
+        assert(found->first == 0);
         assert(found->second == "zero");
 
         assert(m.find(2) == m.end());

@@ -1,12 +1,10 @@
-/*
-# const
-
-    There are differences between the `const` keyword in C and C++.
-
-    Also, in C++ const can be used to qualify methods.
-
-    http://stackoverflow.com/questions/8908071/const-correctness-in-c-vs-c
-*/
+// # const
+//
+// There are differences between the `const` keyword in C and C++.
+//
+// Also, in C++ const can be used to qualify methods.
+//
+// http://stackoverflow.com/questions/8908071/const-correctness-in-c-vs-c
 
 #include "common.hpp"
 
@@ -18,11 +16,9 @@ class Class {
 };
 
 int main() {
-    /*
-    In C++, consts cannot be changed not even through pointers.
-
-    C this is only a warning, and allows us to change ic.
-    */
+    // In C++, consts cannot be changed not even through pointers.
+    //
+    // In C this is only a warning, and allows us to change ic.
     {
         const int i = 2;
         //int* ip = i;
@@ -52,8 +48,8 @@ int main() {
             //*icp = 1;
         }
 
-        // C is initialized by the constructor
-        // so it is OK to do this unlike for base types
+        // C is initialized by the constructor so it is OK to do this
+        // without an assignment unlike for base types
         const Class c;
     }
 
@@ -61,28 +57,22 @@ int main() {
     {
         const Class c;
 
-        // Cannot reassign:
+        // Cannot reassign.
+        //cc = Class();
 
-            //cc = Class();
+        // Cannot assign members.
+        //cc.i = 1;
 
-        // Cannot assign members:
+        // Can create const refs to.
+        const int& cia = c.i;
 
-            //cc.i = 1;
+        // Cannot create non const refs.
+        //int& ia = cc.i;
 
-        // Can create const refs to:
-
-            const int& cia = c.i;
-
-        // Cannot create non const refs:
-
-            //int& ia = cc.i;
-
-        /*
-        Can only call const methods,
-        because a non const method could change the object.
-
-        Therefore, *BE CONST OBSESSIVE!* mark as const every method that does not change the object!
-        */
+        // Can only call const methods,
+        // because a non const method could change the object.
+        //
+        // Therefore, *BE CONST OBSESSIVE!* mark as const every method that does not change the object!
         {
             //c.method();
             c.constMethod();
