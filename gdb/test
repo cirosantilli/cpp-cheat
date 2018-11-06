@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+for t in *_test.py; do
+  ./"$t"
+done
