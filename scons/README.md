@@ -12,6 +12,7 @@ Tested on SCons v2.3.0.
     1. [CPPPATH](cpppath/)
     1. [Library](library/)
 1.  [SConscript](sconscript/)
+    1.  [Help](help/)
 1.  [ARGUMENTS](arguments/)
     1.  [VariantDir](variant-dir/)
         1.  [Two envs](two-envs/)
@@ -22,4 +23,4 @@ Tested on SCons v2.3.0.
     1.  [CFLAGS](cflags/)
 1.  Infrastructure
     1.  [test](test)
-    1.  [clean](cleanr)
+    1.  [clean](clean)

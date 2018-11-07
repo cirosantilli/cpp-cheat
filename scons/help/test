@@ -1,0 +1,9 @@
+#!/usr/bin/env python3
+
+import subprocess
+import sys
+
+out = subprocess.check_output(['scons', '-h'])
+assert b'asdf\nqwer' in out
+out = subprocess.check_output(['scons', '-H'])
+assert not b'asdf\nqwer' in out
