@@ -15,6 +15,7 @@
 1.  Language
     1.  [main function](main_function.c)
         1.  [Command line arguments](interactive/command_line_arguments.c)
+        1. [Ugly grammar](ugly_grammar.c)
     1.  Data
         1.  [Identifier](identifier.c)
             1.  [Uninitialized variable](uninitialized_variable.c)
@@ -123,3 +124,4 @@
     1.  [User input](interactive/user_input.c.off)
     1.  [Memory layout](memory_layout.c)
     1.  [Profiling](interactive/profiling.c)
+    1.  [Audio generation](interactive/audio_gen.c)
