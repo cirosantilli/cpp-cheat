@@ -46,7 +46,7 @@ class GdbTestcase:
         with open(self.source_path, 'r') as f:
             for i, line in enumerate(f):
                 if line.rstrip().endswith(lineend):
-                    return i
+                    return i + 1
         return -1
 
     def sendline(self, line):
