@@ -395,8 +395,6 @@ int main(void) {
 
     # isnan
 
-    # isnormal
-
         TODO
 
     # fpclassify
