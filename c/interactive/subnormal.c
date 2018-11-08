@@ -1,5 +1,5 @@
-/* https://stackoverflow.com/questions/8341395/what-is-a-subnormal-floating-point-number
- * https://stackoverflow.com/questions/14001910/what-is-this-denormal-data-about-c
+/* https://stackoverflow.com/questions/8341395/what-is-a-subnormal-floating-point-number/53203428#53203428
+ * https://stackoverflow.com/questions/14001910/what-is-this-denormal-data-about-c/53203740#53203740
  *
  * Tested on Ubuntu 18.04 amd64.
  */
