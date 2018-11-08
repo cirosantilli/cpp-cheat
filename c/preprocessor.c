@@ -1,31 +1,25 @@
-/*
-# preprocessor
+/* # preprocessor
+ *
+ * TODO being converted to cpp.sh clearly separate the C aspect from the cpp
+ *
+ * Does simple operations before compilation:
+ * it is a completely separate step that happens before compilation.
+ *
+ * Not Turing complete.
+ *
+ * Executable name: cpp. GCC for example is just a front-end to it.
+ */
 
-# macros
-
-# cpp
-
-    TODO being converted to cpp.sh clearly separate the C aspect from the cpp
-
-    Does simple operations before compilation:
-    it is a completely separate step that happens before compilation.
-
-    Not Turing complete.
-
-    Executable name: cpp. GCC for example is just a front-end to it.
-*/
-
-/*
-# #include
-
-    Look in standard dirs directly:
-
-        #include <file.h>
-
-    Looks in current directory first:
-
-        #include "file.h"
-*/
+/* # #include
+ *
+ * Look in standard dirs directly:
+ *
+ *     #include <file.h>
+ *
+ * Looks in current directory first:
+ *
+ *     #include "file.h"
+ */
 #include "common.h"
 
 int int_int_int_func(int m, int n) {
@@ -34,9 +28,12 @@ int int_int_int_func(int m, int n) {
 
 int main(void) {
 
-    /*
-    # Comments are replaced by spaces.
-    */
+    /* # Comments
+     *
+     * Comments are handled by the C preprocessor.
+     *
+     * They are actually replaced by a space.
+     */
     {
         int/* */a = 1;
         assert(a == 1);
@@ -436,167 +433,154 @@ int main(void) {
 # error
 #endif
 
-    /*
-    # #error
-
-        Print an error message to stderr and stop compilation.
-
-        Useful to enforce preprocessor conditions.
-    */
+    /* # #error
+     *
+     * Print an error message to stderr and stop compilation.
+     *
+     * Useful to enforce preprocessor conditions.
+     */
     {
 /* #error "the error message" */
     }
 
-    /*
-    # null directive
-
-        A `#` followed by newline is ignored.
-    */
+    /* # null directive
+     *
+     *     A `#` followed by newline is ignored.
+     */
     {
 #
     }
 
-    /*
-    # #pragma
+    /* # #pragma
+     *
+     * C99 specifies that:
+     *
+     *     # pragma X Y Z ...
+     *
+     *
+     * -   if `X != STDC`, does something implementation defined, and therefore not portable.
+     *
+     *     Examples: `#pragma once`
+     *
+     * -   else, then the statement must take a form:
+     *
+     *         # pragma STDC FP_CONTRACT on-off-switch
+     *         # pragma STDC FENV_ACCESS on-off-switch
+     *         # pragma STDC CX_LIMITED_RANGE on-off-switch
+     *
+     *     all of which are portable.
+     */
 
-        C99 specifies that:
-
-            # pragma X Y Z ...
-
-        -   if `X != STDC`, does something implementation defined, and therefore not portable.
-
-            Examples: `#pragma once`
-
-        -   else, then the statement must take a form:
-
-                # pragma STDC FP_CONTRACT on-off-switch
-                # pragma STDC FENV_ACCESS on-off-switch
-                # pragma STDC CX_LIMITED_RANGE on-off-switch
-
-            all of which are portable.
-    */
-
-    /*
-    # #line
-
-        Set the line and optionally filename that is seen by `__FILE__` and `__LINE__`.
-    */
+    /* # #line
+     *
+     * Set the line and optionally filename that is seen by `__FILE__` and `__LINE__`.
+     */
     {
 /*#line 1*/
     }
 
-    /*
-    # Predefined preprocessor macros
+    /* # Expand macro to another macro
+     *
+     * Nope:
+     * http://stackoverflow.com/questions/1262063/preprocessor-macro-expansion-to-another-preprocessor-directive
+     */
 
-    # Standard preprocessor defines
-
-        Some preprocessor vars are automatically defined by certain compilers
-        although they are not c standards. Those are not discussed here.
-
-        List of standard defines: http://gcc.gnu.org/onlinedocs/cpp/Standard-Predefined-Macros.html
-
-        List all them on GCC:
-
-            gcc -dM -E - < /dev/null | sort
-
-        Sample output:
-
-            #define _LP64 1
-            #define _STDC_PREDEF_H 1
-            #define __ATOMIC_ACQUIRE 2
-            #define __ATOMIC_ACQ_REL 4
-            #define __ATOMIC_CONSUME 1
-            #define __ATOMIC_HLE_ACQUIRE 65536
-            #define __ATOMIC_HLE_RELEASE 131072
-            #define __ATOMIC_RELAXED 0
-            #define __ATOMIC_RELEASE 3
-            #define __ATOMIC_SEQ_CST 5
-    */
+    /* # Predefined preprocessor macros
+     *
+     * # Standard preprocessor defines
+     *
+     *  Some preprocessor vars are automatically defined by certain compilers
+     *  although they are not c standards. Those are not discussed here.
+     *
+     *  List of standard defines: http://gcc.gnu.org/onlinedocs/cpp/Standard-Predefined-Macros.html
+     *
+     *  List all them on GCC:
+     *
+     *      gcc -dM -E - < /dev/null | sort
+     *
+     *  Sample output:
+     *
+     *      #define _LP64 1
+     *      #define _STDC_PREDEF_H 1
+     *      #define __ATOMIC_ACQUIRE 2
+     *      #define __ATOMIC_ACQ_REL 4
+     *      #define __ATOMIC_CONSUME 1
+     *      #define __ATOMIC_HLE_ACQUIRE 65536
+     *      #define __ATOMIC_HLE_RELEASE 131072
+     *      #define __ATOMIC_RELAXED 0
+     *      #define __ATOMIC_RELEASE 3
+     *      #define __ATOMIC_SEQ_CST 5
+     */
     {
-        /*
-        # STDC_VERSION
-
-        # __STDC_VERSION__
-
-            String representing version of the c std lib. Format: yyyymm (base 10).
-
-            Some values:
-
-            - C11: 201112L
-            - C99: 199901L
-
-            http://sourceforge.net/p/predef/wiki/Standards/
-
-            Apperas undefined in C99
-        */
+        /* # __STDC_VERSION__
+         *
+         * String representing version of the c std lib. Format: yyyymm (base 10).
+         *
+         * Some values:
+         *
+         * - C11: 201112L
+         * - C99: 199901L
+         *
+         * http://sourceforge.net/p/predef/wiki/Standards/
+         *
+         * Apperas undefined in C99
+         */
         {
             printf("__STDC_VERSION__ = %li\n", __STDC_VERSION__);
         }
 
-        /*
-        # __STDC__
-
-        # STDC
-
-            1 if the implementation is conforming, 0 otherwise.
-
-            TODO check: on GCC, 1 with `-std=cXX`, 0 with `-std=gnuXX`.
-        */
+        /* # __STDC__
+         *
+         * 1 if the implementation is conforming, 0 otherwise.
+         *
+         * GCC 7 still sets it even on -std=gnuX, see also:
+         * https://stackoverflow.com/questions/14737104/what-is-the-default-c-mode-for-the-current-gcc-especially-on-ubuntu/53063656#53063656
+         */
         {
             printf("__STDC__ = %d\n", __STDC__);
         }
 
-        /*
-        # __STDC_HOSTED__
-
-        # STDC
-
-            Indicate if the compilation is hosted or not.
-
-        # Hosted
-
-        # Freestanding
-
-            Concept defined in ANSI C.
-
-            Basically, a freestanding implementation does not need to provide an stdlib.
-
-            In GCC, controlled by the `-ffreestainding` option.
-        */
+        /* # __STDC_HOSTED__
+         *
+         * Concept defined in ANSI C.
+         *
+         * Basically, a freestanding implementation does not need to provide an stdlib.
+         *
+         * In GCC, controlled by the `-ffreestanding` option.
+         *
+         * - https://stackoverflow.com/questions/17692428/what-is-ffreestanding-option-in-gcc
+         * - https://stackoverflow.com/questions/2681304/how-to-compile-for-a-freestanding-environment-with-gcc
+         */
         {
             printf("__STDC_HOSTED__ = %d\n", __STDC_HOSTED__);
         }
 
-
-        /*
-        # __cplusplus
-
-            Defined only if using C++ compiler.
-
-            C99 says that C must not define it.
-        */
+        /* # __cplusplus
+         *
+         * Defined only if using C++ compiler.
+         *
+         * C99 says that C must not define it.
+         */
 #ifdef __cplusplus
         printf("__cplusplus\n");
 #endif
 
-        /*
-        # __FILE__
-
-            Absolute or relative path of current file.
-        */
+        /* # __FILE__
+         *
+         * Absolute or relative path of current file.
+         */
         {
             printf("__FILE__ = %s\n", __FILE__);
         }
 
-        /*
-        # __LINE__
-
-            Current source code line.
-
-            Useful for debugging.
-
-            If in a `.h`, position inside the `.h` before inclusion.
-        */
+        /* # __LINE__
+         *
+         * Current source code line.
+         *
+         * Useful for debugging.
+         *
+         * If in a `.h`, position inside the `.h` before inclusion.
+         */
         {
             printf("__LINE__ = %d\n", __LINE__);
         }
@@ -629,55 +613,42 @@ int main(void) {
         puts("___X32_SYSCALL_BIT");
 #endif
 
-    /*
-    # IEEE-754
-
-        IEC 60559 has the same contents as the IEEE 754-2008,
-        Outside of the C standard it is commonly known by the IEEE name, or simply as IEEE floating point.
-
-        IEEE dates from 1985.
-
-    # __STDC_IEC_559__
-
-    # IEC 60599
-
-        Standard on which floating point formats and operations should be available
-        on an implementation, and how they should work.
-
-        Good overview wiki article: <http://en.wikipedia.org/wiki/IEEE_floating_point>
-
-        Many CUPs implement large parts of IEC 60599, which C implementations can use if available.
-
-        The C standard specifies that implementing the IEC 60599 is not mandatory.
-
-        If the macro `__STDC_IEC_559__` is defined this means that the implementation is compliant
-        to the interface specified in Annex F of the C11 standard.
-
-        C99 introduced many features which allow greater conformance to IEC 60599.
-    */
+        /* # __STDC_IEC_559__
+         *
+         * IEC 60559 has the same contents as the IEEE 754-2008,
+         * Outside of the C standard it is commonly known by the IEEE name, or simply as IEEE floating point.
+         *
+         * IEEE dates from 1985.
+         *
+         * Standard on which floating point formats and operations should be available
+         * on an implementation, and how they should work.
+         *
+         * Good overview wiki article: <http://en.wikipedia.org/wiki/IEEE_floating_point>
+         *
+         * Many CUPs implement large parts of IEC 60599, which C implementations can use if available.
+         *
+         * The C standard specifies that implementing the IEC 60599 is not mandatory.
+         *
+         * If the macro `__STDC_IEC_559__` is defined this means that the implementation is compliant
+         * to the interface specified in Annex F of the C11 standard.
+         *
+         * C99 introduced many features which allow greater conformance to IEC 60599.
+         */
         {
 #ifdef __STDC_IEC_559__
             puts("__STDC_IEC_559__");
 
-            /*
-            I think it guaranteed by the standard on annex F:
-
-            - The float type matches the IEC 60559 single format.
-            - The double type matches the IEC 60559 double format.
-            - The long double type matches an IEC 60559 extended format,307) else a
-              non-IEC 60559 extended format, else the IEC 60559 double format.
-            */
+            /* I think it guaranteed by the standard on annex F:
+             *
+             * - The float type matches the IEC 60559 single format.
+             * - The double type matches the IEC 60559 double format.
+             * - The long double type matches an IEC 60559 extended format,307) else a
+             *   non-IEC 60559 extended format, else the IEC 60559 double format.
+             */
             assert(sizeof(float) == 4);
             assert(sizeof(double) == 8);
 #endif
         }
-
-        /*
-        # Expand macro to another macro
-
-            Nope:
-            http://stackoverflow.com/questions/1262063/preprocessor-macro-expansion-to-another-preprocessor-directive
-        */
 
 #ifndef __STDC_NO_ATOMICS__
         /* Indicates no C11 support for `_Atomic` and `<stdatomic.h>`. */

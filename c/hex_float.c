@@ -15,7 +15,10 @@
 
 int main(void) {
 #if __STDC_VERSION__ >= 199901L
+    /* Non leading one form. */
     assert(0xA.0p0  ==   10.0);
+    assert(0x1.4p2  ==   10.0);
+
     assert(0xA.8p0  ==   10.5);
     assert(0x1.8p1  ==    3.0);
     assert(0x1.0p10 == 1024.0);

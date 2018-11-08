@@ -57,12 +57,11 @@ int main(void) {
      * Number of digits bits for the mantissa:
      *
      * - 24 on 32-bit float
-     *
-     * # FLT_MANT_DIG
     */
     {
         printf("FLT_RADIX = %d\n", FLT_RADIX);
         printf("FLT_MANT_DIG = %d\n", FLT_MANT_DIG);
     }
+
     return EXIT_SUCCESS;
 }
