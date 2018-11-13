@@ -1,20 +1,19 @@
-/*
-# unique_ptr
-
-Sample use case:
-
-- you want a dynamic array a dynamically allocated derived class
-- thus you have to use pointers for polymorphism. Otherwise objects can have different sizes, and arrays can't be used.
-- how to prevent memory leaks?
-
-http://en.cppreference.com/w/cpp/memory/unique_ptr
-
-unique_ptr may incur an extra dereferece cost, but it is usually well worth it.
-
-In Java, everything can be though as a smart pointer (shared),
-so using this is still more efficient than Java, since C++ can know the exact
-lifetime of objects, and release them immediately when they are done.
-*/
+/* # unique_ptr
+ *
+ * Sample use case:
+ *
+ * - you want a dynamic array a dynamically allocated derived class
+ * - thus you have to use pointers for polymorphism. Otherwise objects can have different sizes, and arrays can't be used.
+ * - how to prevent memory leaks?
+ *
+ * http://en.cppreference.com/w/cpp/memory/unique_ptr
+ *
+ * unique_ptr may incur an extra dereferece cost, but it is usually well worth it.
+ *
+ * In Java, everything can be though as a smart pointer (shared),
+ * so using this is still more efficient than Java, since C++ can know the exact
+ * lifetime of objects, and release them immediately when they are done.
+ */
 
 #include "common.hpp"
 
@@ -179,24 +178,23 @@ int main() {
         assert(Base::count == 0);
     }
 
-    /*
-    # unique_ptr function arguments
-
-    -   transferring ownership TODO examples
-        -   use raw pointers on the interface, and convert it to unique_ptr inside callee
-            -   if you already have an unique_ptr, release() it
-            -   this allows you to not tie down to a specific smart pointer on the function interface
-        -   use unique_ptr on interface and move on caller.
-            - Advantage: unique_ptr on interface documents ownership transfer,
-                and prevents callee from passing non new pointer to it by mistake.
-    - TODO for not transferring ownership:
-        - `const & std::unique_ptr<T>`
-        - `get()`. Simple and efficient. But how to use it for containers like `vector<std::unique_ptr>`?
-        - `T&` on function, `*t` on caller. Looks good!
-
-    - http://stackoverflow.com/questions/8114276/how-do-i-pass-a-unique-ptr-argument-to-a-constructor-or-a-functionhttp://stackoverflow.com/questions/8114276/how-do-i-pass-a-unique-ptr-argument-to-a-constructor-or-a-function
-    - http://stackoverflow.com/questions/11277249/how-to-pass-stdunique-ptr-around
-    */
+    /* # unique_ptr function arguments
+     *
+     * -   transferring ownership TODO examples
+     *     -   use raw pointers on the interface, and convert it to unique_ptr inside callee
+     *         -   if you already have an unique_ptr, release() it
+     *         -   this allows you to not tie down to a specific smart pointer on the function interface
+     *     -   use unique_ptr on interface and move on caller.
+     *         - Advantage: unique_ptr on interface documents ownership transfer,
+     *             and prevents callee from passing non new pointer to it by mistake.
+     * - TODO for not transferring ownership:
+     *     - `const & std::unique_ptr<T>`
+     *     - `get()`. Simple and efficient. But how to use it for containers like `vector<std::unique_ptr>`?
+     *     - `T&` on function, `*t` on caller. Looks good!
+     *
+     * - http://stackoverflow.com/questions/8114276/how-do-i-pass-a-unique-ptr-argument-to-a-constructor-or-a-functionhttp://stackoverflow.com/questions/8114276/how-do-i-pass-a-unique-ptr-argument-to-a-constructor-or-a-function
+     * - http://stackoverflow.com/questions/11277249/how-to-pass-stdunique-ptr-around
+     */
     {
     }
 

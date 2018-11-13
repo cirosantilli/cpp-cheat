@@ -99,6 +99,7 @@
         1.  [tuple](tuple.cpp)
     1.  Smart pointers
         1. [unique_ptr](unique_ptr.cpp)
+        1. [shared_ptr](shared_ptr.cpp)
 1.  [Interactive](interactive/)
     1.  [bst_vs_heap](interactive/bst_vs_heap.cpp)
     1.  [chrono](interactive/chrono.cpp)
