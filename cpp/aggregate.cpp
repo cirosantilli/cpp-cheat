@@ -1,9 +1,14 @@
 #include "common.hpp"
 
 int main() {
-    // Aggregate initialization is a form of initializer list constructor.
+    // # Aggregate initialization
+    //
+    // Aggregate is a form of initializer list constructor.
+    //
     // That constructor gets defined automatically.
+    //
     // It is only available for aggregate types.
+    //
     // Having such a constructor seems to be the main property of aggregates.
     // https://en.cppreference.com/w/cpp/language/aggregate_initialization
     {

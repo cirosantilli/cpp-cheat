@@ -903,13 +903,9 @@ int main() {
 
         # Zero initialization
 
-            - http://en.cppreference.com/w/cpp/language/value_initialization
-            - http://en.cppreference.com/w/cpp/language/zero_initialization
-            - http://stackoverflow.com/questions/1613341/what-do-the-following-phrases-mean-in-c-zero-default-and-value-initializat
-
-        # Aggregate initialization
-
-            http://en.cppreference.com/w/cpp/language/aggregate_initialization
+        - http://en.cppreference.com/w/cpp/language/value_initialization
+        - http://en.cppreference.com/w/cpp/language/zero_initialization
+        - http://stackoverflow.com/questions/1613341/what-do-the-following-phrases-mean-in-c-zero-default-and-value-initializat
         */
         {
             // Syntax with new.
@@ -930,11 +926,9 @@ int main() {
                     delete[] t;
                 }
 
-                /*
-                Works for objects.
-
-                Note how the default constructor was called since `z == 1`.
-                */
+                // Works for objects.
+                //
+                // Note how the default constructor was called since `z == 1`.
                 {
                     {
                         Class *cs = new Class[1]();
@@ -951,18 +945,16 @@ int main() {
             }
         }
 
-        /*
-        # initialize built-in types
-
-            http://stackoverflow.com/questions/5113365/do-built-in-types-have-default-constructors
-
-            C++ adds new ways to initialize base types.
-
-            Those are not however constructors.
-
-            They probably just mimic constructor syntax to help blurr the distinction
-            between built-in types and classes and make templates and typedefs work better.
-        */
+        // # initialize built-in types
+        //
+        // http://stackoverflow.com/questions/5113365/do-built-in-types-have-default-constructors
+        //
+        // C++ adds new ways to initialize base types.
+        //
+        // Those are not however constructors.
+        //
+        // They probably just mimic constructor syntax to help blurr the distinction
+        // between built-in types and classes and make templates and typedefs work better.
         {
             // Parenthesis initialization
             {
@@ -986,7 +978,7 @@ int main() {
 
                 See uniform initialization.
 
-                <http://stackoverflow.com/questions/14232184/initializing-scalars-with-braces>
+                http://stackoverflow.com/questions/14232184/initializing-scalars-with-braces
 
             # Uniform initialization
 
