@@ -36,7 +36,8 @@
         1.  Constructor
             1.  [Most vexing parse](most_vexing_parse.cpp)
             1.  [Delegating constructor](delegating_constructor.cpp)
-            1.  [Implicitly deleted constructor](implicitly_deleted_constructor.cpp)
+            1.  [Implicitly defined functions](implicitly_defined.cpp)
+                1.  [Implicitly deleted constructor](implicitly_deleted_constructor.cpp)
             1.  [Constructor init object member](constructor_init_object_member.cpp)
             1.  [Initializer list constructor](initializer_list_constructor.cpp)
                 1.  [Aggregate](aggregate.cpp)
@@ -98,8 +99,9 @@
         1.  [pair](pair.cpp)
         1.  [tuple](tuple.cpp)
     1.  Smart pointers
-        1. [unique_ptr](unique_ptr.cpp)
-        1. [shared_ptr](shared_ptr.cpp)
+        1.  [unique_ptr](unique_ptr.cpp)
+        1.  [shared_ptr](shared_ptr.cpp)
+            1.  [Function that maybe returns static](func_ret_maybe_static.cpp)
 1.  [Interactive](interactive/)
     1.  [bst_vs_heap](interactive/bst_vs_heap.cpp)
     1.  [chrono](interactive/chrono.cpp)
