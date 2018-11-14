@@ -1,3 +1,13 @@
+// Used to answer:
+//
+// - bst vs heap: https://stackoverflow.com/questions/6147242/heap-vs-binary-search-tree-bst/29548834#29548834
+// - std::set: https://stackoverflow.com/questions/2558153/what-is-the-underlying-data-structure-of-a-stl-set-in-c/51944661#51944661
+// - std::map: https://stackoverflow.com/questions/18414579/what-data-structure-is-inside-stdmap-in-c/51945119#51945119
+//
+// Build graph with:
+//
+//     ./bst_vs_heap.sh
+
 #include "common.hpp"
 
 int main(int argc, char **argv) {
@@ -6,6 +16,7 @@ int main(int argc, char **argv) {
     size_t i, j, n, granule, base;
     std::priority_queue<I> heap;
     std::set<I> bst;
+    std::unordered_set<I> hashmap;
     unsigned int seed = std::random_device()();
 
     // CLI arguments.
@@ -46,11 +57,21 @@ int main(int argc, char **argv) {
         end = clk::now();
         auto dt_bst = (end - start) / granule;
 
+        // Hashmap.
+        start = clk::now();
+        for (j = 0; j < granule; ++j) {
+            hashmap.insert(randoms[base + j]);
+        }
+        end = clk::now();
+        auto dt_hashmap = (end - start) / granule;
+
         // Output.
         std::cout
             << base << " "
             << std::chrono::duration_cast<std::chrono::nanoseconds>(dt_heap).count() << " "
-            << std::chrono::duration_cast<std::chrono::nanoseconds>(dt_bst).count() << std::endl;
+            << std::chrono::duration_cast<std::chrono::nanoseconds>(dt_bst).count() << " "
+            << std::chrono::duration_cast<std::chrono::nanoseconds>(dt_hashmap).count() << std::endl
+        ;
     }
 
     // Sanity check.
