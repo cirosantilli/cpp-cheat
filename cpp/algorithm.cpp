@@ -241,7 +241,9 @@ int main() {
     }
 
 
-    // # max_element #min_element
+    // # max_element
+    //
+    // # min_element
     {
         std::vector<int> v{2,0,1};
         assert(*std::max_element(v.begin(), v.end()) == 2);
@@ -279,4 +281,35 @@ int main() {
         assert(*itNext == 2);
     }
 #endif
+
+    // # remove_if
+    //
+    // Remove if a given function evaluates to true on an element.
+    {
+        {
+            std::vector<int> v{0, 1, 2, 3, 4};
+            auto end = v.end();
+            v.erase(std::remove_if(v.begin(), end, odd), end);
+            assert((v == std::vector<int>{0, 2, 4}));
+        }
+
+        // Common combo with lambdas
+        {
+            std::vector<int> v{0, 1, 2, 3, 4};
+            auto end = v.end();
+            v.erase(std::remove_if(v.begin(), end,
+                [](int i) {return i % 2 == 1;}), end);
+            assert((v == std::vector<int>{0, 2, 4}));
+        }
+    }
+
+    // # transform
+    //
+    // Replace elements by output of a function.
+    {
+        std::vector<int> v{0, 1, 2};
+        std::transform(v.begin(), v.end(), v.begin(),
+                [](int i) {return i * i;});
+        assert((v == std::vector<int>{0, 1, 4}));
+    }
 }

@@ -1,15 +1,14 @@
-/*
-# set
-
-Implemented with Red Black trees in GCC 6.4:
-https://stackoverflow.com/questions/2558153/what-is-the-underlying-data-structure-of-a-stl-set-in-c/51944661#51944661
-
-A hashtable would be unlikely because it is sorted and can be efficiently iterated.
-
-Unique elements: inserting twice does nothing.
-
-Immutable elements: it is not possible to modify an object, one must first remove it and resinsert. This is so because modification may mean reordering.
-*/
+// # set
+//
+// Implemented with Red Black trees in GCC 6.4:
+// https://stackoverflow.com/questions/2558153/what-is-the-underlying-data-structure-of-a-stl-set-in-c/51944661#51944661
+//
+// A hashtable would be unlikely because it is sorted and can be efficiently iterated.
+//
+// Unique elements: inserting twice does nothing.
+//
+// Immutable elements: it is not possible to modify an object, one must first remove it and resinsert.
+// This is so because modification may mean reordering.
 
 #include "common.hpp"
 
@@ -78,14 +77,12 @@ int main() {
         assert(i == 1);
     }
 
-    /*
-    # insert
-
-        Return is a pair containing:
-
-        - if the item was not present, an iterator to the item inserted and true
-        - if the item was     present, an iterator to the existing item inserted and false
-    */
+    // # insert
+    //
+    // Return is a pair containing:
+    //
+    // - if the item was not present, an iterator to the item inserted and true
+    // - if the item was     present, an iterator to the existing item inserted and false
     {
         std::pair<std::set<int,std::string>::iterator,bool> ret;
         std::set<int> s;
@@ -112,13 +109,11 @@ int main() {
         assert(s == s1);
     }
 
-    /*
-    # erase
-
-        Remove element from set.
-
-        Returns number of elements removed (either 0 or 1).
-    */
+    // # erase
+    //
+    // Remove element from set.
+    //
+    // Returns number of elements removed (either 0 or 1).
     {
         std::set<int> s = {0, 1, 2};
 
@@ -142,20 +137,18 @@ int main() {
         assert(s.size() == 1);
     }
 
-    /*
-    iterate
-
-        Biderectional iterator.
-
-        Always sorted by key:
-        http://stackoverflow.com/questions/8833938/is-the-stdset-iteration-order-always-ascending-according-to-the-c-specificat/41424755#41424755
-
-        This basically forces a balanced tree implementation instead of hash set,
-        and requires < > operators to be implemented on the value.
-
-        Sorted by insertion order does not exist:
-        http://stackoverflow.com/questions/7801109/does-the-c-standard-library-have-a-set-ordered-by-insertion-order
-    */
+    // # iterate
+    //
+    // Biderectional iterator.
+    //
+    // Always sorted by key:
+    // http://stackoverflow.com/questions/8833938/is-the-stdset-iteration-order-always-ascending-according-to-the-c-specificat/41424755#41424755
+    //
+    // This basically forces a balanced tree implementation instead of hash set,
+    // and requires < > operators to be implemented on the value.
+    //
+    // Sorted by insertion order does not exist:
+    // http://stackoverflow.com/questions/7801109/does-the-c-standard-library-have-a-set-ordered-by-insertion-order
     {
         std::set<int> s;
         s.insert(2);
@@ -168,14 +161,12 @@ int main() {
         assert(it == s.end());
     }
 
-    /*
-    # find
-
-        If found, returns an iterator pointing to the element.
-        Else, returns `map::end()`
-
-        find is `log n` time since the container is ordered.
-    */
+    // # find
+    //
+    // If found, returns an iterator pointing to the element.
+    // Else, returns `map::end()`
+    //
+    // find is `log n` time since the container is ordered.
     {
         std::set<int> s = {0, 1, 2};
         std::set<int>::iterator it;
@@ -187,45 +178,39 @@ int main() {
         assert(it == s.end());
     }
 
-    /*
-    count
-
-        Count how many times an item is in the set.
-
-        Can only return 1 or 0.
-
-        Equivalent to doing a find.
-    */
+    // # count
+    //
+    // Count how many times an item is in the set.
+    //
+    // Can only return 1 or 0.
+    //
+    // Equivalent to doing a find.
     {
         std::set<int> s = {1, 2, 0, 1};
         assert(s.count(1) == 1);
         assert(s.count(3) == 0);
     }
 
-    /*
-    # Modify key.
-
-    # Update
-
-        Impossible without either:
-
-        - remove and re-insert (possibly with hint), which is the right way
-        - hacks like `mutable`
-
-        Because `std::set<X>::iterator` is actually `const` by the standard:
-
-        - http://stackoverflow.com/questions/908949/what-happens-when-you-modify-an-element-of-an-stdset
-        - http://stackoverflow.com/questions/2217878/c-stl-set-update-is-tedious-i-cant-change-an-element-in-place
-        - http://stackoverflow.com/questions/7340434/how-to-update-an-existing-element-of-stdset
-        - http://stackoverflow.com/questions/6068167/is-this-safe-mutability-and-sets
-
-        # Hint
-
-            If an iterator is given, it serves as a hint to where the new value is likely to be inserted.
-
-            This is speciall useful if you want to update a value,
-            but expect the new result to be in the same position.
-    */
+    // # Modify a key
+    //
+    // Impossible without either:
+    //
+    // - remove and re-insert (possibly with hint), which is the right way
+    // - hacks like `mutable`
+    //
+    // Because `std::set<X>::iterator` is actually `const` by the standard:
+    //
+    // - http://stackoverflow.com/questions/908949/what-happens-when-you-modify-an-element-of-an-stdset
+    // - http://stackoverflow.com/questions/2217878/c-stl-set-update-is-tedious-i-cant-change-an-element-in-place
+    // - http://stackoverflow.com/questions/7340434/how-to-update-an-existing-element-of-stdset
+    // - http://stackoverflow.com/questions/6068167/is-this-safe-mutability-and-sets
+    //
+    // # Hint
+    //
+    // If an iterator is given, it serves as a hint to where the new value is likely to be inserted.
+    //
+    // This is speciall useful if you want to update a value,
+    // but expect the new result to be in the same position.
     {
         class C {
             public:
@@ -245,6 +230,7 @@ int main() {
     }
 
     // Search by non-key comparable
+    //
     // - http://stackoverflow.com/questions/17375780/is-it-possible-to-use-elements-of-a-different-type-than-contained-in-a-stdset
     // - http://stackoverflow.com/questions/20317413/what-are-transparent-comparators
     {
@@ -264,21 +250,24 @@ int main() {
         }
 
         // unique_ptr
+        //
         // - http://stackoverflow.com/questions/18939882/raw-pointer-lookup-for-sets-of-unique-ptrs
         // - http://stackoverflow.com/questions/17851088/using-a-stdunordered-set-of-stdunique-ptr
         {
+#if 0
             // Less good solution with a hidden operator<.
             {
-                //std::set<std::unique_ptr<MemberKey>, std::less<>> s;
-                //s.insert(std::make_unique<MemberKey>(1, -1));
-                //s.insert(std::make_unique<MemberKey>(2, -2));
-                //s.insert(std::make_unique<MemberKey>(0,  0));
-                //s.insert(std::make_unique<MemberKey>(3, -3));
-                //assert((*s.find(0))->notkey ==  0);
-                //assert((*s.find(1))->notkey == -1);
-                //assert((*s.find(2))->notkey == -2);
-                //assert((*s.find(3))->notkey == -3);
+                std::set<std::unique_ptr<MemberKey>, std::less<>> s;
+                s.insert(std::make_unique<MemberKey>(1, -1));
+                s.insert(std::make_unique<MemberKey>(2, -2));
+                s.insert(std::make_unique<MemberKey>(0,  0));
+                s.insert(std::make_unique<MemberKey>(3, -3));
+                assert((*s.find(0))->notkey ==  0);
+                assert((*s.find(1))->notkey == -1);
+                assert((*s.find(2))->notkey == -2);
+                assert((*s.find(3))->notkey == -3);
             }
+#endif
 
             // Better solution with a custom comparator.
             {

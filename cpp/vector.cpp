@@ -1,7 +1,6 @@
-/* # vector
- *
- * Dynamic array: https://en.wikipedia.org/wiki/Dynamic_array
- */
+// # vector
+//
+// Dynamic array: https://en.wikipedia.org/wiki/Dynamic_array
 
 #include "common.hpp"
 
@@ -22,10 +21,9 @@ int main() {
             assert(v.size() == 3);
         }
 
-        /* Fill constructor.
-         *
-         * Make a `std::vector` with n copies of a single value.
-         */
+        // Fill constructor.
+        //
+        // Make a `std::vector` with n copies of a single value.
         {
             // Copies of given object.
             {
@@ -61,21 +59,20 @@ int main() {
         assert(v != v1);
     }
 
-    /* # Contiguous storage
-     *
-     * # Data
-     *
-     * Storage is required to be contiguous by TR1:
-     * http://stackoverflow.com/questions/849168/are-stdvector-elements-guaranteed-to-be-contiguous
-     *
-     * C++11 introduces the `data()` method which returns a pointer to the first element.
-     * It works even if the vector is empty.
-     * http://stackoverflow.com/questions/6485496/how-to-get-stdvector-pointer-to-the-raw-data
-     *
-     * Before C++11, `&v[0]` works for non-empty vectors.
-     *
-     * `vector<bool>` as usual is an exception.
-     */
+    // # Contiguous storage
+    //
+    // # Data
+    //
+    // Storage is required to be contiguous by TR1:
+    // http://stackoverflow.com/questions/849168/are-stdvector-elements-guaranteed-to-be-contiguous
+    //
+    // C++11 introduces the `data()` method which returns a pointer to the first element.
+    // It works even if the vector is empty.
+    // http://stackoverflow.com/questions/6485496/how-to-get-stdvector-pointer-to-the-raw-data
+    //
+    // Before C++11, `&v[0]` works for non-empty vectors.
+    //
+    // `vector<bool>` as usual is an exception.
     {
         std::vector<int> v{0, 1, 2};
         assert(&v[0] == v.data());
@@ -85,16 +82,15 @@ int main() {
 
     // size methods
     {
-        /* # size
-         *
-         * # length of vector
-         *
-         * # size_type
-         *
-         * Number of elements in std::vector.
-         *
-         * This has type std::vector<X>::size_type
-         */
+        // # size
+        //
+        // # length of vector
+        //
+        // # size_type
+        //
+        // Number of elements in std::vector.
+        //
+        // This has type std::vector<X>::size_type
         {
             std::vector<int> v;
             assert(v.size() == 0);
@@ -102,12 +98,11 @@ int main() {
             assert(v.size() == 1);
         }
 
-        /* # resize
-         *
-         * If larger than current size, append given element at end default initialized.
-         *
-         * If smaller than current size, remove elements from end.
-         */
+        // # resize
+        //
+        // If larger than current size, append given element at end default initialized.
+        //
+        // If smaller than current size, remove elements from end.
         {
             // Reduce size
             {
@@ -137,16 +132,15 @@ int main() {
 
     // Capacity methods.
     {
-        /* # capacity
-         *
-         * Get currently allocated size.
-         *
-         * Different from size, which is the number of elements in the std::vector!
-         *
-         * At least as large as size.
-         *
-         * Likely to be a power of 2 on most implementations.
-         */
+        // # capacity
+        //
+        // Get currently allocated size.
+        //
+        // Different from size, which is the number of elements in the std::vector!
+        //
+        // At least as large as size.
+        //
+        // Likely to be a power of 2 on most implementations.
         {
             std::vector<int> v;
             v.push_back(0);
@@ -156,7 +150,7 @@ int main() {
             std::cout << "capacity = " << v.capacity() << std::endl;
         }
 
-        // # max_size: estimative of what your OS allows you to allocate
+        // # max_size: estimate of what your OS allows you to allocate
         {
             std::cout << "max_size (MiB) = " << std::vector<int>().max_size() / (1 << 20) << std::endl;
         }
@@ -199,22 +193,20 @@ int main() {
             assert((v == std::vector<int>{0, 1}));
         }
 
-        /*
-        # push_back
-
-        # append
-
-            Push to the end of the std::vector.
-
-            Amortized time O(1), but may ocassionaly make the std::vector grow,
-            which may required a full data copy to a new location if the
-            current backing array cannot grow.
-
-        # push_front
-
-            Does not exist for std::vector, as it would always be too costly (requires to move
-            each element forward.) Use deque if you need that.
-        */
+        // # push_back
+        //
+        // # append
+        //
+        // Push to the end of the std::vector.
+        //
+        // Amortized time O(1), but may ocassionaly make the std::vector grow,
+        // which may required a full data copy to a new location if the
+        // current backing array cannot grow.
+        //
+        // # push_front
+        //
+        // Does not exist for std::vector, as it would always be too costly (requires to move
+        // each element forward.) Use deque if you need that.
         {
             std::vector<int> v;
             std::vector<int> v1;
@@ -227,11 +219,9 @@ int main() {
             v1 = {0, 1};
             assert(v == v1);
 
-            /*
-            push_back makes copies with assign `=`
-
-            If you want references, use pointers, or even better, auto_ptr.
-            */
+            // push_back makes copies with assign `=`
+            //
+            // If you want references, use pointers, or even better, auto_ptr.
             {
                 std::vector<std::string> v;
                 std::string s = "abc";
@@ -245,13 +235,11 @@ int main() {
             }
         }
 
-        /*
-        # pop_back
-
-            Remove last element from std::vector.
-
-            No return val. Rationale: http://stackoverflow.com/questions/12600330/pop-back-return-value
-        */
+        // # pop_back
+        //
+        // Remove last element from std::vector.
+        //
+        // No return val. Rationale: http://stackoverflow.com/questions/12600330/pop-back-return-value
         {
             std::vector<int> v{0, 1};
 
@@ -262,15 +250,13 @@ int main() {
             assert(v == std::vector<int>{});
         }
 
-        /*
-        # insert
-
-            This operation is inneficient for `std::vector` if it is not done at the end.
-
-        # concatenate
-
-            The range form of insert can be used to append one vector to anoter.
-        */
+        // # insert
+        //
+        // This operation is inneficient for `std::vector` if it is not done at the end.
+        //
+        // # concatenate
+        //
+        // The range form of insert can be used to append one vector to anoter.
         {
             // Single element form.
             {
@@ -296,16 +282,14 @@ int main() {
             }
         }
 
-        /*
-        # erase
-
-            Remove given elements from container given iterators to those elements.
-
-            This operation is inneficient for std::vectors,
-            since it may mean reallocation and therefore up to $O(n)$ operations.
-
-            Returns a pointer to the new location of the element next to the last removed element.
-        */
+        // # erase
+        //
+        // Remove given elements from container given iterators to those elements.
+        //
+        // This operation is inneficient for std::vectors,
+        // since it may mean reallocation and therefore up to $O(n)$ operations.
+        //
+        // Returns a pointer to the new location of the element next to the last removed element.
         {
             // Single element
             {
@@ -324,99 +308,48 @@ int main() {
             }
         }
 
-        /*
-        # remove
-
-            Helper to remove all elements that compare equal to a value from container.
-
-            Does not actually remove the elements: only ensures that the beginning of the range
-            does not contain the item to be removed.
-
-            Ex:
-
-                0, 1, 0, 2, 0, 1
-
-            Value to remove: `0`
-
-            Range to remove from:
-
-                0, 1, 0, 2, 0, 1
-                ----------
-
-            After the remove:
-
-                1, 2, X, Y, 0, 1
-                ----------
-
-            where `X` and `Y` are trash, and not necessarily 0!
-
-            To actually remove the items, an `erase` is needed after remove
-            because `remove` is not a class method and thus cannot remove items from a container.
-
-            This is called the erase and remove idiom.
-
-            After a remove the container becomes:
-
-                1, 2, 0, 1
-
-        # erase and remove idiom
-
-        # remove and erase idiom
-
-            See remove.
-        */
+        // # remove
+        //
+        // Helper to remove all elements that compare equal to a value from container.
+        //
+        // Does not actually remove the elements: only ensures that the beginning of the range
+        // does not contain the item to be removed.
+        //
+        // Ex:
+        //
+        //     0, 1, 0, 2, 0, 1
+        //
+        // Value to remove: `0`
+        //
+        // Range to remove from:
+        //
+        //     0, 1, 0, 2, 0, 1
+        //     ----------
+        //
+        // After the remove:
+        //
+        //     1, 2, X, Y, 0, 1
+        //     ----------
+        //
+        // where `X` and `Y` are trash, and not necessarily 0!
+        //
+        // To actually remove the items, an `erase` is needed after remove
+        // because `remove` is not a class method and thus cannot remove items from a container.
+        //
+        // This is called the erase and remove idiom.
+        //
+        // After a remove the container becomes:
+        //
+        //     1, 2, 0, 1
         {
-            // Verbose version
-            {
-                std::vector<int> v{0, 1, 0, 2, 0, 1};
-                auto end = std::next(v.end(), -2);
-                auto firstTrashIt = std::remove(v.begin(), end, 0);
-                // Unpredictable result:
-                std::cout << "remove:";
-                for (auto& i : v) std::cout << " " << i;
-                std::cout << std::endl;
-                v.erase(firstTrashIt, end);
-                assert((v == std::vector<int>{1, 2, 0, 1}));
-            }
-
-            // Compact version
-            {
-                std::vector<int> v{0, 1, 0, 2, 0, 1};
-                auto end = std::next(v.end(), -2);
-                v.erase(std::remove(v.begin(), end, 0), end);
-                assert((v == std::vector<int>{1, 2, 0, 1}));
-            }
-        }
-
-        // # remove_if
-        // # filter
-        // Algorithm. Remove if a given function evaluates to true on an element.
-        {
-            std::vector<int> v{0, 1, 2, 3, 4};
-            auto end = v.end();
-            v.erase(std::remove_if(v.begin(), end, odd), end);
-            assert((v == std::vector<int>{0, 2, 4}));
-
-            // Common combo with lambdas
-            {
-                std::vector<int> v{0, 1, 2, 3, 4};
-                auto end = v.end();
-                v.erase(std::remove_if(v.begin(), end,
-                    [](int i) {return i % 2 == 1;}), end);
-                assert((v == std::vector<int>{0, 2, 4}));
-            }
-        }
-
-        // # transform
-        // Algorithm. Replace elements by output of a function.
-        {
-            std::vector<int> v{0, 1, 2};
-            std::transform(v.begin(), v.end(), v.begin(),
-                    [](int i) {return i * i;});
-            assert((v == std::vector<int>{0, 1, 4}));
+            std::vector<int> v{0, 1, 0, 2, 0, 1};
+            auto end = std::next(v.end(), -2);
+            v.erase(std::remove(v.begin(), end, 0), end);
+            assert((v == std::vector<int>{1, 2, 0, 1}));
         }
 
         // # clear
+        //
         // Make the vector empty.
         {
             std::vector<int> v{0, 1, 2};
@@ -424,20 +357,14 @@ int main() {
             assert(v.empty());
         }
 
-        /*
-        # print vector
-
-        # vector to string
-
-            No built-in way.
-
-            http://stackoverflow.com/questions/4850473/pretty-print-c-stl-containers
-            190 votes on question, 30 on top answer! Come on C++!
-
-            http://stackoverflow.com/questions/1430757/c-vector-to-string?lq=1
-        */
-        // ERROR: no default operator `<<`.
-        //cout << v;
+        // # vector to string
+        //
+        // No built-in way.
+        //
+        // http://stackoverflow.com/questions/4850473/pretty-print-c-stl-containers
+        // 190 votes on question, 30 on top answer! Come on C++!
+        //
+        // http://stackoverflow.com/questions/1430757/c-vector-to-string?lq=1
     }
 
     // Random access is O(1) since array backed
@@ -456,19 +383,23 @@ int main() {
         v[0] = 1;
         assert(v[0] == 1);
 
-        /*
-        BAD: just like array overflow will not change std::vector size,
-        and is unlikelly to give an error
-        */
+        // BAD: just like array overflow will not change std::vector size,
+        // and is unlikelly to give an error
         {
             //v1[2] = 2;
         }
 
-        /*
-        # back  Get reference to last  element in vector.
-        # front Get reference to first element in vector.
-        # at    Like `[]`, but does bound checking and throws `out_of_range` in case of overflow.
-        */
+        // # back
+        //
+        // Get reference to last  element in vector.
+        //
+        // # front
+        //
+        // Get reference to first element in vector.
+        //
+        // # at
+        //
+        // Like `[]`, but does bound checking and throws `out_of_range` in case of overflow.
         {
             std::vector<int> v{0, 1, 2};
             assert(v.front() == 0);
@@ -481,7 +412,7 @@ int main() {
                 assert(false);
             }
 
-            /* Undefined on empty. */
+            // Undefined on empty.
             {
                 std::vector<int> v;
                 //v.front();
@@ -490,21 +421,19 @@ int main() {
         }
     }
 
-    /*
-    # bool std::vector
-
-        *bool std::vectors are evil!*
-
-        The standard requires `vector` to have an specialization for bool which packs bits efficiently.
-
-        While efficient, in order to work this specialization breaks common std::vector interfaces
-        that require taking addresses only in the case of this specialization, since it does not
-        make sense to takes addresses anymore.
-
-        Alternatives to `vector<bool>`: <http://stackoverflow.com/questions/670308/alternative-to-vectorbool>
-
-        A good alternative seem to be deque<bool>, which behaves as intended.
-    */
+    // # bool std::vector
+    //
+    // *bool std::vectors are evil!*
+    //
+    // The standard requires `vector` to have an specialization for bool which packs bits efficiently.
+    //
+    // While efficient, in order to work this specialization breaks common std::vector interfaces
+    // that require taking addresses only in the case of this specialization, since it does not
+    // make sense to takes addresses anymore.
+    //
+    // Alternatives to `vector<bool>`: <http://stackoverflow.com/questions/670308/alternative-to-vectorbool>
+    //
+    // A good alternative seem to be deque<bool>, which behaves as intended.
     {
         // Works fine and dandy as expected.
         {
