@@ -1,10 +1,10 @@
 // # Implicitly defined functions
 //
+// - https://stackoverflow.com/questions/3734247/what-are-all-the-member-functions-created-by-compiler-for-a-class-does-that-hap/53316960#53316960
 // - https://stackoverflow.com/questions/4943958/conditions-for-automatic-generation-of-default-copy-move-ctor-and-copy-move-assi/53315860#53315860
+// - https://stackoverflow.com/questions/6502828/what-does-default-mean-after-a-class-function-declaration/53317010#53317010
 // - https://stackoverflow.com/questions/12340257/default-vs-implicit-constructor-in-c
 // - https://blog.mozilla.org/nfroyd/2015/08/20/explicit-is-better-than-implicit-c-implicitly-defined-member-functions/
-// - https://stackoverflow.com/questions/3734247/what-are-all-the-member-functions-created-by-compiler-for-a-class-does-that-hap
-// - https://stackoverflow.com/questions/4943958/conditions-for-automatic-generation-of-default-copy-move-ctor-and-copy-move-assi
 // - https://en.cppreference.com/w/cpp/language/copy_constructor
 // - https://en.cppreference.com/w/cpp/language/move_constructor
 // - https://en.cppreference.com/w/cpp/language/copy_assignment

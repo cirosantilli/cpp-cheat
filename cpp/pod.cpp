@@ -219,6 +219,13 @@ int main() {
             static_assert(std::is_pod<int>(), "");
         }
 
+        // Array of POD is POD.
+        {
+            struct C {};
+            static_assert(std::is_pod<C>(), "");
+            static_assert(std::is_pod<C[]>(), "");
+        }
+
         // Private member: became POD in C++11
         // https://stackoverflow.com/questions/4762788/can-a-class-with-all-private-members-be-a-pod-class/4762944#4762944
         {
@@ -233,9 +240,8 @@ int main() {
 #endif
         }
 
-        // Standard library containers are not, for the most part (all?),
-        // POD because they are not trivial, which can be seen directly from their
-        // interface definition in the standard.
+        // Most standard library containers are not POD because they are not trivial,
+        // which can be seen directly from their interface definition in the standard.
         // https://stackoverflow.com/questions/27165436/pod-implications-for-a-struct-which-holds-an-standard-library-container
         {
             static_assert(!std::is_pod<std::vector<int>>(), "");
@@ -243,13 +249,6 @@ int main() {
             // Some might be though:
             // https://stackoverflow.com/questions/3674247/is-stdarrayt-s-guaranteed-to-be-pod-if-t-is-pod
             static_assert(std::is_pod<std::array<int, 1>>(), "");
-        }
-
-        // Array of POD is POD.
-        {
-            struct C {};
-            static_assert(std::is_pod<C>(), "");
-            static_assert(std::is_pod<C[]>(), "");
         }
     }
 

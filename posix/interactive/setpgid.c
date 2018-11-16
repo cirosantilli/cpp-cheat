@@ -55,10 +55,10 @@
 
 void signal_handler(int sig) {
     char sigint_str[] = "sigint\n";
-    if (sig == SIGINT) {
-        write(STDOUT_FILENO, sigint_str, sizeof(sigint_str));
-    }
     signal(sig, signal_handler);
+    if (sig == SIGINT) {
+        write(STDOUT_FILENO, sigint_str, sizeof(sigint_str) - 1);
+    }
 }
 
 int main(int argc, char **argv) {
