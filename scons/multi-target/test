@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+set -eu
+
+# Build all.
+scons
+[ "$(./main.out)" = hello ]
+[ "$(./main2.out)" = hello2 ]
+[ "$(./subdir/main2.out)" = hello ]
+
+# Build one.
+scons --clean
+scons main.out
+[ "$(./main.out)" = hello ]
+[ ! -f ./main2.out ]
+
+# If the target is a directory, build everything under a given directory.
+scons --clean
+scons .
+[ "$(./main.out)" = hello ]
+[ "$(./main2.out)" = hello2 ]
+[ "$(./subdir/main2.out)" = hello ]
+scons --clean
+scons subdir
+[ ! -f ./main.out ]
+[ ! -f ./main2.out ]
+[ "$(./subdir/main2.out)" = hello ]

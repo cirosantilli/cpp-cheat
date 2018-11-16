@@ -2,4 +2,3 @@
 set -eu
 scons
 ! scons std=c89
-

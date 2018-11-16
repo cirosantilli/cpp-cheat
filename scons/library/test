@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -eu
+scons
+[ "$(./main_static.out)" = 'a' ]
+[ "$(LD_LIBRARY_PATH=. ./main_shared.out)" = 'a' ]
+# Check that it is actually dynamically linked, and we fail without it.
+! env -u LD_LIBRARY_PATH ./main_shared.out

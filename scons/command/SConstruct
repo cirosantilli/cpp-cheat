@@ -1,0 +1,21 @@
+def create_lib(target, source, env):
+    with open(target[0].get_path(), 'w') as f:
+        f.write('''\
+#include <stdio.h>
+
+#include "lib.h"
+
+void f() {
+    puts("hello");
+}
+''')
+
+env = Environment()
+lib_src = env.Command(
+    # File to generate.
+    'lib.c',
+    # File dependencies.
+    None,
+    create_lib
+)
+env.Program(target='main.out', source=['main.c', lib_src])

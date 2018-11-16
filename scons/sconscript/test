@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -eu
+
+scons
+[ "$(./src/main.out)" = hello ]
+
+# Targets still work.
+scons --clean
+scons ./src/main.out
+[ "$(./src/main.out)" = hello ]

@@ -1,3 +1,4 @@
 env = Environment()
 env.Program(target='main.out', source=['main.c'])
 env.Program(target='main2.out', source=['main2.c'])
+env.Program(target='subdir/main.out', source=['main.c'])

@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -eu
+
+scons --clean
+scons
+[ "$(./main.out)" = hello ]
+
+# Clean also removes the generated source file.
+scons --clean
+[ ! -f lib.c ]

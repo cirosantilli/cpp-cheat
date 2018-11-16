@@ -1,6 +1,5 @@
 # Multi source
 
-Use multiple C sources to build one target:
+Use multiple C sources to build one target.
 
-    scons
-    ./main.out
+If you modify [`lib.h`](lib.h), you can observe that it does trigger rebuilds, nice!
