@@ -6,6 +6,8 @@
     cd ../cpp
     make test
 
+Beware that this cheatsheet was written semi ad-hoc across several years. So it is a quality roller coaster, with old files crappy and new files good. I've been revamping a bunch of the old files when I touch the subject again, but I don't plan to do a full all-out review soon, as I can't make money from this repo :-)
+
 ## Dependencies
 
 Most builds require:
