@@ -34,7 +34,7 @@ int main() {
     //
     // Creates a new string.
     //
-    // The only way to do inline this without creating a new string seems to be by using stringstream.
+    // The only way to do to it in-place without creating a new string seems to be by using stringstream:
     // http://stackoverflow.com/questions/662918/how-do-i-concatenate-multiple-c-strings-on-one-line
     {
         std::string s = "ab";
@@ -73,7 +73,7 @@ int main() {
 
     // # c_str
     //
-    //  Convert std::string to C null terminated char* string.
+    // Convert std::string to C null terminated char* string.
     {
         std::string s = "abc";
         assert((std::strcmp(s.c_str(), "abc")) == 0);
@@ -247,5 +247,27 @@ int main() {
 #if __cplusplus >= 201103L
         assert(std::stoi("123") == 123);
 #endif
+    }
+
+    // String from bytes.
+    // std::string is just basic_string with char type, so easy for char:
+    // https://stackoverflow.com/questions/1673445/how-to-convert-unsigned-char-to-stdstring-in-c
+    //
+    //  uint8_t:
+    // https://stackoverflow.com/questions/4508911/convert-uint8-t-to-stdstring-in-c
+    {
+        // Null terminated.
+        {
+            uint8_t bytes[]{'a', 'b', 'c', '\0'};
+            std::string s((const char*)bytes);
+            assert(s == std::string("abc"));
+        }
+
+        // Explicit length.
+        {
+            uint8_t bytes[]{'a', 'b', 'c'};
+            std::string s((const char*)bytes, 3);
+            assert(s == std::string("abc"));
+        }
     }
 }
