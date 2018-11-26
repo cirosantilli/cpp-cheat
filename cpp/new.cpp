@@ -1,19 +1,18 @@
-/* # new
- *
- * # delete
- *
- * malloc and free in C++.
- *
- * As of C++11, you should almost never use new and delete, only:
- *
- * - containers like std::vector
- * - smart pointers like unique_ptr + make_unique
- *
- * # realloc
- *
- * There is no direct replacement to realloc or calloc as of C++11
- * https://stackoverflow.com/questions/3482941/how-do-you-realloc-in-c
- */
+// # new
+//
+// # delete
+//
+// malloc and free in C++.
+//
+// As of C++11, you should almost never use new and delete, only:
+//
+// - containers like std::vector
+// - smart pointers like unique_ptr + make_unique
+//
+// # realloc
+//
+// There is no direct replacement to realloc or calloc as of C++11
+// https://stackoverflow.com/questions/3482941/how-do-you-realloc-in-c
 
 #include "common.hpp"
 
@@ -30,24 +29,23 @@ int main() {
         delete[] ip;
     }
 
-    /* # delete
-     *
-     * Free memory allocated by `new`.
-     *
-     * Just like C `free`:
-     *
-     * - deleting a `NULL` does nothing.
-     * - deleting any other pointer twice can lead to memory corruption
-     * - deleting a pointer which was not dynamically allocated can lead to memory corruption
-     *
-     * Destructor of object pointed to is called.
-     *
-     * A common technique is to set a pointer to `NULL` after it is deleted,
-     * to avoid deleting a pointer twice:
-     * https://stackoverflow.com/questions/4190703/is-it-safe-to-delete-a-null-pointer
-     *
-     * An even better technique may be to use smart pointers and containers.
-     */
+    // # delete
+    //
+    // Free memory allocated by `new`.
+    //
+    // Just like C `free`:
+    //
+    // - deleting a `NULL` does nothing.
+    // - deleting any other pointer twice can lead to memory corruption
+    // - deleting a pointer which was not dynamically allocated can lead to memory corruption
+    //
+    // Destructor of object pointed to is called.
+    //
+    // A common technique is to set a pointer to `NULL` after it is deleted,
+    // to avoid deleting a pointer twice:
+    // https://stackoverflow.com/questions/4190703/is-it-safe-to-delete-a-null-pointer
+    //
+    // An even better technique may be to use smart pointers and containers.
     {
         delete (int*)NULL;
         delete[] (int*)NULL;
@@ -121,10 +119,9 @@ int main() {
             //ip was not allocated after delete!
     }
 
-    /* # calloc
-     *
-     * An analogue effect to calloc can be attained with *value-initialization*.
-     *
-     * http://stackoverflow.com/questions/808464/c-new-call-that-behaves-like-calloc
-     */
+    // # calloc
+    //
+    // An analogue effect to calloc can be attained with *value-initialization*.
+    //
+    // http://stackoverflow.com/questions/808464/c-new-call-that-behaves-like-calloc
 }

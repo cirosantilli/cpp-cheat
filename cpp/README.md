@@ -98,6 +98,7 @@
     1.  [utility](utility.cpp)
         1.  [pair](pair.cpp)
         1.  [tuple](tuple.cpp)
+        1.  [std_move](std_move.cpp)
     1.  Smart pointers
         1.  [unique_ptr](unique_ptr.cpp)
         1.  [shared_ptr](shared_ptr.cpp)

@@ -59,8 +59,6 @@ int main() {
         assert(v != v1);
     }
 
-    // # Contiguous storage
-    //
     // # Data
     //
     // Storage is required to be contiguous by TR1:
@@ -286,7 +284,7 @@ int main() {
         //
         // Remove given elements from container given iterators to those elements.
         //
-        // This operation is inneficient for std::vectors,
+        // This operation is inefficient for std::vectors,
         // since it may mean reallocation and therefore up to $O(n)$ operations.
         //
         // Returns a pointer to the new location of the element next to the last removed element.
@@ -336,7 +334,8 @@ int main() {
         // To actually remove the items, an `erase` is needed after remove
         // because `remove` is not a class method and thus cannot remove items from a container.
         //
-        // This is called the erase and remove idiom.
+        // This is called the erase and remove idiom:
+        // https://en.wikipedia.org/wiki/Erase%E2%80%93remove_idiom
         //
         // After a remove the container becomes:
         //
@@ -384,7 +383,7 @@ int main() {
         assert(v[0] == 1);
 
         // BAD: just like array overflow will not change std::vector size,
-        // and is unlikelly to give an error
+        // and is unlikely to give an error
         {
             //v1[2] = 2;
         }

@@ -90,6 +90,8 @@ int main() {
     //
     // Vs memcpy: can compile down to an assembly optimized memcpy for arrays apparently, so just always use this:
     // https://stackoverflow.com/questions/4707012/is-it-better-to-use-stdmemcpy-or-stdcopy-in-terms-to-performance
+    //
+    // Handles overlap in the correct direction: https://stackoverflow.com/questions/1952972/does-stdcopy-handle-overlapping-ranges/53487672#53487672
     {
         // Newbie basic class usage.
         {
@@ -297,7 +299,7 @@ int main() {
         {
             std::vector<int> v{0, 1, 2, 3, 4};
             auto end = v.end();
-            v.erase(std::remove_if(v.begin(), end,
+            v.erase(std::remove_if(v.begin(), end,;
                 [](int i) {return i % 2 == 1;}), end);
             assert((v == std::vector<int>{0, 2, 4}));
         }

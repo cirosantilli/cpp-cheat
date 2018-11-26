@@ -20,7 +20,6 @@
  * ## Bibliography
  *
  * - http://stackoverflow.com/questions/3106110/what-is-move-semantics
- * - http://www.cprogramming.com/c++11/rvalue-references-and-move-semantics-in-c++11.html
  * - http://stackoverflow.com/questions/3413470/what-is-stdmove-and-when-should-it-be-used
  */
 
