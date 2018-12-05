@@ -1,2 +1,5 @@
 env = Environment()
+topvar = 1
+# Make the variable visible to the child SConscript.
+env.Export('topvar')
 env.SConscript('src/SConscript')

@@ -1,9 +1,3 @@
 # Two envs
 
-All declared envs with `Environment()` are built:
-
-    scons
-    ./build-0/main.out
-    # => 0
-    ./build-1/main.out
-    # => 1
+This is how you can setup different command line options per executable: https://stackoverflow.com/questions/19188494/scons-changing-compilation-flags-for-a-single-source-file

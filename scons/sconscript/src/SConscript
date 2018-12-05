@@ -1,2 +1,7 @@
 env = Environment()
 env.Program(target='main.out', source=['main.c'])
+# '#" indicates the toplevel source directory.
+assert env.Dir('#/src').exists()
+# Import a variable made available with Export.
+env.Import('topvar')
+assert topvar == 1

@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -eu
+scons
+[ "$(./build-0/main.out)" = 0 ]
+[ "$(./build-1/main.out)" = 1 ]
