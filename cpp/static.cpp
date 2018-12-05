@@ -1,10 +1,8 @@
-/*
-# static
-
-This is about static inside classes. Outside classes, it is just the same as in C.
-
-In classes, they are just basically globals with a namespace.
-*/
+// # static
+//
+// This is about static inside classes. Outside classes, it is just the same as in C.
+//
+// In classes, they are just basically globals with a namespace.
 
 #include "common.hpp"
 
@@ -40,15 +38,6 @@ public:
     // Object data
 
         static OtherClass otherClass;
-
-        // https://stackoverflow.com/questions/1197106/static-constructors-in-c-i-need-to-initialize-private-static-objects
-        static OtherClass otherClassWithJ;
-private:
-        static struct _StaticConstructor {
-            _StaticConstructor() {
-                otherClassWithJ.j = otherClassWithJ.i + 1;
-            }
-        } _staticConstructor;
 public:
 
     // Static methods
@@ -97,10 +86,6 @@ OtherClass Class::otherClass(1);
 // ERROR
 //Class::otherClass.inc();
 
-OtherClass Class::otherClassWithJ(1);
-// Must come after all statics.
-Class::_StaticConstructor Class::_staticConstructor;
-
 int main() {
     // Basic static field example.
     {
@@ -115,8 +100,6 @@ int main() {
         c.setIStaticNotStatic(3);
         assert(Class::iStatic == 3);
         assert(Class::otherClass.i == 1);
-        assert(Class::otherClassWithJ.i == 1);
-        assert(Class::otherClassWithJ.j == 2);
         //assert(Class::iNoInit == 0);
     }
 

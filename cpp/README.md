@@ -42,6 +42,7 @@
             1.  [Initializer list constructor](initializer_list_constructor.cpp)
                 1.  [Aggregate](aggregate.cpp)
             1.  [static](static.cpp)
+                1.  [Static constructor for private members](static_constructor_private.cpp)
             1.  [POD](pod.cpp)
         1.  Inheritance
             1.  [Inheritance override](inheritance_override.cpp)
