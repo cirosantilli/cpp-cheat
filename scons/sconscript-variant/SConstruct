@@ -3,6 +3,12 @@ import os
 env = Environment()
 objects = [env.Object('main.c')]
 build_dir = 'build'
-objects.extend(env.SConscript(os.path.join('lib', 'SConscript'), variant_dir=os.path.join(build_dir, 'lib')))
-objects.extend(env.SConscript(os.path.join('lib2', 'SConscript'), variant_dir=os.path.join(build_dir, 'lib2')))
+objects.extend(env.SConscript(
+    os.path.join('lib', 'SConscript'),
+    variant_dir=os.path.join(build_dir, 'lib'),
+))
+objects.extend(env.SConscript(
+    os.path.join('lib2', 'SConscript'),
+    variant_dir=os.path.join(build_dir, 'lib2'),
+))
 env.Program('main.out', objects)

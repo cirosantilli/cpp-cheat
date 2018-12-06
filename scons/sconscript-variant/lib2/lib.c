@@ -3,5 +3,5 @@
 #include "lib.h"
 
 void f2() {
-    puts(LIB_STR);
+    puts(LIB2_STR);
 }

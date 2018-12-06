@@ -1,5 +1,5 @@
-#ifndef LIB_H
-#define LIB_H
-#define LIB_STR "hello2"
+#ifndef LIB2_H
+#define LIB2_H
+#define LIB2_STR "hello2"
 void f2();
 #endif
