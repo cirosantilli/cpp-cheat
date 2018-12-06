@@ -1,0 +1,9 @@
+env1 = Environment()
+env1.Append(CCFLAGS=('-DCLI_INT={}'.format(2)))
+env2 = Environment()
+env2.Append(CCFLAGS=('-DCLI_INT={}'.format(3)))
+objects = [
+    env1.Object('main.c'),
+    env2.Object('lib.c'),
+]
+env1.Program(target='main.out', source=objects)

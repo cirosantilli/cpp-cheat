@@ -1,0 +1,4 @@
+env = Environment()
+objects = [env.Object('main.c')]
+objects.extend(env.SConscript('lib/SConscript'))
+env.Program('main.out', objects)

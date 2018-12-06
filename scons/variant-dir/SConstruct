@@ -3,7 +3,9 @@ env = Environment()
 x = ARGUMENTS.get('x', '0')
 env.Append(CPPDEFINES=['X=' + x])
 variant_dir = 'build-{}'.format(x)
-env.VariantDir(variant_dir, 'src', duplicate=0)
+# duplicate: https://scons.org/doc/2.4.1/HTML/scons-user.html#idp1378838508
+# If on, by default uses hardlinks. Can be turned into softlinks with --duplicate=soft-copy.
+env.VariantDir(variant_dir, 'src', duplicate=1)
 program1 = env.Program(
     target=os.path.join(variant_dir, 'main.out'),
     source=[os.path.join(variant_dir, 'main.c')]
