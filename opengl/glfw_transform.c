@@ -1,13 +1,12 @@
-/*
-Transformation matrices.
-
-It is just an explicit uniform passed to the vertex shader,
-and explicitly multiplies vectors.
-
-Usage:
-
-    ./prog [width]
-*/
+/* Transformation matrices.
+ *
+ * It is just an explicit uniform passed to the vertex shader,
+ * and explicitly multiplies vectors.
+ *
+ * Usage:
+ *
+ *     ./prog [width=512]
+ */
 
 #include "common.h"
 
