@@ -2,6 +2,7 @@
  *
  * - https://unix.stackexchange.com/questions/149741/why-is-sigint-not-propagated-to-child-process-when-sent-to-its-parent-process/465112#465112
  * - https://stackoverflow.com/questions/31907212/will-ctrlc-send-sigint-signals-to-both-parent-and-child-processes-in-linux/52042820#52042820
+ * - https://stackoverflow.com/questions/1046933/posix-process-groups/53759402#53759402
  * - https://stackoverflow.com/questions/6108953/how-does-ctrl-c-terminate-a-child-process/52042970#52042970
  *
  * **Run without `setpgid`**

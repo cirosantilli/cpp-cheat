@@ -1,4 +1,4 @@
-/* Semaphores are a method of inter-process synchronization.
+/* # SYSV semaphore
  *
  * In this example, processes communicate through `mmap`.
  *

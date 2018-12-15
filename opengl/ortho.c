@@ -1,14 +1,15 @@
-/*
-Compare glOrtho and glFrustrum + gluLookAt with a wire cube.
-
-Usage:
-
-    ./executable [<anything>]
-
-If an argument is given, us glOrtho, otherwise, use glFrustrum.
-
-http://stackoverflow.com/questions/2571402/explain-the-usage-of-glortho/36046924#36046924
-*/
+/* # glOrtho
+ *
+ * http://stackoverflow.com/questions/2571402/explain-the-usage-of-glortho/36046924#36046924
+ *
+ * Compare glOrtho and glFrustrum + gluLookAt with a wire cube.
+ *
+ * Usage:
+ *
+ *     ./executable [<anything>]
+ *
+ * If an argument is given, use glOrtho, otherwise, use glFrustrum.
+ */
 
 #include <stdlib.h>
 

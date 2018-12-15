@@ -21,6 +21,7 @@
 1.  [pthread](pthread.md)
     1. [pthread_mutex](pthread_mutex.c)
     1. [pthread_tid](pthread_tid.c)
+    1. [pthread_deadlock](pthread_deadlock.c)
 1.  [Regex](regex.c)
 1.  File IO
     1. [write_read](write_read.c)
@@ -34,7 +35,7 @@
         1. [gethostname](gethostname.c)
         1. [getservbyport](getservbyport.c)
 1.  Signal
-    1. [Kill](kill.c)
+    1.  [Kill](kill.c)
     1.  Interactive
         1. [signal_sleep](interactive/signal_sleep.c)
         1. [sigint](interactive/sigint.c)
