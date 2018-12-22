@@ -104,6 +104,9 @@
         1.  [unique_ptr](unique_ptr.cpp)
         1.  [shared_ptr](shared_ptr.cpp)
             1.  [Function that maybe returns static](func_ret_maybe_static.cpp)
+1.  Multi-file
+    1.  [Inline variable](inline_variable/)
+    1.  [extern const](extern_const/)
 1.  [Interactive](interactive/)
     1.  [bst_vs_heap](interactive/bst_vs_heap.cpp)
     1.  [chrono](interactive/chrono.cpp)

@@ -1,0 +1,39 @@
+# Input variables.
+ALL_DEPEND =
+CC = gcc
+CC_EXT = .c
+CC_STD = c11
+CFLAGS = $(COMMON_FLAGS) -pthread -std=$(CC_STD) $(PEDANTIC) $(CFLAGS_EXTRA)
+COMMON_FLAGS = -g$(G) $(I) -O$(O) -Wall -Wextra
+CXX = g++
+CXXFLAGS = $(COMMON_FLAGS) -pthread -std=$(CXX_STD) $(PEDANTIC) $(CXXFLAGS_EXTRA)
+CXX_EXT = .cpp
+CXX_STD = c++17
+FF = gfortran
+FF_EXT = .f
+FFLAGS = $(COMMON_FLAGS) $(I) -std=$(FORTRAN_STD) $(PEDANTIC) $(FFLAGS_EXTRA)
+FFLIBS =
+G = gdb3
+I =
+IN_DIR = ./
+LIBS = -lm -lrt $(LIBS_EXTRA)
+O = 0
+OBJ_EXT = .o
+OUT_DIR = ./
+OUT_EXT = .out
+PEDANTIC = -pedantic-errors
+FORTRAN_STD = f2003
+TEST ?= test
+TMP_EXT = .tmp
+TMP_PREF = tmp.
+
+# Calculated variables.
+CC_INS = $(wildcard $(IN_DIR)*$(CC_EXT))
+CXX_INS = $(wildcard $(IN_DIR)*$(CXX_EXT))
+FF_INS = $(wildcard $(IN_DIR)*$(FF_EXT))
+INS = $(CC_INS) $(CXX_INS) $(FF_INS)
+INS_NODIR = $(notdir $(INS))
+OBJS_NOEXT = $(addprefix $(OUT_DIR), $(basename $(INS_NODIR)))
+OBJS = $(addsuffix $(OBJ_EXT), $(OBJS_NOEXT))
+
+.PHONY: all clean mkdir test $(PHONY)

@@ -25,8 +25,8 @@
             int notkey;
     };
 
-    bool operator<(const MemberKey& c, int key) { return c.key < key; }
-    bool operator<(int key, const MemberKey& c) { return key < c.key; }
+    bool operator<(const MemberKey& c, const int key) { return c.key < key; }
+    bool operator<(const int key, const MemberKey& c) { return key < c.key; }
     bool operator<(const MemberKey& c, const MemberKey& d) {
         return c.key < d.key;
     }
@@ -84,10 +84,9 @@ int main() {
     // - if the item was not present, an iterator to the item inserted and true
     // - if the item was     present, an iterator to the existing item inserted and false
     {
-        std::pair<std::set<int,std::string>::iterator,bool> ret;
         std::set<int> s;
 
-        ret = s.insert(1);
+        auto ret = s.insert(1);
         assert(ret.first == s.find(1));
         assert(ret.second == true);
 

@@ -1,27 +1,30 @@
 .POSIX:
 
-O ?= 0
-STD ?= c89
-CCC ?= gcc -ggdb3 -pedantic-errors -std=$(STD) -O$(O) -Wextra
-IN_EXT ?= .c
-OUT_EXT ?= .out
-RUN ?= main
-TMP_EXT ?= .o
+# Inputs.
+CC = gcc
+CFLAGS = -ggdb3 -pedantic-errors -std=$(STD) -O$(O) -Wall -Wextra
+IN_EXT = .c
+O = 0
+OBJ_EXT = .o
+OUT_EXT = .out
+RUN = main
+STD = c99
 
-INS := $(wildcard *$(IN_EXT))
-OUTS := $(INS:$(IN_EXT)=$(TMP_EXT))
-RUN_BASENAME := $(RUN)$(OUT_EXT)
+# Inputs.
+INS = $(wildcard *$(IN_EXT))
+OBJS = $(INS:$(IN_EXT)=$(OBJ_EXT))
+RUN_BASENAME = $(RUN)$(OUT_EXT)
 
 .PHONY: clean run
 
-$(RUN_BASENAME): $(OUTS)
-	$(CCC) -o '$@' $+
+$(RUN_BASENAME): $(OBJS)
+	$(CC) $(CFLAGS) -o '$@' $^
 
-%$(TMP_EXT): %$(IN_EXT)
-	$(CCC) -c '$<' -o '$@'
+%$(OBJ_EXT): %$(IN_EXT)
+	$(CC) $(CFLAGS) -c '$<' -o '$@'
 
 clean:
-	rm -f *'$(TMP_EXT)' '$(RUN_BASENAME)'
+	rm -f *'$(OBJ_EXT)' '$(RUN_BASENAME)'
 
 run: $(RUN_BASENAME)
 	./'$(RUN_BASENAME)'

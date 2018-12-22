@@ -1,0 +1,28 @@
+clean:
+	cd '$(OUT_DIR)' && \
+	rm -rf *'$(OBJ_EXT)' *'$(OUT_EXT)' *'$(TMP_EXT)' '$(TMP_PREF)'* callgrind.out.* ;\
+	if [ -x 'clean' ]; then ./clean; fi
+
+mkdir:
+	@mkdir -p '$(OUT_DIR)'
+
+test: all
+	@\
+	if [ -x $(TEST) ]; then \
+	  ./$(TEST) '$(OUT_EXT)' ;\
+	else\
+	  fail=false ;\
+	  for t in $(OUTS); do\
+	    if ! ./"$$t"; then \
+	      fail=true ;\
+	      break ;\
+	    fi ;\
+	  done ;\
+	  if $$fail; then \
+	    echo "TEST FAILED: $$t" ;\
+	    exit 1 ;\
+	  else \
+	    echo 'ALL TESTS PASSED' ;\
+	    exit 0 ;\
+	  fi ;\
+	fi ;\

@@ -1,3 +1,3 @@
 # Weak
 
-ELF weak symbol.
+ELF weak symbol. TODO understand and get working.

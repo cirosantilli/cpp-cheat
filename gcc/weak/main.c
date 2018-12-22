@@ -4,7 +4,9 @@
 int weak __attribute__((weak)) = 1;
 
 /* Link error: multiple definitions of strong. */
-/*int strong = 1;*/
+#if 0
+int strong = 1;
+#endif
 
 int main(void) {
     assert(weak == 2);

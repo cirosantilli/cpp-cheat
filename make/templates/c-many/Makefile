@@ -1,5 +1,6 @@
 .POSIX:
 
+# Input parameters
 CC = gcc
 CFLGS = -ggdb3 -O0 -pedantic-errors -std=c99 -Wall -Wextra
 IN_EXT = .c

@@ -50,7 +50,7 @@
         1.  Compile time operations
             1.  [_Generic](generic.c)
             1.  [Constant expression](constant_expression.c)
-                1. [_Static_assert](static_assert.c)
+                1. [Static_assert](static_assert.c)
         1.  [Pointer](pointer.c)
             1. [void pointer](void_pointer.c)
             1. [Pointer to int typecast](pointer_to_int.c)
@@ -84,8 +84,8 @@
     1.  [Signal](signal.c)
     1.  [Trigraph](trigraph.c)
     1.  Multi-file
-        1.  [static](static.c)
-        1.  [extern](extern.c)
+        1.  [static](static/)
+        1.  [extern](extern/)
 1.  stdlib
     1.  [assert.h](assert_h.c)
         1. [NDEBUG](ndebug.c)
