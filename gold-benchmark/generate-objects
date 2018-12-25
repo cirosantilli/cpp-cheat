@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -eu
-nfiles="${1:-10000}"
-i=0
+nfiles="${1:-10}"
+nsyms="${2:-10}"
+cflags='-ggdb3 -O0 -std=c99 -Wall -Wextra -pedantic'
 cat <<EOF >main.c
 #include "main.h"
 
@@ -9,20 +10,26 @@ int main(void) {
   return
 EOF
 rm -f main.h
-while [ $i -lt $nfiles ]; do
-  echo "$i"
-  echo "unsigned int i_${i} = ${i};" > "${i}.c"
-  echo "extern unsigned int i_${i};" >> main.h
-  echo "i_${i} +" >> main.c
-  i=$((i + 1))
+file=0
+while [ "$file" -lt "$nfiles" ]; do
+  sym_i=0
+  rm -f "${file}.c"
+  while [ "$sym_i" -lt "$nsyms" ]; do
+    echo "${file} ${sym_i}"
+    sym="i_${file}_${sym_i}"
+    echo "unsigned int ${sym} = ${file};" >> "${file}.c"
+    echo "extern unsigned int ${sym};" >> main.h
+    echo "${sym} +" >> main.c
+    sym_i=$((sym_i + 1))
+  done
+  file=$((file + 1))
 done
 cat <<EOF >>main.c
-  0;
+  1;
 }
 EOF
-ls | grep -E '\.c$' | parallel -t --will-cite "\
-if ! [ -f '{.}.o' ] || [ '{}' -nt '{.}.o' ]; then
-  gcc -c -o '{.}.o' '{}'
-fi"
-/usr/bin/time -v gcc -o main *.o
-/usr/bin/time -v gcc -fuse-ld=gold -o main *.o
+ls | grep -E '\.c$' | parallel -t --will-cite "gcc $cflags -c -o '{.}.o' '{}'"
+echo
+/usr/bin/time -v gcc $cflags -o main *.o
+echo
+/usr/bin/time -v gcc $cflags -fuse-ld=gold -o main *.o
