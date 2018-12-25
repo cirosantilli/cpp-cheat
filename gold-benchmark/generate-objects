@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+set -eu
+nfiles="${1:-10000}"
+i=0
+cat <<EOF >main.c
+#include "main.h"
+
+int main(void) {
+  return
+EOF
+rm -f main.h
+while [ $i -lt $nfiles ]; do
+  echo "$i"
+  echo "unsigned int i_${i} = ${i};" > "${i}.c"
+  echo "extern unsigned int i_${i};" >> main.h
+  echo "i_${i} +" >> main.c
+  i=$((i + 1))
+done
+cat <<EOF >>main.c
+  0;
+}
+EOF
+ls | grep -E '\.c$' | parallel -t --will-cite "\
+if ! [ -f '{.}.o' ] || [ '{}' -nt '{.}.o' ]; then
+  gcc -c -o '{.}.o' '{}'
+fi"
+/usr/bin/time -v gcc -o main *.o
+/usr/bin/time -v gcc -fuse-ld=gold -o main *.o

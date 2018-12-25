@@ -25,6 +25,7 @@ C, C++, POSIX and Linux system programming minimal examples. Asserts used wherev
     1.  [make](make/)
     1.  [CMake](cmake/)
     1.  [SCons](scons/)
+    1.  [gold benchmark](gold-benchmark/)
 1.  Analysis tools
     1.  [GDB](gdb/)
     1.  [cflow](cflow.md)
