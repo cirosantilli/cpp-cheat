@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -eu
+result_log=result.log
+rm -f "$result_log"
+for params in \
+  "10000 1 1" \
+  "1 10000 1" \
+  "1 1 10000" \
+  "10000 10 1" \
+  "1000 100 1" \
+  "100 1000 1" \
+  "10000 10 10" \
+  "1000 100 10" \
+  "100 1000 10" \
+  "10000 10 100" \
+  "1000 100 100" \
+  "100 1000 100" \
+; do
+  echo $params | tee -a "$result_log"
+  ./generate-objects $params
+  ./bench "${params}.log"
+  cat "${params}.log" >> "$result_log"
+  echo >> "$result_log"
+done

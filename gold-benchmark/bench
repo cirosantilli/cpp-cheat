@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -eu
+cflags='-ggdb3 -O0 -std=c99 -Wall -Wextra -pedantic'
+output_file="${1:-res.log}"
+rm -f "$output_file"
+/usr/bin/time --append --format 'nogold: wall=%es user=%Us system=%Ss %MkB' --output "$output_file" gcc $cflags -o main *.o
+/usr/bin/time --append --format 'gold:   wall=%es user=%Us system=%Ss %MkB' --output "$output_file" gcc $cflags -fuse-ld=gold -o main *.o
