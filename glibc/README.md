@@ -16,8 +16,8 @@
     1.  `string.h`
         1.  [strfry.c](strfry.c)
         1.  [strverscmp.c](strverscmp.c)
-    1.  TODO
-        1.  [sendfile.c](sendfile.c.off)
+1.  Linux specifics
+    1.  [sendfile.c](sendfile.c)
 1.  Internals
     1.  [Makefile](makefile.md)
     1.  [Source tree](source-tree.md)

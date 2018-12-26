@@ -43,6 +43,8 @@
         1. [setpgid](interactive/setpgid.c)
         1. [alarm](interactive/alarm.c)
 1.  Interactive
-    1.  [sleep](interactive/sleep.c)
+    1.  [sleep cout](interactive/sleep_count.c)
+    1.  [sleep_1](interactive/sleep_1.c)
+    1.  [pthread_work](interactive/pthread_work.c)
     1.  [poll](interactive/poll.c)
 1.  [Biblography](bibliography.md)

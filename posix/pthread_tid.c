@@ -1,10 +1,6 @@
-/*
-Print thread TID and other info for multiple threads.
-*/
+/* Print thread TID and other info for multiple threads. */
 
 #include "common.h"
-
-pthread_mutex_t main_thread_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 void* main_thread(void *arg) {
     int argument;
