@@ -88,10 +88,11 @@
         1.  [extern](extern/)
 1.  stdlib
     1.  [assert.h](assert_h.c)
-        1. [NDEBUG](ndebug.c)
-        1. [assert fail](interactive/assert_fail.c)
+        1.  [NDEBUG](ndebug.c)
+        1.  [assert fail](interactive/assert_fail.c)
     1.  [stdio.h](stdio_h.c)
-        1. [printf](printf.c)
+        1.  [printf](printf.c)
+        1.  [getc stdin](interactive/getc.c)
     1.  [stdint.h](stdint_h.c)
     1.  [stdlib.h](stdlib_h.c)
         1.  Exit related

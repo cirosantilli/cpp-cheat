@@ -402,42 +402,9 @@ int main(void) {
         }
     }
 
+
     /* # stream input */
     {
-        /*
-        # getchar
-
-            getchar == getc(stdin)
-
-        # getc
-
-            get single char from given stream (should be called fgetc...)
-
-            it blocks until any char made available.
-
-            whatever char entered including on a tty is made available immediatelly.
-        */
-        if (0) {
-
-            /*
-            echo a | c.out
-                a
-            sleep 3 | c.out
-                EOF after 3 secs
-            */
-
-            fputs("enter a char (on linux, ctrl+d EOF): ", stderr);
-            /* BAD does not work. */
-            /*fputc('a', stdin);*/
-            char c = getchar();
-            if (c != EOF) {
-                fprintf(stderr, "you entered:\n%c|<<<\n", c);
-            }
-            else {
-                fprintf(stderr, "EOF\n");
-            }
-        }
-
 #if __STDC_VERSION__ < 201112L
         /*
         # gets

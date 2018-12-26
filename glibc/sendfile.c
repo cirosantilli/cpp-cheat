@@ -21,12 +21,23 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-int main(void) {
+int main(int argc, char **argv) {
+    char *source_path, *dest_path;
     int source, dest;
     struct stat stat_source;
-    source = open("sendfile.in.tmp", O_RDONLY);
+    if (argc > 1) {
+        source_path = argv[1];
+    } else {
+        source_path = "sendfile.in.tmp";
+    }
+    if (argc > 2) {
+        dest_path = argv[2];
+    } else {
+        dest_path = "sendfile.out.tmp";
+    }
+    source = open(source_path, O_RDONLY);
     assert(source != -1);
-    dest = open("sendfile.out.tmp", O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+    dest = open(dest_path, O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
     assert(dest != -1);
     assert(fstat(source, &stat_source) != -1);
     assert(sendfile(dest, source, 0, stat_source.st_size) != -1);
