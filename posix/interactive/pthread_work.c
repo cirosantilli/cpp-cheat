@@ -1,9 +1,8 @@
-/* Launch N threads that do some useless CPU intensive work:
+/* https://stackoverflow.com/questions/556405/what-do-real-user-and-sys-mean-in-the-output-of-time1/53937376#53937376
+ *
+ * Launch N threads that do some useless CPU intensive work:
  *
  *     ./pthread_work.out [niters=1000000000 [nthreads=1]]
- *
- * Originally created to see what time does:
- * https://stackoverflow.com/questions/556405/what-do-real-user-and-sys-mean-in-the-output-of-time1
  */
 
 #define _XOPEN_SOURCE 700

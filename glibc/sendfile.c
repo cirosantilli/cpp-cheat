@@ -1,6 +1,11 @@
 /* # sendfile TODO
  *
- *     man sendfile
+ * Used at:
+ * https://stackoverflow.com/questions/556405/what-do-real-user-and-sys-mean-in-the-output-of-time1/53937376#53937376
+ *
+ * Copy a file with the sendfile system call:
+ *
+ *    ./sendfile.out [source_path=sendfile.in.tmp [dest_path=sendfile.out.tmp]]
  *
  * Transfers data from one FD to another, without passing through userspace as in a read write pair.
  *
