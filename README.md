@@ -35,9 +35,11 @@ C, C++, POSIX and Linux system programming minimal examples. Asserts used wherev
         1.  [gprof](gprof.md)
         1.  [Valgrind](valgrind.md)
         1.  [perf](perf.md)
+1.  GCC
+    1.  [GCC -std= default](gcc-std-default/)
+    1.  [Incremental linking](incremental-link/)
 1.  Parsing
     1.  [Flex and Bison](flex-bison/)
-    1.  [GCC -std= default](gcc-std-default/)
 1.  Media
     1.  [FFmpeg](ffmpeg/)
     1.  [libpng](png/)
