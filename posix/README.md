@@ -40,7 +40,9 @@
         1. [signal_sleep](interactive/signal_sleep.c)
         1. [sigint](interactive/sigint.c)
         1. [signal_fork](interactive/signal_fork.c)
-        1. [setpgid](interactive/setpgid.c)
+        1.  setpgid
+            1. [setpgid.md](interactive/setpgid.md)
+            1. [setpgid.c](interactive/setpgid.c)
         1. [alarm](interactive/alarm.c)
 1.  Interactive
     1.  [sleep cout](interactive/sleep_count.c)
