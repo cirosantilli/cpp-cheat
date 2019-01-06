@@ -1,2 +1,2 @@
-PEDANTIC :=
-STD := gnu11
+CC_STD = gnu11
+PEDANTIC =

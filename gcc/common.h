@@ -1,3 +1,4 @@
+#include <alloca.h>
 #include <assert.h> /* assert */
 #include <complex.h> /* Complex integer types. */
 #include <inttypes.h> /* intmax_t */
@@ -8,5 +9,4 @@
 #include <stdlib.h> /* EXIT_SUCCESS */
 #include <string.h>
 #include <time.h> /* time() */
-
 #include <unistd.h> /* execl for sentinel attribute */

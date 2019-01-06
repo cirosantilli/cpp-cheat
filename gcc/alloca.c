@@ -14,7 +14,7 @@ http://stackoverflow.com/questions/1018853/why-is-alloca-not-considered-good-pra
 
 int f() {
     size_t size = 1 + (time(NULL) % 3);
-    int *ip = alloca(size * sizeof(int));
+    int *ip = (int *)alloca(size * sizeof(int));
     ip[0] = 1;
     return ip[0];
 }
