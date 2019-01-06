@@ -49,8 +49,8 @@ int main(void) {
             assert(out == in + 1);
         }
 
+#if 0
         /* ERROR: memory input 1 is not directly addressable */
-        /*
         {
             uint32_t out = 0;
             __asm__ (
@@ -63,7 +63,7 @@ int main(void) {
             );
             assert(out == 1 + 1);
         }
-        */
+#endif
     }
 
     /* Multiple inputs. */
