@@ -88,7 +88,8 @@ int main(void) {
      *
      * io++
      *
-     * We must mark it as `+` which means that the memory is used for both read and write. */
+     * We must mark it as `+` which means that the memory is used for both read and write.
+     */
     {
         uint32_t io = 0;
         __asm__ (
@@ -162,8 +163,7 @@ int main(void) {
         assert(out == in0 + 2);
     }
 
-    /*
-     * # 0 matching constraint
+    /* # 0 matching constraint
      *
      * Specifies that an input maps to the same as a given output.
      *
