@@ -34,6 +34,8 @@
         1. [gethostbyname](gethostbyname.c)
         1. [gethostname](gethostname.c)
         1. [getservbyport](getservbyport.c)
+1.  Process information
+    1.  [getcwd](getcwd.c)
 1.  Signal
     1.  [Kill](kill.c)
     1.  Interactive

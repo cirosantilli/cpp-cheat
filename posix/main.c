@@ -1211,27 +1211,6 @@ int main(void) {
         printf("geteuid() = %ju\n",  (uintmax_t)euid     );
         printf("getegid() = %ju\n",  (uintmax_t)egid     );
         printf("getppid() = %ju\n",  (uintmax_t)getppid());
-
-        /*
-        # getcwd
-
-            pwd
-
-        # root directory
-
-            As of POSIX 7, this concept is not available.
-
-            It is implemented as a Glibc extension under `_BSD_SOURCE`.
-        */
-        {
-            const int n = 1 << 10;
-            char buf[n];
-            if (getcwd(buf, n) == NULL) {
-                perror("getcwd");
-            } else {
-                printf("getcwd() = %s\n", buf);
-            }
-        }
     }
 
     /*
