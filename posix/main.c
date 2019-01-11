@@ -193,21 +193,6 @@ int main(void) {
     */
     {
         /*
-        # bzero
-
-        # bcopy
-
-            http://pubs.opengroup.org/onlinepubs/009695399/functions/bzero.html
-
-            http://stackoverflow.com/questions/17096990/why-use-bzero-over-memset
-
-            Same as memset, but deprecated and not ANSI.
-
-            Don't use it.
-
-        */
-
-        /*
         # strfmon
 
             Monetary string formatting.
@@ -239,28 +224,6 @@ int main(void) {
             assert(ffs(1) == 1);
             assert(ffs(2) == 2);
             assert(ffs(3) == 1);
-        }
-    }
-
-    /*
-    # times
-
-        Get real time, user time and system time.
-    */
-    {
-        /* TODO0 example */
-    }
-
-    /*
-    #time.h
-    */
-    {
-        /*
-        # strptime
-
-            Parse time string with given format and store it in a struct.
-        */
-        {
         }
     }
 
@@ -776,20 +739,20 @@ int main(void) {
             }
         }
 
-        // Ensure that the new path does not exist
-        // `ENOENT` is ok since the path may not exist
+        /* Ensure that the new path does not exist */
+        /* `ENOENT` is ok since the path may not exist */
         if (unlink(newpath) == -1 && errno != ENOENT) {
             perror("link");
             exit(EXIT_FAILURE);
         }
 
-        // Make the hardlink.
+        /* Make the hardlink. */
         if (link(oldpath, newpath) == -1) {
             perror("link");
             exit(EXIT_FAILURE);
         }
 
-        // Write to new.
+        /* Write to new. */
         fd = open(newpath, O_WRONLY);
         if (fd == -1) {
             perror("open");
@@ -805,7 +768,7 @@ int main(void) {
             }
         }
 
-        //assert that it reflected on old
+        /* assert that it reflected on old */
         fd = open(oldpath, O_RDONLY);
         if (fd == -1) {
             perror("open");
@@ -824,24 +787,6 @@ int main(void) {
 
         free(out);
     }
-
-    /*
-    # symlink
-
-        Create symbolic link.
-
-        TODO0 example
-    */
-    {
-    }
-
-    /*
-    # select
-
-        Wait for one of multiple file descriptors to become available for some operation.
-
-        Sounds like server implementation!
-    */
 
     /* # Pathname operations */
     {
@@ -956,9 +901,9 @@ int main(void) {
             perror("getrlimit(RLIMIT_DATA, ...) failed");
             exit(EXIT_FAILURE);
         } else {
-            //maximum process memory in bytes
+            /* maximum process memory in bytes */
             if (limit.rlim_max == RLIM_INFINITY) {
-                //RLIM_INFINITY means that no limit is imposed on the resource
+                /* RLIM_INFINITY means that no limit is imposed on the resource */
                 puts("RLIMIT_DATA: no limit imposed");
             } else {
                 printf(
@@ -1017,12 +962,12 @@ int main(void) {
         For resources that have fixed values, this header furnishes them directly.
     */
     {
-        // Static macros.
+        /* Static macros. */
         {
-            // TODO what is it
+            /* TODO what is it */
             printf("NL_ARGMAX = %d\n", NL_ARGMAX);
 
-            // Maximum value that fits into a `size_t`.
+            /* Maximum value that fits into a `size_t`. */
             printf("SSIZE_MAX (Mib) = %ju\n", (uintmax_t)SSIZE_MAX / (1 << 20));
 
         }
@@ -1054,16 +999,14 @@ int main(void) {
             fixed variable arrays: a function is needed, and memory must be allocated with malloc.
         */
         {
-            // Number of processors:
+            /* Number of processors: */
+            printf("_SC_NPROCESSORS_ONLN = %ld\n", sysconf(_SC_NPROCESSORS_ONLN));
 
-                printf("_SC_NPROCESSORS_ONLN = %ld\n", sysconf(_SC_NPROCESSORS_ONLN));
+            /* Maximum lengh of command line arguments + environment variables: */
+            printf("_SC_ARG_MAX (MiB) = %ld\n", sysconf(_SC_ARG_MAX) / (1 << 20));
 
-            // Maximum lengh of command line arguments + environment variables:
-
-                printf("_SC_ARG_MAX (MiB) = %ld\n", sysconf(_SC_ARG_MAX) / (1 << 20));
-
-            // TODO find the number of processors / cpus / cores: not possible without glibc extension?
-            // <http://stackoverflow.com/questions/2693948/how-do-i-retrieve-the-number-of-processors-on-c-linux>
+            /* TODO find the number of processors / cpus / cores: not possible without glibc extension? */
+            /* http://stackoverflow.com/questions/2693948/how-do-i-retrieve-the-number-of-processors-on-c-linux */
         }
 
         /*
@@ -1154,63 +1097,6 @@ int main(void) {
             }
             endpwent();
         }
-    }
-
-    /*
-    # uname
-
-        Get information about the current computer using `uname`.
-
-        Unsurprisingly, it is the same information given by the POSIX utility `uname`.
-    */
-    {
-        struct utsname info;
-        if (uname(&info) == -1) {
-            perror("uname failed");
-            exit(EXIT_FAILURE);
-        } else {
-            puts("uname");
-            printf("  sysname   = %s\n", info.sysname );
-            printf("  nodename  = %s\n", info.nodename);
-            printf("  release   = %s\n", info.release );
-            printf("  version   = %s\n", info.version );
-            printf("  machine   = %s\n", info.machine );
-        }
-    }
-
-    /*
-    # process info
-
-        # getuid
-
-            Each process has user information associated to it
-            which determine what the process can or not.
-
-            There are two types of uid and gid: real and effective:
-
-            - real is always of who executes the program
-
-            - effective may be different depending on the suid and sgid bits
-
-        # setuid
-
-        # getguid
-
-            Like `uid` versions but for group.
-
-        It seems that it is not possible to list all children of a process in POSIX:
-        <http://stackoverflow.com/questions/1009552/how-to-find-all-child-processes>
-    */
-    {
-        uid_t uid  = getuid();
-        uid_t euid = geteuid();
-        gid_t egid = getegid();
-        pid_t pid  = getpid();
-        printf("getpid()  = %ju\n",  (uintmax_t)pid      );
-        printf("getuid()  = %ju\n",  (uintmax_t)uid      );
-        printf("geteuid() = %ju\n",  (uintmax_t)euid     );
-        printf("getegid() = %ju\n",  (uintmax_t)egid     );
-        printf("getppid() = %ju\n",  (uintmax_t)getppid());
     }
 
     /*
@@ -1318,7 +1204,7 @@ int main(void) {
             printf("nice(0)    = %d\n",    nice(0));
         }
 
-        //ok, tired of errno checking:
+        /* ok, tired of errno checking: */
         printf("nice(0)    = %d\n",    nice(0));
         printf("nice(1)    = %d\n",    nice(1));
         printf("nice(0)    = %d\n",    nice(0));
@@ -1326,7 +1212,7 @@ int main(void) {
         errno = 0;
         prio = nice(-1);
         if (prio == -1 && errno != 0) {
-            //if not root we end up here
+            /* if not root we end up here */
             perror("nice(-1)");
         } else {
             printf("nice(-1)  = %d\n", prio);
@@ -1394,7 +1280,7 @@ int main(void) {
         printf("sched_get_priority_max(SCHED_RR) = %d\n", sched_get_priority_max(SCHED_RR));
         printf("sched_get_priority_min(SCHED_RR) = %d\n", sched_get_priority_min(SCHED_RR));
 
-        //printf("SCHED_SPORADIC = %d\n",  SCHED_SPORADIC);
+        /*printf("SCHED_SPORADIC = %d\n",  SCHED_SPORADIC);*/
 
         printf("SCHED_OTHER = %d\n",  SCHED_OTHER);
         printf("sched_get_priority_max(SCHED_OTHER) = %d\n", sched_get_priority_max(SCHED_OTHER));
@@ -1415,7 +1301,7 @@ int main(void) {
 
             if (sched_setscheduler(0, policy, &sched_param) == -1) {
                 perror("sched_setscheduler");
-                //exit(EXIT_FAILURE);
+                /*exit(EXIT_FAILURE);*/
             } else {
                 assert(sched_getscheduler(0) == policy);
             }
@@ -1782,7 +1668,7 @@ int main(void) {
             long pipe_buf;
             int pipes[2];
 
-            //unnamed pipe
+            /* unnamed pipe */
             if (pipe(pipes) == -1) {
                 perror("pipe");
                 exit(EXIT_FAILURE);
@@ -1796,7 +1682,7 @@ int main(void) {
                 assert(pipe_buf >= 512);
             }
 
-            //directory
+            /* directory */
             pipe_buf = pathconf(".", _PC_PIPE_BUF);
             printf("PIPE_BUF \".\" = %ld\n", pipe_buf);
             assert(pipe_buf >= 512);
@@ -1859,13 +1745,13 @@ int main(void) {
                     assert(false);
                 } else {
 
-                    // Child only.
+                    /* Child only. */
                     if (pid == 0) {
 
-                        // Child inherits attached memory.
+                        /* Child inherits attached memory. */
                         shmem[0]++;
 
-                        // Detach from child.
+                        /* Detach from child. */
                         assert(shmdt(shmem) == 0);
 
                         exit(EXIT_SUCCESS);
@@ -1873,7 +1759,7 @@ int main(void) {
 
                     int status;
                     wait(&status);
-                    // Parent only after child.
+                    /* Parent only after child. */
                     assert(status == EXIT_SUCCESS);
                     assert(shmem[0] == 2);
 
@@ -1887,7 +1773,7 @@ int main(void) {
                         Each process should detach it separatelly before deleting the memory.
                     */
                     {
-                        // Detach from parent.
+                        /* Detach from parent. */
                         assert(shmdt(shmem) == 0);
                     }
 
@@ -1927,86 +1813,6 @@ int main(void) {
                     }
                 }
             }
-        }
-    }
-
-    /*
-    # thread synchronization
-
-        Threads can be synchronized via:
-
-        - semaphores
-
-        - mutexes
-
-        Threads have the specific synchronization mechanisms:
-
-    # mutex
-    */
-    {
-        /*
-        # sched_yield
-
-            excplicitly tell scheduler to schedule another process
-        */
-        {
-            sched_yield();
-        }
-    }
-
-    /*
-    # sync
-
-        Makes all cached writes to all filesystems.
-
-        OSes may keep disk writes for later for efficienty, grouping several writes into one.
-
-        This explicitly tells the OS to write everything down.
-
-        `fclose` only flushes data from internal C library bufferes to the OS,
-        but does not guarantee that the OS has written the data to disk.
-
-        TODO what is an application for this, except before shutting down the system?
-
-    # fsync
-
-        Same as sync, but only for filesystem containing given fd.
-    */
-    {
-        sync();
-
-        int fd = open(__FILE__, O_RDONLY);
-        fsync(fd);
-        close(fd);
-    }
-
-    /*
-    # termios.h
-
-        Terminal management
-    */
-    {
-        //TODO0
-    }
-
-    /*
-    # terminal
-
-        Some POSIX functions deal with the controlling terminal which called the program if any.
-
-    # getlogin
-
-        Get login name of controlling terminal
-
-        This is different from `getuid` since it looks at the controlling terminal,
-        and not at processes specific information.
-    */
-    {
-        char* login = getlogin();
-        if (login == NULL) {
-            perror("getlogin failed");
-        } else {
-            printf("getlogin() = %s\n", getlogin());
         }
     }
 

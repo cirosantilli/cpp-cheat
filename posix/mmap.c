@@ -1,21 +1,20 @@
-/*
-# mmapfile
-
-    Example of mmap on files.
-
-    Create a file, mmap to it, write to maped memory, close.
-
-    Then read the file and confirm it was written to.
-
-    Implemented in Linux by the mmap syscall.
-*/
+/* # mmap
+ *
+ * Example of mmap on files.
+ *
+ * Create a file, mmap to it, write to maped memory, close.
+ *
+ * Then read the file and confirm it was written to.
+ *
+ * Implemented in Linux by the mmap syscall.
+ */
 
 #include "common.h"
 
 int main(void) {
     char *filepath = TMPFILE();
     enum Constexpr { NUMINTS = 4 };
-    int filesize = NUMINTS * sizeof(int);
+    size_t filesize = NUMINTS * sizeof(int);
 
     int i;
     int fd;

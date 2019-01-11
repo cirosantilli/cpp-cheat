@@ -26,7 +26,7 @@ int main(void) {
     int fd;
     int *map;
     char *name = "/" TMPFILE();
-    enum Constexpr { size = sizeof(int) };
+    enum Constexpr { SIZE = sizeof(*map) };
 
     /* The name creates a virtual file under `/dev/shm` in Linux.
      *
@@ -35,8 +35,8 @@ int main(void) {
      */
     fd = shm_open(name, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
     /* Without ftruncate Linux gives SIGBUS. */
-    ftruncate(fd, size);
-    map = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    ftruncate(fd, SIZE);
+    map = mmap(NULL, SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     *map = 0;
     if (fork() == 0) {
         *map = 1;
@@ -44,14 +44,14 @@ int main(void) {
          *
          * So I think `wait` is not enough for memory synchronization.
          */
-        msync(map, size, MS_SYNC);
+        msync(map, SIZE, MS_SYNC);
         exit(EXIT_SUCCESS);
     }
     wait(NULL);
     /* Memory changed across processes! */
     assert(*map == 1);
     /* You *must* do this! If you do not, the object survive (under /dev/shm in Linux). */
-    munmap(map, size);
+    munmap(map, SIZE);
     close(fd);
     shm_unlink(name);
     return EXIT_SUCCESS;

@@ -14,8 +14,10 @@
         1.  semaphore_unnamed.c TODO
         1.  semaphore_named.c TODO. https://stackoverflow.com/questions/16400820/c-how-to-use-posix-semaphores-on-forked-processes
 1.  [mmap](mmap.c)
-    1.  [shm_open](shm_open.c)
     1.  [MAP_PRIVATE](map_private.c)
+    1.  Shared memory
+        1.  [shm_open](shm_open.c)
+        1.  [shmget](shmget.c)
 1.  [syslog](syslog.c)
 1.  [getrusage](getrusage.c)
 1.  [pthread](pthread.md)
@@ -39,16 +41,21 @@
 1.  Signal
     1.  [Kill](kill.c)
     1.  Interactive
-        1. [signal_sleep](interactive/signal_sleep.c)
-        1. [sigint](interactive/sigint.c)
-        1. [signal_fork](interactive/signal_fork.c)
+        1.  [alarm](interactive/alarm.c)
+        1.  [signal_sleep](interactive/signal_sleep.c)
+        1.  [sigint](interactive/sigint.c)
+        1.  [signal_fork](interactive/signal_fork.c)
+
+1.  Interactive
+    1.  [getlogin](interactive/getlogin.c)
+    1.  [poll](interactive/poll.c)
+    1.  [pthread_work](interactive/pthread_work.c)
+    1.  [sleep cout](interactive/sleep_count.c)
+    1.  [sleep_1](interactive/sleep_1.c)
+    1.  [uname](interactive/uname.c)
+    1.  Process information
+        1.  [getcwd](interactive/uname.c)
         1.  setpgid
             1. [setpgid.md](interactive/setpgid.md)
             1. [setpgid.c](interactive/setpgid.c)
-        1. [alarm](interactive/alarm.c)
-1.  Interactive
-    1.  [sleep cout](interactive/sleep_count.c)
-    1.  [sleep_1](interactive/sleep_1.c)
-    1.  [pthread_work](interactive/pthread_work.c)
-    1.  [poll](interactive/poll.c)
 1.  [Biblography](bibliography.md)
