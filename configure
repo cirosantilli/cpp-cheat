@@ -20,6 +20,7 @@ build-essential \
 gfortran \
 libncurses5-dev \
 python-software-properties \
+scons \
 "
 if "$travis"; then
   cmd="$cmd \
