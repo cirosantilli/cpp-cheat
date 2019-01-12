@@ -1,3 +1,0 @@
-# Build systems
-
-- premake: 
