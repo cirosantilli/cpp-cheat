@@ -3,10 +3,10 @@ TARGET    := qtcheat
 
 # Doing `qmake ../` is called a shadow build.
 all:
-	if [ ! -r qt.pro ]; then qmake -project; fi &&\
-	mkdir -p "$(BUILD_DIR)" &&\
-	cd "$(BUILD_DIR)" &&\
-	qmake ../ &&\
+	if [ ! -r qt.pro ]; then qmake -project; fi && \
+	mkdir -p "$(BUILD_DIR)" && \
+	cd "$(BUILD_DIR)" && \
+	qmake ../ && \
 	make
 
 clean:

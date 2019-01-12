@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
-sudo aptitude update
-sudo aptitude install libpython2.7-dev openjdk-8-jdk swig
+sudo apt-get update
+sudo apt-get install libpython2.7-dev openjdk-8-jdk swig
 echo 'MANUAL STEP: set and export your JAVA_HOME'

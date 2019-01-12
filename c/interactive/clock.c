@@ -1,6 +1,4 @@
-/*
-# clock
-*/
+/* # clock */
 
 #include "common.h"
 
@@ -9,12 +7,11 @@ int main(void) {
     uintmax_t i, j;
 
     t = clock();
-    /*
-    Busy waiting.
-
-    Do something whacky, and then a printf side-effect,
-    so that GCC won't be able to optimize it away.
-    */
+    /* Busy waiting.
+     *
+     * Do something whacky, and then a printf side-effect,
+     * so that GCC won't be able to optimize it away.
+     */
     j = (uintmax_t)time(NULL);
     for (i = 0; i < (uintmax_t)(CLOCKS_PER_SEC * 1000); i++) {
         j += i*i*i - i-j + 1;

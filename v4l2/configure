@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-sudo aptitude update
+sudo apt-get update
 # TODO: get rid of libopencv. At least use something more minimal like ffmpeg.
-sudo aptitude install libv4l-dev
+sudo apt-get install libv4l-dev
 ../opengl/configure

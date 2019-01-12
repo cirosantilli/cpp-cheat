@@ -30,4 +30,4 @@ Often used together with the Mesa implementation of GL.
 
 Installation Ubuntu on 12.04:
 
-    sudo aptitude install freeglut3-dev
+    sudo apt-get install freeglut3-dev

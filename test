@@ -1,17 +1,46 @@
 #!/usr/bin/env bash
+
+# Test everything that is automatable.
+
 top="$(pwd)"
+
+# make test
 for t in \
     c \
+    c/extern \
+    c/static/function \
+    c/static/variable \
     cpp \
+    cpp/extern_const \
+    cpp/inline_variable \
     gcc \
     glibc \
+    linker/incremental-link \
+    linker/variable-address \
     posix \
   ; do
-  if ! make -C "$t" test; then
+  if ! make -C "$t" -j`nproc` test; then
     echo "TEST FAILED: $t"
     exit 1
   fi
 done
+
+# make only
+for t in \
+    c/interactive \
+    cpp/interactive \
+    glibc/interactive \
+    posix/curses \
+    posix/interactive \
+    posix/socket \
+  ; do
+  if ! make -C "$t" -j`nproc`; then
+    echo "TEST FAILED: $t"
+    exit 1
+  fi
+done
+
+# ./test only
 for t in \
     scons \
   ; do

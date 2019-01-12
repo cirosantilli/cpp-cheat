@@ -1,5 +1,9 @@
 # QT
 
+Usage:
+
+    make run
+
 Initial `qt.pro` template generated with:
 
     qmake -project
@@ -41,4 +45,4 @@ Some objects cannot be created on the stack, only on the heap. QT takes charge o
 
 -   On Ubuntu, get the source code for many examples:
 
-        sudo aptitude install -y qt4-demos
+        sudo apt-get install -y qt4-demos

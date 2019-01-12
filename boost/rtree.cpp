@@ -1,19 +1,17 @@
-/*
-Contains either:
-
-- Point, Box or Segment, or something adapted to them
-- std::pair<Point, Data>
-- std::tuple<Point, ..., ...>
-
-Documented at: http://www.boost.org/doc/libs/1_62_0/libs/geometry/doc/html/geometry/spatial_indexes/creation_and_modification.html
-
-TODO
-
--   randomized perf test vs linear search.
-
--   ellipses, infinite lines, other parametrized surfaces:
-    http://boost-geometry.203548.n3.nabble.com/intersection-between-a-sphere-and-a-line-td4025167.html
-*/
+// Contains either:
+//
+// - Point, Box or Segment, or something adapted to them
+// - std::pair<Point, Data>
+// - std::tuple<Point, ..., ...>
+//
+// Documented at: http://www.boost.org/doc/libs/1_62_0/libs/geometry/doc/html/geometry/spatial_indexes/creation_and_modification.html
+//
+// TODO
+//
+// -   randomized perf test vs linear search.
+//
+// -   ellipses, infinite lines, other parametrized surfaces:
+//     http://boost-geometry.203548.n3.nabble.com/intersection-between-a-sphere-and-a-line-td4025167.html
 
 #include "common.hpp"
 
@@ -281,7 +279,6 @@ int main() {
 
     // update
     // TODO: any hint insertion iterator as in std::set? Seems not.
-
     {
         Rtree rtree;
         rtree.insert(Value(Point(1, 1), 1));

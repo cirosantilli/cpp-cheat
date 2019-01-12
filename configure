@@ -1,34 +1,34 @@
 #!/usr/bin/env bash
+# Install everything required for ./test
 travis=false
-y=''
+y=
 while getopts t OPT; do
   case "$OPT" in
     t)
       travis=true
-      y='-y'
+      y=-y
       ;;
   esac
 done
 shift $(($OPTIND - 1))
-
 if "$travis"; then
   sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
 fi
 sudo apt-get update $y
-cmd="sudo apt-get install $y \
+cmd="sudo apt-get install ${y} \
 build-essential \
 gfortran \
 libncurses5-dev \
-python-software-properties \
+parallel \
 scons \
 "
 if "$travis"; then
-  cmd="$cmd \
+  cmd="${cmd} \
 gcc-7 \
 g++-7 \
 "
 else
-  cmd="$cmd \
+  cmd="${cmd} \
 gcc \
 g++ \
 "

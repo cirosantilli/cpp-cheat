@@ -1,4 +1,0 @@
-#!/usr/bin/env bash
-set -eu
-gcc -o main.out -std=c99 -Wall -Wextra -pedantic link.ld main.c
-[ "$(./main.out)" = "$(printf 'adr 0x12345678\nval 0x9abcdef0\nval 0x0')" ]

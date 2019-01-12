@@ -22,7 +22,6 @@
 #include <time.h> /* time() */
 #include <wchar.h>
 #if __STDC_VERSION__ >= 199901L
-  /* Not yet implemented in GCC 5.2. */
 # ifndef __STDC_NO_COMPLEX__
 #  include <complex.h>
 # endif

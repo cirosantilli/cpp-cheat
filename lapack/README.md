@@ -80,12 +80,12 @@ The BLAS project provides `cblas.h`, which contains a C interface for BLAS (TODO
 
 Via atlas:
 
-    sudo aptitude install libatlas-dev
+    sudo apt-get install libatlas-dev
     gcc -lcblas
 
 Via LAPACKE (`libblas-dev` already contains `cblas.h`):
 
-    sudo aptitude install liblapacke-dev
+    sudo apt-get install liblapacke-dev
     gcc -lblas
 
 ## Levels

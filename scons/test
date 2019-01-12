@@ -3,15 +3,15 @@ set -eu
 top="$(pwd)"
 log_path="${top}/test.log"
 ./clean
-for d in */; do
-  cd "${top}/${d}"
-  if [ -e test ]; then
-    echo "$d"
-    ret=0
-    ./test >> "$log_path" 2>&1 || ret=$?
-    if [ $? -ne 0 ]; then
-      echo "Test failed: ${d}"
-    fi
+ls -d */ | parallel "$@" --will-cite "
+cd '${top}/{}'
+if [ -e test ]; then
+  echo '{}'
+  ret=0
+  ./test >> '$log_path' 2>&1 || ret=$?
+  if [ $? -ne 0 ]; then
+    echo 'Test failed: {}'
   fi
-done
+fi
+"
 echo 'All tests passed'

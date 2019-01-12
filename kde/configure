@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-sudo aptitude install kdelibs5-dev
+sudo apt-get install kdelibs5-dev
