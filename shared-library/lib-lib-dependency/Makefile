@@ -1,6 +1,6 @@
 CC := gcc -pedantic-errors -std=c89 -Wall -Wextra
 
-.PHONY: all clean test
+.PHONY: clean test
 
 main.out: main.o libcirosantilli_a.so
 	$(CC) -L'.' main.o -o '$@' -lcirosantilli_a
