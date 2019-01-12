@@ -1,10 +1,10 @@
 CC := gcc -pedantic-errors -std=c89 -Wall -Wextra
 
-.PHONY: all clean run
+.PHONY: all clean test
 
 all: main.out main1.out main2.out
 
-run: all
+test: all
 	LD_LIBRARY_PATH=. ./main.out
 	LD_LIBRARY_PATH=. ./main1.out
 	LD_LIBRARY_PATH=. ./main2.out

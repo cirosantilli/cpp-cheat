@@ -1,7 +1,7 @@
 #include <cassert>
 
-#include "c.h"
+#include "notmain.h"
 
 int main() {
-    assert(f() == 1);
+    assert(notmain_func() == 1);
 }

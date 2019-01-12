@@ -1,6 +1,6 @@
 #include <assert.h>
 
-#include "cpp.h"
+#include "notmain.hpp"
 
 int main(void) {
     assert(f_int(1) == 2);

@@ -1,3 +1,5 @@
+/* Used by: https://unix.stackexchange.com/questions/226524/what-system-call-is-used-to-load-libraries-in-linux/462710#462710 */
+
 #define _XOPEN_SOURCE 700
 #include <assert.h>
 #include <dlfcn.h>

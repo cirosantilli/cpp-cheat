@@ -1,11 +1,11 @@
 CC_DL = gcc -ggdb3 -std=c89 -Wall -Wextra
 CC = $(CC_DL) -pedantic-errors
 
-.PHONY: all clean run
+.PHONY: all clean test
 
 all: maina.out mainso.out mainso_fullpath.out dlopen.out
 
-run: all
+test: all
 	./maina.out
 	LD_LIBRARY_PATH=. ./mainso.out
 	./mainso_fullpath.out

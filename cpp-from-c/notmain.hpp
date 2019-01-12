@@ -1,5 +1,5 @@
-#ifndef CPP_H
-#define CPP_H
+#ifndef NOTMAIN_HPP
+#define NOTMAIN_HPP
 
 #ifdef __cplusplus
 // C cannot see these overloaded prototypes, or else it would get confused.

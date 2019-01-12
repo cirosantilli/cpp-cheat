@@ -1,4 +1,4 @@
-#include "cpp.h"
+#include "notmain.hpp"
 
 int f(int i) {
     return i + 1;

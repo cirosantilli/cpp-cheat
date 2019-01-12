@@ -1,12 +1,12 @@
 CC := gcc -pedantic-errors -std=c89 -Wall -Wextra
 
-.PHONY: all clean run
+.PHONY: all clean test
 
 main.out: main.o libcirosantilli_a.so
 	$(CC) -L'.' main.o -o '$@' -lcirosantilli_a
 	@#LD_LIBRARY_PATH=. $(CC) -L'.' main.o -o '$@' -lcirosantilli_a
 
-run: main.out
+test: main.out
 	LD_LIBRARY_PATH=. ./main.out
 
 libcirosantilli_a.so: a.o libcirosantilli_b.so

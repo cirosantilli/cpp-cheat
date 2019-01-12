@@ -4,7 +4,8 @@
 #include "a.h"
 
 /* TODO: any clearer way of doing this maybe
- * with some compilation option only? */
+ * with some compilation option only?
+ */
 #if defined(V1)
 __asm__(".symver a,a@LIBA_1");
 #elif defined(V2)

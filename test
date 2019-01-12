@@ -7,10 +7,12 @@ top="$(pwd)"
 # make test
 for t in \
     c \
+    c-from-cpp \
     c/extern \
     c/static/function \
     c/static/variable \
     cpp \
+    cpp-from-c \
     cpp/extern_const \
     cpp/inline_variable \
     gcc \
@@ -18,6 +20,9 @@ for t in \
     linker/incremental-link \
     linker/variable-address \
     posix \
+    shared-library/basic \
+    shared-library/lib-lib-dependency \
+    shared-library/symbol-version \
   ; do
   if ! make -C "$t" -j`nproc` test; then
     echo "TEST FAILED: $t"

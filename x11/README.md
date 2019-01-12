@@ -1,7 +1,6 @@
 # X11
 
 1. [Hello world](hello_world.c)
-1. [Bibliography](bibliography.md)
 
 Major graphical system on Linux systems.
 
