@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -eu
+scons --clean
+scons
+[ "$(./build_0/main.out)" = 0 ]
+[ ! -d build_1 ]
+scons x=1
+[ "$(./build_1/main.out)" = 1 ]

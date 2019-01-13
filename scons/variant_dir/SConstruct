@@ -2,7 +2,7 @@ import os.path
 env = Environment()
 x = ARGUMENTS.get('x', '0')
 env.Append(CPPDEFINES=['X=' + x])
-variant_dir = 'build-{}'.format(x)
+variant_dir = 'build_{}'.format(x)
 # duplicate: https://scons.org/doc/2.4.1/HTML/scons-user.html#idp1378838508
 # If on, by default uses hardlinks. Can be turned into softlinks with --duplicate=soft-copy.
 env.VariantDir(variant_dir, 'src', duplicate=1)

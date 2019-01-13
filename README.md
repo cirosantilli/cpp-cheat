@@ -13,11 +13,11 @@ C, C++, POSIX and Linux system programming minimal examples. Asserts used wherev
     1.  [POSIX](posix/): POSIX C API
     1.  [OpenGL](opengl/)
     1.  [GCC](gcc/): GCC extensions
-    1.  [Shared library](shared-library/)
+    1.  [Shared library](shared_library/)
 1.  Cross-language
-    1.  [C from C++](c-from-cpp/)
-    1.  [C++ from C](cpp-from-c/)
-    1.  [Fortran from C](fortran-from-c/)
+    1.  [C from C++](c_from_cpp/)
+    1.  [C++ from C](cpp_from_c/)
+    1.  [Fortran from C](fortran_from_c/)
     1.  [SWIG](swig/)
 1.  Build systems
     1.  [make](make/)
@@ -26,13 +26,13 @@ C, C++, POSIX and Linux system programming minimal examples. Asserts used wherev
 1.  Analysis tools
     1.  [GDB](gdb/)
 1.  GCC
-    1.  [GCC -std= default](gcc-std-default/)
+    1.  [GCC -std= default](gcc_std_default/)
     1.  GNU LD linker
-        1.  [Incremental linking](linker/incremental-link/)
-        1.  [Fixed variable address](linker/variable-address/)
-        1.  [gold linker benchmark](linker/gold-benchmark/)
+        1.  [Incremental linking](linker/incremental_link/)
+        1.  [Fixed variable address](linker/variable_address/)
+        1.  [gold linker benchmark](linker/gold_benchmark/)
 1.  Parsing
-    1.  [Flex and Bison](flex-bison/)
+    1.  [Flex and Bison](flex_bison/)
 1.  Media
     1.  [FFmpeg](ffmpeg/)
     1.  [libpng](png/)
