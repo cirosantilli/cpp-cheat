@@ -38,6 +38,8 @@
         1. [getservbyport](getservbyport.c)
 1.  Process information
     1.  [getcwd](getcwd.c)
+    1.  [uname](uname.c)
+    1.  [getlogin](getlogin.c)
 1.  Signal
     1.  [Kill](kill.c)
     1.  Interactive
@@ -45,16 +47,12 @@
         1.  [signal_sleep](interactive/signal_sleep.c)
         1.  [sigint](interactive/sigint.c)
         1.  [signal_fork](interactive/signal_fork.c)
-
 1.  Interactive
-    1.  [getlogin](interactive/getlogin.c)
     1.  [poll](interactive/poll.c)
     1.  [pthread_work](interactive/pthread_work.c)
     1.  [sleep cout](interactive/sleep_count.c)
     1.  [sleep_1](interactive/sleep_1.c)
-    1.  [uname](interactive/uname.c)
     1.  Process information
-        1.  [getcwd](interactive/uname.c)
         1.  setpgid
             1. [setpgid.md](interactive/setpgid.md)
             1. [setpgid.c](interactive/setpgid.c)
