@@ -33,6 +33,16 @@
 # endif
 #endif
 
+#define COMMON_TMP_EXT ".tmp"
+#define COMMON_TMPFILE __FILE__ COMMON_TMP_EXT
+#define COMMON_TMPFILE_NAMED(name) __FILE__ "__" name COMMON_TMP_EXT
+#define COMMON_ARRAY_SIZE(array) (sizeof(array)/sizeof(array[0]))
+
+/* Standard action to take in case of an IO error. */
+#define COMMON_IO_ERROR(function, path) \
+    fprintf(stderr, "error: %s errno = %d, path = %s\n", function, errno, path); \
+    exit(EXIT_FAILURE);
+
 #define PRIxPTR_WIDTH ((int)(sizeof(void*)*2))
 
 #endif

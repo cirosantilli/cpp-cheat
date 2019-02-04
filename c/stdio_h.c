@@ -1,237 +1,8 @@
-/*
-# stdio.h
-
-    stream Input and Output
-
-    # stream
-
-        An stream is an abstraction over different input/output methods
-        such as regular files, stdin/stdout/stderr (pipes in linux), etc.
-        so that all of them can be treated on an uniform basis once you opened the stream.
-
-        Most functions have a form which outputs only to stdout,
-        and most input functions have a form which reads only from sdtin
-        coupled with a general form that outputs to any stream.
-
-        Unfortunatelly, sometimes there are subtle differences between those two
-        forms, so beawere!
-
-    # FILE
-
-        FILE is a macro that represents a stream object.
-
-        Its name is FILE of course because files are one of the main types of streams.
-
-        However, streams can represent other resources in the filesystem in general
-        such as Linux FIFOs or sockets.
-
-    # stream vs file descriptors
-
-        A file descriptor is a POSIX concept and thus shall not be discussed here.
-*/
+/* # stdio.h */
 
 #include "common.h"
 
-#define TMPFILE(x) __FILE__ "__" x ".tmp"
-
-/*
-Standard action to take in case of an IO error.
-*/
-void io_error(char *function, char *path){
-    fprintf(stderr, "eror: %s errno = %d, path = %s\n", function, errno, path);
-    exit(EXIT_FAILURE);
-}
-
-/*
-Returns the size of the given open `FILE*`.
-
-If an error occurs, returns `-1L`.
-
-Does not work for pipes.
-*/
-long fget_file_size(FILE *fp) {
-    long oldpos;
-    long return_value;
-    oldpos = ftell(fp);
-    if (oldpos == -1L) {
-        return -1L;
-    }
-    if (fseek(fp, 0, SEEK_END) != 0) {
-        return -1L;
-    }
-    return_value = ftell(fp);
-    if (return_value == -1L) {
-        return -1L;
-    }
-    /* retore old position */
-    if (fseek(fp, oldpos , SEEK_SET) != 0) {
-        return -1L;
-    }
-    return return_value;
-}
-
-/*
-Same as `file_size`, but takes the path instead of a `FILE*`.
-*/
-long file_size(char *path) {
-    FILE *fp;
-    long return_value;
-    fp = fopen(path, "r");
-    if (fp == NULL) {
-        return -1L;
-    }
-    return_value = fget_file_size(fp);
-    if (fclose(fp) == EOF) {
-        return -1L;
-    }
-    return return_value;
-}
-
-/*
-Read the entire file to a char[] dynamically allocated inside this function.
-
-Returns a pointer to the start of that array.
-
-In case of any error, returns NULL.
-
-The entire file must fit into the memory avilable to the program.
-
-http://stackoverflow.com/questions/174531/easiest-way-to-get-files-contents-in-c
-*/
-char *file_read(char *path) {
-    FILE *fp;
-    char *buffer;
-    long fsize;
-
-    fp = fopen(path , "rb");
-    if (fp==NULL) {
-        return NULL;
-    }
-    fsize = fget_file_size(fp);
-    if (fsize < 0){
-        fprintf(stderr, "could not determine lenght of:\n%s\n", path);
-        return NULL;
-    }
-    buffer = (char*)malloc(fsize);
-    if (buffer == NULL) {
-        return NULL;
-    }
-    if (fread(buffer, 1, fsize, fp) != fsize) {
-        return NULL;
-    }
-    if (fclose(fp) == EOF){
-        return NULL;
-    }
-    return buffer;
-}
-
-/*
-Write null terminated string to file
-
-Returns `-1` on failulre, 1 on success.
-*/
-int file_write(char *path, char *write_string) {
-    long len;
-    char *buffer;
-    FILE *fp;
-
-    fp = fopen(path, "wb");
-    if (fp == NULL) {
-        return -1;
-    }
-    len = strlen(write_string);
-    /* copy the file into the buffer: */
-    if (fwrite(write_string, 1, len, fp) != len) {
-        return -1;
-    }
-    if (fclose(fp) == EOF) {
-        return -1;
-    }
-    return 0;
-}
-
-/*
-writes an array of ints to a file
-
-ints are space separated, with a trailling space
-
-on errror, returns, -1, succes 0
-*/
-int write_int_arr_file(char * path, int *arr, int len) {
-    int i;
-    FILE * fp;
-
-    fp = fopen(path,"w");
-    if (fp == NULL) {
-        return -1;
-    }
-    for(i=0; i<len; i++){
-        if (fprintf(fp,"%d ", arr[i]) < 0){
-            return -1;
-        }
-    }
-    if (EOF == fclose (fp)){
-        return -1;
-    }
-    return 0;
-}
-
-/* Same as int, saved in exp notation, */
-/* with precision (deciamal places) precision */
-int write_float_arr_file(char * path, float *arr, int len, int precision) {
-    int i;
-    FILE * fp;
-
-    fp = fopen(path,"w");
-    if (fp == NULL){
-        return -1;
-    }
-
-    for(i=0; i<len; i++){
-        /*if (fprintf(fp,format, arr[i]) < 0){*/
-        if (fprintf(fp,"%.*e", precision, arr[i]) < 0){
-            return -1;
-        }
-    }
-
-    if (EOF == fclose (fp)){
-        return -1;
-    }
-
-    return 0;
-}
-
 int main(void) {
-    /*
-    # BUFSIZ
-
-    TODO
-    */
-    {
-        printf("BUFSIZ = %ju\n", (uintmax_t)BUFSIZ);
-        assert(BUFSIZ >= 256);
-    }
-
-    /*
-    # EOF
-
-        EOF is a C concept.
-
-        EOF works because there are only 256 bytes you can get from an fd
-        so EOF is just some int outside of the possible 0-255 range, tipically -1
-
-        In Linux for example, EOF does not exist.
-
-        The only way to know if a file is over is to make a `sys_read` call
-        and check if you get 0 bytes.
-
-        Since `sys_read` returns the number of bytes read, if we get less than we asked for
-        this means that the file is over.
-
-        In case more data could become available in the future, for example on a pipe,
-        `sys_read` does not return immediately, and the reader sleeps until that data becomes available.
-    */
-
     /*
     # stderr
 
@@ -386,7 +157,7 @@ int main(void) {
 
             if you fill up the buffer without any newlines it will just print
 
-            buffer size cannot be accessed programatically
+            buffer size cannot be accessed programmatically
 
             TODO what is the bin buffer size? in practice, 1024 works just fine
             it may be much larger than BUFSIZ.
@@ -440,7 +211,7 @@ int main(void) {
             this is the safest method io method to get a line at time,
             since it allows the programmer to deal with very long lines.
 
-            the trailling newline is included in the input.
+            the trailing newline is included in the input.
         */
         if (0) {
             FILE* fp = stdin;
@@ -521,98 +292,13 @@ int main(void) {
         }
     }
 
-    /*
-    # File streams
-
-    # File IO
-
-        To get streams that deal with files, use `fopen`.
-
-        To close those streams after usage, use `fclose`.
-
-        # fopen
-
-            Open file for read/write
-
-            Don't forget to fclose after using! open streams are a process resource.
-
-            Modes:
-
-            -   `r`: read. compatible with a,w
-
-            -   `w`: read and write. destroy if exists, create if not.
-
-            -   `a`: append. write to the end. creates if does not exist.
-
-            -   `+`: can do both input and output. msut use flush or fseek
-
-            -   `x`: don't destroy if exist (c11, not c++!)
-
-            -   `b`: binary.
-
-                Means nothing in POSIX systems.
-
-                On our dear DOS/Windows and Mac OS X, automatically converts between \n and \n\r or \r.
-                http://stackoverflow.com/questions/229924/difference-between-files-writen-in-binary-and-text-mode
-
-                Windows also does trailing \z magic for ultra backwards compatibility.
-
-                Therefore for portability, always use this when you are going to do IO
-                with binary IO functions such as fwrite.
-
-            In case of error:
-
-            - return `NULL` and set `errno`.
-
-        # Text IO vs Binary IO
-
-            # Text vs binary for numerical types
-
-                Example: an int 123 can be written to a file in two ways:
-
-                - text: three bytes containing the ascii values of `1`, `2` and then `3`
-                - binary: as the internal int representation of the c value, that is 4 bytes, with `123` in binary and zeroes at the front.
-
-                Advantages of text:
-
-                - it is human readable since it contains only ASCII or UTF values
-                - for small values it may be more efficient (123 is 3 bytes in ascii instead of 4 in binary)
-                - it is portable across multiple systems, while binary varies, especially byte ordering.
-
-                Advantages of binary:
-
-                - it much shorter for large integers
-                - inevitable for data that cannot be interpretred as text (images, executables)
-
-            # Newline vs carriage return newline
-
-                Newline carriage return realated TODO confirm
-
-                For portability, use it consistently.
-
-                In linux the difference between text methods and binary methods is only conceptual:
-                some methods output human readable text (`fprintf`) and can be classified as text,
-                while others output binary, no difference is made at file opening time.
-
-        # fclose
-
-            Don't forget to close because:
-
-            - open `FILE*` are a program resource
-            - close also flushes
-
-            In case of error:
-
-            - return `EOF`
-            - set `errno`
-
-    */
+    /* # File IO */
     {
         int elems_write[] = {1, 2, 3};
         enum constexpr {nelems = sizeof(elems_write) / sizeof(elems_write[0])};
         int elems_read[nelems];
         FILE *fp;
-        char path[] = TMPFILE("fwrite");
+        char path[] = COMMON_TMPFILE_NAMED("fwrite");
 
         /*
         # fwrite
@@ -633,13 +319,13 @@ int main(void) {
         {
             fp = fopen(path, "wb");
             if (fp == NULL) {
-                io_error("fopen", path);
+                COMMON_IO_ERROR("fopen", path);
             } else {
                 if (fwrite(elems_write, sizeof(elems_write[0]), nelems, fp) < nelems) {
-                    io_error("fwrite", path);
+                    COMMON_IO_ERROR("fwrite", path);
                 }
                 if (fclose(fp) == EOF) {
-                    io_error("fclose", path);
+                    COMMON_IO_ERROR("fclose", path);
                 }
             }
         }
@@ -664,206 +350,22 @@ int main(void) {
         {
             fp = fopen(path, "rb");
             if (fp == NULL) {
-                io_error("fopen", path);
+                COMMON_IO_ERROR("fopen", path);
             }
             else {
                 if (fread(elems_read, sizeof(elems_read[0]), nelems, fp) < nelems && ferror(fp)) {
-                    io_error("fread", path);
+                    COMMON_IO_ERROR("fread", path);
                 }
             }
             if (fclose(fp) == EOF) {
-                io_error("fclose", path);
+                COMMON_IO_ERROR("fclose", path);
             }
         }
         assert(memcmp(elems_read, elems_write, nelems) == 0);
-
-        /*
-        # Endianess
-
-        # Byte order
-
-            The C standard does not specify how bytes are ordered in memory.
-
-            http://www.ibm.com/developerworks/aix/library/au-endianc/
-        */
-        {
-            /*
-            # Fix endianess
-
-                You need this when you want to export data to some format.
-
-                - http://stackoverflow.com/questions/105252/how-do-i-convert-between-big-endian-and-little-endian-values-in-c
-                - http://stackoverflow.com/questions/13994674/how-to-write-endian-agnostic-c-c-code
-                - http://stackoverflow.com/questions/2182002/convert-big-endian-to-little-endian-in-c-without-using-provided-func
-                - http://stackoverflow.com/questions/19275955/convert-little-endian-to-big-endian
-
-                Methods:
-
-                -   binary operations just work, use them
-
-                -   POSIX has the htons family, but I could not find a POSIX quote
-                    that says network order is big endian (which seems the default.)
-            */
-
-            /*
-            Check endianess.
-
-            Works because `short int` is guaranteed to be at least of size 2.
-
-            We must work with pointers, because doing `(char)i` directly is specified ot be 1.
-            The compilers produces the assembly code required to do so taking endianess into consideration.
-            */
-            {
-                const short int i = 1;
-                if ((*(char*)&i) == 0) {
-                    printf("Endianess = big\n");
-                } else {
-                    printf("Endianess = small\n");
-                }
-            }
-        }
-    }
-
-    /*
-    # freopen
-
-        Open a given `FILE*` again but as a different file.
-    */
-    {
-        /* This will discard stdin on Linux. */
-        /*freopen("/dev/null", "r", stdin);*/
-    }
-
-    /* # Reposition read write */
-    {
-        /*
-        For new code, always use `fgetpos` and `fsetpos` unless you absolutely
-        need `SEEK_END` because ftell and fseek
-        must return `long` which may limit the maximum file to be read,
-        while `fgetpos` uses a typedef `fpos_t`
-
-        # ftell
-
-            Get current position of `FILE*`.
-
-        # fseek
-
-            Set current position in `FILE*` relative to:
-
-            - SEEK_SET: relative to beginning of file
-            - SEEK_CUR: relative to current position
-            - SEEK_END: relative to end of file
-
-            It seems that seeking after the eof is undefined behaviour in ANSI C:
-            http://bytes.com/topic/c/answers/219508-fseek-past-eof
-
-            This contrasts with POSIX lseek + write, in which the unwriten gap is 0.
-        */
-        {
-            /*
-            long int curpos = ftell(pf);
-            if (curpos == -1L){
-                ERROR
-            }
-            */
-
-            /*
-            FILE* fp;
-            if (fseek (fp, 0 , SEEK_SET) != 0) {
-                ERROR;
-            }
-            */
-        }
-
-        /*
-        # rewind
-
-            Same as therefore useless.
-
-                fseek(stream, 0L, SEEK_SET)
-        */
-
-        /*
-        Like ftell/fseek except that:
-
-        - the return is a typedef `fpos_t`, so it may represent larger files.
-        - there is a single possible reference position equivalent to `SEEK_SET`.
-            This makes sence since that argument was only useful for convenience.
-
-        Always use it instead of ftell/fseek.
-
-        # fgetpos
-
-            Get a position in stream that is later usable with a later call to `fsetpos`.
-
-        # fsetpos
-
-            Set position to a point retreived via fgetpos.
-        */
-        {
-        }
-    }
-
-    /*
-    # flush(fp)
-
-        For output streams only.
-
-        Makes sure all the data is put on the stream.
-
-        May be necessary as the data may be in a buffer.
-    */
-    {
-        /*
-        if (fflush(fp) == EOF) {
-            ERROR
-        }
-        */
-
-        /* debugging application: your program segfaults
-
-        To find where, you put printf everywhere.
-
-        However nothing shows on screen.
-
-        Solution: flush immediatelly after the printf and add a newline at the end of the printed string.
-        This should ensure that your string gets printed.
-        */
     }
 
     /* # Applications */
     {
-        {
-            char path[] = TMPFILE("str_file");
-            char input[] = "asdf\nqwer";
-
-            /* Write entire string to file at once. */
-            {
-                if (file_write(path, input) == -1) {
-                    io_error("file_write", path);
-                }
-            }
-
-            /* Read entire file at once to a string. */
-            {
-                char *output = file_read(path);
-                if (output == NULL) {
-                    io_error("file_read", path);
-                }
-                assert(strcmp(input, output) == 0);
-                free(output);
-            }
-
-            /* Get file size: */
-            {
-                long size = file_size(path);
-                if (size == -1) {
-                    io_error("file_size", path);
-                }
-                assert(size == strlen(input));
-            }
-        }
-
         /*
         # Linewise file processing
 
@@ -885,7 +387,7 @@ int main(void) {
             long file_size;
             long nbytes_read;
 
-            char path[] = TMPFILE("cat");
+            char path[] = COMMON_TMPFILE_NAMED("cat");
             char file_data[] = "abc\nde\nfgh";
             size_t file_data_size = strlen(file_data);
             char lines[3][4] = {"abc\n", "de\n", "fgh\n"};
@@ -894,13 +396,13 @@ int main(void) {
             /* Prepare test. */
             fp = fopen(path, "wb");
             if (fp == NULL) {
-                io_error("fopen", path);
+                COMMON_IO_ERROR("fopen", path);
             } else {
                 if (fwrite(file_data, 1, file_data_size, fp) < file_data_size) {
-                    io_error("fwrite", path);
+                    COMMON_IO_ERROR("fwrite", path);
                 }
                 if (fclose(fp) == EOF) {
-                    io_error("fclose", path);
+                    COMMON_IO_ERROR("fclose", path);
                 }
             }
 
@@ -908,7 +410,7 @@ int main(void) {
             /*
             fp = fopen(path, "rb");
             if (fp == NULL) {
-                io_error("fopen", path);
+                COMMON_IO_ERROR("fopen", path);
             } else {
                 nbytes_read = buffer_size;
                 last_newline_pos = buffer_size;
@@ -924,74 +426,14 @@ int main(void) {
                     }
                 }
                 if (feof(fp)) {
-                    io_error("fread", path);
+                    COMMON_IO_ERROR("fread", path);
                 }
                 if (fclose(fp) == EOF) {
-                    io_error("fclose", path);
+                    COMMON_IO_ERROR("fclose", path);
                 }
             }
             */
         }
-
-        /* Simple write arrays to file */
-        {
-            FILE* fp;
-            char path[256];
-
-            int arri[] = { 0, 1, -1, 12873453 };
-            float arrf[] = { 1.1f, 1.001f, -1.1f, 1.23456e2 };
-
-            strcpy(path, TMPFILE("arri"));
-            write_int_arr_file(path, arri, 4);
-
-            strcpy(path, TMPFILE("arrf"));
-            write_float_arr_file(path, arrf, 4, 2);
-        }
-    }
-
-    /*
-    # file operations
-
-        A few file operations are available in ANSI C.
-
-        They are present in <stdio.h> mainly to support file IO.
-
-    # remove
-
-    # delete file
-
-        Remove a file.
-
-            int remove(const char *filename);
-
-        ANSI C does not way what happen if it does not exist.
-
-        If the file is open, the behaviour is undefined.
-
-    # rename
-
-        Rename a file.
-
-            int rename(const char *old, const char *new);
-
-        If the new file exists, undefined behaviour.
-
-    # directory operations #path
-
-        There seems to be no directory of path operations with system independent separator,
-        only with POSIX or Boost.
-    */
-
-    /*
-    # perror
-
-        Print description of errno to stderr with given prefix appended, `NULL` for no prefix.
-
-        Basic way to print error messages after error on a posix function
-    */
-    {
-        errno = EDOM;
-        perror("perror test EDOM");
     }
 
     return EXIT_SUCCESS;
