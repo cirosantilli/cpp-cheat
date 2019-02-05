@@ -1,3 +1,5 @@
+// Let's learn how method name resolution works with inheritance.
+
 #include "common.hpp"
 
 class B {
@@ -44,8 +46,10 @@ int main() {
     assert(c.B::i   == 1);
     assert(cp->B::i == 1);
 
+#if 0
     // ERROR: ambiguous because on multiple base classes.
-    //c.iAmbiguous = 0;
+    c.iAmbiguous = 0;
+#endif
     c.B::iAmbiguous = 0;
 
     // Analogous for methods.
@@ -53,8 +57,10 @@ int main() {
     assert(c.f() == 2);
     assert(c.B::f() == 0);
 
+#if 0
     // ERROR ambiguous.
-    //c.fAmbiguous();
+    c.fAmbiguous();
+#endif
     assert(c.B::fAmbiguous() == 0);
     assert(c.B2::fAmbiguous() == 1);
 }

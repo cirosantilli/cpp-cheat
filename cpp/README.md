@@ -45,6 +45,7 @@
                 1.  [Static constructor for private members](static_constructor_private.cpp)
             1.  [POD](pod.cpp)
         1.  Inheritance
+            1.  [`override` identifier](override.cpp)
             1.  [Inheritance override](inheritance_override.cpp)
             1.  [Inherit overload_hide](inherit_overload_hide.cpp)
             1.  [Inheriting constructor](inheriting_constructor.cpp)
