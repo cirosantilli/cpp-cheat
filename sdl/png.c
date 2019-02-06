@@ -1,11 +1,4 @@
-/* Basic texture example.
- *
- * Much faster than SDL_RenderDrawPoint calls.
- *
- * Uses GL textures under the hood.
- *
- * SDL_TEXTUREACCESS_STREAMING is key to allow us to write to the texture from CPU.
- *
+/* https://stackoverflow.com/questions/4153055/how-to-load-jpg-png-textures-in-an-sdl-opengl-app-under-osx/41686559#41686559
  * https://gamedev.stackexchange.com/questions/59078/sdl-function-for-loading-pngs/135894#135894
  */
 
