@@ -10,6 +10,7 @@
     1.  [goto crosses initialization of](goto-cross-initialization.cpp)
     1.  [const](const.cpp)
     1.  [enum](enum.cpp)
+        1.  [enum_signed.cpp](enum_signed.cpp)
     1.  [RTTI](rtti.md)
     1.  [Value category](value_category.cpp)
     1.  Compile time magic
