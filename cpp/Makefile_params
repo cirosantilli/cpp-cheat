@@ -1,1 +1,1 @@
-CXXFLAGS_EXTRA := -Wno-sequence-point -Wno-unused-variable -Wno-unused-but-set-variable -pthread
+CXXFLAGS_EXTRA := -Wno-sequence-point -Wno-unused-variable -Wno-unused-but-set-variable
