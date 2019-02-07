@@ -129,4 +129,6 @@
     1.  [User input](interactive/user_input.c.off)
     1.  [Memory layout](memory_layout.c)
     1.  [Profiling](interactive/profiling.c)
-    1.  [Audio generation](interactive/audio_gen.c)
+    1.  Audio generation
+        1.  [interactive/audio_gen.c](interactive/audio_gen.c)
+        1.  [How to programmatically synthesize music?](interactive/how-to-programmatically-synthesize-music.md)
