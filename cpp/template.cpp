@@ -723,14 +723,6 @@ int main() {
         }
 
         /*
-        > inside template
-
-            typename std::enable_if<sizeof(T) > 1, void>::type
-
-        http://stackoverflow.com/questions/33423702/how-to-use-greater-than-inside-a-template-parameter-and-not-get-a-parsing-er
-        */
-
-        /*
         >=
 
         http://stackoverflow.com/questions/28354108/operators-and-template-ids/28354898#28354898

@@ -1,10 +1,8 @@
-/*
-Simple rule: always use C++11 enum class, never the old C-style enums.
-
-- http://stackoverflow.com/questions/18335861/why-is-enum-class-preferred-over-plain-enum
-- http://stackoverflow.com/questions/4506750/how-do-i-use-the-enum-value-from-a-class-in-another-part-of-code
-- http://stackoverflow.com/questions/10869790/best-practices-for-enum-in-c
-*/
+// Simple rule: always use C++11 enum class, never the old C-style enums.
+//
+// - http://stackoverflow.com/questions/18335861/why-is-enum-class-preferred-over-plain-enum
+// - http://stackoverflow.com/questions/4506750/how-do-i-use-the-enum-value-from-a-class-in-another-part-of-code
+// - http://stackoverflow.com/questions/10869790/best-practices-for-enum-in-c
 
 #include "common.hpp"
 
@@ -22,11 +20,11 @@ int main() {
         assert(sizeof(E) == sizeof(char));
     }
 
-    // # enum class
+    // # scoped enumeration
     //
-    // Much better than the older enum, just always use it.
+    // Much better than the older raw enum, just always use it.
     {
-    enum class ClassEnum {
+        enum class ClassEnum {
             A,
             B
         };
@@ -40,13 +38,11 @@ int main() {
         //int i = ClassEnum::A;
     }
 
-    /*
-    # enum to string
-
-    C++14 nope:
-
-    - http://stackoverflow.com/questions/201593/is-there-a-simple-way-to-convert-c-enum-to-string
-    - http://stackoverflow.com/questions/28828957/enum-to-string-in-modern-c-and-future-c17-c20
-    */
+    // # enum to string
+    //
+    // C++14 nope:
+    //
+    // - http://stackoverflow.com/questions/201593/is-there-a-simple-way-to-convert-c-enum-to-string
+    // - http://stackoverflow.com/questions/28828957/enum-to-string-in-modern-c-and-future-c17-c20
 #endif
 }
