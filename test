@@ -16,6 +16,7 @@ for t in \
     cpp/extern_const \
     cpp/inline_variable \
     gcc \
+    gcc/weak \
     glibc \
     linker/incremental_link \
     linker/variable_address \

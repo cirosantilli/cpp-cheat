@@ -1,14 +1,11 @@
 #include <assert.h>
+#include <stdio.h>
 #include <stdlib.h>
 
-int weak __attribute__((weak)) = 1;
-
-/* Link error: multiple definitions of strong. */
-#if 0
-int strong = 1;
-#endif
+int my_weak_var __attribute__((weak)) = 1;
 
 int main(void) {
-    assert(weak == 2);
+    printf("%d\n", my_weak_var);
+    assert(my_weak_var == 2);
     return EXIT_SUCCESS;
 }
