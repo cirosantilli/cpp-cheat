@@ -1,12 +1,10 @@
-/*
-# regex
-
-    Finally they are supported!
-
-    Many types are supported: Javascript, grep, awk, ...
-
-    It is probably saner and more powerful to stick to Javascript regexes.
-*/
+// # regex
+//
+// Finally they are supported!
+//
+// Many flavours supported: JavaScript, grep, awk, ...
+//
+// It is probably saner and more powerful to stick to JavaScript regexes.
 
 #include "common.hpp"
 
