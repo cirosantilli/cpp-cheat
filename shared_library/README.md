@@ -3,6 +3,7 @@
 1. [Basic](basic/)
 1. [Lib-lib dependency](lib_lib_dependency/)
 1. [Symbol version](symbol_version/)
+1. [ABI](abi/)
 
 Minimal example of a dynamic and static libraries.
 

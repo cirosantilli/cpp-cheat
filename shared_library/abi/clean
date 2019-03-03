@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+rm -rf v1/*.o v1/*.so v2/*.o v2/*.so *.out
