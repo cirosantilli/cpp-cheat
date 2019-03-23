@@ -1,6 +1,4 @@
-/*
-# Empty struct
-*/
+/* Empty struct */
 
 #include "common.h"
 

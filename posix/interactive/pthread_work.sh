@@ -11,3 +11,4 @@ while [ "$i" -le "$n" ]; do
   ;
   i=$((i + 1))
 done
+./pthread_work.gnuplot
