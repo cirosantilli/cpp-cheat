@@ -85,31 +85,6 @@ int main(void) {
     }
 
     /*
-    # Time to string
-
-    - ctime
-    - stftime
-    */
-
-    /*
-    # strftime
-
-        Convert time to a formatted string.
-
-        The return value is stored in a statically allocated location:
-        a second call to `localtime` may overwrite existing data.
-
-        So make sure to copy if if you need to reuse it later.
-    */
-    {
-        time_t t = time(NULL);
-        struct tm *tm = localtime(&t);
-        char s[64];
-        strftime(s, sizeof(s), "%c", tm);
-        printf("strftime = %s\n", s);
-    }
-
-    /*
     # asctime
 
         `struct tm` to fixed format.

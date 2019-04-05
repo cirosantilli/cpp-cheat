@@ -110,6 +110,7 @@
     1.  [ctype.h](ctype_h.c)
     1.  [time.h](time_h.c)
         1. [clock()](interactive/clock.c)
+        1. [strftime](strftime.c)
     1.  [limits.h](limits_h.c)
     1.  [stdbool.h](stdbool_h.c)
     1.  [float.h](float_h.c)
