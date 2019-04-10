@@ -117,6 +117,7 @@
         1.  [Subnormal numbers](interactive/subnormal.c)
         1.  [float range](interactive/float_range.c)
     1.  [math.h](math_h.c)
+        1.  [NaN](nan.c)
     1.  [complex.h](complex_h.c)
     1.  [varargs_h](varargs_h.c)
     1.  [errno.h](errno_h.c)

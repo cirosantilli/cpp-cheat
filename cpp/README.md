@@ -97,6 +97,7 @@
     1.  [functional](functional.cpp)
     1.  [iterator](iterator.cpp)
     1.  [limits](limits.cpp)
+        1.  [NaN](nan.cpp)
     1.  [memory](memory.cpp)
     1.  [regex](regex.cpp)
     1.  [utility](utility.cpp)

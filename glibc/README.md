@@ -25,3 +25,4 @@
 1.  Interactive
     1. [`O_LARGEFILE`](interactive/o_largefile.c)
     1. [`O_TMPFILE`](interactive/o_tmpfile.c)
+    1. [feenableexcept](interactive/feenableexcept.cpp)

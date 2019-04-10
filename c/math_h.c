@@ -488,59 +488,6 @@ int main(void) {
             assert(1e100 < INFINITY);
         }
 
-        /*
-        # NAN
-
-            Not a number.
-
-            Result of operations such as:
-
-                0.0 / 0.0
-                INFINITY - INFINITY
-                INFINITY * 0.o
-                INFINITY / INFINITY
-
-            And any operation involving NAN.
-
-            The sign of NAN has no meaning.
-        */
-        {
-            /* [-]NAN or [-]NAN<more characters> implementation defined. */
-            printf("NAN = %f\n", NAN);
-            printf("-NAN = %f\n", -NAN);
-
-            /* TODO why do both fail? */
-            /*assert(0 / f == -NAN);*/
-            /*assert(0 / f == NAN);*/
-
-            volatile float f = 0;
-            assert(isnan(0 / f));
-            assert(isnan(NAN));
-            assert(!isinf(NAN));
-
-            assert(isnan(NAN));
-            assert(isnan(NAN + 1.0));
-            assert(isnan(NAN + INFINITY));
-            assert(isnan(NAN + NAN));
-            assert(isnan(NAN - 1.0));
-            assert(isnan(NAN * 2.0));
-            assert(isnan(NAN / 1.0));
-            assert(isnan(INFINITY - INFINITY));
-            assert(isnan(INFINITY * 0.0));
-            assert(isnan(INFINITY / INFINITY));
-
-            /*
-            NAN is not ordered. any compairison to it yields false!
-
-            This is logical since 0 is neither smaller, larger or equal to NAN.
-            */
-            {
-                assert(!(0.0 < NAN));
-                assert(!(0.0 > NAN));
-                assert(!(0.0 == NAN));
-            }
-        }
-
 #if __STDC_VERSION__ >= 199901L
         /*
         # isunordered
