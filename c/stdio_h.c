@@ -3,17 +3,6 @@
 #include "common.h"
 
 int main(void) {
-    /*
-    # stderr
-
-        The `stderr` macro is a `FILE*` that represents the standard error.
-
-        Is is always open when the program starts.
-
-        The output to stderr may not be synchronized with that of stdout,
-        so this message could appear anywhere relative to other things that were
-        printed to stdout.
-    */
     {
         fputs("stderr\n", stderr);
     }

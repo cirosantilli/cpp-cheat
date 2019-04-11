@@ -12,6 +12,8 @@
     1. [hello_world.c](hello_world.c)
     1. [min.c](min.c)
     1. [template.c](template.c)
+1.  Insanity
+    1. [infinite_loop.c](infinite_loop.c)
 1.  Language
     1.  [main function](main_function.c)
         1.  [Command line arguments](interactive/command_line_arguments.c)
@@ -91,6 +93,7 @@
         1.  [NDEBUG](ndebug.c)
         1.  [assert fail](interactive/assert_fail.c)
     1.  [stdio.h](stdio_h.c)
+        1.  [stderr](stderr.c)
         1.  [File write read](file_write_read.c)
         1.  [File write read numeric](file_write_read_numeric.c)
         1.  [printf](printf.c)
