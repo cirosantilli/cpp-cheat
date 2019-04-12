@@ -1,4 +1,7 @@
 // In C++ for signling_NaN.
+//
+// In GCC 8.2, sNaN is only done in -O0 and completely skipped in -O3.
+// I'm not sure if there is a way to enforce it to happen.
 
 #include <cassert>
 #include <cfenv>
@@ -9,7 +12,10 @@
 #include <limits> // std::numeric_limits
 #include <unistd.h>
 
+#pragma STDC FENV_ACCESS ON
+
 void handler(int signum) {
+    (void)signum;
     char message[] = "handler\n";
     write(STDOUT_FILENO, message, sizeof(message));
     feclearexcept(FE_ALL_EXCEPT);
@@ -30,12 +36,14 @@ int main() {
         // Still no exceptions because qNaN.
         f = qnan + 1.0f;
         assert(std::isnan(f));
-        assert(std::fetestexcept(FE_ALL_EXCEPT) == 0);
+        if (std::fetestexcept(FE_ALL_EXCEPT) == FE_INVALID)
+            std::cout << "FE_ALL_EXCEPT qnan + 1.0f" << std::endl;
 
-        // Now we get an exception because sNaN, but signals are disabled.
+        // Now we can get an exception because sNaN, but signals are disabled.
         f = snan + 1.0f;
         assert(std::isnan(f));
-        assert(std::fetestexcept(FE_ALL_EXCEPT) == FE_INVALID);
+        if (std::fetestexcept(FE_ALL_EXCEPT) == FE_INVALID)
+            std::cout << "FE_ALL_EXCEPT snan + 1.0f" << std::endl;
         feclearexcept(FE_ALL_EXCEPT);
 
 #if 0
@@ -53,9 +61,8 @@ int main() {
         // And now we enable signals and blow up with SIGFPE! >:-)
         feenableexcept(FE_INVALID);
         f = qnan + 1.0f;
-        std::cout << "quiet" << std::endl;
+        std::cout << "feenableexcept qnan + 1.0f" << std::endl;
         f = snan + 1.0f;
-        // Never reached.
-        std::cout << "signaling" << std::endl;
+        std::cout << "feenableexcept snan + 1.0f" << std::endl;
     }
 }

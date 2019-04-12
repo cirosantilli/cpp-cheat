@@ -8,6 +8,8 @@
 
 #include "../c/float32.h"
 
+#pragma STDC FENV_ACCESS ON
+
 int main() {
     if (
         std::numeric_limits<float>::has_signaling_NaN &&

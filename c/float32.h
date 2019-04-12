@@ -39,6 +39,10 @@ float lkmc_float32_from_bytes(
     return *(float*)&bytes;
 }
 
+float lkmc_float32_snan(uint32_t i) {
+    return lkmc_float32_from_bytes(0, 0xFF, 0x200000 + i);
+}
+
 int lkmc_float32_equal(
     float f,
     uint32_t sign,
