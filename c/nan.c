@@ -1,3 +1,5 @@
+/* https://stackoverflow.com/questions/18118408/what-is-difference-between-quiet-nan-and-signaling-nan/55648118#55648118 */
+
 #include <assert.h>
 #include <math.h> /* NAN, isnan */
 #include <stdio.h>

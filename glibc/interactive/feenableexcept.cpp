@@ -1,3 +1,5 @@
+// https://stackoverflow.com/questions/18118408/what-is-difference-between-quiet-nan-and-signaling-nan/55648118#55648118
+//
 // In C++ for signling_NaN.
 //
 // In GCC 8.2, sNaN is only done in -O0 and completely skipped in -O3.
