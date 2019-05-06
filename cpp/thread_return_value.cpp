@@ -7,11 +7,8 @@
 #include <cassert>
 #include <future>
 #include <iostream>
-#include <mutex>
 #include <thread>
 #include <vector>
-
-std::mutex mutex;
 
 int myfunc(int i) {
     return i + 1;

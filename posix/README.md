@@ -24,6 +24,8 @@
     1. [pthread_mutex](pthread_mutex.c)
     1. [pthread_tid](pthread_tid.c)
     1. [pthread_deadlock](pthread_deadlock.c)
+    1. [pthread array sym](interactive/pthread_array_sum.c)
+    1. [pthread CPU heavy work](interactive/pthread_cpu_heavy_work.c)
 1.  [Regex](regex.c)
 1.  File IO
     1. [write_read](write_read.c)
@@ -49,7 +51,6 @@
         1.  [signal_fork](interactive/signal_fork.c)
 1.  Interactive
     1.  [poll](interactive/poll.c)
-    1.  [pthread_work](interactive/pthread_work.c)
     1.  [sleep cout](interactive/sleep_count.c)
     1.  [sleep_1](interactive/sleep_1.c)
     1.  Process information

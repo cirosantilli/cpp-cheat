@@ -1,4 +1,6 @@
-/* To see if
+/* Launch some very long running threads.
+ *
+ * Initial motivation: confirm that:
  *
  *     ./pthread_count.out &
  *     cat /proc/$!/status | grep -E '^Threads:'
