@@ -87,11 +87,14 @@
         1.  [sstream](sstream.cpp)
         1.  [iostream](iostream.cpp)
         1.  [File IO](file_io.cpp)
-    1.  [thread](thread.cpp)
-        1.  [sleep_for](sleep_for.cpp)
+    1.  Multi-threading
+        1.  [thread::hardware_concurrency](thread_hardware_concurrency.cpp)
+        1.  [thread::this_thread::sleep_for](sleep_for.cpp)
+        1.  [thread return value](thread_return_value.cpp)
         1.  [atomic](atomic.cpp)
             1.  [atomic<bool>](atomic_bool.cpp.off)
-        1.  [mutex](mutex.cpp)
+        1.  [sleep_for](interactive/sleep_for.cpp)
+        1.  [mutex](interactive/mutex.cpp)
     1.  [algorithm](algorithm.cpp)
         1.  [heap](heap.cpp)
     1.  [functional](functional.cpp)
@@ -115,9 +118,6 @@
     1.  [bst_vs_heap](interactive/bst_vs_heap.cpp)
     1.  [chrono](interactive/chrono.cpp)
     1.  [random](interactive/random.cpp)
-    1.  thread
-        1.  [sleep_for](interactive/sleep_for.cpp)
-        1.  [thread_count](interactive/thread_count.cpp)
 1.  Applications
     1. [Design patterns](design_patterns.cpp)
 

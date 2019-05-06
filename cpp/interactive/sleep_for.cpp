@@ -1,3 +1,5 @@
+// Count to infinity sleeping one second per number.
+
 #include "common.hpp"
 
 int main() {
