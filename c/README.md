@@ -91,7 +91,6 @@
 1.  stdlib
     1.  [assert.h](assert_h.c)
         1.  [NDEBUG](ndebug.c)
-        1.  [assert fail](interactive/assert_fail.c)
     1.  [stdio.h](stdio_h.c)
         1.  [stderr](stderr.c)
         1.  [File write read](file_write_read.c)
