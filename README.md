@@ -1,5 +1,22 @@
 # C++ Cheat
 
+This repo is moving to: https://github.com/cirosantilli/linux-kernel-module-cheat#userland-content
+
+No major new features are intended to be added here.
+
+This move unifies all my system programming content into one place, which makes it easier to maintain and discover, and immediately leads to more features being available due to better factoring, notably:
+
+- run tests in parallel due to more flexible Python build system
+- ability to build and run other CPU ISAs through emulation
+
+This repo was written in a semi ad hoc way across several years, so it is a quality roller coaster, with old files crappy and new files less crappy. Only good or cleaned up examples will be migrated.
+
+It is still early stages, and I'm not going to do the migration in one go now, but rather as I touch the examples.
+
+However, since I use this repo often and give it a considerable importance, it is likely that everything that has value here will be moved sooner or later.
+
+## Old README
+
 [![Build Status](https://travis-ci.org/cirosantilli/cpp-cheat.svg?branch=master)](https://travis-ci.org/cirosantilli/cpp-cheat)
 
 C, C++, POSIX and Linux system programming minimal examples. Asserts used wherever possible. Hello worlds for cool third party libraries and build systems. Cheatsheets, tutorials and mini-projects.
