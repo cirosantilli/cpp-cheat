@@ -103,7 +103,6 @@
         1.  Exit related
             1.  [exit()](exit.c)
             1.  [atexit()](atexit.c)
-            1.  [abort()](interactive/abort.c.off)
         1.  [abs()](abs.c)
         1.  [malloc()](malloc.c)
         1.  [getenv](getenv.c)
