@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -eu
+scons --clean
+scons
+./main.out
+[ $? = 3 ]
+scons --clean
+scons X=3 Y=4
+./main.out
+[ $? = 7 ]

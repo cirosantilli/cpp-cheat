@@ -1,0 +1,13 @@
+variables = Variables(None, ARGUMENTS)
+variables.Add('X', 'Value of X', 1)
+variables.Add('Y', 'Value of Y', 2)
+env = Environment(variables=variables)
+env.Append(CPPDEFINES={
+    'X': '${X}',
+    'Y': '${Y}',
+})
+env.Program(
+    source=['main.c'],
+    target='main.out',
+)
+Help(variables.GenerateHelpText(env))

@@ -70,5 +70,9 @@ int main(void) {
     assert(0.0f < smallest_subnormal);
     assert(!isnormal(smallest_subnormal));
 
+    /* Check that we can add two submormals. */
+    float smallest_subnormal_2x = smallest_subnormal + smallest_subnormal;
+    assert(lkmc_float32_equal(smallest_subnormal_2x, 0, 0, 2));
+
     return EXIT_SUCCESS;
 }
