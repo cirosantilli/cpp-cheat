@@ -97,6 +97,7 @@
         1.  [File write read numeric](file_write_read_numeric.c)
         1.  [printf](printf.c)
         1.  [getc stdin](interactive/getc.c)
+        1.  [getchar](getchar.c)
         1.  [perror](perror.c)
     1.  [stdint.h](stdint_h.c)
     1.  [stdlib.h](stdlib_h.c)
