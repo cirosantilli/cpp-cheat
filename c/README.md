@@ -93,7 +93,6 @@
         1.  [NDEBUG](ndebug.c)
     1.  [stdio.h](stdio_h.c)
         1.  [stderr](stderr.c)
-        1.  [File write read](file_write_read.c)
         1.  [File write read numeric](file_write_read_numeric.c)
         1.  [printf](printf.c)
         1.  [getc stdin](interactive/getc.c)
