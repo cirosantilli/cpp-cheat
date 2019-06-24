@@ -115,7 +115,6 @@
     1.  [Inline variable](inline_variable/)
     1.  [extern const](extern_const/)
 1.  [Interactive](interactive/)
-    1.  [bst_vs_heap](interactive/bst_vs_heap.cpp)
     1.  [chrono](interactive/chrono.cpp)
     1.  [random](interactive/random.cpp)
 1.  Applications
