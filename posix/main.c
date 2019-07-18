@@ -947,14 +947,12 @@ int main(void) {
 
         This header exists in ANSI C, and POSIX extends it with several values.
 
-        Defines current and possible maximuns, minimums for several resources.
+        Defines current and possible maximums and minimums for several resources.
 
         Some resources cannot cannot be evaluated statically.
 
         For example the maximum path length depends on which directory we are talking about,
-        since diferent directories can be on differnet mount points.
-
-        Also some resources can change maximum values at anytime while the program is executing.
+        since different directories can be on different mount points.
 
         In those cases, limits defines a KEY value which can be passed to a function that gets
         the actual values for a given key, for example pathconf or sysconf.
@@ -973,17 +971,6 @@ int main(void) {
         }
 
         /*
-        # sysconf
-
-            Get lots of info on the system configuration
-
-            Meanings for the constants can be found under
-            the `limits.h` and `unistd.h` corresponding variables
-
-            If the value can be negative, it is necessary to check errno changes for error.
-
-            It seems
-
         # maximum path length
 
             This is needed often when you need to deal with paths names.
@@ -997,19 +984,7 @@ int main(void) {
 
             As a consequence of this, it does not make sense to have a macro constant and use it to create
             fixed variable arrays: a function is needed, and memory must be allocated with malloc.
-        */
-        {
-            /* Number of processors: */
-            printf("_SC_NPROCESSORS_ONLN = %ld\n", sysconf(_SC_NPROCESSORS_ONLN));
 
-            /* Maximum lengh of command line arguments + environment variables: */
-            printf("_SC_ARG_MAX (MiB) = %ld\n", sysconf(_SC_ARG_MAX) / (1 << 20));
-
-            /* TODO find the number of processors / cpus / cores: not possible without glibc extension? */
-            /* http://stackoverflow.com/questions/2693948/how-do-i-retrieve-the-number-of-processors-on-c-linux */
-        }
-
-        /*
         # pathconf
 
             Similar to sysconf, but for parameters that depend on a path, such as maxium filename lengths.
