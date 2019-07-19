@@ -88,12 +88,7 @@
         1.  [iostream](iostream.cpp)
         1.  [File IO](file_io.cpp)
     1.  Multi-threading
-        1.  [thread::hardware_concurrency](thread_hardware_concurrency.cpp)
-        1.  [thread::this_thread::sleep_for](sleep_for.cpp)
         1.  [thread return value](thread_return_value.cpp)
-        1.  [atomic](atomic.cpp)
-            1.  [atomic<bool>](atomic_bool.cpp.off)
-        1.  [sleep_for](interactive/sleep_for.cpp)
         1.  [mutex](interactive/mutex.cpp)
     1.  [algorithm](algorithm.cpp)
         1.  [heap](heap.cpp)

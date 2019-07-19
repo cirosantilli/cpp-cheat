@@ -22,9 +22,8 @@
 1.  [getrusage](getrusage.c)
 1.  [pthread](pthread.md)
     1. [pthread_mutex](pthread_mutex.c)
-    1. [pthread_tid](pthread_tid.c)
     1. [pthread_deadlock](pthread_deadlock.c)
-    1. [pthread array sym](interactive/pthread_array_sum.c)
+    1. [pthread array sum](interactive/pthread_array_sum.c)
     1. [pthread CPU heavy work](interactive/pthread_cpu_heavy_work.c)
 1.  [Regex](regex.c)
 1.  File IO
