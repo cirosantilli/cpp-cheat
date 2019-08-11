@@ -13,7 +13,7 @@
         1.  [System V semaphores](semaphore_sysv.c)
         1.  semaphore_unnamed.c TODO
         1.  semaphore_named.c TODO. https://stackoverflow.com/questions/16400820/c-how-to-use-posix-semaphores-on-forked-processes
-1.  [mmap](mmap.c)
+1.  mmap
     1.  [MAP_PRIVATE](map_private.c)
     1.  Shared memory
         1.  [shm_open](shm_open.c)

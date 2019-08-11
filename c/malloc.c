@@ -34,19 +34,6 @@
 #include "common.h"
 
 int main(void) {
-    /* Basic usage */
-    {
-        size_t bytes = sizeof(int) * 2;
-        int *is = malloc(bytes);
-        if (is == NULL) {
-            printf("malloc failed\n");
-        } else {
-            is[0] = 1;
-            assert(is[0] == 1);
-            free(is);
-        }
-    }
-
     /*
     # free
 
