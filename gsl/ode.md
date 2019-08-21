@@ -4,7 +4,7 @@ Solve an ordinary differential equation and output the solution to stdout:
 
     ./ode.out
 
-Source: [ode.out](ode.out)
+Source: [ode.c](ode.c)
 
 Plot with gnuplot:
 
