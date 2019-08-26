@@ -112,24 +112,6 @@ int main(void) {
             assert(strcmp(cs, cs2) == 0);
         }
 
-#if __STDC_VERSION__ >= 199901L
-        /*
-        # snprintf
-
-            Like `sprintf`, but writes at most n bytes, so it is safer,
-            because it may not be possible or easy to calculate the resulting
-            size of a formated string.
-
-            The size given *includes* the null terminator.
-        */
-        {
-            char cs[] = "123";
-            char cs2[3];
-            snprintf(cs2, 3, "%s", cs);
-            assert(strcmp(cs2, "12") == 0);
-        }
-#endif
-
         /*
         # fprintf
 
