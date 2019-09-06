@@ -57,8 +57,6 @@
                 1. [Covariant return](covariant_return.cpp)
                 1. [Virtual inheritance](http://stackoverflow.com/questions/21558/in-c-what-is-a-virtual-base-class)
     1.  [namespace](namespace.cpp)
-    1.  [template](template.cpp)
-        1.  [constexpr if](constexpr_if.cpp)
     1.  [exception](exception.cpp)
     1.  [typedef](typedef.cpp)
     1.  [typecast](typecast.cpp)
