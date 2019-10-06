@@ -2,6 +2,8 @@
 Docs: https://wiki.libsdl.org/SDL_GL_CreateContext
 
 Expected outcome: monocolor pink screen.
+
+https://stackoverflow.com/questions/40061276/how-to-draw-a-triangle-with-sdl2-and-opengl/40824828#40824828
 */
 
 #include <stdlib.h>
