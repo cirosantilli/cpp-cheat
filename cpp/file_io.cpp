@@ -20,6 +20,7 @@ void ios_read_fail(std::string path) {
 
 /**
 Read entire file into a string at once.
+https://stackoverflow.com/questions/116038/what-is-the-best-way-to-read-an-entire-file-into-a-stdstring-in-c
 */
 void read_file(std::ifstream &ifs, std::string &data_read) {
     ifs.seekg(0, std::ios::end);
@@ -42,24 +43,6 @@ int main() {
             ofs.close();
         } else {
             ios_write_fail(path);
-        }
-    }
-
-    /*
-    # Read entire file at once
-
-    http://stackoverflow.com/questions/2602013/read-whole-ascii-file-into-c-stdstring
-
-    Best way seems to be to get file size, allocate, and read manually.
-    */
-    {
-        std::ifstream ifs(path);
-        if (ifs) {
-            std::string data_read;
-            read_file(ifs, data_read);
-            assert(data_read == data);
-        } else {
-            ios_read_fail(path);
         }
     }
 
@@ -101,53 +84,6 @@ int main() {
             read_file(dst, data_read);
             assert(data_read == data);
             src.close();
-        }
-    }
-
-    /*
-    # Compare two files larger than memory.
-
-    TODO is there an easier way than reading each?
-    */
-    {
-    }
-
-    // # Append to file
-    {
-        std::ofstream ofs(path);
-
-        if (ofs) {
-            ofs << data;
-            ofs.close();
-        } else {
-            ios_write_fail(path);
-        }
-
-        /*
-        # open
-
-        # Reopen
-
-        Can be used to reopen ofstream with new properties.
-
-        Also consider clearing error flags if there can be any.
-        */
-        //ofs.clear()
-        ofs.open(path, std::ios::app);
-        if (ofs) {
-            ofs << data;
-            ofs.close();
-        } else {
-            ios_write_fail(path);
-        }
-
-        std::ifstream ifs(path);
-        if (ifs) {
-            std::string data_read;
-            read_file(ifs, data_read);
-            assert(data_read == data + data);
-        } else {
-            ios_read_fail(path);
         }
     }
 
