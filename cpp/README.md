@@ -109,7 +109,6 @@
     1.  [extern const](extern_const/)
 1.  [Interactive](interactive/)
     1.  [chrono](interactive/chrono.cpp)
-    1.  [random](interactive/random.cpp)
 1.  Applications
     1. [Design patterns](design_patterns.cpp)
 
