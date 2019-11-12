@@ -7,7 +7,6 @@
     1.  [environ](environ.c)
     1.  [setenv](setenv.c)
 1.  fork
-    1.  [Fork bomb](interactive/fork_bomb.c.off)
     1.  [pipe](pipe.c)
     1.  Semaphores
         1.  [System V semaphores](semaphore_sysv.c)
