@@ -6,7 +6,7 @@
 1.  Environment variables
     1.  [environ](environ.c)
     1.  [setenv](setenv.c)
-1.  [fork](fork.c)
+1.  fork
     1.  [Fork bomb](interactive/fork_bomb.c.off)
     1.  [pipe](pipe.c)
     1.  Semaphores
