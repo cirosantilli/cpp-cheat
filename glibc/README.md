@@ -9,8 +9,6 @@
     1.  MAP_ANONYMOUS
         1.  [map_anonymous_semaphore.c](interactive/map_anonymous_semaphore.c)
     1.  [ptrace.c](ptrace.c)
-    1.  [reboot.c](reboot.c.off)
-    1.  [sysconf.c](sysconf.c)
     1.  [syscall.c](syscall.c)
     1.  `string.h`
         1.  [strfry.c](strfry.c)
