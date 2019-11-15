@@ -85,9 +85,6 @@
         1.  [sstream](sstream.cpp)
         1.  [iostream](iostream.cpp)
         1.  [File IO](file_io.cpp)
-    1.  Multi-threading
-        1.  [thread return value](thread_return_value.cpp)
-        1.  [mutex](interactive/mutex.cpp)
     1.  [algorithm](algorithm.cpp)
         1.  [heap](heap.cpp)
     1.  [functional](functional.cpp)
