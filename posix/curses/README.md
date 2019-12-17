@@ -10,3 +10,4 @@
     1.  [clear](clear.c)
     1.  [Check key pressed](check_key_pressed.c)
     1.  Canonical. TODO. <http://www.gnu.org/software/libc/manual/html_node/Canonical-or-Not.html>
+    1.  [tcgetattr_dump.c](tcgetattr_dump.c)
