@@ -66,6 +66,8 @@
     1.  [Preprocessor](preprocessor.cpp)
     1.  using
         1. using type alias. TODO http://en.cppreference.com/w/cpp/language/type_alias
+    1.  templates
+        1.  [template instantiation](template_instantiation/)
 1.  [Standard library](standard_library.md)
     1.  [Headers](common.hpp)
     1.  [Containers](containers.md)
