@@ -37,8 +37,8 @@ int main() {
             {0, "zero"},
             {1, "one"},
         };
-        assert(m[0] == "zero");
-        assert(m[1] == "one");
+        assert(m.at(0) == "zero");
+        assert(m.at(1) == "one");
     }
 
     // # emplace
@@ -53,18 +53,22 @@ int main() {
         assert((m.emplace(0, "zero").second));
         assert((m.emplace(1, "one").second));
         assert(!(m.emplace(1, "one2").second));
-        assert(m[0] == "zero");
-        assert(m[1] == "one");
+        assert(m.at(0) == "zero");
+        assert(m.at(1) == "one");
     }
 
     // # operator[]
     //
     // Get value from a given key.
     //
-    // Create if not present, so avoid this if possible and prefer the more restrictive methods:
+    // Creates if not present, so be very careful if that's not what you want!
     //
-    // - use at() or find () for fetching and updating
-    // - emplace() for putting new values
+    // Use:
+    //
+    // - this to "add new or update existing" or "create default value and return it"
+    // - at() to find when you are sure it is there
+    // - find() to find when you are not sure it is there
+    // - emplace() for putting new values when you are sure they are not there
     {
         std::map<int,std::string> m{
             {0, "zero"},
