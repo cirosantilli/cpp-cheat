@@ -275,6 +275,11 @@ int main() {
         };
         static_assert(!std::is_pod<NotPod>(), "");
 
+        // default initialization is affected by PODness: https://en.cppreference.com/w/cpp/language/default_initialization
+        // TODO example
+        {
+        }
+
         // __attribute__((packed)) only works for POD, and is ignored for non-POD, and emits a warning
         // https://stackoverflow.com/questions/35152877/ignoring-packed-attribute-because-of-unpacked-non-pod-field/52986680#52986680
         {
