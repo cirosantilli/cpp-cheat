@@ -48,7 +48,7 @@
             1.  [Inheritance override](inheritance_override.cpp)
             1.  [Inherit overload_hide](inherit_overload_hide.cpp)
             1.  [Inheriting constructor](inheriting_constructor.cpp)
-            1.  [virtual](virtual.cpp)
+            1.  virtual
                 1. [Method pointer, operator .* and operator ->*](method_pointer.cpp)
                 1. [Pure virtual](pure_virtual.cpp)
                 1. [Pure virtual from constructor](pure_virtual_from_constructor.cpp)
