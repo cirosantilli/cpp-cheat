@@ -18,7 +18,7 @@ cflags='-ggdb3 -O0 -std=c99 -Wall -Wextra -pedantic'
 # Cleanup previous generated files objects.
 ./clean
 
-# Generate i_*.c, ints.h and int_sum.h
+echo "Generate i_*.c, ints.h and int_sum.h"
 rm -f ints.h
 echo 'return' > int_sum.h
 int_file_i=0
@@ -27,7 +27,6 @@ while [ "$int_file_i" -lt "$n_int_file_is" ]; do
   int_file="${int_file_i}.c"
   rm -f "$int_file"
   while [ "$int_i" -lt "$n_ints_per_file" ]; do
-    echo "${int_file_i} ${int_i}"
     int_sym="i_${int_file_i}_${int_i}"
     echo "unsigned int ${int_sym} = ${int_file_i};" >> "$int_file"
     echo "extern unsigned int ${int_sym};" >> ints.h
@@ -38,7 +37,7 @@ while [ "$int_file_i" -lt "$n_int_file_is" ]; do
 done
 echo '1;' >> int_sum.h
 
-# Generate funcs.h and main.c.
+echo "Generate funcs.h and main.c."
 rm -f funcs.h
 cat <<EOF >main.c
 #include "funcs.h"
@@ -65,5 +64,5 @@ cat <<EOF >>main.c
 }
 EOF
 
-# Generate *.o
-ls | grep -E '\.c$' | parallel --halt now,fail=1 -t --will-cite "gcc $cflags -c -o '{.}.o' '{}'"
+echo "Generate *.o"
+ls | grep -E '\.c$' | parallel --halt now,fail=1 --will-cite "gcc $cflags -c -o '{.}.o' '{}'"
