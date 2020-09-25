@@ -74,8 +74,6 @@
         1.  [string](string.cpp)
             1.  [Raw string literal](raw_string_literal.cpp)
         1.  [list](list.cpp)
-        1.  [map](map.cpp)
-        1.  [multimap](multimap.cpp)
         1.  [set](set.cpp)
             1.  [unordered_set](unordered_set.cpp)
         1.  [valarray](valarray.cpp)
