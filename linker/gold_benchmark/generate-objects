@@ -4,11 +4,11 @@ set -eu
 # CLI args.
 
 # Each of those files contains n_ints_per_file ints.
-n_int_file_is="${1:-10}"
+n_int_files="${1:-10}"
 n_ints_per_file="${2:-10}"
 
 # Each function adds all ints from all files.
-# This leads to n_int_file_is x n_ints_per_file x n_funcs relocations.
+# This leads to n_int_files x n_ints_per_file x n_funcs relocations.
 n_funcs="${3:-10}"
 
 # Do a debug build, since it is for debug builds that link time matters the most,
@@ -22,7 +22,7 @@ echo "Generate i_*.c, ints.h and int_sum.h"
 rm -f ints.h
 echo 'return' > int_sum.h
 int_file_i=0
-while [ "$int_file_i" -lt "$n_int_file_is" ]; do
+while [ "$int_file_i" -lt "$n_int_files" ]; do
   int_i=0
   int_file="${int_file_i}.c"
   rm -f "$int_file"

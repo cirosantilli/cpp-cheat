@@ -15,4 +15,5 @@ for params in \
   ./bench "${params}.log"
   cat "${params}.log" >> "$result_log"
   echo >> "$result_log"
+  echo
 done
