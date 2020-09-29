@@ -1,2 +1,3 @@
 #!/usr/bin/env bash
-echo *.c *.h *.o main | xargs rm -f
+./clean-build
+rm -f *.log

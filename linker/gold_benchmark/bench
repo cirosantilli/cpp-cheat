@@ -6,6 +6,6 @@ rm -f "$output_file"
 echo nogold
 /usr/bin/time --append --format 'nogold:  wall=%es user=%Us system=%Ss %MkB' --output "$output_file" gcc $cflags               -o main *.o
 echo gold
-/usr/bin/time --append --format 'gold:    wall=%es user=%Us system=%Ss %MkB' --output "$output_file" gcc $cflags -fuse-ld=gold -o main *.o
+/usr/bin/time --append --format 'gold:    wall=%es user=%Us system=%Ss %MkB' --output "$output_file" gcc $cflags -fuse-ld=gold -Wl,--threads -Wl,--thread-count=`nproc` -o main *.o
 echo lld
 /usr/bin/time --append --format 'lld:     wall=%es user=%Us system=%Ss %MkB' --output "$output_file" gcc $cflags -fuse-ld=lld  -o main *.o
