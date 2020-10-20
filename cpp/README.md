@@ -18,7 +18,6 @@
         1.  [static_assert](static_assert.cpp)
         1.  [typeid](typeid.cpp)
         1.  [auto](auto.cpp)
-        1.  [decltype](decltype.cpp)
     1.  [nullptr](nullptr.cpp)
     1.  References
         1.  [reference](reference.cpp)

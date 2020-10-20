@@ -1,2 +1,3 @@
 env = Environment()
 env.Program(target='main.out', source=['main.c'])
+PathVariable('asdf', 'qwer', '', PathVariable.PathIsDir)
