@@ -1,10 +1,12 @@
-/*
-One color per vertex, taken from the same array as the vertices.
-
-Color interpolation on the fragment shader is automatic.
-
-http://stackoverflow.com/questions/6733934/what-does-immediate-mode-mean-in-opengl
-*/
+/* One color per vertex, taken from the same array as the vertices.
+ *
+ * Color interpolation on the fragment shader is automatic.
+ *
+ * Adapted from: https://github.com/JoeyDeVries/LearnOpenGL/blob/d5c3be70ab2b884cf2b2c94cbf73a31f632fbf47/src/1.getting_started/3.shaders/shaders-using-object.cpp
+ *
+ * - https://stackoverflow.com/questions/17789575/what-are-shaders-in-opengl-and-what-do-we-need-them-for/36211337#36211337
+ * - https://stackoverflow.com/questions/6733934/what-does-immediate-mode-mean-in-opengl/36166310#36166310
+ */
 
 #include "common.h"
 
@@ -34,9 +36,11 @@ static GLfloat vertices[] = {
      0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f
 };
 
-int main(void) {
+int main(int argc, char **argv) {
+    int immediate = (argc > 1) && argv[1][0] == '1';
     GLFWwindow *window;
-    GLint attribute_vertColor, attribute_position;
+
+    /* Only needed for shader version. */
     GLuint program, vbo, vao;
 
     /* Window system. */
@@ -46,49 +50,73 @@ int main(void) {
     glfwMakeContextCurrent(window);
     glewInit();
 
-    /* Shader setup. */
-    program = common_get_shader_program(vertex_shader_source, fragment_shader_source);
-    attribute_position = glGetAttribLocation(program, "position");
-    attribute_vertColor = glGetAttribLocation(program, "vertColor");
+    if (immediate) {
+        puts("immediate");
+        float ratio;
+        int width, height;
+        glfwGetFramebufferSize(window, &width, &height);
+        ratio = width / (float) height;
+        glClear(GL_COLOR_BUFFER_BIT);
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        glOrtho(-ratio, ratio, -1.f, 1.f, 1.f, -1.f);
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
+        glBegin(GL_TRIANGLES);
+        glColor3f(  1.0f,  0.0f, 0.0f);
+        glVertex3f(-0.5f, -0.5f, 0.0f);
+        glColor3f(  0.0f,  1.0f, 0.0f);
+        glVertex3f( 0.5f, -0.5f, 0.0f);
+        glColor3f(  0.0f,  0.0f, 1.0f);
+        glVertex3f( 0.0f,  0.5f, 0.0f);
+        glEnd();
+    } else {
+        GLint attribute_vertColor, attribute_position;
 
-    /* vbo */
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+        /* Shader setup. */
+        program = common_get_shader_program(vertex_shader_source, fragment_shader_source);
+        attribute_position = glGetAttribLocation(program, "position");
+        attribute_vertColor = glGetAttribLocation(program, "vertColor");
 
-    /* Buffer setup. */
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glVertexAttribPointer(
-        attribute_position,
-        3,
-        GL_FLOAT,
-        GL_FALSE,
-        6 * sizeof(GLfloat),
-        (GLvoid*)0
-    );
-    glEnableVertexAttribArray(attribute_position);
-    glVertexAttribPointer(
-        attribute_vertColor,
-        3,
-        GL_FLOAT,
-        GL_FALSE,
-        6 * sizeof(GLfloat),
-        (GLvoid*)(3 * sizeof(GLfloat))
-    );
-    glEnableVertexAttribArray(attribute_vertColor);
-    glBindVertexArray(0);
+        /* vbo */
+        glGenBuffers(1, &vbo);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    /* Draw. */
-    glViewport(0, 0, WIDTH, HEIGHT);
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-    glUseProgram(program);
-    glBindVertexArray(vao);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-    glBindVertexArray(0);
+        /* Buffer setup. */
+        glGenVertexArrays(1, &vao);
+        glBindVertexArray(vao);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glVertexAttribPointer(
+            attribute_position,
+            3,
+            GL_FLOAT,
+            GL_FALSE,
+            6 * sizeof(GLfloat),
+            (GLvoid*)0
+        );
+        glEnableVertexAttribArray(attribute_position);
+        glVertexAttribPointer(
+            attribute_vertColor,
+            3,
+            GL_FLOAT,
+            GL_FALSE,
+            6 * sizeof(GLfloat),
+            (GLvoid*)(3 * sizeof(GLfloat))
+        );
+        glEnableVertexAttribArray(attribute_vertColor);
+        glBindVertexArray(0);
+
+        /* Draw. */
+        glViewport(0, 0, WIDTH, HEIGHT);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+        glUseProgram(program);
+        glBindVertexArray(vao);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glBindVertexArray(0);
+    }
     glfwSwapBuffers(window);
 
     /* Main loop. */
@@ -97,9 +125,11 @@ int main(void) {
     }
 
     /* Cleanup. */
-    glDeleteVertexArrays(1, &vao);
-    glDeleteBuffers(1, &vbo);
-    glDeleteProgram(program);
+    if (!immediate) {
+        glDeleteVertexArrays(1, &vao);
+        glDeleteBuffers(1, &vbo);
+        glDeleteProgram(program);
+    }
     glfwTerminate();
     return EXIT_SUCCESS;
 }

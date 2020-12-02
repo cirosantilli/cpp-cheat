@@ -1454,7 +1454,7 @@ int main() {
 
             Great explanation: <http://stackoverflow.com/questions/3279543/what-is-the-copy-and-swap-idiom>
 
-            Why swap should be afriend: <http://stackoverflow.com/questions/5695548/public-friend-swap-member-function>
+            Why swap should be a friend: <http://stackoverflow.com/questions/5695548/public-friend-swap-member-function>
         */
         {
             CopyAndSwap c0(2, 2);
