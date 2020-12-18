@@ -704,7 +704,7 @@ class CopyAndSwap {
         - there is no `Iterator` interface that iterates over anything in the stdlib
             for performance reasons.
 
-            By iterable understand somtehing that has an `::iterator`,
+            By iterable understand something that has an `::iterator`,
             a `begin()` and an `end()` methods, like stl containers
         */
         class VisibleInnerIterable {
